@@ -1,0 +1,54 @@
+import React, { useContext } from 'react'
+import classNames from 'classnames'
+import { ThemeContext } from '../context/ThemeContext'
+
+export interface TextareaProps extends React.ComponentPropsWithRef<'textarea'> {
+	/**
+	 * Defines the color of the textarea
+	 */
+	valid?: boolean
+}
+
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
+	props,
+	ref
+) {
+	const { valid, disabled, className, children, ...other } = props
+
+	const {
+		theme: { textarea },
+	}: any = useContext(ThemeContext)
+
+	const baseStyle = textarea.base
+	const activeStyle = textarea.active
+	const disabledStyle = textarea.disabled
+	const validStyle = textarea.valid
+	const invalidStyle = textarea.invalid
+
+	function hasValidation(valid: boolean | undefined) {
+		return valid !== undefined
+	}
+
+	function validationStyle(valid: boolean | undefined): string {
+		if (hasValidation(valid)) {
+			return valid ? validStyle : invalidStyle
+		}
+		return ''
+	}
+
+	const cls = classNames(
+		baseStyle,
+		!hasValidation(valid) && !disabled && activeStyle,
+		!hasValidation(valid) && disabled && disabledStyle,
+		validationStyle(valid),
+		className
+	)
+
+	return (
+		<textarea className={cls} ref={ref} disabled={disabled} {...other}>
+			{children}
+		</textarea>
+	)
+})
+
+export default Textarea
