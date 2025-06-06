@@ -9,6 +9,7 @@ const Login = lazy(() => import('../pages/auth/Login'))
 const Products = lazy(() => import('../pages/products/Index'))
 const SyncData = lazy(() => import('../pages/sync-data/Index'))
 const Dashboard = lazy(() => import('../pages/dashboard/Index'))
+const LandingPage = lazy(() => import('../pages/landing/Index'))
 const Migrations = lazy(() => import('../pages/migrations/Index'))
 const Transactions = lazy(() => import('../pages/transactions/Index'))
 const DatabaseExporter = lazy(() => import('../pages/export-db/Index'))
@@ -18,7 +19,7 @@ const ProtectedLayoutWithAuth = withProtectedRoute(ProtectedLayout)
 const AppRoutes: FunctionComponent = () => {
 	const routes = useMemo(() => (
 		<Routes>
-			<Route index path="/" element={<Login />} />
+			<Route index path="/" element={<LandingPage />} />
 			<Route path={ROUTES.LOGIN} element={<Login />} />
 
 			<Route path="/" element={<ProtectedLayoutWithAuth />}>
