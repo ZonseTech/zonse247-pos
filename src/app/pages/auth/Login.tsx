@@ -1,16 +1,16 @@
-import type { Dispatch, FunctionComponent, SetStateAction } from "react";
-import { useState } from "react";
-import { useNavigate } from 'react-router-dom'
 import * as Yup from 'yup';
+import { useState } from "react";
 import { Form, Formik } from 'formik'
-import AuthLayout from "../../layouts/AuthLayout";
-import FormWrapper from "../../components/FormWrapper";
-import Alert from "../../components/Alert";
-import FormInput from "../../components/FormInput";
-import Button from "../../components/Button";
-import { useAuth } from "../../context/AuthProvider";
-import { ROUTES } from "../../utils/constants";
 import { toast } from 'react-toastify'
+import Alert from "../../components/Alert";
+import Button from "../../components/Button";
+import { useNavigate } from 'react-router-dom'
+import { ROUTES } from "../../utils/constants";
+import AuthLayout from "../../layouts/AuthLayout";
+import FormInput from "../../components/FormInput";
+import { useAuth } from "../../context/AuthProvider";
+import FormWrapper from "../../components/FormWrapper";
+import type { Dispatch, FunctionComponent, SetStateAction } from "react";
 
 const Login: FunctionComponent = () => {
     const auth = useAuth()
@@ -60,7 +60,9 @@ const Login: FunctionComponent = () => {
                 {({ isSubmitting }) => (
                     <Form>
 
-                        <h1 className="mb-4 text-xl text-center font-semibold text-gray-700">Login</h1>
+                        <h1 className="mb-4 text-xl text-center font-semibold text-gray-700">
+                            Sign in
+                        </h1>
 
                         <FormWrapper>
                             {(authError) && <Alert type="danger"><span>{authError}</span></Alert>}

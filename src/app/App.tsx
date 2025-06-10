@@ -1,8 +1,9 @@
 import Modal from 'react-modal'
-import { HashRouter } from "react-router"
-import { ToastContainer } from 'react-toastify'
-import { Suspense, FunctionComponent } from 'react'
+import { Suspense } from 'react'
 import AppRoutes from './routes/Index'
+import { HashRouter } from "react-router"
+import type { FunctionComponent } from 'react'
+import { ToastContainer } from 'react-toastify'
 import PageLoader from './components/PageLoader'
 import { AppProvider } from './context/AppProvider'
 import { AuthProvider } from './context/AuthProvider'
