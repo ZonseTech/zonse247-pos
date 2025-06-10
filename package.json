@@ -47,6 +47,7 @@
     "express": "^5.1.0",
     "express-rate-limit": "^7.5.0",
     "formik": "^2.4.6",
+    "framer-motion": "^12.16.0",
     "helmet": "^8.1.0",
     "http": "^0.0.1-security",
     "joi": "^17.13.3",
