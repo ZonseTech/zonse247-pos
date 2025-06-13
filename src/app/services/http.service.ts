@@ -10,7 +10,7 @@ const port = 2025;
 
 const instance: AxiosInstance = axios.create({
 	baseURL: 'http://' + host + ':' + port,
-	timeout: 5000,
+	timeout: 50000,
 });
 
 enum HttpRequestResponseMessages {

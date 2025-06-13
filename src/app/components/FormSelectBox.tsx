@@ -15,6 +15,7 @@ interface FormSelectBoxProps {
 	name: string;
 	required?: boolean;
 	options: Option[];
+	onChange?: any
 }
 
 const FormSelectBox: React.FC<FormSelectBoxProps> = ({ label, id, name, required, options }) => {

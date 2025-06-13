@@ -9,6 +9,7 @@ import config from './config';
 import { corsOptions } from './config/cors';
 
 import Sync from './routes/sync.routes';
+import Auth from './routes/shop.routes';
 import Users from './routes/users.routes';
 import Printers from './routes/printer.routes';
 import Settings from './routes/settings.routes';

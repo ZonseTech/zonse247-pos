@@ -7,11 +7,8 @@ interface User {
 	repeatPassword?: string;
 	fullname: string;
 	status?: string;
-	permProducts?: number;
-	permCategories?: number;
-	permTransactions?: number;
-	permUsers?: number;
-	permSettings?: number;
+	role: string;
+	permissions: Array<string>,
 	createdAt?: Date;
 	updatedAt?: Date;
 	synced?: 1 | 0;
@@ -53,20 +50,20 @@ interface TextInputProps {
 	name: string;
 	label: string;
 	type:
-		| 'date'
-		| 'email'
-		| 'number'
-		| 'password'
-		| 'search'
-		| 'tel'
-		| 'text'
-		| 'url'
-		| 'time'
-		| 'week'
-		| 'month'
-		| 'file'
-		| 'checkbox'
-		| 'datetime-local';
+	| 'date'
+	| 'email'
+	| 'number'
+	| 'password'
+	| 'search'
+	| 'tel'
+	| 'text'
+	| 'url'
+	| 'time'
+	| 'week'
+	| 'month'
+	| 'file'
+	| 'checkbox'
+	| 'datetime-local';
 }
 
 interface Category {

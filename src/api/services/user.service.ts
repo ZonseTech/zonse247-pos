@@ -133,10 +133,10 @@ export class UserService {
 
 		const updatedUserData: any = { ...userData };
 
-		if (userData.password) {
+		if (userData.password !== '') {
 			const hash = await bcrypt.hash(userData.password, saltRounds);
 			updatedUserData.password = hash;
-		}
+		} else updatedUserData.password = existingUser.password;
 
 		delete updatedUserData.repeatPassword;
 		updatedUserData.updatedAt = new Date();

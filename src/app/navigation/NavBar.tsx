@@ -1,4 +1,4 @@
-import { type FunctionComponent, memo, useState } from 'react';
+import { type FunctionComponent, useState } from 'react';
 import {
     HiOutlineMenuAlt1,
     HiOutlineViewList,
@@ -17,25 +17,20 @@ import { ROUTES } from '../utils/constants';
 import renderNavItem, { type NavItem } from './partials/RenderNavItem';
 import CreateProductModal from '../pages/products/CreateProductModal';
 import CategoriesModal from '../pages/categories/CategoriesModal';
-import Settings from '../pages/admin/Settings';
-import UsersModal from '../pages/admin/partials/UsersModal';
 import AccountInformationModal from '../pages/admin/partials/AccountInformationModal';
 import HoldOrdersModal from '../pages/pos/partials/HoldOrdersModal';
 import { useAuth } from '../context/AuthProvider';
-import { useApp } from '../context/AppProvider';
 import PrinterModal from '../pages/printer/PrinterModal';
 import DarkMode from '../components/DarkMode';
 import { HiOutlineArrowPath, HiOutlineServerStack } from 'react-icons/hi2';
-import { hasPermission } from '../utils';
+import { hasPermission, hasRole } from '../utils';
 import { FaFileExport } from 'react-icons/fa';
 
 const NavBar: FunctionComponent = () => {
-    const { settings } = useApp()
     const { user, signout } = useAuth();
     const navigate = useNavigate();
     const { pathname } = useLocation();
     const [isOpen, setIsOpen] = useState(false);
-    const MemoizedSettings = memo(Settings);
 
     const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -62,7 +57,7 @@ const NavBar: FunctionComponent = () => {
     const getNavItems = (): NavItem[] => {
         const items: NavItem[] = [];
 
-        if (hasPermission(user, 'permProducts')) {
+        if (hasPermission(user, 'inventory') || hasPermission(user, 'sales') || hasPermission(user, 'refunds')) {
             items.push({
                 type: pathname === ROUTES.PRODUCTS ? 'button' : 'split',
                 color: 'bg-green-400',
@@ -72,9 +67,7 @@ const NavBar: FunctionComponent = () => {
                 onClick: () => navigate(pathname === ROUTES.POS ? ROUTES.PRODUCTS : ROUTES.POS),
                 plusAction: pathname === ROUTES.PRODUCTS ? undefined : <CreateProductModal />,
             });
-        }
 
-        if (hasPermission(user, 'permCategories')) {
             items.push({
                 type: 'icon',
                 color: 'bg-green-400',
@@ -113,16 +106,7 @@ const NavBar: FunctionComponent = () => {
             { type: 'spacer' }
         );
 
-        if (hasPermission(user, 'permSettings')) {
-            items.push({
-                type: 'icon',
-                color: 'bg-green-500',
-                icon: icons.settings,
-                onClick: <MemoizedSettings />,
-            });
-        }
-
-        if (hasPermission(user, 'permTransactions')) {
+        if (hasPermission(user, 'reports')) {
             items.push({
                 type: 'button',
                 color: 'bg-green-400',
@@ -133,18 +117,29 @@ const NavBar: FunctionComponent = () => {
             });
         }
 
-        if (hasPermission(user, 'permUsers')) {
+        if (hasPermission(user, 'users')) {
             items.push({
-                type: 'icon',
+                type: 'button',
                 color: 'bg-green-400',
                 iconColor: 'bg-green-500',
                 text: 'Users',
                 icon: icons.users,
-                onClick: <UsersModal />,
+                onClick: () => navigate(ROUTES.USERS),
             });
         }
 
-        if (hasPermission(user, 'permAdmin')) {
+        if (hasPermission(user, 'settings')) {
+            items.push({
+                type: 'button',
+                color: 'bg-red-400',
+                iconColor: 'bg-red-500',
+                text: "Settings",
+                icon: icons.settings,
+                onClick: () => navigate(ROUTES.SETTINGS),
+            });
+        }
+
+        if (hasRole(user, 'admin')) {
             items.push({
                 type: 'button',
                 color: 'bg-red-400',
@@ -207,12 +202,6 @@ const NavBar: FunctionComponent = () => {
 
     return (
         <nav className="py-3.5">
-            <MemoizedSettings
-                isDismissable={false}
-                setAppDetails={Object.keys(settings || []).length === 0}
-                showButton={false}
-            />
-
             <div className="hidden lg:flex flex-row items-center justify-between gap-2">
                 {navItems.map(item => renderNavItem(item))}
             </div>

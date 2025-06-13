@@ -1,6 +1,11 @@
 export const hasPermission = (user: User, permField: string): boolean => {
 	if (!user) return false;
-	return user[permField];
+	return user?.permissions?.includes(permField);
+};
+
+export const hasRole = (user: User, role: string): boolean => {
+	if (!user) return false;
+	return user?.role === role;
 };
 
 export const formatCurrency = (amount: number) => {
@@ -95,7 +100,7 @@ export const generateReferenceNumber = () => {
 	for (let i = 0; i < 7; i++) {
 		const value =
 			ALPHA_NUMERIC_POOL[
-				Math.floor(Math.random() * ALPHA_NUMERIC_POOL.length + 0)
+			Math.floor(Math.random() * ALPHA_NUMERIC_POOL.length + 0)
 			];
 		generateString.push(value);
 	}

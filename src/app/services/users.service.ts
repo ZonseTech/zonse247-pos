@@ -26,7 +26,7 @@ const usersService = {
 				throw err;
 			});
 	},
-	async put(id: string, data: Record<string, string | number>) {
+	async update(id: string, data: Record<string, any>) {
 		return api
 			.put(`${endpoints.update}/${id}`, data)
 			.then((res) => res.data)

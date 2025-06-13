@@ -3,7 +3,11 @@ import { ThemeContext } from '../context/ThemeContext';
 import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi2';
 import IconButton from './IconButton';
 
-const DarkMode: FunctionComponent = () => {
+interface DarkModeProps {
+	color?: string;
+}
+
+const DarkMode: FunctionComponent<DarkModeProps> = ({ color = 'bg-teal-500' }) => {
 	const { mode, toggleMode } = useContext(ThemeContext);
 
 	return (
@@ -19,7 +23,7 @@ const DarkMode: FunctionComponent = () => {
 					aria-hidden="true"
 				/>
 			)}
-			color='bg-teal-500'
+			color={color}
 			onClick={toggleMode}
 		/>
 	)

@@ -7,6 +7,7 @@ type ContextProps = {
     auth: any;
     isLoading: boolean;
     signin: (cb: AuthProps) => Promise<LoginResponse>;
+    signup: (cb: AccountActivationProps) => Promise<AccountActivationResponse>;
     signout: (callback: () => void) => void;
 }
 
@@ -15,6 +16,7 @@ const authContext = createContext<ContextProps>({
     auth: null,
     isLoading: false,
     signin: async () => ({} as Promise<LoginResponse>),
+    signup: async () => ({} as Promise<AccountActivationResponse>),
     signout: async () => ({
         // 
     } as any),
@@ -75,6 +77,28 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
         }
     };
 
+    const signup = async (data: AccountActivationProps) => {
+        try {
+            const result = await api.post<AccountActivationResponse>('auth/account-activation', data as any)
+                .then((res) => res.data);
+
+            if (result.token) {
+
+                setUser(result.user);
+                setAuth({ auth: true });
+
+                sessionStorage.setItem('user', JSON.stringify(result.user));
+                sessionStorage.setItem('token', JSON.stringify(result.token));
+
+                return result;
+            } else {
+                throw (result.message || 'Invalid credentials');
+            }
+        } catch (error) {
+
+        }
+    }
+
     const signout = async (callback: () => void) => {
         const diagOptions = {
             title: "Are you sure?",
@@ -116,6 +140,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
             auth,
             isLoading,
             signin,
+            signup,
             signout,
         }}>
             {children}
