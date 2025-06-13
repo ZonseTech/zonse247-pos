@@ -1,8 +1,10 @@
 export enum ROUTES {
 	POS = '/pos',
+	USERS = '/users',
 	DASHBOARD = '/dashboard',
 	TRANSACTIONS = '/transactions',
 	PRODUCTS = '/products',
+	SETTINGS = '/settings',
 	SYNC_DATA = '/sync-data',
 	EXPORT_DB = '/export-db',
 	MIGRATIONS = '/migrations',
