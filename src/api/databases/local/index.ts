@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import tables, {
-	CATEGORY_DB,
+	CATEGORIES_DB,
 	INVENTORY_DB,
 	ORDERS_DB,
 	SYNC_STATUS_TABLE,
@@ -362,7 +362,7 @@ export class SealDBModel {
 					case USERS_DB:
 						db.ensureIndex({ fieldName: 'username', unique: true });
 						break;
-					case CATEGORY_DB:
+					case CATEGORIES_DB:
 						db.ensureIndex({ fieldName: 'name', unique: true });
 						break;
 					case INVENTORY_DB:

@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { eachSeries } from 'async';
-import { INVENTORY_DB, CATEGORY_DB } from '../databases/local/tables';
+import { INVENTORY_DB, CATEGORIES_DB } from '../databases/local/tables';
 import { sealDBModel } from '../databases/local';
 
 const router = Router();
@@ -54,7 +54,7 @@ router.get(
 	async function (req: Request, res: Response): Promise<void> {
 		try {
 			const categories: Array<Category> = await sealDBModel.findAll(
-				CATEGORY_DB
+				CATEGORIES_DB
 			);
 
 			const categoryMap = new Map<string, Category>();

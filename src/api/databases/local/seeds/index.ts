@@ -1,5 +1,5 @@
 import {
-	CATEGORY_DB,
+	CATEGORIES_DB,
 	CUSTOMER_DB,
 	INVENTORY_DB,
 	ORDERS_DB,
@@ -18,7 +18,7 @@ const tables = [
 		description: 'User accounts and profiles',
 	},
 	{
-		id: CATEGORY_DB,
+		id: CATEGORIES_DB,
 		name: 'Categories',
 		description: 'Product categories',
 	},
@@ -96,7 +96,7 @@ const checkOrCreateDefaultCustomer = async () => {
 
 async function checkAndCreateDefaultCategory(): Promise<void> {
 	try {
-		const category = await sealDBModel.findAll(CATEGORY_DB);
+		const category = await sealDBModel.findAll(CATEGORIES_DB);
 
 		if (category[0]) return;
 
@@ -105,7 +105,7 @@ async function checkAndCreateDefaultCategory(): Promise<void> {
 			name: 'Consumables',
 		};
 
-		await sealDBModel.insert(CATEGORY_DB, defaultCategory);
+		await sealDBModel.insert(CATEGORIES_DB, defaultCategory);
 	} catch (err) {
 		console.error(err);
 	}

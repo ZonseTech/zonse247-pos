@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import validator from 'validator';
 import { v4 as uuidv4 } from 'uuid';
-import { CUSTOMER_DB } from '../databases/local/tables';
+import { CUSTOMERS_DB } from '../databases/local/tables';
 import { sealDBModel } from '../databases/local';
 
 const router = Router();
@@ -20,7 +20,7 @@ router.get(
 			}
 
 			const customer = await sealDBModel.findById(
-				CUSTOMER_DB,
+				CUSTOMERS_DB,
 				req.params.customerId
 			);
 
@@ -42,7 +42,7 @@ router.get(
 
 router.get('/all', async function (req: Request, res: Response): Promise<void> {
 	try {
-		const customers = await sealDBModel.findAll(CUSTOMER_DB);
+		const customers = await sealDBModel.findAll(CUSTOMERS_DB);
 		res.json(customers);
 	} catch (error) {
 		console.error('Error fetching all customers:', error);
@@ -61,7 +61,7 @@ router.post(
 			newCustomer.uuid = uuidv4();
 
 			const createdCustomer = await sealDBModel.insert(
-				CUSTOMER_DB,
+				CUSTOMERS_DB,
 				newCustomer
 			);
 
@@ -89,7 +89,7 @@ router.delete(
 			}
 
 			const numRemoved = await sealDBModel.delete(
-				CUSTOMER_DB,
+				CUSTOMERS_DB,
 				req.params.customerId
 			);
 
@@ -123,7 +123,7 @@ router.put(
 			const { ...updateData } = req.body;
 
 			const numReplaced = await sealDBModel.update(
-				CUSTOMER_DB,
+				CUSTOMERS_DB,
 				customerId,
 				updateData
 			);
@@ -148,7 +148,7 @@ router.get(
 	'/customers/count',
 	async function (req: Request, res: Response): Promise<void> {
 		try {
-			const count = await sealDBModel.count(CUSTOMER_DB);
+			const count = await sealDBModel.count(CUSTOMERS_DB);
 			res.json({ count });
 		} catch (error) {
 			console.error('Error counting customers:', error);
@@ -165,7 +165,7 @@ router.post(
 	async function (req: Request, res: Response): Promise<void> {
 		try {
 			const conditions = req.body.conditions || {};
-			const customers = await sealDBModel.find(CUSTOMER_DB, conditions);
+			const customers = await sealDBModel.find(CUSTOMERS_DB, conditions);
 			res.json(customers);
 		} catch (error) {
 			console.error('Error searching customers:', error);

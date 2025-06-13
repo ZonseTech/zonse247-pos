@@ -5,7 +5,7 @@ import sanitizeFilename from 'sanitize-filename';
 import fs from 'fs';
 import path from 'path';
 import validator from 'validator';
-import { SETTINGS_DB } from '../databases/local/tables';
+import { SHOP_SETTINGS_DB } from '../databases/local/tables';
 import { sealDBModel } from '../databases/local';
 import { v4 as uuidv4 } from 'uuid';
 import { filterFile } from '../utils';
@@ -42,7 +42,7 @@ router.get('/', function (req: Request, res: Response): void {
 
 router.get('/get', async function (req: Request, res: Response): Promise<void> {
 	try {
-		const settings = await sealDBModel.findAll(SETTINGS_DB);
+		const settings = await sealDBModel.findAll(SHOP_SETTINGS_DB);
 		res.send(settings[0]);
 	} catch (error: any) {
 		res.status(500).json({
@@ -120,13 +120,13 @@ router.post(
 			try {
 				if (validator.escape(typedReq.body.uuid) === '') {
 					const insertedSettings = await sealDBModel.insert(
-						SETTINGS_DB,
+						SHOP_SETTINGS_DB,
 						newSettings
 					);
 					res.status(200).json(insertedSettings);
 				} else {
 					const numReplaced = await sealDBModel.update(
-						SETTINGS_DB,
+						SHOP_SETTINGS_DB,
 						uuid,
 						newSettings
 					);
