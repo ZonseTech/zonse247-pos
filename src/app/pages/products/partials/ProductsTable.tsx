@@ -389,7 +389,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ setSummaryData }) =
                 columns={columns}
                 data={data}
                 theme={mode as Themes}
-                progressComponent={<Loader isLoading={isLoading} />}
+                // progressComponent={<Loader isLoading={isLoading} />}
                 progressPending={isLoading}
                 highlightOnHover
                 striped

@@ -2,7 +2,7 @@ import { type FunctionComponent } from 'react'
 import { ClipLoader } from 'react-spinners'
 
 type Props = {
-    isLoading: boolean
+    isLoading?: boolean
 }
 
 const Loader: FunctionComponent<Props> = ({ isLoading }) => {
@@ -10,7 +10,7 @@ const Loader: FunctionComponent<Props> = ({ isLoading }) => {
         <div>
             <ClipLoader
                 color='#36d7b7'
-                loading={isLoading}
+                loading={true}
                 size={150}
                 aria-label="Loading Spinner"
                 data-testid="loader"

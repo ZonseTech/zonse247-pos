@@ -20,7 +20,7 @@ const HeroSection: FunctionComponent<{ staggerContainer, fadeInUp }> = ({ stagge
 		<Fragment>
 			<motion.section
 				ref={heroRef}
-				className="relative h-[500px] overflow-hidden"
+				className="relative h-[63vh] overflow-hidden"
 				style={{
 					clipPath: 'polygon(0 0, calc(100% - 50vw) 12%, 100% 3.7%, 100% 100%, 50% 87%, 0 100%)',
 					y: heroY,

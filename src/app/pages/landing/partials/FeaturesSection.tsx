@@ -10,7 +10,7 @@ const FeaturesSection: FunctionComponent<{ staggerContainer, scaleIn, fadeInUp }
 		<Fragment>
 			<motion.section
 				ref={featuresRef}
-				className="pb-12 -mt-20 pt-14 bg-gray-50 dark:bg-gray-800 transition-colors"
+				className="pb-12 -mt-20 pt-14 dark:bg-gray-800 transition-colors"
 				initial={{ opacity: 0 }}
 				animate={{ opacity: 1 }}
 				transition={{ duration: 1, delay: 0.8 }}

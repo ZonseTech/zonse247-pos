@@ -301,7 +301,7 @@ const TransactionsDataTable: FunctionComponent<Props> = ({ showProducts, setShow
                     columns={columns}
                     data={getPaginatedData()}
                     theme={mode as string}
-                    progressComponent={<Loader isLoading={isLoading} />}
+                    // progressComponent={<Loader isLoading={isLoading} />}
                     progressPending={isLoading}
                     highlightOnHover
                     striped
