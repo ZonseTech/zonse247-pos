@@ -123,3 +123,6 @@ typings/
 
 # Electron-Forge
 out/
+
+# Data storage
+.data
