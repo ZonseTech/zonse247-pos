@@ -16,12 +16,13 @@ import Settings from './routes/settings.routes';
 import Inventory from './routes/inventory.routes';
 import Dashboard from './routes/dashboard.routes';
 import Customers from './routes/customers.routes';
+import OnBoarding from './routes/onboarding.routes';
 import Categories from './routes/categories.routes';
 import Export from './routes/database-export.routes';
-import PaymentMethods from './routes/payment-method.routes';
 import holdOrders from './routes/hold-orders.routes';
 import Transactions from './routes/transactions.routes';
 import migrationRoutes from './routes/migration.routes';
+import PaymentMethods from './routes/payment-method.routes';
 
 import syncService from './services/sync.service';
 import { initDatabase } from './databases/remote/migrations';
@@ -97,6 +98,7 @@ class Server {
 
 		this.app.use('/api/sync', Sync);
 		this.app.use('/api/export', Export);
+		this.app.use('/api/on-boarding', OnBoarding);
 		this.app.use('/api/users', Users);
 		this.app.use('/api/dashboard', Dashboard);
 		this.app.use('/api/printers', Printers);
@@ -194,7 +196,7 @@ class Server {
 				console.error('❌ Error: SealDB connection failed');
 			}
 		} catch (error) {
-			console.error('❌ Error testing database connections:', error);
+			console.error('❌ Error testing database connections.');
 		}
 	}
 }
