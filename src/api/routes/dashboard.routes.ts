@@ -5,7 +5,7 @@ import {
 	INVENTORY_DB,
 	ORDERS_DB,
 	USERS_DB,
-	CUSTOMER_DB,
+	CUSTOMERS_DB,
 } from '../databases/local/tables';
 import { sealDBModel } from '../databases/local';
 import { formatCurrency } from '../utils';
@@ -231,7 +231,7 @@ router.get('/counts/:userId', async (req: Request, res: Response) => {
 				sealDBModel.find(TRANSACTIONS_DB, { userId: userId }),
 				sealDBModel.find(INVENTORY_DB, { status: { $ne: 'void' } }),
 				sealDBModel.count(USERS_DB),
-				sealDBModel.count(CUSTOMER_DB),
+				sealDBModel.count(CUSTOMERS_DB),
 			]);
 
 		const myTotalTransactions = transactions.length;

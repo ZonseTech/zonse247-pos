@@ -1,6 +1,6 @@
 import {
 	CATEGORIES_DB,
-	CUSTOMER_DB,
+	CUSTOMERS_DB,
 	INVENTORY_DB,
 	ORDERS_DB,
 	PAYMENT_METHODS_DB,
@@ -13,7 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const tables = [
 	{
-		id: CUSTOMER_DB,
+		id: CUSTOMERS_DB,
 		name: 'Customers',
 		description: 'User accounts and profiles',
 	},
@@ -79,7 +79,7 @@ const checkOrCreateDefaultUser = async () => {
 
 const checkOrCreateDefaultCustomer = async () => {
 	try {
-		const customer = await sealDBModel.findAll(CUSTOMER_DB);
+		const customer = await sealDBModel.findAll(CUSTOMERS_DB);
 
 		if (customer[0]) return;
 
@@ -88,7 +88,7 @@ const checkOrCreateDefaultCustomer = async () => {
 			name: 'Walk in customer',
 		};
 
-		await sealDBModel.insert(CUSTOMER_DB, defaultCustomer);
+		await sealDBModel.insert(CUSTOMERS_DB, defaultCustomer);
 	} catch (err) {
 		console.error(err);
 	}
