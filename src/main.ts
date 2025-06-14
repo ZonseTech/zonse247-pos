@@ -35,7 +35,7 @@ const createWindow = () => {
 		return { action: 'deny' };
 	});
 
-	if (process.env.NODE_ENV === 'production' && !Capacitor.isNativePlatform()) {
+	if (!Capacitor.isNativePlatform()) {
 		server.start();
 	}
 
