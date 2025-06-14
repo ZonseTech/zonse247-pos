@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import validator from 'validator';
 import { USERS_DB } from '../databases/local/tables';
 import { sealDBModel } from '../databases/local';
@@ -6,12 +7,22 @@ import { v4 as uuidv4 } from 'uuid';
 
 const saltRounds = 10;
 
+export interface JWTConfig {
+	jwtSecret: string;
+	jwtExpiresIn: string;
+}
+
 export class UserService {
+	private jwtConfig: JWTConfig;
+
+	constructor(jwtConfig: JWTConfig) {
+		this.jwtConfig = jwtConfig;
+	}
+
 	async getUserById(userId: string): Promise<any> {
 		if (!userId) {
 			throw new Error('ID field is required.');
 		}
-
 		return await sealDBModel.findById(USERS_DB, userId);
 	}
 
@@ -19,7 +30,6 @@ export class UserService {
 		if (!userId) {
 			throw new Error('ID field is required.');
 		}
-
 		await sealDBModel.update(USERS_DB, userId, {
 			lastLoggedOut: new Date(),
 		});
@@ -32,7 +42,6 @@ export class UserService {
 		const users: Array<User> = await sealDBModel.find(USERS_DB, {
 			username: validator.escape(username),
 		});
-
 		const user: any = users[0];
 
 		if (!user) {
@@ -44,7 +53,6 @@ export class UserService {
 		}
 
 		const isPasswordValid = await bcrypt.compare(password, user.password);
-
 		if (!isPasswordValid) {
 			return { message: 'Incorrect username or password.' };
 		}
@@ -54,16 +62,58 @@ export class UserService {
 		});
 
 		delete user.password;
-
 		const token = this.generateJWTToken(user);
-
 		return { user: { ...user }, token };
 	}
 
 	private generateJWTToken(user: any): string {
-		// This would typically use a proper JWT library
-		// For now, using the existing bcrypt approach but should be replaced with JWT
-		return bcrypt.hashSync(JSON.stringify(user), saltRounds);
+		const payload = {
+			uuid: user.uuid,
+			username: user.username,
+			email: user.email,
+			role: user.role || 'user',
+			firstName: user.firstName,
+			lastName: user.lastName,
+			status: user.status,
+			iat: Math.floor(Date.now() / 1000),
+		};
+
+		return (jwt as any).sign(payload, this.jwtConfig.jwtSecret, {
+			expiresIn: this.jwtConfig.jwtExpiresIn,
+			issuer: 'your-app-name',
+			audience: 'your-app-users',
+		});
+	}
+
+	verifyJWTToken(token: string): any {
+		try {
+			return jwt.verify(token, this.jwtConfig.jwtSecret);
+		} catch (error) {
+			if (error instanceof jwt.TokenExpiredError) {
+				throw new Error('Token has expired');
+			} else if (error instanceof jwt.JsonWebTokenError) {
+				throw new Error('Invalid token');
+			} else {
+				throw new Error('Token verification failed');
+			}
+		}
+	}
+
+	async refreshToken(oldToken: string): Promise<string> {
+		try {
+			const decoded = jwt.verify(oldToken, this.jwtConfig.jwtSecret, {
+				ignoreExpiration: true,
+			}) as any;
+
+			const user = await this.getUserById(decoded.uuid);
+			if (!user || user.status !== 'active') {
+				throw new Error('User not found or inactive');
+			}
+
+			return this.generateJWTToken(user);
+		} catch (error) {
+			throw new Error('Token refresh failed');
+		}
 	}
 
 	async checkUserExists(username: string, email: string): Promise<boolean> {
@@ -73,7 +123,6 @@ export class UserService {
 				{ email: validator.escape(email) },
 			],
 		});
-
 		return existingUsers.length > 0;
 	}
 
@@ -85,7 +134,6 @@ export class UserService {
 		if (!userId) {
 			throw new Error('ID field is required.');
 		}
-
 		await sealDBModel.delete(USERS_DB, userId);
 	}
 
@@ -99,13 +147,11 @@ export class UserService {
 		}
 
 		const hash = await bcrypt.hash(userData.password, saltRounds);
-
 		const newUserData: UserInput = {
 			...userData,
 			password: hash,
 			status: 'active',
 		};
-
 		delete newUserData.repeatPassword;
 
 		const newUser = {
@@ -117,7 +163,6 @@ export class UserService {
 
 		const user = await sealDBModel.insert(USERS_DB, newUser);
 		delete user.password;
-
 		return user;
 	}
 
@@ -132,18 +177,18 @@ export class UserService {
 		}
 
 		const updatedUserData: any = { ...userData };
-
 		if (userData.password !== '') {
 			const hash = await bcrypt.hash(userData.password, saltRounds);
 			updatedUserData.password = hash;
-		} else updatedUserData.password = existingUser.password;
+		} else {
+			updatedUserData.password = existingUser.password;
+		}
 
 		delete updatedUserData.repeatPassword;
 		updatedUserData.updatedAt = new Date();
 
 		await sealDBModel.update(USERS_DB, userId, updatedUserData);
 		delete updatedUserData.password;
-
 		return updatedUserData;
 	}
 }

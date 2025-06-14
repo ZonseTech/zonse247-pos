@@ -101,12 +101,9 @@ export const userValidationSchemas = {
 		password: Joi.string()
 			.min(8)
 			.max(128)
-			.pattern(
-				new RegExp(
-					'^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]'
-				)
-			)
+			.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
 			.optional()
+			.allow('')
 			.messages({
 				'string.min': 'Password must be at least 8 characters long',
 				'string.max': 'Password must not exceed 128 characters',
@@ -114,15 +111,19 @@ export const userValidationSchemas = {
 					'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
 			}),
 
-		repeatPassword: Joi.when('password', {
-			is: Joi.exist(),
-			then: Joi.string().valid(Joi.ref('password')).required().messages({
-				'any.only': 'Passwords do not match',
-				'any.required':
-					'Password confirmation is required when updating password',
+		repeatPassword: Joi.string()
+			.allow('')
+			.when('password', {
+				is: Joi.string().min(1),
+				then: Joi.string()
+					.valid(Joi.ref('password'))
+					.required()
+					.messages({
+						'any.only': 'Passwords do not match',
+						'any.required': 'Password confirmation is required when password is set',
+					}),
+				otherwise: Joi.optional().allow(''),
 			}),
-			otherwise: Joi.optional(),
-		}),
 
 		firstName: Joi.string()
 			.min(2)

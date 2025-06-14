@@ -22,10 +22,12 @@ import { asyncHandler } from '../middlewares/error.middleware';
 const router = Router();
 const userController = new UserController();
 
-const authMiddleware = new AuthMiddleware({
+const jwtConfig = {
 	jwtSecret: process.env.JWT_SECRET || 'your-secret-key',
 	jwtExpiresIn: process.env.JWT_EXPIRES_IN || '24h',
-});
+};
+
+const authMiddleware = new AuthMiddleware(jwtConfig);
 
 router.use(sanitizeInput);
 router.use(preventSQLInjection);
@@ -41,11 +43,23 @@ router.post(
 );
 
 router.post(
-	'/post',
+	'/register',
 	createAccountLimiter,
 	validateBody(userValidationSchemas.createUser),
 	authMiddleware.verifyPasswordStrength,
 	asyncHandler(userController.createUser)
+);
+
+router.post(
+	'/refresh-token',
+	authLimiter,
+	asyncHandler(userController.refreshToken)
+);
+
+router.post(
+	'/verify-token',
+	authLimiter,
+	asyncHandler(userController.verifyToken)
 );
 
 router.use(authMiddleware.verifyToken);
@@ -91,7 +105,15 @@ router.delete(
 	asyncHandler(userController.deleteUser)
 );
 
-router.use(authMiddleware.requireAdmin);
 router.get('/all', asyncHandler(userController.getAllUsers));
+
+router.use(authMiddleware.requireAdmin);
+
+
+router.get(
+	'/admin/user/:userId',
+	validateParams(userValidationSchemas.userId),
+	asyncHandler(userController.getUserById)
+);
 
 export default router;
