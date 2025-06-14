@@ -1,8 +1,11 @@
-import { Router } from 'express';
+import { Request, Response, Router } from 'express';
 import { OnboardingController } from '../controllers/onboarding.controller';
 
 const router: Router = Router();
 
+router.get('/', function (req: Request, res: Response): void {
+    res.send('On boarding endpointss');
+})
 router.post('/create-shop', OnboardingController.createShop);
 router.post('/verify-client', OnboardingController.verifyClient);
 router.post('/register-client', OnboardingController.registerClient);

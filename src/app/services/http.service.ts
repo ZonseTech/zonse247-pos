@@ -21,7 +21,8 @@ enum HttpRequestResponseMessages {
 }
 
 const getBaseUrl = () => {
-	const api = 'http://' + host + ':' + port + '/api/';
+	const api = 'http://' + 'localhost' + ':' + 3000 + '/api/';
+	// const api = 'http://' + host + ':' + port + '/api/';
 
 	return api;
 };
@@ -30,8 +31,8 @@ instance.interceptors.request.use(
 	async (config: InternalAxiosRequestConfig<any>) => {
 		let token: string | undefined;
 
-		if (sessionStorage.user)
-			token = JSON.parse(sessionStorage.user)?.access_token;
+		if (sessionStorage?.token)
+			token = JSON.parse(sessionStorage.token);
 
 		if (token) config.headers.Authorization = `Bearer ${token}`;
 

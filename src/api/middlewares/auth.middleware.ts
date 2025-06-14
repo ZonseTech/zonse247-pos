@@ -37,9 +37,17 @@ export class AuthMiddleware {
 			req.user = decoded;
 			next();
 		} catch (error) {
+			let message = 'Invalid or expired token';
+
+			if (error instanceof jwt.TokenExpiredError) {
+				message = 'Token has expired';
+			} else if (error instanceof jwt.JsonWebTokenError) {
+				message = 'Invalid token format';
+			}
+
 			res.status(401).json({
 				error: 'Authentication Error',
-				message: 'Invalid or expired token',
+				message: message,
 			});
 		}
 	};
@@ -88,6 +96,10 @@ export class AuthMiddleware {
 			username: user.username,
 			email: user.email,
 			role: user.role || 'user',
+			firstName: user.firstName,
+			lastName: user.lastName,
+			status: user.status,
+			iat: Math.floor(Date.now() / 1000),
 		};
 
 		return (jwt as any).sign(payload, this.config.jwtSecret, {
@@ -143,5 +155,19 @@ export class AuthMiddleware {
 		}
 
 		next();
+	};
+
+	extractUserFromToken = (req: Request): any | null => {
+		const token =
+			req.headers.authorization?.replace('Bearer ', '') ||
+			(req.headers['x-access-token'] as string);
+
+		if (!token) return null;
+
+		try {
+			return jwt.verify(token, this.config.jwtSecret);
+		} catch (error) {
+			return null;
+		}
 	};
 }
