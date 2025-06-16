@@ -227,7 +227,7 @@ const SubscriptionManagement: FunctionComponent = () => {
                         status: newStatus
                     };
 
-                    await subscriptionsService.update(subscriptionId, updatedSubscriptionData);
+                    await subscriptionsService.update(subscriptionId, updatedSubscriptionData as any);
 
                     const updatedSubscriptions = subscriptions.map(sub =>
                         sub.uuid === subscriptionId
