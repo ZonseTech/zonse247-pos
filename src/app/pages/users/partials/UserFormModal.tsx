@@ -1,7 +1,6 @@
 import * as Yup from 'yup'
 import { Form, Formik } from 'formik'
 import { Notify, Report } from 'notiflix'
-import { HiOutlinePlus } from 'react-icons/hi'
 import { Button, Modal } from '../../../components'
 import FormInput from '../../../components/FormInput'
 import FormWrapper from '../../../components/FormWrapper'

@@ -22,9 +22,11 @@ import HoldOrdersModal from '../pages/pos/partials/HoldOrdersModal';
 import { useAuth } from '../context/AuthProvider';
 import PrinterModal from '../pages/printer/PrinterModal';
 import DarkMode from '../components/DarkMode';
-import { HiOutlineArrowPath, HiOutlineServerStack } from 'react-icons/hi2';
+import { HiBuildingStorefront, HiOutlineArrowPath, HiOutlineBuildingOffice2, HiOutlineServerStack } from 'react-icons/hi2';
 import { hasPermission, hasRole } from '../utils';
 import { FaFileExport } from 'react-icons/fa';
+import { LucideSubscript } from 'lucide-react';
+import { RiGroup3Line } from 'react-icons/ri';
 
 const NavBar: FunctionComponent = () => {
     const { user, signout } = useAuth();
@@ -43,7 +45,10 @@ const NavBar: FunctionComponent = () => {
         tabs: <HiOutlineViewGrid className="h-5 w-5" />,
         orders: <HiOutlineShoppingCart className="h-5 w-5" />,
         printer: <HiOutlinePrinter className="h-5 w-5" />,
-        settings: <HiOutlineCog className="h-5 w-5" />,
+        workstations: <HiOutlineBuildingOffice2 className="h-5 w-5" />,
+        subscription: <LucideSubscript className="h-5 w-5" />,
+        client: <RiGroup3Line className="h-5 w-5" />,
+        shop: <HiBuildingStorefront className="h-5 w-5" />,
         migrations: <HiOutlineServerStack className="h-5 w-5" />,
         export_db: <FaFileExport className="h-5 w-5" />,
         transactions: <HiOutlinePresentationChartBar className="h-5 w-5" />,
@@ -133,13 +138,37 @@ const NavBar: FunctionComponent = () => {
                 type: 'button',
                 color: 'bg-red-400',
                 iconColor: 'bg-red-500',
-                text: "Settings",
-                icon: icons.settings,
-                onClick: () => navigate(ROUTES.SETTINGS),
+                text: "Work Stations",
+                icon: icons.workstations,
+                onClick: () => navigate(ROUTES.WORK_STATIONS),
+            });
+            items.push({
+                type: 'button',
+                color: 'bg-red-400',
+                iconColor: 'bg-red-500',
+                text: "Subscription",
+                icon: icons.subscription,
+                onClick: () => navigate(ROUTES.SUBSCRIPTION),
+            });
+            items.push({
+                type: 'button',
+                color: 'bg-red-400',
+                iconColor: 'bg-red-500',
+                text: "Clients",
+                icon: icons.client,
+                onClick: () => navigate(ROUTES.CLIENTS),
+            });
+            items.push({
+                type: 'button',
+                color: 'bg-red-400',
+                iconColor: 'bg-red-500',
+                text: "Shops",
+                icon: icons.shop,
+                onClick: () => navigate(ROUTES.SHOPS),
             });
         }
 
-        if (hasRole(user, 'admin')) {
+        if (hasRole(user, 'super-admin')) {
             items.push({
                 type: 'button',
                 color: 'bg-red-400',

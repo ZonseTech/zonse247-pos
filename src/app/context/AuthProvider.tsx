@@ -124,7 +124,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
                             if (callback) {
                                 callback();
-                                location.reload();
+                                // location.reload();
                             }
                         }))
                 } catch (error) {

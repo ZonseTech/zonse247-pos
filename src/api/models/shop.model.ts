@@ -3,11 +3,11 @@ import { sealDBModel } from '../databases/local';
 import { TABLE_NAMES } from '../databases/local/tables';
 
 export class ShopModel {
-    static async findByClientId(client_id: string): Promise<Shop[]> {
+    static async findByClientId(client_id: string): Promise<IShop[]> {
         return sealDBModel.find(TABLE_NAMES.SHOPS, { client_id });
     }
 
-    static async findByClientIdAndShopCode(client_id: string, shop_code: string): Promise<Shop[]> {
+    static async findByClientIdAndShopCode(client_id: string, shop_code: string): Promise<IShop[]> {
         return sealDBModel.find(TABLE_NAMES.SHOPS, { client_id, shop_code });
     }
 
@@ -15,7 +15,7 @@ export class ShopModel {
         return sealDBModel.findById(TABLE_NAMES.SHOPS, id);
     }
 
-    static async create(shopData: Omit<IShop, 'id'>): Promise<Shop> {
+    static async create(shopData: Omit<IShop, 'id'>): Promise<IShop> {
         return sealDBModel.insert(TABLE_NAMES.SHOPS, shopData);
     }
 
@@ -36,7 +36,7 @@ export class ShopModel {
             email: data.email || '',
             tax_number: data.tax_number || '',
             currency_code: data.currency_code || 'MWK',
-            currency_symbol: data.currency_symbol || 'K',
+            currency_symbol: data.currency_symbol || 'MK',
             tax_rate: data.tax_rate || 0.00,
             charge_tax: data.charge_tax || false,
             receipt_footer: data.receipt_footer || '',
