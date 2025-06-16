@@ -7,31 +7,31 @@ interface ShopVerificationParams {
 	macAddress: string;
 }
 
-interface Shop {
-	id: string;
-	name: string;
-	email: string;
-	phone: string;
-	address: {
-		line1: string;
-		line2: string;
-		city: string;
-		country: string;
-	};
-	vatNumber?: string;
-	currency: {
-		symbol: string;
-		code: string;
-	};
-	tax: {
-		rate: number;
-		enabled: boolean;
-	};
-	logo?: string;
-	footer?: string;
-	createdAt: string;
-	status: 'active' | 'inactive' | 'suspended';
-}
+// interface Shop {
+// 	id: string;
+// 	name: string;
+// 	email: string;
+// 	phone: string;
+// 	address: {
+// 		line1: string;
+// 		line2: string;
+// 		city: string;
+// 		country: string;
+// 	};
+// 	vatNumber?: string;
+// 	currency: {
+// 		symbol: string;
+// 		code: string;
+// 	};
+// 	tax: {
+// 		rate: number;
+// 		enabled: boolean;
+// 	};
+// 	logo?: string;
+// 	footer?: string;
+// 	createdAt: string;
+// 	status: 'active' | 'inactive' | 'suspended';
+// }
 
 interface ShopRegistration {
 	shopName: string;
