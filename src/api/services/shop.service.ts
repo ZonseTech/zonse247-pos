@@ -4,7 +4,7 @@ import { ClientModel } from "../models/client.model";
 import { SubscriptionModel } from "../models/subscription.model";
 
 export class ShopService {
-	static async createShop(data: CreateShopRequest): Promise<Shop> {
+	static async createShop(data: CreateShopRequest): Promise<IShop> {
 		const validationError = ClientService.validateRequired(data, ['client_id', 'shop_code', 'name']);
 		if (validationError) {
 			throw new Error(validationError);
