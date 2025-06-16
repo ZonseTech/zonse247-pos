@@ -8,22 +8,6 @@ import express, { Request, Response, Application } from 'express';
 import config from './config';
 import { corsOptions } from './config/cors';
 
-import Sync from './routes/sync.routes';
-import Auth from './routes/shop.routes';
-import Users from './routes/users.routes';
-import Printers from './routes/printer.routes';
-import Settings from './routes/settings.routes';
-import Inventory from './routes/inventory.routes';
-import Dashboard from './routes/dashboard.routes';
-import Customers from './routes/customers.routes';
-import OnBoarding from './routes/onboarding.routes';
-import Categories from './routes/categories.routes';
-import Export from './routes/database-export.routes';
-import holdOrders from './routes/hold-orders.routes';
-import Transactions from './routes/transactions.routes';
-import migrationRoutes from './routes/migration.routes';
-import PaymentMethods from './routes/payment-method.routes';
-
 import syncService from './services/sync.service';
 import { initDatabase } from './databases/remote/migrations';
 import { seedDatabase } from './databases/local/seeds';
@@ -39,6 +23,22 @@ import {
 	helmetConfig,
 	limitRequestSize,
 } from './middlewares/security.middleware';
+import {
+	CategoriesRoutes,
+	CustomersRoutes,
+	DashboardRoutes,
+	DatabaseExportRoutes,
+	HoldOrdersRoutes,
+	InventoryRoutes,
+	MigrationRoutes,
+	OnboardingRoutes,
+	PaymentMethodRoutes,
+	PrinterRoutes,
+	SettingsRoutes,
+	SyncRoutes,
+	TransactionsRoutes,
+	UsersRoutes
+} from './routes';
 
 class Server {
 	private server: HttpServer;
@@ -96,20 +96,20 @@ class Server {
 			});
 		});
 
-		this.app.use('/api/sync', Sync);
-		this.app.use('/api/export', Export);
-		this.app.use('/api/on-boarding', OnBoarding);
-		this.app.use('/api/users', Users);
-		this.app.use('/api/dashboard', Dashboard);
-		this.app.use('/api/printers', Printers);
-		this.app.use('/api/settings', Settings);
-		this.app.use('/api/inventory', Inventory);
-		this.app.use('/api/customers', Customers);
-		this.app.use('/api/categories', Categories);
-		this.app.use('/api/payment-methods', PaymentMethods);
-		this.app.use('/api/migration', migrationRoutes);
-		this.app.use('/api/transactions', Transactions);
-		this.app.use('/api/hold-orders', holdOrders);
+		this.app.use('/api/sync', SyncRoutes);
+		this.app.use('/api/export', DatabaseExportRoutes);
+		this.app.use('/api/on-boarding', OnboardingRoutes);
+		this.app.use('/api/users', UsersRoutes);
+		this.app.use('/api/dashboard', DashboardRoutes);
+		this.app.use('/api/printers', PrinterRoutes);
+		this.app.use('/api/settings', SettingsRoutes);
+		this.app.use('/api/inventory', InventoryRoutes);
+		this.app.use('/api/customers', CustomersRoutes);
+		this.app.use('/api/categories', CategoriesRoutes);
+		this.app.use('/api/payment-methods', PaymentMethodRoutes);
+		this.app.use('/api/migration', MigrationRoutes);
+		this.app.use('/api/transactions', TransactionsRoutes);
+		this.app.use('/api/hold-orders', HoldOrdersRoutes);
 
 		this.app.use((req: Request, res: Response) => {
 			res.status(404).json({
