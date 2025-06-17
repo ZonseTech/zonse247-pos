@@ -243,15 +243,15 @@ const initDatabase = async () => {
                 last_logout TIMESTAMP(3) NULL,
                 password_changed_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 force_password_change BOOLEAN DEFAULT FALSE,
-                
+
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-                
+
                 FOREIGN KEY (client_id) REFERENCES ${CLIENTS_DB}(uuid) ON DELETE CASCADE,
                 FOREIGN KEY (shop_id) REFERENCES ${SHOPS_DB}(uuid) ON DELETE CASCADE,
                 FOREIGN KEY (role_uuid) REFERENCES ${ROLES_DB}(uuid) ON DELETE RESTRICT,
                 FOREIGN KEY (current_shop_id) REFERENCES ${SHOPS_DB}(uuid) ON DELETE SET NULL,
-                
+
                 UNIQUE KEY unique_client_username (client_id, username),
                 INDEX idx_client_id (client_id),
                 INDEX idx_shop_id (shop_id),

@@ -4,6 +4,9 @@ import tables, {
 	CATEGORIES_DB,
 	INVENTORY_DB,
 	ORDERS_DB,
+	PERMISSIONS_DB,
+	ROLE_PERMISSIONS_DB,
+	ROLES_DB,
 	SYNC_STATUS_TABLE,
 	TRANSACTIONS_DB,
 	USERS_DB,
@@ -383,6 +386,23 @@ export class SealDBModel {
 						db.ensureIndex({ fieldName: 'device_id' });
 						db.ensureIndex({ fieldName: 'status' });
 						db.ensureIndex({ fieldName: 'is_primary' });
+						break;
+					case ROLES_DB:
+						db.ensureIndex({ fieldName: 'client_id' });
+						db.ensureIndex({ fieldName: 'shop_id' });
+						db.ensureIndex({ fieldName: 'name' });
+						db.ensureIndex({ fieldName: 'is_system_role' });
+						db.ensureIndex({ fieldName: 'is_active' });
+						break;
+					case PERMISSIONS_DB:
+						db.ensureIndex({ fieldName: 'name', unique: true });
+						db.ensureIndex({ fieldName: 'category' });
+						db.ensureIndex({ fieldName: 'scope' });
+						db.ensureIndex({ fieldName: 'is_system_permission' });
+						break;
+					case ROLE_PERMISSIONS_DB:
+						db.ensureIndex({ fieldName: 'role_uuid' });
+						db.ensureIndex({ fieldName: 'permission_uuid' });
 						break;
 				}
 				console.log(`Ensured indexes for table: ${tableName}`);
