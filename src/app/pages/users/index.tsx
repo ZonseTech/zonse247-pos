@@ -1,141 +1,225 @@
 import AppLayout from '../../layouts/AppLayout';
-import { HiOutlineMenuAlt4, HiOutlineSearch } from 'react-icons/hi';
+import { HiOutlineMenuAlt4, HiOutlineSearch, HiOutlinePlus } from 'react-icons/hi';
 import usersService from '../../services/users.service';
 import { Button, Input, ZonseThemeContext } from '../../components';
 import DataTable, { TableColumn } from 'react-data-table-component';
-import { Edit2, Trash2, Shield, Users, User2 } from 'lucide-react';
+import { Edit2, Trash2, Shield, Users, User2, Phone, Mail, MapPin, Key, Clock } from 'lucide-react';
 import { useState, useEffect, Fragment, useContext, FunctionComponent, ChangeEvent } from 'react';
 import UserFormModal from './partials/UserFormModal';
+import UserDetailsModal from './partials/UserDetailsModal';
 import { Notify, Confirm } from 'notiflix';
-import { HiOutlinePlus } from 'react-icons/hi2';
 
-interface WorkstationUser extends User {
-    id: string;
-    username: string;
-    email?: string;
-    role: 'admin' | 'cashier' | 'manager';
-    permissions: string[];
-    isActive: boolean;
-    status?: string;
+export enum UserStatus {
+    ACTIVE = 'active',
+    INACTIVE = 'inactive',
+    SUSPENDED = 'suspended'
 }
 
 const UserManagement: FunctionComponent = () => {
-    const columns: Array<TableColumn<WorkstationUser>> = [
+    const columns: Array<TableColumn<User>> = [
         {
             name: "User",
-            cell: (row) => (<Fragment>
-                <div className="flex items-center">
-                    <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                        <User2 className="w-5 h-5 text-gray-500" />
-                    </div>
-                    <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                            {row?.fullname || row?.username}
+            cell: (row) => (
+                <Fragment>
+                    <div className="flex items-center">
+                        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                            <User2 className="w-5 h-5 text-gray-500" />
                         </div>
-                        {row?.email && (
-                            <div className="text-sm text-gray-500">{row?.email}</div>
-                        )}
+                        <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                                {row?.fullname}
+                            </div>
+                            <div className="text-sm text-gray-500">@{row?.username}</div>
+                            {row?.email && (
+                                <div className="text-xs text-gray-400 flex items-center mt-1">
+                                    <Mail className="w-3 h-3 mr-1" />
+                                    {row?.email}
+                                </div>
+                            )}
+                            {row?.phone && (
+                                <div className="text-xs text-gray-400 flex items-center">
+                                    <Phone className="w-3 h-3 mr-1" />
+                                    {row?.phone}
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
-            </Fragment>),
+                </Fragment>
+            ),
         },
         {
             name: 'Role',
-            cell: (row) => (<Fragment>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(row?.role)}`}>
-                    <Shield className="w-3 h-3 mr-1" />
-                    {row?.role?.charAt(0)?.toUpperCase() + row?.role?.slice(1)}
-                </span>
-            </Fragment>)
+            cell: (row) => (
+                <Fragment>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(row?.role_uuid)}`}>
+                        <Shield className="w-3 h-3 mr-1" />
+                        {getRoleName(row?.role_uuid)}
+                    </span>
+                </Fragment>
+            )
         },
         {
             name: 'Status',
-            cell: (row) => (<Fragment>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${row?.isActive ? 'text-green-800 bg-green-100' : 'text-red-800 bg-red-100'
-                    }`}>
-                    {row?.isActive ? 'Active' : 'Inactive'}
-                </span>
-            </Fragment>)
+            cell: (row) => (
+                <Fragment>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(row?.status as UserStatus)}`}>
+                        {getStatusIcon(row?.status as UserStatus)}
+                        {row?.status?.charAt(0)?.toUpperCase() + row?.status?.slice(1)}
+                    </span>
+                </Fragment>
+            )
         },
         {
-            width: "20%",
+            name: 'Permissions',
+            cell: (row) => (
+                <Fragment>
+                    <div className="flex flex-col space-y-1">
+                        {row?.max_discount_percent && (
+                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                Max Discount: {row.max_discount_percent}%
+                            </span>
+                        )}
+                        {row?.can_override_prices && (
+                            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                                Price Override
+                            </span>
+                        )}
+                        {row?.force_password_change && (
+                            <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                                Reset Password
+                            </span>
+                        )}
+                    </div>
+                </Fragment>
+            )
+        },
+        {
+            name: 'Last Activity',
+            cell: (row) => (
+                <Fragment>
+                    <div className="text-sm">
+                        {row?.last_login && (
+                            <div className="flex items-center text-green-600">
+                                <Clock className="w-3 h-3 mr-1" />
+                                <span className="text-xs">
+                                    {new Date(row.last_login).toLocaleDateString()}
+                                </span>
+                            </div>
+                        )}
+                        {!row?.last_login && (
+                            <span className="text-xs text-gray-400">Never logged in</span>
+                        )}
+                    </div>
+                </Fragment>
+            )
+        },
+        {
+            width: "25%",
             name: <HiOutlineMenuAlt4 className='w-5 h-5 text-gray-500' />,
-            cell: (row) => (<Fragment>
-                <div className="flex items-center space-x-2">
-                    <button
-                        onClick={() => handleEdit(row)}
-                        className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
-                        title="Edit user"
-                    >
-                        <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => toggleUserStatus(row?.uuid, row?.isActive)}
-                        className={`text-xs px-2 py-1 rounded transition-colors ${row?.isActive
-                            ? 'text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100'
-                            : 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100'
-                            }`}
-                        title={row?.isActive ? 'Deactivate user' : 'Activate user'}
-                    >
-                        {row?.isActive ? 'Deactivate' : 'Activate'}
-                    </button>
-                    <button
-                        onClick={() => handleDelete(row?.uuid, row?.username)}
-                        className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
-                        title="Delete user"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
-                </div>
-            </Fragment>)
+            cell: (row) => (
+                <Fragment>
+                    <div className="flex items-center space-x-2 flex-wrap gap-1">
+                        <button
+                            onClick={() => handleView(row)}
+                            className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
+                            title="View details"
+                        >
+                            <User2 className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => handleEdit(row)}
+                            className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
+                            title="Edit user"
+                        >
+                            <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => handleResetPassword(row)}
+                            className="text-orange-600 hover:text-orange-800 p-1 rounded transition-colors"
+                            title="Reset password"
+                        >
+                            <Key className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => toggleUserStatus(row)}
+                            className={`text-xs px-2 py-1 rounded transition-colors ${row?.status === UserStatus.ACTIVE
+                                ? 'text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100'
+                                : row?.status === UserStatus.SUSPENDED
+                                    ? 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100'
+                                    : 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100'
+                                }`}
+                            title={getStatusActionTitle(row?.status as UserStatus)}
+                        >
+                            {getStatusActionText(row?.status as UserStatus)}
+                        </button>
+                        <button
+                            onClick={() => handleDelete(row?.uuid, row?.username)}
+                            className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
+                            title="Delete user"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    </div>
+                </Fragment>
+            )
         }
-    ]
+    ];
 
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(13);
     const [totalRows, setTotalRows] = useState(0);
     const { mode } = useContext(ZonseThemeContext);
     const [showForm, setShowForm] = useState(false);
+    const [showDetails, setShowDetails] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
-    const [users, setUsers] = useState<WorkstationUser[]>([]);
-    const [editingUser, setEditingUser] = useState<WorkstationUser | null>(null);
-    const [filteredUsers, setFilteredUsers] = useState<Array<WorkstationUser>>([]);
+    const [statusFilter, setStatusFilter] = useState<string>('all');
+    const [roleFilter, setRoleFilter] = useState<string>('all');
+    const [users, setUsers] = useState<User[]>([]);
+    const [editingUser, setEditingUser] = useState<User | null>(null);
+    const [viewingUser, setViewingUser] = useState<User | null>(null);
+    const [filteredUsers, setFilteredUsers] = useState<Array<User>>([]);
 
     useEffect(() => {
         loadUsers();
     }, []);
 
     useEffect(() => {
-        if (searchTerm.trim() === "") {
-            setFilteredUsers(users);
-        } else {
-            const filtered = users.filter(user =>
+        applyFilters();
+    }, [searchTerm, statusFilter, roleFilter, users]);
+
+    const applyFilters = () => {
+        let filtered = users;
+
+        if (searchTerm.trim() !== "") {
+            filtered = filtered.filter(user =>
                 user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.role.toLowerCase().includes(searchTerm.toLowerCase())
+                user.phone?.toLowerCase().includes(searchTerm.toLowerCase())
             );
-            setFilteredUsers(filtered);
         }
-        setTotalRows(filteredUsers.length);
+
+        if (statusFilter !== 'all') {
+            filtered = filtered.filter(user => user.status === statusFilter);
+        }
+
+        if (roleFilter !== 'all') {
+            filtered = filtered.filter(user => user.role_uuid === roleFilter);
+        }
+
+        setFilteredUsers(filtered);
+        setTotalRows(filtered.length);
         setPage(1);
-    }, [searchTerm, users]);
+    };
 
     const loadUsers = async () => {
         try {
             setIsLoading(true);
-            const data: Array<any> = await usersService.list();
-
-            const transformedUsers = data.map(user => ({
-                ...user,
-                isActive: user.status === 'active' || user.isActive === true,
-                uuid: user.uuid || user.uuid
-            }));
-
-            setUsers(transformedUsers);
-            setFilteredUsers(transformedUsers);
-            setTotalRows(transformedUsers.length);
+            const data: Array<User> = await usersService.list();
+            setUsers(data);
+            setFilteredUsers(data);
+            setTotalRows(data.length);
         } catch (error) {
             console.error('Error loading users:', error);
             Notify.failure('Failed to load users');
@@ -144,15 +228,53 @@ const UserManagement: FunctionComponent = () => {
         }
     };
 
-    const saveUsers = (updatedUsers: WorkstationUser[]) => {
+    const saveUsers = (updatedUsers: User[]) => {
         setUsers(updatedUsers);
-        setFilteredUsers(updatedUsers);
-        setTotalRows(updatedUsers.length);
+        applyFilters();
     };
 
-    const handleEdit = (user: WorkstationUser) => {
+    const handleView = (user: User) => {
+        setViewingUser(user);
+        setShowDetails(true);
+    };
+
+    const handleEdit = (user: User) => {
         setEditingUser(user);
         setShowForm(true);
+    };
+
+    const handleResetPassword = async (user: User) => {
+        Confirm.show(
+            'Reset Password',
+            `Are you sure you want to force a password reset for "${user.username}"? They will be required to change their password on next login.`,
+            'Yes, Reset',
+            'Cancel',
+            async () => {
+                try {
+                    await usersService.update(user.uuid, {
+                        force_password_change: true,
+                        password_changed_at: new Date()
+                    });
+
+                    const updatedUsers = users.map(u =>
+                        u.uuid === user.uuid
+                            ? { ...u, force_password_change: true, password_changed_at: new Date() }
+                            : u
+                    );
+                    saveUsers(updatedUsers);
+
+                    Notify.success('Password reset flag set successfully');
+                } catch (error) {
+                    console.error('Error setting password reset:', error);
+                    Notify.failure('Failed to set password reset');
+                }
+            },
+            () => { },
+            {
+                titleColor: '#f59e0b',
+                okButtonBackground: '#f59e0b',
+            }
+        );
     };
 
     const getPaginatedData = () => {
@@ -189,9 +311,7 @@ const UserManagement: FunctionComponent = () => {
                     Notify.failure('Failed to delete user');
                 }
             },
-            () => {
-                // do nothing
-            },
+            () => { },
             {
                 titleColor: '#ef4444',
                 okButtonBackground: '#ef4444',
@@ -199,9 +319,27 @@ const UserManagement: FunctionComponent = () => {
         );
     };
 
-    const toggleUserStatus = async (userId: string, currentStatus: boolean) => {
-        const action = currentStatus ? 'deactivate' : 'activate';
-        const user = users.find(u => u.uuid === userId);
+    const toggleUserStatus = async (user: User) => {
+        let newStatus: UserStatus;
+        let action: string;
+
+        switch (user.status) {
+            case UserStatus.ACTIVE:
+                newStatus = UserStatus.SUSPENDED;
+                action = 'suspend';
+                break;
+            case UserStatus.SUSPENDED:
+                newStatus = UserStatus.ACTIVE;
+                action = 'activate';
+                break;
+            case UserStatus.INACTIVE:
+                newStatus = UserStatus.ACTIVE;
+                action = 'activate';
+                break;
+            default:
+                newStatus = UserStatus.ACTIVE;
+                action = 'activate';
+        }
 
         Confirm.show(
             `${action.charAt(0).toUpperCase() + action.slice(1)} User`,
@@ -210,18 +348,10 @@ const UserManagement: FunctionComponent = () => {
             'Cancel',
             async () => {
                 try {
-                    const updatedUserData = {
-                        ...user,
-                        isActive: !currentStatus,
-                        status: !currentStatus ? 'active' : 'inactive'
-                    };
+                    await usersService.update(user.uuid, { status: newStatus });
 
-                    await usersService.update(userId, updatedUserData);
-
-                    const updatedUsers = users.map(user =>
-                        user.uuid === userId
-                            ? { ...user, isActive: !currentStatus, status: !currentStatus ? 'active' : 'inactive' }
-                            : user
+                    const updatedUsers = users.map(u =>
+                        u.uuid === user.uuid ? { ...u, status: newStatus } : u
                     );
                     saveUsers(updatedUsers);
 
@@ -231,27 +361,79 @@ const UserManagement: FunctionComponent = () => {
                     Notify.failure(`Failed to ${action} user`);
                 }
             },
-            () => {
-                // do nothing
-            },
+            () => { },
             {
-                titleColor: currentStatus ? '#ef4444' : '#22c55e',
-                okButtonBackground: currentStatus ? '#ef4444' : '#22c55e',
+                titleColor: newStatus === UserStatus.SUSPENDED ? '#ef4444' : '#22c55e',
+                okButtonBackground: newStatus === UserStatus.SUSPENDED ? '#ef4444' : '#22c55e',
             }
         );
     };
 
-    const getRoleColor = (role: string) => {
-        switch (role) {
-            case 'admin': return 'text-purple-600 bg-purple-100';
-            case 'manager': return 'text-blue-600 bg-blue-100';
-            case 'cashier': return 'text-green-600 bg-green-100';
-            default: return 'text-gray-600 bg-gray-100';
+    const getRoleColor = (roleUuid: string) => {
+        const roleMap: Record<string, string> = {
+            'admin': 'text-purple-600 bg-purple-100',
+            'manager': 'text-blue-600 bg-blue-100',
+            'cashier': 'text-green-600 bg-green-100',
+        };
+        return roleMap[roleUuid] || 'text-gray-600 bg-gray-100';
+    };
+
+    const getRoleName = (roleUuid: string) => {
+        const roleMap: Record<string, string> = {
+            'admin': 'Admin',
+            'manager': 'Manager',
+            'cashier': 'Cashier',
+        };
+        return roleMap[roleUuid] || 'Unknown';
+    };
+
+    const getStatusColor = (status?: UserStatus) => {
+        switch (status) {
+            case UserStatus.ACTIVE: return 'text-green-800 bg-green-100';
+            case UserStatus.SUSPENDED: return 'text-red-800 bg-red-100';
+            case UserStatus.INACTIVE: return 'text-gray-800 bg-gray-100';
+            default: return 'text-gray-800 bg-gray-100';
+        }
+    };
+
+    const getStatusIcon = (status?: UserStatus) => {
+        const iconClass = "w-3 h-3 mr-1";
+        switch (status) {
+            case UserStatus.ACTIVE: return <div className={`${iconClass} bg-green-500 rounded-full`} />;
+            case UserStatus.SUSPENDED: return <div className={`${iconClass} bg-red-500 rounded-full`} />;
+            case UserStatus.INACTIVE: return <div className={`${iconClass} bg-gray-500 rounded-full`} />;
+            default: return <div className={`${iconClass} bg-gray-500 rounded-full`} />;
+        }
+    };
+
+    const getStatusActionText = (status?: UserStatus) => {
+        switch (status) {
+            case UserStatus.ACTIVE: return 'Suspend';
+            case UserStatus.SUSPENDED: return 'Activate';
+            case UserStatus.INACTIVE: return 'Activate';
+            default: return 'Activate';
+        }
+    };
+
+    const getStatusActionTitle = (status?: UserStatus) => {
+        switch (status) {
+            case UserStatus.ACTIVE: return 'Suspend user';
+            case UserStatus.SUSPENDED: return 'Activate user';
+            case UserStatus.INACTIVE: return 'Activate user';
+            default: return 'Activate user';
         }
     };
 
     const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
+    };
+
+    const handleStatusFilter = (event: ChangeEvent<HTMLSelectElement>) => {
+        setStatusFilter(event.target.value);
+    };
+
+    const handleRoleFilter = (event: ChangeEvent<HTMLSelectElement>) => {
+        setRoleFilter(event.target.value);
     };
 
     const handleUserSaved = () => {
@@ -265,13 +447,21 @@ const UserManagement: FunctionComponent = () => {
         setEditingUser(null);
     };
 
-    const handleAddUserClicked = () => {
-        setShowForm(!showForm);
+    const handleCloseDetails = () => {
+        setShowDetails(false);
+        setViewingUser(null);
     };
+
+    const handleAddUserClicked = () => {
+        setEditingUser(null);
+        setShowForm(true);
+    };
+
+    const uniqueRoles = [...new Set(users.map(user => user.role_uuid))];
 
     return (
         <AppLayout>
-            <div className="p-6 max-w-6xl mx-auto bg-white">
+            <div className="p-6 max-w-full mx-auto bg-white">
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-800 flex items-center">
@@ -279,7 +469,7 @@ const UserManagement: FunctionComponent = () => {
                             User Management
                         </h1>
                         <p className="text-gray-600 mt-1">
-                            Manage workstation users and sync to cloud
+                            Manage workstation users, roles, and permissions
                         </p>
                     </div>
 
@@ -289,34 +479,21 @@ const UserManagement: FunctionComponent = () => {
                             className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                         >
                             <HiOutlinePlus className="w-4 h-4 mr-2" />
-                            {'Add User'}
+                            Add User
                         </Button>
-
-                        <UserFormModal
-                            user={editingUser ? {
-                                uuid: editingUser.uuid || '',
-                                fullname: editingUser.fullname || editingUser.username,
-                                username: editingUser.username,
-                                password: '',
-                                status: editingUser.isActive ? 'active' : 'inactive',
-                                role: editingUser.role,
-                                permissions: editingUser.permissions || []
-                            } : undefined}
-                            isOpen={showForm}
-                            onClose={handleCloseForm}
-                            onUserSaved={handleUserSaved}
-                        />
                     </div>
                 </div>
 
                 <div className="bg-white rounded-md border overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-200">
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center mb-4">
                             <h2 className="text-lg font-semibold text-gray-800">
-                                Workstation Users ({filteredUsers.length})
+                                Users ({filteredUsers.length} of {users.length})
                             </h2>
+                        </div>
 
-                            <div className="flex relative">
+                        <div className="flex flex-wrap gap-4 items-center">
+                            <div className="flex relative min-w-64">
                                 <Input
                                     type="text"
                                     placeholder="Search users..."
@@ -328,6 +505,30 @@ const UserManagement: FunctionComponent = () => {
                                     <HiOutlineSearch className="h-5 w-5 text-gray-400" />
                                 </div>
                             </div>
+
+                            <select
+                                value={statusFilter}
+                                onChange={handleStatusFilter}
+                                className="px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="all">All Status</option>
+                                <option value={UserStatus.ACTIVE}>Active</option>
+                                <option value={UserStatus.INACTIVE}>Inactive</option>
+                                <option value={UserStatus.SUSPENDED}>Suspended</option>
+                            </select>
+
+                            <select
+                                value={roleFilter}
+                                onChange={handleRoleFilter}
+                                className="px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="all">All Roles</option>
+                                {uniqueRoles.map(role => (
+                                    <option key={role} value={role}>
+                                        {getRoleName(role)}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
 
@@ -351,13 +552,28 @@ const UserManagement: FunctionComponent = () => {
                                 <div className="text-center py-8">
                                     <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                                     <p className="text-gray-500">
-                                        {searchTerm ? 'No users found matching your search.' : 'No users found.'}
+                                        {searchTerm || statusFilter !== 'all' || roleFilter !== 'all'
+                                            ? 'No users found matching your filters.'
+                                            : 'No users found.'}
                                     </p>
                                 </div>
                             }
                         />
                     </div>
                 </div>
+
+                <UserFormModal
+                    user={editingUser}
+                    isOpen={showForm}
+                    onClose={handleCloseForm}
+                    onUserSaved={handleUserSaved}
+                />
+
+                <UserDetailsModal
+                    user={viewingUser}
+                    isOpen={showDetails}
+                    onClose={handleCloseDetails}
+                />
             </div>
         </AppLayout>
     );

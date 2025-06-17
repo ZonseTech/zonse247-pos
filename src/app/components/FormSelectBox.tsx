@@ -12,6 +12,7 @@ interface Option {
 interface FormSelectBoxProps {
 	label: string;
 	id?: string;
+	disabled?: boolean;
 	name: string;
 	required?: boolean;
 	options: Option[];

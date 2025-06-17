@@ -1,31 +1,17 @@
-import * as Yup from 'yup'
-import { Form, Formik } from 'formik'
-import { Notify, Report } from 'notiflix'
-import { Button, Modal } from '../../../components'
-import FormInput from '../../../components/FormInput'
-import FormWrapper from '../../../components/FormWrapper'
-import usersService from '../../../services/users.service'
-import { Fragment, useState } from 'react'
-import type { ChangeEvent, FunctionComponent } from 'react'
-import FormSelectBox from '../../../components/FormSelectBox'
-
-interface User {
-    uuid: string;
-    fullname: string;
-    username: string;
-    password: string;
-    repeatPassword?: string;
-    status: string;
-    role: string;
-    permissions: string[];
-}
-
-interface UserFormModalProps {
-    user?: User;
-    isOpen?: boolean;
-    onClose?: () => void;
-    onUserSaved?: () => void;
-}
+import * as Yup from 'yup';
+import { Form, Formik } from 'formik';
+import { Notify, Report } from 'notiflix';
+import { Button, Modal } from '../../../components';
+import FormInput from '../../../components/FormInput';
+import FormWrapper from '../../../components/FormWrapper';
+import FormSelectBox from '../../../components/FormSelectBox';
+import usersService from '../../../services/users.service';
+import workstationsService from '../../../services/workstation.service';
+import rolesService from '../../../services/roles.service';
+import shopsService from '../../../services/shop.service';
+import { Fragment, useState, useEffect } from 'react';
+import type { FunctionComponent } from 'react';
+import { UserStatus } from '../index';
 
 const UserFormModal: FunctionComponent<UserFormModalProps> = ({
     user,
@@ -33,70 +19,115 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
     onClose: externalOnClose,
     onUserSaved
 }) => {
-
-    console.log(user);
-
-
+    const [roles, setRoles] = useState<Role[]>([]);
     const [isOpenForm, setIsOpenForm] = useState(false);
+    const [shops, setShops] = useState<ShopOptions[]>([]);
+    const [loadingRoles, setLoadingRoles] = useState(true);
+    const [loadingShops, setLoadingShops] = useState(true);
+    const [workstations, setWorkstations] = useState<string[]>([]);
 
     const isModalOpen = externalIsOpen !== undefined ? externalIsOpen : isOpenForm;
     const closeModal = externalOnClose || (() => setIsOpenForm(false));
 
-    const availablePermissions = [
-        { id: 'sales', name: 'Process Sales', description: 'Create and process transactions' },
-        { id: 'refunds', name: 'Process Refunds', description: 'Handle return transactions' },
-        { id: 'inventory', name: 'Manage Inventory', description: 'Add/edit products and stock' },
-        { id: 'reports', name: 'View Reports', description: 'Access sales and inventory reports' },
-        { id: 'settings', name: 'Manage Settings', description: 'Modify system settings' },
-        { id: 'users', name: 'Manage Users', description: 'Create and manage user accounts' }
-    ];
+    useEffect(() => {
+        if (isModalOpen) {
+            loadRoles();
+            loadShops();
+            loadWorkstations();
+        }
+    }, [isModalOpen]);
 
-    const rolePermissions = {
-        admin: ['sales', 'refunds', 'inventory', 'reports', 'settings', 'users'],
-        manager: ['sales', 'refunds', 'inventory', 'reports'],
-        cashier: ['sales', 'refunds']
+    const loadRoles = async () => {
+        try {
+            setLoadingRoles(true);
+            const rolesData = await rolesService.list();
+            setRoles(rolesData);
+        } catch (error) {
+            console.error('Error loading roles:', error);
+            Notify.failure('Failed to load roles');
+        } finally {
+            setLoadingRoles(false);
+        }
     };
 
-    const roles = [
-        {
-            label: 'Cashier',
-            value: 'cashier'
-        },
-        {
-            label: 'Manager',
-            value: 'manager'
-        },
-        {
-            label: 'Admin',
-            value: 'admin'
-        },
+    const loadShops = async () => {
+        try {
+            setLoadingShops(true);
+            const shopsData = await shopsService.list();
+            setShops(shopsData.data);
+        } catch (error) {
+            console.error('Error loading shops:', error);
+            Notify.failure('Failed to load shops');
+        } finally {
+            setLoadingShops(false);
+        }
+    };
+
+    const loadWorkstations = async () => {
+        try {
+            const workstationsData = await workstationsService.list();
+            setWorkstations(workstationsData.map(ws => ws.till_name + '-' + ws.till_number));
+        } catch (error) {
+            console.error('Error loading workstations:', error);
+        }
+    };
+
+    const statusOptions = [
+        { label: 'Active', value: UserStatus.ACTIVE },
+        { label: 'Inactive', value: UserStatus.INACTIVE },
+        { label: 'Suspended', value: UserStatus.SUSPENDED }
     ];
 
-    const initialUserValues: User = user ? {
+    const roleOptions = roles.map(role => ({
+        label: role.name,
+        value: role.uuid
+    }));
+
+    const shopOptions = shops.map(shop => ({
+        label: shop.name,
+        value: shop.uuid
+    }));
+
+    const initialUserValues = user ? {
         ...user,
-        repeatPassword: ''
+        password: '',
     } : {
         uuid: '',
-        fullname: '',
+        client_id: '',
+        shop_id: '',
         username: '',
         password: '',
-        repeatPassword: '',
-        status: 'active',
-        role: '',
-        permissions: ['sales', 'refunds']
+        fullname: '',
+        email: '',
+        phone: '',
+        role_uuid: '',
+        // permissions: [],
+        status: UserStatus.ACTIVE,
+        accessible_shops: [],
+        allowed_workstations: [],
+        max_discount_percent: 0,
+        can_override_prices: false,
+        pin_code: '',
+        current_shop_id: '',
+        force_password_change: false
     };
 
     const userValidationSchema = Yup.object().shape({
-        uuid: Yup.string(),
         fullname: Yup.string()
             .required('Full name is required')
             .min(2, 'Name must be at least 2 characters')
-            .max(50, 'Name is too long'),
+            .max(100, 'Name is too long'),
         username: Yup.string()
             .required('Username is required')
             .min(3, 'Username must be at least 3 characters')
-            .max(20, 'Username is too long')
+            .max(50, 'Username is too long')
             .matches(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers and underscores'),
+        email: Yup.string()
+            .email('Invalid email format')
+            .nullable(),
+        phone: Yup.string()
+            .matches(/^[\+]?[0-9\-\(\)\s]+$/, 'Invalid phone number format')
+            .nullable(),
         password: Yup.string()
             .when('uuid', {
                 is: (uuid: string) => !uuid,
@@ -105,29 +136,40 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                     .min(6, 'Password must be at least 6 characters'),
                 otherwise: () => Yup.string().notRequired()
             }),
-        repeatPassword: Yup.string()
-            .when('password', {
-                is: (val: string) => val && val.length > 0,
-                then: () => Yup.string()
-                    .required('Please confirm your password')
-                    .oneOf([Yup.ref('password')], 'Passwords must match')
-            }),
-        role: Yup.string().required('Role is required'),
-        permissions: Yup.array()
-            .of(Yup.string())
-            .min(1, 'At least one permission must be selected')
+        role_uuid: Yup.string().required('Role is required'),
+        shop_id: Yup.string().required('Shop is required'),
+        status: Yup.string().required('Status is required'),
+        max_discount_percent: Yup.number()
+            .min(0, 'Discount percent cannot be negative')
+            .max(100, 'Discount percent cannot exceed 100'),
+        pin_code: Yup.string()
+            .matches(/^[0-9]{4,6}$/, 'PIN must be 4-6 digits')
+            .nullable()
     });
 
     const handleSubmit = async (values: User, { resetForm }: any) => {
         try {
-            const { repeatPassword, ...submitValues } = values;
+            const submitValues = { ...values };
+
+            // Remove empty password for updates
+            if (user && user.uuid && !submitValues.password) {
+                delete submitValues.password;
+            }
+
+            // Convert string arrays back to arrays for multi-select fields
+            if (typeof submitValues.accessible_shops === 'string') {
+                submitValues.accessible_shops = (submitValues.accessible_shops as string).split(',').filter(s => s.trim());
+            }
+            if (typeof submitValues.allowed_workstations === 'string') {
+                submitValues.allowed_workstations = (submitValues.allowed_workstations as string).split(',').filter(s => s.trim());
+            }
 
             if (user && user.uuid) {
                 await usersService.update(user.uuid, submitValues);
                 Report.success("Updated!", "User details updated successfully!", "Ok");
             } else {
                 await usersService.store(submitValues);
-                Report.success("Great!", "User details saved!", "Ok");
+                Report.success("Great!", "User created successfully!", "Ok");
             }
 
             resetForm();
@@ -143,26 +185,27 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
         }
     };
 
-    const handleRoleChange = (role: string, setFieldValue: Function) => {
-        setFieldValue('role', role);
-        const newPermissions = rolePermissions[role as keyof typeof rolePermissions] || [];
-        setFieldValue('permissions', newPermissions);
+    const handleShopAccessChange = (shopUuid: string, currentShops: string[], setFieldValue: Function) => {
+        const newShops = currentShops.includes(shopUuid)
+            ? currentShops.filter(s => s !== shopUuid)
+            : [...currentShops, shopUuid];
+        setFieldValue('accessible_shops', newShops);
     };
 
-    const handlePermissionToggle = (permissionId: string, currentPermissions: string[], setFieldValue: Function) => {
-        const newPermissions = currentPermissions.includes(permissionId)
-            ? currentPermissions.filter(p => p !== permissionId)
-            : [...currentPermissions, permissionId];
-        setFieldValue('permissions', newPermissions);
+    const handleWorkstationChange = (workstation: string, currentWorkstations: string[], setFieldValue: Function) => {
+        const newWorkstations = currentWorkstations.includes(workstation)
+            ? currentWorkstations.filter(w => w !== workstation)
+            : [...currentWorkstations, workstation];
+        setFieldValue('allowed_workstations', newWorkstations);
     };
 
     return (
         <Fragment>
             <Modal
-                title={user ? 'Edit User Account' : 'Add User Account'}
+                title={user ? 'Edit User Account' : 'Create User Account'}
                 isOpen={isModalOpen}
                 onClose={closeModal}
-                className='max-w-lg bg-white text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
+                className='max-w-4xl bg-white text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
             >
                 <Formik
                     onSubmit={handleSubmit}
@@ -173,108 +216,208 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                     {({ isSubmitting, values, setFieldValue }) => (
                         <Form>
                             <FormWrapper>
-                                <FormInput
-                                    type="text"
-                                    name="fullname"
-                                    label="Full Name"
-                                    required
-                                    placeholder="Enter full name"
-                                />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* Basic Information */}
+                                    <div className="space-y-4">
+                                        <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                                            Basic Information
+                                        </h3>
 
-                                <FormInput
-                                    type="text"
-                                    name="username"
-                                    label="Username"
-                                    required
-                                    placeholder="Login Username"
-                                />
+                                        <FormInput
+                                            type="text"
+                                            name="fullname"
+                                            label="Full Name"
+                                            required
+                                            placeholder="Enter full name"
+                                        />
 
-                                <FormInput
-                                    type="password"
-                                    name="password"
-                                    label={user ? "New Password (leave blank to keep current)" : "Password"}
-                                    placeholder="Password"
-                                    autoComplete="new-password"
-                                    required={!user}
-                                />
+                                        <FormInput
+                                            type="text"
+                                            name="username"
+                                            label="Username"
+                                            required
+                                            placeholder="Login username"
+                                        />
 
-                                {(values.password || !user) && (
-                                    <FormInput
-                                        type="password"
-                                        name="repeatPassword"
-                                        label="Repeat Password"
-                                        placeholder="Repeat Password"
-                                        autoComplete="new-password"
-                                        required={!!values.password}
-                                    />
-                                )}
+                                        <FormInput
+                                            type="email"
+                                            name="email"
+                                            label="Email Address"
+                                            placeholder="user@example.com"
+                                        />
 
-                                <FormSelectBox
-                                    label='Role'
-                                    name='role'
-                                    required
-                                    options={roles}
-                                    onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-                                        handleRoleChange(e.target.value, setFieldValue);
-                                    }}
-                                />
+                                        <FormInput
+                                            type="tel"
+                                            name="phone"
+                                            label="Phone Number"
+                                            placeholder="+1234567890"
+                                        />
 
-                                {values?.role?.length > 0 && <div className="mb-4">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Permissions <span className='text-red-500'>*</span>
-                                    </label>
-                                    <div className="space-y-2 max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-3">
-                                        {availablePermissions
-                                            .filter(permission =>
-                                                values.role ? rolePermissions[values.role as keyof typeof rolePermissions]?.includes(permission.id) : false
-                                            )
-                                            .map((permission) => (
-                                                <div key={permission.id} className="flex flex-col items-start">
-                                                    <label className="flex items-center cursor-pointer">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={values.permissions?.includes(permission.id) || false}
-                                                            onChange={() => handlePermissionToggle(
-                                                                permission.id,
-                                                                values.permissions || [],
-                                                                setFieldValue
-                                                            )}
-                                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2"
-                                                        />
-                                                        <span className="text-sm font-medium text-gray-700">
-                                                            {permission.name}
-                                                        </span>
-                                                    </label>
-                                                    <div className="ml-6 mt-1">
-                                                        <div className="text-xs text-gray-500">
-                                                            {permission.description}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
+                                        <FormInput
+                                            type="password"
+                                            name="password"
+                                            label={user ? "New Password (leave blank to keep current)" : "Password"}
+                                            placeholder="Password"
+                                            autoComplete="new-password"
+                                            required={!user}
+                                        />
+
+                                        <FormInput
+                                            type="text"
+                                            name="pin_code"
+                                            label="PIN Code (4-6 digits)"
+                                            placeholder="1234"
+                                            maxLength={6}
+                                        />
                                     </div>
-                                    {(!values.permissions || values.permissions.length === 0) && (
-                                        <div className="text-red-500 text-sm mt-1">
-                                            At least one permission must be selected
-                                        </div>
-                                    )}
-                                </div>}
 
-                                <Button
-                                    type="submit"
-                                    block={true}
-                                    loading={isSubmitting}
-                                    disabled={!values.permissions || values.permissions.length === 0}
-                                >
-                                    {user ? 'Update User' : 'Create User'}
-                                </Button>
+                                    {/* Role and Access */}
+                                    <div className="space-y-4">
+                                        <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                                            Role & Access
+                                        </h3>
+
+                                        <FormSelectBox
+                                            label='Role'
+                                            name='role_uuid'
+                                            required
+                                            options={roleOptions}
+                                            disabled={loadingRoles}
+                                        />
+
+                                        <FormSelectBox
+                                            label='Primary Shop'
+                                            name='shop_id'
+                                            required
+                                            options={shopOptions}
+                                            disabled={loadingShops}
+                                        />
+
+                                        <FormSelectBox
+                                            label='Status'
+                                            name='status'
+                                            required
+                                            options={statusOptions}
+                                        />
+
+                                        <div className="space-y-2">
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Max Discount Percentage
+                                            </label>
+                                            <FormInput
+                                                type="number"
+                                                name="max_discount_percent"
+                                                placeholder="0"
+                                                min="0"
+                                                max="100"
+                                            />
+                                        </div>
+
+                                        <div className="flex items-center space-x-3">
+                                            <input
+                                                type="checkbox"
+                                                id="can_override_prices"
+                                                checked={values.can_override_prices || false}
+                                                onChange={(e) => setFieldValue('can_override_prices', e.target.checked)}
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                            />
+                                            <label htmlFor="can_override_prices" className="text-sm font-medium text-gray-700">
+                                                Can Override Prices
+                                            </label>
+                                        </div>
+
+                                        <div className="flex items-center space-x-3">
+                                            <input
+                                                type="checkbox"
+                                                id="force_password_change"
+                                                checked={values.force_password_change || false}
+                                                onChange={(e) => setFieldValue('force_password_change', e.target.checked)}
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                            />
+                                            <label htmlFor="force_password_change" className="text-sm font-medium text-gray-700">
+                                                Force Password Change on Next Login
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Shop Access */}
+                                <div className="mt-6">
+                                    <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
+                                        Shop Access
+                                    </h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                                        {shops.map((shop) => (
+                                            <div key={shop.uuid} className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    id={`shop-${shop.uuid}`}
+                                                    checked={(values.accessible_shops || []).includes(shop.uuid)}
+                                                    onChange={() => handleShopAccessChange(
+                                                        shop.uuid,
+                                                        values.accessible_shops || [],
+                                                        setFieldValue
+                                                    )}
+                                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2"
+                                                />
+                                                <label htmlFor={`shop-${shop.uuid}`} className="text-sm text-gray-700">
+                                                    {shop.name}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Workstation Access */}
+                                <div className="mt-6">
+                                    <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
+                                        Allowed Workstations
+                                    </h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                                        {workstations.map((workstation) => (
+                                            <div key={workstation} className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    id={`workstation-${workstation}`}
+                                                    checked={(values.allowed_workstations || []).includes(workstation)}
+                                                    onChange={() => handleWorkstationChange(
+                                                        workstation,
+                                                        values.allowed_workstations || [],
+                                                        setFieldValue
+                                                    )}
+                                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2"
+                                                />
+                                                <label htmlFor={`workstation-${workstation}`} className="text-sm text-gray-700">
+                                                    {workstation}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="flex space-x-3 mt-6 pt-4 border-t">
+                                    <Button
+                                        type="button"
+                                        onClick={closeModal}
+                                        className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        loading={isSubmitting}
+                                        className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                    >
+                                        {user ? 'Update User' : 'Create User'}
+                                    </Button>
+                                </div>
                             </FormWrapper>
                         </Form>
                     )}
                 </Formik>
             </Modal>
         </Fragment>
-    )
-}
+    );
+};
 
-export default UserFormModal
+export default UserFormModal;

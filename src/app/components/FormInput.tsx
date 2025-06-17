@@ -9,7 +9,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { ThemeContext } from '../context/ThemeContext';
 
 interface TextInputProps {
-	label: string;
+	label?: string;
 	id?: string;
 	name: string;
 	type?: string;
