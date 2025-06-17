@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { Controller } from "./controller";
+import { BaseController } from "./base.controller";
 import { ClientService } from "../services/client.service";
 
-export class ClientController extends Controller {
+export class ClientController extends BaseController {
     constructor() {
         super()
     }
@@ -11,17 +11,17 @@ export class ClientController extends Controller {
         try {
             const query = req.query;
             const clients = await ClientService.getAllClients(query);
-            Controller.sendResponse(res, 200, true, 'Clients retrieved successfully', clients);
+            BaseController.sendResponse(res, 200, true, 'Clients retrieved successfully', clients);
         } catch (error: any) {
             console.error('Error retrieving clients:', error);
-            Controller.sendResponse(res, 500, false, error.message, undefined, error.message);
+            BaseController.sendResponse(res, 500, false, error.message, undefined, error.message);
         }
     }
 
     static async store(req: Request<{}, ApiResponse<Client>, RegisterClientRequest>, res: Response): Promise<void> {
         try {
             const newClient = await ClientService.registerClient(req.body);
-            Controller.sendResponse(res, 201, true, 'Client created successfully', newClient);
+            BaseController.sendResponse(res, 201, true, 'Client created successfully', newClient);
         } catch (error: any) {
             console.error('Error creating client:', error);
 
@@ -32,7 +32,7 @@ export class ClientController extends Controller {
                 statusCode = 409;
             }
 
-            Controller.sendResponse(res, statusCode, false, error.message, undefined, error.message);
+            BaseController.sendResponse(res, statusCode, false, error.message, undefined, error.message);
         }
     }
 
@@ -41,17 +41,17 @@ export class ClientController extends Controller {
             const { id } = req.params;
 
             if (!id) {
-                Controller.sendResponse(res, 400, false, 'Client ID is required');
+                BaseController.sendResponse(res, 400, false, 'Client ID is required');
                 return;
             }
 
             const client = await ClientService.getClientById(id);
-            Controller.sendResponse(res, 200, true, 'Client retrieved successfully', client);
+            BaseController.sendResponse(res, 200, true, 'Client retrieved successfully', client);
         } catch (error: any) {
             console.error('Error retrieving client:', error);
 
             const statusCode = error.message.includes('not found') ? 404 : 500;
-            Controller.sendResponse(res, statusCode, false, error.message, undefined, error.message);
+            BaseController.sendResponse(res, statusCode, false, error.message, undefined, error.message);
         }
     }
 
@@ -60,17 +60,17 @@ export class ClientController extends Controller {
             const { id } = req.params;
 
             if (!id) {
-                Controller.sendResponse(res, 400, false, 'Client ID is required');
+                BaseController.sendResponse(res, 400, false, 'Client ID is required');
                 return;
             }
 
             const result = await ClientService.deleteClient(id);
-            Controller.sendResponse(res, 200, true, 'Client deleted successfully', result);
+            BaseController.sendResponse(res, 200, true, 'Client deleted successfully', result);
         } catch (error: any) {
             console.error('Error deleting client:', error);
 
             const statusCode = error.message.includes('not found') ? 404 : 500;
-            Controller.sendResponse(res, statusCode, false, error.message, undefined, error.message);
+            BaseController.sendResponse(res, statusCode, false, error.message, undefined, error.message);
         }
     }
 
@@ -80,12 +80,12 @@ export class ClientController extends Controller {
             const updateData = req.body;
 
             if (!clientId) {
-                Controller.sendResponse(res, 400, false, 'Client ID is required');
+                BaseController.sendResponse(res, 400, false, 'Client ID is required');
                 return;
             }
 
             const updatedClient = await ClientService.updateClient(clientId, updateData);
-            Controller.sendResponse(res, 200, true, 'Client updated successfully', updatedClient);
+            BaseController.sendResponse(res, 200, true, 'Client updated successfully', updatedClient);
         } catch (error: any) {
             console.error('Error updating client:', error);
 
@@ -96,14 +96,14 @@ export class ClientController extends Controller {
                 statusCode = 409;
             }
 
-            Controller.sendResponse(res, statusCode, false, error.message, undefined, error.message);
+            BaseController.sendResponse(res, statusCode, false, error.message, undefined, error.message);
         }
     }
 
     static async register(req: Request<{}, ApiResponse<Client>, RegisterClientRequest>, res: Response): Promise<void> {
         try {
             const newClient = await ClientService.registerClient(req.body);
-            Controller.sendResponse(res, 201, true, 'Client registered successfully', newClient);
+            BaseController.sendResponse(res, 201, true, 'Client registered successfully', newClient);
         } catch (error: any) {
             console.error('Error registering client:', error);
 
@@ -114,7 +114,7 @@ export class ClientController extends Controller {
                 statusCode = 409;
             }
 
-            Controller.sendResponse(res, statusCode, false, error.message, undefined, error.message);
+            BaseController.sendResponse(res, statusCode, false, error.message, undefined, error.message);
         }
     }
 
@@ -123,17 +123,17 @@ export class ClientController extends Controller {
             const { client_id, auth_key } = req.body;
 
             if (!client_id || !auth_key) {
-                Controller.sendResponse(res, 400, false, 'Client ID and auth key are required');
+                BaseController.sendResponse(res, 400, false, 'Client ID and auth key are required');
                 return;
             }
 
             const safeClientData = await ClientService.verifyClient(client_id, auth_key);
-            Controller.sendResponse(res, 200, true, 'Client verified successfully', safeClientData);
+            BaseController.sendResponse(res, 200, true, 'Client verified successfully', safeClientData);
         } catch (error: any) {
             console.error('Error verifying client:', error);
 
             const statusCode = error.message.includes('Invalid credentials') ? 401 : 500;
-            Controller.sendResponse(res, statusCode, false, error.message, undefined, error.message);
+            BaseController.sendResponse(res, statusCode, false, error.message, undefined, error.message);
         }
     }
 
@@ -142,17 +142,17 @@ export class ClientController extends Controller {
             const { client_id } = req.params;
 
             if (!client_id) {
-                Controller.sendResponse(res, 400, false, 'Client ID is required');
+                BaseController.sendResponse(res, 400, false, 'Client ID is required');
                 return;
             }
 
             const onboardingStatus = await ClientService.getOnboardingStatus(client_id);
-            Controller.sendResponse(res, 200, true, 'Onboarding status retrieved successfully', onboardingStatus);
+            BaseController.sendResponse(res, 200, true, 'Onboarding status retrieved successfully', onboardingStatus);
         } catch (error: any) {
             console.error('Error retrieving onboarding status:', error);
 
             const statusCode = error.message.includes('not found') ? 404 : 500;
-            Controller.sendResponse(res, statusCode, false, error.message, undefined, error.message);
+            BaseController.sendResponse(res, statusCode, false, error.message, undefined, error.message);
         }
     }
 }

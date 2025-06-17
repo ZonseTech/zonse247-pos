@@ -46,6 +46,10 @@ export class ClientModel {
         return sealDBModel.findById(TABLE_NAMES.CLIENTS, id);
     }
 
+    static async findClientId(id: string): Promise<Client | null> {
+        return sealDBModel.find(TABLE_NAMES.CLIENTS, { client_id: id }) as any;
+    }
+
     static async findByCredentials(client_id: string, auth_key: string): Promise<Client[]> {
         return sealDBModel.find(TABLE_NAMES.CLIENTS, { client_id, auth_key });
     }
