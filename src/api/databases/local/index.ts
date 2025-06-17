@@ -145,17 +145,15 @@ export class SealDBModel {
 		});
 	}
 
-	public findById(table: string, id: string): Promise<any | null> {
+	public async findById<T = any>(table: string, conditions: string | Record<string, any>): Promise<T | null> {
 		return new Promise((resolve, reject) => {
-			try {
-				const db = this.getDB(table);
-				db.findOne({ uuid: id }, (err: Error | null, doc: any) => {
-					if (err) reject(err);
-					else resolve(doc);
-				});
-			} catch (error) {
-				reject(error);
-			}
+			const db = this.getDB(table);
+			const query = typeof conditions === 'string' ? { uuid: conditions } : conditions;
+
+			db.findOne(query, (err, doc) => {
+				if (err) return reject(err);
+				resolve(doc);
+			});
 		});
 	}
 
