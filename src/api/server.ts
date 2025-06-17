@@ -41,7 +41,10 @@ import {
 	UsersRoutes,
 	SubscriptionsRoutes,
 	ShopsRoutes,
-	WorkStationRoutes
+	WorkStationRoutes,
+	RoleRoutes,
+	PermissionRoutes,
+	RolePermissionRoutes
 } from './routes';
 
 class Server {
@@ -118,6 +121,9 @@ class Server {
 		this.app.use('/api/shops', ShopsRoutes);
 		this.app.use('/api/subscriptions', SubscriptionsRoutes);
 		this.app.use('/api/workstations', WorkStationRoutes);
+		this.app.use('/api/roles', RoleRoutes);
+		this.app.use('/api/permissions', PermissionRoutes);
+		this.app.use('/api/role-permissions', RolePermissionRoutes);
 
 		this.app.use((req: Request, res: Response) => {
 			res.status(404).json({
