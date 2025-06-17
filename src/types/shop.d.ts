@@ -7,6 +7,13 @@ interface ShopVerificationParams {
 	macAddress: string;
 }
 
+
+interface ShopOptions {
+	uuid: string;
+	name: string;
+}
+
+
 interface IShop {
 	id?: number;
 	uuid: string;
