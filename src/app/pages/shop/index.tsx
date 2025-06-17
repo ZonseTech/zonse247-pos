@@ -1,6 +1,6 @@
 import AppLayout from '../../layouts/AppLayout';
 import { HiOutlineMenuAlt4, HiOutlineSearch } from 'react-icons/hi';
-import shopsService, { IShop } from '../../services/shop.service';
+import shopsService from '../../services/shop.service';
 import { Button, Input, ZonseThemeContext } from '../../components';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { Edit2, Trash2, Store, MapPin, Phone, Mail } from 'lucide-react';
@@ -157,10 +157,10 @@ const ShopManagement: FunctionComponent = () => {
     const loadShops = async () => {
         try {
             setIsLoading(true);
-            const data: Array<IShop> = await shopsService.list();
-            setShops(data);
-            setFilteredShops(data);
-            setTotalRows(data.length);
+            const result = await shopsService.list();
+            setShops(result.data);
+            setFilteredShops(result.data);
+            setTotalRows(result.data.length);
         } catch (error) {
             console.error('Error loading shops:', error);
             Notify.failure('Failed to load shops');
@@ -285,7 +285,7 @@ const ShopManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="p-6 max-w-7xl mx-auto bg-white">
+            <div className="p-6 max-w-full mx-auto bg-white">
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-800 flex items-center">
