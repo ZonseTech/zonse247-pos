@@ -40,7 +40,8 @@ import {
 	TransactionsRoutes,
 	UsersRoutes,
 	SubscriptionsRoutes,
-	ShopsRoutes
+	ShopsRoutes,
+	WorkStationRoutes
 } from './routes';
 
 class Server {
@@ -116,6 +117,7 @@ class Server {
 		this.app.use('/api/clients', ClientsRoutes);
 		this.app.use('/api/shops', ShopsRoutes);
 		this.app.use('/api/subscriptions', SubscriptionsRoutes);
+		this.app.use('/api/workstations', WorkStationRoutes);
 
 		this.app.use((req: Request, res: Response) => {
 			res.status(404).json({

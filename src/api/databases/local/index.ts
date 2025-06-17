@@ -7,6 +7,7 @@ import tables, {
 	SYNC_STATUS_TABLE,
 	TRANSACTIONS_DB,
 	USERS_DB,
+	WORKSTATIONS_DB,
 } from './tables';
 import Datastore from '@seald-io/nedb';
 
@@ -374,6 +375,14 @@ export class SealDBModel {
 					case ORDERS_DB:
 						db.ensureIndex({ fieldName: 'refNumber' });
 						db.ensureIndex({ fieldName: 'productId' });
+						break;
+					case WORKSTATIONS_DB:
+						db.ensureIndex({ fieldName: 'client_id' });
+						db.ensureIndex({ fieldName: 'shop_id' });
+						db.ensureIndex({ fieldName: 'till_number' });
+						db.ensureIndex({ fieldName: 'device_id' });
+						db.ensureIndex({ fieldName: 'status' });
+						db.ensureIndex({ fieldName: 'is_primary' });
 						break;
 				}
 				console.log(`Ensured indexes for table: ${tableName}`);

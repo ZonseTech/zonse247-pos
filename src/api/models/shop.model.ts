@@ -12,6 +12,10 @@ export class ShopModel {
         return sealDBModel.find(TABLE_NAMES.SHOPS, { client_id });
     }
 
+    static async findByShopCode(shop_code: string): Promise<IShop | null> {
+        return sealDBModel.findById(TABLE_NAMES.SHOPS, { shop_code });
+    }
+
     static async findByClientIdAndShopCode(client_id: string, shop_code: string): Promise<IShop[]> {
         return sealDBModel.find(TABLE_NAMES.SHOPS, { client_id, shop_code });
     }

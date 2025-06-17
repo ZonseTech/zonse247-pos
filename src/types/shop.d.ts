@@ -7,31 +7,32 @@ interface ShopVerificationParams {
 	macAddress: string;
 }
 
-// interface Shop {
-// 	id: string;
-// 	name: string;
-// 	email: string;
-// 	phone: string;
-// 	address: {
-// 		line1: string;
-// 		line2: string;
-// 		city: string;
-// 		country: string;
-// 	};
-// 	vatNumber?: string;
-// 	currency: {
-// 		symbol: string;
-// 		code: string;
-// 	};
-// 	tax: {
-// 		rate: number;
-// 		enabled: boolean;
-// 	};
-// 	logo?: string;
-// 	footer?: string;
-// 	createdAt: string;
-// 	status: 'active' | 'inactive' | 'suspended';
-// }
+interface IShop {
+	id?: number;
+	uuid: string;
+	client_id: string;
+	shop_code: string;
+	name: string;
+	description?: string;
+	address_line1?: string;
+	address_line2?: string;
+	city?: string;
+	state?: string;
+	postal_code?: string;
+	country?: string;
+	phone?: string;
+	email?: string;
+	tax_number?: string;
+	currency_code: string;
+	currency_symbol: string;
+	tax_rate: number;
+	charge_tax: boolean;
+	receipt_footer?: string;
+	logo_url?: string;
+	status: 'active' | 'inactive' | 'suspended';
+	created_at?: string;
+	updated_at?: string;
+}
 
 interface ShopRegistration {
 	shopName: string;
@@ -95,6 +96,28 @@ interface WorkstationSettings {
 		inventory: boolean;
 	};
 	createdAt: string;
+}
+
+interface CreateShopRequest {
+	client_id: string;
+	shop_code: string;
+	name: string;
+	description?: string;
+	address_line1?: string;
+	address_line2?: string;
+	city?: string;
+	state?: string;
+	postal_code?: string;
+	country?: string;
+	phone?: string;
+	email?: string;
+	tax_number?: string;
+	currency_code?: string;
+	currency_symbol?: string;
+	tax_rate?: number;
+	charge_tax?: boolean;
+	receipt_footer?: string;
+	logo_url?: string;
 }
 
 interface Setting extends WorkstationSettings {
