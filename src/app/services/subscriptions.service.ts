@@ -1,27 +1,11 @@
 import api from "./http.service";
 
-interface ClientSubscription {
-    id?: number;
-    uuid: string;
-    client_id: string;
-    plan_id: string;
-    status: 'active' | 'cancelled' | 'expired' | 'past_due';
-    starts_at: string;
-    ends_at?: string;
-    auto_renew: boolean;
-    payment_method?: string;
-    last_payment_date?: string;
-    next_payment_date?: string;
-    created_at?: string;
-    updated_at?: string;
-}
-
 class SubscriptionsService {
     private readonly endpoint = '/subscriptions';
 
-    async list(): Promise<ClientSubscription[]> {
+    async list(): Promise<SubscriptionResponse> {
         try {
-            const response = await api.get<Array<ClientSubscription>>(this.endpoint);
+            const response = await api.get<SubscriptionResponse>(this.endpoint);
             return response.data;
         } catch (error) {
             console.error('Error fetching subscriptions:', error);

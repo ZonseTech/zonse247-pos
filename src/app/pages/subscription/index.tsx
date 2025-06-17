@@ -143,8 +143,11 @@ const SubscriptionManagement: FunctionComponent = () => {
     const loadSubscriptions = async () => {
         try {
             setIsLoading(true);
-            const data: Array<ClientSubscription> = await subscriptionsService.list();
-            setSubscriptions(data);
+            const result = await subscriptionsService.list();
+
+            const data = result.data
+
+            setSubscriptions(result.data);
             setFilteredSubscriptions(data);
             setTotalRows(data.length);
         } catch (error) {
@@ -283,7 +286,7 @@ const SubscriptionManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="p-6 max-w-6xl mx-auto bg-white">
+            <div className="p-6 max-w-full mx-auto bg-white">
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-800 flex items-center">
