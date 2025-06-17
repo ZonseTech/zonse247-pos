@@ -217,8 +217,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
                 onShopSaved();
             }
         } catch (error: any) {
-            console.error('Error saving shop:', error);
-            const errorMessage = error?.response?.data?.message || 'An error occurred while saving the shop';
+            const errorMessage = error?.error?.response?.data?.message || error?.error?.message || 'An error occurred while saving the shop';
             Notify.failure(errorMessage);
         } finally {
             setIsSavingForm(false)
@@ -456,10 +455,6 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
                                     completedSteps={completedSteps}
                                     onStepClick={(stepIndex) => handleStepClick(stepIndex, values)}
                                 />
-
-                                {JSON.stringify(currentStep + 1)}
-                                {JSON.stringify(steps.length)}
-                                {JSON.stringify(isSavingForm)}
 
                                 <div className="min-h-[400px]">
                                     <h3 className="text-lg font-semibold text-gray-800 mb-6 border-b pb-2">
