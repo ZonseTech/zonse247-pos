@@ -1,29 +1,96 @@
-import { Request, Response } from 'express';
-import { ShopService } from '../services/shop.service';
+import { Request, Response } from "express";
+import { BaseController } from "./base.controller";
+import { ShopService } from "../services/shop.service";
 
-export class ShopController {
-	private shopService: ShopService;
+export class ShopController extends BaseController {
 
-	constructor() {
-		this.shopService = new ShopService();
-	}
+    static async list(req: Request, res: Response): Promise<void> {
+        try {
+            const query = req.query;
+            const shops = await ShopService.getAllShops(query);
+            BaseController.sendResponse(res, 200, true, 'Shops retrieved successfully', shops);
+        } catch (error: any) {
+            console.error('Error fetching shops:', error);
+            BaseController.sendResponse(res, 500, false, error.message, undefined, error.message);
+        }
+    }
 
-	async verifyPosStation(req: Request, res: Response): Promise<void> {
-		try {
-			const params = {};
-		} catch (error) {}
-	}
+    static async create(req: Request<{}, ApiResponse<IShop>, CreateShopRequest>, res: Response): Promise<void> {
+        try {
+            const newShop = await ShopService.createShop(req.body);
+            BaseController.sendResponse(res, 201, true, 'Shop created successfully', newShop);
+        } catch (error: any) {
+            console.error('Error creating shop:', error);
 
-	async checkPosDetails(req: Request, res: Response): Promise<void> {
-		try {
-			const shop = await this.shopService.getPosDetails();
-			res.send(shop);
-		} catch (error: any) {
-			console.error(error);
-			res.status(500).json({
-				error: 'Internal Server Error',
-				message: error.message || `An unexpected error occurred. ${error}`,
-			});
-		}
-	}
+            let statusCode = 500;
+            if (error.message.includes('Missing required field') || error.message.includes('Client must be active') || error.message.includes('Maximum number of shops')) {
+                statusCode = 400;
+            } else if (error.message.includes('not found')) {
+                statusCode = 404;
+            } else if (error.message.includes('already exists')) {
+                statusCode = 409;
+            } else if (error.message.includes('does not own')) {
+                statusCode = 403;
+            }
+
+            BaseController.sendResponse(res, statusCode, false, error.message, undefined, error.message);
+        }
+    }
+
+    static async update(req: Request<{ id: string }, ApiResponse<IShop>, Partial<IShop>>, res: Response): Promise<void> {
+        try {
+            const { id } = req.params;
+            const updatedShop = await ShopService.updateShop(id, req.body);
+            BaseController.sendResponse(res, 200, true, 'Shop updated successfully', updatedShop);
+        } catch (error: any) {
+            console.error('Error updating shop:', error);
+
+            let statusCode = 500;
+            if (error.message.includes('Missing required field') || error.message.includes('Invalid')) {
+                statusCode = 400;
+            } else if (error.message.includes('not found')) {
+                statusCode = 404;
+            } else if (error.message.includes('already exists')) {
+                statusCode = 409;
+            }
+
+            BaseController.sendResponse(res, statusCode, false, error.message, undefined, error.message);
+        }
+    }
+
+    static async show(req: Request<{ id: string }>, res: Response): Promise<void> {
+        try {
+            const { id } = req.params;
+            const shop = await ShopService.getShopById(id);
+            BaseController.sendResponse(res, 200, true, 'Shop retrieved successfully', shop);
+        } catch (error: any) {
+            console.error('Error fetching shop:', error);
+
+            let statusCode = 500;
+            if (error.message.includes('not found')) {
+                statusCode = 404;
+            }
+
+            BaseController.sendResponse(res, statusCode, false, error.message, undefined, error.message);
+        }
+    }
+
+    static async delete(req: Request<{ id: string }>, res: Response): Promise<void> {
+        try {
+            const { id } = req.params;
+            const result = await ShopService.deleteShop(id);
+            BaseController.sendResponse(res, 200, true, 'Shop deleted successfully', result);
+        } catch (error: any) {
+            console.error('Error deleting shop:', error);
+
+            let statusCode = 500;
+            if (error.message.includes('not found')) {
+                statusCode = 404;
+            } else if (error.message.includes('cannot be deleted')) {
+                statusCode = 400;
+            }
+
+            BaseController.sendResponse(res, statusCode, false, error.message, undefined, error.message);
+        }
+    }
 }

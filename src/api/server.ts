@@ -25,19 +25,22 @@ import {
 } from './middlewares/security.middleware';
 import {
 	CategoriesRoutes,
+	ClientsRoutes,
+	OnboardingRoutes,
 	CustomersRoutes,
 	DashboardRoutes,
 	DatabaseExportRoutes,
 	HoldOrdersRoutes,
 	InventoryRoutes,
 	MigrationRoutes,
-	OnboardingRoutes,
 	PaymentMethodRoutes,
 	PrinterRoutes,
 	SettingsRoutes,
 	SyncRoutes,
 	TransactionsRoutes,
-	UsersRoutes
+	UsersRoutes,
+	SubscriptionsRoutes,
+	ShopsRoutes
 } from './routes';
 
 class Server {
@@ -110,6 +113,9 @@ class Server {
 		this.app.use('/api/migration', MigrationRoutes);
 		this.app.use('/api/transactions', TransactionsRoutes);
 		this.app.use('/api/hold-orders', HoldOrdersRoutes);
+		this.app.use('/api/clients', ClientsRoutes);
+		this.app.use('/api/shops', ShopsRoutes);
+		this.app.use('/api/subscriptions', SubscriptionsRoutes);
 
 		this.app.use((req: Request, res: Response) => {
 			res.status(404).json({
