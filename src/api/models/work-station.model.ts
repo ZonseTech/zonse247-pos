@@ -3,16 +3,29 @@ import { sealDBModel } from '../databases/local';
 import { TABLE_NAMES } from '../databases/local/tables';
 
 export class WorkstationModel {
+
     static async findByClientId(client_id: string): Promise<Workstation[]> {
         return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { client_id });
     }
 
-    static async findByShopIdAndTillNumber(shop_id: string, till_number: string): Promise<Workstation[]> {
-        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { shop_id, till_number });
+    static async findByShopCode(shop_code: string): Promise<Workstation[]> {
+        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { shop_code });
     }
 
-    static async findPrimaryByShopId(shop_id: string): Promise<Workstation[]> {
-        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { shop_id, is_primary: true });
+    static async findByShopCodeAndTillNumber(shop_code: string, till_number: string): Promise<Workstation[]> {
+        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { shop_code, till_number });
+    }
+
+    static async findPrimaryByShopCode(shop_code: string): Promise<Workstation[]> {
+        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { shop_code, is_primary: true });
+    }
+
+    static async findAll(): Promise<Workstation[]> {
+        return sealDBModel.findAll(TABLE_NAMES.WORKSTATIONS);
+    }
+
+    static async findById(uuid: string): Promise<Workstation | null> {
+        return sealDBModel.findById(TABLE_NAMES.WORKSTATIONS, uuid);
     }
 
     static async create(workstationData: Omit<Workstation, 'id'>): Promise<Workstation> {
@@ -23,10 +36,18 @@ export class WorkstationModel {
         return sealDBModel.update(TABLE_NAMES.WORKSTATIONS, uuid, updateData);
     }
 
+    static async delete(uuid: string): Promise<number> {
+        return sealDBModel.delete(TABLE_NAMES.WORKSTATIONS, uuid);
+    }
+
+    static async count(conditions: any = {}): Promise<number> {
+        return sealDBModel.count(TABLE_NAMES.WORKSTATIONS, conditions);
+    }
+
     static buildWorkstationData(data: CreateWorkstationRequest): Omit<Workstation, 'id'> {
         return {
             uuid: uuidv4(),
-            shop_id: data.shop_id,
+            shop_code: data.shop_code,
             client_id: data.client_id,
             till_name: data.till_name,
             till_number: data.till_number,
@@ -36,7 +57,8 @@ export class WorkstationModel {
             is_primary: data.is_primary || false,
             status: 'active',
             registered_at: new Date().toISOString(),
-            last_activity: new Date().toISOString()
+            last_activity: new Date().toISOString(),
+            last_sync: null
         };
     }
 }

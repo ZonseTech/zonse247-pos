@@ -140,7 +140,7 @@ const WorkstationManagement: FunctionComponent = () => {
     const loadWorkstations = async () => {
         try {
             setIsLoading(true);
-            const data: Array<Workstation> = await workstationsService.list();
+            const data = await workstationsService.list();
             setWorkstations(data);
             setFilteredWorkstations(data);
             setTotalRows(data.length);
@@ -234,9 +234,7 @@ const WorkstationManagement: FunctionComponent = () => {
             'Cancel',
             async () => {
                 try {
-                    // First remove primary from all workstations
                     const updatedWorkstations = workstations.map(ws => ({ ...ws, is_primary: false }));
-                    // Then set the selected one as primary
                     const finalWorkstations = updatedWorkstations.map(ws =>
                         ws.uuid === workstationId ? { ...ws, is_primary: true } : ws
                     );
@@ -322,7 +320,7 @@ const WorkstationManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="p-6 max-w-6xl mx-auto bg-white">
+            <div className="p-6 max-w-full mx-auto bg-white">
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-800 flex items-center">

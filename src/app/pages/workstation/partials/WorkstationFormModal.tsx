@@ -52,7 +52,7 @@ const WorkstationFormModal: FunctionComponent<WorkstationFormModalProps> = ({
         ...workstation
     } : {
         uuid: generateUUID(),
-        shop_id: '',
+        shop_code: '',
         client_id: '',
         till_name: '',
         till_number: '',
@@ -65,7 +65,7 @@ const WorkstationFormModal: FunctionComponent<WorkstationFormModalProps> = ({
 
     const workstationValidationSchema = Yup.object().shape({
         uuid: Yup.string().required('UUID is required'),
-        shop_id: Yup.string().required('Shop ID is required'),
+        shop_code: Yup.string().required('Shop ID is required'),
         client_id: Yup.string().required('Client ID is required'),
         till_name: Yup.string()
             .required('Till name is required')
@@ -129,57 +129,63 @@ const WorkstationFormModal: FunctionComponent<WorkstationFormModalProps> = ({
                     {({ isSubmitting, values, setFieldValue }) => (
                         <Form>
                             <FormWrapper>
-                                <FormInput
-                                    type="text"
-                                    name="till_name"
-                                    label="Till Name"
-                                    required
-                                    placeholder="Enter till name"
-                                />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormInput
+                                        type="text"
+                                        name="till_name"
+                                        label="Till Name"
+                                        required
+                                        placeholder="Enter till name"
+                                    />
 
-                                <FormInput
-                                    type="text"
-                                    name="till_number"
-                                    label="Till Number"
-                                    required
-                                    placeholder="Enter till number"
-                                />
+                                    <FormInput
+                                        type="text"
+                                        name="till_number"
+                                        label="Till Number"
+                                        required
+                                        placeholder="Enter till number"
+                                    />
+                                </div>
 
-                                <FormInput
-                                    type="text"
-                                    name="shop_id"
-                                    label="Shop ID"
-                                    required
-                                    placeholder="Enter shop ID"
-                                />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormInput
+                                        type="text"
+                                        name="shop_code"
+                                        label="Shop ID"
+                                        required
+                                        placeholder="Enter shop ID"
+                                    />
 
-                                <FormInput
-                                    type="text"
-                                    name="client_id"
-                                    label="Client ID"
-                                    required
-                                    placeholder="Enter client ID"
-                                />
+                                    <FormInput
+                                        type="text"
+                                        name="client_id"
+                                        label="Client ID"
+                                        required
+                                        placeholder="Enter client ID"
+                                    />
+                                </div>
 
-                                <FormSelectBox
-                                    label="Device Type"
-                                    name="device_type"
-                                    required
-                                    options={deviceTypes}
-                                />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormSelectBox
+                                        label="Device Type"
+                                        name="device_type"
+                                        required
+                                        options={deviceTypes}
+                                    />
 
-                                <FormInput
-                                    type="text"
-                                    name="device_id"
-                                    label="Device ID"
-                                    placeholder="Enter device ID (optional)"
-                                />
+                                    <FormInput
+                                        type="text"
+                                        name="device_id"
+                                        label="Device ID"
+                                        placeholder="Enter device ID (optional)"
+                                    />
+                                </div>
 
                                 <FormInput
                                     type="text"
                                     name="ip_address"
                                     label="IP Address"
-                                    placeholder="192.168.1.100"
+                                    placeholder="127.0.0.1 or leave blank"
                                 />
 
                                 <FormSelectBox

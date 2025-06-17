@@ -12,10 +12,10 @@ const endpoints: Record<string, string> = {
 
 const workstationsService = {
     endpoints,
-    async list(query = {}): Promise<Workstation[]> {
+    async list(query = {}): Promise<Array<Workstation>> {
         return api
-            .get<Workstation[]>(endpoints.all, query)
-            .then((res) => res.data)
+            .get<ApiResponse>(endpoints.all, query)
+            .then((res) => res.data.data as Array<Workstation>)
             .catch((err) => {
                 throw err;
             });
