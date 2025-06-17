@@ -66,6 +66,7 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
         address: '',
         country: '',
         timezone: 'UTC',
+        registered_at: '',
         subscription_status: 'trial',
         trial_ends_at: '',
         auth_key: '',
@@ -230,7 +231,7 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
 
                                 {values.subscription_status === 'trial' && (
                                     <FormInput
-                                        type="datetime-local"
+                                        type="date"
                                         name="trial_ends_at"
                                         label="Trial Ends At"
                                         required

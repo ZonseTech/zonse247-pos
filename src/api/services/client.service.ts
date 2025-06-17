@@ -38,6 +38,45 @@ export class ClientService {
         return ClientModel.create(clientData);
     }
 
+    static async getAllClients(query: any = {}): Promise<Omit<Client, 'auth_key'>[]> {
+        try {
+            const clients = await ClientModel.findAll(query);
+            return clients.map(client => ClientModel.sanitizeClient(client));
+        } catch (error) {
+            throw new Error(`Failed to retrieve clients: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+    }
+
+    static async getClientById(id: string): Promise<Omit<Client, 'auth_key'>> {
+        const client = await ClientModel.findById(id);
+        if (!client) {
+            throw new Error('Client not found');
+        }
+        return ClientModel.sanitizeClient(client);
+    }
+
+    static async deleteClient(id: string): Promise<{ status: boolean }> {
+        const client = await ClientModel.findById(id);
+        if (!client) {
+            throw new Error('Client not found');
+        }
+
+        const subscriptions = await SubscriptionModel.findByClientId(id);
+        const shops = await ShopModel.findByClientId(id);
+        const workstations = await WorkstationModel.findByClientId(id);
+
+        if (subscriptions.length > 0 || shops.length > 0 || workstations.length > 0) {
+            throw new Error('Cannot delete client with existing subscriptions, shops, or workstations');
+        }
+
+        const deletedCount = await ClientModel.delete(id);
+        if (deletedCount === 0) {
+            throw new Error('Failed to delete client');
+        }
+
+        return { status: true };
+    }
+
     static async verifyClient(client_id: string, auth_key: string): Promise<Omit<Client, 'auth_key'>> {
         const clients = await ClientModel.findByCredentials(client_id, auth_key);
 

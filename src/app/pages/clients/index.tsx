@@ -315,7 +315,7 @@ const ClientManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="p-6 max-w-7xl mx-auto bg-white">
+            <div className="p-6 max-w-full mx-auto bg-white">
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-800 flex items-center">

@@ -12,6 +12,32 @@ export class ClientModel {
         return crypto.randomBytes(32).toString('hex');
     }
 
+    static async findAll(query: any = {}): Promise<Client[]> {
+        const conditions: any = {};
+
+        if (query.status) {
+            conditions.status = query.status;
+        }
+
+        if (query.subscription_status) {
+            conditions.subscription_status = query.subscription_status;
+        }
+
+        if (query.country) {
+            conditions.country = query.country;
+        }
+
+        if (query.search) {
+            conditions.$or = [
+                { company_name: { $regex: new RegExp(query.search, 'i') } },
+                { owner_name: { $regex: new RegExp(query.search, 'i') } },
+                { email: { $regex: new RegExp(query.search, 'i') } }
+            ];
+        }
+
+        return sealDBModel.find(TABLE_NAMES.CLIENTS, conditions);
+    }
+
     static async findByEmail(email: string): Promise<Client[]> {
         return sealDBModel.find(TABLE_NAMES.CLIENTS, { email });
     }
@@ -30,6 +56,10 @@ export class ClientModel {
 
     static async update(id: string, updateData: Partial<Client>): Promise<number> {
         return sealDBModel.update(TABLE_NAMES.CLIENTS, id, updateData);
+    }
+
+    static async delete(id: string): Promise<number> {
+        return sealDBModel.delete(TABLE_NAMES.CLIENTS, id);
     }
 
     static buildClientData(data: RegisterClientRequest): Omit<Client, 'id'> {
