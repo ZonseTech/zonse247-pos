@@ -1,107 +1,173 @@
-import React from 'react';
+import React, { useState, useEffect, useContext, Fragment, ChangeEvent } from 'react';
 import { Shield, Edit2, Trash2, Plus } from 'lucide-react';
-import { EmptyState } from '../EmptyState';
+import { HiOutlineMenuAlt4, HiOutlineSearch } from 'react-icons/hi';
+import DataTable, { TableColumn } from 'react-data-table-component';
+import { Input, ZonseThemeContext } from '../../../../components';
 
-export const PermissionsTab: React.FC<PermissionTabProps> = ({
-    permissions,
-    onCreatePermission,
-    onEditPermission,
-    onDeletePermission,
-}) => {
+export const PermissionsTab: React.FC<PermissionTabProps> = ({ permissions }) => {
+    const { mode } = useContext(ZonseThemeContext);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [filteredPermissions, setFilteredPermissions] = useState<Array<Permission>>([]);
+    const [page, setPage] = useState(1);
+    const [perPage, setPerPage] = useState(13);
+    const [totalRows, setTotalRows] = useState(0);
+
+    const columns: Array<TableColumn<Permission>> = [
+        {
+            name: "Permission",
+            cell: (row) => (
+                <Fragment>
+                    <div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {row.name}
+                        </div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {row.description || '-'}
+                        </div>
+                    </div>
+                </Fragment>
+            ),
+            sortable: true,
+        },
+        {
+            name: 'Display Name',
+            selector: (row) => row.displayName,
+            cell: (row) => (
+                <Fragment>
+                    <div className="text-sm text-gray-900 dark:text-gray-100">
+                        {row.displayName}
+                    </div>
+                </Fragment>
+            ),
+            sortable: true,
+        },
+        {
+            name: 'Category',
+            selector: (row) => row.category,
+            cell: (row) => (
+                <Fragment>
+                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                        {row.category}
+                    </span>
+                </Fragment>
+            ),
+            sortable: true,
+        },
+        {
+            name: 'Scope',
+            cell: (row) => (
+                <Fragment>
+                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
+                        {(row.scope as string) || 'N/A'}
+                    </span>
+                </Fragment>
+            ),
+            sortable: true,
+        },
+        {
+            name: 'Type',
+            cell: (row) => (
+                <Fragment>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${row.isSystemPermission
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-800 dark:text-gray-400'
+                        }`}>
+                        {row.isSystemPermission ? 'System' : 'Custom'}
+                    </span>
+                </Fragment>
+            ),
+            sortable: true,
+        },
+    ];
+
+    useEffect(() => {
+        setFilteredPermissions(permissions);
+        setTotalRows(permissions.length);
+    }, [permissions]);
+
+    useEffect(() => {
+        if (searchTerm.trim() === "") {
+            setFilteredPermissions(permissions);
+        } else {
+            const filtered = permissions.filter(permission =>
+                permission.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                permission.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                permission.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (permission.description && permission.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (permission.scope && permission.scope.toString().toLowerCase().includes(searchTerm.toLowerCase()))
+            );
+            setFilteredPermissions(filtered);
+        }
+        setTotalRows(filteredPermissions.length);
+        setPage(1);
+    }, [searchTerm, permissions]);
+
+    const getPaginatedData = () => {
+        const startIndex = (page - 1) * perPage;
+        const endIndex = startIndex + perPage;
+        return filteredPermissions.slice(startIndex, endIndex);
+    };
+
+    const handlePageChange = (page: number) => {
+        setPage(page);
+    };
+
+    const handlePerRowsChange = (newPerPage: number, page: number) => {
+        setPage(page);
+        setPerPage(newPerPage);
+    };
+
+    const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(event.target.value);
+    };
+
     return (
         <div>
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">Permissions ({permissions.length})</h2>
-                <button
-                    onClick={onCreatePermission}
-                    className="bg-green-600 text-white dark:text-gray-100 px-4 py-2 rounded-sm hover:bg-green-700 flex items-center gap-2"
-                >
-                    <Plus className="w-4 h-4" />
-                    Create Permission
-                </button>
-            </div>
+            <div className="bg-white dark:bg-gray-700 rounded-md border overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+                    <div className="flex justify-between items-center">
+                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                            All Permissions {filteredPermissions.length}
+                        </h3>
 
-            <div className="bg-white dark:bg-gray-700 shadow-sm rounded-sm overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Permission
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Display Name
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Category
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Scope
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Type
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white dark:bg-gray-700 divide-y divide-gray-200">
-                        {permissions.map((permission) => (
-                            <tr key={permission.uuid} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm font-medium text-gray-900">{permission.name}</div>
-                                    <div className="text-sm text-gray-500">{permission.description || '-'}</div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-gray-900">{permission.displayName}</div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
-                                        {permission.category}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
-                                        {(permission.scope as string) || 'N/A'}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${permission.isSystemPermission
-                                        ? 'bg-green-100 text-green-800'
-                                        : 'bg-gray-100 text-gray-800 dark:text-gray-400'
-                                        }`}>
-                                        {permission.isSystemPermission ? 'System' : 'Custom'}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button
-                                        onClick={() => onEditPermission(permission)}
-                                        className="text-indigo-600 hover:text-indigo-900 mr-3"
-                                        title="Edit Permission"
-                                    >
-                                        <Edit2 className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => onDeletePermission(permission.uuid)}
-                                        className="text-red-600 hover:text-red-900"
-                                        title="Delete Permission"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        <div className="flex relative">
+                            <Input
+                                type="text"
+                                placeholder="Search permissions..."
+                                value={searchTerm}
+                                onChange={handleSearch}
+                                className="rounded-md px-3 py-2.5 pr-10"
+                            />
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <HiOutlineSearch className="h-5 w-5 text-gray-400" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                {permissions.length === 0 && (
-                    <EmptyState
-                        icon={<Shield className="h-12 w-12" />}
-                        title="No permissions found"
-                        description="Get started by creating a new permission."
-                        action={{ label: "Create Permission", onClick: onCreatePermission }}
-                    />
-                )}
+                <DataTable
+                    columns={columns}
+                    data={getPaginatedData()}
+                    theme={mode as string}
+                    highlightOnHover
+                    striped
+                    responsive
+                    pagination
+                    paginationServer
+                    paginationTotalRows={totalRows}
+                    onChangeRowsPerPage={handlePerRowsChange}
+                    onChangePage={handlePageChange}
+                    fixedHeader
+                    fixedHeaderScrollHeight="calc(100vh - 400px)"
+                    noDataComponent={
+                        <div className="text-center py-8">
+                            <Shield className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                            <p className="text-gray-500 dark:text-gray-400">
+                                {searchTerm ? 'No permissions found matching your search.' : 'No permissions found.'}
+                            </p>
+                        </div>
+                    }
+                />
             </div>
         </div>
     );

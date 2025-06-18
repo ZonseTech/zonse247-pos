@@ -58,18 +58,18 @@ const rolePermissionService = {
             });
     },
 
-    async getByRoleUuid(roleUuid: string): Promise<RolePermission[]> {
+    async getByRoleUuid(roleUuid: string): Promise<ApiResponse<RolePermission[]>> {
         return api
-            .get<Array<RolePermission>>(`${rolePermissionEndpoints.role}/${roleUuid}`)
+            .get<ApiResponse<RolePermission[]>>(`${rolePermissionEndpoints.role}/${roleUuid}`)
             .then((res) => res.data)
             .catch((err) => {
                 throw err;
             });
     },
 
-    async getByPermissionUuid(permissionUuid: string): Promise<RolePermission[]> {
+    async getByPermissionUuid(permissionUuid: string): Promise<ApiResponse<RolePermission[]>> {
         return api
-            .get<Array<RolePermission>>(`${rolePermissionEndpoints.permission}/${permissionUuid}`)
+            .get<ApiResponse<RolePermission[]>>(`${rolePermissionEndpoints.permission}/${permissionUuid}`)
             .then((res) => res.data)
             .catch((err) => {
                 throw err;

@@ -16,3 +16,12 @@ export enum ROUTES {
 	LANDING_PAGE = '/landing-page',
 	GET_STARTED = '/sign-in',
 }
+
+export enum PermissionScope {
+	USER = 'user',
+	GLOBAL = 'global',
+	CLIENT = 'client',
+	SHOP = 'shop',
+	WORKSTATION = 'workstation',
+	SELF = 'self'
+}

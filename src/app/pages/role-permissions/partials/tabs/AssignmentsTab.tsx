@@ -2,6 +2,7 @@ import { useState, useEffect, type FC } from 'react';
 import rolePermissionService from '../../../../services/role-permission.service';
 import { Shield } from 'lucide-react';
 import { LoadingSpinner } from '../LoadingSpinner';
+import AppLayout from '../../../../layouts/AppLayout';
 
 export const AssignmentsTab: FC<AssignmentTabProps> = ({
     roles,
@@ -14,9 +15,10 @@ export const AssignmentsTab: FC<AssignmentTabProps> = ({
 
     const loadRolePermissions = async (roleUuid: string): Promise<void> => {
         setLoading(true);
+
         try {
             const rolePermissionData = await rolePermissionService.getByRoleUuid(roleUuid);
-            const permissionUuids = rolePermissionData.map(rp => rp.permissionUuid);
+            const permissionUuids = rolePermissionData?.data?.map(rp => rp.permissionUuid);
             const assignedPermissions = permissions.filter(p => permissionUuids.includes(p.uuid));
             setRolePermissions(assignedPermissions);
         } catch (err) {
@@ -36,27 +38,23 @@ export const AssignmentsTab: FC<AssignmentTabProps> = ({
     }, [selectedRole, permissions]);
 
     return (
-        <div>
-            <div className="mb-2">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Role Permission Assignments</h2>
-
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Select Role</label>
-                    <select
-                        value={selectedRole}
-                        onChange={(e) => setSelectedRole(e.target.value)}
-                        className="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    >
-                        <option value="">Choose a role...</option>
-                        {roles.map(role => (
-                            <option key={role.uuid} value={role.uuid}>{role.name}</option>
-                        ))}
-                    </select>
-                </div>
+        <AppLayout>
+            <div className="mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Select Role</label>
+                <select
+                    value={selectedRole}
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                    className="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                    <option value="">Choose a role...</option>
+                    {roles.map(role => (
+                        <option key={role.uuid} value={role.uuid}>{role.name}</option>
+                    ))}
+                </select>
             </div>
 
             {selectedRole && (
-                <div className="bg-white dark:bg-gray-700 shadow-sm rounded-sm px-0 py-6">
+                <div className="bg-white max-h-[38rem] overflow-y-auto dark:bg-gray-700 shadow-sm rounded-sm px-0 py-6">
                     {loading ? (
                         <LoadingSpinner />
                     ) : (
@@ -96,6 +94,6 @@ export const AssignmentsTab: FC<AssignmentTabProps> = ({
                     )}
                 </div>
             )}
-        </div>
+        </AppLayout>
     )
 }

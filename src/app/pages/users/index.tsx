@@ -51,9 +51,9 @@ const UserManagement: FunctionComponent = () => {
             name: 'Role',
             cell: (row) => (
                 <Fragment>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(row?.role_uuid)}`}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(row?.roleUuid)}`}>
                         <Shield className="w-3 h-3 mr-1" />
-                        {getRoleName(row?.role_uuid)}
+                        {(row?.roleName || 'Unknown')}
                     </span>
                 </Fragment>
             )
@@ -74,17 +74,17 @@ const UserManagement: FunctionComponent = () => {
             cell: (row) => (
                 <Fragment>
                     <div className="flex flex-col space-y-1">
-                        {row?.max_discount_percent && (
+                        {row?.maxDiscountPercent && (
                             <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                Max Discount: {row.max_discount_percent}%
+                                Max Discount: {row.maxDiscountPercent}%
                             </span>
                         )}
-                        {row?.can_override_prices && (
+                        {row?.canOverridePrices && (
                             <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
                                 Price Override
                             </span>
                         )}
-                        {row?.force_password_change && (
+                        {row?.forcePasswordChange && (
                             <span className="text-xs bg-green-100 text-yellow-800 px-2 py-1 rounded">
                                 Reset Password
                             </span>
@@ -98,15 +98,15 @@ const UserManagement: FunctionComponent = () => {
             cell: (row) => (
                 <Fragment>
                     <div className="text-sm">
-                        {row?.last_login && (
+                        {row?.lastLogin && (
                             <div className="flex items-center text-green-600">
                                 <Clock className="w-3 h-3 mr-1" />
                                 <span className="text-xs">
-                                    {new Date(row.last_login).toLocaleDateString()}
+                                    {new Date(row.lastLogin).toLocaleDateString()}
                                 </span>
                             </div>
                         )}
-                        {!row?.last_login && (
+                        {!row?.lastLogin && (
                             <span className="text-xs text-gray-400">Never logged in</span>
                         )}
                     </div>
@@ -205,7 +205,7 @@ const UserManagement: FunctionComponent = () => {
         }
 
         if (roleFilter !== 'all') {
-            filtered = filtered.filter(user => user.role_uuid === roleFilter);
+            filtered = filtered.filter(user => user.roleUuid === roleFilter);
         }
 
         setFilteredUsers(filtered);
@@ -252,13 +252,13 @@ const UserManagement: FunctionComponent = () => {
             async () => {
                 try {
                     await usersService.update(user.uuid, {
-                        force_password_change: true,
+                        forcePasswordChange: true,
                         password_changed_at: new Date()
                     });
 
                     const updatedUsers = users.map(u =>
                         u.uuid === user.uuid
-                            ? { ...u, force_password_change: true, password_changed_at: new Date() }
+                            ? { ...u, forcePasswordChange: true, password_changed_at: new Date() }
                             : u
                     );
                     saveUsers(updatedUsers);
@@ -371,20 +371,12 @@ const UserManagement: FunctionComponent = () => {
 
     const getRoleColor = (roleUuid: string) => {
         const roleMap: Record<string, string> = {
+            'super_admin': 'text-purple-600 bg-purple-100',
             'admin': 'text-purple-600 bg-purple-100',
             'manager': 'text-blue-600 bg-blue-100',
             'cashier': 'text-green-600 bg-green-100',
         };
         return roleMap[roleUuid] || 'text-gray-600 bg-gray-100';
-    };
-
-    const getRoleName = (roleUuid: string) => {
-        const roleMap: Record<string, string> = {
-            'admin': 'Admin',
-            'manager': 'Manager',
-            'cashier': 'Cashier',
-        };
-        return roleMap[roleUuid] || 'Unknown';
     };
 
     const getStatusColor = (status?: UserStatus) => {
@@ -457,7 +449,7 @@ const UserManagement: FunctionComponent = () => {
         setShowForm(true);
     };
 
-    const uniqueRoles = [...new Set(users.map(user => user.role_uuid))];
+    const uniqueRoles = [...new Set(users.map(user => user.roleUuid))];
 
     return (
         <AppLayout>
@@ -525,7 +517,7 @@ const UserManagement: FunctionComponent = () => {
                                 <option value="all">All Roles</option>
                                 {uniqueRoles.map(role => (
                                     <option key={role} value={role}>
-                                        {getRoleName(role)}
+                                        {(role)}
                                     </option>
                                 ))}
                             </select>

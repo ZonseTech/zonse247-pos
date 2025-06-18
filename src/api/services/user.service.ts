@@ -56,23 +56,26 @@ export class UserService {
 			return { message: 'Incorrect username or password.' };
 		}
 
-		const roleData = await this.getRoleWithPermissions(user.roleUuid);
-
 		await sealDBModel.update(USERS_DB, user.uuid.toString(), {
 			lastLogin: new Date(),
 		});
 
-		const { password: _, ...userWithoutPassword } = user;
+		const roleData = await this.getRoleWithPermissions(user.roleUuid);
 
-		const completeUser: PublicUser = {
-			...userWithoutPassword,
-			roleName: roleData?.name || null,
-			permissions: roleData?.permissions || null,
-		};
+		const completeUser: PublicUser = this.getPublicUser(user, roleData || {});
 
 		const token = this.generateJWTToken(completeUser);
 
 		return { user: completeUser, token };
+	}
+
+	private getPublicUser(user: User, privileges: any): PublicUser {
+		const { password, ...publicUser } = user;
+		return {
+			...publicUser,
+			roleName: privileges.roleName || null,
+			permissions: privileges.permissions || null,
+		};
 	}
 
 	private async getRoleWithPermissions(
@@ -169,7 +172,16 @@ export class UserService {
 	}
 
 	async getAllUsers(): Promise<any[]> {
-		return await sealDBModel.findAll(USERS_DB);
+		const users: Array<User> = await sealDBModel.findAll(USERS_DB);
+
+		const publicUsers = await Promise.all(
+			users.map(async (user) => {
+				const roleData = await this.getRoleWithPermissions(user.roleUuid);
+				return this.getPublicUser(user, roleData || {});
+			})
+		);
+
+		return publicUsers;
 	}
 
 	async deleteUser(userId: string): Promise<void> {
