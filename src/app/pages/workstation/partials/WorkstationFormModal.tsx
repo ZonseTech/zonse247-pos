@@ -52,33 +52,33 @@ const WorkstationFormModal: FunctionComponent<WorkstationFormModalProps> = ({
         ...workstation
     } : {
         uuid: generateUUID(),
-        shop_code: '',
-        client_id: '',
-        till_name: '',
-        till_number: '',
-        device_id: '',
-        device_type: 'desktop',
-        ip_address: '',
+        shopCode: '',
+        clientId: '',
+        tillName: '',
+        tillNumber: '',
+        deviceId: '',
+        deviceType: 'desktop',
+        ipAddress: '',
         status: 'active',
-        is_primary: false
+        isPrimary: false
     };
 
     const workstationValidationSchema = Yup.object().shape({
         uuid: Yup.string().required('UUID is required'),
-        shop_code: Yup.string().required('Shop ID is required'),
-        client_id: Yup.string().required('Client ID is required'),
-        till_name: Yup.string()
+        shopCode: Yup.string().required('Shop ID is required'),
+        clientId: Yup.string().required('Client ID is required'),
+        tillName: Yup.string()
             .required('Till name is required')
             .min(2, 'Till name must be at least 2 characters')
             .max(50, 'Till name is too long'),
-        till_number: Yup.string()
+        tillNumber: Yup.string()
             .required('Till number is required')
             .matches(/^[A-Za-z0-9-]+$/, 'Till number can only contain letters, numbers and hyphens'),
-        device_id: Yup.string(),
-        device_type: Yup.string()
+        deviceId: Yup.string(),
+        deviceType: Yup.string()
             .required('Device type is required')
             .oneOf(['desktop', 'tablet', 'mobile', 'web'], 'Invalid device type'),
-        ip_address: Yup.string()
+        ipAddress: Yup.string()
             .matches(
                 /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
                 'Invalid IP address format'
@@ -86,7 +86,7 @@ const WorkstationFormModal: FunctionComponent<WorkstationFormModalProps> = ({
         status: Yup.string()
             .required('Status is required')
             .oneOf(['active', 'inactive', 'maintenance'], 'Invalid status'),
-        is_primary: Yup.boolean()
+        isPrimary: Yup.boolean()
     });
 
     const handleSubmit = async (values: Workstation, { resetForm }: any) => {
@@ -132,7 +132,7 @@ const WorkstationFormModal: FunctionComponent<WorkstationFormModalProps> = ({
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormInput
                                         type="text"
-                                        name="till_name"
+                                        name="tillName"
                                         label="Till Name"
                                         required
                                         placeholder="Enter till name"
@@ -140,7 +140,7 @@ const WorkstationFormModal: FunctionComponent<WorkstationFormModalProps> = ({
 
                                     <FormInput
                                         type="text"
-                                        name="till_number"
+                                        name="tillNumber"
                                         label="Till Number"
                                         required
                                         placeholder="Enter till number"
@@ -150,7 +150,7 @@ const WorkstationFormModal: FunctionComponent<WorkstationFormModalProps> = ({
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormInput
                                         type="text"
-                                        name="shop_code"
+                                        name="shopCode"
                                         label="Shop ID"
                                         required
                                         placeholder="Enter shop ID"
@@ -158,7 +158,7 @@ const WorkstationFormModal: FunctionComponent<WorkstationFormModalProps> = ({
 
                                     <FormInput
                                         type="text"
-                                        name="client_id"
+                                        name="clientId"
                                         label="Client ID"
                                         required
                                         placeholder="Enter client ID"
@@ -168,14 +168,14 @@ const WorkstationFormModal: FunctionComponent<WorkstationFormModalProps> = ({
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormSelectBox
                                         label="Device Type"
-                                        name="device_type"
+                                        name="deviceType"
                                         required
                                         options={deviceTypes}
                                     />
 
                                     <FormInput
                                         type="text"
-                                        name="device_id"
+                                        name="deviceId"
                                         label="Device ID"
                                         placeholder="Enter device ID (optional)"
                                     />
@@ -183,7 +183,7 @@ const WorkstationFormModal: FunctionComponent<WorkstationFormModalProps> = ({
 
                                 <FormInput
                                     type="text"
-                                    name="ip_address"
+                                    name="ipAddress"
                                     label="IP Address"
                                     placeholder="127.0.0.1 or leave blank"
                                 />
@@ -199,8 +199,8 @@ const WorkstationFormModal: FunctionComponent<WorkstationFormModalProps> = ({
                                     <label className="flex items-center cursor-pointer">
                                         <input
                                             type="checkbox"
-                                            checked={values.is_primary || false}
-                                            onChange={(e) => setFieldValue('is_primary', e.target.checked)}
+                                            checked={values.isPrimary || false}
+                                            onChange={(e) => setFieldValue('isPrimary', e.target.checked)}
                                             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2"
                                         />
                                         <span className="text-sm font-medium text-gray-700">

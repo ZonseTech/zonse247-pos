@@ -82,24 +82,37 @@ const SubscriptionManagement: FunctionComponent = () => {
                 <div className="flex items-center space-x-2">
                     <button
                         onClick={() => handleEdit(row)}
-                        className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
+                        disabled={row.uuid === '-1'}
+                        className={`p-1 rounded transition-colors ${row.uuid === '-1'
+                            ? 'text-gray-500'
+                            : 'text-blue-600 hover:text-blue-800'
+                            }`}
                         title="Edit subscription"
                     >
                         <Edit2 className="w-4 h-4" />
                     </button>
+
                     <button
                         onClick={() => toggleSubscriptionStatus(row?.uuid, row?.status)}
-                        className={`text-xs px-2 py-1 rounded transition-colors ${row?.status === 'active'
-                            ? 'text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100'
-                            : 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100'
+                        disabled={row.uuid === '-1'}
+                        className={`text-xs px-2 py-1 rounded transition-colors ${row.uuid === '-1'
+                            ? 'text-gray-500 bg-gray-100'
+                            : row?.status === 'active'
+                                ? 'text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100'
+                                : 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100'
                             }`}
                         title={row?.status === 'active' ? 'Cancel subscription' : 'Activate subscription'}
                     >
                         {row?.status === 'active' ? 'Cancel' : 'Activate'}
                     </button>
+
                     <button
                         onClick={() => handleDelete(row?.uuid)}
-                        className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
+                        disabled={row.uuid === '-1'}
+                        className={`p-1 rounded transition-colors ${row.uuid === '-1'
+                            ? 'text-gray-500'
+                            : 'text-red-600 hover:text-red-800'
+                            }`}
                         title="Delete subscription"
                     >
                         <Trash2 className="w-4 h-4" />
@@ -286,53 +299,48 @@ const SubscriptionManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="min-h-screen p-6 max-w-full mx-auto bg-white dark:bg-gray-700">
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-400 flex items-center">
-                            <CreditCard className="w-6 h-6 mr-2" />
-                            Subscription Management
-                        </h1>
-                        <p className="text-gray-600 mt-1">
-                            Manage client subscriptions and billing
-                        </p>
-                    </div>
-
-                    <div className="flex items-center space-x-3">
-                        <Button
-                            onClick={handleAddSubscriptionClicked}
-                            className="flex items-center px-4 py-2 bg-green-600 text-white dark:text-gray-100 rounded-lg hover:bg-green-700"
-                        >
-                            <HiOutlinePlus className="w-4 h-4 mr-2" />
-                            {'Add Subscription'}
-                        </Button>
-
-                        <SubscriptionFormModal
-                            subscription={editingSubscription}
-                            isOpen={showForm}
-                            onClose={handleCloseForm}
-                            onSubscriptionSaved={handleSubscriptionSaved}
-                        />
-                    </div>
-                </div>
-
+            <div className="min-h-screen max-w-full mx-auto bg-white dark:bg-gray-700">
                 <div className="bg-white dark:bg-gray-700 rounded-md border overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-200">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-400">
-                                Client Subscriptions ({filteredSubscriptions.length})
-                            </h2>
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-400 flex items-center">
+                                    <CreditCard className="w-6 h-6 mr-2" />
+                                    Client Subscriptions ({filteredSubscriptions.length})
+                                </h1>
+                                <p className="text-gray-600 mt-1">
+                                    Manage client subscriptions and billing
+                                </p>
+                            </div>
 
-                            <div className="flex relative">
-                                <Input
-                                    type="text"
-                                    placeholder="Search subscriptions..."
-                                    value={searchTerm}
-                                    onChange={handleSearch}
-                                    className="rounded-md px-3 py-2.5 pr-10"
-                                />
-                                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                    <HiOutlineSearch className="h-5 w-5 text-gray-400" />
+                            <div className='flex items-center space-x-4'>
+                                <div className="flex relative">
+                                    <Input
+                                        type="text"
+                                        placeholder="Search subscriptions..."
+                                        value={searchTerm}
+                                        onChange={handleSearch}
+                                        className="rounded-md px-3 py-2.5 pr-10"
+                                    />
+                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <HiOutlineSearch className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                </div>
+                                <div className="flex items-center space-x-3">
+                                    <Button
+                                        onClick={handleAddSubscriptionClicked}
+                                        className="flex items-center px-4 py-2 bg-green-600 text-white dark:text-gray-100 rounded-lg hover:bg-green-700"
+                                    >
+                                        <HiOutlinePlus className="w-4 h-4 mr-2" />
+                                        {'Add Subscription'}
+                                    </Button>
+
+                                    <SubscriptionFormModal
+                                        subscription={editingSubscription}
+                                        isOpen={showForm}
+                                        onClose={handleCloseForm}
+                                        onSubscriptionSaved={handleSubscriptionSaved}
+                                    />
                                 </div>
                             </div>
                         </div>

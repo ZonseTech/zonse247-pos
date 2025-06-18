@@ -123,9 +123,9 @@ export default function RolePermissionAdmin() {
     }
   };
 
-  const handleAssignPermissions = async (roleId: string, permissionIds) => {
+  const handleAssignPermissions = async (roleId: string, permissionUuids: Array<string>) => {
     try {
-      await roleService.assignPermissions(roleId, permissionIds);
+      await roleService.assignPermissions(roleId, permissionUuids);
       await loadData();
       setShowAssignModal(false);
       setSelectedRole(null);
@@ -288,7 +288,7 @@ export default function RolePermissionAdmin() {
             isOpen={showAssignModal}
             role={selectedRole}
             permissions={permissions}
-            onAssign={(permissionIds) => handleAssignPermissions(selectedRole.uuid, permissionIds)}
+            onAssign={(permissionUuids) => handleAssignPermissions(selectedRole.uuid, permissionUuids)}
             onClose={() => {
               setShowAssignModal(false);
               setSelectedRole(null);

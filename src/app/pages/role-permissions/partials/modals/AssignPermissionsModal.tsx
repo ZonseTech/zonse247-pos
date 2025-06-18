@@ -46,8 +46,9 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
     const loadCurrentPermissions = async () => {
         setLoading(true);
         try {
-            const data = await roleService.getRolePermissions(role.uuid);
-            const permissionIds = data.map(p => p.uuid);
+            const result = await roleService.getRolePermissions(role.uuid);
+
+            const permissionIds = result?.data.map(p => p.uuid);
             setCurrentPermissions(permissionIds);
         } catch (err) {
             console.error('Failed to load current permissions:', err);
@@ -58,8 +59,8 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
     };
 
     const handlePermissionToggle = (permissionId: string, values: FormValues, setFieldValue: any) => {
-        const currentSelected = values.selectedPermissions;
         let newSelected;
+        const currentSelected = values.selectedPermissions;
 
         if (currentSelected.includes(permissionId)) {
             newSelected = currentSelected.filter(id => id !== permissionId);

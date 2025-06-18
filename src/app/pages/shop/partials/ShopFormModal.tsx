@@ -77,11 +77,11 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
         shop_code: '',
         name: '',
         description: '',
-        address_line1: '',
-        address_line2: '',
+        addressLine1: '',
+        addressLine2: '',
         city: '',
         state: '',
-        postal_code: '',
+        postalCode: '',
         country: '',
         phone: '',
         email: '',
@@ -111,11 +111,11 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
     });
 
     const addressSchema = Yup.object().shape({
-        address_line1: Yup.string().max(255, 'Address line 1 is too long'),
-        address_line2: Yup.string().max(255, 'Address line 2 is too long'),
+        addressLine1: Yup.string().max(255, 'Address line 1 is too long'),
+        addressLine2: Yup.string().max(255, 'Address line 2 is too long'),
         city: Yup.string().max(100, 'City name is too long'),
         state: Yup.string().max(100, 'State name is too long'),
-        postal_code: Yup.string().max(20, 'Postal code is too long'),
+        postalCode: Yup.string().max(20, 'Postal code is too long'),
         country: Yup.string().max(100, 'Country name is too long')
     });
 
@@ -291,14 +291,14 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormInput
                             type="text"
-                            name="address_line1"
+                            name="addressLine1"
                             label="Address Line 1"
                             placeholder="Street address"
                         />
 
                         <FormInput
                             type="text"
-                            name="address_line2"
+                            name="addressLine2"
                             label="Address Line 2"
                             placeholder="Apartment, suite, etc. (optional)"
                         />
@@ -319,7 +319,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
 
                         <FormInput
                             type="text"
-                            name="postal_code"
+                            name="postalCode"
                             label="Postal Code"
                             placeholder="ZIP/Postal code"
                         />

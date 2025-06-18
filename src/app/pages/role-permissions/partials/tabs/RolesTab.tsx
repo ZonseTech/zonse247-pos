@@ -77,21 +77,26 @@ export const RolesTab: React.FC<RoleTabProps> = ({
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <button
                                         onClick={() => onAssignPermissions(role)}
-                                        className="text-green-600 hover:text-green-900 mr-3"
+                                        disabled={role.isSystemRole}
+                                        className={`${role.isSystemRole ? 'text-gray-400' : 'text-green-600 hover:text-green-900'} mr-3`}
                                         title="Assign Permissions"
                                     >
                                         <Settings className="w-4 h-4" />
                                     </button>
+
                                     <button
                                         onClick={() => onEditRole(role)}
-                                        className="text-indigo-600 hover:text-indigo-900 mr-3"
+                                        disabled={role.isSystemRole}
+                                        className={`${role.isSystemRole ? 'text-gray-400' : 'text-indigo-600 hover:text-indigo-900'} mr-3`}
                                         title="Edit Role"
                                     >
                                         <Edit2 className="w-4 h-4" />
                                     </button>
+
                                     <button
                                         onClick={() => onDeleteRole(role.uuid)}
-                                        className="text-red-600 hover:text-red-900"
+                                        disabled={role.isSystemRole}
+                                        className={`${role.isSystemRole ? 'text-gray-400' : 'text-red-600 hover:text-red-900'}`}
                                         title="Delete Role"
                                     >
                                         <Trash2 className="w-4 h-4" />

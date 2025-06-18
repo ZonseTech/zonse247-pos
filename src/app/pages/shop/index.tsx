@@ -17,8 +17,8 @@ const ShopManagement: FunctionComponent = () => {
                 <Fragment>
                     <div className="flex items-center">
                         <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                            {row.logo_url ? (
-                                <img src={row.logo_url} alt={row.name} className="w-10 h-10 rounded-full object-cover" />
+                            {row.logoUrl ? (
+                                <img src={row.logoUrl} alt={row.name} className="w-10 h-10 rounded-full object-cover" />
                             ) : (
                                 <Store className="w-5 h-5 text-gray-500" />
                             )}
@@ -27,7 +27,7 @@ const ShopManagement: FunctionComponent = () => {
                             <div className="text-sm font-medium text-gray-900">
                                 {row.name}
                             </div>
-                            <div className="text-sm text-gray-500">{row.shop_code}</div>
+                            <div className="text-sm text-gray-500">{row.shopCode}</div>
                         </div>
                     </div>
                 </Fragment>
@@ -38,10 +38,10 @@ const ShopManagement: FunctionComponent = () => {
             cell: (row) => (
                 <Fragment>
                     <div className="text-sm">
-                        {row.address_line1 && (
+                        {row.addressLine1 && (
                             <div className="flex items-center text-gray-600 mb-1">
                                 <MapPin className="w-3 h-3 mr-1" />
-                                {row.address_line1}
+                                {row.addressLine1}
                                 {row.city && `, ${row.city}`}
                             </div>
                         )}
@@ -67,10 +67,10 @@ const ShopManagement: FunctionComponent = () => {
                 <Fragment>
                     <div className="text-sm">
                         <div className="font-medium text-gray-900">
-                            {row.currency_symbol} ({row.currency_code})
+                            {row.currencySymbol} ({row.currencyCode})
                         </div>
                         <div className="text-gray-500">
-                            Tax: {row.tax_rate}% {row.charge_tax ? '(Active)' : '(Inactive)'}
+                            Tax: {row.taxRate}% {row.chargeTax ? '(Active)' : '(Inactive)'}
                         </div>
                     </div>
                 </Fragment>
@@ -94,29 +94,41 @@ const ShopManagement: FunctionComponent = () => {
                     <div className="flex items-center space-x-2">
                         <button
                             onClick={() => handleEdit(row)}
-                            className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
+                            className={`${row.uuid === '-1'
+                                ? 'text-gray-500'
+                                : 'text-blue-600 hover:text-blue-800'} p-1 rounded transition-colors`}
                             title="Edit shop"
+                            disabled={row.uuid === '-1'}
                         >
                             <Edit2 className="w-4 h-4" />
                         </button>
+
                         <button
                             onClick={() => toggleShopStatus(row.uuid, row.status)}
-                            className={`text-xs px-2 py-1 rounded transition-colors ${row.status === 'active'
-                                ? 'text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100'
-                                : 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100'
+                            className={`text-xs px-2 py-1 rounded transition-colors ${row.uuid === '-1'
+                                ? 'text-gray-500'
+                                : row.status === 'active'
+                                    ? 'text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100'
+                                    : 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100'
                                 }`}
+                            disabled={row.uuid === '-1'}
                             title={row.status === 'active' ? 'Deactivate shop' : 'Activate shop'}
                         >
                             {row.status === 'active' ? 'Deactivate' : 'Activate'}
                         </button>
+
                         <button
                             onClick={() => handleDelete(row.uuid, row.name)}
-                            className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
+                            className={`${row.uuid === '-1'
+                                ? 'text-gray-500'
+                                : 'text-red-600 hover:text-red-800'} p-1 rounded transition-colors`}
                             title="Delete shop"
+                            disabled={row.uuid === '-1'}
                         >
                             <Trash2 className="w-4 h-4" />
                         </button>
                     </div>
+
                 </Fragment>
             )
         }
@@ -143,7 +155,7 @@ const ShopManagement: FunctionComponent = () => {
         } else {
             const filtered = shops.filter(shop =>
                 shop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                shop.shop_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                shop.shopCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 shop.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 shop.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 shop.status.toLowerCase().includes(searchTerm.toLowerCase())
@@ -285,53 +297,50 @@ const ShopManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="min-h-screen p-6 max-w-full mx-auto bg-white dark:bg-gray-700">
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-400 flex items-center">
-                            <Store className="w-6 h-6 mr-2" />
-                            Shop Management
-                        </h1>
-                        <p className="text-gray-600 mt-1">
-                            Manage your shop locations and settings
-                        </p>
-                    </div>
-
-                    <div className="flex items-center space-x-3">
-                        <Button
-                            onClick={handleAddShopClicked}
-                            className="flex items-center px-4 py-2 bg-green-600 text-white dark:text-gray-100 rounded-lg hover:bg-green-700"
-                        >
-                            <HiOutlinePlus className="w-4 h-4 mr-2" />
-                            Add Shop
-                        </Button>
-
-                        <ShopFormModal
-                            shop={editingShop || undefined}
-                            isOpen={showForm}
-                            onClose={handleCloseForm}
-                            onShopSaved={handleShopSaved}
-                        />
-                    </div>
-                </div>
-
+            <div className="min-h-screen max-w-full mx-auto bg-white dark:bg-gray-700">
                 <div className="bg-white dark:bg-gray-700 rounded-md border overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-200">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-400">
-                                Shops ({filteredShops.length})
-                            </h2>
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-400 flex items-center">
+                                    <Store className="w-6 h-6 mr-2" />
+                                    Shops ({filteredShops.length})
 
-                            <div className="flex relative">
-                                <Input
-                                    type="text"
-                                    placeholder="Search shops..."
-                                    value={searchTerm}
-                                    onChange={handleSearch}
-                                    className="rounded-md px-3 py-2.5 pr-10"
-                                />
-                                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                    <HiOutlineSearch className="h-5 w-5 text-gray-400" />
+                                </h1>
+                                <p className="text-gray-600 mt-1">
+                                    Manage your shop locations and settings
+                                </p>
+                            </div>
+
+                            <div className='flex items-center space-x-4'>
+                                <div className="flex relative">
+                                    <Input
+                                        type="text"
+                                        placeholder="Search shops..."
+                                        value={searchTerm}
+                                        onChange={handleSearch}
+                                        className="rounded-md px-3 py-2.5 pr-10"
+                                    />
+                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <HiOutlineSearch className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center space-x-3">
+                                    <Button
+                                        onClick={handleAddShopClicked}
+                                        className="flex items-center px-4 py-2 bg-green-600 text-white dark:text-gray-100 rounded-lg hover:bg-green-700"
+                                    >
+                                        <HiOutlinePlus className="w-4 h-4 mr-2" />
+                                        Add Shop
+                                    </Button>
+
+                                    <ShopFormModal
+                                        shop={editingShop || undefined}
+                                        isOpen={showForm}
+                                        onClose={handleCloseForm}
+                                        onShopSaved={handleShopSaved}
+                                    />
                                 </div>
                             </div>
                         </div>
