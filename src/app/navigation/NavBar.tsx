@@ -23,7 +23,7 @@ import { useAuth } from '../context/AuthProvider';
 import PrinterModal from '../pages/printer/PrinterModal';
 import DarkMode from '../components/DarkMode';
 import { HiBuildingStorefront, HiOutlineArrowPath, HiOutlineBuildingOffice2, HiOutlineKey, HiOutlineServerStack } from 'react-icons/hi2';
-import { hasPermission, hasRole } from '../utils';
+import { hasAnyPermission, hasPermission, hasRole } from '../utils';
 import { FaFileExport } from 'react-icons/fa';
 import { LucideSubscript } from 'lucide-react';
 import { RiGroup3Line } from 'react-icons/ri';
@@ -62,7 +62,8 @@ const NavBar: FunctionComponent = () => {
 
     const getNavItems = (): NavItem[] => {
         const items: NavItem[] = [];
-        if (hasPermission(user, 'inventory') || hasPermission(user, 'sales') || hasPermission(user, 'refunds')) {
+
+        if (hasAnyPermission(user, ['products.view', 'products.create', 'sales.create', 'refunds.process'])) {
             items.push({
                 type: pathname === ROUTES.PRODUCTS ? 'button' : 'split',
                 color: 'bg-blue-600 hover:bg-blue-700',
@@ -70,16 +71,20 @@ const NavBar: FunctionComponent = () => {
                 text: pathname === ROUTES.POS ? 'Products' : 'Point of Sale',
                 icon: pathname === ROUTES.POS ? icons.products : icons.pos,
                 onClick: () => navigate(pathname === ROUTES.POS ? ROUTES.PRODUCTS : ROUTES.POS),
-                plusAction: pathname === ROUTES.PRODUCTS ? undefined : <CreateProductModal />,
+                plusAction: pathname === ROUTES.PRODUCTS ? undefined :
+                    (hasPermission(user, 'products.create') ? <CreateProductModal /> : undefined),
             });
-            items.push({
-                type: 'icon',
-                color: 'bg-blue-500 hover:bg-blue-600',
-                iconColor: 'bg-blue-600',
-                text: 'Categories',
-                icon: icons.categories,
-                onClick: <CategoriesModal />
-            });
+
+            if (hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {
+                items.push({
+                    type: 'icon',
+                    color: 'bg-blue-500 hover:bg-blue-600',
+                    iconColor: 'bg-blue-600',
+                    text: 'Categories',
+                    icon: icons.categories,
+                    onClick: <CategoriesModal />
+                });
+            }
         }
 
         items.push({
@@ -93,7 +98,7 @@ const NavBar: FunctionComponent = () => {
 
         items.push({ type: 'spacer' });
 
-        if (hasPermission(user, 'reports')) {
+        if (hasAnyPermission(user, ['reports.sales.daily', 'reports.sales.detailed', 'payments.view'])) {
             items.push({
                 type: 'button',
                 color: 'bg-emerald-600 hover:bg-emerald-700',
@@ -124,7 +129,7 @@ const NavBar: FunctionComponent = () => {
 
         items.push({ type: 'spacer' });
 
-        if (hasPermission(user, 'users')) {
+        if (hasAnyPermission(user, ['users.view', 'users.create', 'users.edit', 'users.delete'])) {
             items.push({
                 type: 'button',
                 color: 'bg-orange-600 hover:bg-orange-700',
@@ -133,6 +138,9 @@ const NavBar: FunctionComponent = () => {
                 icon: icons.users,
                 onClick: () => navigate(ROUTES.USERS),
             });
+        }
+
+        if (hasAnyPermission(user, ['users.roles.assign', 'users.create', 'users.edit'])) {
             items.push({
                 type: 'button',
                 color: 'bg-orange-500 hover:bg-orange-600',
@@ -143,7 +151,7 @@ const NavBar: FunctionComponent = () => {
             });
         }
 
-        if (hasPermission(user, 'settings')) {
+        if (hasAnyPermission(user, ['settings.shop.manage', 'settings.tax.manage', 'settings.payment.manage'])) {
             items.push({
                 type: 'button',
                 color: 'bg-cyan-600 hover:bg-cyan-700',
@@ -152,6 +160,7 @@ const NavBar: FunctionComponent = () => {
                 icon: icons.workstations,
                 onClick: () => navigate(ROUTES.WORK_STATIONS),
             });
+
             items.push({
                 type: 'button',
                 color: 'bg-cyan-500 hover:bg-cyan-600',
@@ -160,6 +169,7 @@ const NavBar: FunctionComponent = () => {
                 icon: icons.shop,
                 onClick: () => navigate(ROUTES.SHOPS),
             });
+
             items.push({
                 type: 'button',
                 color: 'bg-cyan-400 hover:bg-cyan-500',
@@ -172,7 +182,7 @@ const NavBar: FunctionComponent = () => {
 
         items.push({ type: 'spacer' });
 
-        if (hasPermission(user, 'settings')) {
+        if (hasAnyPermission(user, ['settings.shop.manage', 'system.admin'])) {
             items.push({
                 type: 'button',
                 color: 'bg-purple-600 hover:bg-purple-700',
@@ -181,6 +191,7 @@ const NavBar: FunctionComponent = () => {
                 icon: icons.subscription,
                 onClick: () => navigate(ROUTES.SUBSCRIPTION),
             });
+
             items.push({
                 type: 'button',
                 color: 'bg-purple-500 hover:bg-purple-600',
@@ -191,7 +202,7 @@ const NavBar: FunctionComponent = () => {
             });
         }
 
-        if (hasRole(user, 'admin')) {
+        if (hasRole(user, 'admin') || hasPermission(user, 'system.admin')) {
             items.push({
                 type: 'button',
                 color: 'bg-red-600 hover:bg-red-700',
@@ -200,14 +211,17 @@ const NavBar: FunctionComponent = () => {
                 icon: icons.migrations,
                 onClick: () => navigate(ROUTES.MIGRATIONS),
             });
-            items.push({
-                type: 'button',
-                color: 'bg-red-500 hover:bg-red-600',
-                iconColor: 'bg-red-600',
-                text: 'Export DB',
-                icon: icons.export_db,
-                onClick: () => navigate(ROUTES.EXPORT_DB),
-            });
+
+            if (hasPermission(user, 'system.backup')) {
+                items.push({
+                    type: 'button',
+                    color: 'bg-red-500 hover:bg-red-600',
+                    iconColor: 'bg-red-600',
+                    text: 'Export DB',
+                    icon: icons.export_db,
+                    onClick: () => navigate(ROUTES.EXPORT_DB),
+                });
+            }
         }
 
         items.push({ type: 'spacer' });

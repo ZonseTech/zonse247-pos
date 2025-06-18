@@ -135,11 +135,11 @@ export class SealDBModel {
 		return this.syncStatusDB;
 	}
 
-	public find(table: string, conditions: any = {}): Promise<any[]> {
+	public find<T = any>(table: string, conditions: any = {}): Promise<T> {
 		return new Promise((resolve, reject) => {
 			try {
 				const db = this.getDB(table);
-				db.find(conditions, (err: Error | null, docs: any[]) => {
+				db.find(conditions, (err: Error | null, docs: any) => {
 					if (err) reject(err);
 					else resolve(docs);
 				});

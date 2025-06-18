@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import validator from 'validator';
-import { USERS_DB } from '../databases/local/tables';
+import { PERMISSIONS_DB, ROLE_PERMISSIONS_DB, ROLES_DB, USERS_DB } from '../databases/local/tables';
 import { sealDBModel } from '../databases/local';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -39,10 +39,9 @@ export class UserService {
 		username: string,
 		password: string
 	): Promise<{ user?: any; token?: string; message?: string }> {
-		const users: Array<User> = await sealDBModel.find(USERS_DB, {
+		const user = await sealDBModel.findById<User>(USERS_DB, {
 			username: validator.escape(username),
 		});
-		const user: any = users[0];
 
 		if (!user) {
 			return { message: 'Incorrect username or password.' };
@@ -57,14 +56,57 @@ export class UserService {
 			return { message: 'Incorrect username or password.' };
 		}
 
+		const roleData = await this.getRoleWithPermissions(user.roleUuid);
+
 		await sealDBModel.update(USERS_DB, user.uuid.toString(), {
 			lastLogin: new Date(),
 		});
 
-		delete user.password;
-		const token = this.generateJWTToken(user);
-		return { user: { ...user }, token };
+		const { password: _, ...userWithoutPassword } = user;
+
+		const completeUser: PublicUser = {
+			...userWithoutPassword,
+			roleName: roleData?.name || null,
+			permissions: roleData?.permissions || null,
+		};
+
+		const token = this.generateJWTToken(completeUser);
+
+		return { user: completeUser, token };
 	}
+
+	private async getRoleWithPermissions(
+		roleUuid: string
+	): Promise<{ name: string; permissions: string[] } | null> {
+		try {
+			const role = await sealDBModel.findById<Role>(ROLES_DB, roleUuid);
+			if (!role) return null;
+
+			const rolePermissions = await sealDBModel.find<Array<RolePermission>>(
+				ROLE_PERMISSIONS_DB,
+				{ roleUuid }
+			);
+
+			const permissionDetails = await Promise.all(
+				rolePermissions.map((rp) =>
+					sealDBModel.findById<Permission>(PERMISSIONS_DB, rp.permissionUuid)
+				)
+			);
+
+			const permissions = permissionDetails
+				.filter((p): p is Permission => !!p)
+				.map(p => p.name);
+
+			return {
+				name: role.name,
+				permissions,
+			};
+		} catch (error) {
+			console.error('Error fetching role data:', error);
+			return null;
+		}
+	}
+
 
 	private generateJWTToken(user: any): string {
 		const payload = {

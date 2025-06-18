@@ -85,6 +85,7 @@ interface Permission {
 }
 
 interface RolePermission {
+    uuid: string;
     roleUuid: string;
     permissionUuid: string;
     createdAt?: Date;

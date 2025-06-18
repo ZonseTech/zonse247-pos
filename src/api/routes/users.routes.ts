@@ -23,7 +23,7 @@ const router = Router();
 const userController = new UserController();
 
 const jwtConfig = {
-	jwtSecret: process.env.JWT_SECRET || 'your-secret-key',
+	jwtSecret: process.env.JWT_SECRET || 'zonse247-secret-key',
 	jwtExpiresIn: process.env.JWT_EXPIRES_IN || '24h',
 };
 

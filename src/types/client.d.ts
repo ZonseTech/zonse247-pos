@@ -26,7 +26,6 @@ interface VerifyClientRequest {
 }
 
 interface Client {
-    _id?: string;
     uuid: string;
     client_id: string;
     company_name: string;

@@ -1,28 +1,32 @@
 interface User {
     id?: number;
     uuid: string;
-    client_id: string;
-    shop_id: string;
+    clientId: string;
+    shopId: string;
     username: string;
     password: string;
     fullname: string;
     email?: string | null;
     phone?: string | null;
-    role_uuid: string;
+    roleUuid: string;
+    roleName?: string | null;
+    permissions?: string[] | null;
     status?: UserStatus;
-    accessible_shops?: string[] | null;
-    allowed_workstations?: string[] | null;
-    max_discount_percent?: number;
-    can_override_prices?: boolean;
-    pin_code?: string | null;
-    current_shop_id?: string | null;
-    last_login?: Date | null;
-    last_logout?: Date | null;
-    password_changed_at?: Date;
-    force_password_change?: boolean;
-    created_at?: Date;
-    updated_at?: Date;
+    accessibleShops?: string[] | null;
+    allowedWorkstations?: string[] | null;
+    maxDiscountPercent?: number;
+    canOverridePrices?: boolean;
+    pinCode?: string | null;
+    currentShopId?: string | null;
+    lastLogin?: Date | null;
+    lastLogout?: Date | null;
+    passwordChangedAt?: Date;
+    forcePasswordChange?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
+
+interface PublicUser extends Omit<User, 'password'> { }
 
 interface UserDetailsModalProps {
     user?: User | null;

@@ -1,19 +1,3 @@
-interface User {
-	id?: string;
-	uuid: string;
-	username: string;
-	email?: string;
-	password: string;
-	repeatPassword?: string;
-	fullname: string;
-	status?: string;
-	role: string;
-	permissions: Array<string>,
-	createdAt?: Date;
-	updatedAt?: Date;
-	synced?: 1 | 0;
-}
-
 type TAuthTokenProps = {
 	user: User;
 };
@@ -69,6 +53,8 @@ interface TextInputProps {
 interface Category {
 	uuid: string;
 	name: string;
+	clientId: string,
+	shopId: string,
 	createdAt?: string;
 	updateAt?: string;
 	synced?: 1 | 0;
@@ -169,6 +155,8 @@ interface SettingsRequestBody {
 interface Customer {
 	uuid: string;
 	name: string;
+	clientId: string;
+	shopId: string,
 	phone?: string;
 	email?: string;
 	address?: string;
@@ -240,6 +228,8 @@ type PaymentMethod = {
 	uuid: string;
 	name: string;
 	icon?: string;
+	clientId: string;
+	shopId: string;
 };
 
 interface Printer {

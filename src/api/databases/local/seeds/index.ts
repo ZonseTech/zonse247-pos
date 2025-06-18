@@ -1,15 +1,27 @@
 import {
 	CATEGORIES_DB,
+	CLIENT_SUBSCRIPTIONS_DB,
+	CLIENTS_DB,
 	CUSTOMERS_DB,
 	INVENTORY_DB,
 	ORDERS_DB,
 	PAYMENT_METHODS_DB,
+	PERMISSIONS_DB,
+	ROLE_PERMISSIONS_DB,
+	ROLES_DB,
+	SHOP_SETTINGS_DB,
+	SHOPS_DB,
+	SUBSCRIPTION_PLANS_DB,
 	TRANSACTIONS_DB,
+	USER_PERMISSIONS_DB,
 	USERS_DB,
+	WORKSTATIONS_DB,
 } from '../tables';
 import bcrypt from 'bcryptjs';
 import { sealDBModel } from '..';
 import { v4 as uuidv4 } from 'uuid';
+import { DEFAULT_PERMISSIONS } from './permission.seed';
+import { DEFAULT_ROLE_PERMISSIONS } from './role-permissions.seed';
 
 const tables = [
 	{
@@ -33,6 +45,36 @@ const tables = [
 		description: 'Sales transactions',
 	},
 	{
+		id: ROLES_DB,
+		name: 'Roles',
+		description: 'Sales transactions',
+	},
+	{
+		id: PERMISSIONS_DB,
+		name: 'Permissions',
+		description: 'Sales transactions',
+	},
+	{
+		id: ROLE_PERMISSIONS_DB,
+		name: 'Role Permissions',
+		description: 'Sales transactions',
+	},
+	{
+		id: USER_PERMISSIONS_DB,
+		name: 'User Permissions',
+		description: 'Sales transactions',
+	},
+	{
+		id: SHOP_SETTINGS_DB,
+		name: 'Shop Settings',
+		description: 'Sales transactions',
+	},
+	{
+		id: SUBSCRIPTION_PLANS_DB,
+		name: 'Subscription Plans',
+		description: 'Sales transactions',
+	},
+	{
 		id: INVENTORY_DB,
 		name: 'Products Inventory',
 		description: 'User accounts and profiles',
@@ -49,25 +91,304 @@ const tables = [
 	},
 ];
 
+const checkOrCreateDefaultRoles = async () => {
+	try {
+		const superAdminRole = await sealDBModel.findById(ROLES_DB, 'super-admin');
+		if (!superAdminRole) {
+			const defaultSuperAdminRole: Role = {
+				uuid: 'super-admin',
+				clientId: '-1',
+				shopId: null,
+				name: 'super_admin',
+				displayName: 'Super Administrator',
+				description: 'System super administrator with full access',
+				isSystemRole: true,
+				isActive: true,
+				createdAt: new Date(),
+				updatedAt: new Date()
+			};
+			await sealDBModel.insert(ROLES_DB, defaultSuperAdminRole);
+		}
+
+		const adminRole = await sealDBModel.findById(ROLES_DB, 'admin');
+		if (!adminRole) {
+			const defaultAdminRole: Role = {
+				uuid: 'admin',
+				clientId: '-1',
+				shopId: '-1',
+				name: 'admin',
+				displayName: 'Administrator',
+				description: 'Shop administrator with full shop access',
+				isSystemRole: true,
+				isActive: true,
+				createdAt: new Date(),
+				updatedAt: new Date()
+			};
+			await sealDBModel.insert(ROLES_DB, defaultAdminRole);
+		}
+
+		const managerRole = await sealDBModel.findById(ROLES_DB, 'manager');
+		if (!managerRole) {
+			const defaultManagerRole: Role = {
+				uuid: 'manager',
+				clientId: '-1',
+				shopId: '-1',
+				name: 'manager',
+				displayName: 'Manager',
+				description: 'Shop manager with limited administrative access',
+				isSystemRole: true,
+				isActive: true,
+				createdAt: new Date(),
+				updatedAt: new Date()
+			};
+			await sealDBModel.insert(ROLES_DB, defaultManagerRole);
+		}
+
+		const cashierRole = await sealDBModel.findById(ROLES_DB, 'cashier');
+		if (!cashierRole) {
+			const defaultCashierRole: Role = {
+				uuid: 'cashier',
+				clientId: '-1',
+				shopId: '-1',
+				name: 'cashier',
+				displayName: 'Cashier',
+				description: 'Basic cashier role for sales operations',
+				isSystemRole: true,
+				isActive: true,
+				createdAt: new Date(),
+				updatedAt: new Date()
+			};
+			await sealDBModel.insert(ROLES_DB, defaultCashierRole);
+		}
+	} catch (err) {
+		console.error('Error creating default roles:', err);
+	}
+};
+
+const checkOrCreateDefaultPermissions = async () => {
+	try {
+
+		for (const permission of DEFAULT_PERMISSIONS) {
+			const existing = await sealDBModel.findById(PERMISSIONS_DB, permission.uuid);
+			if (!existing) {
+				await sealDBModel.insert(PERMISSIONS_DB, permission);
+			}
+		}
+	} catch (err) {
+		console.error('Error creating default permissions:', err);
+	}
+};
+
+const checkOrCreateDefaultRolePermissions = async () => {
+	try {
+
+		for (const rp of DEFAULT_ROLE_PERMISSIONS) {
+			const existingId = `${rp.roleUuid}-${rp.permissionUuid}`;
+			const existing = await sealDBModel.findById(ROLE_PERMISSIONS_DB, existingId);
+			if (!existing) {
+				const rolePermission: RolePermission = {
+					uuid: existingId,
+					roleUuid: rp.roleUuid,
+					permissionUuid: rp.permissionUuid,
+					createdAt: new Date()
+				};
+				await sealDBModel.insert(ROLE_PERMISSIONS_DB, rolePermission);
+			}
+		}
+	} catch (err) {
+		console.error('Error creating default role permissions:', err);
+	}
+};
+
+const checkOrCreateDefaultShop = async () => {
+	try {
+		const shop = await sealDBModel.findById(SHOPS_DB, '-1');
+		if (shop) return;
+
+		const defaultShop = {
+			uuid: '-1',
+			clientId: '-1',
+			name: 'Default Shop',
+			code: 'SHOP001',
+			address: '123 Main Street',
+			city: 'Lilongwe',
+			country: 'Malawi',
+			phone: '+1234567890',
+			email: 'shop@example.com',
+			timezone: 'UTC',
+			currency: 'USD',
+			status: 'active',
+			settings: {
+				taxRate: 0,
+				enableInventory: true,
+				enableCustomers: true,
+				autoSync: true
+			},
+			createdAt: new Date(),
+			updatedAt: new Date()
+		};
+
+		await sealDBModel.insert(SHOPS_DB, defaultShop);
+	} catch (err) {
+		console.error('Error creating default shop:', err);
+	}
+};
+
+const checkOrCreateDefaultClient = async () => {
+	try {
+		const client = await sealDBModel.findById(CLIENTS_DB, '-1');
+		if (client) return;
+
+		const defaultClient: Client = {
+			uuid: '-1',
+			client_id: 'DEFAULT_CLIENT',
+			company_name: 'Default Company',
+			owner_name: 'System Administrator',
+			email: 'admin@example.com',
+			phone: '+1234567890',
+			address: '123 Business Street',
+			country: 'Default Country',
+			timezone: 'UTC',
+			subscription_status: 'active',
+			trial_ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+			auth_key: 'default-auth-key-' + Date.now(),
+			status: 'active',
+			registered_at: new Date().toISOString(),
+			activated_at: new Date().toISOString(),
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
+			synced: 1
+		};
+
+		await sealDBModel.insert(CLIENTS_DB, defaultClient);
+	} catch (err) {
+		console.error('Error creating default client:', err);
+	}
+};
+
+const checkOrCreateDefaultWorkStation = async () => {
+	try {
+		const workstation = await sealDBModel.findById(WORKSTATIONS_DB, '-1');
+		if (workstation) return;
+
+		const defaultWorkStation: Workstation = {
+			uuid: '-1',
+			shop_code: 'SHOP001',
+			client_id: '-1',
+			till_name: 'Main Till',
+			till_number: 'TILL001',
+			device_id: 'DEFAULT_DEVICE',
+			device_type: 'desktop',
+			ip_address: '127.0.0.1',
+			is_primary: true,
+			status: 'active',
+			registered_at: new Date().toISOString(),
+			last_activity: new Date().toISOString(),
+			last_sync: new Date().toISOString(),
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
+			synced: 1
+		};
+
+		await sealDBModel.insert(WORKSTATIONS_DB, defaultWorkStation);
+	} catch (err) {
+		console.error('Error creating default workstation:', err);
+	}
+};
+
+const checkOrCreateDefaultSubscriptionPlans = async () => {
+	try {
+		const plans = [
+			{
+				uuid: 'basic-monthly',
+				name: 'Basic Monthly',
+				description: 'Basic POS features with monthly billing',
+				price: 29.99,
+				billing_cycle: 'monthly' as const,
+				features: ['Basic POS', 'Up to 1000 products', 'Basic reports', 'Email support'],
+				is_active: true,
+				created_at: new Date().toISOString(),
+				updated_at: new Date().toISOString()
+			},
+			{
+				uuid: 'pro-monthly',
+				name: 'Pro Monthly',
+				description: 'Advanced POS features with monthly billing',
+				price: 59.99,
+				billing_cycle: 'monthly' as const,
+				features: ['Advanced POS', 'Unlimited products', 'Advanced reports', 'Inventory management', 'Priority support'],
+				is_active: true,
+				created_at: new Date().toISOString(),
+				updated_at: new Date().toISOString()
+			},
+			{
+				uuid: 'enterprise-yearly',
+				name: 'Enterprise Yearly',
+				description: 'Full-featured POS with yearly billing',
+				price: 599.99,
+				billing_cycle: 'yearly' as const,
+				features: ['All features', 'Multi-location', 'API access', 'Custom integrations', '24/7 support'],
+				is_active: true,
+				created_at: new Date().toISOString(),
+				updated_at: new Date().toISOString()
+			}
+		];
+
+		for (const plan of plans) {
+			const existing = await sealDBModel.findById(SUBSCRIPTION_PLANS_DB, plan.uuid);
+			if (!existing) {
+				await sealDBModel.insert(SUBSCRIPTION_PLANS_DB, plan);
+			}
+		}
+	} catch (err) {
+		console.error('Error creating default subscription plans:', err);
+	}
+};
+
+const checkOrCreateDefaultClientSubscriptions = async () => {
+	try {
+		const subscription = await sealDBModel.findById(CLIENT_SUBSCRIPTIONS_DB, '-1');
+		if (subscription) return;
+
+		const defaultSubscription: ClientSubscription = {
+			uuid: '-1',
+			client_id: '-1',
+			plan_id: 'basic-monthly',
+			status: 'active',
+			starts_at: new Date().toISOString(),
+			ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+			auto_renew: true,
+			payment_method: 'trial',
+			last_payment_date: new Date().toISOString(),
+			next_payment_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+			created_at: new Date().toISOString(),
+			updated_at: new Date().toISOString()
+		};
+
+		await sealDBModel.insert(CLIENT_SUBSCRIPTIONS_DB, defaultSubscription);
+	} catch (err) {
+		console.error('Error creating default client subscription:', err);
+	}
+};
+
 const checkOrCreateDefaultUser = async () => {
 	try {
 		const saltRounds = 10;
-		const user = await sealDBModel.findAll(USERS_DB);
+		const user = await sealDBModel.findById(USERS_DB, '-1');
 
-		if (user[0]) return;
+		if (user) return;
 
 		const hash = await bcrypt.hash('admin', saltRounds);
 
 		const adminUser: User = {
 			uuid: uuidv4(),
 			username: 'admin',
-			fullname: 'Administrator',
+			fullname: 'Zonse247 Admin',
 			password: hash,
-			permProducts: 1,
-			permCategories: 1,
-			permTransactions: 1,
-			permUsers: 1,
-			permSettings: 1,
+			clientId: '-1',
+			shopId: '-1',
+			roleUuid: 'super-admin',
+			email: 'zonse247@gmail.com',
 			status: 'active',
 		};
 
@@ -79,12 +400,14 @@ const checkOrCreateDefaultUser = async () => {
 
 const checkOrCreateDefaultCustomer = async () => {
 	try {
-		const customer = await sealDBModel.findAll(CUSTOMERS_DB);
+		const customer = await sealDBModel.findById(CUSTOMERS_DB, '-1');
 
-		if (customer[0]) return;
+		if (customer) return;
 
 		const defaultCustomer: Customer = {
 			uuid: '-1',
+			clientId: '-1',
+			shopId: '-1',
 			name: 'Walk in customer',
 		};
 
@@ -96,12 +419,14 @@ const checkOrCreateDefaultCustomer = async () => {
 
 async function checkAndCreateDefaultCategory(): Promise<void> {
 	try {
-		const category = await sealDBModel.findAll(CATEGORIES_DB);
+		const category = await sealDBModel.findById(CATEGORIES_DB, '-1');
 
-		if (category[0]) return;
+		if (category) return;
 
 		const defaultCategory: Category = {
 			uuid: uuidv4(),
+			clientId: '-1',
+			shopId: '-1',
 			name: 'Consumables',
 		};
 
@@ -116,17 +441,21 @@ async function checkOrCreateDefaultPaymentMethods(): Promise<void> {
 		{
 			name: 'Cash',
 			uuid: '1',
+			clientId: '-1',
+			shopId: '-1',
 		},
 		{
 			name: 'Mobile Transfer',
 			uuid: '2',
+			clientId: '-1',
+			shopId: '-1',
 		},
 	];
 
 	try {
-		const paymentMethod = await sealDBModel.findAll(PAYMENT_METHODS_DB);
+		const paymentMethod = await sealDBModel.findById(PAYMENT_METHODS_DB, '-1');
 
-		if (paymentMethod[0]) return;
+		if (paymentMethod) return;
 
 		const insertOperations = DEFAULT_PAYMENT_METHODS.map((method) =>
 			sealDBModel.insert(PAYMENT_METHODS_DB, method)
@@ -139,6 +468,15 @@ async function checkOrCreateDefaultPaymentMethods(): Promise<void> {
 
 const seedDatabase = async () => {
 	try {
+		checkOrCreateDefaultRoles()
+		checkOrCreateDefaultPermissions()
+		checkOrCreateDefaultRolePermissions()
+		checkOrCreateDefaultShop()
+		checkOrCreateDefaultClient()
+		checkOrCreateDefaultWorkStation()
+		checkOrCreateDefaultSubscriptionPlans()
+		checkOrCreateDefaultClientSubscriptions()
+
 		checkOrCreateDefaultUser();
 		checkOrCreateDefaultCustomer();
 		checkAndCreateDefaultCategory();
