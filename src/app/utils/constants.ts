@@ -1,6 +1,7 @@
 export enum ROUTES {
 	POS = '/pos',
 	USERS = '/users',
+	ROLES_PERMISSIONS = '/roles-and-permissions',
 	DASHBOARD = '/dashboard',
 	TRANSACTIONS = '/transactions',
 	PRODUCTS = '/products',
@@ -14,4 +15,11 @@ export enum ROUTES {
 	LOGIN = '/login',
 	LANDING_PAGE = '/landing-page',
 	GET_STARTED = '/sign-in',
+}
+
+export enum PermissionScope {
+	GLOBAL = 'global',
+	CLIENT = 'client',
+	SHOP = 'shop',
+	USER = 'user'
 }

@@ -22,6 +22,7 @@ const SubscriptionManagement = lazy(() => import('../pages/subscription'))
 const ClientManagement = lazy(() => import('../pages/clients'))
 const ShopManagement = lazy(() => import('../pages/shop'))
 const WorkStationManagement = lazy(() => import('../pages/workstation'))
+const RolesAndPermissions = lazy(() => import('../pages/role-permissions'))
 
 const ProtectedLayoutWithAuth = withProtectedRoute(ProtectedLayout)
 
@@ -90,6 +91,7 @@ const AppRoutes: FunctionComponent = () => {
 				<Route path={ROUTES.MIGRATIONS} element={<Migrations />} />
 				<Route path={ROUTES.TRANSACTIONS} element={<Transactions />} />
 				<Route path={ROUTES.EXPORT_DB} element={<DatabaseExporter />} />
+				<Route path={ROUTES.ROLES_PERMISSIONS} element={<RolesAndPermissions />} />
 
 				<Route path="*" element={<Navigate to="/" replace />} />
 			</Route>

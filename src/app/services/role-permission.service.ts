@@ -1,44 +1,84 @@
-import api from './http.service';
+import api from "./http.service";
 
-const endpoints: Record<string, string> = {
-    all: 'roles/all',
-    store: 'roles/role',
-    update: 'roles/role',
-    delete: 'roles/role',
+const rolePermissionEndpoints: Record<string, string> = {
+    all: 'role-permission/all',
+    store: 'role-permission/post',
+    delete: 'role-permission/delete',
+    bulkAssign: 'role-permission/bulk/assign',
+    bulkRemove: 'role-permission/bulk/remove',
+    role: 'role-permission/role',
+    permission: 'role-permission/permission',
 };
 
-const rolesSerive = {
-    endpoints,
-    async list(query = {}): Promise<Role[]> {
+const rolePermissionService = {
+    endpoints: rolePermissionEndpoints,
+
+    async getAll(): Promise<RolePermission[]> {
         return api
-            .get<Role[]>(endpoints.all, query)
+            .get<RolePermission[]>(rolePermissionEndpoints.all)
             .then((res) => res.data)
             .catch((err) => {
                 throw err;
             });
     },
-    async store(data: Record<string, any>): Promise<Record<string, any>> {
+
+    async create(rolePermission: Record<string, any>): Promise<Record<string, any>> {
         return api
-            .post(endpoints.store, data)
+            .post(rolePermissionEndpoints.store, rolePermission)
             .then((res) => res.data)
             .catch((err) => {
                 throw err;
             });
     },
-    async update(
-        id: string,
-        data: Record<string, any>
-    ): Promise<Record<string, any>> {
-        return api
-            .put(`${endpoints.update}/${id}`, data)
-            .then((res) => res.data)
-            .catch((err) => {
-                throw err;
-            });
-    },
+
     async delete(id: string): Promise<any> {
         return api
-            .delete(`${endpoints.delete}/${id}`)
+            .delete(`${rolePermissionEndpoints.delete}/${id}`)
+            .then((res) => res.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    async bulkAssign(assignments: Record<string, any>): Promise<Record<string, any>> {
+        return api
+            .post(rolePermissionEndpoints.bulkAssign, assignments)
+            .then((res) => res.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    async bulkRemove(removals: Record<string, any>): Promise<any> {
+        return api
+            .delete(rolePermissionEndpoints.bulkRemove, { data: removals })
+            .then((res) => res.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    async getByRoleUuid(roleUuid: string): Promise<RolePermission[]> {
+        return api
+            .get<Array<RolePermission>>(`${rolePermissionEndpoints.role}/${roleUuid}`)
+            .then((res) => res.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    async getByPermissionUuid(permissionUuid: string): Promise<RolePermission[]> {
+        return api
+            .get<Array<RolePermission>>(`${rolePermissionEndpoints.permission}/${permissionUuid}`)
+            .then((res) => res.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    async checkAssignment(roleUuid: string, permissionUuid: string): Promise<Record<string, any>> {
+        return api
+            .get(`${rolePermissionEndpoints.role}/${roleUuid}/permission/${permissionUuid}`)
             .then((res) => res.data)
             .catch((err) => {
                 throw err;
@@ -46,4 +86,4 @@ const rolesSerive = {
     },
 };
 
-export default rolesSerive;
+export default rolePermissionService
