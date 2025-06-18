@@ -8,12 +8,7 @@ import { useState, useEffect, Fragment, useContext, FunctionComponent, ChangeEve
 import UserFormModal from './partials/UserFormModal';
 import UserDetailsModal from './partials/UserDetailsModal';
 import { Notify, Confirm } from 'notiflix';
-
-export enum UserStatus {
-    ACTIVE = 'active',
-    INACTIVE = 'inactive',
-    SUSPENDED = 'suspended'
-}
+import { UserStatus } from '../../utils/constants';
 
 const UserManagement: FunctionComponent = () => {
     const columns: Array<TableColumn<User>> = [

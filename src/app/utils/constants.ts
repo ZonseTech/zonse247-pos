@@ -25,3 +25,9 @@ export enum PermissionScope {
 	WORKSTATION = 'workstation',
 	SELF = 'self'
 }
+
+export enum UserStatus {
+	ACTIVE = 'active',
+	INACTIVE = 'inactive',
+	SUSPENDED = 'suspended'
+}

@@ -10,8 +10,8 @@ import workstationsService from '../../../services/workstation.service';
 import shopsService from '../../../services/shop.service';
 import { Fragment, useState, useEffect } from 'react';
 import type { FunctionComponent } from 'react';
-import { UserStatus } from '../index';
 import roleService from '../../../services/role.service';
+import { UserStatus } from '../../../utils/constants';
 
 const UserFormModal: FunctionComponent<UserFormModalProps> = ({
     user,
@@ -40,8 +40,8 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
     const loadRoles = async () => {
         try {
             setLoadingRoles(true);
-            const rolesData = await roleService.list();
-            setRoles(rolesData);
+            const roles = await roleService.list();
+            setRoles(roles.data);
         } catch (error) {
             console.error('Error loading roles:', error);
             Notify.failure('Failed to load roles');
@@ -66,7 +66,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
     const loadWorkstations = async () => {
         try {
             const workstationsData = await workstationsService.list();
-            setWorkstations(workstationsData.map(ws => ws.till_name + '-' + ws.till_number));
+            setWorkstations(workstationsData.map(ws => ws.tillName + '-' + ws.tillNumber));
         } catch (error) {
             console.error('Error loading workstations:', error);
         }
@@ -100,16 +100,15 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
         fullname: '',
         email: '',
         phone: '',
-        role_uuid: '',
-        // permissions: [],
+        roleUuid: '',
         status: UserStatus.ACTIVE,
-        accessible_shops: [],
-        allowed_workstations: [],
-        max_discount_percent: 0,
-        can_override_prices: false,
-        pin_code: '',
-        current_shopId: '',
-        force_password_change: false
+        accessibleShops: [],
+        allowedWorkstations: [],
+        maxDiscountPercent: 0,
+        canOverridePrices: false,
+        pinCode: '',
+        currentShopId: '',
+        forcePasswordChange: false
     };
 
     const userValidationSchema = Yup.object().shape({
@@ -136,13 +135,13 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                     .min(6, 'Password must be at least 6 characters'),
                 otherwise: () => Yup.string().notRequired()
             }),
-        role_uuid: Yup.string().required('Role is required'),
+        roleUuid: Yup.string().required('Role is required'),
         shopId: Yup.string().required('Shop is required'),
         status: Yup.string().required('Status is required'),
-        max_discount_percent: Yup.number()
+        maxDiscountPercent: Yup.number()
             .min(0, 'Discount percent cannot be negative')
             .max(100, 'Discount percent cannot exceed 100'),
-        pin_code: Yup.string()
+        pinCode: Yup.string()
             .matches(/^[0-9]{4,6}$/, 'PIN must be 4-6 digits')
             .nullable()
     });
@@ -156,12 +155,11 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                 delete submitValues.password;
             }
 
-            // Convert string arrays back to arrays for multi-select fields
-            if (typeof submitValues.accessible_shops === 'string') {
-                submitValues.accessible_shops = (submitValues.accessible_shops as string).split(',').filter(s => s.trim());
+            if (typeof submitValues.accessibleShops === 'string') {
+                submitValues.accessibleShops = (submitValues.accessibleShops as string).split(',').filter(s => s.trim());
             }
-            if (typeof submitValues.allowed_workstations === 'string') {
-                submitValues.allowed_workstations = (submitValues.allowed_workstations as string).split(',').filter(s => s.trim());
+            if (typeof submitValues.allowedWorkstations === 'string') {
+                submitValues.allowedWorkstations = (submitValues.allowedWorkstations as string).split(',').filter(s => s.trim());
             }
 
             if (user && user.uuid) {
@@ -189,14 +187,14 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
         const newShops = currentShops.includes(shopUuid)
             ? currentShops.filter(s => s !== shopUuid)
             : [...currentShops, shopUuid];
-        setFieldValue('accessible_shops', newShops);
+        setFieldValue('accessibleShops', newShops);
     };
 
     const handleWorkstationChange = (workstation: string, currentWorkstations: string[], setFieldValue: Function) => {
         const newWorkstations = currentWorkstations.includes(workstation)
             ? currentWorkstations.filter(w => w !== workstation)
             : [...currentWorkstations, workstation];
-        setFieldValue('allowed_workstations', newWorkstations);
+        setFieldValue('allowedWorkstations', newWorkstations);
     };
 
     return (
@@ -264,7 +262,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
 
                                         <FormInput
                                             type="text"
-                                            name="pin_code"
+                                            name="pinCode"
                                             label="PIN Code (4-6 digits)"
                                             placeholder="1234"
                                             maxLength={6}
@@ -279,7 +277,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
 
                                         <FormSelectBox
                                             label='Role'
-                                            name='role_uuid'
+                                            name='roleUuid'
                                             required
                                             options={roleOptions}
                                             disabled={loadingRoles}
@@ -306,7 +304,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                                             </label>
                                             <FormInput
                                                 type="number"
-                                                name="max_discount_percent"
+                                                name="maxDiscountPercent"
                                                 placeholder="0"
                                                 min="0"
                                                 max="100"
@@ -316,12 +314,12 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                                         <div className="flex items-center space-x-3">
                                             <input
                                                 type="checkbox"
-                                                id="can_override_prices"
-                                                checked={values.can_override_prices || false}
-                                                onChange={(e) => setFieldValue('can_override_prices', e.target.checked)}
+                                                id="canOverridePrices"
+                                                checked={values.canOverridePrices || false}
+                                                onChange={(e) => setFieldValue('canOverridePrices', e.target.checked)}
                                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                             />
-                                            <label htmlFor="can_override_prices" className="text-sm font-medium text-gray-700">
+                                            <label htmlFor="canOverridePrices" className="text-sm font-medium text-gray-700">
                                                 Can Override Prices
                                             </label>
                                         </div>
@@ -329,12 +327,12 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                                         <div className="flex items-center space-x-3">
                                             <input
                                                 type="checkbox"
-                                                id="force_password_change"
-                                                checked={values.force_password_change || false}
-                                                onChange={(e) => setFieldValue('force_password_change', e.target.checked)}
+                                                id="forcePasswordChange"
+                                                checked={values.forcePasswordChange || false}
+                                                onChange={(e) => setFieldValue('forcePasswordChange', e.target.checked)}
                                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                             />
-                                            <label htmlFor="force_password_change" className="text-sm font-medium text-gray-700">
+                                            <label htmlFor="forcePasswordChange" className="text-sm font-medium text-gray-700">
                                                 Force Password Change on Next Login
                                             </label>
                                         </div>
@@ -352,10 +350,10 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                                                 <input
                                                     type="checkbox"
                                                     id={`shop-${shop.uuid}`}
-                                                    checked={(values.accessible_shops || []).includes(shop.uuid)}
+                                                    checked={(values.accessibleShops || []).includes(shop.uuid)}
                                                     onChange={() => handleShopAccessChange(
                                                         shop.uuid,
-                                                        values.accessible_shops || [],
+                                                        values.accessibleShops || [],
                                                         setFieldValue
                                                     )}
                                                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2"
@@ -379,10 +377,10 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                                                 <input
                                                     type="checkbox"
                                                     id={`workstation-${workstation}`}
-                                                    checked={(values.allowed_workstations || []).includes(workstation)}
+                                                    checked={(values.allowedWorkstations || []).includes(workstation)}
                                                     onChange={() => handleWorkstationChange(
                                                         workstation,
-                                                        values.allowed_workstations || [],
+                                                        values.allowedWorkstations || [],
                                                         setFieldValue
                                                     )}
                                                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2"

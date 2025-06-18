@@ -1,7 +1,7 @@
 import { Fragment, FunctionComponent } from 'react';
 import { Modal } from '../../../components';
 import { User2, Mail, Phone, Shield, MapPin, Clock, Key, Settings, AlertCircle } from 'lucide-react';
-import { UserStatus } from '..';
+import { UserStatus } from '../../../utils/constants';
 
 const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
     user,
@@ -19,22 +19,12 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
         }
     };
 
-    const getRoleName = (roleUuid: string) => {
-        // Map role UUIDs to names - replace with actual role mapping
-        const roleMap: Record<string, string> = {
-            'admin': 'Administrator',
-            'manager': 'Manager',
-            'cashier': 'Cashier',
-        };
-        return roleMap[roleUuid] || 'Unknown Role';
-    };
-
     const getShopName = (shopUuid: string) => {
-        // Map shop UUIDs to names - replace with actual shop mapping
         const shopMap: Record<string, string> = {
             'shop1-uuid': 'Main Store',
             'shop2-uuid': 'Branch Store',
         };
+
         return shopMap[shopUuid] || 'Unknown Shop';
     };
 
@@ -56,7 +46,6 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
             className='max-w-4xl bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6'
         >
             <div className="space-y-6">
-                {/* Header Section */}
                 <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
                     <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
                         <User2 className="w-8 h-8 text-gray-500" />
@@ -70,14 +59,13 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
                             </span>
                             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                                 <Shield className="w-4 h-4 mr-1" />
-                                {getRoleName(user.role_uuid)}
+                                {user.roleName || 'Unknown'}
                             </span>
                         </div>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Contact Information */}
                     <div className="space-y-4">
                         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2">
                             Contact Information
@@ -110,7 +98,6 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
                         </div>
                     </div>
 
-                    {/* System Information */}
                     <div className="space-y-4">
                         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2">
                             System Information
@@ -129,7 +116,7 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
                                 <Clock className="w-5 h-5 text-gray-400" />
                                 <div>
                                     <p className="text-sm text-gray-600">Created</p>
-                                    <p className="font-medium">{formatDateShort(user.created_at)}</p>
+                                    <p className="font-medium">{formatDateShort(user.createdAt)}</p>
                                 </div>
                             </div>
 
@@ -137,14 +124,13 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
                                 <Clock className="w-5 h-5 text-gray-400" />
                                 <div>
                                     <p className="text-sm text-gray-600">Last Updated</p>
-                                    <p className="font-medium">{formatDateShort(user.updated_at)}</p>
+                                    <p className="font-medium">{formatDateShort(user.updatedAt)}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Activity Information */}
                 <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2">
                         Activity Information
@@ -153,22 +139,21 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="p-4 bg-gray-50 rounded-lg">
                             <p className="text-sm text-gray-600">Last Login</p>
-                            <p className="font-medium">{formatDate(user.last_login)}</p>
+                            <p className="font-medium">{formatDate(user.lastLogin)}</p>
                         </div>
 
                         <div className="p-4 bg-gray-50 rounded-lg">
                             <p className="text-sm text-gray-600">Last Logout</p>
-                            <p className="font-medium">{formatDate(user.last_logout)}</p>
+                            <p className="font-medium">{formatDate(user.lastLogout)}</p>
                         </div>
 
                         <div className="p-4 bg-gray-50 rounded-lg">
                             <p className="text-sm text-gray-600">Password Changed</p>
-                            <p className="font-medium">{formatDate(user.password_changed_at)}</p>
+                            <p className="font-medium">{formatDate(user.passwordChangedAt)}</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Permissions & Access */}
                 <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2">
                         Permissions & Access
@@ -180,17 +165,17 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
                                     <span className="text-sm">Max Discount</span>
-                                    <span className="font-medium">{user.max_discount_percent || 0}%</span>
+                                    <span className="font-medium">{user.maxDiscountPercent || 0}%</span>
                                 </div>
                                 <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
                                     <span className="text-sm">Price Override</span>
-                                    <span className={`font-medium ${user.can_override_prices ? 'text-green-600' : 'text-red-600'}`}>
-                                        {user.can_override_prices ? 'Allowed' : 'Not Allowed'}
+                                    <span className={`font-medium ${user.canOverridePrices ? 'text-green-600' : 'text-red-600'}`}>
+                                        {user.canOverridePrices ? 'Allowed' : 'Not Allowed'}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
                                     <span className="text-sm">PIN Code</span>
-                                    <span className="font-medium">{user.pin_code ? 'Set' : 'Not Set'}</span>
+                                    <span className="font-medium">{user.pinCode ? 'Set' : 'Not Set'}</span>
                                 </div>
                             </div>
                         </div>
@@ -198,13 +183,13 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
                         <div>
                             <h4 className="font-medium text-gray-700 mb-2">System Flags</h4>
                             <div className="space-y-2">
-                                {user.force_password_change && (
+                                {user.forcePasswordChange && (
                                     <div className="flex items-center p-2 bg-green-50 text-yellow-800 rounded">
                                         <AlertCircle className="w-4 h-4 mr-2" />
                                         <span className="text-sm">Password reset required</span>
                                     </div>
                                 )}
-                                {!user.force_password_change && (
+                                {!user.forcePasswordChange && (
                                     <div className="flex items-center p-2 bg-gray-50 rounded">
                                         <span className="text-sm text-gray-600">No system flags</span>
                                     </div>
@@ -214,14 +199,13 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
                     </div>
                 </div>
 
-                {/* Accessible Shops */}
-                {user.accessible_shops && user.accessible_shops.length > 0 && (
+                {user.accessibleShops && user.accessibleShops.length > 0 && (
                     <div className="space-y-4">
                         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2">
                             Accessible Shops
                         </h3>
                         <div className="flex flex-wrap gap-2">
-                            {user.accessible_shops.map((shopUuid, index) => (
+                            {user.accessibleShops.map((shopUuid, index) => (
                                 <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
                                     <MapPin className="w-3 h-3 mr-1" />
                                     {getShopName(shopUuid)}
@@ -231,14 +215,13 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
                     </div>
                 )}
 
-                {/* Allowed Workstations */}
-                {user.allowed_workstations && user.allowed_workstations.length > 0 && (
+                {user.allowedWorkstations && user.allowedWorkstations.length > 0 && (
                     <div className="space-y-4">
                         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2">
                             Allowed Workstations
                         </h3>
                         <div className="flex flex-wrap gap-2">
-                            {user.allowed_workstations.map((workstation, index) => (
+                            {user.allowedWorkstations.map((workstation, index) => (
                                 <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
                                     <Settings className="w-3 h-3 mr-1" />
                                     {workstation}
