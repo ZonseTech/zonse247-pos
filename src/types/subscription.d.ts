@@ -9,44 +9,44 @@ interface SubscriptionPlan {
     name: string;
     description?: string;
     price: number;
-    billing_cycle: 'monthly' | 'yearly' | 'lifetime';
+    billingCycle: 'monthly' | 'yearly' | 'lifetime';
     features?: string[];
-    is_active: boolean;
-    created_at: string;
-    updated_at: string;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
 }
 
 
 interface ClientSubscription {
     id?: number;
     uuid: string;
-    client_id: string;
-    plan_id: string;
+    clientId: string;
+    planId: string;
     status: 'active' | 'cancelled' | 'expired' | 'past_due';
-    starts_at: string;
-    ends_at?: string;
-    auto_renew: boolean;
-    payment_method?: string;
-    last_payment_date?: string;
-    next_payment_date?: string;
-    created_at?: string;
-    updated_at?: string;
+    startsAt: string;
+    endsAt?: string;
+    autoRenew: boolean;
+    paymentMethod?: string;
+    lastPaymentDate?: string;
+    nextPaymentDate?: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 interface CreateSubscriptionRequest {
-    client_id: string;
-    plan_id: string;
-    payment_method?: string;
-    auto_renew?: boolean;
-    starts_at?: string;
+    clientId: string;
+    planId: string;
+    paymentMethod?: string;
+    autoRenew?: boolean;
+    startsAt?: string;
 }
 
 interface UpdateSubscriptionRequest {
     status?: ClientSubscription['status'];
-    ends_at?: string;
-    auto_renew?: boolean;
-    payment_method?: string;
-    next_payment_date?: string;
+    endsAt?: string;
+    autoRenew?: boolean;
+    paymentMethod?: string;
+    nextPaymentDate?: string;
 }
 
 interface BulkUpdateRequest {
@@ -56,7 +56,7 @@ interface BulkUpdateRequest {
 
 interface ProcessPaymentRequest {
     amount: number;
-    payment_method: string;
+    paymentMethod: string;
 }
 
 interface ApiResponse<T = any> {
@@ -71,7 +71,7 @@ interface SubscriptionStats {
     active: number;
     cancelled: number;
     expired: number;
-    past_due: number;
-    monthly_revenue: number;
-    annual_revenue: number;
+    pastDue: number;
+    monthlyRevenue: number;
+    annualRevenue: number;
 }

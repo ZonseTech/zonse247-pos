@@ -111,7 +111,6 @@ interface CartItem {
 }
 
 interface Setting {
-	id?: number | null;
 	uuid: string;
 	app: string;
 	store: string;

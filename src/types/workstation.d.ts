@@ -10,7 +10,7 @@ interface Workstation {
     ipAddress: string;
     isPrimary: boolean;
     status: 'active' | 'inactive' | 'maintenance';
-    registered_at?: string;
+    registeredAt?: string;
     lastActivity?: string;
     lastSync?: string | null;
     createdAt?: string;

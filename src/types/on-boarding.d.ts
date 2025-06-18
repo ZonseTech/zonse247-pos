@@ -1,23 +1,22 @@
 interface SubscriptionPlan {
-    id?: number;
     uuid: string;
     name: string;
     description?: string;
     price: number;
-    billing_cycle: 'monthly' | 'yearly' | 'lifetime';
-    max_shops: number;
-    max_users_per_shop: number;
-    max_products: number;
-    max_transactions_per_month: number;
+    billingCycle: 'monthly' | 'yearly' | 'lifetime';
+    maxShops: number;
+    maxUsersPerShop: number;
+    maxProducts: number;
+    maxTransactionsPerMonth: number;
     features?: Record<string, any>;
-    is_active: boolean;
-    created_at?: string;
-    updated_at?: string;
+    isActive: boolean;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 interface VerifyClientRequest {
-    client_id: string;
-    auth_key: string;
+    clientId: string;
+    authKey: string;
 }
 
 interface ApiResponse<T = any> {
@@ -28,20 +27,20 @@ interface ApiResponse<T = any> {
 }
 
 interface OnboardingStatus {
-    client: Omit<Client, 'auth_key'>;
-    subscription: ClientSubscription | null;
-    shops: Shop[];
-    workstations: Workstation[];
+    client: Omit<Client, 'authKey'>;
+    subscription: any;
+    shops: any[];
+    workstations: any[];
     onboarding: {
         steps: {
-            client_registered: boolean;
-            subscription_active: boolean;
-            shop_created: boolean;
-            workstation_setup: boolean;
+            clientRegistered: boolean;
+            subscriptionActive: boolean;
+            shop_Ceated: boolean;
+            workstation_Setup: boolean;
         };
-        completed_steps: number;
-        total_steps: number;
-        completion_percentage: number;
-        is_complete: boolean;
+        completedSteps: number;
+        totalSteps: number;
+        completionPercentage: number;
+        isComplete: boolean;
     };
 }
