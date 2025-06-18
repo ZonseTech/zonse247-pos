@@ -66,9 +66,9 @@ const workstationsService = {
             });
     },
 
-    async syncWorkstation(id: string): Promise<{ status: boolean; last_sync: string }> {
+    async syncWorkstation(id: string): Promise<{ status: boolean; lastSync: string }> {
         return api
-            .post<{ status: boolean; last_sync: string }>(`${endpoints.sync}/${id}`, {} as any)
+            .post<{ status: boolean; lastSync: string }>(`${endpoints.sync}/${id}`, {} as any)
             .then((res) => res.data)
             .catch((err) => {
                 throw err;

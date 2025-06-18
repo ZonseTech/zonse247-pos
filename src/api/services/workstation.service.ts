@@ -5,29 +5,29 @@ import { WorkstationModel } from "../models/work-station.model";
 export class WorkstationService {
 
     static async createWorkstation(data: CreateWorkstationRequest): Promise<Workstation> {
-        const validationError = ClientService.validateRequired(data, ['shop_code', 'client_id', 'till_name', 'till_number']);
+        const validationError = ClientService.validateRequired(data, ['shopCode', 'clientId', 'tillName', 'tillNumber']);
         if (validationError) {
             throw new Error(validationError);
         }
 
-        const shop = await ShopModel.findByShopCode(data.shop_code);
+        const shop = await ShopModel.findByShopCode(data.shopCode);
         if (!shop) {
             throw new Error('Shop not found');
         }
 
-        if (shop.client_id !== data.client_id) {
+        if (shop.clientId !== data.clientId) {
             throw new Error('Client does not own this shop');
         }
 
-        const existingWorkstations = await WorkstationModel.findByShopCodeAndTillNumber(data.shop_code, data.till_number);
+        const existingWorkstations = await WorkstationModel.findByShopCodeAndTillNumber(data.shopCode, data.tillNumber);
         if (existingWorkstations.length > 0) {
             throw new Error('Till number already exists for this shop');
         }
 
-        if (data.is_primary) {
-            const primaryWorkstations = await WorkstationModel.findPrimaryByShopCode(data.shop_code);
+        if (data.isPrimary) {
+            const primaryWorkstations = await WorkstationModel.findPrimaryByShopCode(data.shopCode);
             for (const workstation of primaryWorkstations) {
-                await WorkstationModel.update(workstation.uuid, { is_primary: false });
+                await WorkstationModel.update(workstation.uuid, { isPrimary: false });
             }
         }
 
@@ -37,12 +37,12 @@ export class WorkstationService {
 
     static async getAllWorkstations(query: any = {}): Promise<Workstation[]> {
         try {
-            if (query.client_id) {
-                return await WorkstationModel.findByClientId(query.client_id);
+            if (query.clientId) {
+                return await WorkstationModel.findByClientId(query.clientId);
             }
 
-            if (query.shop_code) {
-                return await WorkstationModel.findByShopCode(query.shop_code);
+            if (query.shopCode) {
+                return await WorkstationModel.findByShopCode(query.shopCode);
             }
 
             return await WorkstationModel.findAll();
@@ -66,26 +66,26 @@ export class WorkstationService {
                 throw new Error('Workstation not found');
             }
 
-            if (data.till_number && data.till_number !== existingWorkstation.till_number) {
+            if (data.tillNumber && data.tillNumber !== existingWorkstation.tillNumber) {
                 const conflictingWorkstations = await WorkstationModel.findByShopCodeAndTillNumber(
-                    existingWorkstation.shop_code,
-                    data.till_number
+                    existingWorkstation.shopCode,
+                    data.tillNumber
                 );
                 if (conflictingWorkstations.length > 0) {
                     throw new Error('Till number already exists for this shop');
                 }
             }
 
-            if (data.is_primary === true && !existingWorkstation.is_primary) {
-                const primaryWorkstations = await WorkstationModel.findPrimaryByShopCode(existingWorkstation.shop_code);
+            if (data.isPrimary === true && !existingWorkstation.isPrimary) {
+                const primaryWorkstations = await WorkstationModel.findPrimaryByShopCode(existingWorkstation.shopCode);
                 for (const workstation of primaryWorkstations) {
-                    await WorkstationModel.update(workstation.uuid, { is_primary: false });
+                    await WorkstationModel.update(workstation.uuid, { isPrimary: false });
                 }
             }
 
             const updateData = {
                 ...data,
-                last_activity: new Date().toISOString()
+                lastActivity: new Date().toISOString()
             };
 
             const numUpdated = await WorkstationModel.update(id, updateData);
@@ -112,7 +112,7 @@ export class WorkstationService {
         try {
             const updateData = {
                 status,
-                last_activity: new Date().toISOString()
+                lastActivity: new Date().toISOString()
             };
 
             const numUpdated = await WorkstationModel.update(id, updateData);
@@ -126,7 +126,7 @@ export class WorkstationService {
         }
     }
 
-    static async syncWorkstation(id: string): Promise<{ status: boolean; last_sync: string }> {
+    static async syncWorkstation(id: string): Promise<{ status: boolean; lastSync: string }> {
         try {
             const workstation = await WorkstationModel.findById(id);
             if (!workstation) {
@@ -135,13 +135,13 @@ export class WorkstationService {
 
             const lastSync = new Date().toISOString();
             await WorkstationModel.update(id, {
-                last_sync: lastSync,
-                last_activity: lastSync
+                lastSync: lastSync,
+                lastActivity: lastSync
             });
 
             return {
                 status: true,
-                last_sync: lastSync
+                lastSync: lastSync
             };
         } catch (error) {
             throw error;

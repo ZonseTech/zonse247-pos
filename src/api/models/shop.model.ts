@@ -8,16 +8,16 @@ export class ShopModel {
         return sealDBModel.find(TABLE_NAMES.SHOPS, conditions);
     }
 
-    static async findByClientId(client_id: string): Promise<IShop[]> {
-        return sealDBModel.find(TABLE_NAMES.SHOPS, { client_id });
+    static async findByClientId(clientId: string): Promise<IShop[]> {
+        return sealDBModel.find(TABLE_NAMES.SHOPS, { clientId });
     }
 
-    static async findByShopCode(shop_code: string): Promise<IShop | null> {
-        return sealDBModel.findById(TABLE_NAMES.SHOPS, { shop_code });
+    static async findByShopCode(shopCode: string): Promise<IShop | null> {
+        return sealDBModel.findById(TABLE_NAMES.SHOPS, { shopCode });
     }
 
-    static async findByClientIdAndShopCode(client_id: string, shop_code: string): Promise<IShop[]> {
-        return sealDBModel.find(TABLE_NAMES.SHOPS, { client_id, shop_code });
+    static async findByClientIdAndShopCode(clientId: string, shopCode: string): Promise<IShop[]> {
+        return sealDBModel.find(TABLE_NAMES.SHOPS, { clientId, shopCode });
     }
 
     static async findById(id: string): Promise<IShop | null> {
@@ -60,8 +60,8 @@ export class ShopModel {
         return sealDBModel.find(TABLE_NAMES.SHOPS, { status: 'active' });
     }
 
-    static async findActiveShopsByClientId(client_id: string): Promise<IShop[]> {
-        return sealDBModel.find(TABLE_NAMES.SHOPS, { client_id, status: 'active' });
+    static async findActiveShopsByClientId(clientId: string): Promise<IShop[]> {
+        return sealDBModel.find(TABLE_NAMES.SHOPS, { clientId, status: 'active' });
     }
 
     static async getShopsByEmailDomain(domain: string): Promise<IShop[]> {
@@ -86,25 +86,25 @@ export class ShopModel {
     static buildShopData(data: CreateShopRequest): Omit<IShop, 'id'> {
         return {
             uuid: uuidv4(),
-            client_id: data.client_id,
-            shop_code: data.shop_code,
+            clientId: data.clientId,
+            shopCode: data.shopCode,
             name: data.name,
             description: data.description || '',
-            address_line1: data.address_line1 || '',
-            address_line2: data.address_line2 || '',
+            addressLine1: data.addressLine1 || '',
+            addressLine2: data.addressLine2 || '',
             city: data.city || '',
             state: data.state || '',
-            postal_code: data.postal_code || '',
+            postalCode: data.postalCode || '',
             country: data.country || '',
             phone: data.phone || '',
             email: data.email || '',
-            tax_number: data.tax_number || '',
-            currency_code: data.currency_code || 'MWK',
-            currency_symbol: data.currency_symbol || 'MK',
-            tax_rate: data.tax_rate || 0.00,
-            charge_tax: data.charge_tax || false,
-            receipt_footer: data.receipt_footer || '',
-            logo_url: data.logo_url || '',
+            taxNumber: data.taxNumber || '',
+            currencyCode: data.currencyCode || 'MWK',
+            currencySymbol: data.currencySymbol || 'MK',
+            taxRate: data.taxRate || 0.00,
+            chargeTax: data.chargeTax || false,
+            receiptFooter: data.receiptFooter || '',
+            logoUrl: data.logoUrl || '',
             status: 'active'
         };
     }
@@ -112,8 +112,8 @@ export class ShopModel {
     static buildUpdateData(data: Partial<IShop>): Partial<IShop> {
         const {
             uuid,
-            client_id,
-            created_at,
+            clientId,
+            createdAt,
             ...updateableData
         } = data;
 
@@ -125,7 +125,7 @@ export class ShopModel {
             return 'Invalid email format';
         }
 
-        if (data.tax_rate && (data.tax_rate < 0 || data.tax_rate > 100)) {
+        if (data.taxRate && (data.taxRate < 0 || data.taxRate > 100)) {
             return 'Tax rate must be between 0 and 100';
         }
 
@@ -137,7 +137,7 @@ export class ShopModel {
             return 'Phone number too long';
         }
 
-        if (data.shop_code && !/^[A-Za-z0-9_-]+$/.test(data.shop_code)) {
+        if (data.shopCode && !/^[A-Za-z0-9_-]+$/.test(data.shopCode)) {
             return 'Shop code can only contain letters, numbers, hyphens, and underscores';
         }
 
@@ -157,8 +157,8 @@ export class ShopModel {
         return sealDBModel.find(TABLE_NAMES.SHOPS, { phone });
     }
 
-    static async findByTaxNumber(tax_number: string): Promise<IShop[]> {
-        return sealDBModel.find(TABLE_NAMES.SHOPS, { tax_number });
+    static async findByTaxNumber(taxNumber: string): Promise<IShop[]> {
+        return sealDBModel.find(TABLE_NAMES.SHOPS, { taxNumber });
     }
 
     static async findShopsWithPagination(

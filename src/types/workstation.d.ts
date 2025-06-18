@@ -1,32 +1,32 @@
 interface Workstation {
     id?: number;
     uuid: string;
-    shop_code: string;
-    client_id: string;
-    till_name: string;
-    till_number: string;
-    device_id: string;
-    device_type: 'desktop' | 'tablet' | 'mobile';
-    ip_address: string;
-    is_primary: boolean;
+    shopCode: string;
+    clientId: string;
+    tillName: string;
+    tillNumber: string;
+    deviceId: string;
+    deviceType: 'desktop' | 'tablet' | 'mobile';
+    ipAddress: string;
+    isPrimary: boolean;
     status: 'active' | 'inactive' | 'maintenance';
     registered_at?: string;
-    last_activity?: string;
-    last_sync?: string | null;
+    lastActivity?: string;
+    lastSync?: string | null;
     createdAt?: string;
     updatedAt?: string;
     synced?: number;
 }
 
 interface CreateWorkstationRequest {
-    shop_code: string;
-    client_id: string;
-    till_name: string;
-    till_number: string;
-    device_id?: string;
-    device_type?: 'desktop' | 'tablet' | 'mobile';
-    ip_address?: string;
-    is_primary?: boolean;
+    shopCode: string;
+    clientId: string;
+    tillName: string;
+    tillNumber: string;
+    deviceId?: string;
+    deviceType?: 'desktop' | 'tablet' | 'mobile';
+    ipAddress?: string;
+    isPrimary?: boolean;
 }
 
 interface ApiResponse<T> {

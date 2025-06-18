@@ -191,11 +191,11 @@ export class RoleController extends BaseController {
         }
     }
 
-    static async assignPermissions(req: Request<{ id: string }, ApiResponse<any>, { permission_uuids: string[] }>, res: Response): Promise<void> {
+    static async assignPermissions(req: Request<{ id: string }, ApiResponse<any>, { permissionUuids: string[] }>, res: Response): Promise<void> {
         try {
             const { id } = req.params;
-            const { permission_uuids } = req.body;
-            const result = await RoleService.assignPermissionsToRole(id, permission_uuids);
+            const { permissionUuids } = req.body;
+            const result = await RoleService.assignPermissionsToRole(id, permissionUuids);
             BaseController.sendResponse(res, 200, true, 'Permissions assigned successfully', result);
         } catch (error: any) {
             console.error('Error assigning permissions:', error);

@@ -16,20 +16,21 @@ interface SubscriptionPlan {
     updated_at: string;
 }
 
+
 interface ClientSubscription {
+    id?: number;
     uuid: string;
     client_id: string;
     plan_id: string;
-    status: 'active' | 'cancelled' | 'expired' | 'past_due' | 'pending';
+    status: 'active' | 'cancelled' | 'expired' | 'past_due';
     starts_at: string;
     ends_at?: string;
     auto_renew: boolean;
     payment_method?: string;
     last_payment_date?: string;
     next_payment_date?: string;
-    cancelled_at?: string;
-    created_at: string;
-    updated_at: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
 interface CreateSubscriptionRequest {

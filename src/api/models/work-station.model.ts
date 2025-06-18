@@ -4,20 +4,20 @@ import { TABLE_NAMES } from '../databases/local/tables';
 
 export class WorkstationModel {
 
-    static async findByClientId(client_id: string): Promise<Workstation[]> {
-        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { client_id });
+    static async findByClientId(clientId: string): Promise<Workstation[]> {
+        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { clientId });
     }
 
-    static async findByShopCode(shop_code: string): Promise<Workstation[]> {
-        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { shop_code });
+    static async findByShopCode(shopCode: string): Promise<Workstation[]> {
+        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { shopCode });
     }
 
-    static async findByShopCodeAndTillNumber(shop_code: string, till_number: string): Promise<Workstation[]> {
-        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { shop_code, till_number });
+    static async findByShopCodeAndTillNumber(shopCode: string, tillNumber: string): Promise<Workstation[]> {
+        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { shopCode, tillNumber });
     }
 
-    static async findPrimaryByShopCode(shop_code: string): Promise<Workstation[]> {
-        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { shop_code, is_primary: true });
+    static async findPrimaryByShopCode(shopCode: string): Promise<Workstation[]> {
+        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { shopCode, isPrimary: true });
     }
 
     static async findAll(): Promise<Workstation[]> {
@@ -47,18 +47,18 @@ export class WorkstationModel {
     static buildWorkstationData(data: CreateWorkstationRequest): Omit<Workstation, 'id'> {
         return {
             uuid: uuidv4(),
-            shop_code: data.shop_code,
-            client_id: data.client_id,
-            till_name: data.till_name,
-            till_number: data.till_number,
-            device_id: data.device_id || '',
-            device_type: data.device_type || 'desktop',
-            ip_address: data.ip_address || '',
-            is_primary: data.is_primary || false,
+            shopCode: data.shopCode,
+            clientId: data.clientId,
+            tillName: data.tillName,
+            tillNumber: data.tillNumber,
+            deviceId: data.deviceId || '',
+            deviceType: data.deviceType || 'desktop',
+            ipAddress: data.ipAddress || '',
+            isPrimary: data.isPrimary || false,
             status: 'active',
-            registered_at: new Date().toISOString(),
-            last_activity: new Date().toISOString(),
-            last_sync: null
+            createdAt: new Date().toISOString(),
+            lastActivity: new Date().toISOString(),
+            lastSync: null
         };
     }
 }
