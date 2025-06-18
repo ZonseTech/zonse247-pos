@@ -65,7 +65,7 @@ const PrinterModal: FunctionComponent = () => {
                 title="Printer"
                 isOpen={isOpenForm}
                 onClose={() => setIsOpenForm(false)}
-                className="max-w-sm bg-white text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300"
+                className="max-w-sm bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300"
             >
                 <div className="flex flex-col gap-4">
                     {printers.length > 0 &&

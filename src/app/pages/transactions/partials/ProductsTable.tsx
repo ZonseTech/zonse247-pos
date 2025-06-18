@@ -38,7 +38,7 @@ const ProductsTable: FunctionComponent<Props> = ({ soldProducts }) => {
 	];
 
 	return (
-		<div className="bg-white rounded-md p-4 mt-4">
+		<div className="bg-white dark:bg-gray-700 rounded-md p-4 mt-4">
 			<div className="flex justify-between items-center pb-4 border-b">
 				<div>
 					<h2 className="text-xl uppercase font-medium text-gray-700 flex-1">

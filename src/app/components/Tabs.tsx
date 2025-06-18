@@ -19,7 +19,7 @@ const Tabs: FunctionComponent<PropsWithChildren> = ({ children }) => {
 						layout='outline'
 						key={child.props.label}
 						theme={activeTab.toLowerCase() === child.props.label?.toLowerCase() ? 'neutral' : undefined}
-						className='flex-1 text-gray-800 py-3'
+						className='flex-1 text-gray-800 dark:text-gray-400 py-3'
 						onClick={(e: MouseEvent<HTMLButtonElement>) => handleClick(e, child.props.label)}
 					>
 						{child.props.label}

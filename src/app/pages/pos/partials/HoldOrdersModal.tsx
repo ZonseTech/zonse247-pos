@@ -135,8 +135,8 @@ const HoldOrdersModal: FunctionComponent = () => {
         <Fragment>
             <IconLabelButton
                 key={Math.random().toString()}
-                color="bg-sky-400"
-                iconColor="bg-sky-500"
+                color="bg-green-400"
+                iconColor="bg-green-500"
                 text="Held Orders"
                 icon={<HiOutlineClipboardList className="w-5 h-5" />}
                 onClick={handleOpenModal}
@@ -146,7 +146,7 @@ const HoldOrdersModal: FunctionComponent = () => {
                 title="On-Hold Orders"
                 isOpen={isOpen}
                 onClose={handleCloseModal}
-                className="max-w-2xl bg-white text-gray-700 rounded shadow-lg"
+                className="max-w-2xl bg-white dark:bg-gray-700 text-gray-700 rounded shadow-lg"
             >
                 <div className="flex flex-col gap-4">
                     {isLoading ? (
@@ -157,7 +157,7 @@ const HoldOrdersModal: FunctionComponent = () => {
                             <div className="mt-4">
                                 <Button
                                     onClick={fetchHoldOrders}
-                                    className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded"
+                                    className="bg-blue-500 hover:bg-blue-600 text-white dark:text-gray-100 py-1 px-3 rounded"
                                 >
                                     Retry
                                 </Button>
@@ -192,13 +192,13 @@ const HoldOrdersModal: FunctionComponent = () => {
                                                 <div className="flex justify-center gap-2">
                                                     <Button
                                                         onClick={() => handleLoadOrder(order.uuid)}
-                                                        className="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded text-sm"
+                                                        className="bg-green-500 hover:bg-green-600 text-white dark:text-gray-100 py-1 px-3 rounded text-sm"
                                                     >
                                                         Load
                                                     </Button>
                                                     <Button
                                                         onClick={() => handleDeleteOrder(order.uuid)}
-                                                        className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded text-sm"
+                                                        className="bg-red-500 hover:bg-red-600 text-white dark:text-gray-100 py-1 px-3 rounded text-sm"
                                                     >
                                                         Delete
                                                     </Button>
@@ -214,7 +214,7 @@ const HoldOrdersModal: FunctionComponent = () => {
                     <div className="flex justify-end mt-4">
                         <Button
                             onClick={handleCloseModal}
-                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded"
+                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 dark:text-gray-400 py-2 px-4 rounded"
                         >
                             Close
                         </Button>

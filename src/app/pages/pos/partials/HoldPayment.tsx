@@ -71,8 +71,8 @@ const HoldPayment: FunctionComponent = () => {
         <Fragment>
             <IconLabelButton
                 key={Math.random().toString()}
-                color="bg-sky-400"
-                iconColor="bg-sky-500"
+                color="bg-green-400"
+                iconColor="bg-green-500"
                 text="Hold"
                 icon={<HiOutlineHand className="w-5 h-5" />}
                 onClick={handleOnHold}
@@ -82,7 +82,7 @@ const HoldPayment: FunctionComponent = () => {
                 title="Hold Order"
                 isOpen={isOpenHoldModal}
                 onClose={handleCloseModal}
-                className="max-w-md bg-white text-gray-700 rounded shadow-lg"
+                className="max-w-md bg-white dark:bg-gray-700 text-gray-700 rounded shadow-lg"
             >
                 <div className="flex flex-col gap-4">
                     <div className="bg-gray-100 rounded p-3 text-lg flex justify-between">
@@ -109,7 +109,7 @@ const HoldPayment: FunctionComponent = () => {
                         <Button
                             onClick={handleCloseModal}
                             type="button"
-                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded flex-1"
+                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 dark:text-gray-400 py-2 px-4 rounded flex-1"
                         >
                             Cancel
                         </Button>
@@ -118,7 +118,7 @@ const HoldPayment: FunctionComponent = () => {
                             onClick={handleSubmitHoldOrder}
                             type="button"
                             disabled={isSubmitting}
-                            className="bg-sky-500 hover:bg-sky-600 text-white py-2 px-4 rounded flex-1"
+                            className="bg-green-500 hover:bg-green-600 text-white dark:text-gray-100 py-2 px-4 rounded flex-1"
                         >
                             {isSubmitting ? "Processing..." : "Hold Order"}
                         </Button>

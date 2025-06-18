@@ -153,7 +153,7 @@ export default function RolePermissionAdmin() {
 
   return (
     <AppLayout>
-      <div className="min-h-screen min-h-screen p-6 max-w-full mx-auto bg-white dark:bg-gray-700">
+      <div className="min-h-screen p-6 max-w-full mx-auto bg-white dark:bg-gray-700">
         <div className="mb-4">
           <h1 className="text-3xl font-bold text-gray-900">Role & Permission Management</h1>
           <p className="mt-2 text-gray-600">Manage system roles and permissions</p>

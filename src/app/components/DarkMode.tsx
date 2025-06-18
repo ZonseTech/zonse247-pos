@@ -7,7 +7,7 @@ interface DarkModeProps {
 	color?: string;
 }
 
-const DarkMode: FunctionComponent<DarkModeProps> = ({ color = 'bg-teal-500' }) => {
+const DarkMode: FunctionComponent<DarkModeProps> = ({ color = 'bg-green-500' }) => {
 	const { mode, toggleMode } = useContext(ThemeContext);
 
 	return (

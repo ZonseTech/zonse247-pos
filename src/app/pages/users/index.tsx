@@ -85,7 +85,7 @@ const UserManagement: FunctionComponent = () => {
                             </span>
                         )}
                         {row?.force_password_change && (
-                            <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                            <span className="text-xs bg-green-100 text-yellow-800 px-2 py-1 rounded">
                                 Reset Password
                             </span>
                         )}
@@ -391,8 +391,8 @@ const UserManagement: FunctionComponent = () => {
         switch (status) {
             case UserStatus.ACTIVE: return 'text-green-800 bg-green-100';
             case UserStatus.SUSPENDED: return 'text-red-800 bg-red-100';
-            case UserStatus.INACTIVE: return 'text-gray-800 bg-gray-100';
-            default: return 'text-gray-800 bg-gray-100';
+            case UserStatus.INACTIVE: return 'text-gray-800 dark:text-gray-400 bg-gray-100';
+            default: return 'text-gray-800 dark:text-gray-400 bg-gray-100';
         }
     };
 
@@ -461,10 +461,10 @@ const UserManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="p-6 max-w-full mx-auto bg-white">
+            <div className="min-h-screen p-6 max-w-full mx-auto bg-white dark:bg-gray-700">
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800 flex items-center">
+                        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-400 flex items-center">
                             <Users className="w-6 h-6 mr-2" />
                             User Management
                         </h1>
@@ -476,7 +476,7 @@ const UserManagement: FunctionComponent = () => {
                     <div className="flex items-center space-x-3">
                         <Button
                             onClick={handleAddUserClicked}
-                            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                            className="flex items-center px-4 py-2 bg-green-600 text-white dark:text-gray-100 rounded-lg hover:bg-green-700"
                         >
                             <HiOutlinePlus className="w-4 h-4 mr-2" />
                             Add User
@@ -484,10 +484,10 @@ const UserManagement: FunctionComponent = () => {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-md border overflow-hidden">
+                <div className="bg-white dark:bg-gray-700 rounded-md border overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-200">
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-lg font-semibold text-gray-800">
+                            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-400">
                                 Users ({filteredUsers.length} of {users.length})
                             </h2>
                         </div>

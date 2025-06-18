@@ -84,7 +84,7 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({ chil
             {children}
 
             {showAddButton && (<IconButton
-                color='bg-yellow-400'
+                color='bg-green-400'
                 className='rounded-r rounded-l-none'
                 onClick={() => handleAddCategoryClicked(true)}
                 icon={<HiOutlinePlus className='w-5 h-5' />}
@@ -94,7 +94,7 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({ chil
                 title='Category'
                 isOpen={isOpenForm}
                 onClose={() => handleAddCategoryClicked(false)}
-                className='max-w-xs bg-white text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
+                className='max-w-xs bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
             >
                 <Formik
                     initialValues={categoryValues}

@@ -24,8 +24,8 @@ const renderNavItem = (item: NavItem, isMobile = false): ReactNode => {
             return (
                 <IconLabelButton
                     key={item.text || Math.random().toString()}
-                    color={item.color || 'bg-sky-500'}
-                    iconColor={item.iconColor || 'bg-sky-500'}
+                    color={item.color || 'bg-green-500'}
+                    iconColor={item.iconColor || 'bg-green-500'}
                     text={item.text || ''}
                     icon={item.icon}
                     fullWidth={isMobile}
@@ -37,7 +37,7 @@ const renderNavItem = (item: NavItem, isMobile = false): ReactNode => {
                 <SplitButton
                     key={item.text}
                     color={item.color || 'gray-400'}
-                    iconColor={item.iconColor || 'bg-sky-500'}
+                    iconColor={item.iconColor || 'bg-green-500'}
                     text={item.text || ''}
                     icon={item.icon}
                     fullWidth={isMobile}

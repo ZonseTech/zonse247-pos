@@ -52,9 +52,9 @@ const Dashboard: FunctionComponent = () => {
 
     const [cards, setCards] = useState([
         { key: "total_sales", title: 'Total Sales', value: 0, icon: <HiOutlineBanknotes />, bgColor: 'bg-green-500' },
-        { key: "stock", title: 'Stock', value: 0, icon: <HiOutlineBuildingStorefront />, bgColor: 'bg-sky-500' },
-        { key: "all_customers", title: 'All Customers', value: 0, icon: <HiOutlineUserGroup />, bgColor: 'bg-yellow-500' },
-        { key: "my_total_transactions", title: 'My Transaction', value: 0, icon: <HiOutlineShieldCheck />, bgColor: 'bg-teal-500' },
+        { key: "stock", title: 'Stock', value: 0, icon: <HiOutlineBuildingStorefront />, bgColor: 'bg-green-500' },
+        { key: "all_customers", title: 'All Customers', value: 0, icon: <HiOutlineUserGroup />, bgColor: 'bg-green-500' },
+        { key: "my_total_transactions", title: 'My Transaction', value: 0, icon: <HiOutlineShieldCheck />, bgColor: 'bg-green-500' },
     ]);
 
     useEffect(() => {
@@ -169,14 +169,14 @@ const Dashboard: FunctionComponent = () => {
                     ) : (
                         <Fragment>
                             {expiredProductsCount > 0 && (
-                                <div className="mb-4 bg-yellow-50 border border-yellow-200/40 rounded-sm p-3">
+                                <div className="mb-4 bg-green-50 border border-yellow-200/40 rounded-sm p-3">
                                     <div className="flex items-center">
                                         <div className="text-yellow-600 font-medium">
                                             {expiredProductsCount} product(s) have expired.
                                         </div>
                                         <Link
                                             to={ROUTES.PRODUCTS}
-                                            className="ml-4 text-sky-600 hover:text-sky-800 font-medium text-sm"
+                                            className="ml-4 text-green-600 hover:text-green-800 font-medium text-sm"
                                         >
                                             Go to Products Page →
                                         </Link>
@@ -224,7 +224,7 @@ const Dashboard: FunctionComponent = () => {
                                                     <button
                                                         onClick={getPrevLimitData}
                                                         disabled={isFirstPage}
-                                                        className="p-1 rounded-full bg-gray-50 hover:bg-sky-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="p-1 rounded-full bg-gray-50 hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                         aria-label="Previous page"
                                                     >
                                                         <HiChevronLeft size={20} className="text-gray-600" />
@@ -235,7 +235,7 @@ const Dashboard: FunctionComponent = () => {
                                                     <button
                                                         onClick={getNextLimitData}
                                                         disabled={isLastPage}
-                                                        className="p-1 rounded-full bg-gray-50 hover:bg-sky-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="p-1 rounded-full bg-gray-50 hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                         aria-label="Next page"
                                                     >
                                                         <HiChevronRight size={20} className="text-gray-600" />
@@ -247,17 +247,17 @@ const Dashboard: FunctionComponent = () => {
                                 </div>
 
                                 <div className="col-span-3">
-                                    <div className="bg-white rounded-sm px-4 pb-7 shadow h-[39rem]">
+                                    <div className="bg-white dark:bg-gray-700 rounded-sm px-4 pb-7 shadow h-[39rem]">
                                         <MonthlySalesChart data={monthlySalesData} chartHeader={
                                             <Fragment>
                                                 <div className="flex items-center gap-2 ">
-                                                    <HiOutlineCurrencyDollar className="text-sky-600" />
+                                                    <HiOutlineCurrencyDollar className="text-green-600" />
                                                     <h2 className="text-md font-semibold">{dayjs(currentMonthYear).format("MMMM-YYYY")} Sales</h2>
                                                 </div>
                                                 <div className="flex items-center gap-1">
                                                     <button
                                                         onClick={goToPreviousDate}
-                                                        className="p-1 rounded-full bg-gray-50 hover:bg-sky-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="p-1 rounded-full bg-gray-50 hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                         aria-label="Previous month"
                                                     >
                                                         <HiChevronLeft size={20} className="text-gray-600" />
@@ -266,7 +266,7 @@ const Dashboard: FunctionComponent = () => {
                                                     <button
                                                         onClick={goToNextDate}
                                                         disabled={isCurrentMonth(currentMonthYear)}
-                                                        className="p-1 rounded-full bg-gray-50 hover:bg-sky-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="p-1 rounded-full bg-gray-50 hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                         aria-label="Next month"
                                                     >
                                                         <HiChevronRight size={20} className="text-gray-600" />

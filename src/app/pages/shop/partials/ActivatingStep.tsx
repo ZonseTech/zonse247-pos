@@ -5,7 +5,7 @@ const ActivatingStep: FunctionComponent = () => {
         <div className="text-center space-y-6">
 
             <div>
-                <h2 className="text-2xl font-bold text-gray-800">Activating...</h2>
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-400">Activating...</h2>
                 <p className="text-gray-600 mt-2">
                     Connecting to server and downloading shop settings
                 </p>

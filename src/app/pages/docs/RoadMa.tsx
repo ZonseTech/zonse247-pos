@@ -93,7 +93,7 @@ const PosRoadmap = () => {
     };
 
     return (
-        <div className="max-w-6xl mx-auto p-6 bg-white">
+        <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-700">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">POS Development Roadmap</h1>
                 <p className="text-gray-600 mb-4">
@@ -117,7 +117,7 @@ const PosRoadmap = () => {
                 {Object.entries(weeks).map(([weekKey, week]) => (
                     <div
                         key={weekKey}
-                        className={`rounded-lg border-2 p-6 cursor-pointer transition-all duration-200 hover:shadow-lg ${selectedWeek === weekKey ? week.color : 'bg-white border-gray-200'
+                        className={`rounded-lg border-2 p-6 cursor-pointer transition-all duration-200 hover:shadow-lg ${selectedWeek === weekKey ? week.color : 'bg-white dark:bg-gray-700 border-gray-200'
                             }`}
                         onClick={() => setSelectedWeek(weekKey)}
                     >

@@ -14,8 +14,8 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
         switch (status) {
             case UserStatus.ACTIVE: return 'text-green-800 bg-green-100';
             case UserStatus.SUSPENDED: return 'text-red-800 bg-red-100';
-            case UserStatus.INACTIVE: return 'text-gray-800 bg-gray-100';
-            default: return 'text-gray-800 bg-gray-100';
+            case UserStatus.INACTIVE: return 'text-gray-800 dark:text-gray-400 bg-gray-100';
+            default: return 'text-gray-800 dark:text-gray-400 bg-gray-100';
         }
     };
 
@@ -53,7 +53,7 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
             title="User Details"
             isOpen={isOpen}
             onClose={onClose}
-            className='max-w-4xl bg-white text-gray-700 rounded-2xl shadow-2xl p-6'
+            className='max-w-4xl bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6'
         >
             <div className="space-y-6">
                 {/* Header Section */}
@@ -79,7 +79,7 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Contact Information */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2">
                             Contact Information
                         </h3>
 
@@ -112,7 +112,7 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
 
                     {/* System Information */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2">
                             System Information
                         </h3>
 
@@ -146,7 +146,7 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
 
                 {/* Activity Information */}
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2">
                         Activity Information
                     </h3>
 
@@ -170,7 +170,7 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
 
                 {/* Permissions & Access */}
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2">
                         Permissions & Access
                     </h3>
 
@@ -199,7 +199,7 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
                             <h4 className="font-medium text-gray-700 mb-2">System Flags</h4>
                             <div className="space-y-2">
                                 {user.force_password_change && (
-                                    <div className="flex items-center p-2 bg-yellow-50 text-yellow-800 rounded">
+                                    <div className="flex items-center p-2 bg-green-50 text-yellow-800 rounded">
                                         <AlertCircle className="w-4 h-4 mr-2" />
                                         <span className="text-sm">Password reset required</span>
                                     </div>
@@ -217,7 +217,7 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
                 {/* Accessible Shops */}
                 {user.accessible_shops && user.accessible_shops.length > 0 && (
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2">
                             Accessible Shops
                         </h3>
                         <div className="flex flex-wrap gap-2">
@@ -234,7 +234,7 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
                 {/* Allowed Workstations */}
                 {user.allowed_workstations && user.allowed_workstations.length > 0 && (
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2">
                             Allowed Workstations
                         </h3>
                         <div className="flex flex-wrap gap-2">

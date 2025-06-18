@@ -21,7 +21,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalItems, itemsP
                 </button>
 
                 <button
-                    className="px-4 py-2 border rounded bg-cyan-400 text-white"
+                    className="px-4 py-2 border rounded bg-yellow-400 text-white dark:text-gray-100"
                 >
                     {currentPage}
                 </button>

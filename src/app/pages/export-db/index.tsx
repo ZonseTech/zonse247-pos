@@ -190,7 +190,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 	return (
 		<AppLayout>
 			<div className="min-h-screen overflow-auto bg-gradient-to-br from-slate-50 to-slate-100 p-6">
-				<div className="max-w-6xl mx-auto">
+				<div className="max-w-full mx-auto">
 					{error && (
 						<div className="mb-6 bg-red-50 border border-red-200 rounded-sm p-4 flex items-center space-x-3">
 							<HiBellAlert className="h-5 w-5 text-red-600 flex-shrink-0" />
@@ -198,7 +198,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 						</div>
 					)}
 
-					<div className="bg-white rounded-xs p-6 mb-6 border border-slate-200">
+					<div className="bg-white dark:bg-gray-700 rounded-xs p-6 mb-6 border border-slate-200">
 						<div className="flex items-center justify-between">
 							<div className="flex items-center space-x-3">
 								<div className="p-2 bg-blue-100 rounded-sm">
@@ -222,7 +222,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 								<button
 									onClick={handleExport}
 									disabled={loading || selectedTables.length === 0}
-									className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+									className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white dark:text-gray-100 rounded-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 								>
 									<RiDownloadCloud2Fill className="h-4 w-4" />
 									<span>Export Selected</span>
@@ -231,7 +231,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 						</div>
 					</div>
 
-					<div className="pb-36 max-h-[35rem] overflow-y-auto bg-white rounded-xs mb-6 border border-slate-200">
+					<div className="pb-36 max-h-[35rem] overflow-y-auto bg-white dark:bg-gray-700 rounded-xs mb-6 border border-slate-200">
 						<div className="flex border-b border-slate-200">
 							{[
 								{ key: 'export', label: 'Export', icon: RiDownload2Fill },
@@ -276,7 +276,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 											<p className="text-slate-600">No tables available or failed to load</p>
 											<button
 												onClick={loadTables}
-												className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-sm hover:bg-blue-700 transition-colors"
+												className="mt-4 px-4 py-2 bg-blue-600 text-white dark:text-gray-100 rounded-sm hover:bg-blue-700 transition-colors"
 											>
 												Retry
 											</button>
@@ -292,7 +292,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 														key={tableName}
 														className={`border rounded-sm p-4 cursor-pointer transition-all ${isSelected
 															? 'border-blue-500 bg-blue-50'
-															: 'border-slate-200 hover:border-slate-300 bg-white'
+															: 'border-slate-200 hover:border-slate-300 bg-white dark:bg-gray-700'
 															}`}
 														onClick={() => handleTableToggle(tableName)}
 													>
@@ -371,7 +371,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 												</div>
 											</div>
 
-											<div className="bg-white rounded-sm border border-slate-200 overflow-hidden">
+											<div className="bg-white dark:bg-gray-700 rounded-sm border border-slate-200 overflow-hidden">
 												<div className="overflow-x-auto">
 													<table className="w-full text-sm">
 														<thead className="bg-slate-100">
@@ -564,7 +564,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 
 					{loading && (
 						<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-							<div className="bg-white rounded-sm p-6 flex items-center space-x-3">
+							<div className="bg-white dark:bg-gray-700 rounded-sm p-6 flex items-center space-x-3">
 								<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
 								<span className="text-slate-700">Processing...</span>
 							</div>

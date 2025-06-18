@@ -17,7 +17,7 @@ const FloatingChatButton: FunctionComponent<{}> = ({ }) => {
 				}}
 			>
 				<motion.button
-					className="bg-[#ffd200] text-[#102f4f] px-4 py-3 rounded-sm shadow-lg hover:bg-orange-700 transition-colors flex items-center space-x-2 dark:bg-yellow-300 dark:hover:bg-yellow-400 relative overflow-hidden"
+					className="bg-[#ffd200] text-[#102f4f] px-4 py-3 rounded-sm shadow-lg hover:bg-orange-700 transition-colors flex items-center space-x-2 dark:bg-green-300 dark:hover:bg-green-400 relative overflow-hidden"
 					whileHover={{
 						scale: 1.1,
 						boxShadow: "0 10px 30px rgba(255,210,0,0.4)"

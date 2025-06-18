@@ -75,7 +75,7 @@ const BarcodeScanner: FunctionComponent = () => {
                     }}
                 />
                 <Button
-                    className='text-white p-2 border rounded-l-none rounded-r-sm bg-green-500'
+                    className='text-white dark:text-gray-100 p-2 border rounded-l-none rounded-r-sm bg-green-500'
                     onClick={handleManualEntry}
                     disabled={barcode.trim() === ''}>
                     <HiOutlineQrcode className='w-5 h-5' /> Scan

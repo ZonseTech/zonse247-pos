@@ -13,7 +13,7 @@ const StatCard: FunctionComponent<Props> = ({ label, value, icon, color, bgColor
     return (
         <button
             onClick={onClick}
-            className={`${bgColor} p-6 text-white rounded-sm h-24 shadow-sm ${onClick === undefined ? "cursor-none pointer-events-none" : 'transition-transform hover:scale-105'}`}
+            className={`${bgColor} p-6 text-white dark:text-gray-100 rounded-sm h-24 shadow-sm ${onClick === undefined ? "cursor-none pointer-events-none" : 'transition-transform hover:scale-105'}`}
         >
 
             {
@@ -21,7 +21,7 @@ const StatCard: FunctionComponent<Props> = ({ label, value, icon, color, bgColor
                     <Fragment>
                         <div className="flex">
                             <div className={`flex items-center justify-center p-3 rounded-md ${color}`}>
-                                <span className="text-white text-3xl">{icon}</span>
+                                <span className="text-white dark:text-gray-100 text-3xl">{icon}</span>
                             </div>
                             <div className="ml-5 text-left">
                                 <p className="text-sm font-medium text-gray-200">{label}</p>

@@ -142,9 +142,9 @@ const Migrations: FunctionComponent = () => {
 
 	return (
 		<AppLayout>
-			<div className="h-screen overflow-auto bg-gray-50">
+			<div className="p-6 min-h-screen max-w-full overflow-auto bg-gray-50">
 				<div className="max-w-4xl mx-auto p-6 space-y-6 pb-36">
-					<div className="bg-white rounded-sm shadow-sm border p-6">
+					<div className="bg-white dark:bg-gray-700 rounded-sm shadow-sm border p-6">
 						<div className="flex items-center space-x-3 mb-4">
 							<HiOutlineUpload className="w-6 h-6 text-blue-600" />
 							<h2 className="text-lg font-semibold text-gray-900">Upload Migration File</h2>
@@ -211,7 +211,7 @@ const Migrations: FunctionComponent = () => {
 							<button
 								onClick={uploadFile}
 								disabled={!selectedFile || isUploading || !tableName}
-								className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+								className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white dark:text-gray-100 rounded-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
 							>
 								{isUploading && <FaSpinner className="w-4 h-4 animate-spin" />}
 								<span>{isUploading ? 'Uploading...' : 'Upload File'}</span>
@@ -220,7 +220,7 @@ const Migrations: FunctionComponent = () => {
 							<button
 								onClick={startMigration}
 								disabled={!uploadStatus?.data || isMigrating || !tableName}
-								className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+								className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white dark:text-gray-100 rounded-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
 							>
 								{isMigrating && <FaSpinner className="w-4 h-4 animate-spin" />}
 								<HiOutlineDatabase className="w-4 h-4" />
@@ -237,7 +237,7 @@ const Migrations: FunctionComponent = () => {
 					</div>
 
 					{migrationProgress.length > 0 && (
-						<div className="bg-white rounded-sm shadow-sm border p-6">
+						<div className="bg-white dark:bg-gray-700 rounded-sm shadow-sm border p-6">
 							<div className="flex items-center space-x-3 mb-4">
 								<HiOutlineDatabase className="w-6 h-6 text-green-600" />
 								<h2 className="text-lg font-semibold text-gray-900">Migration Progress</h2>
@@ -260,7 +260,7 @@ const Migrations: FunctionComponent = () => {
 								</div>
 							)}
 
-							<div className="space-y-3 max-h-96 overflow-y-auto">
+							<div className="space-y-3 min-h-screen max-w-full overflow-y-auto">
 								{migrationProgress.map((item, index) => (
 									<div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-sm">
 										{getStatusIcon(item.status)}

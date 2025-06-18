@@ -272,17 +272,17 @@ const WorkstationManagement: FunctionComponent = () => {
         switch (status) {
             case 'active': return 'text-green-800 bg-green-100';
             case 'inactive': return 'text-red-800 bg-red-100';
-            case 'maintenance': return 'text-yellow-800 bg-yellow-100';
-            default: return 'text-gray-800 bg-gray-100';
+            case 'maintenance': return 'text-yellow-800 bg-green-100';
+            default: return 'text-gray-800 dark:text-gray-400 bg-gray-100';
         }
     };
 
     const getStatusActionColor = (status: string) => {
         switch (status) {
-            case 'active': return 'text-yellow-600 hover:text-yellow-800 bg-yellow-50 hover:bg-yellow-100';
+            case 'active': return 'text-yellow-600 hover:text-yellow-800 bg-green-50 hover:bg-green-100';
             case 'inactive': return 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100';
             case 'maintenance': return 'text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100';
-            default: return 'text-gray-600 hover:text-gray-800 bg-gray-50 hover:bg-gray-100';
+            default: return 'text-gray-600 hover:text-gray-800 dark:text-gray-400 bg-gray-50 hover:bg-gray-100';
         }
     };
 
@@ -320,10 +320,10 @@ const WorkstationManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="p-6 max-w-full mx-auto bg-white">
+            <div className="min-h-screen p-6 max-w-full mx-auto bg-white dark:bg-gray-700">
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800 flex items-center">
+                        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-400 flex items-center">
                             <Monitor className="w-6 h-6 mr-2" />
                             Workstation Management
                         </h1>
@@ -335,7 +335,7 @@ const WorkstationManagement: FunctionComponent = () => {
                     <div className="flex items-center space-x-3">
                         <Button
                             onClick={handleAddWorkstationClicked}
-                            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                            className="flex items-center px-4 py-2 bg-green-600 text-white dark:text-gray-100 rounded-lg hover:bg-green-700"
                         >
                             <HiOutlinePlus className="w-4 h-4 mr-2" />
                             Add Workstation
@@ -350,10 +350,10 @@ const WorkstationManagement: FunctionComponent = () => {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-md border overflow-hidden">
+                <div className="bg-white dark:bg-gray-700 rounded-md border overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-200">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-lg font-semibold text-gray-800">
+                            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-400">
                                 Workstations ({filteredWorkstations.length})
                             </h2>
 

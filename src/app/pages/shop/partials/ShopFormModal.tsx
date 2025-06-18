@@ -438,7 +438,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
                     setCurrentStep(0);
                     setCompletedSteps([]);
                 }}
-                className='max-w-4xl bg-white text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
+                className='max-w-4xl bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
             >
                 <Formik
                     onSubmit={handleSubmit}
@@ -457,7 +457,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
                                 />
 
                                 <div className="min-h-[400px]">
-                                    <h3 className="text-lg font-semibold text-gray-800 mb-6 border-b pb-2">
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 mb-6 border-b pb-2">
                                         {steps[currentStep]}
                                     </h3>
 
@@ -471,7 +471,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
                                         disabled={currentStep === 0}
                                         className={`px-6 py-2 ${currentStep === 0
                                             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                            : 'bg-gray-600 hover:bg-gray-700 text-white'
+                                            : 'bg-gray-600 hover:bg-gray-700 text-white dark:text-gray-100'
                                             }`}
                                     >
                                         Previous
@@ -480,7 +480,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
                                     {currentStep < steps.length - 1 && <Button
                                         type="submit"
                                         onClick={() => handleNext(values)}
-                                        className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-2`}
+                                        className={`bg-blue-600 hover:bg-blue-700 text-white dark:text-gray-100 px-6 py-2`}
                                     >
                                         Next
                                     </Button>}
@@ -488,7 +488,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
                                     {currentStep === steps.length - 1 && <Button
                                         type="submit"
                                         loading={isSavingForm}
-                                        className={`bg-green-600 hover:bg-green-700 text-white px-6 py-2`}
+                                        className={`bg-green-600 hover:bg-green-700 text-white dark:text-gray-100 px-6 py-2`}
                                     >
                                         {
                                             shop ? 'Update Shop' : 'Create Shop'

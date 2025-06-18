@@ -164,13 +164,13 @@ const SyncData: FunctionComponent = () => {
 						</button>
 						<button
 							onClick={() => handleBulkSync('pull')}
-							className='flex items-center px-4 py-2 border bg-blue-600 hover:bg-blue-700 text-white rounded-sm transition-colors'
+							className='flex items-center px-4 py-2 border bg-blue-600 hover:bg-blue-700 text-white dark:text-gray-100 rounded-sm transition-colors'
 						>
 							Pull All
 						</button>
 						<button
 							onClick={() => handleBulkSync('push')}
-							className='flex items-center px-4 py-2 border bg-green-600 hover:bg-green-700 text-white rounded-sm transition-colors'
+							className='flex items-center px-4 py-2 border bg-green-600 hover:bg-green-700 text-white dark:text-gray-100 rounded-sm transition-colors'
 						>
 							Push All
 						</button>
@@ -178,7 +178,7 @@ const SyncData: FunctionComponent = () => {
 				</div>
 
 				<div className='grid grid-cols-1 md:grid-cols-4 gap-6 mb-6'>
-					<div className='bg-white rounded-sm shadow-sm p-6 border border-gray-200'>
+					<div className='bg-white dark:bg-gray-700 rounded-sm shadow-sm p-6 border border-gray-200'>
 						<div className='flex items-center'>
 							<HiOutlineDatabase className='w-8 h-8 text-blue-500' />
 							<div className='ml-4'>
@@ -191,7 +191,7 @@ const SyncData: FunctionComponent = () => {
 							</div>
 						</div>
 					</div>
-					<div className='bg-white rounded-sm shadow-sm p-6 border border-gray-200'>
+					<div className='bg-white dark:bg-gray-700 rounded-sm shadow-sm p-6 border border-gray-200'>
 						<div className='flex items-center'>
 							<HiOutlineCheck className='w-8 h-8 text-green-500' />
 							<div className='ml-4'>
@@ -202,7 +202,7 @@ const SyncData: FunctionComponent = () => {
 							</div>
 						</div>
 					</div>
-					<div className='bg-white rounded-sm shadow-sm p-6 border border-gray-200'>
+					<div className='bg-white dark:bg-gray-700 rounded-sm shadow-sm p-6 border border-gray-200'>
 						<div className='flex items-center'>
 							<HiOutlineRefresh className='w-8 h-8 text-blue-500' />
 							<div className='ml-4'>
@@ -219,7 +219,7 @@ const SyncData: FunctionComponent = () => {
 							</div>
 						</div>
 					</div>
-					<div className='bg-white rounded-sm shadow-sm p-6 border border-gray-200'>
+					<div className='bg-white dark:bg-gray-700 rounded-sm shadow-sm p-6 border border-gray-200'>
 						<div className='flex items-center'>
 							<HiOutlineExclamationTriangle className='w-8 h-8 text-red-500' />
 							<div className='ml-4'>
@@ -249,7 +249,7 @@ const SyncData: FunctionComponent = () => {
 						<p className='text-gray-600'>No tables found</p>
 						<button
 							onClick={fetchTables}
-							className='mt-4 px-4 py-2 bg-blue-600 text-white rounded-sm hover:bg-blue-700 transition-colors'
+							className='mt-4 px-4 py-2 bg-blue-600 text-white dark:text-gray-100 rounded-sm hover:bg-blue-700 transition-colors'
 						>
 							Retry
 						</button>

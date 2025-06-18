@@ -168,7 +168,7 @@ const SubscriptionFormModal: FunctionComponent<SubscriptionFormModalProps> = ({
                 title={subscription ? 'Edit Subscription' : 'Add New Subscription'}
                 isOpen={isModalOpen}
                 onClose={closeModal}
-                className='max-w-2xl bg-white text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
+                className='max-w-2xl bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
             >
                 <Formik
                     onSubmit={handleSubmit}

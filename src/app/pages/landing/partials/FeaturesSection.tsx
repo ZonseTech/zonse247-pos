@@ -30,7 +30,7 @@ const FeaturesSection: FunctionComponent<{ staggerContainer, scaleIn, fadeInUp }
 						</motion.p>
 
 						<motion.h2
-							className="text-3xl lg:text-4xl font-bold text-[#102f4f] dark:text-white leading-tight max-w-4xl mx-auto"
+							className="text-3xl lg:text-4xl font-bold text-[#102f4f] dark:text-white dark:text-gray-100 leading-tight max-w-4xl mx-auto"
 							variants={fadeInUp}
 						>
 							<motion.span

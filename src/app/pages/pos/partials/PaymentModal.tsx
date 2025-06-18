@@ -96,7 +96,7 @@ const PaymentModal: FunctionComponent = () => {
                 title="Payment"
                 isOpen={isPaymentModalOpen}
                 onClose={handlePayment}
-                className="max-w-lg bg-white text-gray-700 rounded shadow-lg"
+                className="max-w-lg bg-white dark:bg-gray-700 text-gray-700 rounded shadow-lg"
             >
                 <ConfirmPaymentModal
                     changeAmount={changeAmount}
@@ -153,7 +153,7 @@ const PaymentModal: FunctionComponent = () => {
                                     value={displayPayment}
                                     name='amountPaid'
                                     onChange={(e) => formatAndSetPayment(e.target.value)}
-                                    className="flex w-full flex-1 bg-transparent text-right outline-none text-gray-800 text-lg"
+                                    className="flex w-full flex-1 bg-transparent text-right outline-none text-gray-800 dark:text-gray-400 text-lg"
                                 />
                             </div>
                         </div>
@@ -177,7 +177,7 @@ const PaymentModal: FunctionComponent = () => {
                                     className = 'bg-red-400 hover:bg-red-500';
                                 } else if (key === '.') {
                                     onClick = handleDecimalPoint;
-                                    className = 'bg-yellow-500 hover:bg-yellow-600';
+                                    className = 'bg-green-500 hover:bg-green-600';
                                 }
 
                                 return (
@@ -185,7 +185,7 @@ const PaymentModal: FunctionComponent = () => {
                                         key={idx}
                                         onClick={onClick}
                                         type="button"
-                                        className={`${className} block text-white text-2xl py-5 rounded`}
+                                        className={`${className} block text-white dark:text-gray-100 text-2xl py-5 rounded`}
                                     >
                                         {key}
                                     </Button>

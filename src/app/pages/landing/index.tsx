@@ -56,7 +56,7 @@ const LandingPage: FunctionComponent = () => {
 	};
 
 	return (
-		<div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
+		<div className="min-h-screen bg-white dark:bg-gray-700 dark:bg-gray-900 transition-colors">
 			<AnnouncementBar />
 
 			<Header

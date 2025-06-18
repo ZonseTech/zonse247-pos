@@ -150,8 +150,8 @@ const ConfirmPaymentModal: FunctionComponent<PropsWithChildren<Props>> = ({
                                 <label
                                     key={uuid}
                                     className={`py-3 text-lg font-normal transition flex items-center justify-center cursor-pointer ${values.paymentMethodId === name
-                                        ? 'bg-emerald-500 text-white'
-                                        : 'bg-white text-gray-700'
+                                        ? 'bg-emerald-500 text-white dark:text-gray-100'
+                                        : 'bg-white dark:bg-gray-700 text-gray-700'
                                         }`}
                                 >
                                     <Input
@@ -184,7 +184,7 @@ const ConfirmPaymentModal: FunctionComponent<PropsWithChildren<Props>> = ({
 
                             <Button
                                 type="button"
-                                className="bg-sky-400 hover:bg-sky-500 text-white py-4 rounded text-lg">
+                                className="bg-green-400 hover:bg-green-500 text-white dark:text-gray-100 py-4 rounded text-lg">
                                 Change {changeAmount > 0 ? formatCurrency(changeAmount) : '0.00'}
                             </Button>
 
@@ -192,7 +192,7 @@ const ConfirmPaymentModal: FunctionComponent<PropsWithChildren<Props>> = ({
                                 type="submit"
                                 disabled={!isPaymentSufficient}
                                 loading={isSubmitting}
-                                className={`${isPaymentSufficient ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300 cursor-not-allowed'} text-white py-4 rounded text-lg`}
+                                className={`${isPaymentSufficient ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300 cursor-not-allowed'} text-white dark:text-gray-100 py-4 rounded text-lg`}
                             >
                                 Confirm Payment
                             </Button>

@@ -6,8 +6,8 @@ import ProductsTable from './partials/ProductsTable';
 const Products: FunctionComponent = () => {
     const [summaryData, setSummaryData] = useState([
         { title: 'Total Stock', value: 0, bgColor: 'bg-green-400', onClick: () => ({}) },
-        { title: 'New Stock', value: 0, bgColor: 'bg-yellow-400', onClick: () => ({}) },
-        { title: 'Expiring Soon', value: 0, bgColor: 'bg-cyan-400', onClick: () => ({}) },
+        { title: 'New Stock', value: 0, bgColor: 'bg-green-400', onClick: () => ({}) },
+        { title: 'Expiring Soon', value: 0, bgColor: 'bg-yellow-400', onClick: () => ({}) },
         { title: 'Expired', value: 0, bgColor: 'bg-red-500', onClick: () => ({}) },
     ]);
 

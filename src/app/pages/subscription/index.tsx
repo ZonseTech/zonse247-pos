@@ -62,7 +62,7 @@ const SubscriptionManagement: FunctionComponent = () => {
         {
             name: 'Auto Renew',
             cell: (row) => (<Fragment>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${row?.auto_renew ? 'text-green-800 bg-green-100' : 'text-gray-800 bg-gray-100'}`}>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${row?.auto_renew ? 'text-green-800 bg-green-100' : 'text-gray-800 dark:text-gray-400 bg-gray-100'}`}>
                     {row?.auto_renew ? 'Yes' : 'No'}
                 </span>
             </Fragment>)
@@ -260,8 +260,8 @@ const SubscriptionManagement: FunctionComponent = () => {
             case 'active': return 'text-green-800 bg-green-100';
             case 'cancelled': return 'text-red-800 bg-red-100';
             case 'expired': return 'text-orange-800 bg-orange-100';
-            case 'past_due': return 'text-yellow-800 bg-yellow-100';
-            default: return 'text-gray-800 bg-gray-100';
+            case 'past_due': return 'text-yellow-800 bg-green-100';
+            default: return 'text-gray-800 dark:text-gray-400 bg-gray-100';
         }
     };
 
@@ -286,10 +286,10 @@ const SubscriptionManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="p-6 max-w-full mx-auto bg-white">
+            <div className="min-h-screen p-6 max-w-full mx-auto bg-white dark:bg-gray-700">
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800 flex items-center">
+                        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-400 flex items-center">
                             <CreditCard className="w-6 h-6 mr-2" />
                             Subscription Management
                         </h1>
@@ -301,7 +301,7 @@ const SubscriptionManagement: FunctionComponent = () => {
                     <div className="flex items-center space-x-3">
                         <Button
                             onClick={handleAddSubscriptionClicked}
-                            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                            className="flex items-center px-4 py-2 bg-green-600 text-white dark:text-gray-100 rounded-lg hover:bg-green-700"
                         >
                             <HiOutlinePlus className="w-4 h-4 mr-2" />
                             {'Add Subscription'}
@@ -316,10 +316,10 @@ const SubscriptionManagement: FunctionComponent = () => {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-md border overflow-hidden">
+                <div className="bg-white dark:bg-gray-700 rounded-md border overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-200">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-lg font-semibold text-gray-800">
+                            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-400">
                                 Client Subscriptions ({filteredSubscriptions.length})
                             </h2>
 

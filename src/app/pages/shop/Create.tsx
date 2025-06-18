@@ -72,26 +72,26 @@ const ShopRegistration: React.FC = () => {
     if (registrationComplete) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-                <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
+                <div className="bg-white dark:bg-gray-700 rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
                     <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Check className="w-8 h-8 text-green-600" />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-4">Registration Complete!</h2>
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-400 mb-4">Registration Complete!</h2>
                     <p className="text-gray-600 mb-6">
                         Your shop has been successfully registered. Installation credentials have been sent to your email.
                     </p>
 
                     {credentials && (
                         <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
-                            <h3 className="font-semibold text-gray-800 mb-2">Installation Credentials:</h3>
+                            <h3 className="font-semibold text-gray-800 dark:text-gray-400 mb-2">Installation Credentials:</h3>
                             <div className="space-y-2 text-sm">
                                 <div>
                                     <span className="font-medium">Client ID:</span>
-                                    <code className="ml-2 bg-white px-2 py-1 rounded">{credentials.clientId}</code>
+                                    <code className="ml-2 bg-white dark:bg-gray-700 px-2 py-1 rounded">{credentials.clientId}</code>
                                 </div>
                                 <div>
                                     <span className="font-medium">Auth Token:</span>
-                                    <code className="ml-2 bg-white px-2 py-1 rounded text-xs">{credentials.authToken}</code>
+                                    <code className="ml-2 bg-white dark:bg-gray-700 px-2 py-1 rounded text-xs">{credentials.authToken}</code>
                                 </div>
                             </div>
                         </div>
@@ -107,9 +107,9 @@ const ShopRegistration: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-2xl w-full">
+            <div className="bg-white dark:bg-gray-700 rounded-2xl shadow-2xl overflow-hidden max-w-2xl w-full">
                 <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
-                    <h1 className="text-3xl font-bold text-white">Register Your Shop</h1>
+                    <h1 className="text-3xl font-bold text-white dark:text-gray-100">Register Your Shop</h1>
                     <p className="text-blue-100 mt-2">Set up your POS system in just a few steps</p>
                 </div>
 
@@ -122,7 +122,7 @@ const ShopRegistration: React.FC = () => {
                         {({ values, errors, touched, handleChange, handleBlur, handleSubmit }) => (
                             <div className="space-y-6">
                                 <div className="space-y-4">
-                                    <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 flex items-center">
                                         <Building2 className="w-5 h-5 mr-2 text-blue-600" />
                                         Shop Information
                                     </h3>
@@ -168,7 +168,7 @@ const ShopRegistration: React.FC = () => {
 
                                 {/* Contact Information */}
                                 <div className="space-y-4">
-                                    <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 flex items-center">
                                         <Mail className="w-5 h-5 mr-2 text-blue-600" />
                                         Contact Information
                                     </h3>
@@ -213,7 +213,7 @@ const ShopRegistration: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 flex items-center">
                                         <MapPin className="w-5 h-5 mr-2 text-blue-600" />
                                         Address Information
                                     </h3>
@@ -294,7 +294,7 @@ const ShopRegistration: React.FC = () => {
 
                                 {/* Business Settings */}
                                 <div className="space-y-4">
-                                    <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 flex items-center">
                                         <CreditCard className="w-5 h-5 mr-2 text-blue-600" />
                                         Business Settings
                                     </h3>
@@ -372,7 +372,7 @@ const ShopRegistration: React.FC = () => {
                                         type="submit"
                                         disabled={isSubmitting}
                                         onClick={() => handleSubmit()}
-                                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white dark:text-gray-100 py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isSubmitting ? (
                                             <div className="flex items-center justify-center">

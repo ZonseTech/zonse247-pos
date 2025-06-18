@@ -165,7 +165,7 @@ const WorkstationActivation: React.FC = () => {
 				<div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
 					<Key className="w-8 h-8 text-blue-600" />
 				</div>
-				<h2 className="text-2xl font-bold text-gray-800">Activate Workstation</h2>
+				<h2 className="text-2xl font-bold text-gray-800 dark:text-gray-400">Activate Workstation</h2>
 				<p className="text-gray-600 mt-2">
 					Enter the credentials provided by your administrator
 				</p>
@@ -214,7 +214,7 @@ const WorkstationActivation: React.FC = () => {
 
 			{deviceInfo && (
 				<div className="bg-gray-50 rounded-lg p-4">
-					<h3 className="font-medium text-gray-800 mb-2 flex items-center">
+					<h3 className="font-medium text-gray-800 dark:text-gray-400 mb-2 flex items-center">
 						<Monitor className="w-4 h-4 mr-2" />
 						Device Information
 					</h3>
@@ -244,7 +244,7 @@ const WorkstationActivation: React.FC = () => {
 				<button
 					onClick={handleActivation}
 					disabled={!isOnline}
-					className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+					className="px-6 py-3 bg-blue-600 text-white dark:text-gray-100 rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 				>
 					Activate Workstation
 				</button>
@@ -265,7 +265,7 @@ const WorkstationActivation: React.FC = () => {
 				<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
 			</div>
 			<div>
-				<h2 className="text-2xl font-bold text-gray-800">Activating...</h2>
+				<h2 className="text-2xl font-bold text-gray-800 dark:text-gray-400">Activating...</h2>
 				<p className="text-gray-600 mt-2">
 					Connecting to server and downloading shop settings
 				</p>
@@ -295,7 +295,7 @@ const WorkstationActivation: React.FC = () => {
 				<CheckCircle className="w-8 h-8 text-green-600" />
 			</div>
 			<div>
-				<h2 className="text-2xl font-bold text-gray-800">Activation Complete!</h2>
+				<h2 className="text-2xl font-bold text-gray-800 dark:text-gray-400">Activation Complete!</h2>
 				<p className="text-gray-600 mt-2">
 					Your workstation has been successfully activated and is ready to use.
 				</p>
@@ -311,7 +311,7 @@ const WorkstationActivation: React.FC = () => {
 			</div>
 			<button
 				onClick={() => window.location.reload()}
-				className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+				className="px-6 py-3 bg-green-600 text-white dark:text-gray-100 rounded-lg font-medium hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
 			>
 				Continue to Dashboard
 			</button>
@@ -324,7 +324,7 @@ const WorkstationActivation: React.FC = () => {
 				<AlertCircle className="w-8 h-8 text-red-600" />
 			</div>
 			<div>
-				<h2 className="text-2xl font-bold text-gray-800">Activation Failed</h2>
+				<h2 className="text-2xl font-bold text-gray-800 dark:text-gray-400">Activation Failed</h2>
 				<p className="text-gray-600 mt-2">
 					There was an error activating your workstation.
 				</p>
@@ -335,7 +335,7 @@ const WorkstationActivation: React.FC = () => {
 			<div className="space-y-3">
 				<button
 					onClick={() => setStep('input')}
-					className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+					className="w-full px-6 py-3 bg-blue-600 text-white dark:text-gray-100 rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
 				>
 					Try Again
 				</button>
@@ -348,7 +348,7 @@ const WorkstationActivation: React.FC = () => {
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center p-4">
-			<div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+			<div className="bg-white dark:bg-gray-700 rounded-2xl shadow-2xl p-8 max-w-md w-full">
 				{step === 'input' && renderInputStep()}
 				{step === 'activating' && renderActivatingStep()}
 				{step === 'success' && renderSuccessStep()}

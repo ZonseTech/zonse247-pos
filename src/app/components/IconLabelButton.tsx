@@ -12,8 +12,8 @@ type IconLabelButtonProps = {
 };
 
 const IconLabelButton: FunctionComponent<IconLabelButtonProps> = ({
-    color = 'bg-cyan-400',
-    iconColor = 'bg-cyan-400',
+    color = 'bg-yellow-400',
+    iconColor = 'bg-yellow-400',
     text,
     icon,
     fullWidth = false,
@@ -43,7 +43,7 @@ const IconLabelButton: FunctionComponent<IconLabelButtonProps> = ({
                         href="#"
                         onClick={handleOnClick}
                         className={classNames(
-                            `text-white p-2 flex items-center`,
+                            `text-white dark:text-gray-100 p-2 flex items-center`,
                             `${iconColor}`
                         )}
                     >
@@ -54,7 +54,7 @@ const IconLabelButton: FunctionComponent<IconLabelButtonProps> = ({
                         href="#"
                         onClick={handleOnClick}
                         className={classNames(
-                            `text-white p-2 flex items-center truncate`,
+                            `text-white dark:text-gray-100 p-2 flex items-center truncate`,
                             `${color}`,
                             {
                                 'flex-1': fullWidth,

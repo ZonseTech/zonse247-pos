@@ -6,7 +6,7 @@ const ErrorStep: FunctionComponent<{ errorMessage, setStep }> = ({ errorMessage,
         <div className="text-center space-y-6">
 
             <div>
-                <h2 className="text-2xl font-bold text-gray-800">Activation Failed</h2>
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-400">Activation Failed</h2>
                 <p className="text-gray-600 mt-2">
                     There was an error activating your workstation.
                 </p>
@@ -20,7 +20,7 @@ const ErrorStep: FunctionComponent<{ errorMessage, setStep }> = ({ errorMessage,
             <div className="space-y-3">
                 <button
                     onClick={() => setStep('input')}
-                    className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                    className="w-full px-6 py-3 bg-blue-600 text-white dark:text-gray-100 rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
                 >
                     Try Again
                 </button>

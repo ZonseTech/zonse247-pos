@@ -76,7 +76,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ setSummaryData }) =
                         color=''
                         icon={
                             <HiOutlinePencilAlt
-                                className='w-5 h-5 text-sky-600'
+                                className='w-5 h-5 text-green-600'
                                 onClick={() => handleEditProduct(row as Product)}
                             />} />}
 
@@ -145,7 +145,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ setSummaryData }) =
                             oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
                             return createdDate >= oneWeekAgo;
                         }).length,
-                        bgColor: 'bg-yellow-400',
+                        bgColor: 'bg-green-400',
                         onClick: () => {
                             setActiveFilter('new');
                             const newStock = data.filter((item: Product) => {
@@ -177,7 +177,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ setSummaryData }) =
                             thirtyDaysLater.setDate(thirtyDaysLater.getDate() + 30);
                             return expiryDate > currentDate && expiryDate <= thirtyDaysLater;
                         }).length,
-                        bgColor: 'bg-cyan-400',
+                        bgColor: 'bg-yellow-400',
                         onClick: () => {
                             setActiveFilter('expiring');
                             const expiringProducts = data.filter((item: Product) => {
@@ -335,12 +335,12 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ setSummaryData }) =
     }
 
     return (
-        <div className="bg-white rounded-md p-4 mt-4">
+        <div className="bg-white dark:bg-gray-700 rounded-md p-4 mt-4">
             <div className="flex justify-between items-center pb-4 border-b">
                 <div className="flex gap-2">
                     <CreateProductModal onProductAdded={handleOnProductAdded} />
                     <IconButton
-                        color='bg-sky-400 hidden'
+                        color='bg-green-400 hidden'
                         icon={<HiOutlineDownload className='w-5 h-5' />}
                     />
                     {selectedProduct && <EditProductModal

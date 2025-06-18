@@ -15,8 +15,8 @@ const TransactionsPage: FC = () => {
         onClick?: () => void;
     }>>([
         { title: 'Sales', value: 0, bgColor: 'bg-green-500' },
-        { title: 'Transactions', value: 0, bgColor: 'bg-yellow-400' },
-        { title: 'Items Sold', value: 0, bgColor: 'bg-cyan-400' },
+        { title: 'Transactions', value: 0, bgColor: 'bg-green-400' },
+        { title: 'Items Sold', value: 0, bgColor: 'bg-yellow-400' },
         {
             title: 'Products',
             value: 0,

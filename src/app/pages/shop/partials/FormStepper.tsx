@@ -20,9 +20,9 @@ const FormStepper: FunctionComponent<StepperProps> = ({ steps, currentStep, comp
                             className={`
                                 w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all
                                 ${index === currentStep
-                                    ? 'bg-blue-600 text-white ring-2 ring-blue-200'
+                                    ? 'bg-blue-600 text-white dark:text-gray-100 ring-2 ring-blue-200'
                                     : completedSteps.includes(index)
-                                        ? 'bg-green-600 text-white cursor-pointer hover:bg-green-700'
+                                        ? 'bg-green-600 text-white dark:text-gray-100 cursor-pointer hover:bg-green-700'
                                         : 'bg-gray-300 text-gray-600 cursor-not-allowed'
                                 }
                             `}

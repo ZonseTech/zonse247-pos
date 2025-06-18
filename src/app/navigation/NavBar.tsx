@@ -22,7 +22,7 @@ import HoldOrdersModal from '../pages/pos/partials/HoldOrdersModal';
 import { useAuth } from '../context/AuthProvider';
 import PrinterModal from '../pages/printer/PrinterModal';
 import DarkMode from '../components/DarkMode';
-import { HiBuildingStorefront, HiOutlineArrowPath, HiOutlineBuildingOffice2, HiOutlineServerStack } from 'react-icons/hi2';
+import { HiBuildingStorefront, HiOutlineArrowPath, HiOutlineBuildingOffice2, HiOutlineKey, HiOutlineServerStack } from 'react-icons/hi2';
 import { hasPermission, hasRole } from '../utils';
 import { FaFileExport } from 'react-icons/fa';
 import { LucideSubscript } from 'lucide-react';
@@ -53,6 +53,7 @@ const NavBar: FunctionComponent = () => {
         export_db: <FaFileExport className="h-5 w-5" />,
         transactions: <HiOutlinePresentationChartBar className="h-5 w-5" />,
         users: <HiOutlineUsers className="h-5 w-5" />,
+        role_permissions: <HiOutlineKey className="h-5 w-5" />,
         admin: <HiOutlineUserCircle className="h-5 w-5" />,
         logout: <HiOutlineLogout className="h-5 w-5" />,
         syncData: <HiOutlineArrowPath className="h-5 w-5" />,
@@ -86,24 +87,24 @@ const NavBar: FunctionComponent = () => {
         items.push(
             {
                 type: 'button',
-                color: 'bg-sky-400',
-                iconColor: 'bg-sky-500',
+                color: 'bg-green-400',
+                iconColor: 'bg-green-500',
                 text: 'Open Tabs',
                 icon: icons.tabs,
                 onClick: <HoldOrdersModal />
             },
             {
                 type: 'button',
-                color: 'bg-sky-400',
-                iconColor: 'bg-sky-500',
+                color: 'bg-green-400',
+                iconColor: 'bg-green-500',
                 text: 'Printer',
                 icon: icons.printer,
                 onClick: <PrinterModal />
             },
             {
                 type: 'button',
-                color: 'bg-sky-400',
-                iconColor: 'bg-sky-500',
+                color: 'bg-green-400',
+                iconColor: 'bg-green-500',
                 text: 'Theme',
                 icon: icons.theme,
                 onClick: <DarkMode />
@@ -131,56 +132,64 @@ const NavBar: FunctionComponent = () => {
                 icon: icons.users,
                 onClick: () => navigate(ROUTES.USERS),
             });
+            items.push({
+                type: 'button',
+                color: 'bg-green-400',
+                iconColor: 'bg-green-500',
+                text: 'Roles and Permissions',
+                icon: icons.role_permissions,
+                onClick: () => navigate(ROUTES.ROLES_PERMISSIONS),
+            });
         }
 
         if (hasPermission(user, 'settings')) {
             items.push({
                 type: 'button',
-                color: 'bg-red-400',
-                iconColor: 'bg-red-500',
+                color: 'bg-green-400',
+                iconColor: 'bg-green-500',
                 text: "Work Stations",
                 icon: icons.workstations,
                 onClick: () => navigate(ROUTES.WORK_STATIONS),
             });
             items.push({
                 type: 'button',
-                color: 'bg-red-400',
-                iconColor: 'bg-red-500',
+                color: 'bg-green-400',
+                iconColor: 'bg-green-500',
                 text: "Subscription",
                 icon: icons.subscription,
                 onClick: () => navigate(ROUTES.SUBSCRIPTION),
             });
             items.push({
                 type: 'button',
-                color: 'bg-red-400',
-                iconColor: 'bg-red-500',
+                color: 'bg-green-400',
+                iconColor: 'bg-green-500',
                 text: "Clients",
                 icon: icons.client,
                 onClick: () => navigate(ROUTES.CLIENTS),
             });
             items.push({
                 type: 'button',
-                color: 'bg-red-400',
-                iconColor: 'bg-red-500',
+                color: 'bg-green-400',
+                iconColor: 'bg-green-500',
                 text: "Shops",
                 icon: icons.shop,
                 onClick: () => navigate(ROUTES.SHOPS),
             });
         }
 
-        if (hasRole(user, 'super-admin')) {
+        if (hasRole(user, 'admin')) {
             items.push({
                 type: 'button',
-                color: 'bg-red-400',
-                iconColor: 'bg-red-500',
+                color: 'bg-green-400',
+                iconColor: 'bg-green-500',
                 text: 'Migrations',
                 icon: icons.migrations,
                 onClick: () => navigate(ROUTES.MIGRATIONS),
             });
             items.push({
                 type: 'button',
-                color: 'bg-yellow-400',
-                iconColor: 'bg-yellow-500',
+                color: 'bg-green-400',
+                iconColor: 'bg-green-500',
                 text: 'Export DB',
                 icon: icons.export_db,
                 onClick: () => navigate(ROUTES.EXPORT_DB),
@@ -198,24 +207,24 @@ const NavBar: FunctionComponent = () => {
             },
             {
                 type: 'button',
-                color: 'bg-teal-400',
-                iconColor: 'bg-teal-500',
+                color: 'bg-green-400',
+                iconColor: 'bg-green-500',
                 text: "Sync Data",
                 icon: icons.syncData,
                 onClick: async () => navigate(ROUTES.SYNC_DATA)
             },
             {
                 type: 'button',
-                color: 'bg-sky-400',
-                iconColor: 'bg-sky-500',
+                color: 'bg-green-400',
+                iconColor: 'bg-green-500',
                 text: "Login user",
                 icon: icons.admin,
                 onClick: <AccountInformationModal user={user} />
             },
             {
                 type: 'button',
-                color: 'bg-yellow-400',
-                iconColor: 'bg-yellow-400',
+                color: 'bg-green-400',
+                iconColor: 'bg-green-500',
                 text: 'Log Out',
                 icon: icons.logout,
                 onClick: async () => {
@@ -239,7 +248,7 @@ const NavBar: FunctionComponent = () => {
                 <div className="flex justify-between items-center">
                     <button
                         onClick={toggleMenu}
-                        className="bg-green-400 text-white px-4 py-2 rounded flex items-center"
+                        className="bg-green-400 text-white dark:text-gray-100 px-4 py-2 rounded flex items-center"
                     >
                         {icons.hamburger}
                         Menu

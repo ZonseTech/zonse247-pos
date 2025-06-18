@@ -146,7 +146,7 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
                 title={client ? 'Edit Client' : 'Add Client'}
                 isOpen={isModalOpen}
                 onClose={closeModal}
-                className='max-w-2xl bg-white text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
+                className='max-w-2xl bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
             >
                 <Formik
                     onSubmit={handleSubmit}
@@ -257,7 +257,7 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
                                     <Button
                                         type="button"
                                         onClick={() => generateAuthKey(setFieldValue)}
-                                        className="mt-6 px-3 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                                        className="mt-6 px-3 py-2 bg-gray-500 text-white dark:text-gray-100 rounded hover:bg-gray-600"
                                     >
                                         Generate
                                     </Button>

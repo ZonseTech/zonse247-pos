@@ -23,7 +23,7 @@ const DataTable = <T,>({
     children,
     emptyPlaceholder = 'No data available'
 }: PropsWithChildren<DataTableProps<T>>) => (
-    <div className="bg-white rounded-sm shadow p-4">
+    <div className="bg-white dark:bg-gray-700 rounded-sm shadow p-4">
         <div className="flex items-center gap-2 mb-2 pb-4 border-b">
             {icon}
             <h2 className="text-md font-semibold">{title}</h2>

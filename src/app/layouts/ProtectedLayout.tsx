@@ -4,7 +4,7 @@ import NavBar from "../navigation/NavBar"
 
 const ProtectedLayout: FunctionComponent = () => {
 	return (
-		<div className="flex flex-col h-screen bg-radial-green px-4 shadow-md text-gray-600 dark:bg-gray-500">
+		<div className="flex flex-col h-screen bg-gray-100 px-4 shadow-md text-gray-600 dark:bg-gray-700">
 			<NavBar />
 			<main className="flex-grow overflow-hidden">
 				<Outlet />

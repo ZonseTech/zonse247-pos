@@ -44,7 +44,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
     if (!visible) return null;
 
     const modalClass = classNames(
-        'w-full bg-white text-gray-700 rounded-sm shadow-2xl p-6 transition-all transform duration-300',
+        'w-full bg-white dark:bg-gray-700 text-gray-700 rounded-sm shadow-2xl p-6 transition-all transform duration-300',
         {
             'animate-slide-down-fade-in': !closing,
             'animate-slide-up-fade-out': closing,
@@ -67,7 +67,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
             ariaHideApp={false}
         >
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-800">{header ? header : title}</h2>
+                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-400">{header ? header : title}</h2>
                 {showCloseButton && (
                     <button
                         onClick={onClose}

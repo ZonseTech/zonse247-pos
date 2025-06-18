@@ -7,11 +7,11 @@ import FormWrapper from '../../../components/FormWrapper';
 import FormSelectBox from '../../../components/FormSelectBox';
 import usersService from '../../../services/users.service';
 import workstationsService from '../../../services/workstation.service';
-import rolesService from '../../../services/roles.service';
 import shopsService from '../../../services/shop.service';
 import { Fragment, useState, useEffect } from 'react';
 import type { FunctionComponent } from 'react';
 import { UserStatus } from '../index';
+import roleService from '../../../services/role.service';
 
 const UserFormModal: FunctionComponent<UserFormModalProps> = ({
     user,
@@ -40,7 +40,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
     const loadRoles = async () => {
         try {
             setLoadingRoles(true);
-            const rolesData = await rolesService.list();
+            const rolesData = await roleService.list();
             setRoles(rolesData);
         } catch (error) {
             console.error('Error loading roles:', error);
@@ -205,7 +205,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                 title={user ? 'Edit User Account' : 'Create User Account'}
                 isOpen={isModalOpen}
                 onClose={closeModal}
-                className='max-w-4xl bg-white text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
+                className='max-w-4xl bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
             >
                 <Formik
                     onSubmit={handleSubmit}
@@ -219,7 +219,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {/* Basic Information */}
                                     <div className="space-y-4">
-                                        <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2">
                                             Basic Information
                                         </h3>
 
@@ -273,7 +273,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
 
                                     {/* Role and Access */}
                                     <div className="space-y-4">
-                                        <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2">
                                             Role & Access
                                         </h3>
 
@@ -343,7 +343,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
 
                                 {/* Shop Access */}
                                 <div className="mt-6">
-                                    <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2 mb-4">
                                         Shop Access
                                     </h3>
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-3">
@@ -370,7 +370,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
 
                                 {/* Workstation Access */}
                                 <div className="mt-6">
-                                    <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2 mb-4">
                                         Allowed Workstations
                                     </h3>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-3">
@@ -406,7 +406,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                                     <Button
                                         type="submit"
                                         loading={isSubmitting}
-                                        className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                        className="flex-1 px-4 py-2 bg-blue-600 text-white dark:text-gray-100 rounded-lg hover:bg-blue-700"
                                     >
                                         {user ? 'Update User' : 'Create User'}
                                     </Button>
