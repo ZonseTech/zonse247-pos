@@ -16,7 +16,7 @@ export const AssignmentsTab: FC<AssignmentTabProps> = ({
         setLoading(true);
         try {
             const rolePermissionData = await rolePermissionService.getByRoleUuid(roleUuid);
-            const permissionUuids = rolePermissionData.map(rp => rp.permission_uuid);
+            const permissionUuids = rolePermissionData.map(rp => rp.permissionUuid);
             const assignedPermissions = permissions.filter(p => permissionUuids.includes(p.uuid));
             setRolePermissions(assignedPermissions);
         } catch (err) {
@@ -37,7 +37,7 @@ export const AssignmentsTab: FC<AssignmentTabProps> = ({
 
     return (
         <div>
-            <div className="mb-6">
+            <div className="mb-2">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Role Permission Assignments</h2>
 
                 <div className="mb-4">
@@ -49,14 +49,14 @@ export const AssignmentsTab: FC<AssignmentTabProps> = ({
                     >
                         <option value="">Choose a role...</option>
                         {roles.map(role => (
-                            <option key={role.id} value={role.id}>{role.name}</option>
+                            <option key={role.uuid} value={role.uuid}>{role.name}</option>
                         ))}
                     </select>
                 </div>
             </div>
 
             {selectedRole && (
-                <div className="bg-white dark:bg-gray-700 shadow-sm rounded-sm p-6">
+                <div className="bg-white dark:bg-gray-700 shadow-sm rounded-sm px-0 py-6">
                     {loading ? (
                         <LoadingSpinner />
                     ) : (
@@ -66,7 +66,7 @@ export const AssignmentsTab: FC<AssignmentTabProps> = ({
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {rolePermissions.map(permission => (
-                                    <div key={permission.id} className="border rounded-sm p-4">
+                                    <div key={permission.uuid} className="border rounded-sm p-4">
                                         <div className="flex items-center justify-between mb-2">
                                             <h4 className="font-medium text-gray-900">{permission.name}</h4>
                                             <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
@@ -79,7 +79,7 @@ export const AssignmentsTab: FC<AssignmentTabProps> = ({
                                                 {permission.category}
                                             </span>
                                             <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
-                                                {permission.scope}
+                                                {permission.scope as string}
                                             </span>
                                         </div>
                                     </div>

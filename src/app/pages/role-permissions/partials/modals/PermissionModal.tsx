@@ -1,119 +1,149 @@
-import { FunctionComponent, useState } from "react";
+import * as Yup from 'yup';
+import { Notify } from 'notiflix';
+import { Form, Formik } from 'formik';
+import { FunctionComponent } from 'react';
+import { Button, Modal, ModalFooter } from '../../../../components';
+import FormWrapper from '../../../../components/FormWrapper';
+import FormInput from '../../../../components/FormInput';
+import FormTextArea from '../../../../components/FormTextArea';
+import FormSelectBox from '../../../../components/FormSelectBox';
 
-export const PermissionModal: FunctionComponent<{ permission, categories, scopes, onSave, onClose }> = ({ permission, categories, scopes, onSave, onClose }) => {
-    const [formData, setFormData] = useState({
+type Props = {
+    permission?: Permission;
+    categories: string[];
+    scopes: string[];
+    isOpen: boolean;
+    onSave: (formData: any) => void;
+    onClose: () => void;
+}
+
+const PermissionModal: FunctionComponent<Props> = ({ permission, categories, scopes, isOpen, onSave, onClose }) => {
+    const initialValues = {
         name: permission?.name || '',
         description: permission?.description || '',
         category: permission?.category || '',
         scope: permission?.scope || '',
-        isSystem: permission?.isSystem || false,
-    });
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onSave(formData);
+        isSystemPermission: permission?.isSystemPermission || false,
     };
 
-    return (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-700">
-                <div className="mt-3">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">
-                        {permission ? 'Edit Permission' : 'Create New Permission'}
-                    </h3>
+    const permissionValidationSchema = Yup.object({
+        name: Yup.string()
+            .required('Permission name is required')
+            .min(2, 'Permission name must be at least 2 characters'),
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Permission Name *
-                            </label>
-                            <input
+        description: Yup.string()
+            .max(500, 'Description cannot exceed 500 characters'),
+
+        category: Yup.string()
+            .required('Category is required'),
+
+        scope: Yup.string()
+            .required('Scope is required'),
+
+        isSystemPermission: Yup.boolean(),
+    });
+
+    const handleSubmit = async (values: any) => {
+        try {
+            await onSave(values);
+            onClose();
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            Notify.failure('Error saving permission: ' + errorMessage);
+        }
+    };
+
+    const categoryOptions = categories.map(category => ({
+        value: category,
+        label: category
+    }));
+
+    const scopeOptions = scopes.map(scope => ({
+        value: scope,
+        label: scope
+    }));
+
+    return (
+        <Modal
+            title={permission ? 'Edit Permission' : 'Create New Permission'}
+            isOpen={isOpen}
+            onClose={onClose}
+            className='max-w-md bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
+        >
+            <Formik
+                initialValues={initialValues}
+                validationSchema={permissionValidationSchema}
+                onSubmit={handleSubmit}
+                enableReinitialize={true}
+            >
+                {({ isSubmitting }) => (
+                    <Form>
+                        <FormWrapper>
+                            <FormInput
+                                label="Permission Name"
+                                id="permissionName"
+                                name="name"
                                 type="text"
                                 required
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 placeholder="Enter permission name"
+                                className="mt-1"
                             />
-                        </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Description
-                            </label>
-                            <textarea
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                rows={3}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            <FormTextArea
+                                label="Description"
+                                id="description"
+                                name="description"
                                 placeholder="Enter permission description"
+                                className="mt-1"
+                                rows={3}
                             />
-                        </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Category *
-                            </label>
-                            <select
+                            <FormSelectBox
+                                label="Category"
+                                id="category"
+                                name="category"
                                 required
-                                value={formData.category}
-                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            >
-                                <option value="">Select category</option>
-                                {categories.map(category => (
-                                    <option key={category} value={category}>{category}</option>
-                                ))}
-                            </select>
-                        </div>
+                                options={categoryOptions}
+                            />
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Scope *
-                            </label>
-                            <select
+                            <FormSelectBox
+                                label="Scope"
+                                id="scope"
+                                name="scope"
                                 required
-                                value={formData.scope}
-                                onChange={(e) => setFormData({ ...formData, scope: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            >
-                                <option value="">Select scope</option>
-                                {scopes.map(scope => (
-                                    <option key={scope} value={scope}>{scope}</option>
-                                ))}
-                            </select>
-                        </div>
+                                options={scopeOptions}
+                            />
 
-                        <div>
-                            <label className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.isSystem}
-                                    onChange={(e) => setFormData({ ...formData, isSystem: e.target.checked })}
-                                    className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                                />
-                                <span className="ml-2 text-sm text-gray-700">System Permission</span>
-                            </label>
-                        </div>
+                            <FormInput
+                                type='checkbox'
+                                label="System Permission"
+                                name="isSystemPermission"
+                                className="mt-1"
+                            />
+                        </FormWrapper>
 
-                        <div className="flex justify-end space-x-3 pt-4">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
-                                className="px-4 py-2 text-sm font-medium text-white dark:text-gray-100 bg-green-600 border border-transparent rounded-lg hover:bg-green-700"
-                            >
-                                {permission ? 'Update' : 'Create'}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+                        <ModalFooter className='mb-0 border-t mt-4'>
+                            <div className="flex justify-end space-x-3">
+                                <Button
+                                    type="button"
+                                    layout="outline"
+                                    onClick={onClose}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    loading={isSubmitting}
+                                >
+                                    {permission ? 'Update' : 'Create'}
+                                </Button>
+                            </div>
+                        </ModalFooter>
+                    </Form>
+                )}
+            </Formik>
+        </Modal>
     );
-}
+};
+
+export default PermissionModal;

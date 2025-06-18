@@ -21,7 +21,7 @@ export class RoleModel {
 
     static async findByClientId(clientId: string): Promise<Role[]> {
         try {
-            return await sealDBModel.find(ROLES_DB, { client_id: clientId });
+            return await sealDBModel.find(ROLES_DB, { clientId: clientId });
         } catch (error) {
             throw new Error(`Error finding roles by client ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
@@ -38,7 +38,7 @@ export class RoleModel {
     static async findByClientIdAndName(clientId: string, name: string): Promise<Role[]> {
         try {
             return await sealDBModel.find(ROLES_DB, {
-                client_id: clientId,
+                clientId: clientId,
                 name: name
             });
         } catch (error) {
@@ -48,7 +48,7 @@ export class RoleModel {
 
     static async findBySystemRole(isSystemRole: boolean): Promise<Role[]> {
         try {
-            return await sealDBModel.find(ROLES_DB, { is_system_role: isSystemRole });
+            return await sealDBModel.find(ROLES_DB, { isSystemRole: isSystemRole });
         } catch (error) {
             throw new Error(`Error finding system roles: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
@@ -56,7 +56,7 @@ export class RoleModel {
 
     static async findByActive(isActive: boolean): Promise<Role[]> {
         try {
-            return await sealDBModel.find(ROLES_DB, { is_active: isActive });
+            return await sealDBModel.find(ROLES_DB, { isActive: isActive });
         } catch (error) {
             throw new Error(`Error finding active roles: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
@@ -66,15 +66,15 @@ export class RoleModel {
         const now = new Date();
         return {
             uuid: uuidv4(),
-            client_id: data.client_id,
-            shop_id: data.shop_id || null,
+            clientId: data.clientId,
+            shopId: data.shopId || null,
             name: data.name,
-            display_name: data.display_name,
+            displayName: data.displayName,
             description: data.description || null,
-            is_system_role: false,
-            is_active: data.is_active !== undefined ? data.is_active : true,
-            created_at: now,
-            updated_at: now
+            isSystemRole: data.isSystemRole,
+            isActive: data.isActive !== undefined ? data.isActive : true,
+            createdAt: now,
+            updatedAt: now
         };
     }
 

@@ -62,81 +62,82 @@ const NavBar: FunctionComponent = () => {
 
     const getNavItems = (): NavItem[] => {
         const items: NavItem[] = [];
-
         if (hasPermission(user, 'inventory') || hasPermission(user, 'sales') || hasPermission(user, 'refunds')) {
             items.push({
                 type: pathname === ROUTES.PRODUCTS ? 'button' : 'split',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
+                color: 'bg-blue-600 hover:bg-blue-700',
+                iconColor: 'bg-blue-700',
                 text: pathname === ROUTES.POS ? 'Products' : 'Point of Sale',
                 icon: pathname === ROUTES.POS ? icons.products : icons.pos,
                 onClick: () => navigate(pathname === ROUTES.POS ? ROUTES.PRODUCTS : ROUTES.POS),
                 plusAction: pathname === ROUTES.PRODUCTS ? undefined : <CreateProductModal />,
             });
-
             items.push({
                 type: 'icon',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
+                color: 'bg-blue-500 hover:bg-blue-600',
+                iconColor: 'bg-blue-600',
                 text: 'Categories',
                 icon: icons.categories,
                 onClick: <CategoriesModal />
             });
         }
 
-        items.push(
-            {
-                type: 'button',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
-                text: 'Open Tabs',
-                icon: icons.tabs,
-                onClick: <HoldOrdersModal />
-            },
-            {
-                type: 'button',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
-                text: 'Printer',
-                icon: icons.printer,
-                onClick: <PrinterModal />
-            },
-            {
-                type: 'button',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
-                text: 'Theme',
-                icon: icons.theme,
-                onClick: <DarkMode />
-            },
-            { type: 'spacer' }
-        );
+        items.push({
+            type: 'button',
+            color: 'bg-green-600 hover:bg-green-700',
+            iconColor: 'bg-green-700',
+            text: 'Open Tabs',
+            icon: icons.tabs,
+            onClick: <HoldOrdersModal />
+        });
+
+        items.push({ type: 'spacer' });
 
         if (hasPermission(user, 'reports')) {
             items.push({
                 type: 'button',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
+                color: 'bg-emerald-600 hover:bg-emerald-700',
+                iconColor: 'bg-emerald-700',
                 text: 'Transactions',
                 icon: icons.transactions,
                 onClick: () => navigate(ROUTES.TRANSACTIONS),
             });
         }
 
+        items.push({
+            type: 'button',
+            color: 'bg-emerald-500 hover:bg-emerald-600',
+            iconColor: 'bg-emerald-600',
+            text: 'Dashboard',
+            icon: icons.dashboard,
+            onClick: () => navigate(ROUTES.DASHBOARD),
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-slate-600 hover:bg-slate-700',
+            iconColor: 'bg-slate-700',
+            text: 'Printer',
+            icon: icons.printer,
+            onClick: <PrinterModal />
+        });
+
+        items.push({ type: 'spacer' });
+
         if (hasPermission(user, 'users')) {
             items.push({
                 type: 'button',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
+                color: 'bg-orange-600 hover:bg-orange-700',
+                iconColor: 'bg-orange-700',
                 text: 'Users',
                 icon: icons.users,
                 onClick: () => navigate(ROUTES.USERS),
             });
             items.push({
                 type: 'button',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
-                text: 'Roles and Permissions',
+                color: 'bg-orange-500 hover:bg-orange-600',
+                iconColor: 'bg-orange-600',
+                text: 'Roles & Permissions',
                 icon: icons.role_permissions,
                 onClick: () => navigate(ROUTES.ROLES_PERMISSIONS),
             });
@@ -145,93 +146,100 @@ const NavBar: FunctionComponent = () => {
         if (hasPermission(user, 'settings')) {
             items.push({
                 type: 'button',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
-                text: "Work Stations",
+                color: 'bg-cyan-600 hover:bg-cyan-700',
+                iconColor: 'bg-cyan-700',
+                text: "Workstations",
                 icon: icons.workstations,
                 onClick: () => navigate(ROUTES.WORK_STATIONS),
             });
             items.push({
                 type: 'button',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
+                color: 'bg-cyan-500 hover:bg-cyan-600',
+                iconColor: 'bg-cyan-600',
+                text: "Shops",
+                icon: icons.shop,
+                onClick: () => navigate(ROUTES.SHOPS),
+            });
+            items.push({
+                type: 'button',
+                color: 'bg-cyan-400 hover:bg-cyan-500',
+                iconColor: 'bg-cyan-500',
+                text: "Clients",
+                icon: icons.client,
+                onClick: () => navigate(ROUTES.CLIENTS),
+            });
+        }
+
+        items.push({ type: 'spacer' });
+
+        if (hasPermission(user, 'settings')) {
+            items.push({
+                type: 'button',
+                color: 'bg-purple-600 hover:bg-purple-700',
+                iconColor: 'bg-purple-700',
                 text: "Subscription",
                 icon: icons.subscription,
                 onClick: () => navigate(ROUTES.SUBSCRIPTION),
             });
             items.push({
                 type: 'button',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
-                text: "Clients",
-                icon: icons.client,
-                onClick: () => navigate(ROUTES.CLIENTS),
-            });
-            items.push({
-                type: 'button',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
-                text: "Shops",
-                icon: icons.shop,
-                onClick: () => navigate(ROUTES.SHOPS),
+                color: 'bg-purple-500 hover:bg-purple-600',
+                iconColor: 'bg-purple-600',
+                text: "Sync Data",
+                icon: icons.syncData,
+                onClick: async () => navigate(ROUTES.SYNC_DATA)
             });
         }
 
         if (hasRole(user, 'admin')) {
             items.push({
                 type: 'button',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
+                color: 'bg-red-600 hover:bg-red-700',
+                iconColor: 'bg-red-700',
                 text: 'Migrations',
                 icon: icons.migrations,
                 onClick: () => navigate(ROUTES.MIGRATIONS),
             });
             items.push({
                 type: 'button',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
+                color: 'bg-red-500 hover:bg-red-600',
+                iconColor: 'bg-red-600',
                 text: 'Export DB',
                 icon: icons.export_db,
                 onClick: () => navigate(ROUTES.EXPORT_DB),
             });
         }
 
-        items.push(
-            {
-                type: 'button',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
-                text: 'Dashboard',
-                icon: icons.dashboard,
-                onClick: () => navigate(ROUTES.DASHBOARD),
-            },
-            {
-                type: 'button',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
-                text: "Sync Data",
-                icon: icons.syncData,
-                onClick: async () => navigate(ROUTES.SYNC_DATA)
-            },
-            {
-                type: 'button',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
-                text: "Login user",
-                icon: icons.admin,
-                onClick: <AccountInformationModal user={user} />
-            },
-            {
-                type: 'button',
-                color: 'bg-green-400',
-                iconColor: 'bg-green-500',
-                text: 'Log Out',
-                icon: icons.logout,
-                onClick: async () => {
-                    signout(() => navigate(ROUTES.LOGIN));
-                }
+        items.push({ type: 'spacer' });
+
+        items.push({
+            type: 'button',
+            color: 'bg-gray-600 hover:bg-gray-700',
+            iconColor: 'bg-gray-700',
+            text: 'Theme',
+            icon: icons.theme,
+            onClick: <DarkMode />
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-slate-500 hover:bg-slate-600',
+            iconColor: 'bg-slate-600',
+            text: "Account",
+            icon: icons.admin,
+            onClick: <AccountInformationModal user={user} />
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-red-700 hover:bg-red-800',
+            iconColor: 'bg-red-800',
+            text: 'Logout',
+            icon: icons.logout,
+            onClick: async () => {
+                signout(() => navigate(ROUTES.LOGIN));
             }
-        );
+        });
 
         return items;
     };
@@ -248,7 +256,7 @@ const NavBar: FunctionComponent = () => {
                 <div className="flex justify-between items-center">
                     <button
                         onClick={toggleMenu}
-                        className="bg-green-400 text-white dark:text-gray-100 px-4 py-2 rounded flex items-center"
+                        className="bg-blue-500 hover:bg-blue-600 text-white dark:text-gray-100 px-4 py-2 rounded flex items-center transition-colors duration-200"
                     >
                         {icons.hamburger}
                         Menu

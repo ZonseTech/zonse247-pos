@@ -53,25 +53,25 @@ export const RolesTab: React.FC<RoleTabProps> = ({
                                     <div className="text-sm font-medium text-gray-900">{role.name}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-gray-900">{role.display_name}</div>
+                                    <div className="text-sm text-gray-900 uppercase">{role.displayName}</div>
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="text-sm text-gray-500">{role.description || '-'}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${role.is_active
+                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${role.isActive
                                         ? 'bg-green-100 text-green-800'
                                         : 'bg-red-100 text-red-800'
                                         }`}>
-                                        {role.is_active ? 'Active' : 'Inactive'}
+                                        {role.isActive ? 'Active' : 'Inactive'}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${role.is_system_role
+                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${role.isSystemRole
                                         ? 'bg-green-100 text-green-800'
                                         : 'bg-gray-100 text-gray-800 dark:text-gray-400'
                                         }`}>
-                                        {role.is_system_role ? 'System' : 'Custom'}
+                                        {role.isSystemRole ? 'System' : 'Custom'}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

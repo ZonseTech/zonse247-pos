@@ -1,49 +1,52 @@
 interface Role {
-    id?: number;
     uuid: string;
-    client_id: string;
-    shop_id?: string | null;
+    clientId: string;
+    shopId?: string | null;
     name: string;
-    display_name: string;
+    displayName: string;
     description?: string | null;
-    is_system_role?: boolean;
-    is_active?: boolean;
-    created_at?: Date;
-    updated_at?: Date;
+    isSystemRole?: boolean;
+    isActive?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 interface Permission {
-    id?: number;
     uuid: string;
     name: string;
-    display_name: string;
+    displayName: string;
     description?: string | null;
     category: string;
     scope?: PermissionScope;
-    is_system_permission?: boolean;
-    created_at?: Date;
-    updated_at?: Date;
+    isSystemPermission?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
+interface PermissionCategory { }
+
+interface PermissionScope { }
+
 interface RolePermission {
-    id?: number;
-    role_uuid: string;
-    permission_uuid: string;
-    created_at?: Date;
+    uuid: string;
+    roleUuid: string;
+    permissionUuid: string;
+    createdAt?: Date;
 }
 
 interface CreateRoleRequest {
-    client_id: string;
-    shop_id?: string | null;
+    clientId: string;
+    shopId?: string | null;
     name: string;
-    display_name: string;
+    displayName: string;
     description?: string | null;
-    is_active?: boolean;
+    isActive?: boolean;
+    isSystemRole?: boolean;
 }
 
 interface CreateRolePermissionRequest {
-    role_uuid: string;
-    permission_uuid: string;
+    roleUuid: string;
+    permissionUuid: string;
 }
 
 interface CreatePermissionRequest {
@@ -52,51 +55,48 @@ interface CreatePermissionRequest {
 }
 
 interface BulkRolePermissionRequest {
-    role_uuid: string;
-    permission_uuids: Array<string>
+    roleUuid: string;
+    permissionUuids: Array<string>
 }
 
 interface Role {
-    id?: number;
     uuid: string;
-    client_id: string;
-    shop_id?: string | null;
+    clientId: string;
+    shopId?: string | null;
     name: string;
-    display_name: string;
+    displayName: string;
     description?: string | null;
-    is_system_role?: boolean;
-    is_active?: boolean;
-    created_at?: Date;
-    updated_at?: Date;
+    isSystemRole?: boolean;
+    isActive?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 interface Permission {
-    id?: number;
     uuid: string;
     name: string;
-    display_name: string;
+    displayName: string;
     description?: string | null;
     category: string;
     scope?: PermissionScope;
-    is_system_permission?: boolean;
-    created_at?: Date;
-    updated_at?: Date;
+    isSystemPermission?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 interface RolePermission {
-    id?: number;
-    role_uuid: string;
-    permission_uuid: string;
-    created_at?: Date;
+    roleUuid: string;
+    permissionUuid: string;
+    createdAt?: Date;
 }
 
 interface CreateRoleRequest {
-    client_id: string;
-    shop_id?: string | null;
+    clientId: string;
+    shopId?: string | null;
     name: string;
-    display_name: string;
+    displayName: string;
     description?: string | null;
-    is_active?: boolean;
+    isActive?: boolean;
 }
 
 interface UpdateRoleRequest extends Partial<CreateRoleRequest> {
@@ -104,13 +104,13 @@ interface UpdateRoleRequest extends Partial<CreateRoleRequest> {
 }
 
 interface CreateRolePermissionRequest {
-    role_uuid: string;
-    permission_uuid: string;
+    roleUuid: string;
+    permissionUuid: string;
 }
 
 interface CreatePermissionRequest {
     name: string;
-    display_name: string;
+    displayName: string;
     description?: string | null;
     category: string;
     scope: PermissionScope;
@@ -121,11 +121,10 @@ interface UpdatePermissionRequest extends Partial<CreatePermissionRequest> {
 }
 
 interface BulkRolePermissionRequest {
-    role_uuid: string;
-    permission_uuids: Array<string>;
+    roleUuid: string;
+    permissionUuids: Array<string>;
 }
 
-// Additional utility types
 interface FilterState {
     searchTerm: string;
     selectedCategory: string;
@@ -139,12 +138,6 @@ interface ModalState {
     editingRole: Role | null;
     editingPermission: Permission | null;
     selectedRole: Role | null;
-}
-
-interface ApiResponse<T> {
-    data: T;
-    message?: string;
-    error?: string;
 }
 
 interface PaginatedResponse<T> extends ApiResponse<T> {

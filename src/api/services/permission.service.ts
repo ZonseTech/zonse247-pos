@@ -16,8 +16,8 @@ export class PermissionService {
                 conditions.scope = query.scope;
             }
 
-            if (query.is_system_permission !== undefined) {
-                conditions.is_system_permission = query.is_system_permission === 'true';
+            if (query.isSystemPermission !== undefined) {
+                conditions.isSystemPermission = query.isSystemPermission === 'true';
             }
 
             if (query.name) {
@@ -44,7 +44,7 @@ export class PermissionService {
     }
 
     static async createPermission(data: CreatePermissionRequest): Promise<Permission> {
-        const validationError = ClientService.validateRequired(data, ['name', 'display_name', 'category']);
+        const validationError = ClientService.validateRequired(data, ['name', 'displayName', 'category']);
         if (validationError) {
             throw new Error(validationError);
         }
@@ -58,7 +58,7 @@ export class PermissionService {
             throw new Error('Permission name already exists');
         }
 
-        if (data.scope && !this.isValidScope(data.scope)) {
+        if (data.scope && !this.isValidScope(data.scope as PermissionScope)) {
             throw new Error('Invalid permission scope');
         }
 
@@ -76,11 +76,11 @@ export class PermissionService {
             throw new Error('Permission not found');
         }
 
-        if (existingPermission.is_system_permission) {
+        if (existingPermission.isSystemPermission) {
             throw new Error('System permissions cannot be modified');
         }
 
-        const protectedFields = ['uuid', 'is_system_permission', 'created_at'];
+        const protectedFields = ['uuid', 'isSystemPermission', 'created_at'];
         const updateData = { ...data };
 
         protectedFields.forEach(field => {
@@ -100,7 +100,7 @@ export class PermissionService {
             }
         }
 
-        if (updateData.scope && !this.isValidScope(updateData.scope)) {
+        if (updateData.scope && !this.isValidScope(updateData.scope as PermissionScope)) {
             throw new Error('Invalid permission scope');
         }
 
@@ -127,7 +127,7 @@ export class PermissionService {
             throw new Error('Permission not found');
         }
 
-        if (existingPermission.is_system_permission) {
+        if (existingPermission.isSystemPermission) {
             throw new Error('System permissions cannot be deleted');
         }
 
@@ -180,7 +180,7 @@ export class PermissionService {
 
         permissions.forEach(permission => {
             if (permission.scope) {
-                scopes.add(permission.scope);
+                scopes.add(permission.scope as PermissionScope);
             }
         });
 
@@ -205,7 +205,7 @@ export class PermissionService {
 
         return allPermissions.filter(permission =>
             permission.name.toLowerCase().includes(searchLower) ||
-            permission.display_name.toLowerCase().includes(searchLower) ||
+            permission.displayName.toLowerCase().includes(searchLower) ||
             (permission.description && permission.description.toLowerCase().includes(searchLower)) ||
             permission.category.toLowerCase().includes(searchLower)
         );

@@ -9,12 +9,12 @@ export class RolePermissionService {
         try {
             const conditions: any = {};
 
-            if (query.role_uuid) {
-                conditions.role_uuid = query.role_uuid;
+            if (query.roleUuid) {
+                conditions.roleUuid = query.roleUuid;
             }
 
-            if (query.permission_uuid) {
-                conditions.permission_uuid = query.permission_uuid;
+            if (query.permissionUuid) {
+                conditions.permissionUuid = query.permissionUuid;
             }
 
             return await RolePermissionModel.findAll(conditions);
@@ -24,22 +24,22 @@ export class RolePermissionService {
     }
 
     static async createRolePermission(data: CreateRolePermissionRequest): Promise<RolePermission> {
-        const validationError = ClientService.validateRequired(data, ['role_uuid', 'permission_uuid']);
+        const validationError = ClientService.validateRequired(data, ['roleUuid', 'permissionUuid']);
         if (validationError) {
             throw new Error(validationError);
         }
 
-        const role = await RoleModel.findById(data.role_uuid);
+        const role = await RoleModel.findById(data.roleUuid);
         if (!role) {
             throw new Error('Role not found');
         }
 
-        const permission = await PermissionModel.findByUuid(data.permission_uuid);
+        const permission = await PermissionModel.findByUuid(data.permissionUuid);
         if (!permission) {
             throw new Error('Permission not found');
         }
 
-        const existingAssignment = await RolePermissionModel.findByRoleAndPermissionUuid(data.role_uuid, data.permission_uuid);
+        const existingAssignment = await RolePermissionModel.findByRoleAndPermissionUuid(data.roleUuid, data.permissionUuid);
         if (existingAssignment) {
             throw new Error('Role permission assignment already exists');
         }
@@ -66,16 +66,16 @@ export class RolePermissionService {
     }
 
     static async bulkAssignPermissions(data: BulkRolePermissionRequest): Promise<{ assigned: number, skipped: number }> {
-        const validationError = ClientService.validateRequired(data, ['role_uuid', 'permission_uuids']);
+        const validationError = ClientService.validateRequired(data, ['roleUuid', 'permissionUuids']);
         if (validationError) {
             throw new Error(validationError);
         }
 
-        if (!Array.isArray(data.permission_uuids) || data.permission_uuids.length === 0) {
+        if (!Array.isArray(data.permissionUuids) || data.permissionUuids.length === 0) {
             throw new Error('Permission UUIDs must be a non-empty array');
         }
 
-        const role = await RoleModel.findById(data.role_uuid);
+        const role = await RoleModel.findById(data.roleUuid);
         if (!role) {
             throw new Error('Role not found');
         }
@@ -83,21 +83,21 @@ export class RolePermissionService {
         let assignedCount = 0;
         let skippedCount = 0;
 
-        for (const permissionUuid of data.permission_uuids) {
+        for (const permissionUuid of data.permissionUuids) {
             const permission = await PermissionModel.findByUuid(permissionUuid);
             if (!permission) {
                 throw new Error(`Permission with UUID ${permissionUuid} not found`);
             }
 
-            const existingAssignment = await RolePermissionModel.findByRoleAndPermissionUuid(data.role_uuid, permissionUuid);
+            const existingAssignment = await RolePermissionModel.findByRoleAndPermissionUuid(data.roleUuid, permissionUuid);
             if (existingAssignment) {
                 skippedCount++;
                 continue;
             }
 
             await RolePermissionModel.create({
-                role_uuid: data.role_uuid,
-                permission_uuid: permissionUuid
+                roleUuid: data.roleUuid,
+                permissionUuid: permissionUuid
             });
             assignedCount++;
         }
@@ -106,16 +106,16 @@ export class RolePermissionService {
     }
 
     static async bulkRemovePermissions(data: BulkRolePermissionRequest): Promise<{ removed: number, notFound: number }> {
-        const validationError = ClientService.validateRequired(data, ['role_uuid', 'permission_uuids']);
+        const validationError = ClientService.validateRequired(data, ['roleUuid', 'permissionUuids']);
         if (validationError) {
             throw new Error(validationError);
         }
 
-        if (!Array.isArray(data.permission_uuids) || data.permission_uuids.length === 0) {
+        if (!Array.isArray(data.permissionUuids) || data.permissionUuids.length === 0) {
             throw new Error('Permission UUIDs must be a non-empty array');
         }
 
-        const role = await RoleModel.findById(data.role_uuid);
+        const role = await RoleModel.findById(data.roleUuid);
         if (!role) {
             throw new Error('Role not found');
         }
@@ -123,8 +123,8 @@ export class RolePermissionService {
         let removedCount = 0;
         let notFoundCount = 0;
 
-        for (const permissionUuid of data.permission_uuids) {
-            const numDeleted = await RolePermissionModel.deleteByRoleAndPermissionUuid(data.role_uuid, permissionUuid);
+        for (const permissionUuid of data.permissionUuids) {
+            const numDeleted = await RolePermissionModel.deleteByRoleAndPermissionUuid(data.roleUuid, permissionUuid);
             if (numDeleted > 0) {
                 removedCount++;
             } else {
@@ -169,8 +169,8 @@ export class RolePermissionService {
         const detailedRolePermissions = [];
 
         for (const rp of rolePermissions) {
-            const role = await RoleModel.findById(rp.role_uuid);
-            const permission = await PermissionModel.findByUuid(rp.permission_uuid);
+            const role = await RoleModel.findById(rp.roleUuid);
+            const permission = await PermissionModel.findByUuid(rp.permissionUuid);
 
             detailedRolePermissions.push({
                 ...rp,
@@ -191,8 +191,8 @@ export class RolePermissionService {
         const detailedRolePermissions = [];
 
         for (const rp of rolePermissions) {
-            const role = await RoleModel.findById(rp.role_uuid);
-            const permission = await PermissionModel.findByUuid(rp.permission_uuid);
+            const role = await RoleModel.findById(rp.roleUuid);
+            const permission = await PermissionModel.findByUuid(rp.permissionUuid);
 
             detailedRolePermissions.push({
                 ...rp,
@@ -219,7 +219,7 @@ export class RolePermissionService {
         }
 
         const currentRolePermissions = await RolePermissionModel.findByRoleUuid(roleUuid);
-        const currentPermissionUuids = currentRolePermissions.map(rp => rp.permission_uuid);
+        const currentPermissionUuids = currentRolePermissions.map(rp => rp.permissionUuid);
 
         const permissionsToAdd = permissionUuids.filter(uuid => !currentPermissionUuids.includes(uuid));
         const permissionsToRemove = currentPermissionUuids.filter(uuid => !permissionUuids.includes(uuid));
@@ -234,8 +234,8 @@ export class RolePermissionService {
             }
 
             await RolePermissionModel.create({
-                role_uuid: roleUuid,
-                permission_uuid: permissionUuid
+                roleUuid: roleUuid,
+                permissionUuid: permissionUuid
             });
             addedCount++;
         }

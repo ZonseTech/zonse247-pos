@@ -1,26 +1,26 @@
 import api from "./http.service";
 
 const roleEndpoints: Record<string, string> = {
-    all: 'role/all',
-    store: 'role/post',
-    update: 'role/update',
-    getById: 'role/role',
-    delete: 'role/role',
-    client: 'role/client',
-    shop: 'role/shop',
-    system: 'role/system',
-    active: 'role/active',
-    activate: 'role/activate',
-    deactivate: 'role/deactivate',
-    permissions: 'role/role',
+    all: 'roles/all',
+    store: 'roles/post',
+    update: 'roles/update',
+    getById: 'roles/role',
+    delete: 'roles/role',
+    client: 'roles/client',
+    shop: 'roles/shop',
+    system: 'roles/system',
+    active: 'roles/active',
+    activate: 'roles/activate',
+    deactivate: 'roles/deactivate',
+    permissions: 'roles/role',
 };
 
 const roleService = {
     endpoints: roleEndpoints,
 
-    async list(): Promise<Array<Role>> {
+    async list(): Promise<ApiResponse<Array<Role>>> {
         return api
-            .get<Array<Role>>(roleEndpoints.all)
+            .get<ApiResponse<Array<Role>>>(roleEndpoints.all)
             .then((res) => res.data)
             .catch((err) => {
                 throw err;
@@ -36,9 +36,9 @@ const roleService = {
             });
     },
 
-    async update(id: string, role: Role): Promise<Role> {
+    async update(id: string, role: Role): Promise<ApiResponse<Role>> {
         return api
-            .put(`${roleEndpoints.update}/${id}`, role)
+            .put<ApiResponse<Role>>(`${roleEndpoints.update}/${id}`, role as any)
             .then((res) => res.data)
             .catch((err) => {
                 throw err;

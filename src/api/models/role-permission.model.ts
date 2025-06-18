@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { sealDBModel } from "../databases/local";
 import { ROLE_PERMISSIONS_DB } from "../databases/local/tables";
 
@@ -20,7 +21,7 @@ export class RolePermissionModel {
 
     static async findByRoleUuid(roleUuid: string): Promise<RolePermission[]> {
         try {
-            return await sealDBModel.find(ROLE_PERMISSIONS_DB, { role_uuid: roleUuid });
+            return await sealDBModel.find(ROLE_PERMISSIONS_DB, { roleUuid: roleUuid });
         } catch (error) {
             throw new Error(`Error finding role permissions by role UUID: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
@@ -28,7 +29,7 @@ export class RolePermissionModel {
 
     static async findByPermissionUuid(permissionUuid: string): Promise<RolePermission[]> {
         try {
-            return await sealDBModel.find(ROLE_PERMISSIONS_DB, { permission_uuid: permissionUuid });
+            return await sealDBModel.find(ROLE_PERMISSIONS_DB, { permissionUuid: permissionUuid });
         } catch (error) {
             throw new Error(`Error finding role permissions by permission UUID: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
@@ -37,8 +38,8 @@ export class RolePermissionModel {
     static async findByRoleAndPermissionUuid(roleUuid: string, permissionUuid: string): Promise<RolePermission | null> {
         try {
             const results = await sealDBModel.find(ROLE_PERMISSIONS_DB, {
-                role_uuid: roleUuid,
-                permission_uuid: permissionUuid
+                roleUuid: roleUuid,
+                permissionUuid: permissionUuid
             });
             return results.length > 0 ? results[0] : null;
         } catch (error) {
@@ -49,9 +50,10 @@ export class RolePermissionModel {
     static buildRolePermissionData(data: Partial<RolePermission>): RolePermission {
         const now = new Date();
         return {
-            role_uuid: data.role_uuid!,
-            permission_uuid: data.permission_uuid!,
-            created_at: data.created_at || now
+            uuid: uuidv4(),
+            roleUuid: data.roleUuid!,
+            permissionUuid: data.permissionUuid!,
+            createdAt: data.createdAt || now
         };
     }
 
@@ -78,8 +80,8 @@ export class RolePermissionModel {
             let deletedCount = 0;
 
             for (const rp of rolePermissions) {
-                if (rp.id) {
-                    const deleted = await sealDBModel.delete(ROLE_PERMISSIONS_DB, rp.id.toString());
+                if (rp.roleUuid) {
+                    const deleted = await sealDBModel.delete(ROLE_PERMISSIONS_DB, rp.roleUuid.toString());
                     deletedCount += deleted;
                 }
             }
@@ -96,8 +98,8 @@ export class RolePermissionModel {
             let deletedCount = 0;
 
             for (const rp of rolePermissions) {
-                if (rp.id) {
-                    const deleted = await sealDBModel.delete(ROLE_PERMISSIONS_DB, rp.id.toString());
+                if (rp.permissionUuid) {
+                    const deleted = await sealDBModel.delete(ROLE_PERMISSIONS_DB, rp.uuid.toString());
                     deletedCount += deleted;
                 }
             }
@@ -112,11 +114,11 @@ export class RolePermissionModel {
         try {
             const rolePermission = await this.findByRoleAndPermissionUuid(roleUuid, permissionUuid);
 
-            if (!rolePermission || !rolePermission.id) {
+            if (!rolePermission || !rolePermission.roleUuid || !rolePermission.permissionUuid) {
                 return 0;
             }
 
-            return await sealDBModel.delete(ROLE_PERMISSIONS_DB, rolePermission.id.toString());
+            return await sealDBModel.delete(ROLE_PERMISSIONS_DB, rolePermission.uuid.toString());
         } catch (error) {
             throw new Error(`Error deleting role permission by role and permission UUID: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }

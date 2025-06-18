@@ -1,122 +1,164 @@
-import { FunctionComponent, useState } from "react";
+import * as Yup from 'yup';
+import { Notify } from 'notiflix';
+import { Form, Formik } from 'formik';
+import { FunctionComponent } from 'react';
+import { Button, Modal, ModalFooter } from '../../../../components';
+import FormWrapper from '../../../../components/FormWrapper';
+import FormInput from '../../../../components/FormInput';
+import FormTextArea from '../../../../components/FormTextArea';
 
-export const RoleModal: FunctionComponent<{ role, onSave, onClose }> = ({ role, onSave, onClose }) => {
-    const [formData, setFormData] = useState({
+type Props = {
+    role?: Role;
+    isOpen: boolean;
+    onSave: (formData: any) => void;
+    onClose: () => void;
+}
+
+const RoleModal: FunctionComponent<Props> = ({ role, isOpen, onSave, onClose }) => {
+    const initialValues = {
         name: role?.name || '',
+        displayName: role?.displayName || '',
         description: role?.description || '',
         clientId: role?.clientId || '',
         shopId: role?.shopId || '',
-        active: role?.active !== undefined ? role.active : true,
-        isSystem: role?.isSystem || false,
+        active: role?.isActive !== undefined ? role.isActive : true,
+        isSystemRole: role?.isSystemRole || false,
+    };
+
+    const roleValidationSchema = Yup.object({
+        name: Yup.string()
+            .required('Role name is required')
+            .min(2, 'Role name must be at least 2 characters'),
+
+        displayName: Yup.string()
+            .required('Role display name is required')
+            .min(2, 'Role display name must be at least 2 characters'),
+
+        description: Yup.string()
+            .max(500, 'Description cannot exceed 500 characters'),
+
+        clientId: Yup.string(),
+
+        shopId: Yup.string(),
+
+        active: Yup.boolean(),
+
+        isSystemRole: Yup.boolean(),
     });
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onSave(formData);
+    const handleSubmit = async (values: any) => {
+        try {
+            await onSave(values);
+            onClose();
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            Notify.failure('Error saving role: ' + errorMessage);
+        }
     };
 
     return (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-700">
-                <div className="mt-3">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">
-                        {role ? 'Edit Role' : 'Create New Role'}
-                    </h3>
-
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Role Name *
-                            </label>
-                            <input
+        <Modal
+            title={role ? 'Edit Role' : 'Create New Role'}
+            isOpen={isOpen}
+            onClose={onClose}
+            className='max-w-md bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
+        >
+            <Formik
+                initialValues={initialValues}
+                validationSchema={roleValidationSchema}
+                onSubmit={handleSubmit}
+                enableReinitialize={true}
+            >
+                {({ isSubmitting, values }) => (
+                    <Form>
+                        <FormWrapper>
+                            <FormInput
+                                label="Role Name"
+                                id="roleName"
+                                name="name"
                                 type="text"
                                 required
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 placeholder="Enter role name"
+                                className="mt-1"
                             />
-                        </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Description
-                            </label>
-                            <textarea
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                rows={3}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            <FormInput
+                                label="Display Name"
+                                name="displayName"
+                                type="text"
+                                required
+                                placeholder="Enter display name"
+                                className="mt-1"
+                            />
+
+                            <FormTextArea
+                                label="Description"
+                                id="description"
+                                name="description"
                                 placeholder="Enter role description"
+                                className="mt-1"
+                                rows={3}
                             />
-                        </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Client ID
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.clientId}
-                                onChange={(e) => setFormData({ ...formData, clientId: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                placeholder="Enter client ID"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Shop ID
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.shopId}
-                                onChange={(e) => setFormData({ ...formData, shopId: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                placeholder="Enter shop ID"
-                            />
-                        </div>
-
-                        <div className="flex items-center space-x-4">
-                            <label className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.active}
-                                    onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                                    className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                            <div className='flex gap-2'>
+                                <FormInput
+                                    label="Client ID"
+                                    id="clientId"
+                                    name="clientId"
+                                    type="text"
+                                    placeholder="Enter client ID"
+                                    className="mt-1"
                                 />
-                                <span className="ml-2 text-sm text-gray-700">Active</span>
-                            </label>
 
-                            <label className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.isSystem}
-                                    onChange={(e) => setFormData({ ...formData, isSystem: e.target.checked })}
-                                    className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                                <FormInput
+                                    label="Shop ID"
+                                    id="shopId"
+                                    name="shopId"
+                                    type="text"
+                                    placeholder="Enter shop ID"
+                                    className="mt-1"
                                 />
-                                <span className="ml-2 text-sm text-gray-700">System Role</span>
-                            </label>
-                        </div>
+                            </div>
 
-                        <div className="flex justify-end space-x-3 pt-4">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
-                                className="px-4 py-2 text-sm font-medium text-white dark:text-gray-100 bg-green-600 border border-transparent rounded-lg hover:bg-green-700"
-                            >
-                                {role ? 'Update' : 'Create'}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+                            <div className='flex gap-4'>
+                                <FormInput
+                                    type='checkbox'
+                                    label="Active"
+                                    name="active"
+                                    className="mt-1"
+                                />
+
+                                <FormInput
+                                    type='checkbox'
+                                    label="System Role"
+                                    name="isSystemRole"
+                                    className="mt-1"
+                                />
+                            </div>
+                        </FormWrapper>
+
+                        <ModalFooter className='mb-0 border-t mt-4'>
+                            <div className="flex justify-end space-x-3">
+                                <Button
+                                    type="button"
+                                    layout="outline"
+                                    onClick={onClose}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    loading={isSubmitting}
+                                >
+                                    {role ? 'Update' : 'Create'}
+                                </Button>
+                            </div>
+                        </ModalFooter>
+                    </Form>
+                )}
+            </Formik>
+        </Modal>
     );
-}
+};
+
+export default RoleModal;

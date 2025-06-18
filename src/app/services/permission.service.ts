@@ -1,24 +1,24 @@
 import api from './http.service';
 
 const permissionEndpoints: Record<string, string> = {
-    all: 'permission/all',
-    store: 'permission/post',
-    update: 'permission/update',
-    getById: 'permission/permission',
-    delete: 'permission/permission',
-    category: 'permission/category',
-    scope: 'permission/scope',
-    system: 'permission/system',
-    categories: 'permission/categories',
-    scopes: 'permission/scopes',
+    all: 'permissions/all',
+    store: 'permissions/post',
+    update: 'permissions/update',
+    getById: 'permissions/permission',
+    delete: 'permissions/permission',
+    category: 'permissions/category',
+    scope: 'permissions/scope',
+    system: 'permissions/system',
+    categories: 'permissions/categories',
+    scopes: 'permissions/scopes',
 };
 
 const permissionService = {
     endpoints: permissionEndpoints,
 
-    async list(): Promise<Array<Permission>> {
+    async list(): Promise<ApiResponse<Array<Permission>>> {
         return api
-            .get<Array<Permission>>(permissionEndpoints.all)
+            .get<ApiResponse<Array<Permission>>>(permissionEndpoints.all)
             .then((res) => res.data)
             .catch((err) => {
                 throw err;
@@ -88,18 +88,18 @@ const permissionService = {
             });
     },
 
-    async getCategories(): Promise<Array<Permission>> {
+    async getCategories(): Promise<ApiResponse<Array<PermissionCategory>>> {
         return api
-            .get<Permission[]>(permissionEndpoints.categories)
+            .get<ApiResponse<Array<PermissionCategory>>>(permissionEndpoints.categories)
             .then((res) => res.data)
             .catch((err) => {
                 throw err;
             });
     },
 
-    async getScopes(): Promise<Array<Permission>> {
+    async getScopes(): Promise<ApiResponse<Array<PermissionScope>>> {
         return api
-            .get<Permission[]>(permissionEndpoints.scopes)
+            .get<ApiResponse<Array<PermissionScope>>>(permissionEndpoints.scopes)
             .then((res) => res.data)
             .catch((err) => {
                 throw err;

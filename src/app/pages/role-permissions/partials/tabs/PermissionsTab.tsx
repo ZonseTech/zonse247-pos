@@ -53,7 +53,7 @@ export const PermissionsTab: React.FC<PermissionTabProps> = ({
                                     <div className="text-sm text-gray-500">{permission.description || '-'}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-gray-900">{permission.display_name}</div>
+                                    <div className="text-sm text-gray-900">{permission.displayName}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
@@ -62,15 +62,15 @@ export const PermissionsTab: React.FC<PermissionTabProps> = ({
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
-                                        {permission.scope || 'N/A'}
+                                        {(permission.scope as string) || 'N/A'}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${permission.is_system_permission
+                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${permission.isSystemPermission
                                         ? 'bg-green-100 text-green-800'
                                         : 'bg-gray-100 text-gray-800 dark:text-gray-400'
                                         }`}>
-                                        {permission.is_system_permission ? 'System' : 'Custom'}
+                                        {permission.isSystemPermission ? 'System' : 'Custom'}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

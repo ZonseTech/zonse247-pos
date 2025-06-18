@@ -1,13 +1,13 @@
 import api from "./http.service";
 
 const rolePermissionEndpoints: Record<string, string> = {
-    all: 'role-permission/all',
-    store: 'role-permission/post',
-    delete: 'role-permission/delete',
-    bulkAssign: 'role-permission/bulk/assign',
-    bulkRemove: 'role-permission/bulk/remove',
-    role: 'role-permission/role',
-    permission: 'role-permission/permission',
+    all: 'role-permissions/all',
+    store: 'role-permissions/post',
+    delete: 'role-permissions/delete',
+    bulkAssign: 'role-permissions/bulk/assign',
+    bulkRemove: 'role-permissions/bulk/remove',
+    role: 'role-permissions/role',
+    permission: 'role-permissions/permission',
 };
 
 const rolePermissionService = {

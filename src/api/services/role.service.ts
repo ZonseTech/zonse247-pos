@@ -9,20 +9,20 @@ export class RoleService {
         try {
             const conditions: any = {};
 
-            if (query.client_id) {
-                conditions.client_id = query.client_id;
+            if (query.clientId) {
+                conditions.clientId = query.clientId;
             }
 
-            if (query.shop_id) {
-                conditions.shop_id = query.shop_id;
+            if (query.shopId) {
+                conditions.shopId = query.shopId;
             }
 
-            if (query.is_system_role !== undefined) {
-                conditions.is_system_role = query.is_system_role === 'true';
+            if (query.isSystemRole !== undefined) {
+                conditions.isSystemRole = query.isSystemRole === 'true';
             }
 
-            if (query.is_active !== undefined) {
-                conditions.is_active = query.is_active === 'true';
+            if (query.isActive !== undefined) {
+                conditions.isActive = query.isActive === 'true';
             }
 
             if (query.name) {
@@ -49,7 +49,7 @@ export class RoleService {
     }
 
     static async createRole(data: CreateRoleRequest): Promise<Role> {
-        const validationError = ClientService.validateRequired(data, ['client_id', 'name', 'display_name']);
+        const validationError = ClientService.validateRequired(data, ['name', 'displayName']);
         if (validationError) {
             throw new Error(validationError);
         }
@@ -58,13 +58,9 @@ export class RoleService {
             throw new Error('Role name must contain only lowercase letters and underscores');
         }
 
-        const existingRoles = await RoleModel.findByClientIdAndName(data.client_id, data.name);
+        const existingRoles = await RoleModel.findByClientIdAndName(data.clientId, data.name);
         if (existingRoles.length > 0) {
             throw new Error('Role name already exists for this client');
-        }
-
-        if (data.shop_id) {
-            const shopRoles = await RoleModel.findByShopId(data.shop_id);
         }
 
         const roleData = RoleModel.buildRoleData(data);
@@ -81,11 +77,11 @@ export class RoleService {
             throw new Error('Role not found');
         }
 
-        if (existingRole.is_system_role) {
+        if (existingRole.isSystemRole) {
             throw new Error('System roles cannot be modified');
         }
 
-        const protectedFields = ['uuid', 'client_id', 'is_system_role', 'created_at'];
+        const protectedFields = ['uuid', 'clientId', 'isSystemRole', 'createdAt'];
         const updateData = { ...data };
 
         protectedFields.forEach(field => {
@@ -99,7 +95,7 @@ export class RoleService {
         }
 
         if (updateData.name && updateData.name !== existingRole.name) {
-            const existingRoles = await RoleModel.findByClientIdAndName(existingRole.client_id, updateData.name);
+            const existingRoles = await RoleModel.findByClientIdAndName(existingRole.clientId, updateData.name);
             if (existingRoles.length > 0) {
                 throw new Error('Role name already exists for this client');
             }
@@ -128,7 +124,7 @@ export class RoleService {
             throw new Error('Role not found');
         }
 
-        if (existingRole.is_system_role) {
+        if (existingRole.isSystemRole) {
             throw new Error('System roles cannot be deleted');
         }
 
@@ -176,11 +172,11 @@ export class RoleService {
             throw new Error('Role not found');
         }
 
-        if (existingRole.is_system_role && !isActive) {
+        if (existingRole.isSystemRole && !isActive) {
             throw new Error('System roles cannot be deactivated');
         }
 
-        return await this.updateRole(id, { is_active: isActive });
+        return await this.updateRole(id, { isActive: isActive });
     }
 
     static async getRolePermissions(roleId: string): Promise<Permission[]> {
@@ -197,7 +193,7 @@ export class RoleService {
         const permissions: Permission[] = [];
 
         for (const rp of rolePermissions) {
-            const permission = await PermissionModel.findByUuid(rp.permission_uuid);
+            const permission = await PermissionModel.findByUuid(rp.permissionUuid);
             if (permission) {
                 permissions.push(permission);
             }
@@ -227,8 +223,8 @@ export class RoleService {
             const exists = await RolePermissionModel.findByRoleAndPermissionUuid(role.uuid, permissionUuid);
             if (!exists) {
                 await RolePermissionModel.create({
-                    role_uuid: role.uuid,
-                    permission_uuid: permissionUuid
+                    roleUuid: role.uuid,
+                    permissionUuid: permissionUuid
                 });
                 assignedCount++;
             }

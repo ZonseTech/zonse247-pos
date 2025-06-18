@@ -6,15 +6,16 @@ import { RolesTab } from './partials/tabs/RolesTab';
 import { PermissionsTab } from './partials/tabs/PermissionsTab';
 import { AssignmentsTab } from './partials/tabs/AssignmentsTab';
 import { AssignPermissionsModal } from './partials/modals/AssignPermissionsModal';
-import { PermissionModal } from './partials/modals/PermissionModal';
-import { RoleModal } from './partials/modals/RoleModal';
+import PermissionModal from './partials/modals/PermissionModal';
+import RoleModal from './partials/modals/RoleModal';
 import { SearchFilter } from './partials/SearchFilter';
 import { LoadingSpinner } from './partials/LoadingSpinner';
 import AppLayout from '../../layouts/AppLayout';
+import { Notify } from 'notiflix';
 
 export default function RolePermissionAdmin() {
   const [activeTab, setActiveTab] = useState('roles');
-  const [roles, setRoles] = useState([]);
+  const [roles, setRoles] = useState<Array<Role>>([]);
   const [permissions, setPermissions] = useState([]);
   const [categories, setCategories] = useState([]);
   const [scopes, setScopes] = useState([]);
@@ -28,7 +29,7 @@ export default function RolePermissionAdmin() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
   const [editingPermission, setEditingPermission] = useState(null);
-  const [selectedRole, setSelectedRole] = useState(null);
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
   useEffect(() => {
     loadData();
@@ -43,10 +44,10 @@ export default function RolePermissionAdmin() {
         permissionService.getCategories(),
         permissionService.getScopes(),
       ]);
-      setRoles(rolesData);
-      setPermissions(permissionsData);
-      setCategories(categoriesData);
-      setScopes(scopesData);
+      setRoles(rolesData.data);
+      setPermissions(permissionsData.data);
+      setCategories(categoriesData.data);
+      setScopes(scopesData.data);
     } catch (err) {
       setError('Failed to load data');
       console.error(err);
@@ -66,18 +67,19 @@ export default function RolePermissionAdmin() {
     }
   };
 
-  const handleUpdateRole = async (roleData) => {
+  const handleUpdateRole = async (roleData: Role) => {
     try {
-      await roleService.update(editingRole.id, roleData);
+      const result = await roleService.update(editingRole.uuid, roleData);
       await loadData();
       setShowRoleModal(false);
       setEditingRole(null);
+      Notify.success(result.message)
     } catch (err) {
       setError('Failed to update role');
     }
   };
 
-  const handleDeleteRole = async (id) => {
+  const handleDeleteRole = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this role?')) {
       try {
         await roleService.delete(id);
@@ -101,7 +103,7 @@ export default function RolePermissionAdmin() {
 
   const handleUpdatePermission = async (permissionData) => {
     try {
-      await permissionService.update(editingPermission.id, permissionData);
+      await permissionService.update(editingPermission.uuid, permissionData);
       await loadData();
       setShowPermissionModal(false);
       setEditingPermission(null);
@@ -121,7 +123,7 @@ export default function RolePermissionAdmin() {
     }
   };
 
-  const handleAssignPermissions = async (roleId, permissionIds) => {
+  const handleAssignPermissions = async (roleId: string, permissionIds) => {
     try {
       await roleService.assignPermissions(roleId, permissionIds);
       await loadData();
@@ -155,7 +157,7 @@ export default function RolePermissionAdmin() {
     <AppLayout>
       <div className="min-h-screen p-6 max-w-full mx-auto bg-white dark:bg-gray-700">
         <div className="mb-4">
-          <h1 className="text-3xl font-bold text-gray-900">Role & Permission Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Role & Permission</h1>
           <p className="mt-2 text-gray-600">Manage system roles and permissions</p>
         </div>
 
@@ -259,35 +261,34 @@ export default function RolePermissionAdmin() {
           />
         )}
 
-        {showRoleModal && (
-          <RoleModal
-            role={editingRole}
-            onSave={editingRole ? handleUpdateRole : handleCreateRole}
-            onClose={() => {
-              setShowRoleModal(false);
-              setEditingRole(null);
-            }}
-          />
-        )}
+        <RoleModal
+          isOpen={showRoleModal}
+          role={editingRole}
+          onSave={editingRole ? handleUpdateRole : handleCreateRole}
+          onClose={() => {
+            setShowRoleModal(false);
+            setEditingRole(null);
+          }}
+        />
 
-        {showPermissionModal && (
-          <PermissionModal
-            permission={editingPermission}
-            categories={categories}
-            scopes={scopes}
-            onSave={editingPermission ? handleUpdatePermission : handleCreatePermission}
-            onClose={() => {
-              setShowPermissionModal(false);
-              setEditingPermission(null);
-            }}
-          />
-        )}
+        <PermissionModal
+          isOpen={showPermissionModal}
+          permission={editingPermission}
+          categories={categories}
+          scopes={scopes}
+          onSave={editingPermission ? handleUpdatePermission : handleCreatePermission}
+          onClose={() => {
+            setShowPermissionModal(false);
+            setEditingPermission(null);
+          }}
+        />
 
-        {showAssignModal && selectedRole && (
+        {selectedRole && (
           <AssignPermissionsModal
+            isOpen={showAssignModal}
             role={selectedRole}
             permissions={permissions}
-            onAssign={(permissionIds) => handleAssignPermissions(selectedRole.id, permissionIds)}
+            onAssign={(permissionIds) => handleAssignPermissions(selectedRole.uuid, permissionIds)}
             onClose={() => {
               setShowAssignModal(false);
               setSelectedRole(null);
