@@ -5,16 +5,16 @@ import { SubscriptionService } from "../services/subscription.service";
 export class SubscriptionController extends BaseController {
     static async list(req: Request, res: Response): Promise<void> {
         try {
-            const { status, client_id, plan_id } = req.query;
+            const { status, clientId, planId } = req.query;
 
             let subscriptions: SubscriptionService;
 
             if (status) {
                 subscriptions = await SubscriptionService.getByStatus(status as string);
-            } else if (client_id) {
-                subscriptions = await SubscriptionService.getByClientId(client_id as string);
-            } else if (plan_id) {
-                subscriptions = await SubscriptionService.getByPlanId(plan_id as string);
+            } else if (clientId) {
+                subscriptions = await SubscriptionService.getByClientId(clientId as string);
+            } else if (planId) {
+                subscriptions = await SubscriptionService.getByPlanId(planId as string);
             } else {
                 subscriptions = await SubscriptionService.getAll();
             }
@@ -165,14 +165,14 @@ export class SubscriptionController extends BaseController {
     static async processPayment(req: Request, res: Response): Promise<void> {
         try {
             const { id } = req.params;
-            const { amount, payment_method } = req.body;
+            const { amount, paymentMethod } = req.body;
 
-            if (!amount || !payment_method) {
+            if (!amount || !paymentMethod) {
                 BaseController.sendResponse(res, 400, false, 'Amount and payment method are required');
                 return;
             }
 
-            const updatedSubscription = await SubscriptionService.processPayment(id, { amount, payment_method });
+            const updatedSubscription = await SubscriptionService.processPayment(id, { amount, paymentMethod });
 
             if (!updatedSubscription) {
                 BaseController.sendResponse(res, 404, false, 'Subscription not found');

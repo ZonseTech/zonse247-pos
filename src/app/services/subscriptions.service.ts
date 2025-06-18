@@ -64,7 +64,7 @@ class SubscriptionsService {
 
     async getByClientId(clientId: string): Promise<ClientSubscription[]> {
         try {
-            const response = await api.get<Array<ClientSubscription>>(`${this.endpoint}?client_id=${clientId}`);
+            const response = await api.get<Array<ClientSubscription>>(`${this.endpoint}?clientId=${clientId}`);
             return response.data;
         } catch (error) {
             console.error('Error fetching subscriptions by client:', error);

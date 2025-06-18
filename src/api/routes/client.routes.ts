@@ -14,7 +14,7 @@ router.get('/client/:id', ClientController.show);
 router.delete('/client/:id', ClientController.delete);
 router.post('/register-client', ClientController.register);
 router.post('/verify-client', ClientController.verify);
-router.put('/update-client/:client_id', ClientController.update);
-router.get('/onboarding-status/:client_id', ClientController.getOnboardingStatus);
+router.put('/update-client/:clientId', ClientController.update);
+router.get('/onboarding-status/:clientId', ClientController.getOnboardingStatus);
 
 export default router;

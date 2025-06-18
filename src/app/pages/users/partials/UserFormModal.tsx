@@ -93,8 +93,8 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
         password: '',
     } : {
         uuid: '',
-        client_id: '',
-        shop_id: '',
+        clientId: '',
+        shopId: '',
         username: '',
         password: '',
         fullname: '',
@@ -108,7 +108,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
         max_discount_percent: 0,
         can_override_prices: false,
         pin_code: '',
-        current_shop_id: '',
+        current_shopId: '',
         force_password_change: false
     };
 
@@ -137,7 +137,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                 otherwise: () => Yup.string().notRequired()
             }),
         role_uuid: Yup.string().required('Role is required'),
-        shop_id: Yup.string().required('Shop is required'),
+        shopId: Yup.string().required('Shop is required'),
         status: Yup.string().required('Status is required'),
         max_discount_percent: Yup.number()
             .min(0, 'Discount percent cannot be negative')
@@ -287,7 +287,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
 
                                         <FormSelectBox
                                             label='Primary Shop'
-                                            name='shop_id'
+                                            name='shopId'
                                             required
                                             options={shopOptions}
                                             disabled={loadingShops}

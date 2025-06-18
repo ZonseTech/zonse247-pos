@@ -380,29 +380,29 @@ export class SealDBModel {
 						db.ensureIndex({ fieldName: 'productId' });
 						break;
 					case WORKSTATIONS_DB:
-						db.ensureIndex({ fieldName: 'client_id' });
-						db.ensureIndex({ fieldName: 'shop_id' });
-						db.ensureIndex({ fieldName: 'till_number' });
-						db.ensureIndex({ fieldName: 'device_id' });
+						db.ensureIndex({ fieldName: 'clientId' });
+						db.ensureIndex({ fieldName: 'shopId' });
+						db.ensureIndex({ fieldName: 'tillNumber' });
+						db.ensureIndex({ fieldName: 'deviceId' });
 						db.ensureIndex({ fieldName: 'status' });
-						db.ensureIndex({ fieldName: 'is_primary' });
+						db.ensureIndex({ fieldName: 'isPrimary' });
 						break;
 					case ROLES_DB:
-						db.ensureIndex({ fieldName: 'client_id' });
-						db.ensureIndex({ fieldName: 'shop_id' });
+						db.ensureIndex({ fieldName: 'clientId' });
+						db.ensureIndex({ fieldName: 'shopId' });
 						db.ensureIndex({ fieldName: 'name' });
-						db.ensureIndex({ fieldName: 'is_system_role' });
-						db.ensureIndex({ fieldName: 'is_active' });
+						db.ensureIndex({ fieldName: 'isSystemRole' });
+						db.ensureIndex({ fieldName: 'isActive' });
 						break;
 					case PERMISSIONS_DB:
 						db.ensureIndex({ fieldName: 'name', unique: true });
 						db.ensureIndex({ fieldName: 'category' });
 						db.ensureIndex({ fieldName: 'scope' });
-						db.ensureIndex({ fieldName: 'is_system_permission' });
+						db.ensureIndex({ fieldName: 'isSystemPermission' });
 						break;
 					case ROLE_PERMISSIONS_DB:
-						db.ensureIndex({ fieldName: 'role_uuid' });
-						db.ensureIndex({ fieldName: 'permission_uuid' });
+						db.ensureIndex({ fieldName: 'roleUuid' });
+						db.ensureIndex({ fieldName: 'permissionUuid' });
 						break;
 				}
 				console.log(`Ensured indexes for table: ${tableName}`);

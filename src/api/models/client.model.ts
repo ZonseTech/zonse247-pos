@@ -29,8 +29,8 @@ export class ClientModel {
 
         if (query.search) {
             conditions.$or = [
-                { company_name: { $regex: new RegExp(query.search, 'i') } },
-                { owner_name: { $regex: new RegExp(query.search, 'i') } },
+                { companyName: { $regex: new RegExp(query.search, 'i') } },
+                { ownerName: { $regex: new RegExp(query.search, 'i') } },
                 { email: { $regex: new RegExp(query.search, 'i') } }
             ];
         }
@@ -47,11 +47,11 @@ export class ClientModel {
     }
 
     static async findClientId(id: string): Promise<Client | null> {
-        return sealDBModel.findById(TABLE_NAMES.CLIENTS, { client_id: id });
+        return sealDBModel.findById(TABLE_NAMES.CLIENTS, { clientId: id });
     }
 
-    static async findByCredentials(client_id: string, auth_key: string): Promise<Client[]> {
-        return sealDBModel.find(TABLE_NAMES.CLIENTS, { client_id, auth_key });
+    static async findByCredentials(clientId: string, authKey: string): Promise<Client[]> {
+        return sealDBModel.find(TABLE_NAMES.CLIENTS, { clientId, authKey });
     }
 
     static async create(clientData: Omit<Client, 'id'>): Promise<Client> {
@@ -72,24 +72,24 @@ export class ClientModel {
 
         return {
             uuid: uuidv4(),
-            client_id: this.generateClientId(),
-            company_name: data.company_name,
-            owner_name: data.owner_name,
+            clientId: this.generateClientId(),
+            companyName: data.companyName,
+            ownerName: data.ownerName,
             email: data.email,
             phone: data.phone,
             address: data.address || '',
             country: data.country || '',
             timezone: data.timezone || 'UTC',
-            subscription_status: 'trial',
-            trial_ends_at: trialEndDate.toISOString(),
-            auth_key: this.generateAuthKey(),
+            subscriptionStatus: 'trial',
+            trialEndsAt: trialEndDate.toISOString(),
+            authKey: this.generateAuthKey(),
             status: 'pending',
-            registered_at: new Date().toISOString()
+            registeredAt: new Date().toISOString()
         };
     }
 
-    static sanitizeClient(client: Client): Omit<Client, 'auth_key'> {
-        const { auth_key, ...safeClient } = client;
+    static sanitizeClient(client: Client): Omit<Client, 'authKey'> {
+        const { authKey, ...safeClient } = client;
         return safeClient;
     }
 }

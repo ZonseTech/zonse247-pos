@@ -15,16 +15,16 @@ export class OnboardingController {
         res.status(statusCode).json(response);
     }
 
-    static async getOnboardingStatus(req: Request<{ client_id: string }>, res: Response): Promise<void> {
+    static async getOnboardingStatus(req: Request<{ clientId: string }>, res: Response): Promise<void> {
         try {
-            const { client_id } = req.params;
+            const { clientId } = req.params;
 
-            if (!client_id) {
+            if (!clientId) {
                 OnboardingController.sendResponse(res, 400, false, 'Client ID is required');
                 return;
             }
 
-            const onboardingStatus = await ClientService.getOnboardingStatus(client_id);
+            const onboardingStatus = await ClientService.getOnboardingStatus(clientId);
             OnboardingController.sendResponse(res, 200, true, 'Onboarding status retrieved successfully', onboardingStatus);
         } catch (error: any) {
             console.error('Error getting onboarding status:', error);

@@ -35,8 +35,8 @@ interface OnboardingStatus {
         steps: {
             clientRegistered: boolean;
             subscriptionActive: boolean;
-            shop_Ceated: boolean;
-            workstation_Setup: boolean;
+            shopCreated: boolean;
+            workstationSetup: boolean;
         };
         completedSteps: number;
         totalSteps: number;

@@ -13,22 +13,22 @@ export class SubscriptionService {
     }
 
     static async create(data: Omit<ClientSubscription, 'id' | 'created_at' | 'updated_at'>): Promise<ClientSubscription> {
-        const validationError = ClientService.validateRequired(data, ['client_id', 'plan_id']);
+        const validationError = ClientService.validateRequired(data, ['clientId', 'planId']);
         if (validationError) {
             throw new Error(validationError);
         }
 
-        const client = await ClientModel.findClientId(data.client_id);
+        const client = await ClientModel.findClientId(data.clientId);
         if (!client) {
             throw new Error('Client not found');
         }
 
-        /* const plan = await SubscriptionModel.findById(data.plan_id);
-        if (!plan || !plan.is_active) {
+        /* const plan = await SubscriptionModel.findById(data.planId);
+        if (!plan || !plan.isActive) {
             throw new Error('Subscription plan not found or inactive');
         } */
 
-        const existingSubscriptions = await SubscriptionModel.findActiveByClientId(data.client_id);
+        const existingSubscriptions = await SubscriptionModel.findActiveByClientId(data.clientId);
         if (existingSubscriptions.length > 0) {
             throw new Error('Client already has an active subscription');
         }
@@ -36,16 +36,16 @@ export class SubscriptionService {
         const subscriptionData = {
             ...data,
             status: data.status || 'active',
-            starts_at: data.starts_at || new Date().toISOString(),
-            auto_renew: data.auto_renew !== undefined ? data.auto_renew : true
+            startsAt: data.startsAt || new Date().toISOString(),
+            autoRenew: data.autoRenew !== undefined ? data.autoRenew : true
         };
 
         const newSubscription = await SubscriptionModel.create(subscriptionData);
 
-        await ClientModel.update(data.client_id, {
-            subscription_status: 'active',
+        await ClientModel.update(data.clientId, {
+            subscriptionStatus: 'active',
             status: 'active',
-            activated_at: new Date().toISOString()
+            activatedAt: new Date().toISOString()
         });
 
         return newSubscription;
@@ -91,14 +91,14 @@ export class SubscriptionService {
         const cancelData = {
             status: 'cancelled',
             ends_at: new Date().toISOString(),
-            auto_renew: false,
+            autoRenew: false,
             cancelled_at: new Date().toISOString()
         };
 
         await SubscriptionModel.update(id, cancelData as any);
 
-        await ClientModel.update(subscription.client_id, {
-            subscription_status: 'cancelled'
+        await ClientModel.update(subscription.clientId, {
+            subscriptionStatus: 'cancelled'
         });
 
         return SubscriptionModel.findByUuid(id);
@@ -110,7 +110,7 @@ export class SubscriptionService {
             return null;
         }
 
-        const plan = await SubscriptionModel.findById(subscription.plan_id);
+        const plan = await SubscriptionModel.findById(subscription.planId);
         if (!plan) {
             throw new Error('Subscription plan not found');
         }
@@ -118,7 +118,7 @@ export class SubscriptionService {
         const now = new Date();
         let endDate: Date | null = null;
 
-        switch (plan.billing_cycle) {
+        switch (plan.billingCycle) {
             case 'monthly':
                 endDate = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
                 break;
@@ -134,23 +134,23 @@ export class SubscriptionService {
 
         const reactivateData = {
             status: 'active',
-            starts_at: now.toISOString(),
+            startsAt: now.toISOString(),
             ends_at: endDate ? endDate.toISOString() : undefined,
-            auto_renew: true,
+            autoRenew: true,
             cancelled_at: undefined
         };
 
         await SubscriptionModel.update(id, reactivateData as any);
 
-        await ClientModel.update(subscription.client_id, {
-            subscription_status: 'active',
+        await ClientModel.update(subscription.clientId, {
+            subscriptionStatus: 'active',
             status: 'active'
         });
 
         return SubscriptionModel.findByUuid(id);
     }
 
-    static async processPayment(id: string, paymentData: { amount: number; payment_method: string }): Promise<ClientSubscription | null> {
+    static async processPayment(id: string, paymentData: { amount: number; paymentMethod: string }): Promise<ClientSubscription | null> {
         const subscription = await SubscriptionModel.findByUuid(id);
         if (!subscription) {
             return null;
@@ -159,14 +159,14 @@ export class SubscriptionService {
         const now = new Date();
         const paymentProcessData = {
             last_payment_date: now.toISOString(),
-            payment_method: paymentData.payment_method,
+            paymentMethod: paymentData.paymentMethod,
             status: 'active'
         };
 
-        const plan = await SubscriptionModel.findById(subscription.plan_id);
+        const plan = await SubscriptionModel.findById(subscription.planId);
         if (plan) {
             let nextPaymentDate: Date | null = null;
-            switch (plan.billing_cycle) {
+            switch (plan.billingCycle) {
                 case 'monthly':
                     nextPaymentDate = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
                     break;
@@ -227,41 +227,41 @@ export class SubscriptionService {
     }
 
     static async createSubscription(data: CreateSubscriptionRequest): Promise<ClientSubscription> {
-        const validationError = ClientService.validateRequired(data, ['client_id', 'plan_id']);
+        const validationError = ClientService.validateRequired(data, ['clientId', 'planId']);
         if (validationError) {
             throw new Error(validationError);
         }
 
-        const client = await ClientModel.findById(data.client_id);
+        const client = await ClientModel.findById(data.clientId);
         if (!client) {
             throw new Error('Client not found');
         }
 
-        const plan = await SubscriptionModel.findById(data.plan_id);
-        if (!plan || !plan.is_active) {
+        const plan = await SubscriptionModel.findById(data.planId);
+        if (!plan || !plan.isActive) {
             throw new Error('Subscription plan not found or inactive');
         }
 
-        const existingSubscriptions = await SubscriptionModel.findActiveByClientId(data.client_id);
+        const existingSubscriptions = await SubscriptionModel.findActiveByClientId(data.clientId);
         if (existingSubscriptions.length > 0) {
             throw new Error('Client already has an active subscription');
         }
 
         const subscriptionData = SubscriptionModel.buildSubscriptionData(
-            data.client_id,
-            data.plan_id,
+            data.clientId,
+            data.planId,
             plan,
-            data.payment_method,
-            data.auto_renew
+            data.paymentMethod,
+            data.autoRenew
         );
 
         const newSubscription = await SubscriptionModel.create(subscriptionData);
 
         const now = new Date();
-        await ClientModel.update(data.client_id, {
-            subscription_status: 'active',
+        await ClientModel.update(data.clientId, {
+            subscriptionStatus: 'active',
             status: 'active',
-            activated_at: now.toISOString()
+            activatedAt: now.toISOString()
         });
 
         return newSubscription;

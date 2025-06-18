@@ -66,7 +66,7 @@ const SubscriptionFormModal: FunctionComponent<SubscriptionFormModalProps> = ({
         next_payment_date: subscription.next_payment_date ? new Date(subscription.next_payment_date).toISOString().split('T')[0] : ''
     } : {
         uuid: generateUUID(),
-        client_id: '',
+        clientId: '',
         plan_id: '',
         status: 'active',
         starts_at: new Date().toISOString().split('T')[0],
@@ -79,7 +79,7 @@ const SubscriptionFormModal: FunctionComponent<SubscriptionFormModalProps> = ({
 
     const subscriptionValidationSchema = Yup.object().shape({
         uuid: Yup.string().required('UUID is required'),
-        client_id: Yup.string()
+        clientId: Yup.string()
             .required('Client ID is required')
             .min(2, 'Client ID must be at least 2 characters'),
         plan_id: Yup.string()
@@ -175,7 +175,7 @@ const SubscriptionFormModal: FunctionComponent<SubscriptionFormModalProps> = ({
 
                                 <FormInput
                                     type="text"
-                                    name="client_id"
+                                    name="clientId"
                                     label="Client ID"
                                     required
                                     placeholder="Enter client ID"

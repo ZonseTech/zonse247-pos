@@ -109,12 +109,12 @@ export class SubscriptionModel {
         return sealDBModel.findById(TABLE_NAMES.SUBSCRIPTION_PLANS, id);
     }
 
-    static async findActiveByClientId(client_id: string): Promise<ClientSubscription[]> {
-        return sealDBModel.find(TABLE_NAMES.CLIENT_SUBSCRIPTIONS, { client_id, status: 'active' });
+    static async findActiveByClientId(clientId: string): Promise<ClientSubscription[]> {
+        return sealDBModel.find(TABLE_NAMES.CLIENT_SUBSCRIPTIONS, { clientId, status: 'active' });
     }
 
-    static async findByClientId(client_id: string): Promise<ClientSubscription[]> {
-        return sealDBModel.find(TABLE_NAMES.CLIENT_SUBSCRIPTIONS, { client_id });
+    static async findByClientId(clientId: string): Promise<ClientSubscription[]> {
+        return sealDBModel.find(TABLE_NAMES.CLIENT_SUBSCRIPTIONS, { clientId });
     }
 
     static async create(subscriptionData: Omit<ClientSubscription, 'id'>): Promise<ClientSubscription> {
@@ -122,7 +122,7 @@ export class SubscriptionModel {
     }
 
     static buildSubscriptionData(
-        client_id: string,
+        clientId: string,
         plan_id: string,
         plan: SubscriptionPlan,
         payment_method?: string,
@@ -152,7 +152,7 @@ export class SubscriptionModel {
 
         return {
             uuid: uuidv4(),
-            client_id,
+            clientId,
             plan_id,
             status: 'active',
             starts_at: now.toISOString(),

@@ -9,16 +9,16 @@ export class ShopService {
 		try {
 			const conditions: any = {};
 
-			if (query.client_id) {
-				conditions.client_id = query.client_id;
+			if (query.clientId) {
+				conditions.clientId = query.clientId;
 			}
 
 			if (query.status) {
 				conditions.status = query.status;
 			}
 
-			if (query.shop_code) {
-				conditions.shop_code = query.shop_code;
+			if (query.shopCode) {
+				conditions.shopCode = query.shopCode;
 			}
 
 			if (query.city) {
@@ -57,12 +57,12 @@ export class ShopService {
 	}
 
 	static async createShop(data: CreateShopRequest): Promise<IShop> {
-		const validationError = ClientService.validateRequired(data, ['client_id', 'shop_code', 'name']);
+		const validationError = ClientService.validateRequired(data, ['clientId', 'shopCode', 'name']);
 		if (validationError) {
 			throw new Error(validationError);
 		}
 
-		const client = await ClientModel.findClientId(data.client_id);
+		const client = await ClientModel.findClientId(data.clientId);
 		if (!client) {
 			throw new Error('Client not found');
 		}
@@ -71,20 +71,20 @@ export class ShopService {
 			throw new Error('Client must be active to create shops');
 		}
 
-		const existingShops = await ShopModel.findByClientIdAndShopCode(data.client_id, data.shop_code);
+		const existingShops = await ShopModel.findByClientIdAndShopCode(data.clientId, data.shopCode);
 		if (existingShops.length > 0) {
 			throw new Error('Shop code already exists for this client');
 		}
 
-		const activeSubscriptions = await SubscriptionModel.findActiveByClientId(data.client_id);
+		const activeSubscriptions = await SubscriptionModel.findActiveByClientId(data.clientId);
 		if (activeSubscriptions.length > 0) {
 			const subscription = activeSubscriptions[0];
-			const plan = await SubscriptionModel.findById(subscription.plan_id);
+			const plan = await SubscriptionModel.findById(subscription.planId);
 
 			if (plan) {
-				const existingShopsCount = await ShopModel.findByClientId(data.client_id);
-				if (existingShopsCount.length >= plan.max_shops) {
-					throw new Error(`Maximum number of shops (${plan.max_shops}) reached for current subscription plan`);
+				const existingShopsCount = await ShopModel.findByClientId(data.clientId);
+				if (existingShopsCount.length >= plan.maxShops) {
+					throw new Error(`Maximum number of shops (${plan.maxShops}) reached for current subscription plan`);
 				}
 			}
 		}
@@ -103,7 +103,7 @@ export class ShopService {
 			throw new Error('Shop not found');
 		}
 
-		const protectedFields = ['uuid', 'client_id', 'created_at'];
+		const protectedFields = ['uuid', 'clientId', 'created_at'];
 		const updateData = { ...data };
 
 		protectedFields.forEach(field => {
@@ -112,8 +112,8 @@ export class ShopService {
 			}
 		});
 
-		if (updateData.shop_code && updateData.shop_code !== existingShop.shop_code) {
-			const existingShops = await ShopModel.findByClientIdAndShopCode(existingShop.client_id, updateData.shop_code);
+		if (updateData.shopCode && updateData.shopCode !== existingShop.shopCode) {
+			const existingShops = await ShopModel.findByClientIdAndShopCode(existingShop.clientId, updateData.shopCode);
 			if (existingShops.length > 0) {
 				throw new Error('Shop code already exists for this client');
 			}

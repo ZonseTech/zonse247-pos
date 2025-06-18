@@ -24,7 +24,7 @@ const ClientManagement: FunctionComponent = () => {
                                 {row?.company_name}
                             </div>
                             <div className="text-sm text-gray-500">
-                                ID: {row?.client_id}
+                                ID: {row?.clientId}
                             </div>
                         </div>
                     </div>
@@ -169,7 +169,7 @@ const ClientManagement: FunctionComponent = () => {
                 client.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 client.owner_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                client.client_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                client.clientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 client.country?.toLowerCase().includes(searchTerm.toLowerCase())
             );
             setFilteredClients(filtered);

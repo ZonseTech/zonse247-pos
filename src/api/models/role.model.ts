@@ -29,7 +29,7 @@ export class RoleModel {
 
     static async findByShopId(shopId: string): Promise<Role[]> {
         try {
-            return await sealDBModel.find(ROLES_DB, { shop_id: shopId });
+            return await sealDBModel.find(ROLES_DB, { shopId: shopId });
         } catch (error) {
             throw new Error(`Error finding roles by shop ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }

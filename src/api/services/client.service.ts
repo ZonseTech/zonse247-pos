@@ -38,7 +38,7 @@ export class ClientService {
         return ClientModel.create(clientData);
     }
 
-    static async getAllClients(query: any = {}): Promise<Omit<Client, 'auth_key'>[]> {
+    static async getAllClients(query: any = {}): Promise<Omit<Client, 'authKey'>[]> {
         try {
             const clients = await ClientModel.findAll(query);
             return clients.map(client => ClientModel.sanitizeClient(client));
@@ -47,7 +47,7 @@ export class ClientService {
         }
     }
 
-    static async getClientById(id: string): Promise<Omit<Client, 'auth_key'>> {
+    static async getClientById(id: string): Promise<Omit<Client, 'authKey'>> {
         const client = await ClientModel.findById(id);
         if (!client) {
             throw new Error('Client not found');
@@ -77,8 +77,8 @@ export class ClientService {
         return { status: true };
     }
 
-    static async verifyClient(client_id: string, auth_key: string): Promise<Omit<Client, 'auth_key'>> {
-        const clients = await ClientModel.findByCredentials(client_id, auth_key);
+    static async verifyClient(clientId: string, authKey: string): Promise<Omit<Client, 'authKey'>> {
+        const clients = await ClientModel.findByCredentials(clientId, authKey);
 
         if (clients.length === 0) {
             throw new Error('Invalid credentials');
@@ -87,8 +87,8 @@ export class ClientService {
         return ClientModel.sanitizeClient(clients[0]);
     }
 
-    static async updateClient(client_id: string, updateData: Partial<RegisterClientRequest>): Promise<Omit<Client, 'auth_key'>> {
-        const client = await ClientModel.findById(client_id);
+    static async updateClient(clientId: string, updateData: Partial<RegisterClientRequest>): Promise<Omit<Client, 'authKey'>> {
+        const client = await ClientModel.findById(clientId);
         if (!client) {
             throw new Error('Client not found');
         }
@@ -100,12 +100,12 @@ export class ClientService {
             }
         }
 
-        const numUpdated = await ClientModel.update(client_id, updateData);
+        const numUpdated = await ClientModel.update(clientId, updateData);
         if (numUpdated === 0) {
             throw new Error('Failed to update client');
         }
 
-        const updatedClient = await ClientModel.findById(client_id);
+        const updatedClient = await ClientModel.findById(clientId);
         if (!updatedClient) {
             throw new Error('Failed to retrieve updated client data');
         }
@@ -113,17 +113,17 @@ export class ClientService {
         return ClientModel.sanitizeClient(updatedClient);
     }
 
-    static async getOnboardingStatus(client_id: string): Promise<OnboardingStatus> {
-        const client = await ClientModel.findById(client_id);
+    static async getOnboardingStatus(clientId: string): Promise<OnboardingStatus> {
+        const client = await ClientModel.findById(clientId);
         if (!client) {
             throw new Error('Client not found');
         }
 
-        const subscriptions = await SubscriptionModel.findByClientId(client_id);
+        const subscriptions = await SubscriptionModel.findByClientId(clientId);
         const activeSubscription = subscriptions.find(sub => sub.status === 'active') || null;
 
-        const shops = await ShopModel.findByClientId(client_id);
-        const workstations = await WorkstationModel.findByClientId(client_id);
+        const shops = await ShopModel.findByClientId(clientId);
+        const workstations = await WorkstationModel.findByClientId(clientId);
 
         const onboardingSteps = {
             client_registered: true,
@@ -145,10 +145,10 @@ export class ClientService {
             workstations,
             onboarding: {
                 steps: onboardingSteps,
-                completed_steps: completedSteps,
-                total_steps: totalSteps,
-                completion_percentage: completionPercentage,
-                is_complete: completionPercentage === 100
+                completedSteps: completedSteps,
+                totalSteps: totalSteps,
+                completionPercentage: completionPercentage,
+                isComplete: completionPercentage === 100
             }
         };
     }

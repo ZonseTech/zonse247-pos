@@ -241,20 +241,20 @@ const checkOrCreateDefaultClient = async () => {
 
 		const defaultClient: Client = {
 			uuid: '-1',
-			client_id: 'DEFAULT_CLIENT',
-			company_name: 'Default Company',
-			owner_name: 'System Administrator',
+			clientId: 'DEFAULT_CLIENT',
+			companyName: 'Default Company',
+			ownerName: 'System Administrator',
 			email: 'admin@example.com',
 			phone: '+1234567890',
 			address: '123 Business Street',
 			country: 'Default Country',
 			timezone: 'UTC',
-			subscription_status: 'active',
-			trial_ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-			auth_key: 'default-auth-key-' + Date.now(),
+			subscriptionStatus: 'active',
+			trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+			authKey: 'default-auth-key-' + Date.now(),
 			status: 'active',
-			registered_at: new Date().toISOString(),
-			activated_at: new Date().toISOString(),
+			registeredAt: new Date().toISOString(),
+			activatedAt: new Date().toISOString(),
 			createdAt: new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
 			synced: 1
@@ -273,18 +273,18 @@ const checkOrCreateDefaultWorkStation = async () => {
 
 		const defaultWorkStation: Workstation = {
 			uuid: '-1',
-			shop_code: 'SHOP001',
-			client_id: '-1',
-			till_name: 'Main Till',
-			till_number: 'TILL001',
-			device_id: 'DEFAULT_DEVICE',
-			device_type: 'desktop',
-			ip_address: '127.0.0.1',
-			is_primary: true,
+			shopCode: 'SHOP001',
+			clientId: '-1',
+			tillName: 'Main Till',
+			tillNumber: 'TILL001',
+			deviceId: 'DEFAULT_DEVICE',
+			deviceType: 'desktop',
+			ipAddress: '127.0.0.1',
+			isPrimary: true,
 			status: 'active',
-			registered_at: new Date().toISOString(),
-			last_activity: new Date().toISOString(),
-			last_sync: new Date().toISOString(),
+			registeredAt: new Date().toISOString(),
+			lastActivity: new Date().toISOString(),
+			lastSync: new Date().toISOString(),
 			createdAt: new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
 			synced: 1
@@ -304,33 +304,33 @@ const checkOrCreateDefaultSubscriptionPlans = async () => {
 				name: 'Basic Monthly',
 				description: 'Basic POS features with monthly billing',
 				price: 29.99,
-				billing_cycle: 'monthly' as const,
+				billingCycle: 'monthly' as const,
 				features: ['Basic POS', 'Up to 1000 products', 'Basic reports', 'Email support'],
-				is_active: true,
-				created_at: new Date().toISOString(),
-				updated_at: new Date().toISOString()
+				isActive: true,
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString()
 			},
 			{
 				uuid: 'pro-monthly',
 				name: 'Pro Monthly',
 				description: 'Advanced POS features with monthly billing',
 				price: 59.99,
-				billing_cycle: 'monthly' as const,
+				billingCycle: 'monthly' as const,
 				features: ['Advanced POS', 'Unlimited products', 'Advanced reports', 'Inventory management', 'Priority support'],
-				is_active: true,
-				created_at: new Date().toISOString(),
-				updated_at: new Date().toISOString()
+				isActive: true,
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString()
 			},
 			{
 				uuid: 'enterprise-yearly',
 				name: 'Enterprise Yearly',
 				description: 'Full-featured POS with yearly billing',
 				price: 599.99,
-				billing_cycle: 'yearly' as const,
+				billingCycle: 'yearly' as const,
 				features: ['All features', 'Multi-location', 'API access', 'Custom integrations', '24/7 support'],
-				is_active: true,
-				created_at: new Date().toISOString(),
-				updated_at: new Date().toISOString()
+				isActive: true,
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString()
 			}
 		];
 
@@ -352,17 +352,17 @@ const checkOrCreateDefaultClientSubscriptions = async () => {
 
 		const defaultSubscription: ClientSubscription = {
 			uuid: '-1',
-			client_id: '-1',
-			plan_id: 'basic-monthly',
+			clientId: '-1',
+			planId: 'basic-monthly',
 			status: 'active',
-			starts_at: new Date().toISOString(),
-			ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-			auto_renew: true,
-			payment_method: 'trial',
-			last_payment_date: new Date().toISOString(),
-			next_payment_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-			created_at: new Date().toISOString(),
-			updated_at: new Date().toISOString()
+			startsAt: new Date().toISOString(),
+			endsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+			autoRenew: true,
+			paymentMethod: 'trial',
+			lastPaymentDate: new Date().toISOString(),
+			nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
 		};
 
 		await sealDBModel.insert(CLIENT_SUBSCRIPTIONS_DB, defaultSubscription);

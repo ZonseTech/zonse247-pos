@@ -6,6 +6,6 @@ const router: Router = Router();
 router.get('/', function (req: Request, res: Response): void {
     res.send('On boarding endpointss');
 })
-router.get('/onboarding-status/:client_id', OnboardingController.getOnboardingStatus);
+router.get('/onboarding-status/:clientId', OnboardingController.getOnboardingStatus);
 
 export default router;

@@ -35,12 +35,12 @@ interface Client {
     address: string;
     country: string;
     timezone: string;
-    subscription_status: string;
-    trial_ends_at: string;
+    subscriptionStatus: string;
+    trialEndsAt: string;
     authKey: string;
     status: string;
-    registered_at: string;
-    activated_at?: string;
+    registeredAt: string;
+    activatedAt?: string;
     createdAt?: string;
     updatedAt?: string;
     synced?: number;
@@ -55,7 +55,7 @@ interface OnboardingStatus {
         steps: {
             clientRegistered: boolean;
             subscriptionActive: boolean;
-            shop_Ceated: boolean;
+            shopCreated: boolean;
             workstation_Setup: boolean;
         };
         completedSteps: number;

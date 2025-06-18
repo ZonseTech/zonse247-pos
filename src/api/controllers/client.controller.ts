@@ -36,7 +36,7 @@ export class ClientController extends BaseController {
         }
     }
 
-    static async show(req: Request<{ id: string }, ApiResponse<Omit<Client, 'auth_key'>>>, res: Response): Promise<void> {
+    static async show(req: Request<{ id: string }, ApiResponse<Omit<Client, 'authKey'>>>, res: Response): Promise<void> {
         try {
             const { id } = req.params;
 
@@ -74,9 +74,9 @@ export class ClientController extends BaseController {
         }
     }
 
-    static async update(req: Request<{ id?: string; client_id?: string }, ApiResponse<Omit<Client, 'auth_key'>>, Partial<RegisterClientRequest>>, res: Response): Promise<void> {
+    static async update(req: Request<{ id?: string; clientId?: string }, ApiResponse<Omit<Client, 'authKey'>>, Partial<RegisterClientRequest>>, res: Response): Promise<void> {
         try {
-            const clientId = req.params.id || req.params.client_id;
+            const clientId = req.params.id || req.params.clientId;
             const updateData = req.body;
 
             if (!clientId) {
@@ -118,16 +118,16 @@ export class ClientController extends BaseController {
         }
     }
 
-    static async verify(req: Request<{}, ApiResponse<Omit<Client, 'auth_key'>>, VerifyClientRequest>, res: Response): Promise<void> {
+    static async verify(req: Request<{}, ApiResponse<Omit<Client, 'authKey'>>, VerifyClientRequest>, res: Response): Promise<void> {
         try {
-            const { client_id, auth_key } = req.body;
+            const { clientId, authKey } = req.body;
 
-            if (!client_id || !auth_key) {
+            if (!clientId || !authKey) {
                 BaseController.sendResponse(res, 400, false, 'Client ID and auth key are required');
                 return;
             }
 
-            const safeClientData = await ClientService.verifyClient(client_id, auth_key);
+            const safeClientData = await ClientService.verifyClient(clientId, authKey);
             BaseController.sendResponse(res, 200, true, 'Client verified successfully', safeClientData);
         } catch (error: any) {
             console.error('Error verifying client:', error);
@@ -137,16 +137,16 @@ export class ClientController extends BaseController {
         }
     }
 
-    static async getOnboardingStatus(req: Request<{ client_id: string }>, res: Response): Promise<void> {
+    static async getOnboardingStatus(req: Request<{ clientId: string }>, res: Response): Promise<void> {
         try {
-            const { client_id } = req.params;
+            const { clientId } = req.params;
 
-            if (!client_id) {
+            if (!clientId) {
                 BaseController.sendResponse(res, 400, false, 'Client ID is required');
                 return;
             }
 
-            const onboardingStatus = await ClientService.getOnboardingStatus(client_id);
+            const onboardingStatus = await ClientService.getOnboardingStatus(clientId);
             BaseController.sendResponse(res, 200, true, 'Onboarding status retrieved successfully', onboardingStatus);
         } catch (error: any) {
             console.error('Error retrieving onboarding status:', error);
