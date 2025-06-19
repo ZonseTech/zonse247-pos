@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import config, { Config } from '../config';
 import { Request, Response, NextFunction } from 'express';
 
 declare module 'express' {
@@ -7,15 +8,10 @@ declare module 'express' {
 	}
 }
 
-export interface AuthConfig {
-	jwtSecret: string;
-	jwtExpiresIn: string;
-}
-
 export class AuthMiddleware {
-	private config: AuthConfig;
+	private config: Config;
 
-	constructor(config: AuthConfig) {
+	constructor() {
 		this.config = config;
 	}
 
@@ -33,7 +29,7 @@ export class AuthMiddleware {
 		}
 
 		try {
-			const decoded = jwt.verify(token, this.config.jwtSecret);
+			const decoded = jwt.verify(token, this.config.jwt.secret);
 			req.user = decoded;
 			next();
 		} catch (error) {
@@ -53,9 +49,11 @@ export class AuthMiddleware {
 	};
 
 	verifyOwnership = (req: Request, res: Response, next: NextFunction): void => {
+		const user = this.extractUserFromToken(req)
+
 		const userId = req.params.userId;
-		const requestingUserId = req.user?.uuid;
-		const userRole = req.user?.role;
+		const requestingUserId = user?.uuid;
+		const userRole = user?.roleUuid;
 
 		if (!requestingUserId) {
 			res.status(401).json({
@@ -65,7 +63,7 @@ export class AuthMiddleware {
 			return;
 		}
 
-		if (userRole === 'admin' || requestingUserId === userId) {
+		if (userRole === 'admin' || userRole === 'super-admin' || requestingUserId === userId) {
 			next();
 			return;
 		}
@@ -77,9 +75,10 @@ export class AuthMiddleware {
 	};
 
 	requireAdmin = (req: Request, res: Response, next: NextFunction): void => {
-		const userRole = req.user?.role;
+		const user = this.extractUserFromToken(req)
+		const userRole = user?.roleUuid;
 
-		if (userRole !== 'admin') {
+		if (userRole !== 'admin' || userRole !== 'super-admin') {
 			res.status(403).json({
 				error: 'Authorization Error',
 				message: 'Admin access required',
@@ -88,23 +87,6 @@ export class AuthMiddleware {
 		}
 
 		next();
-	};
-
-	generateToken = (user: any): string => {
-		const payload = {
-			uuid: user.uuid,
-			username: user.username,
-			email: user.email,
-			role: user.role || 'user',
-			firstName: user.firstName,
-			lastName: user.lastName,
-			status: user.status,
-			iat: Math.floor(Date.now() / 1000),
-		};
-
-		return (jwt as any).sign(payload, this.config.jwtSecret, {
-			expiresIn: this.config.jwtExpiresIn,
-		});
 	};
 
 	verifyPasswordStrength = (
@@ -165,7 +147,7 @@ export class AuthMiddleware {
 		if (!token) return null;
 
 		try {
-			return jwt.verify(token, this.config.jwtSecret);
+			return jwt.verify(token, this.config.jwt.secret);
 		} catch (error) {
 			return null;
 		}

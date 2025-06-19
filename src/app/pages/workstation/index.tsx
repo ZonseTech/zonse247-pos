@@ -64,7 +64,11 @@ const WorkstationManagement: FunctionComponent = () => {
                 <div className="flex items-center space-x-2">
                     <button
                         onClick={() => handleSync(row?.uuid)}
-                        className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
+                        disabled={row.uuid === '-1'}
+                        className={`p-1 rounded transition-colors ${row.uuid === '-1'
+                            ? 'text-gray-500'
+                            : 'text-blue-600 hover:text-blue-800'
+                            }`}
                         title="Sync workstation"
                     >
                         <FaSync className="w-4 h-4" />
@@ -72,9 +76,12 @@ const WorkstationManagement: FunctionComponent = () => {
 
                     <button
                         onClick={() => togglePrimary(row?.uuid, row?.isPrimary)}
-                        className={`p-1 rounded transition-colors ${row?.isPrimary
-                            ? 'text-yellow-600 hover:text-yellow-800'
-                            : 'text-gray-500 hover:text-yellow-600'
+                        disabled={row.uuid === '-1'}
+                        className={`p-1 rounded transition-colors ${row.uuid === '-1'
+                            ? 'text-gray-500'
+                            : row?.isPrimary
+                                ? 'text-yellow-600 hover:text-yellow-800'
+                                : 'text-gray-500 hover:text-yellow-600'
                             }`}
                         title={row?.isPrimary ? 'Remove as primary' : 'Set as primary'}
                     >
@@ -87,7 +94,11 @@ const WorkstationManagement: FunctionComponent = () => {
 
                     <button
                         onClick={() => handleEdit(row)}
-                        className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
+                        disabled={row.uuid === '-1'}
+                        className={`p-1 rounded transition-colors ${row.uuid === '-1'
+                            ? 'text-gray-500'
+                            : 'text-blue-600 hover:text-blue-800'
+                            }`}
                         title="Edit workstation"
                     >
                         <Edit2 className="w-4 h-4" />
@@ -95,7 +106,11 @@ const WorkstationManagement: FunctionComponent = () => {
 
                     <button
                         onClick={() => toggleWorkstationStatus(row?.uuid, row?.status)}
-                        className={`text-xs px-2 py-1 rounded transition-colors ${getStatusActionColor(row?.status)}`}
+                        disabled={row.uuid === '-1'}
+                        className={`text-xs px-2 py-1 rounded transition-colors ${row.uuid === '-1'
+                            ? 'text-gray-500 bg-gray-100'
+                            : getStatusActionColor(row?.status)
+                            }`}
                         title="Change status"
                     >
                         {getStatusAction(row?.status)}
@@ -103,7 +118,11 @@ const WorkstationManagement: FunctionComponent = () => {
 
                     <button
                         onClick={() => handleDelete(row?.uuid, row?.tillName)}
-                        className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
+                        disabled={row.uuid === '-1'}
+                        className={`p-1 rounded transition-colors ${row.uuid === '-1'
+                            ? 'text-gray-500'
+                            : 'text-red-600 hover:text-red-800'
+                            }`}
                         title="Delete workstation"
                     >
                         <Trash2 className="w-4 h-4" />

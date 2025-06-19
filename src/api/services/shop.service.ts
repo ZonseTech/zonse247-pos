@@ -67,18 +67,13 @@ export class ShopService {
 			throw new Error('Client not found');
 		}
 
-		if (client.status !== 'active') {
-			throw new Error('Client must be active to create shops');
-		}
-
 		const existingShops = await ShopModel.findByClientIdAndShopCode(data.clientId, data.shopCode);
 		if (existingShops.length > 0) {
 			throw new Error('Shop code already exists for this client');
 		}
 
-		const activeSubscriptions = await SubscriptionModel.findActiveByClientId(data.clientId);
-		if (activeSubscriptions.length > 0) {
-			const subscription = activeSubscriptions[0];
+		const subscription = await SubscriptionModel.findActiveByClientId(data.clientId);
+		if (subscription) {
 			const plan = await SubscriptionModel.findById(subscription.planId);
 
 			if (plan) {

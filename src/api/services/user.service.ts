@@ -62,7 +62,7 @@ export class UserService {
 
 		const roleData = await this.getRoleWithPermissions(user.roleUuid);
 
-		const completeUser: PublicUser = this.getPublicUser(user, roleData || {});
+		const completeUser = this.getPublicUser(user, roleData || {});
 
 		const token = this.generateJWTToken(completeUser);
 
@@ -113,13 +113,7 @@ export class UserService {
 
 	private generateJWTToken(user: any): string {
 		const payload = {
-			uuid: user.uuid,
-			username: user.username,
-			email: user.email,
-			role: user.role || 'user',
-			firstName: user.firstName,
-			lastName: user.lastName,
-			status: user.status,
+			...user,
 			iat: Math.floor(Date.now() / 1000),
 		};
 

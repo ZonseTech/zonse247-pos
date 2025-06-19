@@ -16,8 +16,8 @@ export class SubscriptionModel {
         return sealDBModel.find(TABLE_NAMES.CLIENT_SUBSCRIPTIONS, { status });
     }
 
-    static async findByPlanId(plan_id: string): Promise<ClientSubscription[]> {
-        return sealDBModel.find(TABLE_NAMES.CLIENT_SUBSCRIPTIONS, { plan_id });
+    static async findByPlanId(planId: string): Promise<ClientSubscription[]> {
+        return sealDBModel.find(TABLE_NAMES.CLIENT_SUBSCRIPTIONS, { planId });
     }
 
     static async update(uuid: string, data: Partial<ClientSubscription>): Promise<number> {
@@ -34,9 +34,9 @@ export class SubscriptionModel {
         expirationDate.setDate(expirationDate.getDate() + days);
 
         return allSubscriptions.filter(subscription => {
-            if (!subscription.ends_at || subscription.status !== 'active') return false;
+            if (!subscription.endsAt || subscription.status !== 'active') return false;
 
-            const endDate = new Date(subscription.ends_at);
+            const endDate = new Date(subscription.endsAt);
             return endDate <= expirationDate && endDate > new Date();
         });
     }
@@ -46,21 +46,21 @@ export class SubscriptionModel {
         active: number;
         cancelled: number;
         expired: number;
-        past_due: number;
-        monthly_revenue: number;
-        annual_revenue: number;
+        pastDue: number;
+        monthlyRevenue: number;
+        annualRevenue: number;
     }> {
-        const allSubscriptions = await sealDBModel.findAll(TABLE_NAMES.CLIENT_SUBSCRIPTIONS);
         const now = new Date();
+        const allSubscriptions = await sealDBModel.findAll(TABLE_NAMES.CLIENT_SUBSCRIPTIONS);
 
         const stats = {
             total: allSubscriptions.length,
             active: 0,
             cancelled: 0,
             expired: 0,
-            past_due: 0,
-            monthly_revenue: 0,
-            annual_revenue: 0
+            pastDue: 0,
+            monthlyRevenue: 0,
+            annualRevenue: 0
         };
 
         const allPlans = await sealDBModel.findAll(TABLE_NAMES.SUBSCRIPTION_PLANS);
@@ -69,19 +69,19 @@ export class SubscriptionModel {
         for (const subscription of allSubscriptions) {
             switch (subscription.status) {
                 case 'active':
-                    if (subscription.ends_at && new Date(subscription.ends_at) < now) {
+                    if (subscription.endsAt && new Date(subscription.endsAt) < now) {
                         stats.expired++;
                     } else {
                         stats.active++;
 
-                        const plan = plansMap.get(subscription.plan_id);
+                        const plan = plansMap.get(subscription.planId);
                         if (plan) {
-                            if (plan.billing_cycle === 'monthly') {
-                                stats.monthly_revenue += plan.price || 0;
-                                stats.annual_revenue += (plan.price || 0) * 12;
-                            } else if (plan.billing_cycle === 'yearly') {
-                                stats.annual_revenue += plan.price || 0;
-                                stats.monthly_revenue += (plan.price || 0) / 12;
+                            if (plan.billingCycle === 'monthly') {
+                                stats.monthlyRevenue += plan.price || 0;
+                                stats.annualRevenue += (plan.price || 0) * 12;
+                            } else if (plan.billingCycle === 'yearly') {
+                                stats.annualRevenue += plan.price || 0;
+                                stats.monthlyRevenue += (plan.price || 0) / 12;
                             }
                         }
                     }
@@ -92,8 +92,8 @@ export class SubscriptionModel {
                 case 'expired':
                     stats.expired++;
                     break;
-                case 'past_due':
-                    stats.past_due++;
+                case 'pastDue':
+                    stats.pastDue++;
                     break;
             }
         }
@@ -109,8 +109,8 @@ export class SubscriptionModel {
         return sealDBModel.findById(TABLE_NAMES.SUBSCRIPTION_PLANS, id);
     }
 
-    static async findActiveByClientId(clientId: string): Promise<ClientSubscription[]> {
-        return sealDBModel.find(TABLE_NAMES.CLIENT_SUBSCRIPTIONS, { clientId, status: 'active' });
+    static async findActiveByClientId(clientId: string): Promise<ClientSubscription> {
+        return sealDBModel.findById(TABLE_NAMES.CLIENT_SUBSCRIPTIONS, { clientId, status: 'active' });
     }
 
     static async findByClientId(clientId: string): Promise<ClientSubscription[]> {
@@ -123,16 +123,16 @@ export class SubscriptionModel {
 
     static buildSubscriptionData(
         clientId: string,
-        plan_id: string,
+        planId: string,
         plan: SubscriptionPlan,
-        payment_method?: string,
-        auto_renew = true
+        paymentMethod?: string,
+        autoRenew = true
     ): Omit<ClientSubscription, 'id'> {
         const now = new Date();
         let endDate: Date | null = null;
         let nextPaymentDate: Date | null = null;
 
-        switch (plan.billing_cycle) {
+        switch (plan.billingCycle) {
             case 'monthly':
                 endDate = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
                 nextPaymentDate = new Date(endDate);
@@ -153,14 +153,15 @@ export class SubscriptionModel {
         return {
             uuid: uuidv4(),
             clientId,
-            plan_id,
+            planId,
             status: 'active',
-            starts_at: now.toISOString(),
-            ends_at: endDate ? endDate.toISOString() : undefined,
-            auto_renew,
-            payment_method: payment_method || '',
-            last_payment_date: now.toISOString(),
-            next_payment_date: nextPaymentDate ? nextPaymentDate.toISOString() : undefined
+            startsAt: now.toISOString(),
+            endsAt: endDate ? endDate.toISOString() : undefined,
+            autoRenew,
+            maxShops: plan.maxShops || 1,
+            paymentMethod: paymentMethod || '',
+            lastPaymentDate: now.toISOString(),
+            nextPaymentDate: nextPaymentDate ? nextPaymentDate.toISOString() : undefined
         };
     }
 }

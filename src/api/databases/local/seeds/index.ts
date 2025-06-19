@@ -98,7 +98,7 @@ const checkOrCreateDefaultRoles = async () => {
 			const defaultSuperAdminRole: Role = {
 				uuid: 'super-admin',
 				clientId: '-1',
-				shopId: null,
+				shopId: '-1',
 				name: 'super_admin',
 				displayName: 'Super Administrator',
 				description: 'System super administrator with full access',
@@ -350,13 +350,14 @@ const checkOrCreateDefaultClientSubscriptions = async () => {
 		const subscription = await sealDBModel.findById(CLIENT_SUBSCRIPTIONS_DB, '-1');
 		if (subscription) return;
 
-		const defaultSubscription: ClientSubscription = {
+		const defaultSubscription = {
 			uuid: '-1',
 			clientId: '-1',
 			planId: 'basic-monthly',
 			status: 'active',
+			maxShops: 5,
 			startsAt: new Date().toISOString(),
-			endsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+			endsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
 			autoRenew: true,
 			paymentMethod: 'trial',
 			lastPaymentDate: new Date().toISOString(),
@@ -381,7 +382,7 @@ const checkOrCreateDefaultUser = async () => {
 		const hash = await bcrypt.hash('admin', saltRounds);
 
 		const adminUser: User = {
-			uuid: uuidv4(),
+			uuid: '-1',
 			username: 'admin',
 			fullname: 'Zonse247 Admin',
 			password: hash,

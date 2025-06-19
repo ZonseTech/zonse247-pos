@@ -1,14 +1,14 @@
+import { Notify, Confirm } from 'notiflix';
 import AppLayout from '../../layouts/AppLayout';
-import { HiOutlineMenuAlt4, HiOutlineSearch, HiOutlinePlus } from 'react-icons/hi';
+import { UserStatus } from '../../utils/constants';
+import UserFormModal from './partials/UserFormModal';
 import usersService from '../../services/users.service';
+import UserDetailsModal from './partials/UserDetailsModal';
 import { Button, Input, ZonseThemeContext } from '../../components';
 import DataTable, { TableColumn } from 'react-data-table-component';
-import { Edit2, Trash2, Shield, Users, User2, Phone, Mail, MapPin, Key, Clock } from 'lucide-react';
+import { HiOutlineMenuAlt4, HiOutlineSearch, HiOutlinePlus } from 'react-icons/hi';
+import { Edit2, Trash2, Shield, Users, User2, Phone, Mail, Key, Clock } from 'lucide-react';
 import { useState, useEffect, Fragment, useContext, FunctionComponent, ChangeEvent } from 'react';
-import UserFormModal from './partials/UserFormModal';
-import UserDetailsModal from './partials/UserDetailsModal';
-import { Notify, Confirm } from 'notiflix';
-import { UserStatus } from '../../utils/constants';
 
 const UserManagement: FunctionComponent = () => {
     const columns: Array<TableColumn<User>> = [
@@ -116,40 +116,61 @@ const UserManagement: FunctionComponent = () => {
                     <div className="flex items-center space-x-2 flex-wrap gap-1">
                         <button
                             onClick={() => handleView(row)}
-                            className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
+                            disabled={row?.uuid === '-1'}
+                            className={`p-1 rounded transition-colors ${row?.uuid === '-1'
+                                ? 'text-gray-500'
+                                : 'text-blue-600 hover:text-blue-800'
+                                }`}
                             title="View details"
                         >
                             <User2 className="w-4 h-4" />
                         </button>
+
                         <button
                             onClick={() => handleEdit(row)}
-                            className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
+                            disabled={row?.uuid === '-1'}
+                            className={`p-1 rounded transition-colors ${row?.uuid === '-1'
+                                ? 'text-gray-500'
+                                : 'text-blue-600 hover:text-blue-800'
+                                }`}
                             title="Edit user"
                         >
                             <Edit2 className="w-4 h-4" />
                         </button>
+
                         <button
                             onClick={() => handleResetPassword(row)}
-                            className="text-orange-600 hover:text-orange-800 p-1 rounded transition-colors"
+                            disabled={row?.uuid === '-1'}
+                            className={`p-1 rounded transition-colors ${row?.uuid === '-1'
+                                ? 'text-gray-500'
+                                : 'text-orange-600 hover:text-orange-800'
+                                }`}
                             title="Reset password"
                         >
                             <Key className="w-4 h-4" />
                         </button>
+
                         <button
                             onClick={() => toggleUserStatus(row)}
-                            className={`text-xs px-2 py-1 rounded transition-colors ${row?.status === UserStatus.ACTIVE
-                                ? 'text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100'
-                                : row?.status === UserStatus.SUSPENDED
-                                    ? 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100'
+                            disabled={row?.uuid === '-1'}
+                            className={`text-xs px-2 py-1 rounded transition-colors ${row?.uuid === '-1'
+                                ? 'text-gray-500 bg-gray-100'
+                                : row?.status === UserStatus.ACTIVE
+                                    ? 'text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100'
                                     : 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100'
                                 }`}
                             title={getStatusActionTitle(row?.status as UserStatus)}
                         >
                             {getStatusActionText(row?.status as UserStatus)}
                         </button>
+
                         <button
                             onClick={() => handleDelete(row?.uuid, row?.username)}
-                            className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
+                            disabled={row?.uuid === '-1'}
+                            className={`p-1 rounded transition-colors ${row?.uuid === '-1'
+                                ? 'text-gray-500'
+                                : 'text-red-600 hover:text-red-800'
+                                }`}
                             title="Delete user"
                         >
                             <Trash2 className="w-4 h-4" />
@@ -449,34 +470,16 @@ const UserManagement: FunctionComponent = () => {
     return (
         <AppLayout>
             <div className="min-h-screen p-6 max-w-full mx-auto bg-white dark:bg-gray-700">
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-400 flex items-center">
-                            <Users className="w-6 h-6 mr-2" />
-                            User Management
-                        </h1>
-                        <p className="text-gray-600 mt-1">
-                            Manage workstation users, roles, and permissions
-                        </p>
-                    </div>
-
-                    <div className="flex items-center space-x-3">
-                        <Button
-                            onClick={handleAddUserClicked}
-                            className="flex items-center px-4 py-2 bg-green-600 text-white dark:text-gray-100 rounded-lg hover:bg-green-700"
-                        >
-                            <HiOutlinePlus className="w-4 h-4 mr-2" />
-                            Add User
-                        </Button>
-                    </div>
-                </div>
-
                 <div className="bg-white dark:bg-gray-700 rounded-md border overflow-hidden">
-                    <div className="px-6 py-4 border-b border-gray-200">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-400">
+                    <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between ">
+                        <div className="">
+                            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-400 flex items-center">
+                                <Users className="w-6 h-6 mr-2" />
                                 Users ({filteredUsers.length} of {users.length})
-                            </h2>
+                            </h1>
+                            <p className="text-gray-600 mt-1">
+                                Manage workstation users, roles, and permissions
+                            </p>
                         </div>
 
                         <div className="flex flex-wrap gap-4 items-center">
@@ -516,6 +519,14 @@ const UserManagement: FunctionComponent = () => {
                                     </option>
                                 ))}
                             </select>
+
+                            <Button
+                                onClick={handleAddUserClicked}
+                                className="flex items-center px-4 py-2 bg-green-600 text-white dark:text-gray-100 rounded-lg hover:bg-green-700"
+                            >
+                                <HiOutlinePlus className="w-4 h-4 mr-2" />
+                                Add User
+                            </Button>
                         </div>
                     </div>
 

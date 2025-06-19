@@ -29,7 +29,7 @@ export class SubscriptionService {
         } */
 
         const existingSubscriptions = await SubscriptionModel.findActiveByClientId(data.clientId);
-        if (existingSubscriptions.length > 0) {
+        if (existingSubscriptions) {
             throw new Error('Client already has an active subscription');
         }
 
@@ -215,9 +215,9 @@ export class SubscriptionService {
         active: number;
         cancelled: number;
         expired: number;
-        past_due: number;
-        monthly_revenue: number;
-        annual_revenue: number;
+        pastDue: number;
+        monthlyRevenue: number;
+        annualRevenue: number;
     }> {
         return SubscriptionModel.getStats();
     }
@@ -243,7 +243,7 @@ export class SubscriptionService {
         }
 
         const existingSubscriptions = await SubscriptionModel.findActiveByClientId(data.clientId);
-        if (existingSubscriptions.length > 0) {
+        if (existingSubscriptions) {
             throw new Error('Client already has an active subscription');
         }
 

@@ -21,13 +21,7 @@ import { asyncHandler } from '../middlewares/error.middleware';
 
 const router = Router();
 const userController = new UserController();
-
-const jwtConfig = {
-	jwtSecret: process.env.JWT_SECRET || 'zonse247-secret-key',
-	jwtExpiresIn: process.env.JWT_EXPIRES_IN || '24h',
-};
-
-const authMiddleware = new AuthMiddleware(jwtConfig);
+const authMiddleware = new AuthMiddleware();
 
 router.use(sanitizeInput);
 router.use(preventSQLInjection);
@@ -40,14 +34,6 @@ router.post(
 	authLimiter,
 	validateBody(userValidationSchemas.loginUser),
 	asyncHandler(userController.loginUser)
-);
-
-router.post(
-	'/register',
-	createAccountLimiter,
-	validateBody(userValidationSchemas.createUser),
-	authMiddleware.verifyPasswordStrength,
-	asyncHandler(userController.createUser)
 );
 
 router.post(
@@ -109,6 +95,13 @@ router.get('/all', asyncHandler(userController.getAllUsers));
 
 router.use(authMiddleware.requireAdmin);
 
+router.post(
+	'/post',
+	createAccountLimiter,
+	validateBody(userValidationSchemas.createUser),
+	authMiddleware.verifyPasswordStrength,
+	asyncHandler(userController.createUser)
+);
 
 router.get(
 	'/admin/user/:userId',

@@ -18,7 +18,6 @@ interface SubscriptionPlan {
 
 
 interface ClientSubscription {
-    id?: number;
     uuid: string;
     clientId: string;
     planId: string;
@@ -26,6 +25,7 @@ interface ClientSubscription {
     startsAt: string;
     endsAt?: string;
     autoRenew: boolean;
+    maxShops: number;
     paymentMethod?: string;
     lastPaymentDate?: string;
     nextPaymentDate?: string;
