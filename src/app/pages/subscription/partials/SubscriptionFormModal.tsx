@@ -60,21 +60,21 @@ const SubscriptionFormModal: FunctionComponent<SubscriptionFormModalProps> = ({
 
     const initialSubscriptionValues: ClientSubscription = subscription ? {
         ...subscription,
-        starts_at: subscription.starts_at ? new Date(subscription.starts_at).toISOString().split('T')[0] : '',
-        ends_at: subscription.ends_at ? new Date(subscription.ends_at).toISOString().split('T')[0] : '',
-        last_payment_date: subscription.last_payment_date ? new Date(subscription.last_payment_date).toISOString().split('T')[0] : '',
-        next_payment_date: subscription.next_payment_date ? new Date(subscription.next_payment_date).toISOString().split('T')[0] : ''
+        startsAt: subscription.startsAt ? new Date(subscription.startsAt).toISOString().split('T')[0] : '',
+        endsAt: subscription.endsAt ? new Date(subscription.endsAt).toISOString().split('T')[0] : '',
+        lastPaymentDate: subscription.lastPaymentDate ? new Date(subscription.lastPaymentDate).toISOString().split('T')[0] : '',
+        nextPaymentDate: subscription.nextPaymentDate ? new Date(subscription.nextPaymentDate).toISOString().split('T')[0] : ''
     } : {
         uuid: generateUUID(),
         clientId: '',
-        plan_id: '',
+        planId: '',
         status: 'active',
-        starts_at: new Date().toISOString().split('T')[0],
-        ends_at: '',
-        auto_renew: true,
-        payment_method: '',
-        last_payment_date: '',
-        next_payment_date: ''
+        startsAt: new Date().toISOString().split('T')[0],
+        endsAt: '',
+        autoRenew: true,
+        paymentMethod: '',
+        lastPaymentDate: '',
+        nextPaymentDate: ''
     };
 
     const subscriptionValidationSchema = Yup.object().shape({
@@ -82,32 +82,32 @@ const SubscriptionFormModal: FunctionComponent<SubscriptionFormModalProps> = ({
         clientId: Yup.string()
             .required('Client ID is required')
             .min(2, 'Client ID must be at least 2 characters'),
-        plan_id: Yup.string()
+        planId: Yup.string()
             .required('Plan is required'),
         status: Yup.string()
             .required('Status is required')
             .oneOf(['active', 'cancelled', 'expired', 'past_due'], 'Invalid status'),
-        starts_at: Yup.date()
+        startsAt: Yup.date()
             .required('Start date is required')
             .typeError('Please enter a valid date'),
-        ends_at: Yup.date()
+        endsAt: Yup.date()
             .nullable()
-            .when('starts_at', {
+            .when('startsAt', {
                 is: (val: Date) => !!val,
                 then: () => Yup.date().min(
-                    Yup.ref('starts_at'),
+                    Yup.ref('startsAt'),
                     'End date must be after start date'
                 ).nullable(),
                 otherwise: () => Yup.date().nullable()
             }),
-        auto_renew: Yup.boolean(),
-        payment_method: Yup.string(),
-        last_payment_date: Yup.date()
+        autoRenew: Yup.boolean(),
+        paymentMethod: Yup.string(),
+        lastPaymentDate: Yup.date()
             .nullable()
             .typeError('Please enter a valid date'),
-        next_payment_date: Yup.date()
+        nextPaymentDate: Yup.date()
             .nullable()
-            .when('auto_renew', {
+            .when('autoRenew', {
                 is: true,
                 then: () => Yup.date().required('Next payment date is required for auto-renewing subscriptions'),
                 otherwise: () => Yup.date().nullable()
@@ -119,10 +119,10 @@ const SubscriptionFormModal: FunctionComponent<SubscriptionFormModalProps> = ({
         try {
             const submitValues = {
                 ...values,
-                starts_at: new Date(values.starts_at).toISOString(),
-                ends_at: values.ends_at ? new Date(values.ends_at).toISOString() : undefined,
-                last_payment_date: values.last_payment_date ? new Date(values.last_payment_date).toISOString() : undefined,
-                next_payment_date: values.next_payment_date ? new Date(values.next_payment_date).toISOString() : undefined
+                startsAt: new Date(values.startsAt).toISOString(),
+                endsAt: values.endsAt ? new Date(values.endsAt).toISOString() : undefined,
+                lastPaymentDate: values.lastPaymentDate ? new Date(values.lastPaymentDate).toISOString() : undefined,
+                nextPaymentDate: values.nextPaymentDate ? new Date(values.nextPaymentDate).toISOString() : undefined
             };
 
             if (subscription && subscription.uuid) {
@@ -183,7 +183,7 @@ const SubscriptionFormModal: FunctionComponent<SubscriptionFormModalProps> = ({
 
                                 <FormSelectBox
                                     label="Plan"
-                                    name="plan_id"
+                                    name="planId"
                                     required
                                     options={planOptions}
                                 />
@@ -198,14 +198,14 @@ const SubscriptionFormModal: FunctionComponent<SubscriptionFormModalProps> = ({
                                 <div className='flex gap-2'>
                                     <FormInput
                                         type="date"
-                                        name="starts_at"
+                                        name="startsAt"
                                         label="Start Date"
                                         required
                                     />
 
                                     <FormInput
                                         type="date"
-                                        name="ends_at"
+                                        name="endsAt"
                                         label="End Date"
                                         placeholder="Optional"
                                     />
@@ -213,7 +213,7 @@ const SubscriptionFormModal: FunctionComponent<SubscriptionFormModalProps> = ({
 
                                 <FormSelectBox
                                     label="Payment Method"
-                                    name="payment_method"
+                                    name="paymentMethod"
                                     options={paymentMethodOptions}
                                 />
 
@@ -221,8 +221,8 @@ const SubscriptionFormModal: FunctionComponent<SubscriptionFormModalProps> = ({
                                     <label className="flex items-center cursor-pointer">
                                         <input
                                             type="checkbox"
-                                            checked={values.auto_renew}
-                                            onChange={(e) => setFieldValue('auto_renew', e.target.checked)}
+                                            checked={values.autoRenew}
+                                            onChange={(e) => setFieldValue('autoRenew', e.target.checked)}
                                             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2"
                                         />
                                         <span className="text-sm font-medium text-gray-700">
@@ -234,17 +234,17 @@ const SubscriptionFormModal: FunctionComponent<SubscriptionFormModalProps> = ({
                                 <div className='flex gap-2'>
                                     <FormInput
                                         type="date"
-                                        name="last_payment_date"
+                                        name="lastPaymentDate"
                                         label="Last Payment Date"
                                         placeholder="Optional"
                                     />
 
                                     <FormInput
                                         type="date"
-                                        name="next_payment_date"
+                                        name="nextPaymentDate"
                                         label="Next Payment Date"
-                                        placeholder={values.auto_renew ? "Required for auto-renew" : "Optional"}
-                                        required={values.auto_renew}
+                                        placeholder={values.autoRenew ? "Required for auto-renew" : "Optional"}
+                                        required={values.autoRenew}
                                     />
                                 </div>
 

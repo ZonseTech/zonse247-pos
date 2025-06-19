@@ -128,8 +128,8 @@ const clientsService = {
         return this.list({ status });
     },
 
-    async getBySubscriptionStatus(subscription_status: string): Promise<Client[]> {
-        return this.list({ subscription_status });
+    async getBySubscriptionStatus(subscriptionStatus: string): Promise<Client[]> {
+        return this.list({ subscriptionStatus });
     },
 
     async getByCountry(country: string): Promise<Client[]> {
@@ -149,11 +149,11 @@ const clientsService = {
     validateClientData(data: Partial<RegisterClientRequest>): { isValid: boolean; errors: string[] } {
         const errors: string[] = [];
 
-        if (!data.company_name?.trim()) {
+        if (!data.companyName?.trim()) {
             errors.push('Company name is required');
         }
 
-        if (!data.owner_name?.trim()) {
+        if (!data.ownerName?.trim()) {
             errors.push('Owner name is required');
         }
 
@@ -182,17 +182,17 @@ const clientsService = {
         return {
             id: client.uuid,
             clientId: client.clientId,
-            companyName: client.company_name,
-            ownerName: client.owner_name,
+            companyName: client.companyName,
+            ownerName: client.ownerName,
             email: client.email,
             phone: client.phone,
             address: client.address,
             country: client.country,
             timezone: client.timezone,
-            subscriptionStatus: client.subscription_status,
+            subscriptionStatus: client.subscriptionStatus,
             status: client.status,
-            trialEndsAt: client.trial_ends_at ? new Date(client.trial_ends_at) : null,
-            registeredAt: new Date(client.registered_at),
+            trialEndsAt: client.trialEndsAt ? new Date(client.trialEndsAt) : null,
+            registeredAt: new Date(client.registeredAt),
             createdAt: client.createdAt ? new Date(client.createdAt) : null,
             updatedAt: client.updatedAt ? new Date(client.updatedAt) : null
         };
@@ -279,10 +279,10 @@ const clientsService = {
             return {
                 total: allClients.length,
                 byStatus: this.groupBy(allClients, 'status'),
-                bySubscriptionStatus: this.groupBy(allClients, 'subscription_status'),
+                bySubscriptionStatus: this.groupBy(allClients, 'subscriptionStatus'),
                 byCountry: this.groupBy(allClients, 'country'),
                 recentRegistrations: allClients.filter(client =>
-                    new Date(client.registered_at) >= thirtyDaysAgo
+                    new Date(client.registeredAt) >= thirtyDaysAgo
                 ).length
             };
         } catch (err) {

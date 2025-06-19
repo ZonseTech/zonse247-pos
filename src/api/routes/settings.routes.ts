@@ -101,7 +101,7 @@ router.post(
 
 			const uuid = typedReq.body.uuid || uuidv4();
 
-			const newSettings: Setting = {
+			const newSettings = {
 				uuid,
 				app: validator.escape(typedReq.body.app),
 				store: validator.escape(typedReq.body.store),

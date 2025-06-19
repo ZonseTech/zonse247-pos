@@ -19,7 +19,7 @@ export class ClientService {
     }
 
     static async registerClient(data: RegisterClientRequest): Promise<Client> {
-        const validationError = this.validateRequired(data, ['company_name', 'owner_name', 'email', 'phone']);
+        const validationError = this.validateRequired(data, ['companyName', 'ownerName', 'email', 'phone']);
         if (validationError) {
             throw new Error(validationError);
         }
@@ -78,13 +78,17 @@ export class ClientService {
     }
 
     static async verifyClient(clientId: string, authKey: string): Promise<Omit<Client, 'authKey'>> {
-        const clients = await ClientModel.findByCredentials(clientId, authKey);
+        const client = await ClientModel.findByCredentials(clientId, authKey);
 
-        if (clients.length === 0) {
+        if (!client) {
             throw new Error('Invalid credentials');
         }
 
-        return ClientModel.sanitizeClient(clients[0]);
+        await ClientModel.update(client.uuid, { status: 'active' });
+
+        const updatedClient = { ...client, status: 'active' };
+
+        return ClientModel.sanitizeClient(updatedClient);
     }
 
     static async updateClient(clientId: string, updateData: Partial<RegisterClientRequest>): Promise<Omit<Client, 'authKey'>> {
@@ -149,7 +153,7 @@ export class ClientService {
                 totalSteps: totalSteps,
                 completionPercentage: completionPercentage,
                 isComplete: completionPercentage === 100
-            }
+            } as any
         };
     }
 }

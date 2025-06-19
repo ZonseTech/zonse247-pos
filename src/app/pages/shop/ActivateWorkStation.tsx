@@ -5,7 +5,6 @@ import AuthLayout from "../../layouts/AuthLayout"
 import { Form, Formik } from "formik"
 import FormWrapper from "../../components/FormWrapper"
 import { Alert, Button, } from "../../components"
-import { useAuth } from "../../context/AuthProvider"
 import { ROUTES } from "../../utils/constants"
 import FormInput from "../../components/FormInput";
 import { Link } from "react-router-dom";
@@ -13,51 +12,50 @@ import FormTextArea from "../../components/FormTextArea";
 import ActivatingStep from "./partials/ActivatingStep";
 import SuccessStep from "./partials/SuccessStep";
 import ErrorStep from "./partials/ErrorStep";
+import clientsService from "../../services/client.service";
+import { AxiosError } from "axios";
 
 const ActivateWorkStation: FunctionComponent = () => {
-    const auth = useAuth()
     const [step, setStep] = useState<'input' | 'activating' | 'success' | 'error'>('input');
     const [errorMessage, setErrorMessage]: [string, Dispatch<SetStateAction<string>>] = useState('')
 
     const registerProps: ShopVerificationParams = {
         clientId: '',
-        authToken: '',
-        workstationName: '',
+        authKey: '',
         os: '',
         hostname: '',
         macAddress: ''
     }
 
     const registerValidationSchema: Yup.ObjectSchema<{
-        authToken: string;
+        authKey: string;
         clientId: string;
     }, Yup.AnyObject, {
-        authToken: undefined;
+        authKey: undefined;
         clientId: undefined;
     }, ""> = Yup.object({
-        authToken: Yup.string()
+        authKey: Yup.string()
             .required('Auth token is required'),
 
         clientId: Yup.string()
             .required('Please enter your clientId'),
-
-        workstationName: Yup.string()
-            .required('Work station name is required.')
     })
 
     const handleSubmit = async (values: ShopVerificationParams): Promise<void> => {
         try {
             setStep('activating');
 
-            await auth.signup(values)
-                .catch((e) => {
-                    throw new Error(e.message || 'Activation failed');
-                })
+            await clientsService.verify({
+                clientId: values.clientId,
+                authKey: values.authKey
+            })
 
             setStep('success');
         } catch (error: any) {
+
+            setErrorMessage((error as any)?.error?.response?.data?.message || 'An error occurred while activating the workstation.');
+
             setStep('error');
-            setErrorMessage(error.message);
         }
     }
 
@@ -80,6 +78,7 @@ const ActivateWorkStation: FunctionComponent = () => {
                             <h1 className="text-gray-700 font-semibold text-xl">
                                 Activate Workstation
                             </h1>
+                            <p className="text-gray-500 text-sm leading mt-2">Set up your POS Workstation in just a few steps</p>
                         </div>
 
                         <FormWrapper>
@@ -115,22 +114,13 @@ const ActivateWorkStation: FunctionComponent = () => {
 
                             <FormTextArea
                                 label='Auth token'
-                                id='authToken'
-                                name='authToken'
+                                id='authKey'
+                                name='authKey'
                                 rows={3}
                                 className="rounded-sm"
                                 required
                                 placeholder="Paste auth token from email"
                             />
-
-                            <FormInput
-                                label='Workstation Name'
-                                id='workstationName'
-                                name='workstationName'
-                                type='text'
-                                step={3}
-                                required
-                                placeholder="e.g., Till-01, Counter-A" />
 
                             <Button
                                 type='submit'

@@ -23,7 +23,7 @@ const SubscriptionManagement: FunctionComponent = () => {
                             {row?.uuid}
                         </div>
                         <div className="text-sm text-gray-500">
-                            Plan: {row?.plan_id}
+                            Plan: {row?.planId}
                         </div>
                     </div>
                 </div>
@@ -49,11 +49,11 @@ const SubscriptionManagement: FunctionComponent = () => {
             cell: (row) => (<Fragment>
                 <div className="text-sm">
                     <div className="text-gray-900">
-                        {new Date(row?.starts_at).toLocaleDateString()}
+                        {new Date(row?.startsAt).toLocaleDateString()}
                     </div>
-                    {row?.ends_at && (
+                    {row?.endsAt && (
                         <div className="text-gray-500">
-                            to {new Date(row?.ends_at).toLocaleDateString()}
+                            to {new Date(row?.endsAt).toLocaleDateString()}
                         </div>
                     )}
                 </div>
@@ -62,8 +62,8 @@ const SubscriptionManagement: FunctionComponent = () => {
         {
             name: 'Auto Renew',
             cell: (row) => (<Fragment>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${row?.auto_renew ? 'text-green-800 bg-green-100' : 'text-gray-800 dark:text-gray-400 bg-gray-100'}`}>
-                    {row?.auto_renew ? 'Yes' : 'No'}
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${row?.autoRenew ? 'text-green-800 bg-green-100' : 'text-gray-800 dark:text-gray-400 bg-gray-100'}`}>
+                    {row?.autoRenew ? 'Yes' : 'No'}
                 </span>
             </Fragment>)
         },
@@ -71,7 +71,7 @@ const SubscriptionManagement: FunctionComponent = () => {
             name: 'Next Payment',
             cell: (row) => (<Fragment>
                 <div className="text-sm text-gray-900">
-                    {row?.next_payment_date ? new Date(row?.next_payment_date).toLocaleDateString() : 'N/A'}
+                    {row?.nextPaymentDate ? new Date(row?.nextPaymentDate).toLocaleDateString() : 'N/A'}
                 </div>
             </Fragment>)
         },
@@ -144,7 +144,7 @@ const SubscriptionManagement: FunctionComponent = () => {
             const filtered = subscriptions.filter(subscription =>
                 subscription.uuid.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 subscription.clientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                subscription.plan_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                subscription.planId.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 subscription.status.toLowerCase().includes(searchTerm.toLowerCase())
             );
             setFilteredSubscriptions(filtered);

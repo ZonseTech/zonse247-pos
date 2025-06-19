@@ -74,7 +74,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
     } : {
         uuid: '',
         clientId: '',
-        shop_code: '',
+        shopCode: '',
         name: '',
         description: '',
         addressLine1: '',
@@ -85,13 +85,13 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
         country: '',
         phone: '',
         email: '',
-        tax_number: '',
-        currency_code: 'USD',
-        currency_symbol: '$',
-        tax_rate: 0,
-        charge_tax: false,
-        receipt_footer: '',
-        logo_url: '',
+        taxNumber: '',
+        currencyCode: 'USD',
+        currencySymbol: '$',
+        taxRate: 0,
+        chargeTax: false,
+        receiptFooter: '',
+        logoUrl: '',
         status: 'active'
     };
 
@@ -100,7 +100,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
             .required('Shop name is required')
             .min(2, 'Name must be at least 2 characters')
             .max(100, 'Name is too long'),
-        shop_code: Yup.string()
+        shopCode: Yup.string()
             .required('Shop code is required')
             .min(3, 'Shop code must be at least 3 characters')
             .max(20, 'Shop code is too long')
@@ -129,18 +129,18 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
     });
 
     const taxCurrencySchema = Yup.object().shape({
-        currency_code: Yup.string().required('Currency is required'),
-        tax_rate: Yup.number()
+        currencyCode: Yup.string().required('Currency is required'),
+        taxRate: Yup.number()
             .required('Tax rate is required')
             .min(0, 'Tax rate must be 0 or higher')
             .max(100, 'Tax rate cannot exceed 100%'),
-        tax_number: Yup.string().max(50, 'Tax number is too long'),
-        charge_tax: Yup.boolean()
+        taxNumber: Yup.string().max(50, 'Tax number is too long'),
+        chargeTax: Yup.boolean()
     });
 
     const additionalSchema = Yup.object().shape({
-        receipt_footer: Yup.string().max(500, 'Receipt footer is too long'),
-        logo_url: Yup.string().url('Invalid URL format')
+        receiptFooter: Yup.string().max(500, 'Receipt footer is too long'),
+        logoUrl: Yup.string().url('Invalid URL format')
     });
 
     const shopValidationSchema = Yup.object().shape({
@@ -227,13 +227,13 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
     const handleNameChange = (name: string, setFieldValue: Function) => {
         setFieldValue('name', name);
         if (!shop && name) {
-            setFieldValue('shop_code', generateShopCode(name));
+            setFieldValue('shopCode', generateShopCode(name));
         }
     };
 
     const handleCurrencyChange = (currencyCode: string, setFieldValue: Function) => {
-        setFieldValue('currency_code', currencyCode);
-        setFieldValue('currency_symbol', getCurrencySymbol(currencyCode));
+        setFieldValue('currencyCode', currencyCode);
+        setFieldValue('currencySymbol', getCurrencySymbol(currencyCode));
     };
 
     const renderStepContent = (values: any, setFieldValue: Function) => {
@@ -254,7 +254,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
 
                         <FormInput
                             type="text"
-                            name="shop_code"
+                            name="shopCode"
                             label="Shop Code"
                             required
                             placeholder="Shop code (auto-generated)"
@@ -357,7 +357,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormSelectBox
                             label="Currency"
-                            name="currency_code"
+                            name="currencyCode"
                             required
                             options={currencyOptions}
                             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
@@ -367,7 +367,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
 
                         <FormInput
                             type="number"
-                            name="tax_rate"
+                            name="taxRate"
                             label="Tax Rate (%)"
                             required
                             placeholder="0.00"
@@ -379,7 +379,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
                         <div className="md:col-span-2">
                             <FormInput
                                 type="text"
-                                name="tax_number"
+                                name="taxNumber"
                                 label="Tax Number"
                                 placeholder="Tax registration number (optional)"
                             />
@@ -387,10 +387,11 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
 
                         <div className="md:col-span-2">
                             <label className="flex items-center space-x-2">
-                                <input
+                                <FormInput
                                     type="checkbox"
-                                    checked={values.charge_tax}
-                                    onChange={(e) => setFieldValue('charge_tax', e.target.checked)}
+                                    checked={values.chargeTax}
+                                    name='chargeTax'
+                                    onChange={(e) => setFieldValue('chargeTax', e.target.checked)}
                                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                 />
                                 <span className="text-sm font-medium text-gray-700">
@@ -409,13 +410,13 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
                     <div className="grid grid-cols-1 gap-4">
                         <FormInput
                             type="url"
-                            name="logo_url"
+                            name="logoUrl"
                             label="Logo URL"
                             placeholder="https://example.com/logo.png (optional)"
                         />
 
                         <FormTextArea
-                            name="receipt_footer"
+                            name="receiptFooter"
                             label="Receipt Footer"
                             placeholder="Text to display at the bottom of receipts (optional)"
                             rows={3}
@@ -446,7 +447,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
                     initialValues={initialShopValues}
                     validationSchema={shopValidationSchema}
                 >
-                    {({ isSubmitting, values, setFieldValue }) => (
+                    {({ isSubmitting, values, setFieldValue, errors }) => (
                         <Form>
                             <FormWrapper>
                                 <FormStepper

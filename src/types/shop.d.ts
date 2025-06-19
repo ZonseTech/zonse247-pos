@@ -1,7 +1,6 @@
 interface ShopVerificationParams {
 	clientId: string;
-	authToken: string;
-	workstationName: string;
+	authKey: string;
 	os: string;
 	hostname: string;
 	macAddress: string;
@@ -57,7 +56,7 @@ interface ShopRegistration {
 
 interface ClientCredentials {
 	clientId: string;
-	authToken: string;
+	authKey: string;
 	shopId: string;
 	expiresAt: string;
 	permissions: string[];

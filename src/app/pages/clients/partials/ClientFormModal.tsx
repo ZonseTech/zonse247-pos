@@ -59,31 +59,31 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
     } : {
         uuid: '',
         clientId: '',
-        company_name: '',
-        owner_name: '',
+        companyName: '',
+        ownerName: '',
         email: '',
         phone: '',
         address: '',
         country: '',
         timezone: 'UTC',
-        registered_at: '',
-        subscription_status: 'trial',
-        trial_ends_at: '',
-        auth_key: '',
+        registeredAt: '',
+        subscriptionStatus: 'trial',
+        trialEndsAt: '',
+        authKey: '',
         status: 'pending'
     };
 
     const clientValidationSchema = Yup.object().shape({
         clientId: Yup.string()
-            .required('Client ID is required')
+            .notRequired()
             .min(3, 'Client ID must be at least 3 characters')
             .max(20, 'Client ID is too long')
             .matches(/^[a-zA-Z0-9_-]+$/, 'Client ID can only contain letters, numbers, hyphens and underscores'),
-        company_name: Yup.string()
+        companyName: Yup.string()
             .required('Company name is required')
             .min(2, 'Company name must be at least 2 characters')
             .max(100, 'Company name is too long'),
-        owner_name: Yup.string()
+        ownerName: Yup.string()
             .required('Owner name is required')
             .min(2, 'Owner name must be at least 2 characters')
             .max(50, 'Owner name is too long'),
@@ -96,15 +96,15 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
         address: Yup.string().max(200, 'Address is too long'),
         country: Yup.string().max(50, 'Country name is too long'),
         timezone: Yup.string().required('Timezone is required'),
-        subscription_status: Yup.string()
+        subscriptionStatus: Yup.string()
             .required('Subscription status is required')
             .oneOf(['active', 'inactive', 'suspended', 'trial']),
-        trial_ends_at: Yup.string().when('subscription_status', {
+        trialEndsAt: Yup.string().when('subscriptionStatus', {
             is: 'trial',
             then: () => Yup.string().required('Trial end date is required for trial subscriptions'),
             otherwise: () => Yup.string().notRequired()
         }),
-        auth_key: Yup.string()
+        authKey: Yup.string()
             .required('Auth key is required')
             .min(16, 'Auth key must be at least 16 characters'),
         status: Yup.string()
@@ -137,7 +137,7 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
 
     const generateAuthKey = (setFieldValue: Function) => {
         const authKey = Math.random().toString(36).substring(2) + Date.now().toString(36);
-        setFieldValue('auth_key', authKey);
+        setFieldValue('authKey', authKey);
     };
 
     return (
@@ -158,17 +158,18 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
                         <Form>
                             <FormWrapper>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <FormInput
+                                    {values.uuid && <FormInput
                                         type="text"
                                         name="clientId"
                                         label="Client ID"
                                         required
+                                        readOnly
                                         placeholder="Unique client identifier"
-                                    />
+                                    />}
 
                                     <FormInput
                                         type="text"
-                                        name="company_name"
+                                        name="companyName"
                                         label="Company Name"
                                         required
                                         placeholder="Company name"
@@ -176,7 +177,7 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
 
                                     <FormInput
                                         type="text"
-                                        name="owner_name"
+                                        name="ownerName"
                                         label="Owner Name"
                                         required
                                         placeholder="Owner full name"
@@ -223,16 +224,16 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
 
                                     <FormSelectBox
                                         label="Subscription Status"
-                                        name="subscription_status"
+                                        name="subscriptionStatus"
                                         required
                                         options={subscriptionStatuses}
                                     />
                                 </div>
 
-                                {values.subscription_status === 'trial' && (
+                                {values.subscriptionStatus === 'trial' && (
                                     <FormInput
                                         type="date"
-                                        name="trial_ends_at"
+                                        name="trialEndsAt"
                                         label="Trial Ends At"
                                         required
                                     />
@@ -248,7 +249,7 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
                                 <div className="flex gap-2">
                                     <FormInput
                                         type="text"
-                                        name="auth_key"
+                                        name="authKey"
                                         label="Auth Key"
                                         required
                                         placeholder="Authentication key"

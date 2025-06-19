@@ -122,8 +122,6 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
             await fetchPaymentMethods();
         };
 
-        fetchData();
-
         const fetchUserAndTill = async () => {
             try {
                 // const userResponse = await axios.get('/api/auth/current-user');
@@ -136,6 +134,7 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
             }
         };
 
+        fetchData();
         fetchUserAndTill();
     }, []);
 

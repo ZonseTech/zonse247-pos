@@ -49,7 +49,7 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
     };
 
     const updateSettings = (newSettings: Partial<AppSettings>) => {
-        setSettings(prev => prev ? { ...prev, ...newSettings } : null);
+        setSettings(prev => prev ? { ...prev, ...newSettings } as any : null);
     };
 
     const updatePrinterOptions = (options: PrinterInfo) => {
