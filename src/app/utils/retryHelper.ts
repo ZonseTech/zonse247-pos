@@ -37,19 +37,14 @@ export const isRetryableError = (error) => {
 	)
 }
 
-export const validateSettingsResponse = (settings) => {
+export const validateSettingsResponse = (settings: WorkstatSettings) => {
 	if (!settings) return false
 
-	const requiredFields = ['id', 'status']
+	const requiredFields = ['uuid', 'clientUuid', 'isActive']
 
 	if (typeof settings === 'object' && !Array.isArray(settings)) {
+		sessionStorage.setItem('clientUuid', settings.clientUuid)
 		return requiredFields.every(field => settings.hasOwnProperty(field))
-	}
-
-	if (Array.isArray(settings)) {
-		return settings.length > 0 && requiredFields.every(field =>
-			settings[0].hasOwnProperty(field)
-		)
 	}
 
 	return false

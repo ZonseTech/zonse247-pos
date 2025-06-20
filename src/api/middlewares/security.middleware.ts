@@ -6,7 +6,7 @@ export const corsOptions = {
 	credentials: true,
 	optionsSuccessStatus: 200, // or 204
 	methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-	allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token'],
+	allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token', 'X-Client-Uuid', 'x-client-uuid'],
 	origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
 };
 

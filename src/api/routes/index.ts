@@ -31,9 +31,11 @@ import { ClientController } from '../controllers/client.controller'
 import { clientValidationSchemas } from '../validations/client.schemas'
 import { ShopController } from '../controllers/shop.controller'
 import { shopValidationSchemas } from '../validations/shopValidationSchemas'
+import { ClientMiddleware } from '../middlewares/client.middleware'
 
 const router = Router();
 const authMiddleware = new AuthMiddleware();
+const clientMiddleware = new ClientMiddleware();
 
 router.use(sanitizeInput);
 router.use(preventSQLInjection);
@@ -47,6 +49,7 @@ router.post(
     '/auth/login',
     authLimiter,
     validateBody(userValidationSchemas.loginUser),
+    clientMiddleware.subscriptionStatus,
     asyncHandler(UserController.login)
 );
 

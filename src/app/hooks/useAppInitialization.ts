@@ -29,7 +29,7 @@ export const useAppInitialization = () => {
                 timeoutPromise
             ])
 
-            const isVerified = validateSettingsResponse(settings)
+            const isVerified = validateSettingsResponse(settings as WorkstatSettings)
 
             setState(prev => ({
                 ...prev,
