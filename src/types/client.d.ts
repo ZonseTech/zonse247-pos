@@ -25,6 +25,16 @@ interface VerifyClientRequest {
     authKey: string;
 }
 
+interface AuthenticatedRequest extends Request {
+    client?: Client;
+    clientUuid?: string;
+}
+
+interface ClientProps extends Omit<Client, 'authKey'> {
+
+}
+
+
 interface Client {
     uuid: string;
     clientId: string;
@@ -35,7 +45,7 @@ interface Client {
     address: string;
     country: string;
     timezone: string;
-    subscriptionStatus: string;
+    subscriptionStatus: 'active' | 'inactive' | 'suspended' | 'expired' | 'trial' | 'cancelled';
     trialEndsAt: string;
     authKey: string;
     status: string;

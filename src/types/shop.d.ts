@@ -75,32 +75,6 @@ interface WorkstationUser {
 	lastSync?: string;
 }
 
-interface WorkstationSettings {
-	id: string;
-	name: string;
-	shopId: string;
-	clientId: string;
-	isActivated: boolean;
-	deviceInfo: {
-		os: string;
-		version: string;
-		macAddress: string;
-		hostname: string;
-	};
-	syncSettings: {
-		lastSync: string;
-		autoSync: boolean;
-		syncInterval: number
-	};
-	features: {
-		offline: boolean;
-		printing: boolean;
-		barcode: boolean;
-		inventory: boolean;
-	};
-	createdAt: string;
-}
-
 interface CreateShopRequest {
 	clientId: string;
 	shopCode: string;
@@ -121,22 +95,4 @@ interface CreateShopRequest {
 	chargeTax?: boolean;
 	receiptFooter?: string;
 	logoUrl?: string;
-}
-
-interface Setting extends WorkstationSettings {
-	uuid: string;
-	img: string;
-	remove: string;
-	app: string;
-	tillName: string;
-	store: string;
-	addressOne: string;
-	addressTwo: string;
-	contact: string;
-	tax: string;
-	symbol: string;
-	percentage: number;
-	chargeTax: boolean;
-	footer: string;
-	file: string;
 }
