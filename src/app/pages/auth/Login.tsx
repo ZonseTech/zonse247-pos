@@ -51,7 +51,7 @@ const Login: FunctionComponent = () => {
     }
 
     return (
-        <AuthLayout>
+        <AuthLayout className='max-w-4xl'>
             <Formik
                 initialValues={loginProps}
                 validationSchema={loginValidationSchema}

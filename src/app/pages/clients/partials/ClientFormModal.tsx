@@ -54,7 +54,7 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
         { label: 'Australia/Sydney', value: 'Australia/Sydney' }
     ];
 
-    const initialClientValues: Client = client ? {
+    const initialClientValues = client ? {
         ...client
     } : {
         uuid: '',
@@ -69,7 +69,7 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
         registeredAt: '',
         subscriptionStatus: 'trial',
         trialEndsAt: '',
-        authKey: '',
+        // authKey: '',
         status: 'pending'
     };
 
@@ -104,9 +104,6 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
             then: () => Yup.string().required('Trial end date is required for trial subscriptions'),
             otherwise: () => Yup.string().notRequired()
         }),
-        authKey: Yup.string()
-            .required('Auth key is required')
-            .min(16, 'Auth key must be at least 16 characters'),
         status: Yup.string()
             .required('Status is required')
             .oneOf(['pending', 'active', 'suspended', 'cancelled'])
@@ -133,11 +130,6 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
             const errorMessage = error?.response?.data?.message || 'An error occurred while saving the client';
             Notify.failure(errorMessage);
         }
-    };
-
-    const generateAuthKey = (setFieldValue: Function) => {
-        const authKey = Math.random().toString(36).substring(2) + Date.now().toString(36);
-        setFieldValue('authKey', authKey);
     };
 
     return (
@@ -230,39 +222,32 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
                                     />
                                 </div>
 
-                                {values.subscriptionStatus === 'trial' && (
-                                    <FormInput
-                                        type="date"
-                                        name="trialEndsAt"
-                                        label="Trial Ends At"
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormSelectBox
+                                        label="Status"
+                                        name="status"
                                         required
+                                        options={statuses}
                                     />
-                                )}
 
-                                <FormSelectBox
-                                    label="Status"
-                                    name="status"
-                                    required
-                                    options={statuses}
-                                />
-
-                                <div className="flex gap-2">
-                                    <FormInput
-                                        type="text"
-                                        name="authKey"
-                                        label="Auth Key"
-                                        required
-                                        placeholder="Authentication key"
-                                        className="flex-1"
-                                    />
-                                    <Button
-                                        type="button"
-                                        onClick={() => generateAuthKey(setFieldValue)}
-                                        className="mt-6 px-3 py-2 bg-gray-500 text-white dark:text-gray-100 rounded hover:bg-gray-600"
-                                    >
-                                        Generate
-                                    </Button>
+                                    {values.subscriptionStatus === 'trial' && (
+                                        <FormInput
+                                            type="date"
+                                            name="trialEndsAt"
+                                            label="Trial Ends At"
+                                            required
+                                        />
+                                    )}
                                 </div>
+
+                                <FormInput
+                                    type="text"
+                                    name="authKey"
+                                    label="Auth Key"
+                                    readOnly
+                                    placeholder="Auto generated authentication key"
+                                    className="flex-1"
+                                />
 
                                 <Button
                                     type="submit"

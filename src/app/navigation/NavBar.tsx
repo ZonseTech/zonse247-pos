@@ -164,7 +164,7 @@ const NavBar: FunctionComponent = () => {
 
         items.push({ type: 'spacer' });
 
-        if (hasRole(user, 'super-admin')) {
+        if (hasRole(user, 'admin') || hasPermission(user, 'system.admin')) {
             items.push({
                 type: 'button',
                 color: 'bg-purple-600 hover:bg-purple-700',
@@ -191,9 +191,7 @@ const NavBar: FunctionComponent = () => {
                 icon: icons.client,
                 onClick: () => navigate(ROUTES.CLIENTS),
             });
-        }
 
-        if (hasRole(user, 'admin') || hasPermission(user, 'system.admin')) {
             items.push({
                 type: 'button',
                 color: 'bg-red-600 hover:bg-red-700',
