@@ -43,6 +43,15 @@ export class ShopService {
 		}
 	}
 
+	static async getShopByClientId(id: string): Promise<IShop[]> {
+		if (!id) {
+			throw new Error('Client ID is required');
+		}
+
+		const shops = await ShopModel.findByClientId(id);
+		return shops;
+	}
+
 	static async getShopById(id: string): Promise<IShop> {
 		if (!id) {
 			throw new Error('Shop ID is required');
