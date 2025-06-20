@@ -1,5 +1,4 @@
 interface Workstation {
-    id?: number;
     uuid: string;
     shopCode: string;
     clientId: string;

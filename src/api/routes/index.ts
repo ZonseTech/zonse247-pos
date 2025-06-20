@@ -64,8 +64,8 @@ router.get(
 );
 
 router.get(
-    '/auth/shop/:shopId/workstations',
-    validateParams(shopValidationSchemas.shopId),
+    '/shop/:shopCode/workstations',
+    validateParams(shopValidationSchemas.shopCode),
     asyncHandler(ShopController.getShopWorkstations)
 );
 

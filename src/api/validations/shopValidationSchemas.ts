@@ -13,4 +13,10 @@ export const shopValidationSchemas = {
             'any.required': 'Shop ID is required',
         }),
     }),
+
+    shopCode: Joi.object({
+        shopCode: Joi.string().required().messages({
+            'any.required': 'Shop Code is required',
+        }),
+    }),
 };

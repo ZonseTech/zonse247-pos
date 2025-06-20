@@ -16,11 +16,11 @@ export class ShopController extends BaseController {
         }
     }
 
-    static async getShopWorkstations(req: Request<{ shopId: string }, ApiResponse<Array<Workstation>>>, res: Response): Promise<void> {
+    static async getShopWorkstations(req: Request<{ shopCode: string }, ApiResponse<Array<Workstation>>>, res: Response): Promise<void> {
         try {
-            const { shopId } = req.params;
+            const { shopCode } = req.params;
 
-            const workstations = await WorkstationService.getWorkstationByShopId(shopId)
+            const workstations = await WorkstationService.getWorkstationByShopCode(shopCode)
 
             BaseController.sendResponse(
                 res, 200, true,

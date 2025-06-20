@@ -1,32 +1,19 @@
+import * as Yup from 'yup';
 import { useState } from 'react';
-import WorkstationSelectionStep from './partials/steps/WorkstationSelectionStep';
-import ShopSelectionStep from './partials/steps/ShopSelectionStep';
-import ConfigurationCompleteStep from './partials/steps/ConfigurationCompleteStep';
-import ClientVerificationStep from './partials/steps/ClientVerificationStep';
+import { useNavigate } from 'react-router';
 import ErrorAlert from './partials/ErrorAlert';
+import { ROUTES } from '../../utils/constants';
+import AuthLayout from '../../layouts/AuthLayout';
 import SuccessAlert from './partials/SuccessAlert';
 import StepIndicator from './partials/StepIndicator';
-import clientsService from '../../services/client.service';
 import shopsService from '../../services/shop.service';
-import * as Yup from 'yup';
-import AuthLayout from '../../layouts/AuthLayout';
-
-const workstationsService = {
-    async list(query) {
-        await new Promise(resolve => setTimeout(resolve, 800));
-        return [
-            { id: 'ws-1', name: 'Register 1', type: 'POS', status: 'active', is_primary: true },
-            { id: 'ws-2', name: 'Register 2', type: 'POS', status: 'active', is_primary: false },
-            { id: 'ws-3', name: 'Back Office', type: 'Admin', status: 'active', is_primary: false },
-            { id: 'ws-4', name: 'Mobile Terminal', type: 'Mobile', status: 'maintenance', is_primary: false }
-        ];
-    },
-
-    async setPrimary(id) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return { id, status: 'success' };
-    }
-};
+import clientsService from '../../services/client.service';
+import settingsService from '../../services/settings.service';
+import ShopSelectionStep from './partials/steps/ShopSelectionStep';
+import workstationsService from '../../services/workstation.service';
+import ClientVerificationStep from './partials/steps/ClientVerificationStep';
+import WorkstationSelectionStep from './partials/steps/WorkstationSelectionStep';
+import ConfigurationCompleteStep from './partials/steps/ConfigurationCompleteStep';
 
 const ClientVerification = () => {
     const registerProps: ShopVerificationParams = {
@@ -51,15 +38,16 @@ const ClientVerification = () => {
             .required('Please enter your clientId'),
     })
 
-    const [currentStep, setCurrentStep] = useState(1);
-    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate()
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const [verifiedClient, setVerifiedClient] = useState(null);
-    const [shops, setShops] = useState([]);
-    const [selectedShop, setSelectedShop] = useState(null);
-    const [workstations, setWorkstations] = useState([]);
-    const [selectedWorkstation, setSelectedWorkstation] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [currentStep, setCurrentStep] = useState(1);
+    const [shops, setShops] = useState<Array<IShop>>([]);
+    const [selectedShop, setSelectedShop] = useState<IShop>(null);
+    const [verifiedClient, setVerifiedClient] = useState<Client>(null);
+    const [workstations, setWorkstations] = useState<Array<Workstation>>([]);
+    const [selectedWorkstation, setSelectedWorkstation] = useState<Workstation>(null);
 
     const handleVerifyClient = async (credentials: ShopVerificationParams) => {
         setError('');
@@ -76,7 +64,7 @@ const ClientVerification = () => {
         }
     };
 
-    const fetchShops = async (clientId) => {
+    const fetchShops = async (clientId: string) => {
         setLoading(true);
         try {
             const response = await shopsService.listByClient(clientId);
@@ -88,13 +76,13 @@ const ClientVerification = () => {
         }
     };
 
-    const handleShopSelect = async (shop) => {
+    const handleShopSelect = async (shop: IShop) => {
         setSelectedShop(shop);
         setError('');
         setLoading(true);
 
         try {
-            const stationsList = await workstationsService.list({ shopId: shop.id });
+            const stationsList = await workstationsService.listByShopCode(shop.shopCode);
             setWorkstations(stationsList);
             setCurrentStep(3);
         } catch (err) {
@@ -104,7 +92,7 @@ const ClientVerification = () => {
         }
     };
 
-    const handleWorkstationSelect = (workstation) => {
+    const handleWorkstationSelect = (workstation: Workstation) => {
         setSelectedWorkstation(workstation);
         setError('');
     };
@@ -119,7 +107,11 @@ const ClientVerification = () => {
         setError('');
 
         try {
-            await workstationsService.setPrimary(selectedWorkstation.id);
+            await settingsService.store({
+                clientUuid: verifiedClient.uuid,
+                shopUuid: selectedShop.uuid,
+                workstationUuid: selectedWorkstation.uuid
+            });
             setSuccess('Machine configuration completed successfully!');
             setCurrentStep(4);
         } catch (err) {
@@ -130,25 +122,17 @@ const ClientVerification = () => {
     };
 
     const resetProcess = () => {
-        setCurrentStep(1);
-        registerProps.clientId = ''
-        registerProps.authKey = ''
-        setVerifiedClient(null);
-        setShops([]);
-        setSelectedShop(null);
-        setWorkstations([]);
-        setSelectedWorkstation(null);
-        setError('');
-        setSuccess('');
+        navigate(ROUTES.LOGIN)
     };
 
     return (
         <AuthLayout className="max-w-6xl">
             <div className="p-6">
+                {success && currentStep !== 4 && <SuccessAlert message={success} />}
+
                 <StepIndicator currentStep={currentStep} />
 
                 {error && <ErrorAlert message={error} />}
-                {success && currentStep !== 4 && <SuccessAlert message={success} />}
 
                 {currentStep === 1 && (
                     <ClientVerificationStep
@@ -162,7 +146,6 @@ const ClientVerification = () => {
                     <ShopSelectionStep
                         shops={shops}
                         onShopSelect={handleShopSelect}
-                        loading={loading}
                     />
                 )}
 

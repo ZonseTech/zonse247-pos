@@ -51,9 +51,9 @@ export class WorkstationService {
         }
     }
 
-    static async getWorkstationByShopId(shopId: string): Promise<Workstation[]> {
+    static async getWorkstationByShopCode(shopCode: string): Promise<Workstation[]> {
         try {
-            return await WorkstationModel.findByShopId(shopId);
+            return await WorkstationModel.findByShopCode(shopCode);
         } catch (error) {
             throw new Error(`Failed to retrieve workstations: ${error}`);
         }

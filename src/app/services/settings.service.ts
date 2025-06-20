@@ -1,24 +1,30 @@
 import api from './http.service';
 
 const endpoints: Record<string, string> = {
-	all: 'settings/get',
+	all: 'settings',
 	store: 'settings/post',
 };
 
 const settingsService = {
 	endpoints,
+
 	async list(query = {}): Promise<Setting> {
 		return api
-			.get<Setting>(endpoints.all, query)
-			.then((res) => res.data)
+			.get<ApiResponse<Setting>>(endpoints.all, query)
+			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
 			});
 	},
-	async store(data: Setting): Promise<Setting> {
+
+	async store(params: {
+		clientUuid: string,
+		shopUuid: string,
+		workstationUuid: string
+	}): Promise<Setting> {
 		return api
-			.post(endpoints.store, data)
-			.then((res) => res.data)
+			.post<ApiResponse<Setting>>(endpoints.store, params as any)
+			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
 			});

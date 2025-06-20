@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import api from './http.service';
 
 const endpoints: Record<string, string> = {
@@ -7,7 +8,8 @@ const endpoints: Record<string, string> = {
     show: 'workstations/workstation',
     delete: 'workstations/workstation',
     sync: 'workstations/sync',
-    status: 'workstations/status'
+    status: 'workstations/status',
+    list_by_shop: 'shop'
 };
 
 const workstationsService = {
@@ -18,6 +20,16 @@ const workstationsService = {
             .then((res) => res.data.data as Array<Workstation>)
             .catch((err) => {
                 throw err;
+            });
+    },
+
+
+    async listByShopCode(shopCode: string): Promise<Array<Workstation>> {
+        return api
+            .get<ApiResponse<Array<Workstation>>>(endpoints.list_by_shop + '/' + shopCode + '/workstations')
+            .then((res) => res.data.data)
+            .catch((err: AxiosError) => {
+                throw err?.response?.data;
             });
     },
 
@@ -77,7 +89,7 @@ const workstationsService = {
 
     async setPrimary(id: string): Promise<Workstation> {
         return api
-            .put<Workstation>(`${endpoints.update}/${id}`, { is_primary: true } as any)
+            .put<Workstation>(`${endpoints.update}/${id}`, { isPrimary: true } as any)
             .then((res) => res.data)
             .catch((err) => {
                 throw err;
