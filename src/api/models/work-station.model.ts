@@ -8,6 +8,14 @@ export class WorkstationModel {
         return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { clientId });
     }
 
+    static async findByShopId(shopId: string): Promise<Workstation[]> {
+        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { shopId });
+    }
+
+    static async findWhere(conditions: Record<string, any>): Promise<Workstation[]> {
+        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, conditions);
+    }
+
     static async findByShopCode(shopCode: string): Promise<Workstation[]> {
         return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { shopCode });
     }

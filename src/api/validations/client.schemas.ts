@@ -115,5 +115,17 @@ export const clientValidationSchemas = {
             .messages({
                 'string.max': 'Search term must not exceed {#limit} characters'
             })
-    })
+    }),
+
+    id: Joi.object({
+        id: Joi.string().required().messages({
+            'any.required': 'Client ID is required',
+        }),
+    }),
+
+    clientId: Joi.object({
+        clientId: Joi.string().required().messages({
+            'any.required': 'Client ID is required',
+        }),
+    }),
 };

@@ -29,6 +29,8 @@ import { userValidationSchemas } from '../validations/user.schemas'
 import { OnboardingController } from '../controllers/onboarding.controller'
 import { ClientController } from '../controllers/client.controller'
 import { clientValidationSchemas } from '../validations/client.schemas'
+import { ShopController } from '../controllers/shop.controller'
+import { shopValidationSchemas } from '../validations/shopValidationSchemas'
 
 const router = Router();
 const authMiddleware = new AuthMiddleware();
@@ -55,6 +57,18 @@ router.post(
     asyncHandler(ClientController.verify)
 );
 
+router.get(
+    '/client/:clientId/shops',
+    validateParams(clientValidationSchemas.clientId),
+    asyncHandler(ClientController.getClientShops)
+);
+
+router.get(
+    '/auth/shop/:shopId/workstations',
+    validateParams(shopValidationSchemas.shopId),
+    asyncHandler(ShopController.getShopWorkstations)
+);
+
 router.post(
     '/auth/refresh-token',
     authLimiter,
@@ -68,13 +82,15 @@ router.post(
     asyncHandler(UserController.verifyToken)
 );
 
-router.use('/on-boarding', authLimiter, asyncHandler(OnboardingController.getOnboardingStatus));
+router.use(
+    '/on-boarding',
+    authLimiter,
+    asyncHandler(OnboardingController.getOnboardingStatus)
+);
 
 router.get(
     '/auth/logout/:id',
-    authMiddleware.verifyToken,
     validateParams(userValidationSchemas.id),
-    authMiddleware.verifyOwnership,
     asyncHandler(UserController.logout)
 );
 
