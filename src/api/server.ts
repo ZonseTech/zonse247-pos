@@ -23,29 +23,7 @@ import {
 	helmetConfig,
 	limitRequestSize,
 } from './middlewares/security.middleware';
-import {
-	CategoriesRoutes,
-	ClientsRoutes,
-	OnboardingRoutes,
-	CustomersRoutes,
-	DashboardRoutes,
-	DatabaseExportRoutes,
-	HoldOrdersRoutes,
-	InventoryRoutes,
-	MigrationRoutes,
-	PaymentMethodRoutes,
-	PrinterRoutes,
-	SettingsRoutes,
-	SyncRoutes,
-	TransactionsRoutes,
-	UsersRoutes,
-	SubscriptionsRoutes,
-	ShopsRoutes,
-	WorkStationRoutes,
-	RoleRoutes,
-	PermissionRoutes,
-	RolePermissionRoutes
-} from './routes';
+import ApiRoutes from './routes';
 
 class Server {
 	private server: HttpServer;
@@ -103,27 +81,7 @@ class Server {
 			});
 		});
 
-		this.app.use('/api/sync', SyncRoutes);
-		this.app.use('/api/export', DatabaseExportRoutes);
-		this.app.use('/api/on-boarding', OnboardingRoutes);
-		this.app.use('/api/users', UsersRoutes);
-		this.app.use('/api/dashboard', DashboardRoutes);
-		this.app.use('/api/printers', PrinterRoutes);
-		this.app.use('/api/settings', SettingsRoutes);
-		this.app.use('/api/inventory', InventoryRoutes);
-		this.app.use('/api/customers', CustomersRoutes);
-		this.app.use('/api/categories', CategoriesRoutes);
-		this.app.use('/api/payment-methods', PaymentMethodRoutes);
-		this.app.use('/api/migration', MigrationRoutes);
-		this.app.use('/api/transactions', TransactionsRoutes);
-		this.app.use('/api/hold-orders', HoldOrdersRoutes);
-		this.app.use('/api/clients', ClientsRoutes);
-		this.app.use('/api/shops', ShopsRoutes);
-		this.app.use('/api/subscriptions', SubscriptionsRoutes);
-		this.app.use('/api/workstations', WorkStationRoutes);
-		this.app.use('/api/roles', RoleRoutes);
-		this.app.use('/api/permissions', PermissionRoutes);
-		this.app.use('/api/role-permissions', RolePermissionRoutes);
+		this.app.use('/api/v1', ApiRoutes);
 
 		this.app.use((req: Request, res: Response) => {
 			res.status(404).json({

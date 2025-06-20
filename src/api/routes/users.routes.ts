@@ -2,12 +2,6 @@ import { Router } from 'express';
 import { UserController } from '../controllers/user.controller';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import {
-	preventSQLInjection,
-	preventXSS,
-	sanitizeInput,
-} from '../middlewares/security.middleware';
-import {
-	authLimiter,
 	createAccountLimiter,
 	createUserSpecificLimiter,
 	generalLimiter,
@@ -22,46 +16,15 @@ import { asyncHandler } from '../middlewares/error.middleware';
 const router = Router();
 const authMiddleware = new AuthMiddleware();
 
-router.use(sanitizeInput);
-router.use(preventSQLInjection);
-router.use(preventXSS);
+router.use(generalLimiter);
 
 router.get('/', asyncHandler(UserController.healthCheck));
-router.post(
-	'/login',
-	authLimiter,
-	validateBody(userValidationSchemas.loginUser),
-	asyncHandler(UserController.login)
-);
-
-router.post(
-	'/refresh-token',
-	authLimiter,
-	validateBody(userValidationSchemas.refreshToken),
-	asyncHandler(UserController.refreshToken)
-);
-
-router.post(
-	'/verify-token',
-	authLimiter,
-	asyncHandler(UserController.verifyToken)
-);
-
-router.use(authMiddleware.verifyToken);
-router.use(generalLimiter);
 
 router.get(
 	'/profile/:id',
 	validateParams(userValidationSchemas.userId),
 	authMiddleware.verifyOwnership,
 	asyncHandler(UserController.show)
-);
-
-router.get(
-	'/logout/:id',
-	validateParams(userValidationSchemas.id),
-	authMiddleware.verifyOwnership,
-	asyncHandler(UserController.logout)
 );
 
 router.put(

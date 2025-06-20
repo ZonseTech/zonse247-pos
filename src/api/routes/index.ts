@@ -1,22 +1,94 @@
-export { default as CategoriesRoutes } from './categories.routes'
-export { default as CustomersRoutes } from './customers.routes'
-export { default as DashboardRoutes } from './dashboard.routes'
-export { default as DatabaseExportRoutes } from './database-export.routes'
-export { default as HoldOrdersRoutes } from './hold-orders.routes'
-export { default as InventoryRoutes } from './inventory.routes'
-export { default as MigrationRoutes } from './migration.routes'
-export { default as OnboardingRoutes } from './onboarding.routes'
-export { default as OrdersRoutes } from './orders.routes'
-export { default as PaymentMethodRoutes } from './payment-method.routes'
-export { default as PrinterRoutes } from './printer.routes'
-export { default as SettingsRoutes } from './settings.routes'
-export { default as SyncRoutes } from './sync.routes'
-export { default as TransactionsRoutes } from './transactions.routes'
-export { default as UsersRoutes } from './users.routes'
-export { default as ClientsRoutes } from './client.routes'
-export { default as SubscriptionsRoutes } from './subscription.routes'
-export { default as ShopsRoutes } from './shop.routes'
-export { default as WorkStationRoutes } from './workstations.routes'
-export { default as RoleRoutes } from './role.routes'
-export { default as PermissionRoutes } from './permission.routes'
-export { default as RolePermissionRoutes } from './role-permission.routes'
+import { Router } from 'express'
+import CategoriesRoutes from './categories.routes'
+import CustomersRoutes from './customers.routes'
+import DashboardRoutes from './dashboard.routes'
+import DatabaseExportRoutes from './database-export.routes'
+import HoldOrdersRoutes from './hold-orders.routes'
+import InventoryRoutes from './inventory.routes'
+import MigrationRoutes from './migration.routes'
+import PaymentMethodRoutes from './payment-method.routes'
+import PrinterRoutes from './printer.routes'
+import SettingsRoutes from './settings.routes'
+import SyncRoutes from './sync.routes'
+import TransactionsRoutes from './transactions.routes'
+import UsersRoutes from './users.routes'
+import ClientsRoutes from './client.routes'
+import SubscriptionsRoutes from './subscription.routes'
+import ShopsRoutes from './shop.routes'
+import WorkStationRoutes from './workstations.routes'
+import RoleRoutes from './role.routes'
+import PermissionRoutes from './permission.routes'
+import RolePermissionRoutes from './role-permission.routes'
+import { AuthMiddleware } from '../middlewares/auth.middleware'
+import { preventSQLInjection, preventXSS, sanitizeInput } from '../middlewares/security.middleware'
+import { asyncHandler } from '../middlewares/error.middleware'
+import { UserController } from '../controllers/user.controller'
+import { authLimiter } from '../middlewares/rate-limit.middleware'
+import { validateBody, validateParams } from '../middlewares/validation.middleware'
+import { userValidationSchemas } from '../validations/user.schemas'
+import { OnboardingController } from '../controllers/onboarding.controller'
+
+const router = Router();
+const authMiddleware = new AuthMiddleware();
+
+router.use(sanitizeInput);
+router.use(preventSQLInjection);
+router.use(preventXSS);
+
+router.use((req, res, next) => {
+    next();
+});
+
+router.post(
+    '/auth/login',
+    authLimiter,
+    validateBody(userValidationSchemas.loginUser),
+    asyncHandler(UserController.login)
+);
+
+router.post(
+    '/auth/refresh-token',
+    authLimiter,
+    validateBody(userValidationSchemas.refreshToken),
+    asyncHandler(UserController.refreshToken)
+);
+
+router.post(
+    '/auth/verify-token',
+    authLimiter,
+    asyncHandler(UserController.verifyToken)
+);
+
+router.use('/on-boarding', authLimiter, OnboardingController.getOnboardingStatus);
+
+
+router.get(
+    '/auth/logout/:id',
+    authMiddleware.verifyToken,
+    validateParams(userValidationSchemas.id),
+    authMiddleware.verifyOwnership,
+    asyncHandler(UserController.logout)
+);
+
+router.use('/export', authMiddleware.verifyToken, DatabaseExportRoutes);
+router.use('/sync', authMiddleware.verifyToken, SyncRoutes);
+router.use('/users', authMiddleware.verifyToken, UsersRoutes);
+router.use('/dashboard', authMiddleware.verifyToken, DashboardRoutes);
+router.use('/printers', authMiddleware.verifyToken, PrinterRoutes);
+router.use('/settings', authMiddleware.verifyToken, SettingsRoutes);
+router.use('/inventory', authMiddleware.verifyToken, InventoryRoutes);
+router.use('/customers', authMiddleware.verifyToken, CustomersRoutes);
+router.use('/categories', authMiddleware.verifyToken, CategoriesRoutes);
+router.use('/payment-methods', authMiddleware.verifyToken, PaymentMethodRoutes);
+router.use('/migration', authMiddleware.verifyToken, MigrationRoutes);
+router.use('/transactions', authMiddleware.verifyToken, TransactionsRoutes);
+router.use('/hold-orders', authMiddleware.verifyToken, HoldOrdersRoutes);
+router.use('/clients', authMiddleware.verifyToken, ClientsRoutes);
+router.use('/shops', authMiddleware.verifyToken, ShopsRoutes);
+router.use('/subscriptions', authMiddleware.verifyToken, SubscriptionsRoutes);
+router.use('/workstations', authMiddleware.verifyToken, WorkStationRoutes);
+router.use('/roles', authMiddleware.verifyToken, RoleRoutes);
+router.use('/permissions', authMiddleware.verifyToken, PermissionRoutes);
+router.use('/role-permissions', authMiddleware.verifyToken, RolePermissionRoutes);
+
+export default router
