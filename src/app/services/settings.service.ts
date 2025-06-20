@@ -17,6 +17,15 @@ const settingsService = {
 			});
 	},
 
+	async load(): Promise<Setting> {
+		return api
+			.get<ApiResponse<Setting>>(endpoints.all)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+
 	async store(params: {
 		clientUuid: string,
 		shopUuid: string,

@@ -22,3 +22,35 @@ export async function withRetry<T>(
 
 	throw lastError!;
 }
+
+export const isRetryableError = (error) => {
+	const retryableErrors = [
+		'NetworkError',
+		'Request timeout',
+		'Failed to fetch',
+		'ERR_NETWORK',
+		'ERR_INTERNET_DISCONNECTED'
+	]
+
+	return retryableErrors.some(retryableError =>
+		error.message?.includes(retryableError) || error.name === retryableError
+	)
+}
+
+export const validateSettingsResponse = (settings) => {
+	if (!settings) return false
+
+	const requiredFields = ['id', 'status']
+
+	if (typeof settings === 'object' && !Array.isArray(settings)) {
+		return requiredFields.every(field => settings.hasOwnProperty(field))
+	}
+
+	if (Array.isArray(settings)) {
+		return settings.length > 0 && requiredFields.every(field =>
+			settings[0].hasOwnProperty(field)
+		)
+	}
+
+	return false
+}
