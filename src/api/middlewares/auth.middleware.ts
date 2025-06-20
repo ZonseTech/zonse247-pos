@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from 'express';
 
 declare module 'express' {
 	interface Request {
-		user?: any;
+		auth?: User;
 	}
 }
 
@@ -30,7 +30,7 @@ export class AuthMiddleware {
 
 		try {
 			const decoded = jwt.verify(token, this.config.jwt.secret);
-			req.user = decoded;
+			req.auth = decoded as User;
 			next();
 		} catch (error) {
 			let message = 'Invalid or expired token';

@@ -54,7 +54,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
     const signin = async (data: AuthProps) => {
         try {
-            const result = await api.post<ApiResponse<LoginResponse>>('users/login', data as any)
+            const result = await api.post<ApiResponse<LoginResponse>>('auth/login', data as any)
                 .then((res) => res.data);
 
             if (result?.data.token) {
@@ -115,7 +115,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
             diagOptions.cancelButtonText,
             async () => {
                 try {
-                    await api.get('users/logout/' + (user as User).uuid)
+                    await api.get('auth/logout/' + user?.uuid)
                         .then((() => {
                             setUser(null);
                             setAuth(null);
