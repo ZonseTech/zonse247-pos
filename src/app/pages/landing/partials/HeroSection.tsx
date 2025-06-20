@@ -112,7 +112,7 @@ const HeroSection: FunctionComponent<{ staggerContainer, fadeInUp }> = ({ stagge
 							>
 								<motion.div className="group inline-block">
 									<motion.button
-										className="px-6 py-3 rounded-sm font-semibold flex items-center justify-center space-x-2 transition-all text-[#102f4f] bg-white dark:bg-gray-700 hover:bg-gray-100 relative overflow-hidden"
+										className="px-6 py-3 rounded-sm font-semibold flex items-center justify-center space-x-2 transition-all text-[#102f4f] bg-white dark:bg-gray-200 hover:bg-gray-100 relative overflow-hidden"
 										whileHover={{ scale: 1.05 }}
 										whileTap={{ scale: 0.95 }}
 										animate={{

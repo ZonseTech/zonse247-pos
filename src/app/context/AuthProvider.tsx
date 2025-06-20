@@ -5,6 +5,7 @@ import React, { type PropsWithChildren, createContext, useContext, useEffect, us
 type ContextProps = {
     user: User | null;
     auth: any;
+    isAuthenticated: boolean;
     isLoading: boolean;
     signin: (cb: AuthProps) => Promise<LoginResponse>;
     signup: (cb: AccountActivationProps) => Promise<AccountActivationResponse>;
@@ -14,6 +15,7 @@ type ContextProps = {
 const authContext = createContext<ContextProps>({
     user: null,
     auth: null,
+    isAuthenticated: false,
     isLoading: false,
     signin: async () => ({} as Promise<LoginResponse>),
     signup: async () => ({} as Promise<AccountActivationResponse>),
@@ -26,6 +28,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [auth, setAuth] = useState<string | unknown>(null);
     const [user, setUser] = useState<User | null>(null);
+    const isAuthenticated = !!(user && auth);
 
     useEffect(() => {
         const loadUserToken = async () => {
@@ -138,6 +141,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
         <authContext.Provider value={{
             user,
             auth,
+            isAuthenticated,
             isLoading,
             signin,
             signup,

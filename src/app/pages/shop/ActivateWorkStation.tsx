@@ -75,7 +75,7 @@ const ActivateWorkStation: FunctionComponent = () => {
                 {({ isSubmitting, values }) => (
                     <Form>
                         <div className="mb-3 text-center">
-                            <h1 className="text-gray-700 font-semibold text-xl">
+                            <h1 className="text-gray-700 dark:text-gray-400 font-semibold text-xl">
                                 Activate Workstation
                             </h1>
                             <p className="text-gray-500 text-sm leading mt-2">Set up your POS Workstation in just a few steps</p>
@@ -135,7 +135,7 @@ const ActivateWorkStation: FunctionComponent = () => {
                             Already have an account?{' '}
                             <Link
                                 to={ROUTES.LOGIN}
-                                className="text-[#102f4f] hover:underline cursor-pointer"
+                                className="text-[#102f4f] dark:text-sky-500 hover:underline cursor-pointer"
                             >
                                 Jump right back in!
                             </Link>

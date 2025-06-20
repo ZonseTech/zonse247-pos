@@ -82,7 +82,7 @@ const NavBar: FunctionComponent = () => {
                     iconColor: 'bg-blue-600',
                     text: 'Categories',
                     icon: icons.categories,
-                    onClick: <CategoriesModal />
+                    onClick: <CategoriesModal />,
                 });
             }
         }

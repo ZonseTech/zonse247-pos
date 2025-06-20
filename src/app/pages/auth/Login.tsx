@@ -60,7 +60,7 @@ const Login: FunctionComponent = () => {
                 {({ isSubmitting }) => (
                     <Form>
 
-                        <h1 className="mb-4 text-xl text-center font-semibold text-gray-700">
+                        <h1 className="mb-4 text-xl text-center font-semibold text-gray-700 dark:text-gray-400">
                             Sign in
                         </h1>
 

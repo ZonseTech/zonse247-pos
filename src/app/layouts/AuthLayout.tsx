@@ -102,7 +102,7 @@ const floatingVariants = {
 
 const AuthLayout: FunctionComponent<PropsWithChildren> = ({ children }) => {
     return (
-        <div className="flex bg-gray-50 items-center min-h-screen p-6 relative overflow-hidden">
+        <div className="flex bg-gray-50 dark:bg-gray-700 items-center min-h-screen p-6 relative overflow-hidden">
             <motion.div
                 className="absolute inset-0 opacity-10"
                 initial={{ opacity: 0 }}
@@ -150,7 +150,7 @@ const AuthLayout: FunctionComponent<PropsWithChildren> = ({ children }) => {
             </motion.div>
 
             <motion.div
-                className="flex-1 h-full max-w-4xl mx-auto overflow-hidden bg-white dark:bg-gray-700 rounded-lg shadow-sm"
+                className="flex-1 h-full max-w-4xl mx-auto overflow-hidden border border-gray-500/75 bg-white dark:bg-gray-700 rounded-lg shadow-sm"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
