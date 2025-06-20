@@ -17,6 +17,7 @@ export const TRANSACTIONS_DB = 'transactions';
 export const ORDERS_DB = 'orders';
 export const PAYMENT_METHODS_DB = 'payment_methods';
 export const SHOP_SETTINGS_DB = 'shop_settings';
+export const APP_SETUP_DB = 'app_setup';
 export const SUBSCRIPTION_PLANS_DB = 'subscription_plans';
 export const CLIENT_SUBSCRIPTIONS_DB = 'client_subscriptions';
 export const AUDIT_LOGS_DB = 'audit_logs';
@@ -40,6 +41,7 @@ export default [
 	CLIENT_SUBSCRIPTIONS_DB,
 	AUDIT_LOGS_DB,
 	ROLES_DB,
+	APP_SETUP_DB,
 	PERMISSIONS_DB,
 	ROLE_PERMISSIONS_DB,
 	USER_PERMISSIONS_DB,
@@ -63,6 +65,7 @@ export const TABLE_NAMES = {
 	INVENTORY: 'inventory',
 	TRANSACTIONS: 'transactions',
 	ORDERS: 'orders',
+	APP_SETUP: 'app_setup',
 	PAYMENT_METHODS: 'payment_methods',
 	SHOP_SETTINGS: 'shop_settings',
 	SUBSCRIPTION_PLANS: 'subscription_plans',

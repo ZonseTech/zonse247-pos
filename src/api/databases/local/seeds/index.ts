@@ -1,4 +1,5 @@
 import {
+	APP_SETUP_DB,
 	CATEGORIES_DB,
 	CLIENT_SUBSCRIPTIONS_DB,
 	CLIENTS_DB,
@@ -422,6 +423,26 @@ const checkOrCreateDefaultCustomer = async () => {
 	}
 };
 
+const checkOrCreateSetupStatus = async () => {
+	try {
+		const setup = await sealDBModel.findById(APP_SETUP_DB, '-1');
+
+		if (setup) return;
+
+		const setupData: SetupParams = {
+			uuid: '-1',
+			isCompleted: false,
+			accountActivated: false,
+			shopConfigured: false,
+			workstationSetup: false,
+		};
+
+		await sealDBModel.insert(APP_SETUP_DB, setupData);
+	} catch (err) {
+		console.error(err);
+	}
+};
+
 async function checkOrCreateDefaultSettings(): Promise<void> {
 	try {
 		const settings = await sealDBModel.findById(SHOP_SETTINGS_DB, '-1');
@@ -520,6 +541,8 @@ const seedDatabase = async () => {
 		checkAndCreateDefaultCategory();
 		checkOrCreateDefaultPaymentMethods();
 		checkOrCreateDefaultSettings();
+		checkOrCreateSetupStatus();
+
 		console.log('Seed migrated successfully');
 		return true;
 	} catch (error) {

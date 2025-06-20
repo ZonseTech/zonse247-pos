@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { sealDBModel } from "../databases/local";
-import { CLIENTS_DB, SHOP_SETTINGS_DB, SHOPS_DB, WORKSTATIONS_DB } from "../databases/local/tables";
+import { APP_SETUP_DB, CLIENTS_DB, SHOP_SETTINGS_DB, SHOPS_DB, WORKSTATIONS_DB } from "../databases/local/tables";
 
 export class SettingsModel {
     static async findByContext(clientUuid: string, shopUuid: string, workstationUuid: string): Promise<Setting[]> {
@@ -50,6 +50,16 @@ export class SettingsModel {
         }
     }
 
+    static async getAppSetup(): Promise<SetupParams> {
+        try {
+            const setup = await sealDBModel.findById<SetupParams>(APP_SETUP_DB, '-1');
+            return setup;
+        } catch (error) {
+            console.error('Error finding app setup:', error);
+            throw error;
+        }
+    }
+
     static async create(params: CreateSettingRequest): Promise<WorkstatSettings> {
         try {
             const now = new Date();
@@ -84,6 +94,24 @@ export class SettingsModel {
             return await sealDBModel.insert(SHOP_SETTINGS_DB, setting);
         } catch (error) {
             console.error('Error creating setting:', error);
+            throw error;
+        }
+    }
+
+    static async updateSetup(): Promise<boolean> {
+        try {
+            const uuid = '-1';
+            const updateData = {
+                isCompleted: true,
+                accountActivated: true,
+                shopConfigured: true,
+                workstationSetup: true,
+            }
+
+            const numUpdated = await sealDBModel.update(APP_SETUP_DB, uuid, updateData);
+            return numUpdated > 0;
+        } catch (error) {
+            console.error('Error updating setup setting:', error);
             throw error;
         }
     }

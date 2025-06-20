@@ -4,14 +4,14 @@ import settingsService from "../services/settings.service"
 import { isRetryableError, validateSettingsResponse } from "../utils/retryHelper"
 
 export const useAppInitialization = () => {
-    const [state, setState] = useState({
+    const [state, setState] = useState<InitializationState>({
         isAccountVerified: false,
         isLoading: true,
         error: null,
         retryCount: 0,
     })
 
-    const initializeApp = useCallback(async (attemptNumber = 1) => {
+    const initializeApp = useCallback(async (attemptNumber = 1): Promise<InitializationResult> => {
         try {
             setState(prev => ({
                 ...prev,
@@ -20,20 +20,23 @@ export const useAppInitialization = () => {
                 retryCount: attemptNumber - 1
             }))
 
-            const timeoutPromise = new Promise((_, reject) =>
+            const timeoutPromise = new Promise<never>((_, reject) =>
                 setTimeout(() => reject(new Error('Request timeout')), INIT_CONFIG.TIMEOUT_DURATION)
             )
 
-            const settings = await Promise.race([
-                settingsService.list(),
+            const settingsPromise = settingsService.load()
+            const setupPromise = settingsService.setup()
+
+            const [settings, setup] = await Promise.race([
+                Promise.all([settingsPromise, setupPromise]),
                 timeoutPromise
             ])
 
-            const isVerified = validateSettingsResponse(settings as WorkstatSettings)
+            const isVerified = validateSettingsResponse(settings)
 
             setState(prev => ({
                 ...prev,
-                isAccountVerified: isVerified,
+                isAccountVerified: setup?.isCompleted || false,
                 isLoading: false,
                 error: null,
             }))
@@ -44,19 +47,23 @@ export const useAppInitialization = () => {
             console.error(`App initialization attempt ${attemptNumber} failed:`, error)
 
             if (attemptNumber < INIT_CONFIG.MAX_RETRY_ATTEMPTS && isRetryableError(error)) {
-                await new Promise(resolve => setTimeout(resolve, INIT_CONFIG.RETRY_DELAY * attemptNumber))
+                await new Promise(resolve =>
+                    setTimeout(resolve, INIT_CONFIG.RETRY_DELAY * Math.pow(2, attemptNumber - 1))
+                )
                 return initializeApp(attemptNumber + 1)
             }
+
+            const errorMessage = error instanceof Error ? error.message : 'Failed to initialize application'
 
             setState(prev => ({
                 ...prev,
                 isAccountVerified: false,
                 isLoading: false,
-                error: error.message || 'Failed to initialize application',
+                error: errorMessage,
                 retryCount: attemptNumber - 1,
             }))
 
-            return { success: false, error: error.message }
+            return { success: false, error: errorMessage }
         }
     }, [])
 
@@ -64,5 +71,9 @@ export const useAppInitialization = () => {
         initializeApp()
     }, [initializeApp])
 
-    return { ...state, initializeApp, retry }
+    return {
+        ...state,
+        initializeApp,
+        retry
+    }
 }

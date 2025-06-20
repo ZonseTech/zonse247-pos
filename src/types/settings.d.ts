@@ -28,6 +28,14 @@ interface Settings {
     settings: Setting;
 }
 
+interface SetupParams {
+    uuid: string;
+    isCompleted: boolean;
+    accountActivated: boolean;
+    shopConfigured: boolean;
+    workstationSetup: boolean;
+}
+
 interface Setting {
     uuid: string;
     clientUuid: string;
@@ -60,4 +68,17 @@ interface UpdateSettingRequest {
     value: string | number | boolean;
     description?: string;
     isActive?: boolean;
+}
+
+interface InitializationState {
+    isAccountVerified: boolean
+    isLoading: boolean
+    error: string | null
+    retryCount: number
+}
+
+interface InitializationResult {
+    success: boolean
+    verified?: boolean
+    error?: string
 }

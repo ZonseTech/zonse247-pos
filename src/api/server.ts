@@ -71,7 +71,7 @@ class Server {
 	}
 
 	private setupRoutes() {
-		this.app.get('/api/health', (req: Request, res: Response) => {
+		this.app.get('/api/v1/health', (req: Request, res: Response) => {
 			res.json({
 				success: true,
 				message: 'Server is running',

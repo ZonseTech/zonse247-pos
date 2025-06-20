@@ -1,6 +1,7 @@
 import api from './http.service';
 
-const endpoints: Record<string, string> = {
+const endpoints = {
+	setup: 'setup',
 	all: 'settings',
 	store: 'settings/post',
 };
@@ -17,9 +18,18 @@ const settingsService = {
 			});
 	},
 
-	async load(): Promise<Setting> {
+	async load(): Promise<WorkstatSettings> {
 		return api
-			.get<ApiResponse<Setting>>(endpoints.all)
+			.get<ApiResponse<WorkstatSettings>>(endpoints.all)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+
+	async setup(): Promise<SetupParams> {
+		return api
+			.get<ApiResponse<SetupParams>>(endpoints.setup)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;

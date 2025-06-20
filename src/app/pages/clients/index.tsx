@@ -21,7 +21,7 @@ const ClientManagement: FunctionComponent = () => {
                         </div>
                         <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
-                                {row?.company_name}
+                                {row?.companyName}
                             </div>
                             <div className="text-sm text-gray-500">
                                 ID: {row?.clientId}
@@ -37,7 +37,7 @@ const ClientManagement: FunctionComponent = () => {
                 <Fragment>
                     <div>
                         <div className="text-sm font-medium text-gray-900 flex items-center">
-                            {row?.owner_name}
+                            {row?.ownerName}
                         </div>
                         <div className="text-sm text-gray-500 flex items-center mt-1">
                             <Mail className="w-3 h-3 mr-1" />
@@ -74,12 +74,12 @@ const ClientManagement: FunctionComponent = () => {
             cell: (row) => (
                 <Fragment>
                     <div>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSubscriptionStatusColor(row?.subscription_status)}`}>
-                            {row?.subscription_status?.charAt(0)?.toUpperCase() + row?.subscription_status?.slice(1)}
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSubscriptionStatusColor(row?.subscriptionStatus)}`}>
+                            {row?.subscriptionStatus?.charAt(0)?.toUpperCase() + row?.subscriptionStatus?.slice(1)}
                         </span>
-                        {row?.subscription_status === 'trial' && row?.trial_ends_at && (
+                        {row?.subscriptionStatus === 'trial' && row?.trialEndsAt && (
                             <div className="text-xs text-gray-500 mt-1">
-                                Ends: {new Date(row.trial_ends_at).toLocaleDateString()}
+                                Ends: {new Date(row.trialEndsAt).toLocaleDateString()}
                             </div>
                         )}
                     </div>
@@ -129,7 +129,7 @@ const ClientManagement: FunctionComponent = () => {
                         </button>
 
                         <button
-                            onClick={() => handleDelete(row?.uuid, row?.company_name)}
+                            onClick={() => handleDelete(row?.uuid, row?.companyName)}
                             disabled={row.uuid === '-1'}
                             className={`p-1 rounded transition-colors ${row.uuid === '-1'
                                 ? 'text-gray-500'
@@ -166,8 +166,8 @@ const ClientManagement: FunctionComponent = () => {
             setFilteredClients(clients);
         } else {
             const filtered = clients.filter(client =>
-                client.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                client.owner_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                client.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                client.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 client.clientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 client.country?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -253,7 +253,7 @@ const ClientManagement: FunctionComponent = () => {
 
         Confirm.show(
             `${action.charAt(0).toUpperCase() + action.slice(1)} Client`,
-            `Are you sure you want to ${action} the client "${client?.company_name}"?`,
+            `Are you sure you want to ${action} the client "${client?.companyName}"?`,
             `Yes, ${action.charAt(0).toUpperCase() + action.slice(1)}`,
             'Cancel',
             async () => {

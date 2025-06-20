@@ -32,6 +32,7 @@ import { clientValidationSchemas } from '../validations/client.schemas'
 import { ShopController } from '../controllers/shop.controller'
 import { shopValidationSchemas } from '../validations/shopValidationSchemas'
 import { ClientMiddleware } from '../middlewares/client.middleware'
+import { SettingsController } from '../controllers/settings.controller'
 
 const router = Router();
 const authMiddleware = new AuthMiddleware();
@@ -44,6 +45,12 @@ router.use(preventXSS);
 router.use((req, res, next) => {
     next();
 });
+
+router.get(
+    '/setup',
+    authLimiter,
+    asyncHandler(SettingsController.setup)
+)
 
 router.post(
     '/auth/login',

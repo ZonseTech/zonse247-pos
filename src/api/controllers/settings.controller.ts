@@ -3,6 +3,17 @@ import { SettingsService } from '../services/settings.service';
 import { BaseController } from './base.controller';
 
 export class SettingsController extends BaseController {
+
+    static async setup(req: Request, res: Response): Promise<void> {
+        try {
+            const result = await SettingsService.checkAppSetup();
+            BaseController.sendResponse(res, 200, true, 'Setup retrieved successfully', result);
+        } catch (error) {
+            console.error('', error)
+            BaseController.sendResponse(res, 500, false, 'Internal server error', null, error instanceof Error ? error.message : 'Unknown error');
+        }
+    }
+
     static async getSettings(req: Request, res: Response): Promise<void> {
         try {
             const result = await SettingsService.getSettings();
@@ -24,7 +35,7 @@ export class SettingsController extends BaseController {
             }
 
             const result = await SettingsService.store({ clientUuid, shopUuid, workstationUuid });
-
+            await SettingsService.updateSetupConfigurations();
             BaseController.sendResponse(res, 201, true, 'Settings created successfully', result);
         } catch (error) {
             console.error('Error in settings controller - createSettings:', error);

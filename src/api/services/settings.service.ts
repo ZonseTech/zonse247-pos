@@ -1,6 +1,15 @@
 import { SettingsModel } from "../models/settings.model";
 
 export class SettingsService {
+    static async checkAppSetup(): Promise<SetupParams> {
+        try {
+            return await SettingsModel.getAppSetup();
+        } catch (error) {
+            console.error('Error in app setup service - checkAppSetup:', error);
+            throw error;
+        }
+    }
+
     static async getSettings(): Promise<WorkstatSettings> {
         try {
             return await SettingsModel.getSettingsGroup();
@@ -13,6 +22,15 @@ export class SettingsService {
     static async store(settingsData: CreateSettingRequest): Promise<WorkstatSettings> {
         try {
             return await SettingsModel.create(settingsData);
+        } catch (error) {
+            console.error('Error in settings service - createOrUpdateSettings:', error);
+            throw error;
+        }
+    }
+
+    static async updateSetupConfigurations(): Promise<boolean> {
+        try {
+            return await SettingsModel.updateSetup();
         } catch (error) {
             console.error('Error in settings service - createOrUpdateSettings:', error);
             throw error;
