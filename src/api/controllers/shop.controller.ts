@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { BaseController } from "./base.controller";
 import { ShopService } from "../services/shop.service";
+import { WorkstationService } from "../services/workstation.service";
 
 export class ShopController extends BaseController {
 
@@ -12,6 +13,24 @@ export class ShopController extends BaseController {
         } catch (error: any) {
             console.error('Error fetching shops:', error);
             BaseController.sendResponse(res, 500, false, error.message, undefined, error.message);
+        }
+    }
+
+    static async getShopWorkstations(req: Request<{ shopId: string }, ApiResponse<Array<Workstation>>>, res: Response): Promise<void> {
+        try {
+            const { shopId } = req.params;
+
+            const workstations = await WorkstationService.getWorkstationByShopId(shopId)
+
+            BaseController.sendResponse(
+                res, 200, true,
+                'Workstations retrieved successfully',
+                workstations
+            );
+        } catch (error: any) {
+            console.error('Error fetching shop workstations:', error);
+            BaseController.sendResponse(res, 500, false, error.message, undefined, error.message);
+
         }
     }
 

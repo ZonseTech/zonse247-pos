@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { BaseController } from "./base.controller";
 import { ClientService } from "../services/client.service";
+import { ShopService } from "../services/shop.service";
 
 export class ClientController extends BaseController {
     constructor() {
@@ -134,6 +135,18 @@ export class ClientController extends BaseController {
 
             const statusCode = error.message.includes('Invalid credentials') ? 401 : 500;
             BaseController.sendResponse(res, statusCode, false, error.message, undefined, error.message);
+        }
+    }
+
+    static async getClientShops(req: Request<{ clientId: string }>, res: Response): Promise<void> {
+        try {
+            const { clientId } = req.params;
+
+            const shops = await ShopService.getShopByClientId(clientId);
+            BaseController.sendResponse(res, 200, true, 'Client Shops retrieved successfully', shops);
+        } catch (error: any) {
+            console.error('Error fetching client shops:', error);
+            BaseController.sendResponse(res, 500, false, error.message, undefined, error.message);
         }
     }
 
