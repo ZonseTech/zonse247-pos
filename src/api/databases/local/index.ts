@@ -7,6 +7,7 @@ import tables, {
 	PERMISSIONS_DB,
 	ROLE_PERMISSIONS_DB,
 	ROLES_DB,
+	SHOP_SETTINGS_DB,
 	SYNC_STATUS_TABLE,
 	TRANSACTIONS_DB,
 	USERS_DB,
@@ -403,6 +404,11 @@ export class SealDBModel {
 					case ROLE_PERMISSIONS_DB:
 						db.ensureIndex({ fieldName: 'roleUuid' });
 						db.ensureIndex({ fieldName: 'permissionUuid' });
+						break;
+					case SHOP_SETTINGS_DB:
+						db.ensureIndex({ fieldName: 'clientUuid' });
+						db.ensureIndex({ fieldName: 'shopUuid' });
+						db.ensureIndex({ fieldName: 'workstationUuid' });
 						break;
 				}
 				console.log(`Ensured indexes for table: ${tableName}`);

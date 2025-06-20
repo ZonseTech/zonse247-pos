@@ -11,6 +11,7 @@ export interface Config {
 		version: string;
 		description: string;
 		users: string;
+		contact: string;
 		license: string;
 	},
 	server: {
@@ -96,6 +97,7 @@ const config: Config = {
 		description: process.env.APP_DESCRIPTION || 'API for  Zonse247 POS',
 		users: process.env.APP_USERS || 'users',
 		license: process.env.APP_LICENSE || 'MIT',
+		contact: process.env.APP_CONTACT || 'zonse247@gmail.com',
 	},
 	server: {
 		port: parseInteger(process.env.PORT, 3000),

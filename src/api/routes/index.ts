@@ -94,12 +94,17 @@ router.get(
     asyncHandler(UserController.logout)
 );
 
+router.use(
+    '/settings',
+    authLimiter,
+    SettingsRoutes
+);
+
 router.use('/export', authMiddleware.verifyToken, DatabaseExportRoutes);
 router.use('/sync', authMiddleware.verifyToken, SyncRoutes);
 router.use('/users', authMiddleware.verifyToken, UsersRoutes);
 router.use('/dashboard', authMiddleware.verifyToken, DashboardRoutes);
 router.use('/printers', authMiddleware.verifyToken, PrinterRoutes);
-router.use('/settings', authMiddleware.verifyToken, SettingsRoutes);
 router.use('/inventory', authMiddleware.verifyToken, InventoryRoutes);
 router.use('/customers', authMiddleware.verifyToken, CustomersRoutes);
 router.use('/categories', authMiddleware.verifyToken, CategoriesRoutes);

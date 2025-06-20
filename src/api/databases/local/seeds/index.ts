@@ -22,6 +22,7 @@ import { sealDBModel } from '..';
 import { v4 as uuidv4 } from 'uuid';
 import { DEFAULT_PERMISSIONS } from './permission.seed';
 import { DEFAULT_ROLE_PERMISSIONS } from './role-permissions.seed';
+import config from '../../../config';
 
 const tables = [
 	{
@@ -421,6 +422,36 @@ const checkOrCreateDefaultCustomer = async () => {
 	}
 };
 
+async function checkOrCreateDefaultSettings(): Promise<void> {
+	try {
+		const settings = await sealDBModel.findById(SHOP_SETTINGS_DB, '-1');
+
+		if (settings) return;
+
+		const defaultSettings: WorkstatSettings = {
+			uuid: '-1',
+			clientUuid: '-1',
+			shopUuid: '-1',
+			workstationUuid: '-1',
+			app: config.app.name,
+			store: 'Main Till',
+			addressLine1: '123 Business Street',
+			addressLine2: '123 Business Street',
+			country: "Malawi",
+			city: 'Lilongwe',
+			contact: config.app.contact,
+			tax: '0.00',
+			symbol: 'MK',
+			footer: 'Footer',
+			isActive: "active"
+		};
+
+		await sealDBModel.insert(SHOP_SETTINGS_DB, defaultSettings);
+	} catch (err) {
+		console.error(err);
+	}
+}
+
 async function checkAndCreateDefaultCategory(): Promise<void> {
 	try {
 		const category = await sealDBModel.findById(CATEGORIES_DB, '-1');
@@ -488,6 +519,7 @@ const seedDatabase = async () => {
 		checkOrCreateDefaultCustomer();
 		checkAndCreateDefaultCategory();
 		checkOrCreateDefaultPaymentMethods();
+		checkOrCreateDefaultSettings();
 		console.log('Seed migrated successfully');
 		return true;
 	} catch (error) {

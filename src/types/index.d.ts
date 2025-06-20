@@ -1,26 +1,8 @@
-type TAuthTokenProps = {
-	user: User;
-};
-
 interface Till {
 	id: number;
 	uuid: string;
 	name: string;
 }
-
-type AuthUser = {
-	user: User;
-	token: string;
-};
-
-type AuthProps = { username: string; password: string };
-
-interface LoginResponse {
-	token: string;
-	message?: string;
-	user: User;
-}
-
 
 type Mode = 'dark' | 'light' | string;
 
@@ -93,59 +75,6 @@ interface CartItem {
 	variancePrice?: number;
 	quantity: number;
 	categoryDetails?: Category;
-}
-
-interface Setting {
-	uuid: string;
-	app: string;
-	store: string;
-	addressOne: string;
-	addressTwo: string;
-	contact: string;
-	tax: string;
-	symbol: string;
-	percentage: string;
-	chargeTax: boolean;
-	footer: string;
-	img: string | null;
-	remove?: string;
-	file?: string;
-	tillName?: string;
-	synced?: 1 | 0;
-}
-
-interface Settings {
-	synced?: 1 | 0;
-	uuid: string;
-	settings: Setting;
-}
-
-interface SettingsRequestBody {
-	img: string;
-	remove: string;
-	app: string;
-	store: string;
-	addressOne: string;
-	addressTwo: string;
-	contact: string;
-	tax: string;
-	symbol: string;
-	percentage: string;
-	chargeTax: string;
-	footer: string;
-	tillName: string;
-}
-
-interface Customer {
-	uuid: string;
-	name: string;
-	clientId: string;
-	shopId: string;
-	userId: string;
-	phone?: string;
-	email?: string;
-	address?: string;
-	synced?: 0 | 1;
 }
 
 interface AppSettings {

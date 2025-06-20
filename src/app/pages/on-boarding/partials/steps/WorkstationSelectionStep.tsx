@@ -32,7 +32,7 @@ const WorkstationSelectionStep: FunctionComponent<{
                         <div
                             key={workstation.uuid}
                             onClick={() => onWorkstationSelect(workstation)}
-                            className={`p-4 border rounded-lg cursor-pointer transition-colors ${selectedWorkstation.uuid === workstation.uuid
+                            className={`p-4 border rounded-lg cursor-pointer transition-colors ${selectedWorkstation?.uuid === workstation.uuid
                                 ? 'border-blue-500 bg-blue-50'
                                 : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
                                 } ${workstation.status === 'maintenance' ? 'opacity-50' : ''}`}
