@@ -72,6 +72,17 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
         }
     };
 
+    const transformServerErrors = (serverErrors: any[]) => {
+        if (!Array.isArray(serverErrors)) return {};
+
+        return serverErrors.reduce((acc, error) => {
+            if (error.field && error.message) {
+                acc[error.field] = error.message;
+            }
+            return acc;
+        }, {});
+    };
+
     const statusOptions = [
         { label: 'Active', value: UserStatus.ACTIVE },
         { label: 'Inactive', value: UserStatus.INACTIVE },
@@ -146,11 +157,10 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
             .nullable()
     });
 
-    const handleSubmit = async (values: User, { resetForm }: any) => {
+    const handleSubmit = async (values: User, { resetForm, setErrors, setFieldError, setStatus }) => {
         try {
             const submitValues = { ...values };
 
-            // Remove empty password for updates
             if (user && user.uuid && !submitValues.password) {
                 delete submitValues.password;
             }
@@ -177,8 +187,18 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                 onUserSaved();
             }
         } catch (error: any) {
-            console.error('Error saving user:', error);
-            const errorMessage = error?.response?.data?.message || 'An error occurred while saving the user';
+            console.error('Error saving user:', error?.error?.response);
+            const errorMessage = error?.error?.response?.data?.message || 'An error occurred while saving the user';
+            const serverErrors = error?.error?.response?.data?.details || null;
+
+            if (serverErrors && Array.isArray(serverErrors)) {
+                setStatus(null);
+                const formikErrors = transformServerErrors(serverErrors);
+                setErrors(formikErrors);
+            } else {
+                setStatus({ message: errorMessage });
+            }
+
             Notify.failure(errorMessage);
         }
     };
@@ -211,11 +231,16 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                     initialValues={initialUserValues}
                     validationSchema={userValidationSchema}
                 >
-                    {({ isSubmitting, values, setFieldValue }) => (
+                    {({ isSubmitting, values, setFieldValue, status }) => (
                         <Form>
                             <FormWrapper>
+                                {status?.message && (
+                                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                                        {status.message}
+                                    </div>
+                                )}
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {/* Basic Information */}
                                     <div className="space-y-4">
                                         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2">
                                             Basic Information
@@ -269,7 +294,6 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                                         />
                                     </div>
 
-                                    {/* Role and Access */}
                                     <div className="space-y-4">
                                         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2">
                                             Role & Access
@@ -339,7 +363,6 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                                     </div>
                                 </div>
 
-                                {/* Shop Access */}
                                 <div className="mt-6">
                                     <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2 mb-4">
                                         Shop Access
@@ -366,7 +389,6 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                                     </div>
                                 </div>
 
-                                {/* Workstation Access */}
                                 <div className="mt-6">
                                     <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-400 border-b pb-2 mb-4">
                                         Allowed Workstations

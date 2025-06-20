@@ -20,53 +20,52 @@ import { userValidationSchemas } from '../validations/user.schemas';
 import { asyncHandler } from '../middlewares/error.middleware';
 
 const router = Router();
-const userController = new UserController();
 const authMiddleware = new AuthMiddleware();
 
 router.use(sanitizeInput);
 router.use(preventSQLInjection);
 router.use(preventXSS);
 
-router.get('/', userController.getHealthCheck);
-
+router.get('/', asyncHandler(UserController.healthCheck));
 router.post(
 	'/login',
 	authLimiter,
 	validateBody(userValidationSchemas.loginUser),
-	asyncHandler(userController.loginUser)
+	asyncHandler(UserController.login)
 );
 
 router.post(
 	'/refresh-token',
 	authLimiter,
-	asyncHandler(userController.refreshToken)
+	validateBody(userValidationSchemas.refreshToken),
+	asyncHandler(UserController.refreshToken)
 );
 
 router.post(
 	'/verify-token',
 	authLimiter,
-	asyncHandler(userController.verifyToken)
+	asyncHandler(UserController.verifyToken)
 );
 
 router.use(authMiddleware.verifyToken);
 router.use(generalLimiter);
 
 router.get(
-	'/user/:userId',
+	'/profile/:id',
 	validateParams(userValidationSchemas.userId),
 	authMiddleware.verifyOwnership,
-	asyncHandler(userController.getUserById)
+	asyncHandler(UserController.show)
 );
 
 router.get(
-	'/logout/:userId',
+	'/logout/:id',
 	validateParams(userValidationSchemas.userId),
 	authMiddleware.verifyOwnership,
-	asyncHandler(userController.logoutUser)
+	asyncHandler(UserController.logout)
 );
 
 router.put(
-	'/update/:userId',
+	'/profile/:id',
 	validateParams(userValidationSchemas.userId),
 	validateBody(userValidationSchemas.updateUser),
 	authMiddleware.verifyOwnership,
@@ -76,11 +75,11 @@ router.put(
 		10,
 		'Too many profile updates, please try again later'
 	),
-	asyncHandler(userController.updateUser)
+	asyncHandler(UserController.update)
 );
 
 router.delete(
-	'/user/:userId',
+	'/profile/:id',
 	validateParams(userValidationSchemas.userId),
 	authMiddleware.verifyOwnership,
 	createUserSpecificLimiter(
@@ -88,25 +87,77 @@ router.delete(
 		3,
 		'Too many deletion attempts, please try again later'
 	),
-	asyncHandler(userController.deleteUser)
+	asyncHandler(UserController.delete)
 );
 
-router.get('/all', asyncHandler(userController.getAllUsers));
+router.put(
+	'/change-password/:id',
+	validateParams(userValidationSchemas.userId),
+	validateBody(userValidationSchemas.changePassword),
+	authMiddleware.verifyOwnership,
+	createUserSpecificLimiter(
+		60 * 60 * 1000,
+		5,
+		'Too many password change attempts, please try again later'
+	),
+	asyncHandler(UserController.changePassword)
+);
+
+router.get('/list', asyncHandler(UserController.list));
 
 router.use(authMiddleware.requireAdmin);
 
 router.post(
-	'/post',
+	'/',
 	createAccountLimiter,
 	validateBody(userValidationSchemas.createUser),
 	authMiddleware.verifyPasswordStrength,
-	asyncHandler(userController.createUser)
+	asyncHandler(UserController.store)
 );
 
 router.get(
-	'/admin/user/:userId',
+	'/:id',
 	validateParams(userValidationSchemas.userId),
-	asyncHandler(userController.getUserById)
+	asyncHandler(UserController.show)
+);
+
+router.put(
+	'/:id',
+	validateParams(userValidationSchemas.userId),
+	validateBody(userValidationSchemas.updateUser),
+	authMiddleware.verifyPasswordStrength,
+	asyncHandler(UserController.update)
+);
+
+router.delete(
+	'/:id',
+	validateParams(userValidationSchemas.userId),
+	asyncHandler(UserController.delete)
+);
+
+router.post(
+	'/reset-password/:id',
+	validateParams(userValidationSchemas.userId),
+	asyncHandler(UserController.resetPassword)
+);
+
+router.put(
+	'/status/:id',
+	validateParams(userValidationSchemas.userId),
+	validateBody(userValidationSchemas.updateUserStatus),
+	asyncHandler(UserController.updateUserStatus)
+);
+
+router.get(
+	'/role/:roleId',
+	validateParams(userValidationSchemas.roleId),
+	asyncHandler(UserController.getUsersByRole)
+);
+
+router.get(
+	'/shop/:shopId',
+	validateParams(userValidationSchemas.shopId),
+	asyncHandler(UserController.getUsersByShop)
 );
 
 export default router;

@@ -25,22 +25,31 @@ const UserManagement: FunctionComponent = () => {
                                 {row?.fullname}
                             </div>
                             <div className="text-sm text-gray-500">@{row?.username}</div>
-                            {row?.email && (
-                                <div className="text-xs text-gray-400 flex items-center mt-1">
-                                    <Mail className="w-3 h-3 mr-1" />
-                                    {row?.email}
-                                </div>
-                            )}
-                            {row?.phone && (
-                                <div className="text-xs text-gray-400 flex items-center">
-                                    <Phone className="w-3 h-3 mr-1" />
-                                    {row?.phone}
-                                </div>
-                            )}
                         </div>
                     </div>
                 </Fragment>
             ),
+        },
+        {
+            name: 'Contact',
+            cell: (row) => (
+                <Fragment>
+                    <div>
+                        {row?.email && (
+                            <div className="text-xs text-gray-400 flex items-center mt-1">
+                                <Mail className="w-3 h-3 mr-1" />
+                                {row?.email}
+                            </div>
+                        )}
+                        {row?.phone && (
+                            <div className="text-xs text-gray-400 flex items-center">
+                                <Phone className="w-3 h-3 mr-1" />
+                                {row?.phone}
+                            </div>
+                        )}
+                    </div>
+                </Fragment>
+            )
         },
         {
             name: 'Role',
@@ -54,22 +63,11 @@ const UserManagement: FunctionComponent = () => {
             )
         },
         {
-            name: 'Status',
-            cell: (row) => (
-                <Fragment>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(row?.status as UserStatus)}`}>
-                        {getStatusIcon(row?.status as UserStatus)}
-                        {row?.status?.charAt(0)?.toUpperCase() + row?.status?.slice(1)}
-                    </span>
-                </Fragment>
-            )
-        },
-        {
             name: 'Permissions',
             cell: (row) => (
                 <Fragment>
                     <div className="flex flex-col space-y-1">
-                        {row?.maxDiscountPercent && (
+                        {row?.maxDiscountPercent > 0 && (
                             <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
                                 Max Discount: {row.maxDiscountPercent}%
                             </span>
@@ -105,6 +103,17 @@ const UserManagement: FunctionComponent = () => {
                             <span className="text-xs text-gray-400">Never logged in</span>
                         )}
                     </div>
+                </Fragment>
+            )
+        },
+        {
+            name: 'Status',
+            cell: (row) => (
+                <Fragment>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(row?.status as UserStatus)}`}>
+                        {getStatusIcon(row?.status as UserStatus)}
+                        {row?.status?.charAt(0)?.toUpperCase() + row?.status?.slice(1)}
+                    </span>
                 </Fragment>
             )
         },

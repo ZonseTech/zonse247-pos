@@ -78,15 +78,15 @@ export class AuthMiddleware {
 		const user = this.extractUserFromToken(req)
 		const userRole = user?.roleUuid;
 
-		if (userRole !== 'admin' || userRole !== 'super-admin') {
-			res.status(403).json({
-				error: 'Authorization Error',
-				message: 'Admin access required',
-			});
+		if (userRole === 'admin' || userRole === 'super-admin') {
+			next();
 			return;
 		}
 
-		next();
+		res.status(403).json({
+			error: 'Authorization Error',
+			message: 'Admin access required',
+		});
 	};
 
 	verifyPasswordStrength = (

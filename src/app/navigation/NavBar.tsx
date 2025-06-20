@@ -91,7 +91,7 @@ const NavBar: FunctionComponent = () => {
             type: 'button',
             color: 'bg-green-600 hover:bg-green-700',
             iconColor: 'bg-green-700',
-            text: 'Open Tabs',
+            text: 'Open Orders',
             icon: icons.tabs,
             onClick: <HoldOrdersModal />
         });
@@ -160,6 +160,19 @@ const NavBar: FunctionComponent = () => {
                 icon: icons.workstations,
                 onClick: () => navigate(ROUTES.WORK_STATIONS),
             });
+        }
+
+        items.push({ type: 'spacer' });
+
+        if (hasRole(user, 'super-admin')) {
+            items.push({
+                type: 'button',
+                color: 'bg-purple-600 hover:bg-purple-700',
+                iconColor: 'bg-purple-700',
+                text: "Subscription",
+                icon: icons.subscription,
+                onClick: () => navigate(ROUTES.SUBSCRIPTION),
+            });
 
             items.push({
                 type: 'button',
@@ -177,28 +190,6 @@ const NavBar: FunctionComponent = () => {
                 text: "Clients",
                 icon: icons.client,
                 onClick: () => navigate(ROUTES.CLIENTS),
-            });
-        }
-
-        items.push({ type: 'spacer' });
-
-        if (hasAnyPermission(user, ['settings.shop.manage', 'system.admin'])) {
-            items.push({
-                type: 'button',
-                color: 'bg-purple-600 hover:bg-purple-700',
-                iconColor: 'bg-purple-700',
-                text: "Subscription",
-                icon: icons.subscription,
-                onClick: () => navigate(ROUTES.SUBSCRIPTION),
-            });
-
-            items.push({
-                type: 'button',
-                color: 'bg-purple-500 hover:bg-purple-600',
-                iconColor: 'bg-purple-600',
-                text: "Sync Data",
-                icon: icons.syncData,
-                onClick: async () => navigate(ROUTES.SYNC_DATA)
             });
         }
 
@@ -228,11 +219,20 @@ const NavBar: FunctionComponent = () => {
 
         items.push({
             type: 'button',
-            color: 'bg-gray-600 hover:bg-gray-700',
-            iconColor: 'bg-gray-700',
+            color: 'bg-green-600 hover:bg-green-700',
+            iconColor: 'bg-green-700',
             text: 'Theme',
             icon: icons.theme,
             onClick: <DarkMode />
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-green-500 hover:bg-green-600',
+            iconColor: 'bg-green-600',
+            text: "Sync Data",
+            icon: icons.syncData,
+            onClick: async () => navigate(ROUTES.SYNC_DATA)
         });
 
         items.push({

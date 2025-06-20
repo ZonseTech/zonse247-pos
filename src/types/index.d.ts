@@ -21,11 +21,6 @@ interface LoginResponse {
 	user: User;
 }
 
-interface UserInput extends Omit<User, 'uuid'> {
-	uuid: string;
-	pass?: string;
-	[key: string]: unknown;
-}
 
 type Mode = 'dark' | 'light' | string;
 

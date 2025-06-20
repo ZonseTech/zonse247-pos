@@ -64,7 +64,7 @@ export const preventSQLInjection = (
 	next: NextFunction
 ): void => {
 	const sqlInjectionPatterns = [
-		/(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/gi,
+		// /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/gi,s
 		/('|(\\|;|\/\*|\*\/|--|#))/gi,
 		/((%27)|('))((%6F)|o|(%4F))((%72)|r|(%52))/gi,
 	];

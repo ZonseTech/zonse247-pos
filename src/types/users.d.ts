@@ -26,7 +26,16 @@ interface User {
     updatedAt?: Date;
 }
 
-interface PublicUser extends Omit<User, 'password'> { }
+type UserStatus = 'active' | 'inactive' | 'suspended';
+
+interface CreateUserRequest extends Omit<User, 'uuid' | 'id' | 'createdAt' | 'updatedAt' | 'lastLogin' | 'lastLogout' | 'roleName' | 'permissions'> {
+
+}
+
+interface PublicUser extends Omit<User, 'password'> {
+    roleName?: string;
+    permissions?: string[];
+}
 
 interface UserDetailsModalProps {
     user?: User | null;

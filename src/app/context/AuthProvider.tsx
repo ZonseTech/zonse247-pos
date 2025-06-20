@@ -70,8 +70,8 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
                 throw (result.message || 'Invalid credentials');
             }
 
-        } catch (error) {
-            throw new Error(error?.toString() as string);
+        } catch (e) {
+            throw new Error(e?.error?.response?.data?.message || e?.message?.toString() as string);
         } finally {
             setIsLoading(false);
         }
