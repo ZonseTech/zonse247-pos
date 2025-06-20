@@ -7,7 +7,7 @@ const endpoints: Record<string, string> = {
     show: 'clients/client',
     delete: 'clients/client',
     register: 'clients/register-client',
-    verify: 'clients/verify-client',
+    verify: 'auth/verify-client',
     updateClient: 'clients/update-client',
     onboarding: 'clients/onboarding-status'
 };

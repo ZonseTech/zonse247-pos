@@ -27,6 +27,8 @@ import { authLimiter } from '../middlewares/rate-limit.middleware'
 import { validateBody, validateParams } from '../middlewares/validation.middleware'
 import { userValidationSchemas } from '../validations/user.schemas'
 import { OnboardingController } from '../controllers/onboarding.controller'
+import { ClientController } from '../controllers/client.controller'
+import { clientValidationSchemas } from '../validations/client.schemas'
 
 const router = Router();
 const authMiddleware = new AuthMiddleware();
@@ -47,6 +49,13 @@ router.post(
 );
 
 router.post(
+    '/auth/verify-client',
+    authLimiter,
+    validateBody(clientValidationSchemas.verifyClient),
+    asyncHandler(ClientController.verify)
+);
+
+router.post(
     '/auth/refresh-token',
     authLimiter,
     validateBody(userValidationSchemas.refreshToken),
@@ -59,8 +68,7 @@ router.post(
     asyncHandler(UserController.verifyToken)
 );
 
-router.use('/on-boarding', authLimiter, OnboardingController.getOnboardingStatus);
-
+router.use('/on-boarding', authLimiter, asyncHandler(OnboardingController.getOnboardingStatus));
 
 router.get(
     '/auth/logout/:id',

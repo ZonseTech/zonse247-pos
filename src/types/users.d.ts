@@ -55,3 +55,9 @@ interface UserFormModalProps {
     onClose?: () => void;
     onUserSaved?: () => void;
 }
+
+interface AuthenticatedUser {
+    userId: string;
+    clientId: string;
+    shopId: string;
+}

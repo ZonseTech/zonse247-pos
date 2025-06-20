@@ -411,6 +411,7 @@ const checkOrCreateDefaultCustomer = async () => {
 			uuid: '-1',
 			clientId: '-1',
 			shopId: '-1',
+			userId: '-1',
 			name: 'Walk in customer',
 		};
 
@@ -430,6 +431,7 @@ async function checkAndCreateDefaultCategory(): Promise<void> {
 			uuid: uuidv4(),
 			clientId: '-1',
 			shopId: '-1',
+			userId: '-1',
 			name: 'Consumables',
 		};
 
@@ -446,12 +448,14 @@ async function checkOrCreateDefaultPaymentMethods(): Promise<void> {
 			uuid: '1',
 			clientId: '-1',
 			shopId: '-1',
+			userId: '-1',
 		},
 		{
 			name: 'Mobile Transfer',
 			uuid: '2',
 			clientId: '-1',
 			shopId: '-1',
+			userId: '-1',
 		},
 	];
 

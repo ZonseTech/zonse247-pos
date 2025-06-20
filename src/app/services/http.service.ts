@@ -21,8 +21,8 @@ enum HttpRequestResponseMessages {
 }
 
 const getBaseUrl = () => {
-	const api = 'http://' + 'localhost' + ':' + 3000 + '/api/';
-	// const api = 'http://' + host + ':' + port + '/api/';
+	const api = 'http://' + 'localhost' + ':' + 3000 + '/api/v1';
+	// const api = 'http://' + host + ':' + port + '/api/v1';
 
 	return api;
 };

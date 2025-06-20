@@ -45,16 +45,6 @@ interface TextInputProps {
 	| 'datetime-local';
 }
 
-interface Category {
-	uuid: string;
-	name: string;
-	clientId: string,
-	shopId: string,
-	createdAt?: string;
-	updateAt?: string;
-	synced?: 1 | 0;
-}
-
 type DataTypes = string | number | undefined | null | boolean;
 
 interface HoldOrder {
@@ -150,7 +140,8 @@ interface Customer {
 	uuid: string;
 	name: string;
 	clientId: string;
-	shopId: string,
+	shopId: string;
+	userId: string;
 	phone?: string;
 	email?: string;
 	address?: string;
@@ -222,6 +213,7 @@ type PaymentMethod = {
 	uuid: string;
 	name: string;
 	icon?: string;
+	userId: string;
 	clientId: string;
 	shopId: string;
 };
