@@ -2,7 +2,7 @@ import api from './http.service';
 
 const endpoints: Record<string, string> = {
 	all: 'users/list',
-	store: 'users/post',
+	store: 'users',
 	update: 'users',
 	show: 'users/user',
 	delete: 'users',
