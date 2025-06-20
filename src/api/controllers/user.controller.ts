@@ -61,9 +61,9 @@ export class UserController extends BaseController {
 		}
 	}
 
-	static async update(req: Request<{ id?: string; userId?: string }, ApiResponse<PublicUser>, Partial<CreateUserRequest>>, res: Response): Promise<void> {
+	static async update(req: Request<{ id: string; }, ApiResponse<PublicUser>, Partial<CreateUserRequest>>, res: Response): Promise<void> {
 		try {
-			const userId = req.params.id || req.params.userId;
+			const userId = req.params.id;
 			const updateData = req.body;
 
 			if (!userId) {
@@ -72,7 +72,7 @@ export class UserController extends BaseController {
 			}
 
 			const updatedUser = await UserService.updateUser(userId, updateData);
-			BaseController.sendResponse(res, 200, true, 'User updated successfully', updatedUser);
+			BaseController.sendResponse(res, 200, true, 'User updated successfully', updateData);
 		} catch (error: any) {
 			console.error('Error updating user:', error);
 

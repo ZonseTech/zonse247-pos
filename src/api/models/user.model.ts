@@ -162,7 +162,6 @@ export class UserModel {
                 updatedAt: new Date()
             };
 
-            // Hash password if it's being updated
             if (updateData.password && updateData.password !== '') {
                 updateDataWithTimestamp.password = await bcrypt.hash(updateData.password, saltRounds);
                 updateDataWithTimestamp.passwordChangedAt = new Date();

@@ -12,6 +12,8 @@ import { Fragment, useState, useEffect } from 'react';
 import type { FunctionComponent } from 'react';
 import roleService from '../../../services/role.service';
 import { UserStatus } from '../../../utils/constants';
+import { useAuth } from '../../../context/AuthProvider';
+import clientsService from '../../../services/client.service';
 
 const UserFormModal: FunctionComponent<UserFormModalProps> = ({
     user,
@@ -19,10 +21,13 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
     onClose: externalOnClose,
     onUserSaved
 }) => {
+    const auth = useAuth()
     const [roles, setRoles] = useState<Role[]>([]);
     const [isOpenForm, setIsOpenForm] = useState(false);
     const [shops, setShops] = useState<ShopOptions[]>([]);
+    const [clients, setClients] = useState<Client[]>([]);
     const [loadingRoles, setLoadingRoles] = useState(true);
+    const [loadingClients, setLoadingClients] = useState(true);
     const [loadingShops, setLoadingShops] = useState(true);
     const [workstations, setWorkstations] = useState<string[]>([]);
 
@@ -32,6 +37,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
     useEffect(() => {
         if (isModalOpen) {
             loadRoles();
+            loadClients();
             loadShops();
             loadWorkstations();
         }
@@ -55,6 +61,19 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
             setLoadingShops(true);
             const shopsData = await shopsService.list();
             setShops(shopsData.data);
+        } catch (error) {
+            console.error('Error loading shops:', error);
+            Notify.failure('Failed to load shops');
+        } finally {
+            setLoadingShops(false);
+        }
+    };
+
+    const loadClients = async () => {
+        try {
+            setLoadingClients(true);
+            const clientsData = await clientsService.list();
+            setClients(clientsData);
         } catch (error) {
             console.error('Error loading shops:', error);
             Notify.failure('Failed to load shops');
@@ -97,6 +116,11 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
     const shopOptions = shops.map(shop => ({
         label: shop.name,
         value: shop.uuid
+    }));
+
+    const clientOptions = clients.map(client => ({
+        label: client.companyName,
+        value: client.uuid
     }));
 
     const initialUserValues = user ? {
@@ -157,9 +181,9 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
             .nullable()
     });
 
-    const handleSubmit = async (values: User, { resetForm, setErrors, setFieldError, setStatus }) => {
+    const handleSubmit = async (values: User, { resetForm, setErrors, setStatus }) => {
         try {
-            const submitValues = { ...values };
+            const submitValues = { ...values, userId: auth.user.uuid };
 
             if (user && user.uuid && !submitValues.password) {
                 delete submitValues.password;
@@ -305,6 +329,14 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                                             required
                                             options={roleOptions}
                                             disabled={loadingRoles}
+                                        />
+
+                                        <FormSelectBox
+                                            label='Client'
+                                            name='clientId'
+                                            required
+                                            options={clientOptions}
+                                            disabled={loadingClients}
                                         />
 
                                         <FormSelectBox

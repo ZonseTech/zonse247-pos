@@ -389,6 +389,8 @@ const checkOrCreateDefaultUser = async () => {
 			clientId: '-1',
 			shopId: '-1',
 			roleUuid: 'super-admin',
+			accessibleShops: ["*"],
+			allowedWorkstations: ["*"],
 			email: 'zonse247@gmail.com',
 			status: 'active',
 		};

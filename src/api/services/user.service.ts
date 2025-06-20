@@ -1,10 +1,10 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import validator from 'validator';
-import { PERMISSIONS_DB, ROLE_PERMISSIONS_DB, ROLES_DB, USERS_DB } from '../databases/local/tables';
+import { PERMISSIONS_DB, ROLE_PERMISSIONS_DB, ROLES_DB } from '../databases/local/tables';
 import { sealDBModel } from '../databases/local';
-import { v4 as uuidv4 } from 'uuid';
 import config from '../config';
+import { UserModel } from '../models/user.model';
 
 const saltRounds = 10;
 
@@ -13,25 +13,21 @@ export class UserService {
 		if (!userId) {
 			throw new Error('ID field is required.');
 		}
-		return await sealDBModel.findById(USERS_DB, userId);
+		return await UserModel.findById(userId);
 	}
 
 	static async logoutUser(userId: string): Promise<void> {
 		if (!userId) {
 			throw new Error('ID field is required.');
 		}
-		await sealDBModel.update(USERS_DB, userId, {
-			lastLoggedOut: new Date(),
-		});
+		await UserModel.updateLastLogout(userId);
 	}
 
 	static async loginUser(
 		username: string,
 		password: string
 	): Promise<{ user?: any; token?: string; message?: string }> {
-		const user = await sealDBModel.findById<User>(USERS_DB, {
-			username: validator.escape(username),
-		});
+		const user = await UserModel.findByUsername(validator.escape(username));
 
 		if (!user) {
 			return { message: 'Incorrect username or password.' };
@@ -41,14 +37,12 @@ export class UserService {
 			return { message: 'Account is not active. Please contact support.' };
 		}
 
-		const isPasswordValid = await bcrypt.compare(password, user.password);
+		const isPasswordValid = await UserModel.validatePassword(password, user.password);
 		if (!isPasswordValid) {
 			return { message: 'Incorrect username or password.' };
 		}
 
-		await sealDBModel.update(USERS_DB, user.uuid.toString(), {
-			lastLogin: new Date(),
-		});
+		await UserModel.updateLastLogin(user.uuid);
 
 		const roleData = await this.getRoleWithPermissions(user.roleUuid);
 
@@ -133,7 +127,7 @@ export class UserService {
 				ignoreExpiration: true,
 			}) as any;
 
-			const user = await this.getUserById(decoded.uuid);
+			const user = await UserModel.findByUuid(decoded.uuid);
 			if (!user || user.status !== 'active') {
 				throw new Error('User not found or inactive');
 			}
@@ -145,13 +139,10 @@ export class UserService {
 	}
 
 	static async checkUserExists(username: string, email: string): Promise<boolean> {
-		const existingUsers = await sealDBModel.find(USERS_DB, {
-			$or: [
-				{ username: validator.escape(username) },
-				{ email: validator.escape(email) },
-			],
-		});
-		return existingUsers.length > 0;
+		return await UserModel.checkUserExists(
+			validator.escape(username),
+			validator.escape(email)
+		);
 	}
 
 	static async getAllUsers(query?: any): Promise<any[]> {
@@ -167,21 +158,20 @@ export class UserService {
 				searchCriteria.roleUuid = query.roleUuid;
 			}
 			if (query.shopUuid) {
-				searchCriteria.shopUuid = query.shopUuid;
+				searchCriteria.shopId = query.shopUuid;
 			}
 			if (query.search) {
 				const searchTerm = validator.escape(query.search);
 				searchCriteria.$or = [
 					{ username: { $regex: searchTerm, $options: 'i' } },
 					{ email: { $regex: searchTerm, $options: 'i' } },
-					{ firstName: { $regex: searchTerm, $options: 'i' } },
-					{ lastName: { $regex: searchTerm, $options: 'i' } }
+					{ fullname: { $regex: searchTerm, $options: 'i' } }
 				];
 			}
 
-			users = await sealDBModel.find(USERS_DB, searchCriteria);
+			users = await UserModel.findAll(searchCriteria);
 		} else {
-			users = await sealDBModel.findAll(USERS_DB);
+			users = await UserModel.findAll();
 		}
 
 		const publicUsers = await Promise.all(
@@ -198,11 +188,11 @@ export class UserService {
 		if (!userId) {
 			throw new Error('ID field is required.');
 		}
-		await sealDBModel.delete(USERS_DB, userId);
+		await UserModel.delete(userId);
 	}
 
 	static async createUser(userData: CreateUserRequest): Promise<any> {
-		const userExists = await this.checkUserExists(
+		const userExists = await UserModel.checkUserExists(
 			userData.username,
 			userData.email
 		);
@@ -210,49 +200,37 @@ export class UserService {
 			throw new Error('User with this username or email already exists');
 		}
 
-		const hash = await bcrypt.hash(userData.password, saltRounds);
-		const newUserData = {
+		const newUserData = await UserModel.buildUserData({
 			...userData,
-			password: hash,
-			status: 'active',
-		};
+			status: userData.status || 'active'
+		});
 
-		const newUser = {
-			...newUserData,
-			uuid: uuidv4(),
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		} as User;
-
-		const user = await sealDBModel.insert(USERS_DB, newUser);
-		delete user.password;
-		return user;
+		const user = await UserModel.create(newUserData);
+		return UserModel.getPublicUser(user);
 	}
 
-	static async updateUser(userId: string, userData: any): Promise<User> {
+	static async updateUser(userId: string, userData: any): Promise<Omit<User, 'password'>> {
 		if (!userId) {
 			throw new Error('ID field is required.');
 		}
 
-		const existingUser = await sealDBModel.findById(USERS_DB, userId);
+		const existingUser = await UserModel.findById(userId);
 		if (!existingUser) {
 			throw new Error('User not found');
 		}
 
 		const updatedUserData = { ...userData };
-		if (userData.password !== '') {
-			const hash = await bcrypt.hash(userData.password, saltRounds);
-			updatedUserData.password = hash;
-		} else {
-			updatedUserData.password = existingUser.password;
-		}
 
 		delete updatedUserData.repeatPassword;
-		updatedUserData.updatedAt = new Date();
 
-		await sealDBModel.update(USERS_DB, userId, updatedUserData);
-		delete updatedUserData.password;
-		return updatedUserData;
+		if (userData.password === '') {
+			delete updatedUserData.password;
+		}
+
+		await UserModel.update(userId, updatedUserData);
+
+		const updatedUser = await UserModel.findById(userId);
+		return UserModel.getPublicUser(updatedUser!);
 	}
 
 	static async changePassword(
@@ -272,46 +250,38 @@ export class UserService {
 			throw new Error('Password must be at least 8 characters long.');
 		}
 
-		const user = await sealDBModel.findById<User>(USERS_DB, userId);
+		const user = await UserModel.findById(userId);
 		if (!user) {
 			throw new Error('User not found');
 		}
 
-		const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+		const isCurrentPasswordValid = await UserModel.validatePassword(currentPassword, user.password);
 		if (!isCurrentPasswordValid) {
 			throw new Error('Current password is incorrect');
 		}
 
-		const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
-		await sealDBModel.update(USERS_DB, userId, {
-			password: hashedNewPassword,
-			updatedAt: new Date(),
-		});
+		await UserModel.update(userId, { password: newPassword });
 	}
-
 
 	static async resetPassword(userId: string): Promise<{ tempPassword: string }> {
 		if (!userId) {
 			throw new Error('User ID is required.');
 		}
 
-		const user = await sealDBModel.findById<User>(USERS_DB, userId);
+		const user = await UserModel.findById(userId);
 		if (!user) {
 			throw new Error('User not found');
 		}
 
 		const tempPassword = this.generateTempPassword();
-		const hashedTempPassword = await bcrypt.hash(tempPassword, saltRounds);
 
-		await sealDBModel.update(USERS_DB, userId, {
-			password: hashedTempPassword,
-			passwordResetRequired: true,
-			updatedAt: new Date(),
+		await UserModel.update(userId, {
+			password: tempPassword,
+			forcePasswordChange: true
 		});
 
 		return { tempPassword };
 	}
-
 
 	private static generateTempPassword(): string {
 		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
@@ -322,13 +292,12 @@ export class UserService {
 		return tempPassword;
 	}
 
-
 	static async getUsersByRole(roleId: string): Promise<any[]> {
 		if (!roleId) {
 			throw new Error('Role ID is required.');
 		}
 
-		const users = await sealDBModel.find<User[]>(USERS_DB, { roleUuid: roleId });
+		const users = await UserModel.findByRoleUuid(roleId);
 
 		const publicUsers = await Promise.all(
 			users.map(async (user) => {
@@ -345,7 +314,7 @@ export class UserService {
 			throw new Error('Shop ID is required.');
 		}
 
-		const users = await sealDBModel.find<User[]>(USERS_DB, { shopUuid: shopId });
+		const users = await UserModel.findByShopId(shopId);
 
 		const publicUsers = await Promise.all(
 			users.map(async (user) => {
@@ -369,19 +338,16 @@ export class UserService {
 			throw new Error('Valid status is required (active, inactive, suspended).');
 		}
 
-		const user = await sealDBModel.findById<User>(USERS_DB, userId);
+		const user = await UserModel.findById(userId);
 		if (!user) {
 			throw new Error('User not found');
 		}
 
-		await sealDBModel.update(USERS_DB, userId, {
-			status,
-			updatedAt: new Date(),
-		});
+		await UserModel.update(userId, { status });
 
-		const updatedUser = await sealDBModel.findById<User>(USERS_DB, userId);
-		const roleData = await this.getRoleWithPermissions(updatedUser.roleUuid);
+		const updatedUser = await UserModel.findById(userId);
+		const roleData = await this.getRoleWithPermissions(updatedUser!.roleUuid);
 
-		return this.getPublicUser(updatedUser, roleData || {});
+		return this.getPublicUser(updatedUser!, roleData || {});
 	}
 }

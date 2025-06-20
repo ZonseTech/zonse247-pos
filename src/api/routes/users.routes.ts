@@ -59,7 +59,7 @@ router.get(
 
 router.get(
 	'/logout/:id',
-	validateParams(userValidationSchemas.userId),
+	validateParams(userValidationSchemas.id),
 	authMiddleware.verifyOwnership,
 	asyncHandler(UserController.logout)
 );
@@ -92,7 +92,7 @@ router.delete(
 
 router.put(
 	'/change-password/:id',
-	validateParams(userValidationSchemas.userId),
+	validateParams(userValidationSchemas.id),
 	validateBody(userValidationSchemas.changePassword),
 	authMiddleware.verifyOwnership,
 	createUserSpecificLimiter(
@@ -123,7 +123,7 @@ router.get(
 
 router.put(
 	'/:id',
-	validateParams(userValidationSchemas.userId),
+	validateParams(userValidationSchemas.id),
 	validateBody(userValidationSchemas.updateUser),
 	authMiddleware.verifyPasswordStrength,
 	asyncHandler(UserController.update)

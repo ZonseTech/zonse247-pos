@@ -3,7 +3,7 @@ import { Confirm, Notify } from 'notiflix';
 import React, { type PropsWithChildren, createContext, useContext, useEffect, useState } from 'react'
 
 type ContextProps = {
-    user: any;
+    user: User | null;
     auth: any;
     isLoading: boolean;
     signin: (cb: AuthProps) => Promise<LoginResponse>;
@@ -25,7 +25,7 @@ const authContext = createContext<ContextProps>({
 export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [auth, setAuth] = useState<string | unknown>(null);
-    const [user, setUser] = useState<AuthUser | unknown>(null);
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
         const loadUserToken = async () => {
@@ -54,18 +54,18 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
     const signin = async (data: AuthProps) => {
         try {
-            const result = await api.post<LoginResponse>('users/login', data as any)
+            const result = await api.post<ApiResponse<LoginResponse>>('users/login', data as any)
                 .then((res) => res.data);
 
-            if (result.token) {
+            if (result?.data.token) {
 
-                setUser(result.user);
+                setUser(result?.data.user);
                 setAuth({ auth: true });
 
-                sessionStorage.setItem('user', JSON.stringify(result.user));
-                sessionStorage.setItem('token', JSON.stringify(result.token));
+                sessionStorage.setItem('user', JSON.stringify(result?.data.user));
+                sessionStorage.setItem('token', JSON.stringify(result?.data.token));
 
-                return result;
+                return result.data;
             } else {
                 throw (result.message || 'Invalid credentials');
             }

@@ -112,6 +112,12 @@ export const userValidationSchemas = {
 			}),
 	}),
 
+	id: Joi.object({
+		id: Joi.string().required().messages({
+			'any.required': 'User ID is required',
+		}),
+	}),
+
 	userId: Joi.object({
 		userId: Joi.string().required().messages({
 			'any.required': 'User ID is required',
