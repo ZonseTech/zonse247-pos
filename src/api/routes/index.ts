@@ -46,12 +46,6 @@ router.use((req, res, next) => {
     next();
 });
 
-router.get(
-    '/setup',
-    authLimiter,
-    asyncHandler(SettingsController.setup)
-)
-
 router.post(
     '/auth/login',
     authLimiter,
@@ -59,6 +53,31 @@ router.post(
     clientMiddleware.subscriptionStatus,
     asyncHandler(UserController.login)
 );
+
+router.post(
+    '/auth/refresh-token',
+    authLimiter,
+    validateBody(userValidationSchemas.refreshToken),
+    asyncHandler(UserController.refreshToken)
+);
+
+router.post(
+    '/auth/verify-token',
+    authLimiter,
+    asyncHandler(UserController.verifyToken)
+);
+
+router.get(
+    '/auth/logout/:id',
+    validateParams(userValidationSchemas.id),
+    asyncHandler(UserController.logout)
+)
+
+router.get(
+    '/setup',
+    authLimiter,
+    asyncHandler(SettingsController.setup)
+)
 
 router.post(
     '/auth/verify-client',
@@ -79,29 +98,10 @@ router.get(
     asyncHandler(ShopController.getShopWorkstations)
 );
 
-router.post(
-    '/auth/refresh-token',
-    authLimiter,
-    validateBody(userValidationSchemas.refreshToken),
-    asyncHandler(UserController.refreshToken)
-);
-
-router.post(
-    '/auth/verify-token',
-    authLimiter,
-    asyncHandler(UserController.verifyToken)
-);
-
 router.use(
     '/on-boarding',
     authLimiter,
     asyncHandler(OnboardingController.getOnboardingStatus)
-);
-
-router.get(
-    '/auth/logout/:id',
-    validateParams(userValidationSchemas.id),
-    asyncHandler(UserController.logout)
 );
 
 router.use(
