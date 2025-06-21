@@ -85,14 +85,14 @@ const ProductsViewGrid: FunctionComponent = () => {
     return (
         <div className='flex-grow overflow-auto p-2.5'>
             {expiredProductsCount > 0 && (
-                <div className="mb-4 bg-green-50 border border-yellow-200/40 rounded-sm p-3">
+                <div className="mb-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-lg p-3">
                     <div className="flex items-center">
-                        <div className="text-yellow-600 font-medium">
+                        <div className="text-amber-700 dark:text-amber-300 font-medium">
                             {expiredProductsCount} product(s) have expired.
                         </div>
                         <Link
                             to={ROUTES.PRODUCTS}
-                            className="ml-4 text-green-600 hover:text-green-800 font-medium text-sm"
+                            className="ml-4 text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 font-medium text-sm transition-colors"
                         >
                             Go to Products Page →
                         </Link>
@@ -111,14 +111,14 @@ const ProductsViewGrid: FunctionComponent = () => {
                 <div className="flex-grow overflow-auto">
                     {data.length > 0 ? (
                         <div className="w-full">
-                            <div className="grid grid-cols-12 bg-white dark:bg-gray-700 gap-2 px-4 py-2 sticky top-0 z-10 font-medium text-sm uppercase border-b">
+                            <div className="grid grid-cols-12 bg-white dark:bg-gray-900 gap-2 px-4 py-3 sticky top-0 z-10 font-semibold text-sm uppercase border-b border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300">
                                 <div className="col-span-4">Product Name</div>
                                 <div className="col-span-3">Category</div>
                                 <div className="col-span-2 text-center">Stock</div>
                                 <div className="col-span-3 text-center">Price</div>
                             </div>
 
-                            <div className="space-y-0 border-b">
+                            <div className="space-y-0 border-b border-gray-200 dark:border-gray-700">
                                 {data.map(product => {
                                     const quantity = parseFloat((product.quantity || 0).toString());
                                     const isOutOfStock = quantity <= 0;
@@ -132,18 +132,27 @@ const ProductsViewGrid: FunctionComponent = () => {
                                             disabled={isOutOfStock}
                                             data-tooltip-id="product-tooltip"
                                             data-tooltip-content={isOutOfStock ? "Out of stock" : "Click to add to cart"}
-                                            className={`w-full grid grid-cols-12 gap-2 px-4 py-3 border-t rounded-xs text-left ${isOutOfStock ? 'bg-gray-50/30 opacity-70 cursor-not-allowed' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 cursor-pointer'}`}
+                                            className={`w-full grid grid-cols-12 gap-2 px-4 py-3 border-t border-gray-200 dark:border-gray-700 rounded-xs text-left transition-colors ${isOutOfStock
+                                                ? 'bg-gray-50/50 dark:bg-gray-800/30 opacity-60 cursor-not-allowed text-gray-400 dark:text-gray-500'
+                                                : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer text-gray-900 dark:text-gray-100'
+                                                }`}
                                         >
                                             <div className="col-span-4 font-medium truncate" title={product.name}>
                                                 {product.name}
                                             </div>
-                                            <div className="col-span-3 truncate" title={product.categoryDetails?.name as string}>
+                                            <div className="col-span-3 truncate text-gray-600 dark:text-gray-400" title={product.categoryDetails?.name as string}>
                                                 {product.categoryDetails?.name as string}
                                             </div>
-                                            <div className={`col-span-2 text-center ${isOutOfStock ? "text-yellow-500" : "text-gray-500"}`}>
+                                            <div className={`col-span-2 text-center font-medium ${isOutOfStock
+                                                ? "text-amber-500 dark:text-amber-400"
+                                                : "text-gray-600 dark:text-gray-400"
+                                                }`}>
                                                 {product.quantity}
                                             </div>
-                                            <div className={`col-span-3 text-center font-medium ${isOutOfStock ? "text-yellow-500" : "text-green-600"}`}>
+                                            <div className={`col-span-3 text-center font-semibold ${isOutOfStock
+                                                ? "text-amber-500 dark:text-amber-400"
+                                                : "text-emerald-600 dark:text-emerald-400"
+                                                }`}>
                                                 {formatCurrency(parseFloat((product.sellPrice || 0).toString()))}
                                             </div>
                                         </button>
@@ -152,10 +161,10 @@ const ProductsViewGrid: FunctionComponent = () => {
                             </div>
                         </div>
                     ) : (
-                        <div className="flex flex-1 flex-col items-center justify-center text-gray-400 py-12">
+                        <div className="flex flex-1 flex-col items-center justify-center text-gray-400 dark:text-gray-500 py-12">
                             <HiOutlineArchiveBoxXMark className="w-16 h-16 mb-4" />
-                            <h3 className="text-lg font-medium mb-1">No products found</h3>
-                            <p className="text-sm max-w-md text-center">
+                            <h3 className="text-lg font-medium mb-1 text-gray-600 dark:text-gray-400">No products found</h3>
+                            <p className="text-sm max-w-md text-center text-gray-500 dark:text-gray-500">
                                 There are currently no products available. Try adjusting your filters or check back later.
                             </p>
                         </div>
@@ -165,7 +174,7 @@ const ProductsViewGrid: FunctionComponent = () => {
                     id="product-tooltip"
                     place="top"
                     delayShow={300}
-                    className="z-50 bg-gray-800 text-white dark:text-gray-100 px-3 py-1 rounded text-sm"
+                    className="z-50 bg-gray-900 dark:bg-gray-800 text-white dark:text-gray-100 px-3 py-2 rounded-lg text-sm shadow-lg border border-gray-700 dark:border-gray-600"
                 />
             </div>
         </div>
