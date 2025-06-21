@@ -51,7 +51,7 @@ const Login: FunctionComponent = () => {
     }
 
     return (
-        <AuthLayout>
+        <AuthLayout className='max-w-4xl'>
             <Formik
                 initialValues={loginProps}
                 validationSchema={loginValidationSchema}
@@ -60,7 +60,7 @@ const Login: FunctionComponent = () => {
                 {({ isSubmitting }) => (
                     <Form>
 
-                        <h1 className="mb-4 text-xl text-center font-semibold text-gray-700">
+                        <h1 className="mb-4 text-xl text-center font-semibold text-gray-700 dark:text-gray-400">
                             Sign in
                         </h1>
 

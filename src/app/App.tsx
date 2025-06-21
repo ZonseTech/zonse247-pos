@@ -1,6 +1,6 @@
 import Modal from 'react-modal'
 import { Suspense } from 'react'
-import AppRoutes from './routes/Index'
+import AppRoutes from './routes'
 import { HashRouter } from "react-router"
 import type { FunctionComponent } from 'react'
 import { ToastContainer } from 'react-toastify'

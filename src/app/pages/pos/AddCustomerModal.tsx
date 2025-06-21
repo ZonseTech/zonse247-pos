@@ -73,7 +73,7 @@ const AddCustomerModal: FunctionComponent<PropsWithChildren<Props>> = ({ handleS
                 title='New Customer'
                 isOpen={isOpenForm}
                 onClose={handleNewCustomerClicked}
-                className='max-w-xs bg-white text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'>
+                className='max-w-xs bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'>
 
                 <Formik
                     initialValues={initialCustomerValues}

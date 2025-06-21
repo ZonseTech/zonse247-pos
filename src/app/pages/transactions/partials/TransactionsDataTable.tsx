@@ -75,7 +75,7 @@ const TransactionsDataTable: FunctionComponent<Props> = ({ showProducts, setShow
                     color=''
                     icon={
                         <HiOutlineEye
-                            className='w-5 h-5 text-sky-400'
+                            className='w-5 h-5 text-green-400'
                             onClick={() => handleOnClickTransactionDetails(row)}
                         />
                     }
@@ -177,8 +177,8 @@ const TransactionsDataTable: FunctionComponent<Props> = ({ showProducts, setShow
 
             setSummaryData([
                 { title: 'Sales', value: formatCurrency(stats.totalSales) as string, bgColor: 'bg-green-500' },
-                { title: 'Transactions', value: stats.totalTransactions, bgColor: 'bg-yellow-400' },
-                { title: 'Items Sold', value: stats.totalItemsSold, bgColor: 'bg-cyan-400' },
+                { title: 'Transactions', value: stats.totalTransactions, bgColor: 'bg-green-400' },
+                { title: 'Items Sold', value: stats.totalItemsSold, bgColor: 'bg-yellow-400' },
                 {
                     title: 'Products',
                     value: stats.totalProducts,
@@ -239,8 +239,8 @@ const TransactionsDataTable: FunctionComponent<Props> = ({ showProducts, setShow
 
             setSummaryData([
                 { title: 'Sales', value: formatCurrency(stats.totalSales), bgColor: 'bg-green-500' },
-                { title: 'Transactions', value: stats.totalTransactions, bgColor: 'bg-yellow-400' },
-                { title: 'Items Sold', value: stats.totalItemsSold, bgColor: 'bg-cyan-400' },
+                { title: 'Transactions', value: stats.totalTransactions, bgColor: 'bg-green-400' },
+                { title: 'Items Sold', value: stats.totalItemsSold, bgColor: 'bg-yellow-400' },
                 {
                     title: 'Products',
                     value: stats.totalProducts,
@@ -265,7 +265,7 @@ const TransactionsDataTable: FunctionComponent<Props> = ({ showProducts, setShow
     );
 
     return (
-        <div className="bg-white rounded-md p-4 mt-4">
+        <div className="bg-white dark:bg-gray-700 rounded-md p-4 mt-4">
             <div className="flex justify-between items-center pb-4 border-b">
                 <div className="flex gap-2">
                     <DatePicker

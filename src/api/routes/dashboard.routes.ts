@@ -1,11 +1,11 @@
 import { Router, Request, Response } from 'express';
 import {
 	TRANSACTIONS_DB,
-	CATEGORY_DB,
+	CATEGORIES_DB,
 	INVENTORY_DB,
 	ORDERS_DB,
 	USERS_DB,
-	CUSTOMER_DB,
+	CUSTOMERS_DB,
 } from '../databases/local/tables';
 import { sealDBModel } from '../databases/local';
 import { formatCurrency } from '../utils';
@@ -148,7 +148,7 @@ router.get('/top-products', async (req: Request, res: Response) => {
 		const [orders, products, categories] = await Promise.all([
 			sealDBModel.findAll(ORDERS_DB),
 			sealDBModel.find(INVENTORY_DB, { status: { $ne: 'void' } }),
-			sealDBModel.findAll(CATEGORY_DB),
+			sealDBModel.findAll(CATEGORIES_DB),
 		]);
 
 		const productMap = new Map<string | number, Product>();
@@ -231,7 +231,7 @@ router.get('/counts/:userId', async (req: Request, res: Response) => {
 				sealDBModel.find(TRANSACTIONS_DB, { userId: userId }),
 				sealDBModel.find(INVENTORY_DB, { status: { $ne: 'void' } }),
 				sealDBModel.count(USERS_DB),
-				sealDBModel.count(CUSTOMER_DB),
+				sealDBModel.count(CUSTOMERS_DB),
 			]);
 
 		const myTotalTransactions = transactions.length;
@@ -327,7 +327,7 @@ router.get('/transaction/:transactionId/details', (async (
 		const [transaction, orderItems, categories] = await Promise.all([
 			sealDBModel.findById(TRANSACTIONS_DB, transactionId),
 			sealDBModel.find(ORDERS_DB, { transactionId }),
-			sealDBModel.findAll(CATEGORY_DB),
+			sealDBModel.findAll(CATEGORIES_DB),
 		]);
 
 		if (!transaction) {
@@ -376,7 +376,7 @@ router.get('/transaction/:transactionId/details', (async (
 			averageItemPrice:
 				detailedOrderItems.length > 0
 					? detailedOrderItems.reduce((sum, item) => sum + item.sellPrice, 0) /
-					  detailedOrderItems.length
+					detailedOrderItems.length
 					: 0,
 		};
 

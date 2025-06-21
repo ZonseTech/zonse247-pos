@@ -3,8 +3,9 @@ import { Confirm, Notify } from 'notiflix';
 import React, { type PropsWithChildren, createContext, useContext, useEffect, useState } from 'react'
 
 type ContextProps = {
-    user: any;
+    user: User | null;
     auth: any;
+    isAuthenticated: boolean;
     isLoading: boolean;
     signin: (cb: AuthProps) => Promise<LoginResponse>;
     signup: (cb: AccountActivationProps) => Promise<AccountActivationResponse>;
@@ -14,6 +15,7 @@ type ContextProps = {
 const authContext = createContext<ContextProps>({
     user: null,
     auth: null,
+    isAuthenticated: false,
     isLoading: false,
     signin: async () => ({} as Promise<LoginResponse>),
     signup: async () => ({} as Promise<AccountActivationResponse>),
@@ -25,7 +27,8 @@ const authContext = createContext<ContextProps>({
 export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [auth, setAuth] = useState<string | unknown>(null);
-    const [user, setUser] = useState<AuthUser | unknown>(null);
+    const [user, setUser] = useState<User | null>(null);
+    const isAuthenticated = !!(user && auth);
 
     useEffect(() => {
         const loadUserToken = async () => {
@@ -54,24 +57,24 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
     const signin = async (data: AuthProps) => {
         try {
-            const result = await api.post<LoginResponse>('users/login', data as any)
+            const result = await api.post<ApiResponse<LoginResponse>>('auth/login', data as any)
                 .then((res) => res.data);
 
-            if (result.token) {
+            if (result?.data.token) {
 
-                setUser(result.user);
+                setUser(result?.data.user);
                 setAuth({ auth: true });
 
-                sessionStorage.setItem('user', JSON.stringify(result.user));
-                sessionStorage.setItem('token', JSON.stringify(result.token));
+                sessionStorage.setItem('user', JSON.stringify(result?.data.user));
+                sessionStorage.setItem('token', JSON.stringify(result?.data.token));
 
-                return result;
+                return result.data;
             } else {
                 throw (result.message || 'Invalid credentials');
             }
 
-        } catch (error) {
-            throw new Error(error?.toString() as string);
+        } catch (e) {
+            throw new Error(e?.error?.response?.data?.message || e?.message?.toString() as string);
         } finally {
             setIsLoading(false);
         }
@@ -115,7 +118,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
             diagOptions.cancelButtonText,
             async () => {
                 try {
-                    await api.get('users/logout/' + (user as User).uuid)
+                    await api.get('auth/logout/' + user?.uuid)
                         .then((() => {
                             setUser(null);
                             setAuth(null);
@@ -124,7 +127,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
                             if (callback) {
                                 callback();
-                                location.reload();
+                                // location.reload();
                             }
                         }))
                 } catch (error) {
@@ -138,6 +141,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
         <authContext.Provider value={{
             user,
             auth,
+            isAuthenticated,
             isLoading,
             signin,
             signup,

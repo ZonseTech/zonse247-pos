@@ -83,7 +83,7 @@ const CategoriesModal: FunctionComponent = () => {
                 title='Categories'
                 isOpen={isOpenForm}
                 onClose={handleAddCategoryClicked}
-                className='max-w-sm bg-white text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'>
+                className='max-w-sm bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'>
                 <div className="flex justify-between items-center pb-4 border-b">
                     <div className="relative flex-1">
                         <Input
@@ -120,19 +120,19 @@ const CategoriesModal: FunctionComponent = () => {
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200 bg-white">
+                        <tbody className="divide-y divide-gray-200 bg-white dark:bg-gray-700">
                             {data.length > 0 ? (
                                 data.map((row, index) => (
                                     <tr
                                         key={index}
-                                        className={index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}
+                                        className={index % 2 === 0 ? 'bg-white dark:bg-gray-700' : 'bg-gray-100'}
                                     >
                                         <td className="px-2 py-4 border border-gray-50 capitalize tracking-wider">{row.name as string}</td>
                                         <td className="px-2 py-4 border border-gray-50">
                                             <div className="flex items-center space-x-3">
                                                 <button
                                                     onClick={() => handleEditCategory(row)}
-                                                    className="text-sky-500 hover:text-sky-600"
+                                                    className="text-green-500 hover:text-green-600"
                                                 >
                                                     <HiOutlinePencilAlt className="w-5 h-5" />
                                                 </button>

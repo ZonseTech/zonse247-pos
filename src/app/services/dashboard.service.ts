@@ -42,7 +42,7 @@ const dashboardService = {
 			});
 	},
 
-	async transactions(userId: number, limit: number, offset = 0) {
+	async transactions(userId: string, limit: number, offset = 0) {
 		return api
 			.get<{
 				total: number;

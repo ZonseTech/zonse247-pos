@@ -9,7 +9,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { ThemeContext } from '../context/ThemeContext';
 
 interface TextInputProps {
-	label: string;
+	label?: string;
 	id?: string;
 	name: string;
 	type?: string;
@@ -46,7 +46,7 @@ const FormInput: React.FC<TextInputProps & React.InputHTMLAttributes<HTMLInputEl
 
 		const baseStyle = input.base
 
-		const cls = classNames(baseStyle, props.className)
+		const cls = classNames(baseStyle, props.className, 'block w-full')
 
 		return (
 			<div className={classNames(wrapperClass, '')}>

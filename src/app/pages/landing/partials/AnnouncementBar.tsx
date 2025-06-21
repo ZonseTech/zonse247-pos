@@ -6,7 +6,7 @@ const AnnouncementBar: FunctionComponent = () => {
 	return (
 		<Fragment>
 			<motion.div
-				className="bg-[#102f4f] text-white text-sm py-2 text-center relative overflow-hidden"
+				className="bg-[#102f4f] text-white dark:text-gray-100 text-sm py-2 text-center relative overflow-hidden"
 				initial={{ y: -50, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ duration: 0.6, ease: "easeOut" }}

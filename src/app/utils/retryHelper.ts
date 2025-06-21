@@ -22,3 +22,30 @@ export async function withRetry<T>(
 
 	throw lastError!;
 }
+
+export const isRetryableError = (error) => {
+	const retryableErrors = [
+		'NetworkError',
+		'Request timeout',
+		'Failed to fetch',
+		'ERR_NETWORK',
+		'ERR_INTERNET_DISCONNECTED'
+	]
+
+	return retryableErrors.some(retryableError =>
+		error.message?.includes(retryableError) || error.name === retryableError
+	)
+}
+
+export const validateSettingsResponse = (settings: WorkstatSettings) => {
+	if (!settings) return false
+
+	const requiredFields = ['uuid', 'clientUuid', 'isActive']
+
+	if (typeof settings === 'object' && !Array.isArray(settings)) {
+		sessionStorage.setItem('clientUuid', settings.clientUuid)
+		return requiredFields.every(field => settings.hasOwnProperty(field))
+	}
+
+	return false
+}

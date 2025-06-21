@@ -17,7 +17,7 @@ const Header: FunctionComponent<{
 		return (
 			<Fragment>
 				<motion.header
-					className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40 backdrop-blur-md bg-white/90 dark:bg-gray-800/90"
+					className="bg-white dark:bg-gray-700 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40 backdrop-blur-md bg-white dark:bg-gray-700/90 dark:bg-gray-800/90"
 					initial={{ y: -100, opacity: 0 }}
 					animate={{ y: 0, opacity: 1 }}
 					transition={{ duration: 0.6, delay: 0.2 }}
@@ -49,12 +49,12 @@ const Header: FunctionComponent<{
 							>
 								<DarkMode color="bg-[#102f4f]" />
 								<motion.button
-									className="border-2 border-[#102f4f] text-[#102f4f] dark:text-white dark:border-white px-4 py-1.5 rounded-sm font-semibold hover:bg-[#102f4f] hover:text-white dark:hover:bg-gray-700 dark:hover:text-white transition-all flex items-center justify-start space-x-2 overflow-hidden relative"
+									className="border-2 border-[#102f4f] text-[#102f4f] dark:text-white dark:text-gray-100 dark:border-white px-4 py-1.5 rounded-sm font-semibold hover:bg-[#102f4f] hover:text-white dark:text-gray-100 dark:hover:bg-gray-700 dark:hover:text-white dark:text-gray-100 transition-all flex items-center justify-start space-x-2 overflow-hidden relative"
 									whileHover={{ scale: 1.05 }}
 									whileTap={{ scale: 0.95 }}
 								>
 									<motion.div
-										className="absolute inset-0 bg-[#102f4f] dark:bg-white"
+										className="absolute inset-0 bg-[#102f4f] dark:bg-white dark:bg-gray-700"
 										initial={{ x: '-100%' }}
 										whileHover={{ x: 0 }}
 										transition={{ duration: 0.3 }}

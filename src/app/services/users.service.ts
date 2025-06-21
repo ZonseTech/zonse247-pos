@@ -1,19 +1,19 @@
 import api from './http.service';
 
 const endpoints: Record<string, string> = {
-	all: 'users/all',
-	store: 'users/post',
-	update: 'users/update',
+	all: 'users/list',
+	store: 'users',
+	update: 'users',
 	show: 'users/user',
-	delete: 'users/user',
+	delete: 'users',
 };
 
 const usersService = {
 	endpoints,
 	async list(query = {}): Promise<User[]> {
 		return api
-			.get<User[]>(endpoints.all, query)
-			.then((res) => res.data)
+			.get<ApiResponse<User[]>>(endpoints.all, query)
+			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
 			});

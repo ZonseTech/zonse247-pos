@@ -42,6 +42,7 @@ interface ApiResponse<T> {
 	success: boolean;
 	data: T;
 	message?: string;
+	subscriptionStatus?: string;
 }
 
 interface PrinterInfo {

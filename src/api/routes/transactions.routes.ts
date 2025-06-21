@@ -5,7 +5,7 @@ import { Request, Response, Router } from 'express';
 import {
 	TRANSACTIONS_DB,
 	USERS_DB,
-	CUSTOMER_DB,
+	CUSTOMERS_DB,
 	PAYMENT_METHODS_DB,
 	ORDERS_DB,
 	INVENTORY_DB,
@@ -23,7 +23,7 @@ const enrichTransactionWithRelatedData = async (
 	if (transaction.customerId && transaction.customerId !== '1') {
 		promises.push(
 			sealDBModel
-				.findById(CUSTOMER_DB, transaction.customerId)
+				.findById(CUSTOMERS_DB, transaction.customerId)
 				.then((customer) => ({ customer }))
 				.catch(() => ({ customer: null }))
 		);
@@ -135,9 +135,9 @@ router.get('/by-date', async (req: any, res: Response) => {
 		const baseQuery: Array<
 			Record<string, string | boolean | number | Record<string, string>>
 		> = [
-			{ date: { $gte: startDate.toJSON(), $lte: endDate.toJSON() } },
-			{ status },
-		];
+				{ date: { $gte: startDate.toJSON(), $lte: endDate.toJSON() } },
+				{ status },
+			];
 
 		if (user !== 0) baseQuery.push({ userId: user });
 		if (till !== 0) baseQuery.push({ till });
@@ -331,9 +331,9 @@ router.get('/:transactionId/summary', (async (req: Request, res: Response) => {
 			averageItemPrice:
 				enrichedTransaction.items?.length > 0
 					? enrichedTransaction.items.reduce(
-							(sum: number, item: any) => sum + item.sellPrice,
-							0
-					  ) / enrichedTransaction.items.length
+						(sum: number, item: any) => sum + item.sellPrice,
+						0
+					) / enrichedTransaction.items.length
 					: 0,
 		};
 

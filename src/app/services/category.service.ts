@@ -11,8 +11,8 @@ const categoriesSerive = {
 	endpoints,
 	async list(query = {}): Promise<Category[]> {
 		return api
-			.get<Category[]>(endpoints.all, query)
-			.then((res) => res.data)
+			.get<ApiResponse<Category[]>>(endpoints.all, query)
+			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
 			});

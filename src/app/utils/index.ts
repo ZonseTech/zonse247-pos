@@ -5,7 +5,11 @@ export const hasPermission = (user: User, permField: string): boolean => {
 
 export const hasRole = (user: User, role: string): boolean => {
 	if (!user) return false;
-	return user?.role === role;
+	return user?.roleName === role;
+};
+
+export const hasAnyPermission = (user: User, permissions: Array<string>) => {
+	return permissions.some(permission => hasPermission(user, permission));
 };
 
 export const formatCurrency = (amount: number) => {

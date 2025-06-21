@@ -15,7 +15,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({ transaction, isOpen
 				isOpen={isOpenDetails}
 				title="Transaction Details"
 				onClose={() => setIsOpenDetails(false)}
-				className='max-w-sm bg-white text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
+				className='max-w-sm bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
 			>
 				<div className="p-0 max-h-[70vh] overflow-y-auto pr-2">
 					<div className="border-b pb-4 mb-4">

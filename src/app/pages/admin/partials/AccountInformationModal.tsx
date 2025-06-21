@@ -70,8 +70,8 @@ const AccountInformationModal: FunctionComponent<Props> = ({ user }) => {
             <IconLabelButton
                 text={user?.fullname}
                 icon={<HiOutlineUser className='w-5 h-5' />}
-                color='bg-sky-400 uppercase'
-                iconColor='bg-sky-500'
+                color='bg-green-400 uppercase'
+                iconColor='bg-green-500'
                 onClick={() => setIsOpenForm(prev => !prev)}
             />
 
@@ -79,7 +79,7 @@ const AccountInformationModal: FunctionComponent<Props> = ({ user }) => {
                 title='Account Information'
                 isOpen={isOpenForm}
                 onClose={() => setIsOpenForm(prev => !prev)}
-                className='max-w-xs bg-white text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'>
+                className='max-w-xs bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'>
 
                 <Formik
                     initialValues={initialUserValues}

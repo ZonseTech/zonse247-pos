@@ -73,14 +73,14 @@ const HeroSection: FunctionComponent<{ staggerContainer, fadeInUp }> = ({ stagge
 							animate={heroInView ? "visible" : "hidden"}
 						>
 							<motion.p
-								className="text-sm font-semibold tracking-wider uppercase mb-4 text-white opacity-90"
+								className="text-sm font-semibold tracking-wider uppercase mb-4 text-white dark:text-gray-100 opacity-90"
 								variants={fadeInUp}
 							>
 								Fast, Reliable & Portable — The Ultimate POS Experience
 							</motion.p>
 
 							<motion.h1
-								className="text-5xl lg:text-6xl font-bold mb-4 leading-tight text-white"
+								className="text-5xl lg:text-6xl font-bold mb-4 leading-tight text-white dark:text-gray-100"
 								variants={fadeInUp}
 							>
 								<motion.span
@@ -112,7 +112,7 @@ const HeroSection: FunctionComponent<{ staggerContainer, fadeInUp }> = ({ stagge
 							>
 								<motion.div className="group inline-block">
 									<motion.button
-										className="px-6 py-3 rounded-sm font-semibold flex items-center justify-center space-x-2 transition-all text-[#102f4f] bg-white hover:bg-gray-100 relative overflow-hidden"
+										className="px-6 py-3 rounded-sm font-semibold flex items-center justify-center space-x-2 transition-all text-[#102f4f] bg-white dark:bg-gray-200 hover:bg-gray-100 relative overflow-hidden"
 										whileHover={{ scale: 1.05 }}
 										whileTap={{ scale: 0.95 }}
 										animate={{

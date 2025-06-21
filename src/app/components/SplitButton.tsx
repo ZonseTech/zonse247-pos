@@ -46,7 +46,7 @@ const SplitButton: FunctionComponent<SplitButtonProps> = ({
                         href="#"
                         onClick={handleOnClick}
                         className={classNames(
-                            `text-white p-2 flex items-center`,
+                            `text-white dark:text-gray-100 p-2 flex items-center`,
                             `${iconColor}`)
                         }
                     >
@@ -55,7 +55,7 @@ const SplitButton: FunctionComponent<SplitButtonProps> = ({
                     <a
                         href="#"
                         onClick={handleOnClick}
-                        className={`${color} text-white truncate p-2 flex items-center ${fullWidth ? 'flex-1' : ''}`}
+                        className={`${color} text-white dark:text-gray-100 truncate p-2 flex items-center ${fullWidth ? 'flex-1' : ''}`}
                     >
                         {text}
                     </a>
@@ -68,7 +68,7 @@ const SplitButton: FunctionComponent<SplitButtonProps> = ({
                 <a
                     href="#"
                     onClick={handlePlusClick}
-                    className="bg-yellow-400 text-white p-2 flex items-center"
+                    className="bg-green-400 text-white dark:text-gray-100 p-2 flex items-center"
                 >
                     <HiOutlinePlus className='w-5 h-5' />
                 </a>

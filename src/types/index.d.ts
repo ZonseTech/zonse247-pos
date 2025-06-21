@@ -1,46 +1,7 @@
-interface User {
-	id?: string;
-	uuid: string;
-	username: string;
-	email?: string;
-	password: string;
-	repeatPassword?: string;
-	fullname: string;
-	status?: string;
-	role: string;
-	permissions: Array<string>,
-	createdAt?: Date;
-	updatedAt?: Date;
-	synced?: 1 | 0;
-}
-
-type TAuthTokenProps = {
-	user: User;
-};
-
 interface Till {
 	id: number;
 	uuid: string;
 	name: string;
-}
-
-type AuthUser = {
-	user: User;
-	token: string;
-};
-
-type AuthProps = { username: string; password: string };
-
-interface LoginResponse {
-	token: string;
-	message?: string;
-	user: User;
-}
-
-interface UserInput extends Omit<User, 'uuid'> {
-	uuid: string;
-	pass?: string;
-	[key: string]: unknown;
 }
 
 type Mode = 'dark' | 'light' | string;
@@ -64,14 +25,6 @@ interface TextInputProps {
 	| 'file'
 	| 'checkbox'
 	| 'datetime-local';
-}
-
-interface Category {
-	uuid: string;
-	name: string;
-	createdAt?: string;
-	updateAt?: string;
-	synced?: 1 | 0;
 }
 
 type DataTypes = string | number | undefined | null | boolean;
@@ -122,57 +75,6 @@ interface CartItem {
 	variancePrice?: number;
 	quantity: number;
 	categoryDetails?: Category;
-}
-
-interface Setting {
-	id?: number | null;
-	uuid: string;
-	app: string;
-	store: string;
-	addressOne: string;
-	addressTwo: string;
-	contact: string;
-	tax: string;
-	symbol: string;
-	percentage: string;
-	chargeTax: boolean;
-	footer: string;
-	img: string | null;
-	remove?: string;
-	file?: string;
-	tillName?: string;
-	synced?: 1 | 0;
-}
-
-interface Settings {
-	synced?: 1 | 0;
-	uuid: string;
-	settings: Setting;
-}
-
-interface SettingsRequestBody {
-	img: string;
-	remove: string;
-	app: string;
-	store: string;
-	addressOne: string;
-	addressTwo: string;
-	contact: string;
-	tax: string;
-	symbol: string;
-	percentage: string;
-	chargeTax: string;
-	footer: string;
-	tillName: string;
-}
-
-interface Customer {
-	uuid: string;
-	name: string;
-	phone?: string;
-	email?: string;
-	address?: string;
-	synced?: 0 | 1;
 }
 
 interface AppSettings {
@@ -240,6 +142,9 @@ type PaymentMethod = {
 	uuid: string;
 	name: string;
 	icon?: string;
+	userId: string;
+	clientId: string;
+	shopId: string;
 };
 
 interface Printer {

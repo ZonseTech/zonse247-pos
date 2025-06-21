@@ -85,14 +85,14 @@ const ProductsViewGrid: FunctionComponent = () => {
     return (
         <div className='flex-grow overflow-auto p-2.5'>
             {expiredProductsCount > 0 && (
-                <div className="mb-4 bg-yellow-50 border border-yellow-200/40 rounded-sm p-3">
+                <div className="mb-4 bg-green-50 border border-yellow-200/40 rounded-sm p-3">
                     <div className="flex items-center">
                         <div className="text-yellow-600 font-medium">
                             {expiredProductsCount} product(s) have expired.
                         </div>
                         <Link
                             to={ROUTES.PRODUCTS}
-                            className="ml-4 text-sky-600 hover:text-sky-800 font-medium text-sm"
+                            className="ml-4 text-green-600 hover:text-green-800 font-medium text-sm"
                         >
                             Go to Products Page →
                         </Link>
@@ -111,7 +111,7 @@ const ProductsViewGrid: FunctionComponent = () => {
                 <div className="flex-grow overflow-auto">
                     {data.length > 0 ? (
                         <div className="w-full">
-                            <div className="grid grid-cols-12 bg-white gap-2 px-4 py-2 sticky top-0 z-10 font-medium text-sm uppercase border-b">
+                            <div className="grid grid-cols-12 bg-white dark:bg-gray-700 gap-2 px-4 py-2 sticky top-0 z-10 font-medium text-sm uppercase border-b">
                                 <div className="col-span-4">Product Name</div>
                                 <div className="col-span-3">Category</div>
                                 <div className="col-span-2 text-center">Stock</div>
@@ -132,7 +132,7 @@ const ProductsViewGrid: FunctionComponent = () => {
                                             disabled={isOutOfStock}
                                             data-tooltip-id="product-tooltip"
                                             data-tooltip-content={isOutOfStock ? "Out of stock" : "Click to add to cart"}
-                                            className={`w-full grid grid-cols-12 gap-2 px-4 py-3 border-t rounded-xs text-left ${isOutOfStock ? 'bg-gray-50/30 opacity-70 cursor-not-allowed' : 'bg-white hover:bg-gray-50 cursor-pointer'}`}
+                                            className={`w-full grid grid-cols-12 gap-2 px-4 py-3 border-t rounded-xs text-left ${isOutOfStock ? 'bg-gray-50/30 opacity-70 cursor-not-allowed' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 cursor-pointer'}`}
                                         >
                                             <div className="col-span-4 font-medium truncate" title={product.name}>
                                                 {product.name}
@@ -165,7 +165,7 @@ const ProductsViewGrid: FunctionComponent = () => {
                     id="product-tooltip"
                     place="top"
                     delayShow={300}
-                    className="z-50 bg-gray-800 text-white px-3 py-1 rounded text-sm"
+                    className="z-50 bg-gray-800 text-white dark:text-gray-100 px-3 py-1 rounded text-sm"
                 />
             </div>
         </div>

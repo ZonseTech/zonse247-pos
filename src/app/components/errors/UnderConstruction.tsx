@@ -10,7 +10,7 @@ const UnderConstruction: FunctionComponent = () => {
 					<div className="mx-auto h-24 w-24 text-yellow-500 mb-4 flex justify-center">
 						<HiOutlineExclamation className="h-24 w-24" />
 					</div>
-					<h1 className="text-3xl font-extrabold text-gray-800 sm:text-4xl">
+					<h1 className="text-3xl font-extrabold text-gray-800 dark:text-gray-400 sm:text-4xl">
 						Under Construction
 					</h1>
 					<p className="mt-3 text-xl text-gray-400">
@@ -20,7 +20,7 @@ const UnderConstruction: FunctionComponent = () => {
 
 				<div className="bg-gray-50/50 shadow overflow-hidden rounded-sm divide-y divide-gray-300">
 					<div className="px-6 py-5 flex items-center">
-						<HiOutlineWrench className="h-6 w-6 text-sky-500 mr-3" />
+						<HiOutlineWrench className="h-6 w-6 text-green-500 mr-3" />
 						<div className="text-lg font-medium text-gray-900">We're working on it</div>
 					</div>
 					<div className="px-6 py-5">
@@ -30,7 +30,7 @@ const UnderConstruction: FunctionComponent = () => {
 						</p>
 					</div>
 					<div className="px-6 py-4 flex items-center">
-						<HiOutlineClock className="h-5 w-5 text-sky-500 mr-3" />
+						<HiOutlineClock className="h-5 w-5 text-green-500 mr-3" />
 						<div className="text-sm text-gray-400">Estimated completion: Coming soon</div>
 					</div>
 				</div>

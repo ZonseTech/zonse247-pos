@@ -156,7 +156,7 @@ const CreateProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ produ
 	return (
 		<Fragment>
 			<IconButton
-				color='bg-yellow-400'
+				color='bg-blue-600'
 				className='rounded-r-sm rounded-l-none'
 				onClick={handleAddProductClicked}
 				icon={<HiOutlinePlus className='w-5 h-5' />}
@@ -166,7 +166,7 @@ const CreateProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ produ
 				title='Product'
 				isOpen={isOpenForm}
 				onClose={handleAddProductClicked}
-				className='max-w-sm bg-white text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
+				className='max-w-sm bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
 			>
 				<Formik
 					initialValues={productValues}

@@ -146,7 +146,7 @@ const EditProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product
 				title='Product'
 				isOpen={isOpenForm}
 				onClose={handleAddProductClicked}
-				className='max-w-sm bg-white text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
+				className='max-w-sm bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
 			>
 				<Formik
 					initialValues={productValues}

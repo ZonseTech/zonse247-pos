@@ -15,7 +15,7 @@ const RenderTopProductRow: FunctionComponent<Props> = ({ product }) => {
 				<td className="px-6 py-4 whitespace-nowrap">
 					<span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-sm 
                 ${product.categoryName === 'Consumables' ? 'bg-blue-100 text-blue-800' :
-							'bg-yellow-100 text-yellow-800'
+							'bg-green-100 text-yellow-800'
 						}`}>
 						{product.categoryName}
 					</span>

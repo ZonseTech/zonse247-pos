@@ -24,7 +24,7 @@ const IconButton: FunctionComponent<IconButtonProps> = ({ color, icon, onClick, 
                 href="#"
                 onClick={handleOnClick}
                 className={classNames(
-                    'text-white p-2.5 rounded flex items-center',
+                    'text-white dark:text-gray-100 p-2.5 rounded flex items-center',
                     className,
                     color,
                 )}

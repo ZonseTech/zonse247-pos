@@ -5,6 +5,7 @@ import customerSerive from "../services/customers.service";
 import { Notify } from "notiflix";
 import paymentMethodService from "../services/payment-method.service";
 import { DEFAULT_SEED_KEY } from "../constants";
+import { useAuth } from "./AuthProvider";
 
 interface ProductsContextType {
     products: Product[];
@@ -19,6 +20,7 @@ interface ProductsContextType {
     discount: number;
     tax: number;
     total: number;
+    isLoading: boolean;
     setCart: (items: CartItem[]) => void;
     setTotal: (amount: number) => void;
     setSelectedCustomer: (customer: Customer) => void;
@@ -56,6 +58,8 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
     children,
     initialCart = [],
 }) => {
+    const { isAuthenticated, user: authUser } = useAuth();
+
     const [tax] = useState<number>(0);
     const [total, setTotal] = useState<number>(0);
     const [discount, setDiscount] = useState<number>(0);
@@ -68,6 +72,7 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
     const [categories, setCategories] = useState<Category[]>([]);
     const [paymentMethods, setPaymentMethods] = useState<Array<PaymentMethod>>([]);
     const [selectedCustomer, setSelectedCustomer] = useState({} as Customer);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const fetchCategories = async () => {
         try {
@@ -110,34 +115,57 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
     }
 
     const reloadProducts = async () => {
-        await fetchCategories();
-        await fetchProducts();
-    }
+        if (!isAuthenticated) return;
 
-    useEffect(() => {
-        const fetchData = async () => {
+        setIsLoading(true);
+        try {
             await fetchCategories();
             await fetchProducts();
-            await fetchCustomers();
-            await fetchPaymentMethods();
-        };
+        } finally {
+            setIsLoading(false);
+        }
+    }
 
-        fetchData();
+    const fetchUserAndTill = async () => {
+        try {
+            setUser(authUser);
 
-        const fetchUserAndTill = async () => {
+            // const tillResponse = await axios.get('/api/tills/active');
+            setTill({} as Till);
+        } catch (error) {
+            Notify.failure('Error fetching user/till info:' + error);
+        }
+    };
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            setProducts([]);
+            setCategories([]);
+            setCustomers([]);
+            setPaymentMethods([]);
+            setUser(null);
+            setTill(null);
+            setSelectedCustomer({} as Customer);
+            return;
+        }
+
+        const fetchData = async () => {
+            setIsLoading(true);
             try {
-                // const userResponse = await axios.get('/api/auth/current-user');
-                setUser({} as User);
-
-                // const tillResponse = await axios.get('/api/tills/active');
-                setTill({} as Till);
-            } catch (error) {
-                Notify.failure('Error fetching user/till info:' + error);
+                await Promise.all([
+                    fetchCategories(),
+                    fetchProducts(),
+                    fetchCustomers(),
+                    fetchPaymentMethods(),
+                    fetchUserAndTill()
+                ]);
+            } finally {
+                setIsLoading(false);
             }
         };
 
-        fetchUserAndTill();
-    }, []);
+        fetchData();
+    }, [isAuthenticated, authUser]);
 
     useEffect(() => {
         let totalPrice = 0.00
@@ -154,6 +182,11 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
     }, [cart, discount]);
 
     const addToCart = (product: Product) => {
+        if (!isAuthenticated) {
+            Notify.failure('Please log in to add items to cart');
+            return;
+        }
+
         const quantity = parseInt(product?.orderItems?.toString() || '0') || 1
         const existingItem = cart.find(item => item.productId === product.uuid);
 
@@ -182,6 +215,8 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
     };
 
     const removeFromCart = (id: string) => {
+        if (!isAuthenticated) return;
+
         const itemToRemove = cart.find(item => item.productId === id);
 
         setCart(prev => prev.filter(item => item.productId !== id));
@@ -195,6 +230,8 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
     };
 
     const updateCustomPrice = (productId: string, newPrice: number) => {
+        if (!isAuthenticated) return;
+
         setCart(prev =>
             prev.map(item =>
                 item.productId === productId
@@ -205,6 +242,8 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
     };
 
     const updateQuantity = (id: string, quantity: number) => {
+        if (!isAuthenticated) return;
+
         const prevItem = cart.find(item => item.productId === id) as CartItem;
         const isConsumable = prevItem.categoryId === DEFAULT_SEED_KEY
 
@@ -226,6 +265,8 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
     };
 
     const clearCart = () => {
+        if (!isAuthenticated) return;
+
         cart.forEach(item => {
             const product = products.find(p => p.uuid === item.productId);
             if (product) {
@@ -238,6 +279,8 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
     };
 
     const updateProductStock = (id: string, newStock: number) => {
+        if (!isAuthenticated) return;
+
         setProducts(prev => prev.map(product =>
             product.uuid === id ? { ...product, quantity: newStock } : product
         ));
@@ -256,6 +299,7 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
         discount,
         tax,
         total,
+        isLoading,
         setCart,
         setTotal,
         setSelectedCustomer,

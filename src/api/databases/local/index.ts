@@ -1,12 +1,17 @@
 import fs from 'fs';
 import path from 'path';
 import tables, {
-	CATEGORY_DB,
+	CATEGORIES_DB,
 	INVENTORY_DB,
 	ORDERS_DB,
+	PERMISSIONS_DB,
+	ROLE_PERMISSIONS_DB,
+	ROLES_DB,
+	SHOP_SETTINGS_DB,
 	SYNC_STATUS_TABLE,
 	TRANSACTIONS_DB,
 	USERS_DB,
+	WORKSTATIONS_DB,
 } from './tables';
 import Datastore from '@seald-io/nedb';
 
@@ -131,11 +136,11 @@ export class SealDBModel {
 		return this.syncStatusDB;
 	}
 
-	public find(table: string, conditions: any = {}): Promise<any[]> {
+	public find<T = any>(table: string, conditions: any = {}): Promise<T> {
 		return new Promise((resolve, reject) => {
 			try {
 				const db = this.getDB(table);
-				db.find(conditions, (err: Error | null, docs: any[]) => {
+				db.find(conditions, (err: Error | null, docs: any) => {
 					if (err) reject(err);
 					else resolve(docs);
 				});
@@ -145,17 +150,15 @@ export class SealDBModel {
 		});
 	}
 
-	public findById(table: string, id: string): Promise<any | null> {
+	public async findById<T = any>(table: string, conditions: string | Record<string, any>): Promise<T | null> {
 		return new Promise((resolve, reject) => {
-			try {
-				const db = this.getDB(table);
-				db.findOne({ uuid: id }, (err: Error | null, doc: any) => {
-					if (err) reject(err);
-					else resolve(doc);
-				});
-			} catch (error) {
-				reject(error);
-			}
+			const db = this.getDB(table);
+			const query = typeof conditions === 'string' ? { uuid: conditions } : conditions;
+
+			db.findOne(query, (err, doc) => {
+				if (err) return reject(err);
+				resolve(doc);
+			});
 		});
 	}
 
@@ -362,7 +365,7 @@ export class SealDBModel {
 					case USERS_DB:
 						db.ensureIndex({ fieldName: 'username', unique: true });
 						break;
-					case CATEGORY_DB:
+					case CATEGORIES_DB:
 						db.ensureIndex({ fieldName: 'name', unique: true });
 						break;
 					case INVENTORY_DB:
@@ -376,6 +379,36 @@ export class SealDBModel {
 					case ORDERS_DB:
 						db.ensureIndex({ fieldName: 'refNumber' });
 						db.ensureIndex({ fieldName: 'productId' });
+						break;
+					case WORKSTATIONS_DB:
+						db.ensureIndex({ fieldName: 'clientId' });
+						db.ensureIndex({ fieldName: 'shopId' });
+						db.ensureIndex({ fieldName: 'tillNumber' });
+						db.ensureIndex({ fieldName: 'deviceId' });
+						db.ensureIndex({ fieldName: 'status' });
+						db.ensureIndex({ fieldName: 'isPrimary' });
+						break;
+					case ROLES_DB:
+						db.ensureIndex({ fieldName: 'clientId' });
+						db.ensureIndex({ fieldName: 'shopId' });
+						db.ensureIndex({ fieldName: 'name' });
+						db.ensureIndex({ fieldName: 'isSystemRole' });
+						db.ensureIndex({ fieldName: 'isActive' });
+						break;
+					case PERMISSIONS_DB:
+						db.ensureIndex({ fieldName: 'name', unique: true });
+						db.ensureIndex({ fieldName: 'category' });
+						db.ensureIndex({ fieldName: 'scope' });
+						db.ensureIndex({ fieldName: 'isSystemPermission' });
+						break;
+					case ROLE_PERMISSIONS_DB:
+						db.ensureIndex({ fieldName: 'roleUuid' });
+						db.ensureIndex({ fieldName: 'permissionUuid' });
+						break;
+					case SHOP_SETTINGS_DB:
+						db.ensureIndex({ fieldName: 'clientUuid' });
+						db.ensureIndex({ fieldName: 'shopUuid' });
+						db.ensureIndex({ fieldName: 'workstationUuid' });
 						break;
 				}
 				console.log(`Ensured indexes for table: ${tableName}`);

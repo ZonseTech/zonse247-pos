@@ -1,36 +1,40 @@
 interface ShopVerificationParams {
 	clientId: string;
-	authToken: string;
-	workstationName: string;
+	authKey: string;
 	os: string;
 	hostname: string;
 	macAddress: string;
 }
 
-interface Shop {
-	id: string;
+interface ShopOptions {
+	uuid: string;
 	name: string;
-	email: string;
-	phone: string;
-	address: {
-		line1: string;
-		line2: string;
-		city: string;
-		country: string;
-	};
-	vatNumber?: string;
-	currency: {
-		symbol: string;
-		code: string;
-	};
-	tax: {
-		rate: number;
-		enabled: boolean;
-	};
-	logo?: string;
-	footer?: string;
-	createdAt: string;
+}
+
+interface IShop {
+	uuid: string;
+	clientId: string;
+	shopCode: string;
+	name: string;
+	description?: string;
+	addressLine1?: string;
+	addressLine2?: string;
+	city?: string;
+	state?: string;
+	postalCode?: string;
+	country?: string;
+	phone?: string;
+	email?: string;
+	taxNumber?: string;
+	currencyCode: string;
+	currencySymbol: string;
+	taxRate: number;
+	chargeTax: boolean;
+	receiptFooter?: string;
+	logoUrl?: string;
 	status: 'active' | 'inactive' | 'suspended';
+	createdAt?: string;
+	updatedAt?: string;
 }
 
 interface ShopRegistration {
@@ -52,7 +56,7 @@ interface ShopRegistration {
 
 interface ClientCredentials {
 	clientId: string;
-	authToken: string;
+	authKey: string;
 	shopId: string;
 	expiresAt: string;
 	permissions: string[];
@@ -71,46 +75,24 @@ interface WorkstationUser {
 	lastSync?: string;
 }
 
-interface WorkstationSettings {
-	id: string;
-	name: string;
-	shopId: string;
+interface CreateShopRequest {
 	clientId: string;
-	isActivated: boolean;
-	deviceInfo: {
-		os: string;
-		version: string;
-		macAddress: string;
-		hostname: string;
-	};
-	syncSettings: {
-		lastSync: string;
-		autoSync: boolean;
-		syncInterval: number
-	};
-	features: {
-		offline: boolean;
-		printing: boolean;
-		barcode: boolean;
-		inventory: boolean;
-	};
-	createdAt: string;
-}
-
-interface Setting extends WorkstationSettings {
-	uuid: string;
-	img: string;
-	remove: string;
-	app: string;
-	tillName: string;
-	store: string;
-	addressOne: string;
-	addressTwo: string;
-	contact: string;
-	tax: string;
-	symbol: string;
-	percentage: number;
-	chargeTax: boolean;
-	footer: string;
-	file: string;
+	shopCode: string;
+	name: string;
+	description?: string;
+	addressLine1?: string;
+	addressLine2?: string;
+	city?: string;
+	state?: string;
+	postalCode?: string;
+	country?: string;
+	phone?: string;
+	email?: string;
+	taxNumber?: string;
+	currencyCode?: string;
+	currencySymbol?: string;
+	taxRate?: number;
+	chargeTax?: boolean;
+	receiptFooter?: string;
+	logoUrl?: string;
 }

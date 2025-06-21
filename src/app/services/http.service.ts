@@ -21,23 +21,49 @@ enum HttpRequestResponseMessages {
 }
 
 const getBaseUrl = () => {
-	const api = 'http://' + host + ':' + port + '/api/';
+	const api = 'http://' + 'localhost' + ':' + 3000 + '/api/v1';
+	// const api = 'http://' + host + ':' + port + '/api/v1';
 
 	return api;
 };
 
 instance.interceptors.request.use(
 	async (config: InternalAxiosRequestConfig<any>) => {
-		let token: string | undefined;
+		try {
+			const getFromStorage = (key: string): string | undefined => {
+				try {
+					const value = sessionStorage?.getItem(key);
+					if (!value) return undefined;
 
-		if (sessionStorage.user)
-			token = JSON.parse(sessionStorage.user)?.access_token;
+					try {
+						return JSON.parse(value);
+					} catch {
+						return value;
+					}
+				} catch (error) {
+					console.warn(`Error getting ${key} from sessionStorage:`, error);
+					return undefined;
+				}
+			};
 
-		if (token) config.headers.Authorization = `Bearer ${token}`;
+			const token = getFromStorage('token');
+			const clientUuid = getFromStorage('clientUuid');
 
-		config.baseURL = getBaseUrl();
+			if (token) {
+				config.headers.Authorization = `Bearer ${token}`;
+			}
 
-		return config;
+			if (clientUuid) {
+				config.headers['X-Client-Uuid'] = clientUuid;
+			}
+
+			config.baseURL = getBaseUrl();
+
+			return config;
+		} catch (error) {
+			console.error('Error in request interceptor:', error);
+			return config;
+		}
 	},
 	(error) => {
 		return Promise.reject(error);
