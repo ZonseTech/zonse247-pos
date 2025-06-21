@@ -9,9 +9,9 @@ const endpoints = {
 const settingsService = {
 	endpoints,
 
-	async list(query = {}): Promise<Setting> {
+	async list(query = {}): Promise<WorkstatSettings> {
 		return api
-			.get<ApiResponse<Setting>>(endpoints.all, query)
+			.get<ApiResponse<WorkstatSettings>>(endpoints.all, query)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;

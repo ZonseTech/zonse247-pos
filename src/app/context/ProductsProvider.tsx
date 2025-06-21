@@ -6,6 +6,7 @@ import { Notify } from "notiflix";
 import paymentMethodService from "../services/payment-method.service";
 import { DEFAULT_SEED_KEY } from "../constants";
 import { useAuth } from "./AuthProvider";
+import paymentServiceProviderService from "../services/payment-service-provider.service";
 
 interface ProductsContextType {
     products: Product[];
@@ -13,6 +14,7 @@ interface ProductsContextType {
     categories: Category[];
     customers: Customer[];
     paymentMethods: Array<PaymentMethod>;
+    paymentServiceProvider: Array<PaymentServiceProvider>;
     user: User | null;
     till: Till | null;
     selectedCustomer: Customer;
@@ -71,6 +73,7 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [paymentMethods, setPaymentMethods] = useState<Array<PaymentMethod>>([]);
+    const [paymentServiceProvider, setPaymentServiceProvider] = useState<Array<PaymentServiceProvider>>([]);
     const [selectedCustomer, setSelectedCustomer] = useState({} as Customer);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -87,6 +90,15 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
         try {
             const data = await paymentMethodService.list();
             setPaymentMethods(data);
+        } catch (error) {
+            Notify.failure('Error fetching payment services' + error);
+        }
+    }
+
+    const fetchPaymentServiceProvider = async () => {
+        try {
+            const data = await paymentServiceProviderService.list();
+            setPaymentServiceProvider(data);
         } catch (error) {
             Notify.failure('Error fetching payment services' + error);
         }
@@ -143,6 +155,7 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
             setCategories([]);
             setCustomers([]);
             setPaymentMethods([]);
+            setPaymentServiceProvider([]);
             setUser(null);
             setTill(null);
             setSelectedCustomer({} as Customer);
@@ -157,6 +170,7 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
                     fetchProducts(),
                     fetchCustomers(),
                     fetchPaymentMethods(),
+                    fetchPaymentServiceProvider(),
                     fetchUserAndTill()
                 ]);
             } finally {
@@ -292,6 +306,7 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
         categories,
         customers,
         paymentMethods,
+        paymentServiceProvider,
         user,
         till,
         selectedCustomer,

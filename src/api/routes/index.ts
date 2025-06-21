@@ -31,6 +31,7 @@ import { clientValidationSchemas } from '../validations/client.schemas';
 import { shopValidationSchemas } from '../validations/shopValidationSchemas';
 import { OnboardingController } from '../controllers/onboarding.controller';
 import { SettingsController } from '../controllers/settings.controller'
+import PaymentServiceProviderRoutes from './payment-service-provider.routes'
 
 const router = Router();
 const authMiddleware = new AuthMiddleware();
@@ -70,6 +71,7 @@ router.use('/settings', authLimiter, SettingsRoutes);
 
 router.use('/export', authMiddleware.verifyToken, DatabaseExportRoutes);
 router.use('/sync', authMiddleware.verifyToken, SyncRoutes);
+router.use('/payment-service-providers', authMiddleware.verifyToken, PaymentServiceProviderRoutes);
 router.use('/users', authMiddleware.verifyToken, UsersRoutes);
 router.use('/dashboard', authMiddleware.verifyToken, DashboardRoutes);
 router.use('/printers', authMiddleware.verifyToken, PrinterRoutes);

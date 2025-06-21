@@ -25,3 +25,9 @@ interface LoginResponse {
 type TAuthTokenProps = {
 	user: User;
 };
+
+interface AuthenticatedUser {
+	userUuid: string;
+	clientUuid: string;
+	shopUuid: string;
+}

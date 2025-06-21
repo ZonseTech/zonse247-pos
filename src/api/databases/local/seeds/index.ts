@@ -7,6 +7,7 @@ import {
 	INVENTORY_DB,
 	ORDERS_DB,
 	PAYMENT_METHODS_DB,
+	PAYMENT_SERVICE_PROVIDERS_DB,
 	PERMISSIONS_DB,
 	ROLE_PERMISSIONS_DB,
 	ROLES_DB,
@@ -515,6 +516,59 @@ async function checkOrCreateDefaultPaymentMethods(): Promise<void> {
 
 		const insertOperations = DEFAULT_PAYMENT_METHODS.map((method) =>
 			sealDBModel.insert(PAYMENT_METHODS_DB, method)
+		);
+		await Promise.all(insertOperations);
+	} catch (err) {
+		console.error('Failed to setup payment methods:', err);
+	}
+}
+
+async function checkOrCreateDefaultPaymentServiceProviders(): Promise<void> {
+	const p: Array<PaymentServiceProvider> = [
+		{
+			name: 'Airtel Money',
+			uuid: '1',
+			clientUuid: '-1',
+			shopUuid: '-1',
+			userUuid: '-1',
+		},
+		{
+			name: 'TNM Mpamba',
+			uuid: '2',
+			clientUuid: '-1',
+			shopUuid: '-1',
+			userUuid: '-1',
+		},
+		{
+			name: 'National Bank',
+			uuid: '3',
+			clientUuid: '-1',
+			shopUuid: '-1',
+			userUuid: '-1',
+		},
+		{
+			name: 'FDH',
+			uuid: '4',
+			clientUuid: '-1',
+			shopUuid: '-1',
+			userUuid: '-1',
+		},
+		{
+			name: 'Standard Bank',
+			uuid: '5',
+			clientUuid: '-1',
+			shopUuid: '-1',
+			userUuid: '-1',
+		},
+	];
+
+	try {
+		const psps = await sealDBModel.findById(PAYMENT_SERVICE_PROVIDERS_DB, '-1');
+
+		if (psps) return;
+
+		const insertOperations = p.map((method) =>
+			sealDBModel.insert(PAYMENT_SERVICE_PROVIDERS_DB, method)
 		);
 		await Promise.all(insertOperations);
 	} catch (err) {

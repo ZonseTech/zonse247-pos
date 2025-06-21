@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { Form, Formik, } from 'formik';
-import { Button, Input } from '../../../components'
+import { Input } from '../../../components'
 import { useApp } from '../../../context/AppProvider';
 import { useAuth } from '../../../context/AuthProvider';
 import PrinterPreviewModal from './PrinterPreviewModal';
@@ -9,6 +9,7 @@ import { formatCurrency, generateReferenceNumber } from '../../../utils';
 import { Fragment, type FunctionComponent, type PropsWithChildren, useState } from 'react'
 import transactionService from '../../../services/transactions.service';
 import { Report } from 'notiflix';
+import { HiOutlineCash, HiOutlineCreditCard, HiOutlineRefresh, HiOutlineCheck } from 'react-icons/hi';
 
 type Props = {
     changeAmount: number;
@@ -136,6 +137,19 @@ const ConfirmPaymentModal: FunctionComponent<PropsWithChildren<Props>> = ({
         }
     };
 
+    const getPaymentIcon = (paymentMethod: string) => {
+        switch (paymentMethod.toLowerCase()) {
+            case 'cash':
+                return <HiOutlineCash className="w-5 h-5" />;
+            case 'card':
+            case 'credit':
+            case 'debit':
+                return <HiOutlineCreditCard className="w-5 h-5" />;
+            default:
+                return <HiOutlineCreditCard className="w-5 h-5" />;
+        }
+    };
+
     return (
         <Fragment>
             <Formik
@@ -144,60 +158,108 @@ const ConfirmPaymentModal: FunctionComponent<PropsWithChildren<Props>> = ({
                 validationSchema={newTransactionValidationSchema}
             >
                 {({ isSubmitting, values, setFieldValue }) => (
-                    <Form className=''>
-                        <div className="grid grid-cols-2 rounded overflow-hidden border border-gray-200 mb-4">
-                            {paymentMethods.map(({ uuid, name }) => (
-                                <label
-                                    key={uuid}
-                                    className={`py-3 text-lg font-normal transition flex items-center justify-center cursor-pointer ${values.paymentMethodId === name
-                                        ? 'bg-emerald-500 text-white dark:text-gray-100'
-                                        : 'bg-white dark:bg-gray-700 text-gray-700'
-                                        }`}
-                                >
-                                    <Input
-                                        type="radio"
-                                        name="paymentMethodId"
-                                        value={name}
-                                        checked={values.paymentMethodId === name}
-                                        className="sr-only"
-                                        onChange={() => {
-                                            setPaymentMethod(name)
-                                            setFieldValue('paymentMethodId', name);
+                    <Form className="space-y-6">
+                        <div className="space-y-3">
+                            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+                                Select Payment Method
+                            </h3>
 
-                                            if (paymentMethods.some(condition => condition.name === name)) {
-                                                setFieldValue('serviceProviderId', 0);
-                                                setFieldValue('transactionId', '');
-                                                setFieldValue('phoneNumber', '');
-                                            }
-                                        }}
-                                    />
-                                    {name}
-                                </label>
-                            ))}
+                            <div className="grid grid-cols-2 gap-3">
+                                {paymentMethods.map(({ uuid, name }) => (
+                                    <label
+                                        key={uuid}
+                                        className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:scale-[1.02] ${values.paymentMethodId === name
+                                            ? 'border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 shadow-lg shadow-blue-500/20'
+                                            : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-md'
+                                            }`}
+                                    >
+                                        <Input
+                                            type="radio"
+                                            name="paymentMethodId"
+                                            value={name}
+                                            checked={values.paymentMethodId === name}
+                                            className="sr-only"
+                                            onChange={() => {
+                                                setPaymentMethod(name)
+                                                setFieldValue('paymentMethodId', name);
+
+                                                if (paymentMethods.some(condition => condition.name === name)) {
+                                                    setFieldValue('serviceProviderId', 0);
+                                                    setFieldValue('transactionId', '');
+                                                    setFieldValue('phoneNumber', '');
+                                                }
+                                            }}
+                                        />
+
+                                        <div className="flex items-center space-x-3">
+                                            <div className={`p-2 rounded-lg ${values.paymentMethodId === name
+                                                ? 'bg-blue-500 text-white'
+                                                : 'bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                                                }`}>
+                                                {getPaymentIcon(name)}
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className={`font-medium ${values.paymentMethodId === name
+                                                    ? 'text-blue-700 dark:text-blue-300'
+                                                    : 'text-gray-700 dark:text-gray-300'
+                                                    }`}>
+                                                    {name}
+                                                </p>
+                                            </div>
+                                            {values.paymentMethodId === name && (
+                                                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                                                    <HiOutlineCheck className="w-4 h-4 text-white" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </label>
+                                ))}
+                            </div>
                         </div>
 
-                        <div className="max-h-[35rem] overflow-y-auto mb-4">
-                            {children}
+                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 border border-gray-200 dark:border-gray-600">
+                            <div className="max-h-[35rem] overflow-y-auto">
+                                {children}
+                            </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4 mt-2">
+                        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                            <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-xl p-4 border border-emerald-200 dark:border-emerald-700">
+                                <div className="flex items-center space-x-3">
+                                    <div className="w-10 h-10 bg-emerald-500 dark:bg-emerald-600 rounded-lg flex items-center justify-center">
+                                        <HiOutlineRefresh className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Change Amount</p>
+                                        <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                                            {changeAmount > 0 ? formatCurrency(changeAmount) : '0.00'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
 
-                            <Button
-                                type="button"
-                                className="bg-green-400 hover:bg-green-500 text-white dark:text-gray-100 py-4 rounded text-lg">
-                                Change {changeAmount > 0 ? formatCurrency(changeAmount) : '0.00'}
-                            </Button>
-
-                            <Button
+                            {/* Confirm Payment Button */}
+                            <button
                                 type="submit"
-                                disabled={!isPaymentSufficient}
-                                loading={isSubmitting}
-                                className={`${isPaymentSufficient ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300 cursor-not-allowed'} text-white dark:text-gray-100 py-4 rounded text-lg`}
+                                disabled={!isPaymentSufficient || isSubmitting}
+                                className={`p-4 rounded-xl font-semibold text-white transition-all duration-200 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${isPaymentSufficient && !isSubmitting
+                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 shadow-lg hover:shadow-xl hover:shadow-blue-500/25 focus:ring-blue-500/50'
+                                    : 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-75 shadow-none'
+                                    }`}
                             >
-                                Confirm Payment
-                            </Button>
+                                {isSubmitting ? (
+                                    <div className="flex items-center justify-center space-x-2">
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        <span>Processing...</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-center space-x-2">
+                                        <HiOutlineCheck className="w-5 h-5" />
+                                        <span>Confirm Payment</span>
+                                    </div>
+                                )}
+                            </button>
                         </div>
-
                     </Form>
                 )}
             </Formik>

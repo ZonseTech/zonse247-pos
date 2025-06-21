@@ -4,7 +4,7 @@ import printerService from '../services/printer.service';
 import { useAuth } from './AuthProvider';
 
 interface AppContextType {
-    settings: Setting | null;
+    settings: WorkstatSettings | null;
     printerOptions: PrinterInfo | null;
     isLoading: boolean;
     error: Error | null;
@@ -22,7 +22,7 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
     const { auth } = useAuth()
     const [error, setError] = useState<Error | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [settings, setSettings] = useState<Setting | null>(null);
+    const [settings, setSettings] = useState<WorkstatSettings | null>(null);
     const [printerOptions, setPrinterOptions] = useState<PrinterInfo | null>(null);
 
     const fetchSettings = async () => {

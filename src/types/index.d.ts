@@ -101,11 +101,6 @@ type OrderItem = {
 	createdAt?: string;
 };
 
-type ServiceProvider = {
-	name: string;
-	uuid: string;
-};
-
 type TransactionValues = {
 	paymentMethodId?: string;
 	serviceProviderId?: number;
