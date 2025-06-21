@@ -62,21 +62,21 @@ const CartTable: FunctionComponent = () => {
                             </tr>
                         ) : (
                             cart.map((item, index) => (
-                                <tr key={item.productId} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+                                <tr key={item.productUuid} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
                                     <td className="p-3 text-gray-700 dark:text-gray-300 font-medium">{index + 1}</td>
                                     <td className="p-3 text-gray-900 dark:text-gray-100 font-medium">{item.name}</td>
                                     <td className="p-3">
                                         <QuantityControl
                                             quantity={item.quantity}
-                                            onIncrease={() => updateQuantity(item.productId, item.quantity + 1)}
-                                            onDecrease={() => updateQuantity(item.productId, item.quantity - 1)}
-                                            onInputChange={(value) => updateQuantity(item.productId, value)}
+                                            onIncrease={() => updateQuantity(item.productUuid, item.quantity + 1)}
+                                            onDecrease={() => updateQuantity(item.productUuid, item.quantity - 1)}
+                                            onInputChange={(value) => updateQuantity(item.productUuid, value)}
                                         />
                                     </td>
                                     <td className="p-3">
-                                        {item.categoryId === "-1" ? (
+                                        {item.categoryUuid === "-1" ? (
                                             <div className="flex items-center">
-                                                {editingItemId === item.productId ? (
+                                                {editingItemId === item.productUuid ? (
                                                     <Fragment>
                                                         <input
                                                             type="number"
@@ -87,7 +87,7 @@ const CartTable: FunctionComponent = () => {
                                                             step="0.01"
                                                         />
                                                         <button
-                                                            onClick={() => handleSavePrice(item.productId)}
+                                                            onClick={() => handleSavePrice(item.productUuid)}
                                                             className="ml-2 p-1 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded transition-colors"
                                                         >
                                                             <HiOutlineCheck className="h-5 w-5" />
@@ -97,7 +97,7 @@ const CartTable: FunctionComponent = () => {
                                                     <Fragment>
                                                         <span className="font-semibold text-emerald-600 dark:text-emerald-400">{formatCurrency(item.sellPrice)}</span>
                                                         <button
-                                                            onClick={() => handleEditPrice(item.productId, item.sellPrice)}
+                                                            onClick={() => handleEditPrice(item.productUuid, item.sellPrice)}
                                                             className="ml-2 p-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
                                                         >
                                                             <HiOutlinePencil className="h-4 w-4" />
@@ -113,7 +113,7 @@ const CartTable: FunctionComponent = () => {
                                     </td>
                                     <td className="p-3">
                                         <button
-                                            onClick={() => removeFromCart(item.productId)}
+                                            onClick={() => removeFromCart(item.productUuid)}
                                             className="p-1 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                                         >
                                             <HiOutlineX className="h-4 w-4" />

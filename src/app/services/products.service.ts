@@ -2,7 +2,7 @@ import api from './http.service';
 
 const endpoints = {
 	index: 'inventory/products-only',
-	all: 'inventory/products',
+	all: 'inventory',
 	store: 'inventory/product',
 	update: 'inventory/product',
 	show: 'inventory/product',
@@ -15,16 +15,16 @@ const productsService = {
 	endpoints,
 	async list(query = {}): Promise<Product[]> {
 		return api
-			.get<Product[]>(endpoints.all, query)
-			.then((res) => res.data)
+			.get<ApiResponse<Product[]>>(endpoints.all, query)
+			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
 			});
 	},
 	async index(query = {}): Promise<Product[]> {
 		return api
-			.get<Product[]>(endpoints.all, query)
-			.then((res) => res.data)
+			.get<ApiResponse<Product[]>>(endpoints.all, query)
+			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
 			});
@@ -54,7 +54,7 @@ const productsService = {
 			});
 	},
 	async updateStatus(
-		id: number,
+		id: string,
 		status: string
 	): Promise<Pick<Product, 'status'>> {
 		return api

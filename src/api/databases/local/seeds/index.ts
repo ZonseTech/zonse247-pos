@@ -477,7 +477,7 @@ async function checkAndCreateDefaultCategory(): Promise<void> {
 		if (category) return;
 
 		const defaultCategory: Category = {
-			uuid: uuidv4(),
+			uuid: '-1',
 			clientUuid: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',

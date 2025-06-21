@@ -188,12 +188,12 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
         }
 
         const quantity = parseInt(product?.orderItems?.toString() || '0') || 1
-        const existingItem = cart.find(item => item.productId === product.uuid);
+        const existingItem = cart.find(item => item.productUuid === product.uuid);
 
         if (existingItem) {
             updateQuantity((product.uuid.toString()), existingItem.quantity + quantity);
         } else {
-            const isConsumableProduct = product.categoryId.toString() === DEFAULT_SEED_KEY;
+            const isConsumableProduct = product.categoryUuid.toString() === DEFAULT_SEED_KEY;
             const price = isConsumableProduct
                 ? parseFloat(product.customPrice || product.sellPrice as string)
                 : parseFloat(product.sellPrice || '0');
@@ -201,12 +201,12 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
 
             setCart(prev => [...prev, {
                 barcode: product.barcode,
-                productId: (product.uuid.toString()),
+                productUuid: (product.uuid.toString()),
                 name: product.name,
                 purchasePrice: parseFloat(product.costPrice || '0'),
                 sellPrice: price,
                 quantity: isConsumableProduct ? 0 : quantity,
-                categoryId: product.categoryId.toString(),
+                categoryUuid: product.categoryUuid.toString(),
             }]);
 
             if (!isConsumableProduct)
@@ -217,9 +217,9 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
     const removeFromCart = (id: string) => {
         if (!isAuthenticated) return;
 
-        const itemToRemove = cart.find(item => item.productId === id);
+        const itemToRemove = cart.find(item => item.productUuid === id);
 
-        setCart(prev => prev.filter(item => item.productId !== id));
+        setCart(prev => prev.filter(item => item.productUuid !== id));
 
         if (itemToRemove) {
             const product = products.find(p => p.uuid === id);
@@ -229,12 +229,12 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
         }
     };
 
-    const updateCustomPrice = (productId: string, newPrice: number) => {
+    const updateCustomPrice = (productUuid: string, newPrice: number) => {
         if (!isAuthenticated) return;
 
         setCart(prev =>
             prev.map(item =>
-                item.productId === productId
+                item.productUuid === productUuid
                     ? { ...item, sellPrice: newPrice }
                     : item
             )
@@ -244,15 +244,15 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
     const updateQuantity = (id: string, quantity: number) => {
         if (!isAuthenticated) return;
 
-        const prevItem = cart.find(item => item.productId === id) as CartItem;
-        const isConsumable = prevItem.categoryId === DEFAULT_SEED_KEY
+        const prevItem = cart.find(item => item.productUuid === id) as CartItem;
+        const isConsumable = prevItem.categoryUuid === DEFAULT_SEED_KEY
 
         if (isConsumable && quantity < 0)
             return
         if (quantity < 1) return;
 
         setCart(prev => prev.map(item =>
-            item.productId === id ? { ...item, quantity } : item
+            item.productUuid === id ? { ...item, quantity } : item
         ));
 
         if (prevItem) {
@@ -268,9 +268,9 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
         if (!isAuthenticated) return;
 
         cart.forEach(item => {
-            const product = products.find(p => p.uuid === item.productId);
+            const product = products.find(p => p.uuid === item.productUuid);
             if (product) {
-                updateProductStock(item.productId, parseInt((product.quantity || 0).toString()) + item.quantity);
+                updateProductStock(item.productUuid, parseInt((product.quantity || 0).toString()) + item.quantity);
             }
         });
 

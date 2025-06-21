@@ -7,9 +7,9 @@ router.get('/', InventoryController.getProducts);
 router.post('/product', InventoryController.createProduct);
 router.post('/product/sku', InventoryController.findProductBySku);
 router.get('/products-only', InventoryController.getProductsOnly);
-router.get('/product/:productId', InventoryController.getProduct);
-router.put('/product/:productId', InventoryController.updateProduct);
-router.put('/product-void/:productId', InventoryController.voidProduct);
-router.delete('/product/:productId', InventoryController.deleteProduct);
+router.get('/product/:productUuid', InventoryController.getProduct);
+router.put('/product/:productUuid', InventoryController.updateProduct);
+router.put('/product-void/:productUuid', InventoryController.voidProduct);
+router.delete('/product/:productUuid', InventoryController.deleteProduct);
 
 export default router;

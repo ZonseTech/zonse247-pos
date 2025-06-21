@@ -3,7 +3,7 @@ import { CategoryService } from './category.service';
 
 export class InventoryService {
 
-    static async getProductById(productId: string, auth: AuthContext): Promise<Product | null> {
+    static async getProductByUuid(productId: string, auth: AuthContext): Promise<Product | null> {
         return await InventoryModel.findById(productId, auth);
     }
 
@@ -41,16 +41,16 @@ export class InventoryService {
         await InventoryModel.create(productData, auth);
     }
 
-    static async updateProduct(productId: string, productData: Record<string, any>, auth: AuthContext): Promise<number> {
-        return await InventoryModel.updateWithValidation(productId, productData, auth);
+    static async updateProduct(productUuid: string, productData: Record<string, any>, auth: AuthContext): Promise<number> {
+        return await InventoryModel.updateWithValidation(productUuid, productData, auth);
     }
 
-    static async voidProduct(productId: string, auth: AuthContext): Promise<number> {
-        return await InventoryModel.voidWithCheck(productId, auth);
+    static async voidProduct(productUuid: string, auth: AuthContext): Promise<number> {
+        return await InventoryModel.voidWithCheck(productUuid, auth);
     }
 
-    static async deleteProduct(productId: string, auth: AuthContext): Promise<number> {
-        return await InventoryModel.deleteWithCheck(productId, auth);
+    static async deleteProduct(productUuid: string, auth: AuthContext): Promise<number> {
+        return await InventoryModel.deleteWithCheck(productUuid, auth);
     }
 
     static async findProductBySku(sku: string, auth: AuthContext): Promise<Product | null> {
@@ -61,23 +61,21 @@ export class InventoryService {
         return await InventoryModel.decrementInventory(products, auth);
     }
 
-    // Additional service methods that leverage the model
-
     static async getProductCount(auth: AuthContext, includeVoided: boolean = false): Promise<number> {
         return await InventoryModel.getCount(auth, includeVoided);
     }
 
-    static async productExists(productId: string, auth: AuthContext): Promise<boolean> {
-        return await InventoryModel.exists(productId, auth);
+    static async productExists(productUuid: string, auth: AuthContext): Promise<boolean> {
+        return await InventoryModel.exists(productUuid, auth);
     }
 
-    static async updateProductQuantity(productId: string, quantity: number, auth: AuthContext): Promise<number> {
-        const exists = await InventoryModel.exists(productId, auth);
+    static async updateProductQuantity(productUuid: string, quantity: number, auth: AuthContext): Promise<number> {
+        const exists = await InventoryModel.exists(productUuid, auth);
         if (!exists) {
             throw new Error('Product not found or access denied');
         }
 
-        return await InventoryModel.updateQuantity(productId, quantity, auth);
+        return await InventoryModel.updateQuantity(productUuid, quantity, auth);
     }
 
     static async getProductsByCategory(categoryId: string, auth: AuthContext): Promise<Product[]> {
@@ -96,10 +94,8 @@ export class InventoryService {
     }
 
     static async searchProducts(searchTerm: string, auth: AuthContext): Promise<Product[]> {
-        // This would require the model to support text search - adding as example
         const products = await InventoryModel.findActive(auth);
 
-        // Basic client-side filtering - in production, this should be done at DB level
         return products.filter(product =>
             product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -107,9 +103,9 @@ export class InventoryService {
         );
     }
 
-    static async bulkUpdateProducts(updates: Array<{ productId: string, data: Record<string, any> }>, auth: AuthContext): Promise<void> {
-        const updatePromises = updates.map(async ({ productId, data }) => {
-            return await InventoryModel.updateWithValidation(productId, data, auth);
+    static async bulkUpdateProducts(updates: Array<{ productUuid: string, data: Record<string, any> }>, auth: AuthContext): Promise<void> {
+        const updatePromises = updates.map(async ({ productUuid, data }) => {
+            return await InventoryModel.updateWithValidation(productUuid, data, auth);
         });
 
         await Promise.all(updatePromises);
@@ -125,8 +121,8 @@ export class InventoryService {
         );
     }
 
-    static async adjustInventory(productId: string, adjustment: number, auth: AuthContext): Promise<number> {
-        const product = await InventoryModel.findById(productId, auth);
+    static async adjustInventory(productUuid: string, adjustment: number, auth: AuthContext): Promise<number> {
+        const product = await InventoryModel.findById(productUuid, auth);
         if (!product) {
             throw new Error('Product not found or access denied');
         }
@@ -138,6 +134,6 @@ export class InventoryService {
             throw new Error('Adjustment would result in negative inventory');
         }
 
-        return await InventoryModel.updateQuantity(productId, newQuantity, auth);
+        return await InventoryModel.updateQuantity(productUuid, newQuantity, auth);
     }
 }

@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 import { saveOrderItem } from './orders.routes';
-import { decrementInventory } from './inventory.routes';
 import { Request, Response, Router } from 'express';
 import {
 	TRANSACTIONS_DB,
@@ -11,6 +10,7 @@ import {
 	INVENTORY_DB,
 } from '../databases/local/tables';
 import { sealDBModel } from '../databases/local';
+import { decrementInventory } from '../services/transaction.service';
 
 const router = Router();
 
@@ -193,7 +193,11 @@ router.post('/new', async (req: Request, res: Response) => {
 
 		if (newTransaction.paid >= newTransaction.total) {
 			await saveOrderItem(transactionUuid, params.items);
-			await decrementInventory(params.items);
+			await decrementInventory(params.items, {
+				clientUuid: req.auth.clientUuid,
+				shopUuid: req.auth.shopUuid,
+				userUuid: req.auth.uuid
+			});
 		}
 
 		const enrichedTransaction = await enrichTransactionWithRelatedData(

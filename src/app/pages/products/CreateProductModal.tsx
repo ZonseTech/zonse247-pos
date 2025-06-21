@@ -28,7 +28,7 @@ const CreateProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ produ
 		expirationDate: '',
 		sellPrice: '0.00',
 		costPrice: '0.00',
-		categoryId: '',
+		categoryUuid: '',
 		quantity: 0,
 		name: '',
 		minStock: '1',
@@ -39,7 +39,7 @@ const CreateProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ produ
 	} as Product);
 
 	const newProductValidationSchema = Yup.object({
-		categoryId: Yup.string()
+		categoryUuid: Yup.string()
 			.required('Please select a category'),
 
 		name: Yup.string()
@@ -55,8 +55,8 @@ const CreateProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ produ
 
 		sellPrice: Yup.number()
 			.required('Price is required')
-			.when('categoryId', {
-				is: (categoryId: string) => categoryId === '1',
+			.when('categoryUuid', {
+				is: (categoryUuid: string) => categoryUuid === '-1',
 				then: (schema) => schema.min(0, 'Price must be at least MK0'),
 				otherwise: (schema) => schema.positive('Price must be greater than MK0')
 			}),
@@ -145,7 +145,7 @@ const CreateProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ produ
 			values.stock = 1
 			values.quantity = 0
 			values.barcode = ''
-			values.categoryId = ''
+			values.categoryUuid = ''
 			values.minStock = '1'
 			values.sellPrice = '0.00'
 			values.costPrice = '0.00'
@@ -166,7 +166,7 @@ const CreateProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ produ
 				title='Product'
 				isOpen={isOpenForm}
 				onClose={handleAddProductClicked}
-				className='max-w-sm bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
+				className='max-w-md bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
 			>
 				<Formik
 					initialValues={productValues}
@@ -176,13 +176,9 @@ const CreateProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ produ
 					{({ isSubmitting, values, setFieldValue }) => (
 						<Form>
 							<FormWrapper>
-								<input type="hidden" name="uuid" value="" />
-								<input type="hidden" name="img" value="" />
-								<input type="hidden" name="remove" value="" />
-
 								<FormSelectBox
 									label="Category"
-									name="categoryId"
+									name="categoryUuid"
 									required
 									options={categories.map((category: Category) => ({
 										value: category.uuid.toString(),
@@ -232,7 +228,7 @@ const CreateProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ produ
 										name="sellPrice"
 										type="number"
 										required
-										readOnly={values?.categoryId === "1"}
+										readOnly={values?.categoryUuid === "-1"}
 										placeholder="Selling Price"
 										className="mt-1"
 									/>

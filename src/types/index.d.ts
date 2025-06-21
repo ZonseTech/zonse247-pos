@@ -43,9 +43,9 @@ interface HoldOrder {
 
 interface CartItem {
 	barcode: number | string;
-	productId: string;
+	productUuid: string;
 	name: string;
-	categoryId: string;
+	categoryUuid: string;
 	sellPrice: number;
 	purchasePrice: number;
 	variancePrice?: number;

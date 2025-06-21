@@ -26,7 +26,7 @@ const EditProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product
 		expirationDate: '',
 		sellPrice: '0.00',
 		costPrice: '0.00',
-		categoryId: '',
+		categoryUuid: '',
 		quantity: 0,
 		name: '',
 		minStock: '1',
@@ -37,7 +37,7 @@ const EditProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product
 	} as Product);
 
 	const updateProductValidationSchema = Yup.object({
-		categoryId: Yup.string()
+		categoryUuid: Yup.string()
 			.required('Please select a category'),
 
 		name: Yup.string()
@@ -53,8 +53,8 @@ const EditProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product
 
 		sellPrice: Yup.number()
 			.required('Price is required')
-			.when('categoryId', {
-				is: (categoryId: string) => (categoryId) === "1",
+			.when('categoryUuid', {
+				is: (categoryUuid: string) => (categoryUuid) === "-1",
 				then: (schema) => schema.min(0, 'Price must be at least MK0'),
 				otherwise: (schema) => schema.positive('Price must be greater than MK0')
 			}),
@@ -156,13 +156,9 @@ const EditProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product
 					{({ isSubmitting, values, setFieldValue }) => (
 						<Form>
 							<FormWrapper>
-								<input type="hidden" name="uuid" value="" />
-								<input type="hidden" name="img" value="" />
-								<input type="hidden" name="remove" value="" />
-
 								<FormSelectBox
 									label="Category"
-									name="categoryId"
+									name="categoryUuid"
 									required
 									options={categories.map((category: Category) => ({
 										value: category.uuid.toString(),
@@ -212,7 +208,7 @@ const EditProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product
 										name="sellPrice"
 										type="number"
 										required
-										readOnly={values?.categoryId === "1"}
+										readOnly={values?.categoryUuid === "-1"}
 										placeholder="Selling Price"
 										className="mt-1"
 									/>
@@ -236,7 +232,7 @@ const EditProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product
 										required
 										placeholder="Minimum Stock"
 										className="mt-1"
-										min="1"
+										min="-1"
 									/>
 								</div>
 

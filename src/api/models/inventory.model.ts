@@ -116,7 +116,7 @@ export class InventoryModel {
                 async (transactionProduct: CartItem, callback: (err?: Error) => void) => {
                     try {
                         const product = await sealDBModel.findById(INVENTORY_DB, {
-                            uuid: transactionProduct.productId,
+                            uuid: transactionProduct.productUuid,
                             clientUuid: auth.clientUuid,
                             shopUuid: auth.shopUuid
                         });
@@ -146,9 +146,6 @@ export class InventoryModel {
         });
     }
 
-    /**
-     * Create a new product with validation
-     */
     static async create(productData: Record<string, any>, auth: AuthContext): Promise<void> {
         const productModel = ProductModel.create(productData, auth);
 
@@ -159,27 +156,21 @@ export class InventoryModel {
         await this.insert(productModel.toJSON());
     }
 
-    /**
-     * Update product with validation and existence check
-     */
-    static async updateWithValidation(productId: string, productData: Record<string, any>, auth: AuthContext): Promise<number> {
+    static async updateWithValidation(productUuid: string, productData: Record<string, any>, auth: AuthContext): Promise<number> {
         const productModel = ProductModel.fromParams(productData, auth);
 
         if (!productModel.validate()) {
             throw new Error('Product validation failed');
         }
 
-        const existingProduct = await this.findById(productId, auth);
+        const existingProduct = await this.findById(productUuid, auth);
         if (!existingProduct) {
             throw new Error('Product not found or access denied');
         }
 
-        return await this.update(productId, productModel.toJSON());
+        return await this.update(productUuid, productModel.toJSON());
     }
 
-    /**
-     * Void product with existence check
-     */
     static async voidWithCheck(productId: string, auth: AuthContext): Promise<number> {
         const existingProduct = await this.findById(productId, auth);
         if (!existingProduct) {

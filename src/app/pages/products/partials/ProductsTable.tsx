@@ -85,7 +85,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ setSummaryData }) =
                         icon={
                             <HiOutlineTrash
                                 className='w-5 h-5 text-red-600'
-                                onClick={() => handleVoidProduct(parseInt(row.uuid.toString()))}
+                                onClick={() => handleVoidProduct((row.uuid.toString()))}
                             />} />
                 </Fragment>
             ),
@@ -277,7 +277,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ setSummaryData }) =
         }
     }
 
-    const handleVoidProduct = (uuid: number) => {
+    const handleVoidProduct = (uuid: string) => {
         Confirm.show(
             'Void Product',
             'Are you sure you want to void this product?',
@@ -320,7 +320,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ setSummaryData }) =
     const handleOnChangeCategory = (cat: number) => {
         setSearchTerm('');
         const filteredProducts = products.filter(product => {
-            const productCategory = product.categoryId.toString();
+            const productCategory = product.categoryUuid.toString();
             const searchValue = cat.toString();
 
             return productCategory.includes(searchValue);

@@ -3,9 +3,9 @@ interface Product {
     barcode: number | string;
     expirationDate?: string;
     createdAt?: string;
-    clientUuid: string;
-    shopUuid: string;
-    userUuid: string;
+    clientUuid?: string;
+    shopUuid?: string;
+    userUuid?: string;
     updatedAt?: string;
     costPrice?: string;
     description?: string;

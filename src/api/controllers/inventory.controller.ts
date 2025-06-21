@@ -13,13 +13,13 @@ export class InventoryController extends BaseController {
 
     static async getProduct(req: Request, res: Response): Promise<void> {
         try {
-            if (!req.params.productId) {
+            if (!req.params.productUuid) {
                 BaseController.sendBadRequest(res, 'Product ID is required.');
                 return;
             }
 
-            const auth = this.getAuthContext(req);
-            const product = await InventoryService.getProductById(req.params.productId, auth);
+            const auth = InventoryController.getAuthContext(req);
+            const product = await InventoryService.getProductByUuid(req.params.productUuid, auth);
 
             if (!product) {
                 BaseController.sendNotFound(res, 'Product not found.');
@@ -35,7 +35,7 @@ export class InventoryController extends BaseController {
 
     static async getProductsOnly(req: Request, res: Response): Promise<void> {
         try {
-            const auth = this.getAuthContext(req);
+            const auth = InventoryController.getAuthContext(req);
             const products = await InventoryService.getActiveProducts(auth);
             BaseController.sendSuccess(res, 'Products retrieved successfully.', products);
         } catch (err) {
@@ -46,7 +46,7 @@ export class InventoryController extends BaseController {
 
     static async getProducts(req: Request, res: Response): Promise<void> {
         try {
-            const auth = this.getAuthContext(req);
+            const auth = InventoryController.getAuthContext(req);
             const products = await InventoryService.getProductsWithCategories(auth);
             BaseController.sendSuccess(res, 'Products with categories retrieved successfully.', products);
         } catch (error) {
@@ -57,7 +57,7 @@ export class InventoryController extends BaseController {
 
     static async createProduct(req: Request, res: Response): Promise<void> {
         try {
-            const auth = this.getAuthContext(req);
+            const auth = InventoryController.getAuthContext(req);
             const newProduct = await InventoryService.createProduct(req.body, auth);
             BaseController.sendCreated(res, 'Product created successfully.', newProduct);
         } catch (err) {
@@ -72,9 +72,9 @@ export class InventoryController extends BaseController {
 
     static async updateProduct(req: Request, res: Response): Promise<void> {
         try {
-            const auth = this.getAuthContext(req);
+            const auth = InventoryController.getAuthContext(req);
             const numReplaced = await InventoryService.updateProduct(
-                req.params.productId,
+                req.params.productUuid,
                 req.body,
                 auth
             );
@@ -99,8 +99,8 @@ export class InventoryController extends BaseController {
 
     static async voidProduct(req: Request, res: Response): Promise<void> {
         try {
-            const auth = this.getAuthContext(req);
-            const numReplaced = await InventoryService.voidProduct(req.params.productId, auth);
+            const auth = InventoryController.getAuthContext(req);
+            const numReplaced = await InventoryService.voidProduct(req.params.productUuid, auth);
 
             if (numReplaced === 0) {
                 BaseController.sendNotFound(res, 'Product not found.');
@@ -119,8 +119,8 @@ export class InventoryController extends BaseController {
 
     static async deleteProduct(req: Request, res: Response): Promise<void> {
         try {
-            const auth = this.getAuthContext(req);
-            const numDeleted = await InventoryService.deleteProduct(req.params.productId, auth);
+            const auth = InventoryController.getAuthContext(req);
+            const numDeleted = await InventoryService.deleteProduct(req.params.productUuid, auth);
 
             if (numDeleted === 0) {
                 BaseController.sendNotFound(res, 'Product not found.');
@@ -145,7 +145,7 @@ export class InventoryController extends BaseController {
                 return;
             }
 
-            const auth = this.getAuthContext(req);
+            const auth = InventoryController.getAuthContext(req);
             const product = await InventoryService.findProductBySku(skuCode, auth);
             BaseController.sendSuccess(res, 'Product found successfully.', product);
         } catch (err) {
