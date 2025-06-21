@@ -259,8 +259,10 @@ const NavBar: FunctionComponent = () => {
     const navItems = getNavItems();
 
     return (
-        <nav className="py-3.5">
-            <div className="hidden lg:flex flex-row items-center justify-between gap-2">
+
+
+        <nav className="py-3.5 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors duration-200">
+            <div className="hidden lg:flex flex-row items-center justify-between gap-2 mx-4">
                 {navItems.map(item => renderNavItem(item))}
             </div>
 
@@ -268,14 +270,31 @@ const NavBar: FunctionComponent = () => {
                 <div className="flex justify-between items-center">
                     <button
                         onClick={toggleMenu}
-                        className="bg-blue-500 hover:bg-blue-600 text-white dark:text-gray-100 px-4 py-2 rounded flex items-center transition-colors duration-200"
+                        className="
+                            bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700
+                            text-white dark:text-gray-100 
+                            px-4 py-2 rounded-lg 
+                            flex items-center 
+                            transition-all duration-200 ease-in-out
+                            shadow-sm hover:shadow-md dark:shadow-lg dark:hover:shadow-xl
+                            transform hover:scale-105
+                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900
+                        "
                     >
                         {icons.hamburger}
                         Menu
                     </button>
                 </div>
 
-                <div className={`mt-2 space-y-2 ${isOpen ? 'block' : 'hidden'}`}>
+                <div className={`
+                    mt-3 space-y-2 
+                    ${isOpen ? 'block' : 'hidden'}
+                    bg-gray-50 dark:bg-gray-800 
+                    rounded-lg p-3 
+                    border border-gray-200 dark:border-gray-700
+                    shadow-lg dark:shadow-2xl
+                    transition-all duration-200
+                `}>
                     {navItems
                         .filter(item => item.type !== 'spacer' || item.showOnMobile)
                         .map(item => renderNavItem(item, true))}

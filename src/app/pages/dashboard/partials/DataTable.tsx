@@ -23,36 +23,72 @@ const DataTable = <T,>({
     children,
     emptyPlaceholder = 'No data available'
 }: PropsWithChildren<DataTableProps<T>>) => (
-    <div className="bg-white dark:bg-gray-700 rounded-sm shadow p-4">
-        <div className="flex items-center gap-2 mb-2 pb-4 border-b">
-            {icon}
-            <h2 className="text-md font-semibold">{title}</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors duration-300">
+        <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800/50">
+            {icon && (
+                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                    {icon}
+                </div>
+            )}
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h2>
         </div>
+
         <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead>
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-white dark:bg-gray-700/50">
                     <tr>
                         {headers.map((header, idx) => (
-                            <th key={idx} className={`text-${header.align} px-4 py-2 font-medium text-gray-600`}>
+                            <th
+                                key={idx}
+                                className={`
+                                    text-${header.align} 
+                                    px-6 py-3 
+                                    text-xs font-medium 
+                                    text-gray-500 dark:text-gray-400 
+                                    uppercase tracking-wider
+                                    bg-white dark:bg-gray-700/50
+                                `}
+                            >
                                 {header.name}
                             </th>
                         ))}
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     {data.length > 0 ? (
-                        data.map((row, index) => <Fragment key={index}>{renderRow(row)}</Fragment>)
+                        data.map((row, index) => (
+                            <Fragment key={index}>
+                                <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
+                                    {renderRow(row)}
+                                </tr>
+                            </Fragment>
+                        ))
                     ) : (
                         <tr>
-                            <td colSpan={headers.length} className="text-center py-4 text-gray-500">
-                                {emptyPlaceholder}
+                            <td
+                                colSpan={headers.length}
+                                className="text-center py-12 text-gray-500 dark:text-gray-400"
+                            >
+                                <div className="flex flex-col items-center gap-3">
+                                    <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                                        <svg className="w-6 h-6 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8V9a2 2 0 01-2 2H9a2 2 0 01-2-2V5" />
+                                        </svg>
+                                    </div>
+                                    <div className="text-sm font-medium">{emptyPlaceholder}</div>
+                                </div>
                             </td>
                         </tr>
                     )}
                 </tbody>
             </table>
         </div>
-        {children}
+
+        {children && (
+            <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800/30">
+                {children}
+            </div>
+        )}
     </div>
 );
 
