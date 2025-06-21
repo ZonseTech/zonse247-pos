@@ -7,7 +7,7 @@ import withProtectedRoute from '../navigation/partials/withProtectedRoute'
 import InitApp from '../pages/landing/InitApp'
 
 const Users = lazy(() => import('../pages/users'))
-const Home = lazy(() => import('../pages/pos/Home'))
+const PointOfSale = lazy(() => import('../pages/pos'))
 const Login = lazy(() => import('../pages/auth/Login'))
 const Products = lazy(() => import('../pages/products'))
 const SyncData = lazy(() => import('../pages/sync-data'))
@@ -35,7 +35,7 @@ const AppRoutes: FunctionComponent = () => {
 			<Route path={ROUTES.GET_STARTED} element={<ClientVerification />} />
 
 			<Route path="/" element={<ProtectedLayoutWithAuth />}>
-				<Route path={ROUTES.POS} element={<Home />} />
+				<Route path={ROUTES.POS} element={<PointOfSale />} />
 				<Route path={ROUTES.USERS} element={<Users />} />
 				<Route path={ROUTES.PRODUCTS} element={<Products />} />
 				<Route path={ROUTES.SYNC_DATA} element={<SyncData />} />
