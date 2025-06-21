@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ClientService } from "../services/client.service";
+import { BaseController } from "../controllers/base.controller";
 
 export class ClientMiddleware {
     subscriptionStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -7,13 +8,14 @@ export class ClientMiddleware {
             const clientUuid = req.headers?.['x-client-uuid'] as string;
 
             if (!clientUuid) {
-                res.status(400).json({
-                    success: false,
-                    message: 'Client UUID is required',
-                    data: null,
-                    subscriptionStatus: 'unknown'
-                });
-
+                BaseController.sendResponseWithSubscription(
+                    res,
+                    400,
+                    false,
+                    'Client UUID is required',
+                    'unknown',
+                    null
+                );
                 return;
             }
 
@@ -22,37 +24,36 @@ export class ClientMiddleware {
             );
 
             if (!client) {
-                res.status(404).json({
-                    success: false,
-                    message: 'Client not found',
-                    data: null,
-                    subscriptionStatus: 'not_found'
-                });
-
+                BaseController.sendNotFoundWithSubscription(res, 'Client not found', 'not_found');
                 return;
             }
 
             if (client.status !== 'active') {
-                next()
+                BaseController.sendForbiddenWithSubscription(
+                    res,
+                    'Client account is not active. Please contact support to activate your account.',
+                    client.subscriptionStatus || 'inactive'
+                );
                 return;
             }
 
             const subscriptionCheck = this.checkSubscriptionStatus(client);
 
             if (!subscriptionCheck.isValid) {
-                res.status(403).json({
-                    success: false,
-                    message: subscriptionCheck.message,
-                    data: {
-                        subscriptionStatus: client.subscriptionStatus,
-                        trialEndsAt: client.trialEndsAt,
-                        companyName: client.companyName,
-                        daysRemaining: subscriptionCheck.daysRemaining,
-                        isTrialExpired: subscriptionCheck.isTrialExpired
-                    },
-                    subscriptionStatus: client.subscriptionStatus
-                });
+                const subscriptionData = {
+                    subscriptionStatus: client.subscriptionStatus,
+                    trialEndsAt: client.trialEndsAt,
+                    companyName: client.companyName,
+                    daysRemaining: subscriptionCheck.daysRemaining,
+                    isTrialExpired: subscriptionCheck.isTrialExpired
+                };
 
+                BaseController.sendForbiddenWithSubscription(
+                    res,
+                    subscriptionCheck.message,
+                    client.subscriptionStatus,
+                    subscriptionData
+                );
                 return;
             }
 
@@ -64,18 +65,17 @@ export class ClientMiddleware {
             next();
         } catch (error) {
             console.error('Error in subscription status middleware:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Internal server error while checking subscription status',
-                data: null,
-                subscriptionStatus: 'error'
-            });
+            BaseController.sendServerErrorWithSubscription(
+                res,
+                'Internal server error while checking subscription status',
+                'error'
+            );
         }
     };
 
     subscriptionWarning = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const clientUuid = req.headers?.['x-client-uuid'] as string;
+            const clientUuid = req.headers?.['X-Client-Uuid'] as string;
 
             if (!clientUuid) {
                 next();

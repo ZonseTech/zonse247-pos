@@ -33,8 +33,8 @@ export class UserModel {
 
     static async findByUsername(username: string): Promise<User | null> {
         try {
-            const users = await sealDBModel.find<User[]>(USERS_DB, { username: username });
-            return users.length > 0 ? users[0] : null;
+            const users = await sealDBModel.findById<User>(USERS_DB, { username: username });
+            return users;
         } catch (error) {
             throw new Error(`Error finding user by username: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }

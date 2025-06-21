@@ -35,7 +35,9 @@ export class SettingsController extends BaseController {
             }
 
             const result = await SettingsService.store({ clientUuid, shopUuid, workstationUuid });
-            await SettingsService.updateSetupConfigurations();
+
+            if (result) await SettingsService.updateSetupConfigurations();
+
             BaseController.sendResponse(res, 201, true, 'Settings created successfully', result);
         } catch (error) {
             console.error('Error in settings controller - createSettings:', error);

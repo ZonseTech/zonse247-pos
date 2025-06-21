@@ -17,26 +17,23 @@ import SubscriptionsRoutes from './subscription.routes'
 import ShopsRoutes from './shop.routes'
 import WorkStationRoutes from './workstations.routes'
 import RoleRoutes from './role.routes'
+import AuthRoutes from './auth.routes'
 import PermissionRoutes from './permission.routes'
 import RolePermissionRoutes from './role-permission.routes'
 import { AuthMiddleware } from '../middlewares/auth.middleware'
 import { preventSQLInjection, preventXSS, sanitizeInput } from '../middlewares/security.middleware'
-import { asyncHandler } from '../middlewares/error.middleware'
-import { UserController } from '../controllers/user.controller'
 import { authLimiter } from '../middlewares/rate-limit.middleware'
-import { validateBody, validateParams } from '../middlewares/validation.middleware'
-import { userValidationSchemas } from '../validations/user.schemas'
-import { OnboardingController } from '../controllers/onboarding.controller'
-import { ClientController } from '../controllers/client.controller'
-import { clientValidationSchemas } from '../validations/client.schemas'
-import { ShopController } from '../controllers/shop.controller'
-import { shopValidationSchemas } from '../validations/shopValidationSchemas'
-import { ClientMiddleware } from '../middlewares/client.middleware'
+import { validateParams } from '../middlewares/validation.middleware';
+import { ClientController } from '../controllers/client.controller';
+import { asyncHandler } from '../middlewares/error.middleware';
+import { ShopController } from '../controllers/shop.controller';
+import { clientValidationSchemas } from '../validations/client.schemas';
+import { shopValidationSchemas } from '../validations/shopValidationSchemas';
+import { OnboardingController } from '../controllers/onboarding.controller';
 import { SettingsController } from '../controllers/settings.controller'
 
 const router = Router();
 const authMiddleware = new AuthMiddleware();
-const clientMiddleware = new ClientMiddleware();
 
 router.use(sanitizeInput);
 router.use(preventSQLInjection);
@@ -46,45 +43,10 @@ router.use((req, res, next) => {
     next();
 });
 
-router.post(
-    '/auth/login',
-    authLimiter,
-    validateBody(userValidationSchemas.loginUser),
-    clientMiddleware.subscriptionStatus,
-    asyncHandler(UserController.login)
-);
-
-router.post(
-    '/auth/refresh-token',
-    authLimiter,
-    validateBody(userValidationSchemas.refreshToken),
-    asyncHandler(UserController.refreshToken)
-);
-
-router.post(
-    '/auth/verify-token',
-    authLimiter,
-    asyncHandler(UserController.verifyToken)
-);
-
-router.get(
-    '/auth/logout/:id',
-    validateParams(userValidationSchemas.id),
-    asyncHandler(UserController.logout)
-)
-
 router.get(
     '/setup',
-    authLimiter,
     asyncHandler(SettingsController.setup)
 )
-
-router.post(
-    '/auth/verify-client',
-    authLimiter,
-    validateBody(clientValidationSchemas.verifyClient),
-    asyncHandler(ClientController.verify)
-);
 
 router.get(
     '/client/:clientId/shops',
@@ -100,15 +62,11 @@ router.get(
 
 router.use(
     '/on-boarding',
-    authLimiter,
     asyncHandler(OnboardingController.getOnboardingStatus)
 );
 
-router.use(
-    '/settings',
-    authLimiter,
-    SettingsRoutes
-);
+router.use('/auth', authLimiter, AuthRoutes);
+router.use('/settings', authLimiter, SettingsRoutes);
 
 router.use('/export', authMiddleware.verifyToken, DatabaseExportRoutes);
 router.use('/sync', authMiddleware.verifyToken, SyncRoutes);
