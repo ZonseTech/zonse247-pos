@@ -49,8 +49,8 @@ router.get(
 )
 
 router.get(
-    '/client/:clientId/shops',
-    validateParams(clientValidationSchemas.clientId),
+    '/client/:clientUuid/shops',
+    validateParams(clientValidationSchemas.clientUuid),
     asyncHandler(ClientController.getClientShops)
 );
 

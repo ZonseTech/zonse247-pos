@@ -57,25 +57,25 @@ export class UserModel {
         }
     }
 
-    static async findByClientId(clientId: string): Promise<User[]> {
+    static async findByClientUuid(clientUuid: string): Promise<User[]> {
         try {
-            return await sealDBModel.find(USERS_DB, { clientId: clientId });
+            return await sealDBModel.find(USERS_DB, { clientUuid: clientUuid });
         } catch (error) {
             throw new Error(`Error finding users by client ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
-    static async findByShopId(shopId: string): Promise<User[]> {
+    static async findByShopUuid(shopUuid: string): Promise<User[]> {
         try {
-            return await sealDBModel.find(USERS_DB, { shopId: shopId });
+            return await sealDBModel.find(USERS_DB, { shopUuid: shopUuid });
         } catch (error) {
             throw new Error(`Error finding users by shop ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
-    static async findByCurrentShopId(currentShopId: string): Promise<User[]> {
+    static async findByCurrentShopUuid(currentShopUuid: string): Promise<User[]> {
         try {
-            return await sealDBModel.find(USERS_DB, { currentShopId: currentShopId });
+            return await sealDBModel.find(USERS_DB, { currentShopUuid: currentShopUuid });
         } catch (error) {
             throw new Error(`Error finding users by current shop ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
@@ -125,8 +125,8 @@ export class UserModel {
 
         return {
             uuid: uuidv4(),
-            clientId: data.clientId || '',
-            shopId: data.shopId || '',
+            clientUuid: data.clientUuid || '',
+            shopUuid: data.shopUuid || '',
             username: data.username,
             password: hashedPassword,
             fullname: data.fullname || '',
@@ -139,7 +139,7 @@ export class UserModel {
             maxDiscountPercent: data.maxDiscountPercent || 0,
             canOverridePrices: data.canOverridePrices || false,
             pinCode: data.pinCode || null,
-            currentShopId: data.currentShopId || null,
+            currentShopUuid: data.currentShopUuid || null,
             passwordChangedAt: now,
             forcePasswordChange: data.forcePasswordChange || false,
             createdAt: now,
@@ -195,10 +195,10 @@ export class UserModel {
         }
     }
 
-    static async updateCurrentShop(id: string, currentShopId: string): Promise<number> {
+    static async updateCurrentShop(id: string, currentShopUuid: string): Promise<number> {
         try {
             return await sealDBModel.update(USERS_DB, id, {
-                currentShopId: currentShopId,
+                currentShopUuid: currentShopUuid,
                 updatedAt: new Date()
             });
         } catch (error) {

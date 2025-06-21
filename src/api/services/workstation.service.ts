@@ -5,7 +5,7 @@ import { WorkstationModel } from "../models/work-station.model";
 export class WorkstationService {
 
     static async createWorkstation(data: CreateWorkstationRequest): Promise<Workstation> {
-        const validationError = ClientService.validateRequired(data, ['shopCode', 'clientId', 'tillName', 'tillNumber']);
+        const validationError = ClientService.validateRequired(data, ['shopCode', 'clientUuid', 'tillName', 'tillNumber']);
         if (validationError) {
             throw new Error(validationError);
         }
@@ -15,7 +15,7 @@ export class WorkstationService {
             throw new Error('Shop not found');
         }
 
-        if (shop.clientId !== data.clientId) {
+        if (shop.clientUuid !== data.clientUuid) {
             throw new Error('Client does not own this shop');
         }
 
@@ -37,8 +37,8 @@ export class WorkstationService {
 
     static async getAllWorkstations(query: any = {}): Promise<Workstation[]> {
         try {
-            if (query.clientId) {
-                return await WorkstationModel.findByClientId(query.clientId);
+            if (query.clientUuid) {
+                return await WorkstationModel.findByClientUuid(query.clientUuid);
             }
 
             if (query.shopCode) {

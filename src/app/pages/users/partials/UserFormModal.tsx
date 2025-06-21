@@ -128,8 +128,8 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
         password: '',
     } : {
         uuid: '',
-        clientId: '',
-        shopId: '',
+        clientUuid: '',
+        shopUuid: '',
         username: '',
         password: '',
         fullname: '',
@@ -142,7 +142,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
         maxDiscountPercent: 0,
         canOverridePrices: false,
         pinCode: '',
-        currentShopId: '',
+        currentShopUuid: '',
         forcePasswordChange: false
     };
 
@@ -171,7 +171,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                 otherwise: () => Yup.string().notRequired()
             }),
         roleUuid: Yup.string().required('Role is required'),
-        shopId: Yup.string().required('Shop is required'),
+        shopUuid: Yup.string().required('Shop is required'),
         status: Yup.string().required('Status is required'),
         maxDiscountPercent: Yup.number()
             .min(0, 'Discount percent cannot be negative')
@@ -333,7 +333,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
 
                                         <FormSelectBox
                                             label='Client'
-                                            name='clientId'
+                                            name='clientUuid'
                                             required
                                             options={clientOptions}
                                             disabled={loadingClients}
@@ -341,7 +341,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
 
                                         <FormSelectBox
                                             label='Primary Shop'
-                                            name='shopId'
+                                            name='shopUuid'
                                             required
                                             options={shopOptions}
                                             disabled={loadingShops}

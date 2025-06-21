@@ -4,7 +4,7 @@ import { sealDBModel } from '../databases/local';
 import { TABLE_NAMES } from '../databases/local/tables';
 
 export class ClientModel {
-    static generateClientId(): string {
+    static generateClientCode(): string {
         return 'CLT-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
     }
 
@@ -46,12 +46,12 @@ export class ClientModel {
         return sealDBModel.findById(TABLE_NAMES.CLIENTS, id);
     }
 
-    static async findClientId(id: string): Promise<Client | null> {
-        return sealDBModel.findById(TABLE_NAMES.CLIENTS, { clientId: id });
+    static async findByClientUuid(id: string): Promise<Client | null> {
+        return sealDBModel.findById(TABLE_NAMES.CLIENTS, { clientUuid: id });
     }
 
-    static async findByCredentials(clientId: string, authKey: string): Promise<Client | null> {
-        return sealDBModel.findById(TABLE_NAMES.CLIENTS, { clientId, authKey });
+    static async findByCredentials(clientUuid: string, authKey: string): Promise<Client | null> {
+        return sealDBModel.findById(TABLE_NAMES.CLIENTS, { clientUuid, authKey });
     }
 
     static async create(clientData: Omit<Client, 'id'>): Promise<Client> {
@@ -72,7 +72,7 @@ export class ClientModel {
 
         return {
             uuid: uuidv4(),
-            clientId: this.generateClientId(),
+            clientCode: this.generateClientCode(),
             companyName: data.companyName,
             ownerName: data.ownerName,
             email: data.email,

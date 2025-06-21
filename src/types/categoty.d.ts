@@ -1,9 +1,9 @@
 interface Category {
     uuid: string;
     name: string;
-    clientId: string;
-    shopId: string;
-    userId: string;
+    clientUuid: string;
+    shopUuid: string;
+    userUuid: string;
     createdAt?: Date;
     updatedAt?: Date;
     synced?: 1 | 0;
@@ -18,16 +18,16 @@ interface UpdateCategoryDto {
 }
 
 interface CategoryFilters {
-    clientId: string;
-    shopId: string;
+    clientUuid: string;
+    shopUuid: string;
 }
 
 
 interface CreateCategoryRequest {
     name: string;
-    clientId: string;
-    shopId: string;
-    userId: string;
+    clientUuid: string;
+    shopUuid: string;
+    userUuid: string;
 }
 
 interface UpdateCategoryDto {
@@ -36,6 +36,6 @@ interface UpdateCategoryDto {
 }
 
 interface CategoryFilters {
-    clientId: string;
-    shopId: string;
+    clientUuid: string;
+    shopUuid: string;
 }

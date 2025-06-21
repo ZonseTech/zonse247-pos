@@ -19,8 +19,8 @@ const RoleModal: FunctionComponent<Props> = ({ role, isOpen, onSave, onClose }) 
         name: role?.name || '',
         displayName: role?.displayName || '',
         description: role?.description || '',
-        clientId: role?.clientId || '',
-        shopId: role?.shopId || '',
+        clientUuid: role?.clientUuid || '',
+        shopUuid: role?.shopUuid || '',
         active: role?.isActive !== undefined ? role.isActive : true,
         isSystemRole: role?.isSystemRole || false,
     };
@@ -37,9 +37,9 @@ const RoleModal: FunctionComponent<Props> = ({ role, isOpen, onSave, onClose }) 
         description: Yup.string()
             .max(500, 'Description cannot exceed 500 characters'),
 
-        clientId: Yup.string(),
+        clientUuid: Yup.string(),
 
-        shopId: Yup.string(),
+        shopUuid: Yup.string(),
 
         active: Yup.boolean(),
 
@@ -103,8 +103,8 @@ const RoleModal: FunctionComponent<Props> = ({ role, isOpen, onSave, onClose }) 
                             <div className='flex gap-2'>
                                 <FormInput
                                     label="Client ID"
-                                    id="clientId"
-                                    name="clientId"
+                                    id="clientUuid"
+                                    name="clientUuid"
                                     type="text"
                                     placeholder="Enter client ID"
                                     className="mt-1"
@@ -112,8 +112,8 @@ const RoleModal: FunctionComponent<Props> = ({ role, isOpen, onSave, onClose }) 
 
                                 <FormInput
                                     label="Shop ID"
-                                    id="shopId"
-                                    name="shopId"
+                                    id="shopUuid"
+                                    name="shopUuid"
                                     type="text"
                                     placeholder="Enter shop ID"
                                     className="mt-1"

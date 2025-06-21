@@ -1,6 +1,6 @@
 interface AccountActivationProps {
 	authToken: string;
-	clientId: string;
+	clientUuid: string;
 }
 
 interface AccountActivationResponse {

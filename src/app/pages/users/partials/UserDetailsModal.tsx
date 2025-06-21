@@ -92,7 +92,7 @@ const UserDetailsModal: FunctionComponent<UserDetailsModalProps> = ({
                                 <MapPin className="w-5 h-5 text-gray-400" />
                                 <div>
                                     <p className="text-sm text-gray-600">Primary Shop</p>
-                                    <p className="font-medium">{getShopName(user.shopId)}</p>
+                                    <p className="font-medium">{getShopName(user.shopUuid)}</p>
                                 </div>
                             </div>
                         </div>

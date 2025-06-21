@@ -58,7 +58,7 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
         ...client
     } : {
         uuid: '',
-        clientId: '',
+        clientUuid: '',
         companyName: '',
         ownerName: '',
         email: '',
@@ -74,7 +74,7 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
     };
 
     const clientValidationSchema = Yup.object().shape({
-        clientId: Yup.string()
+        clientUuid: Yup.string()
             .notRequired()
             .min(3, 'Client ID must be at least 3 characters')
             .max(20, 'Client ID is too long')
@@ -152,7 +152,7 @@ const ClientFormModal: FunctionComponent<ClientFormModalProps> = ({
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {values.uuid && <FormInput
                                         type="text"
-                                        name="clientId"
+                                        name="clientUuid"
                                         label="Client ID"
                                         required
                                         readOnly

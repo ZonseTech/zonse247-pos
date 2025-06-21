@@ -207,7 +207,7 @@ const ShopManagement: FunctionComponent = () => {
         setPerPage(newPerPage);
     };
 
-    const handleDelete = async (shopId: string, shopName: string) => {
+    const handleDelete = async (shopUuid: string, shopName: string) => {
         Confirm.show(
             'Delete Shop',
             `Are you sure you want to delete the shop "${shopName}"? This action cannot be undone.`,
@@ -215,8 +215,8 @@ const ShopManagement: FunctionComponent = () => {
             'Cancel',
             async () => {
                 try {
-                    await shopsService.delete(shopId);
-                    const updatedShops = shops.filter(shop => shop.uuid !== shopId);
+                    await shopsService.delete(shopUuid);
+                    const updatedShops = shops.filter(shop => shop.uuid !== shopUuid);
                     saveShops(updatedShops);
                     Notify.success('Shop deleted successfully');
                 } catch (error) {
@@ -234,10 +234,10 @@ const ShopManagement: FunctionComponent = () => {
         );
     };
 
-    const toggleShopStatus = async (shopId: string, currentStatus: string) => {
+    const toggleShopStatus = async (shopUuid: string, currentStatus: string) => {
         const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
         const action = currentStatus === 'active' ? 'deactivate' : 'activate';
-        const shop = shops.find(s => s.uuid === shopId);
+        const shop = shops.find(s => s.uuid === shopUuid);
 
         Confirm.show(
             `${action.charAt(0).toUpperCase() + action.slice(1)} Shop`,
@@ -246,9 +246,9 @@ const ShopManagement: FunctionComponent = () => {
             'Cancel',
             async () => {
                 try {
-                    await shopsService.update(shopId, { status: newStatus as 'active' | 'inactive' });
+                    await shopsService.update(shopUuid, { status: newStatus as 'active' | 'inactive' });
                     const updatedShops = shops.map(shop =>
-                        shop.uuid === shopId ? { ...shop, status: newStatus as 'active' | 'inactive' | 'suspended' } : shop
+                        shop.uuid === shopUuid ? { ...shop, status: newStatus as 'active' | 'inactive' | 'suspended' } : shop
                     );
                     saveShops(updatedShops);
                     Notify.success(`Shop ${action}d successfully`);

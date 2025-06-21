@@ -41,30 +41,6 @@ interface HoldOrder {
 	till?: string;
 }
 
-interface Product {
-	id?: number | null;
-	uuid: string;
-	barcode: number | string;
-	expirationDate?: string;
-	createdAt?: string;
-	updatedAt?: string;
-	costPrice?: string;
-	sellPrice?: string;
-	promoPrice?: string;
-	customPrice?: string;
-	categoryId?: string;
-	quantity?: string | number;
-	orderItems?: number;
-	originalQuantity?: number;
-	name?: string;
-	stock?: number;
-	minStock?: string;
-	status?: string;
-	isExpired?: boolean;
-	categoryDetails?: Category;
-	synced?: 1 | 0;
-}
-
 interface CartItem {
 	barcode: number | string;
 	productId: string;
@@ -142,9 +118,9 @@ type PaymentMethod = {
 	uuid: string;
 	name: string;
 	icon?: string;
-	userId: string;
-	clientId: string;
-	shopId: string;
+	clientUuid: string;
+	shopUuid: string;
+	userUuid: string;
 };
 
 interface Printer {

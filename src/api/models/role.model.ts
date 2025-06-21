@@ -19,26 +19,26 @@ export class RoleModel {
         }
     }
 
-    static async findByClientId(clientId: string): Promise<Role[]> {
+    static async findByClientUuid(clientUuid: string): Promise<Role[]> {
         try {
-            return await sealDBModel.find(ROLES_DB, { clientId: clientId });
+            return await sealDBModel.find(ROLES_DB, { clientUuid: clientUuid });
         } catch (error) {
             throw new Error(`Error finding roles by client ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
-    static async findByShopId(shopId: string): Promise<Role[]> {
+    static async findByShopUuid(shopUuid: string): Promise<Role[]> {
         try {
-            return await sealDBModel.find(ROLES_DB, { shopId: shopId });
+            return await sealDBModel.find(ROLES_DB, { shopUuid: shopUuid });
         } catch (error) {
             throw new Error(`Error finding roles by shop ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
-    static async findByClientIdAndName(clientId: string, name: string): Promise<Role[]> {
+    static async findByClientUuidAndName(clientUuid: string, name: string): Promise<Role[]> {
         try {
             return await sealDBModel.find(ROLES_DB, {
-                clientId: clientId,
+                clientUuid: clientUuid,
                 name: name
             });
         } catch (error) {
@@ -66,8 +66,8 @@ export class RoleModel {
         const now = new Date();
         return {
             uuid: uuidv4(),
-            clientId: data.clientId,
-            shopId: data.shopId || null,
+            clientUuid: data.clientUuid,
+            shopUuid: data.shopUuid || null,
             name: data.name,
             displayName: data.displayName,
             description: data.description || null,

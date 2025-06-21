@@ -21,7 +21,7 @@ interface RegisterClientRequest {
 }
 
 interface VerifyClientRequest {
-    clientId: string;
+    clientUuid: string;
     authKey: string;
 }
 
@@ -37,7 +37,7 @@ interface ClientProps extends Omit<Client, 'authKey'> {
 
 interface Client {
     uuid: string;
-    clientId: string;
+    clientCode: string;
     companyName: string;
     ownerName: string;
     email: string;
@@ -109,7 +109,7 @@ interface RegisterClientRequest {
 }
 
 interface VerifyClientRequest {
-    clientId: string;
+    clientUuid: string;
     authKey: string;
 }
 

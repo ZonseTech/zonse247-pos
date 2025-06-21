@@ -8,16 +8,16 @@ export class ShopModel {
         return sealDBModel.find(TABLE_NAMES.SHOPS, conditions);
     }
 
-    static async findByClientId(clientId: string): Promise<IShop[]> {
-        return sealDBModel.find(TABLE_NAMES.SHOPS, { clientId });
+    static async findByClientUuid(clientUuid: string): Promise<IShop[]> {
+        return sealDBModel.find(TABLE_NAMES.SHOPS, { clientUuid });
     }
 
     static async findByShopCode(shopCode: string): Promise<IShop | null> {
         return sealDBModel.findById(TABLE_NAMES.SHOPS, { shopCode });
     }
 
-    static async findByClientIdAndShopCode(clientId: string, shopCode: string): Promise<IShop[]> {
-        return sealDBModel.find(TABLE_NAMES.SHOPS, { clientId, shopCode });
+    static async findByClientUuidAndShopCode(clientUuid: string, shopCode: string): Promise<IShop[]> {
+        return sealDBModel.find(TABLE_NAMES.SHOPS, { clientUuid, shopCode });
     }
 
     static async findById(id: string): Promise<IShop | null> {
@@ -60,8 +60,8 @@ export class ShopModel {
         return sealDBModel.find(TABLE_NAMES.SHOPS, { status: 'active' });
     }
 
-    static async findActiveShopsByClientId(clientId: string): Promise<IShop[]> {
-        return sealDBModel.find(TABLE_NAMES.SHOPS, { clientId, status: 'active' });
+    static async findActiveShopsByClientUuid(clientUuid: string): Promise<IShop[]> {
+        return sealDBModel.find(TABLE_NAMES.SHOPS, { clientUuid, status: 'active' });
     }
 
     static async getShopsByEmailDomain(domain: string): Promise<IShop[]> {
@@ -86,7 +86,7 @@ export class ShopModel {
     static buildShopData(data: CreateShopRequest): Omit<IShop, 'id'> {
         return {
             uuid: uuidv4(),
-            clientId: data.clientId,
+            clientUuid: data.clientUuid,
             shopCode: data.shopCode,
             name: data.name,
             description: data.description || '',
@@ -112,7 +112,7 @@ export class ShopModel {
     static buildUpdateData(data: Partial<IShop>): Partial<IShop> {
         const {
             uuid,
-            clientId,
+            clientUuid,
             createdAt,
             ...updateableData
         } = data;

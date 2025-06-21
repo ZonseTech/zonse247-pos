@@ -1,9 +1,9 @@
 interface Customer {
     uuid: string;
     name: string;
-    clientId: string;
-    shopId: string;
-    userId: string;
+    clientUuid: string;
+    shopUuid: string;
+    userUuid: string;
     phone?: string;
     email?: string;
     address?: string;

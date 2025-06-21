@@ -118,8 +118,8 @@ router.get(
 );
 
 router.get(
-	'/shop/:shopId',
-	validateParams(userValidationSchemas.shopId),
+	'/shop/:shopUuid',
+	validateParams(userValidationSchemas.shopUuid),
 	asyncHandler(UserController.getUsersByShop)
 );
 

@@ -381,16 +381,16 @@ export class SealDBModel {
 						db.ensureIndex({ fieldName: 'productId' });
 						break;
 					case WORKSTATIONS_DB:
-						db.ensureIndex({ fieldName: 'clientId' });
-						db.ensureIndex({ fieldName: 'shopId' });
+						db.ensureIndex({ fieldName: 'clientUuid' });
+						db.ensureIndex({ fieldName: 'shopUuid' });
 						db.ensureIndex({ fieldName: 'tillNumber' });
 						db.ensureIndex({ fieldName: 'deviceId' });
 						db.ensureIndex({ fieldName: 'status' });
 						db.ensureIndex({ fieldName: 'isPrimary' });
 						break;
 					case ROLES_DB:
-						db.ensureIndex({ fieldName: 'clientId' });
-						db.ensureIndex({ fieldName: 'shopId' });
+						db.ensureIndex({ fieldName: 'clientUuid' });
+						db.ensureIndex({ fieldName: 'shopUuid' });
 						db.ensureIndex({ fieldName: 'name' });
 						db.ensureIndex({ fieldName: 'isSystemRole' });
 						db.ensureIndex({ fieldName: 'isActive' });

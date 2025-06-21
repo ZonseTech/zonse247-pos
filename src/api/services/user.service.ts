@@ -158,7 +158,7 @@ export class UserService {
 				searchCriteria.roleUuid = query.roleUuid;
 			}
 			if (query.shopUuid) {
-				searchCriteria.shopId = query.shopUuid;
+				searchCriteria.shopUuid = query.shopUuid;
 			}
 			if (query.search) {
 				const searchTerm = validator.escape(query.search);
@@ -309,12 +309,12 @@ export class UserService {
 		return publicUsers;
 	}
 
-	static async getUsersByShop(shopId: string): Promise<any[]> {
-		if (!shopId) {
+	static async getUsersByShop(shopUuid: string): Promise<any[]> {
+		if (!shopUuid) {
 			throw new Error('Shop ID is required.');
 		}
 
-		const users = await UserModel.findByShopId(shopId);
+		const users = await UserModel.findByShopUuid(shopUuid);
 
 		const publicUsers = await Promise.all(
 			users.map(async (user) => {

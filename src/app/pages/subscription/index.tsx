@@ -32,7 +32,7 @@ const SubscriptionManagement: FunctionComponent = () => {
         {
             name: 'Client',
             cell: (row) => (<Fragment>
-                <div className="text-sm text-gray-900">{row?.clientId}</div>
+                <div className="text-sm text-gray-900">{row?.clientUuid}</div>
             </Fragment>)
         },
         {
@@ -143,7 +143,7 @@ const SubscriptionManagement: FunctionComponent = () => {
         } else {
             const filtered = subscriptions.filter(subscription =>
                 subscription.uuid.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                subscription.clientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                subscription.clientUuid.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 subscription.planId.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 subscription.status.toLowerCase().includes(searchTerm.toLowerCase())
             );

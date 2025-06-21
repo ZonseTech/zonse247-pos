@@ -7,7 +7,7 @@ router.get('/stats', SubscriptionController.getStats);
 router.get('/expiring/:days', SubscriptionController.getExpiring);
 router.patch('/bulk-update', SubscriptionController.bulkUpdate);
 router.get('/status/:status', SubscriptionController.getByStatus);
-router.get('/client/:clientId', SubscriptionController.getByClientId);
+router.get('/client/:clientUuid', SubscriptionController.getByClientUuid);
 router.get('/plan/:planId', SubscriptionController.getByPlanId);
 router.get('/subscription-plans', SubscriptionController.getSubscriptionPlans);
 router.post('/create-subscription', SubscriptionController.createSubscription);

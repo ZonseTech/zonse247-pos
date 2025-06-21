@@ -99,8 +99,8 @@ const checkOrCreateDefaultRoles = async () => {
 		if (!superAdminRole) {
 			const defaultSuperAdminRole: Role = {
 				uuid: 'super-admin',
-				clientId: '-1',
-				shopId: '-1',
+				clientUuid: '-1',
+				shopUuid: '-1',
 				name: 'super_admin',
 				displayName: 'Super Administrator',
 				description: 'System super administrator with full access',
@@ -116,8 +116,8 @@ const checkOrCreateDefaultRoles = async () => {
 		if (!adminRole) {
 			const defaultAdminRole: Role = {
 				uuid: 'admin',
-				clientId: '-1',
-				shopId: '-1',
+				clientUuid: '-1',
+				shopUuid: '-1',
 				name: 'admin',
 				displayName: 'Administrator',
 				description: 'Shop administrator with full shop access',
@@ -133,8 +133,8 @@ const checkOrCreateDefaultRoles = async () => {
 		if (!managerRole) {
 			const defaultManagerRole: Role = {
 				uuid: 'manager',
-				clientId: '-1',
-				shopId: '-1',
+				clientUuid: '-1',
+				shopUuid: '-1',
 				name: 'manager',
 				displayName: 'Manager',
 				description: 'Shop manager with limited administrative access',
@@ -150,8 +150,8 @@ const checkOrCreateDefaultRoles = async () => {
 		if (!cashierRole) {
 			const defaultCashierRole: Role = {
 				uuid: 'cashier',
-				clientId: '-1',
-				shopId: '-1',
+				clientUuid: '-1',
+				shopUuid: '-1',
 				name: 'cashier',
 				displayName: 'Cashier',
 				description: 'Basic cashier role for sales operations',
@@ -171,7 +171,7 @@ const checkOrCreateDefaultPermissions = async () => {
 	try {
 
 		for (const permission of DEFAULT_PERMISSIONS) {
-			const existing = await sealDBModel.findById(PERMISSIONS_DB, permission.uuid);
+			const existing = await sealDBModel.findById<Permission>(PERMISSIONS_DB, permission.uuid);
 			if (!existing) {
 				await sealDBModel.insert(PERMISSIONS_DB, permission);
 			}
@@ -207,25 +207,22 @@ const checkOrCreateDefaultShop = async () => {
 		const shop = await sealDBModel.findById(SHOPS_DB, '-1');
 		if (shop) return;
 
-		const defaultShop = {
+		const defaultShop: IShop = {
 			uuid: '-1',
-			clientId: '-1',
+			clientUuid: '-1',
 			name: 'Default Shop',
-			code: 'SHOP001',
-			address: '123 Main Street',
+			shopCode: 'SHOP001',
+			addressLine1: '123 Main Street',
 			city: 'Lilongwe',
 			country: 'Malawi',
 			phone: '+1234567890',
 			email: 'shop@example.com',
 			timezone: 'UTC',
-			currency: 'USD',
+			currencySymbol: 'MK',
+			currencyCode: 'MKW',
+			taxRate: 0.00,
+			chargeTax: false,
 			status: 'active',
-			settings: {
-				taxRate: 0,
-				enableInventory: true,
-				enableCustomers: true,
-				autoSync: true
-			},
 			createdAt: new Date(),
 			updatedAt: new Date()
 		};
@@ -243,7 +240,7 @@ const checkOrCreateDefaultClient = async () => {
 
 		const defaultClient: Client = {
 			uuid: '-1',
-			clientId: 'DEFAULT_CLIENT',
+			clientCode: 'DEFAULT_CLIENT',
 			companyName: 'Default Company',
 			ownerName: 'System Administrator',
 			email: 'admin@example.com',
@@ -276,7 +273,7 @@ const checkOrCreateDefaultWorkStation = async () => {
 		const defaultWorkStation: Workstation = {
 			uuid: '-1',
 			shopCode: 'SHOP001',
-			clientId: '-1',
+			clientUuid: '-1',
 			tillName: 'Main Till',
 			tillNumber: 'TILL001',
 			deviceId: 'DEFAULT_DEVICE',
@@ -352,9 +349,9 @@ const checkOrCreateDefaultClientSubscriptions = async () => {
 		const subscription = await sealDBModel.findById(CLIENT_SUBSCRIPTIONS_DB, '-1');
 		if (subscription) return;
 
-		const defaultSubscription = {
+		const defaultSubscription: ClientSubscription = {
 			uuid: '-1',
-			clientId: '-1',
+			clientUuid: '-1',
 			planId: 'basic-monthly',
 			status: 'active',
 			maxShops: 5,
@@ -388,8 +385,8 @@ const checkOrCreateDefaultUser = async () => {
 			username: 'admin',
 			fullname: 'Zonse247 Admin',
 			password: hash,
-			clientId: '-1',
-			shopId: '-1',
+			clientUuid: '-1',
+			shopUuid: '-1',
 			roleUuid: 'super-admin',
 			accessibleShops: ["*"],
 			allowedWorkstations: ["*"],
@@ -411,9 +408,9 @@ const checkOrCreateDefaultCustomer = async () => {
 
 		const defaultCustomer: Customer = {
 			uuid: '-1',
-			clientId: '-1',
-			shopId: '-1',
-			userId: '-1',
+			clientUuid: '-1',
+			shopUuid: '-1',
+			userUuid: '-1',
 			name: 'Walk in customer',
 		};
 
@@ -481,9 +478,9 @@ async function checkAndCreateDefaultCategory(): Promise<void> {
 
 		const defaultCategory: Category = {
 			uuid: uuidv4(),
-			clientId: '-1',
-			shopId: '-1',
-			userId: '-1',
+			clientUuid: '-1',
+			shopUuid: '-1',
+			userUuid: '-1',
 			name: 'Consumables',
 		};
 
@@ -498,16 +495,16 @@ async function checkOrCreateDefaultPaymentMethods(): Promise<void> {
 		{
 			name: 'Cash',
 			uuid: '1',
-			clientId: '-1',
-			shopId: '-1',
-			userId: '-1',
+			clientUuid: '-1',
+			shopUuid: '-1',
+			userUuid: '-1',
 		},
 		{
 			name: 'Mobile Transfer',
 			uuid: '2',
-			clientId: '-1',
-			shopId: '-1',
-			userId: '-1',
+			clientUuid: '-1',
+			shopUuid: '-1',
+			userUuid: '-1',
 		},
 	];
 

@@ -1,8 +1,7 @@
 interface User {
-    id?: number;
     uuid: string;
-    clientId: string;
-    shopId: string;
+    clientUuid: string;
+    shopUuid: string;
     username: string;
     password: string;
     fullname: string;
@@ -17,7 +16,7 @@ interface User {
     maxDiscountPercent?: number;
     canOverridePrices?: boolean;
     pinCode?: string | null;
-    currentShopId?: string | null;
+    currentShopUuid?: string | null;
     lastLogin?: Date | null;
     lastLogout?: Date | null;
     passwordChangedAt?: Date;
@@ -57,7 +56,7 @@ interface UserFormModalProps {
 }
 
 interface AuthenticatedUser {
-    userId: string;
-    clientId: string;
-    shopId: string;
+    userUuid: string;
+    clientUuid: string;
+    shopUuid: string;
 }

@@ -1,7 +1,7 @@
 interface Workstation {
     uuid: string;
     shopCode: string;
-    clientId: string;
+    clientUuid: string;
     tillName: string;
     tillNumber: string;
     deviceId: string;
@@ -19,7 +19,7 @@ interface Workstation {
 
 interface CreateWorkstationRequest {
     shopCode: string;
-    clientId: string;
+    clientUuid: string;
     tillName: string;
     tillNumber: string;
     deviceId?: string;

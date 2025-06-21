@@ -1,7 +1,7 @@
 interface Role {
     uuid: string;
-    clientId: string;
-    shopId?: string | null;
+    clientUuid: string;
+    shopUuid?: string | null;
     name: string;
     displayName: string;
     description?: string | null;
@@ -35,8 +35,8 @@ interface RolePermission {
 }
 
 interface CreateRoleRequest {
-    clientId: string;
-    shopId?: string | null;
+    clientUuid: string;
+    shopUuid?: string | null;
     name: string;
     displayName: string;
     description?: string | null;
@@ -61,8 +61,8 @@ interface BulkRolePermissionRequest {
 
 interface Role {
     uuid: string;
-    clientId: string;
-    shopId?: string | null;
+    clientUuid: string;
+    shopUuid?: string | null;
     name: string;
     displayName: string;
     description?: string | null;
@@ -92,8 +92,8 @@ interface RolePermission {
 }
 
 interface CreateRoleRequest {
-    clientId: string;
-    shopId?: string | null;
+    clientUuid: string;
+    shopUuid?: string | null;
     name: string;
     displayName: string;
     description?: string | null;

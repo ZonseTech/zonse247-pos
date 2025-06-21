@@ -24,7 +24,7 @@ const ClientManagement: FunctionComponent = () => {
                                 {row?.companyName}
                             </div>
                             <div className="text-sm text-gray-500">
-                                ID: {row?.clientId}
+                                ID: {row?.clientCode}
                             </div>
                         </div>
                     </div>
@@ -169,7 +169,7 @@ const ClientManagement: FunctionComponent = () => {
                 client.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 client.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                client.clientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                client.clientCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 client.country?.toLowerCase().includes(searchTerm.toLowerCase())
             );
             setFilteredClients(filtered);
@@ -219,7 +219,7 @@ const ClientManagement: FunctionComponent = () => {
         setPerPage(newPerPage);
     };
 
-    const handleDelete = async (clientId: string, companyName: string) => {
+    const handleDelete = async (clientUuid: string, companyName: string) => {
         Confirm.show(
             'Delete Client',
             `Are you sure you want to delete the client "${companyName}"? This action cannot be undone.`,
@@ -227,8 +227,8 @@ const ClientManagement: FunctionComponent = () => {
             'Cancel',
             async () => {
                 try {
-                    await clientsService.delete(clientId);
-                    const updatedClients = clients.filter(client => client.uuid !== clientId);
+                    await clientsService.delete(clientUuid);
+                    const updatedClients = clients.filter(client => client.uuid !== clientUuid);
                     saveClients(updatedClients);
                     Notify.success('Client deleted successfully');
                 } catch (error) {
@@ -246,10 +246,10 @@ const ClientManagement: FunctionComponent = () => {
         );
     };
 
-    const toggleClientStatus = async (clientId: string, currentStatus: string) => {
+    const toggleClientStatus = async (clientUuid: string, currentStatus: string) => {
         const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
         const action = newStatus === 'active' ? 'activate' : 'suspend';
-        const client = clients.find(c => c.uuid === clientId);
+        const client = clients.find(c => c.uuid === clientUuid);
 
         Confirm.show(
             `${action.charAt(0).toUpperCase() + action.slice(1)} Client`,
@@ -263,10 +263,10 @@ const ClientManagement: FunctionComponent = () => {
                         status: newStatus
                     };
 
-                    await clientsService.update(clientId, updatedClientData);
+                    await clientsService.update(clientUuid, updatedClientData);
 
                     const updatedClients = clients.map(client =>
-                        client.uuid === clientId
+                        client.uuid === clientUuid
                             ? { ...client, status: newStatus as 'pending' | 'active' | 'suspended' | 'cancelled' }
                             : client
                     );

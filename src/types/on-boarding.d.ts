@@ -15,7 +15,7 @@ interface SubscriptionPlan {
 }
 
 interface VerifyClientRequest {
-    clientId: string;
+    clientUuid: string;
     authKey: string;
 }
 
