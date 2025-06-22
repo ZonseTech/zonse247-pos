@@ -25,8 +25,8 @@ const transactionService = {
 
 	async store(data: Transaction): Promise<Transaction> {
 		return api
-			.post(endpoints.store, data)
-			.then((res) => res.data)
+			.post<ApiResponse<Transaction>>(endpoints.store, data as any)
+			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
 			});

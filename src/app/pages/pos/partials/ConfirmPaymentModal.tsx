@@ -79,37 +79,36 @@ const ConfirmPaymentModal: FunctionComponent<PropsWithChildren<Props>> = ({
     });
 
     const handleConfirmPayment = async (values: TransactionValues) => {
-        const refNumber = generateReferenceNumber()
-
-        const data: Transaction = {
-            uuid: '',
-            refNumber,
-            discount,
-            subtotal,
-            tax,
-            date: new Date().toJSON(),
-            phoneNumber: values.phoneNumber,
-
-            userUuid: user.uuid,
-            tillUuid: settings?.uuid,
-            transactionId: values?.transactionId,
-            customerUuid: selectedCustomer.uuid,
-            paymentMethodUuid: values.paymentMethodUuid,
-            paymentServiceProviderUuid: values.paymentServiceProviderUuid,
-
-            total,
-            paid: totalAmountPaid,
-            changeAmount,
-            items: cart,
-        }
-
-        setRequestBody(data)
-
         try {
             if (isPaymentSufficient) {
-                await transactionService.store(data)
+                const refNumber = generateReferenceNumber()
+
+                const data: Transaction = {
+                    uuid: '',
+                    refNumber,
+                    discount,
+                    subtotal,
+                    tax,
+                    date: new Date().toJSON(),
+                    phoneNumber: values.phoneNumber,
+
+                    userUuid: user.uuid,
+                    tillUuid: settings?.uuid,
+                    transactionId: values?.transactionId,
+                    customerUuid: selectedCustomer.uuid,
+                    paymentMethodUuid: values.paymentMethodUuid,
+                    paymentServiceProviderUuid: values.paymentServiceProviderUuid,
+
+                    total,
+                    paid: totalAmountPaid,
+                    changeAmount,
+                    items: cart,
+                }
+                const transactionDetails = await transactionService.store(data)
                 clearCart()
                 reloadProducts()
+                setRequestBody(transactionDetails)
+
 
                 values.phoneNumber = ''
                 values.paymentMethodUuid = "1"
