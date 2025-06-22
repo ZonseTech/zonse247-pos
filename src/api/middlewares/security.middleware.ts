@@ -63,10 +63,16 @@ export const preventSQLInjection = (
 	res: Response,
 	next: NextFunction
 ): void => {
+	/* 	const sqlInjectionPatterns = [
+			// /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/gi,s
+			/('|(\\|;|\/\*|\*\/|--|#))/gi,
+			/((%27)|('))((%6F)|o|(%4F))((%72)|r|(%52))/gi,
+		]; */
+
 	const sqlInjectionPatterns = [
-		// /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/gi,s
-		/('|(\\|;|\/\*|\*\/|--|#))/gi,
+		/('|(\\|;|\/\*|\*\/|--))/gi,
 		/((%27)|('))((%6F)|o|(%4F))((%72)|r|(%52))/gi,
+		/#(?!([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})\b)/gi,
 	];
 
 	const checkForSQLInjection = (value: string): boolean => {

@@ -14,10 +14,14 @@ interface Category {
 
 interface CreateCategoryDto {
     name: string;
+    color: string;
+    description: string;
 }
 
 interface UpdateCategoryDto {
     name?: string;
+    color: string;
+    description: string;
 }
 
 interface CategoryFilters {
