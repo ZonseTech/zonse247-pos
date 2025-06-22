@@ -13,10 +13,10 @@ import { formatCurrency } from '../utils';
 const router = Router();
 
 router.get(
-	'/monthly-sales/:userId/:monthYear',
+	'/monthly-sales/:userUuid/:monthYear',
 	async (req: Request, res: Response) => {
 		try {
-			const userId = req.params.userId;
+			const userUuid = req.params.userUuid;
 			const monthYear = req.params.monthYear;
 			const [year, month] = monthYear.split('-').map(Number);
 
@@ -29,7 +29,7 @@ router.get(
 			const transactions: Array<Transaction> = await sealDBModel.find(
 				TRANSACTIONS_DB,
 				{
-					userId,
+					userUuid,
 					date: {
 						$gte: startDate,
 						$lte: endDate,
@@ -71,10 +71,10 @@ router.get(
 );
 
 router.get(
-	'/transactions/:userId/:limit/:offset',
+	'/transactions/:userUuid/:limit/:offset',
 	async (req: Request, res: Response) => {
 		try {
-			const userId = req.params.userId;
+			const userUuid = req.params.userUuid;
 			const limit = parseInt(req.params.limit);
 			const offset = parseInt(req.params.offset) || 0;
 			const includeItems = req.query.includeItems === 'true';
@@ -82,7 +82,7 @@ router.get(
 			const transactions: Array<Transaction> = await sealDBModel.find(
 				TRANSACTIONS_DB,
 				{
-					userId,
+					userUuid,
 				}
 			);
 
@@ -191,8 +191,8 @@ router.get('/top-products', async (req: Request, res: Response) => {
 		productSummary.forEach((summary, productId) => {
 			const product = productMap.get(productId);
 			if (product) {
-				if (product.categoryId) {
-					const categoryKey = product.categoryId.toString();
+				if (product.uuid) {
+					const categoryKey = product.uuid.toString();
 					if (categoryMap.has(categoryKey)) {
 						product.categoryDetails = categoryMap.get(categoryKey);
 					}
@@ -222,13 +222,13 @@ router.get('/top-products', async (req: Request, res: Response) => {
 	}
 });
 
-router.get('/counts/:userId', async (req: Request, res: Response) => {
+router.get('/counts/:userUuid', async (req: Request, res: Response) => {
 	try {
-		const userId = req.params.userId;
+		const userUuid = req.params.userUuid;
 
 		const [transactions, inventoryProducts, userCount, customerCount] =
 			await Promise.all([
-				sealDBModel.find(TRANSACTIONS_DB, { userId: userId }),
+				sealDBModel.find(TRANSACTIONS_DB, { userUuid: userUuid }),
 				sealDBModel.find(INVENTORY_DB, { status: { $ne: 'void' } }),
 				sealDBModel.count(USERS_DB),
 				sealDBModel.count(CUSTOMERS_DB),
