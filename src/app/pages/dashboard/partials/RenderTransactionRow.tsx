@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import { formatCurrency } from '../../../utils'
-import type { Dispatch, FunctionComponent, ReactElement, SetStateAction } from 'react'
+import { Fragment, type Dispatch, type FunctionComponent, type ReactElement, type SetStateAction } from 'react'
 
 type Props = {
 	trans: Transaction;
@@ -9,7 +9,7 @@ type Props = {
 }
 
 const RenderTransactionRow: FunctionComponent<Props> = ({ trans, setIsOpenDetails, setTransaction }): ReactElement => {
-	return <tr key={trans.uuid}>
+	return <Fragment key={trans.uuid}>
 		<td className="px-6 py-4 whitespace-nowrap">
 			<div
 				className="text-sm font-medium text-green-500 cursor-pointer"
@@ -34,7 +34,7 @@ const RenderTransactionRow: FunctionComponent<Props> = ({ trans, setIsOpenDetail
 		<td className="px-6 py-4 text-sm text-right text-gray-500 whitespace-nowrap">
 			{dayjs(trans.date).format("D-MM-YYYY")}
 		</td>
-	</tr>
+	</Fragment>
 }
 
 export default RenderTransactionRow

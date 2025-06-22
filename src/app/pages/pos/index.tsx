@@ -3,7 +3,7 @@ import Panel from "../../components/Panel";
 import CartTable from "./partials/CartTable";
 import AppLayout from "../../layouts/AppLayout";
 import BarcodeScanner from "./partials/BarcodeScanner";
-import CustomerFilter from "./partials/CustomerFilter";
+import CustomerFilter from "../customers/CustomerFilter";
 import ProductsViewGrid from "./partials/ProductsViewGrid";
 
 const Home: FunctionComponent = () => {

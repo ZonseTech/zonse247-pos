@@ -56,7 +56,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 		>
 			<div
 				id="transaction-details-content"
-				className="p-6 max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600"
+				className="py-3 max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600"
 			>
 				<TransactionHeader
 					refNumber={transactionData.refNumber}

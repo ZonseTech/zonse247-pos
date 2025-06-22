@@ -21,7 +21,7 @@ const ProductsTable: FunctionComponent<Props> = ({ soldProducts }) => {
 		},
 		{
 			name: "Category",
-			selector: (row) => row.categoryId || '-',
+			selector: (row) => row.categoryDetails.name || '-',
 		},
 		{
 			name: "Sell Price",
