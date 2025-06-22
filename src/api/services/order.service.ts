@@ -23,15 +23,15 @@ export class OrderService {
     }
 
     static async createOrderItems(
-        transactionId: string,
+        transactionUuid: string,
         items: CartItem[]
     ): Promise<OrderItem[]> {
         const orderItems: OrderItem[] = [];
 
         for (const item of items) {
             const orderItem: Partial<OrderItem> = {
-                transactionId,
-                productId: item.productUuid,
+                transactionUuid,
+                productUuid: item.productUuid,
                 quantity: item.quantity,
                 purchasePrice: item.purchasePrice,
                 sellPrice: item.sellPrice,
@@ -46,7 +46,7 @@ export class OrderService {
     }
 
     static async createOrderItemsBatch(
-        transactionId: string,
+        transactionUuid: string,
         refNumber: string,
         items: CartItem[]
     ): Promise<OrderItem[]> {
@@ -55,8 +55,8 @@ export class OrderService {
         const createPromises = items.map(async (item) => {
             const orderItem: Partial<OrderItem> = {
                 refNumber,
-                transactionId,
-                productId: item.productUuid,
+                transactionUuid,
+                productUuid: item.productUuid,
                 quantity: item.quantity,
                 purchasePrice: item.purchasePrice,
                 sellPrice: item.sellPrice,

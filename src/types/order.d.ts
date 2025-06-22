@@ -1,8 +1,8 @@
 interface OrderItem {
     uuid: string;
     refNumber?: string;
-    transactionId: string;
-    productId: string;
+    transactionUuid: string;
+    productUuid: string;
     quantity: number;
     purchasePrice: number;
     sellPrice: number;

@@ -184,9 +184,8 @@ export class TransactionService {
                         const itemsWithProducts = await Promise.all(
                             orderItems.map(async (item) => {
                                 try {
-                                    const product = await InventoryModel.findById(item.productId, {
+                                    const product = await InventoryModel.findByUuid(item.productUuid);
 
-                                    });
                                     return {
                                         ...item,
                                         productDetails: product,
