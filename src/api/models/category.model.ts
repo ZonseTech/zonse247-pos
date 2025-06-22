@@ -38,8 +38,8 @@ export class CategoryModel {
     static async findByClientUuidAndShopUuid(clientUuid: string, shopUuid: string): Promise<Category[]> {
         try {
             return await sealDBModel.find(CATEGORIES_DB, {
-                clientUuid: clientUuid,
-                shopUuid: shopUuid
+                clientUuid,
+                shopUuid
             });
         } catch (error) {
             throw new Error(`Error finding categories by client ID and shop ID: ${error instanceof Error ? error.message : 'Unknown error'}`);

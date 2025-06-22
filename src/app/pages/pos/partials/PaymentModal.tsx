@@ -114,9 +114,9 @@ const PaymentModal: FunctionComponent = () => {
                                     <FormSelectBox
                                         label='Service Provider'
                                         name='serviceProviderId'
-                                        options={paymentServiceProvider.map((provider: PaymentServiceProvider) => ({
-                                            value: provider.uuid.toString(),
-                                            label: provider.name
+                                        options={paymentServiceProvider.map((service: PaymentServiceProvider) => ({
+                                            value: service?.uuid?.toString(),
+                                            label: service?.name
                                         }))}
                                     />
 

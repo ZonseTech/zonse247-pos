@@ -3,7 +3,7 @@ import { CategoryModel } from "../models/category.model";
 export class CategoryService {
     static async getAllCategories(filters: CategoryFilters): Promise<Category[]> {
         try {
-            return await CategoryModel.findByClientUuidAndShopUuid(filters.shopUuid, filters.shopUuid);
+            return await CategoryModel.findByClientUuidAndShopUuid(filters.clientUuid, filters.shopUuid);
         } catch (error) {
             console.error('Error fetching categories:', error);
             throw new Error('Failed to fetch categories');
