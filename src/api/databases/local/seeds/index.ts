@@ -591,6 +591,7 @@ const seedDatabase = async () => {
 		checkOrCreateDefaultCustomer();
 		checkAndCreateDefaultCategory();
 		checkOrCreateDefaultPaymentMethods();
+		checkOrCreateDefaultPaymentServiceProviders()
 		checkOrCreateDefaultSettings();
 		checkOrCreateSetupStatus();
 

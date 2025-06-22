@@ -5,14 +5,31 @@ import { SubscriptionModel } from "../models/subscription.model";
 export class SubscriptionService {
 
     static async getAll(): Promise<ClientSubscription[]> {
-        return SubscriptionModel.findAll();
+        const subscriptions = await SubscriptionModel.findAll()
+
+        const enhancedSubscriptions = await Promise.all(
+            subscriptions.map(async (subscription) => {
+                const client = await ClientModel.findById(subscription.clientUuid);
+
+                return {
+                    ...subscription,
+                    clientDetails: {
+                        clientCode: client?.clientCode,
+                        companyName: client?.companyName,
+                        ownerName: client?.ownerName
+                    }
+                };
+            })
+        );
+
+        return enhancedSubscriptions
     }
 
     static async getById(id: string): Promise<ClientSubscription | null> {
         return SubscriptionModel.findByUuid(id);
     }
 
-    static async create(data: Omit<ClientSubscription, 'id' | 'created_at' | 'updated_at'>): Promise<ClientSubscription> {
+    static async create(data: Omit<ClientSubscription, 'uuid' | 'createdAt' | 'updatedAt'>): Promise<ClientSubscription> {
         const validationError = ClientService.validateRequired(data, ['clientUuid', 'planId']);
         if (validationError) {
             throw new Error(validationError);

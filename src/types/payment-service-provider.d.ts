@@ -6,7 +6,7 @@ type PaymentServiceProvider = {
     userUuid: string;
     createdAt?: Date;
     updatedAt?: Date;
-    logoUrl: string;
+    logoUrl?: string;
     synced?: number;
 };
 

@@ -20,6 +20,11 @@ interface SubscriptionPlan {
 interface ClientSubscription {
     uuid: string;
     clientUuid: string;
+    clientDetails?: {
+        clientCode: string;
+        companyName: string;
+        ownerName: string;
+    };
     planId: string;
     status: 'active' | 'cancelled' | 'expired' | 'past_due';
     startsAt: string;

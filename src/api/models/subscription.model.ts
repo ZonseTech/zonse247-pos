@@ -117,7 +117,7 @@ export class SubscriptionModel {
         return sealDBModel.find(TABLE_NAMES.CLIENT_SUBSCRIPTIONS, { clientUuid });
     }
 
-    static async create(subscriptionData: Omit<ClientSubscription, 'id'>): Promise<ClientSubscription> {
+    static async create(subscriptionData: Omit<ClientSubscription, 'uuid'>): Promise<ClientSubscription> {
         return sealDBModel.insert(TABLE_NAMES.CLIENT_SUBSCRIPTIONS, subscriptionData);
     }
 
