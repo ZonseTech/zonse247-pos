@@ -348,15 +348,11 @@ export class CategoryService {
         }
     }
 
-    /**
-     * Private helper method to enrich categories with real-time item counts from inventory
-     */
     private static async enrichCategoriesWithItemCount(
         categories: Category[],
         filters: Partial<CategoryFilters>
     ): Promise<Category[]> {
         try {
-            // Get all active products for the client/shop
             const authFilter = {
                 clientUuid: filters.clientUuid,
                 shopUuid: filters.shopUuid
@@ -364,7 +360,6 @@ export class CategoryService {
 
             const products = await InventoryModel.findActive(authFilter);
 
-            // Count products per category
             const categoryItemCounts = new Map<string, number>();
 
             products.forEach(product => {
@@ -374,14 +369,12 @@ export class CategoryService {
                 }
             });
 
-            // Enrich categories with item counts
             return categories.map(category => ({
                 ...category,
                 itemCount: categoryItemCounts.get(category.uuid) || 0
             }));
         } catch (error) {
             console.error('Error enriching categories with item count:', error);
-            // Return categories with itemCount set to 0 if there's an error
             return categories.map(category => ({
                 ...category,
                 itemCount: 0
@@ -389,9 +382,6 @@ export class CategoryService {
         }
     }
 
-    /**
-     * Update item counts for categories when inventory changes
-     */
     static async syncCategoryItemCounts(
         categoryUuids: string[],
         user: AuthenticatedUser
@@ -400,7 +390,6 @@ export class CategoryService {
             const products = await InventoryModel.findActive(user);
             const categoryItemCounts = new Map<string, number>();
 
-            // Count products per category
             products.forEach(product => {
                 if (product.categoryUuid && categoryUuids.includes(product.categoryUuid)) {
                     const currentCount = categoryItemCounts.get(product.categoryUuid) || 0;
@@ -408,7 +397,6 @@ export class CategoryService {
                 }
             });
 
-            // Update each category's item count
             const updatePromises = categoryUuids.map(async (categoryUuid) => {
                 const itemCount = categoryItemCounts.get(categoryUuid) || 0;
                 return CategoryModel.update(categoryUuid, { itemCount });

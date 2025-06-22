@@ -23,14 +23,16 @@ export class CategoryController extends BaseController {
 
     static createCategory = async (req: Request, res: Response): Promise<void> => {
         try {
-            const { name } = req.body;
+            const { name, color, description, } = req.body;
             if (!name || typeof name !== 'string' || name.trim().length === 0) {
                 CategoryController.sendResponse(res, 400, false, 'Category name is required and must be a non-empty string', undefined, 'Bad Request');
                 return;
             }
 
             const categoryData: CreateCategoryDto = {
-                name: name.trim()
+                name: name.trim(),
+                color,
+                description
             };
 
             const newCategory = await CategoryService.createCategory(
@@ -52,7 +54,7 @@ export class CategoryController extends BaseController {
     static updateCategory = async (req: Request, res: Response): Promise<void> => {
         try {
             const { categoryId } = req.params;
-            const { name } = req.body;
+            const { name, color, description } = req.body;
 
             if (!categoryId) {
                 CategoryController.sendResponse(res, 400, false, 'Category ID is required', undefined, 'Bad Request');
@@ -64,7 +66,11 @@ export class CategoryController extends BaseController {
                 return;
             }
 
-            const updateData: UpdateCategoryDto = {};
+            const updateData: UpdateCategoryDto = {
+                color,
+                description
+            };
+
             if (name !== undefined) {
                 updateData.name = name.trim();
             }
