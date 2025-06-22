@@ -1,10 +1,3 @@
-interface CartItem {
-    productId: string;
-    quantity: number;
-    purchasePrice: number;
-    sellPrice: number;
-}
-
 interface OrderItem {
     uuid: string;
     refNumber?: string;
@@ -40,7 +33,7 @@ interface HoldOrder {
     till?: string;
 }
 
-/* interface CartItem {
+interface CartItem {
     barcode: number | string;
     productUuid: string;
     name: string;
@@ -50,4 +43,4 @@ interface HoldOrder {
     variancePrice?: number;
     quantity: number;
     categoryDetails?: Category;
-} */
+}

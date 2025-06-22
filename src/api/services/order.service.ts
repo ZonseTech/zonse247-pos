@@ -31,7 +31,7 @@ export class OrderService {
         for (const item of items) {
             const orderItem: Partial<OrderItem> = {
                 transactionId,
-                productId: item.productId,
+                productId: item.productUuid,
                 quantity: item.quantity,
                 purchasePrice: item.purchasePrice,
                 sellPrice: item.sellPrice,
@@ -56,7 +56,7 @@ export class OrderService {
             const orderItem: Partial<OrderItem> = {
                 refNumber,
                 transactionId,
-                productId: item.productId,
+                productId: item.productUuid,
                 quantity: item.quantity,
                 purchasePrice: item.purchasePrice,
                 sellPrice: item.sellPrice,

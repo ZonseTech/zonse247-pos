@@ -24,8 +24,3 @@ interface Product {
     categoryDetails?: Category;
     synced?: 1 | 0;
 }
-
-interface CartItem {
-    productUuid: string;
-    quantity: number;
-}

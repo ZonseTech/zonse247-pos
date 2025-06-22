@@ -11,8 +11,8 @@ const customerSerive = {
 	endpoints,
 	async list(query = {}): Promise<Customer[]> {
 		return api
-			.get<Customer[]>(endpoints.all, query)
-			.then((res) => res.data)
+			.get<ApiResponse<Customer[]>>(endpoints.all, query)
+			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
 			});

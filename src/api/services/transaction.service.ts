@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { InventoryModel } from '../models/inventory.model';
-import { TransactionModel } from '../models/transactions.model';
+import { TransactionModel } from '../models/transaction.model';
 import { UserModel } from '../models/user.model';
 import { PaymentMethodModel } from '../models/payment-methods.model';
 import { CustomerModel } from '../models/customer.model';
