@@ -30,11 +30,10 @@ const ConfirmPaymentModal: FunctionComponent<PropsWithChildren<Props>> = ({
     children
 }) => {
     const transactionValues = {
-        paymentMethodId: "Cash",
-        serviceProviderId: 0,
+        paymentMethodUuid: "1",
+        paymentServiceProviderUuid: '',
         transactionId: '',
         phoneNumber: '',
-        amountPaid: 0,
     }
 
     const { user } = useAuth()
@@ -55,23 +54,23 @@ const ConfirmPaymentModal: FunctionComponent<PropsWithChildren<Props>> = ({
     const [requestBody, setRequestBody] = useState<Transaction>({} as Transaction)
 
     const newTransactionValidationSchema = Yup.object({
-        paymentMethodId: Yup.string().required('Payment method is required'),
-        serviceProviderId: Yup.string().when('paymentMethodId', {
-            is: (value: string) => value !== "Cash",
+        paymentMethodUuid: Yup.string().required('Payment method is required'),
+        paymentServiceProviderUuid: Yup.string().when('paymentMethodUuid', {
+            is: (value: string) => value !== "1",
             then: () => Yup.string()
                 .required('Service provider is required')
                 .min(1, 'Please select a service provider'),
             otherwise: () => Yup.string().nullable(),
         }),
-        transactionId: Yup.string().when('paymentMethodId', {
-            is: (value: string) => value !== "Cash",
+        transactionId: Yup.string().when('paymentMethodUuid', {
+            is: (value: string) => value !== "1",
             then: () => Yup.string()
                 .required('Transaction ID is required')
                 .min(5, 'Transaction ID must be at least 5 characters'),
             otherwise: () => Yup.string().nullable(),
         }),
-        phoneNumber: Yup.string().when('paymentMethodId', {
-            is: (value: string) => value !== "Cash",
+        phoneNumber: Yup.string().when('paymentMethodUuid', {
+            is: (value: string) => value !== "1",
             then: () => Yup.string()
                 .required('Phone number is required')
                 .matches(/^\d{10}$/, 'Phone number must be 10 digits'),
@@ -81,25 +80,26 @@ const ConfirmPaymentModal: FunctionComponent<PropsWithChildren<Props>> = ({
 
     const handleConfirmPayment = async (values: TransactionValues) => {
         const refNumber = generateReferenceNumber()
-        const paymentMethod = paymentMethods.find(method => method.name === values.paymentMethodId);
 
         const data: Transaction = {
             uuid: '',
             refNumber,
             discount,
-            customer: selectedCustomer,
             subtotal,
             tax,
             date: new Date().toJSON(),
-            paymentId: paymentMethod?.uuid as string,
-            transactionId: values.transactionId,
-            phoneNumber: values.phoneNumber as string,
-            serviceProviderId: values.serviceProviderId as number,
+            phoneNumber: values.phoneNumber,
+
+            userUuid: user.uuid,
+            tillUuid: settings?.uuid,
+            transactionId: values?.transactionId,
+            customerUuid: selectedCustomer.uuid,
+            paymentMethodUuid: values.paymentMethodUuid,
+            paymentServiceProviderUuid: values.paymentServiceProviderUuid,
+
             total,
             paid: totalAmountPaid,
             changeAmount,
-            till: settings?.tillName as string,
-            userId: user.uuid,
             items: cart,
         }
 
@@ -111,11 +111,9 @@ const ConfirmPaymentModal: FunctionComponent<PropsWithChildren<Props>> = ({
                 clearCart()
                 reloadProducts()
 
-                values.amountPaid = 0
                 values.phoneNumber = ''
-                values.transactionId = ''
-                values.paymentMethodId = "Cash"
-                values.serviceProviderId = 0
+                values.paymentMethodUuid = "1"
+                values.paymentServiceProviderUuid = ''
 
                 setDisplayPayment('0.00')
 
@@ -168,23 +166,23 @@ const ConfirmPaymentModal: FunctionComponent<PropsWithChildren<Props>> = ({
                                 {paymentMethods.map(({ uuid, name }) => (
                                     <label
                                         key={uuid}
-                                        className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:scale-[1.02] ${values.paymentMethodId === name
-                                            ? 'border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 shadow-lg shadow-blue-500/20'
-                                            : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-md'
+                                        className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:scale-[1.02] ${values.paymentMethodUuid === uuid
+                                            ? 'border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20'
+                                            : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500'
                                             }`}
                                     >
                                         <Input
                                             type="radio"
-                                            name="paymentMethodId"
-                                            value={name}
-                                            checked={values.paymentMethodId === name}
+                                            name="paymentMethodUuid"
+                                            value={uuid}
+                                            checked={values.paymentMethodUuid === uuid}
                                             className="sr-only"
                                             onChange={() => {
-                                                setPaymentMethod(name)
-                                                setFieldValue('paymentMethodId', name);
+                                                setPaymentMethod(uuid)
+                                                setFieldValue('paymentMethodUuid', uuid);
 
-                                                if (paymentMethods.some(condition => condition.name === name)) {
-                                                    setFieldValue('serviceProviderId', 0);
+                                                if (paymentMethods.some(condition => condition.uuid === uuid)) {
+                                                    setFieldValue('paymentServiceProviderUuid', '');
                                                     setFieldValue('transactionId', '');
                                                     setFieldValue('phoneNumber', '');
                                                 }
@@ -192,21 +190,21 @@ const ConfirmPaymentModal: FunctionComponent<PropsWithChildren<Props>> = ({
                                         />
 
                                         <div className="flex items-center space-x-3">
-                                            <div className={`p-2 rounded-lg ${values.paymentMethodId === name
+                                            <div className={`p-2 rounded-lg ${values.paymentMethodUuid === uuid
                                                 ? 'bg-blue-500 text-white'
                                                 : 'bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
                                                 }`}>
                                                 {getPaymentIcon(name)}
                                             </div>
                                             <div className="flex-1">
-                                                <p className={`font-medium ${values.paymentMethodId === name
+                                                <p className={`font-medium ${values.paymentMethodUuid === uuid
                                                     ? 'text-blue-700 dark:text-blue-300'
                                                     : 'text-gray-700 dark:text-gray-300'
                                                     }`}>
                                                     {name}
                                                 </p>
                                             </div>
-                                            {values.paymentMethodId === name && (
+                                            {values.paymentMethodUuid === uuid && (
                                                 <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                                                     <HiOutlineCheck className="w-4 h-4 text-white" />
                                                 </div>
@@ -238,7 +236,6 @@ const ConfirmPaymentModal: FunctionComponent<PropsWithChildren<Props>> = ({
                                 </div>
                             </div>
 
-                            {/* Confirm Payment Button */}
                             <button
                                 type="submit"
                                 disabled={!isPaymentSufficient || isSubmitting}

@@ -1,7 +1,7 @@
 import { Report } from 'notiflix';
+import { Modal } from '../../../components';
 import { HiOutlineCash } from 'react-icons/hi';
 import { formatCurrency } from '../../../utils';
-import { Modal } from '../../../components';
 import FormInput from '../../../components/FormInput';
 import ConfirmPaymentModal from './ConfirmPaymentModal';
 import FormSelectBox from '../../../components/FormSelectBox';
@@ -15,7 +15,7 @@ const PaymentModal: FunctionComponent = () => {
     const [rawPayment, setRawPayment] = useState<number>(0);
     const [displayPayment, setDisplayPayment] = useState<string>('0.00');
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState<string>("Cash");
+    const [paymentMethod, setPaymentMethod] = useState<string>("1");
     const isPaymentSufficient = rawPayment >= price;
 
     useEffect(() => {
@@ -106,16 +106,17 @@ const PaymentModal: FunctionComponent = () => {
                 >
                     <div className="flex flex-col gap-6 p-2">
                         <div className="flex flex-col gap-4">
-                            {paymentMethod !== "Cash" && (
+                            {paymentMethod !== "1" && (
                                 <div className="space-y-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                                     <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-3">
                                         Digital Payment Details
                                     </h3>
                                     <FormSelectBox
                                         label='Service Provider'
-                                        name='serviceProviderId'
+                                        name='paymentServiceProviderUuid'
+                                        required
                                         options={paymentServiceProvider.map((service: PaymentServiceProvider) => ({
-                                            value: service?.uuid?.toString(),
+                                            value: service?.uuid,
                                             label: service?.name
                                         }))}
                                     />

@@ -63,33 +63,6 @@ interface AppSettings {
 	version: string;
 }
 
-type Transaction = {
-	uuid: string;
-	refNumber?: string;
-	discount: number;
-	customer?: Customer;
-	customerId?: string;
-	status?: string;
-	subtotal: number;
-	tax: number;
-	date: string;
-	createdAt?: string;
-	updatedAt?: string;
-	paymentId?: string;
-	paymentMethod?: PaymentMethod;
-	transactionId?: string;
-	phoneNumber: string;
-	serviceProviderId: number;
-	total: number;
-	paid: number;
-	changeAmount: number;
-	till: string;
-	userId: string;
-	items?: CartItem[];
-	user?: User;
-	synced?: 1 | 0;
-};
-
 type OrderItem = {
 	synced?: 1 | 0;
 	uuid: string;
@@ -99,23 +72,6 @@ type OrderItem = {
 	purchasePrice: number;
 	sellPrice: number;
 	createdAt?: string;
-};
-
-type TransactionValues = {
-	paymentMethodId?: string;
-	serviceProviderId?: number;
-	transactionId?: string;
-	phoneNumber?: string;
-	amountPaid: string | number;
-};
-
-type PaymentMethod = {
-	uuid: string;
-	name: string;
-	icon?: string;
-	clientUuid: string;
-	shopUuid: string;
-	userUuid: string;
 };
 
 interface Printer {
