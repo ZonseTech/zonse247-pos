@@ -194,13 +194,13 @@ export class AnalyticsModel {
 
         const myTotalTransactions = transactions.length;
 
-        const total_sales =
-            Math.round(
+        const totalSales =
+            (Math.round(
                 transactions.reduce(
                     (sum, transaction) => sum + (transaction.total || 0),
                     0
                 ) * 100
-            ) / 100;
+            ) / 100)?.toString();
 
         const expiredProducts = inventoryProducts.filter((product) => {
             const expirationDate = new Date(product.expirationDate);
@@ -213,7 +213,7 @@ export class AnalyticsModel {
         );
 
         return {
-            totalSales: total_sales,
+            totalSales,
             stock: totalProducts,
             totalUsers: userCount,
             allCustomers: customerCount,

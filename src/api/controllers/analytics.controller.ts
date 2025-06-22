@@ -73,7 +73,7 @@ export class AnalyticsController {
 
             const formattedCounts = {
                 ...dashboardCounts,
-                totalSales: formatCurrency(dashboardCounts.totalSales),
+                totalSales: formatCurrency(parseFloat(dashboardCounts.totalSales)),
             };
 
             res.json(formattedCounts);

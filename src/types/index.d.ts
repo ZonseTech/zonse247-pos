@@ -56,25 +56,3 @@ type CartTableFooterProps = {
 	tax: number;
 	total: number;
 };
-
-type MonthlySales = {
-	date: number;
-	totalAmount: number;
-};
-
-type TopProduct = {
-	uuid: string;
-	name: string;
-	quantity: number;
-	summedSellPrice: number;
-	categoryName: string;
-};
-
-type DashboardCounts = {
-	totalSales: number;
-	stock: number;
-	totalUsers: number;
-	allCustomers: number;
-	expiredProducts: number;
-	myTotalTransactions: number;
-};

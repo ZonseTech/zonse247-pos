@@ -3,16 +3,6 @@ interface MonthlySales {
     totalAmount: number;
 }
 
-interface Product {
-    uuid: string | number;
-    name: string;
-    categoryId?: string | number;
-    quantity: number;
-    status: string;
-    expirationDate: string;
-    categoryDetails?: Category;
-}
-
 interface Category {
     uuid: string;
     name: string;
@@ -27,10 +17,23 @@ interface TopProduct {
 }
 
 interface DashboardCounts {
-    totalSales: number | string;
+    totalSales: string;
     stock: number;
     totalUsers: number;
     allCustomers: number;
     expiredProducts: number;
     myTotalTransactions: number;
 }
+
+type MonthlySales = {
+    date: number;
+    totalAmount: number;
+};
+
+type TopProduct = {
+    uuid: string;
+    name: string;
+    quantity: number;
+    summedSellPrice: number;
+    categoryName: string;
+};
