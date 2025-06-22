@@ -1,9 +1,11 @@
 import { CategoryModel } from "../models/category.model";
+import { InventoryModel } from "../models/inventory.model";
 
 export class CategoryService {
     static async getAllCategories(filters: CategoryFilters): Promise<Category[]> {
         try {
-            return await CategoryModel.findByClientUuidAndShopUuid(filters.clientUuid, filters.shopUuid);
+            const categories = await CategoryModel.findByClientUuidAndShopUuid(filters.clientUuid, filters.shopUuid);
+            return await this.enrichCategoriesWithItemCount(categories, { clientUuid: filters.clientUuid, shopUuid: filters.shopUuid });
         } catch (error) {
             console.error('Error fetching categories:', error);
             throw new Error('Failed to fetch categories');
@@ -11,12 +13,18 @@ export class CategoryService {
     }
 
     static async createCategory(
-        categoryData: { name: string },
+        categoryData: {
+            name: string;
+            description?: string;
+            color?: string;
+        },
         user: AuthenticatedUser
     ): Promise<Category> {
         try {
             const createRequest: CreateCategoryRequest = {
                 name: categoryData.name,
+                description: categoryData.description,
+                color: categoryData.color,
                 clientUuid: user.clientUuid,
                 shopUuid: user.shopUuid,
                 userUuid: user.userUuid,
@@ -132,7 +140,8 @@ export class CategoryService {
                 return null;
             }
 
-            return category;
+            const enrichedCategories = await this.enrichCategoriesWithItemCount([category], filters);
+            return enrichedCategories[0] || null;
         } catch (error) {
             console.error('Error fetching category by ID:', error);
             throw new Error('Failed to fetch category');
@@ -141,7 +150,8 @@ export class CategoryService {
 
     static async getCategoriesByClient(clientUuid: string): Promise<Category[]> {
         try {
-            return await CategoryModel.findByClientUuid(clientUuid);
+            const categories = await CategoryModel.findByClientUuid(clientUuid);
+            return await this.enrichCategoriesWithItemCount(categories, { clientUuid });
         } catch (error) {
             console.error('Error fetching categories by client:', error);
             throw new Error('Failed to fetch categories by client');
@@ -150,7 +160,8 @@ export class CategoryService {
 
     static async getCategoriesByShop(shopUuid: string): Promise<Category[]> {
         try {
-            return await CategoryModel.findByShopUuid(shopUuid);
+            const categories = await CategoryModel.findByShopUuid(shopUuid);
+            return await this.enrichCategoriesWithItemCount(categories, { shopUuid });
         } catch (error) {
             console.error('Error fetching categories by shop:', error);
             throw new Error('Failed to fetch categories by shop');
@@ -167,18 +178,61 @@ export class CategoryService {
                 filters.shopUuid
             );
 
-            return allCategories.filter(category =>
+            const filteredCategories = allCategories.filter(category =>
                 category.name.toLowerCase().includes(name.toLowerCase())
             );
+
+            return await this.enrichCategoriesWithItemCount(filteredCategories, filters);
         } catch (error) {
             console.error('Error searching categories by name:', error);
             throw new Error('Failed to search categories');
         }
     }
 
+    static async searchCategoriesByDescription(
+        description: string,
+        filters: CategoryFilters
+    ): Promise<Category[]> {
+        try {
+            const allCategories = await CategoryModel.findByClientUuidAndShopUuid(
+                filters.clientUuid,
+                filters.shopUuid
+            );
+
+            const filteredCategories = allCategories.filter(category =>
+                category.description &&
+                category.description.toLowerCase().includes(description.toLowerCase())
+            );
+
+            return await this.enrichCategoriesWithItemCount(filteredCategories, filters);
+        } catch (error) {
+            console.error('Error searching categories by description:', error);
+            throw new Error('Failed to search categories by description');
+        }
+    }
+
+    static async getCategoriesByColor(
+        color: string,
+        filters: CategoryFilters
+    ): Promise<Category[]> {
+        try {
+            const allCategories = await CategoryModel.findByClientUuidAndShopUuid(
+                filters.clientUuid,
+                filters.shopUuid
+            );
+
+            const filteredCategories = allCategories.filter(category => category.color === color);
+            return await this.enrichCategoriesWithItemCount(filteredCategories, filters);
+        } catch (error) {
+            console.error('Error fetching categories by color:', error);
+            throw new Error('Failed to fetch categories by color');
+        }
+    }
+
     static async getUnsyncedCategories(clientUuid: string): Promise<Category[]> {
         try {
-            return await CategoryModel.findUnsyncedByClient(clientUuid);
+            const categories = await CategoryModel.findUnsyncedByClient(clientUuid);
+            return await this.enrichCategoriesWithItemCount(categories, { clientUuid });
         } catch (error) {
             console.error('Error fetching unsynced categories:', error);
             throw new Error('Failed to fetch unsynced categories');
@@ -266,6 +320,104 @@ export class CategoryService {
         } catch (error) {
             console.error('Error validating category access:', error);
             return false;
+        }
+    }
+
+    static async updateCategoryItemCount(
+        categoryId: string,
+        itemCount: number,
+        user: AuthenticatedUser
+    ): Promise<void> {
+        try {
+            const category = await this.getCategoryById(categoryId, {
+                clientUuid: user.clientUuid,
+                shopUuid: user.shopUuid
+            });
+
+            if (!category) {
+                throw new Error('Category not found or access denied');
+            }
+
+            const updatedCount = await CategoryModel.update(categoryId, { itemCount });
+            if (updatedCount === 0) {
+                throw new Error('Failed to update category item count');
+            }
+        } catch (error) {
+            console.error('Error updating category item count:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Private helper method to enrich categories with real-time item counts from inventory
+     */
+    private static async enrichCategoriesWithItemCount(
+        categories: Category[],
+        filters: Partial<CategoryFilters>
+    ): Promise<Category[]> {
+        try {
+            // Get all active products for the client/shop
+            const authFilter = {
+                clientUuid: filters.clientUuid,
+                shopUuid: filters.shopUuid
+            } as AuthenticatedUser;
+
+            const products = await InventoryModel.findActive(authFilter);
+
+            // Count products per category
+            const categoryItemCounts = new Map<string, number>();
+
+            products.forEach(product => {
+                if (product.categoryUuid) {
+                    const currentCount = categoryItemCounts.get(product.categoryUuid) || 0;
+                    categoryItemCounts.set(product.categoryUuid, currentCount + 1);
+                }
+            });
+
+            // Enrich categories with item counts
+            return categories.map(category => ({
+                ...category,
+                itemCount: categoryItemCounts.get(category.uuid) || 0
+            }));
+        } catch (error) {
+            console.error('Error enriching categories with item count:', error);
+            // Return categories with itemCount set to 0 if there's an error
+            return categories.map(category => ({
+                ...category,
+                itemCount: 0
+            }));
+        }
+    }
+
+    /**
+     * Update item counts for categories when inventory changes
+     */
+    static async syncCategoryItemCounts(
+        categoryUuids: string[],
+        user: AuthenticatedUser
+    ): Promise<void> {
+        try {
+            const products = await InventoryModel.findActive(user);
+            const categoryItemCounts = new Map<string, number>();
+
+            // Count products per category
+            products.forEach(product => {
+                if (product.categoryUuid && categoryUuids.includes(product.categoryUuid)) {
+                    const currentCount = categoryItemCounts.get(product.categoryUuid) || 0;
+                    categoryItemCounts.set(product.categoryUuid, currentCount + 1);
+                }
+            });
+
+            // Update each category's item count
+            const updatePromises = categoryUuids.map(async (categoryUuid) => {
+                const itemCount = categoryItemCounts.get(categoryUuid) || 0;
+                return CategoryModel.update(categoryUuid, { itemCount });
+            });
+
+            await Promise.all(updatePromises);
+        } catch (error) {
+            console.error('Error syncing category item counts:', error);
+            throw new Error('Failed to sync category item counts');
         }
     }
 }

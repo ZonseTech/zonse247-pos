@@ -16,7 +16,6 @@ import { useNavigate, useLocation } from 'react-router';
 import { ROUTES } from '../utils/constants';
 import renderNavItem, { type NavItem } from './partials/RenderNavItem';
 import CreateProductModal from '../pages/products/CreateProductModal';
-import CategoriesModal from '../pages/categories/CategoriesModal';
 import AccountInformationModal from '../pages/admin/partials/AccountInformationModal';
 import HoldOrdersModal from '../pages/pos/partials/HoldOrdersModal';
 import { useAuth } from '../context/AuthProvider';
@@ -77,12 +76,12 @@ const NavBar: FunctionComponent = () => {
 
             if (hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {
                 items.push({
-                    type: 'icon',
+                    type: 'button',
                     color: 'bg-blue-500 hover:bg-blue-600',
                     iconColor: 'bg-blue-600',
                     text: 'Categories',
                     icon: icons.categories,
-                    onClick: <CategoriesModal />,
+                    onClick: () => navigate(ROUTES.CATEGORIES),
                 });
             }
         }

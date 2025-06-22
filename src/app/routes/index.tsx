@@ -10,6 +10,7 @@ const Users = lazy(() => import('../pages/users'))
 const PointOfSale = lazy(() => import('../pages/pos'))
 const Login = lazy(() => import('../pages/auth/Login'))
 const Products = lazy(() => import('../pages/products'))
+const Categories = lazy(() => import('../pages/categories'))
 const SyncData = lazy(() => import('../pages/sync-data'))
 const Dashboard = lazy(() => import('../pages/dashboard'))
 const LandingPage = lazy(() => import('../pages/landing'))
@@ -38,6 +39,7 @@ const AppRoutes: FunctionComponent = () => {
 				<Route path={ROUTES.POS} element={<PointOfSale />} />
 				<Route path={ROUTES.USERS} element={<Users />} />
 				<Route path={ROUTES.PRODUCTS} element={<Products />} />
+				<Route path={ROUTES.CATEGORIES} element={<Categories />} />
 				<Route path={ROUTES.SYNC_DATA} element={<SyncData />} />
 				<Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
 				<Route path={ROUTES.SHOPS} element={<ShopManagement />} />

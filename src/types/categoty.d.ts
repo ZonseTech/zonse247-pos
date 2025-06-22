@@ -1,11 +1,14 @@
 interface Category {
     uuid: string;
     name: string;
+    description?: string;
     clientUuid: string;
     shopUuid: string;
     userUuid: string;
     createdAt?: Date;
     updatedAt?: Date;
+    itemCount?: number;
+    color?: string;
     synced?: 1 | 0;
 }
 
@@ -25,6 +28,8 @@ interface CategoryFilters {
 
 interface CreateCategoryRequest {
     name: string;
+    description: string;
+    color: string;
     clientUuid: string;
     shopUuid: string;
     userUuid: string;
@@ -33,6 +38,8 @@ interface CreateCategoryRequest {
 interface UpdateCategoryDto {
     name?: string;
     synced?: number;
+    description?: string;
+    color?: string;
 }
 
 interface CategoryFilters {
