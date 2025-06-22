@@ -16,18 +16,24 @@ const ShopManagement: FunctionComponent = () => {
             cell: (row) => (
                 <Fragment>
                     <div className="flex items-center">
-                        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                        <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center ring-1 ring-gray-300 dark:ring-gray-600">
                             {row.logoUrl ? (
-                                <img src={row.logoUrl} alt={row.name} className="w-10 h-10 rounded-full object-cover" />
+                                <img
+                                    src={row.logoUrl}
+                                    alt={row.name}
+                                    className="w-10 h-10 rounded-full object-cover"
+                                />
                             ) : (
-                                <Store className="w-5 h-5 text-gray-500" />
+                                <Store className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                             )}
                         </div>
                         <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {row.name}
                             </div>
-                            <div className="text-sm text-gray-500">{row.shopCode}</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                                {row.shopCode}
+                            </div>
                         </div>
                     </div>
                 </Fragment>
@@ -37,24 +43,26 @@ const ShopManagement: FunctionComponent = () => {
             name: 'Contact',
             cell: (row) => (
                 <Fragment>
-                    <div className="text-sm">
+                    <div className="text-sm space-y-1">
                         {row.addressLine1 && (
-                            <div className="flex items-center text-gray-600 mb-1">
-                                <MapPin className="w-3 h-3 mr-1" />
-                                {row.addressLine1}
-                                {row.city && `, ${row.city}`}
+                            <div className="flex items-center text-gray-600 dark:text-gray-300">
+                                <MapPin className="w-3 h-3 mr-2 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                                <span className="truncate">
+                                    {row.addressLine1}
+                                    {row.city && `, ${row.city}`}
+                                </span>
                             </div>
                         )}
                         {row.phone && (
-                            <div className="flex items-center text-gray-600 mb-1">
-                                <Phone className="w-3 h-3 mr-1" />
-                                {row.phone}
+                            <div className="flex items-center text-gray-600 dark:text-gray-300">
+                                <Phone className="w-3 h-3 mr-2 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                                <span>{row.phone}</span>
                             </div>
                         )}
                         {row.email && (
-                            <div className="flex items-center text-gray-600">
-                                <Mail className="w-3 h-3 mr-1" />
-                                {row.email}
+                            <div className="flex items-center text-gray-600 dark:text-gray-300">
+                                <Mail className="w-3 h-3 mr-2 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                                <span className="truncate">{row.email}</span>
                             </div>
                         )}
                     </div>
@@ -65,12 +73,18 @@ const ShopManagement: FunctionComponent = () => {
             name: 'Currency & Tax',
             cell: (row) => (
                 <Fragment>
-                    <div className="text-sm">
-                        <div className="font-medium text-gray-900">
+                    <div className="text-sm space-y-1">
+                        <div className="font-medium text-gray-900 dark:text-gray-100">
                             {row.currencySymbol} ({row.currencyCode})
                         </div>
-                        <div className="text-gray-500">
-                            Tax: {row.taxRate}% {row.chargeTax ? '(Active)' : '(Inactive)'}
+                        <div className="text-gray-500 dark:text-gray-400">
+                            Tax: {row.taxRate}%
+                            <span className={`ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${row.chargeTax
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                                }`}>
+                                {row.chargeTax ? 'Active' : 'Inactive'}
+                            </span>
                         </div>
                     </div>
                 </Fragment>
@@ -81,6 +95,10 @@ const ShopManagement: FunctionComponent = () => {
             cell: (row) => (
                 <Fragment>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(row.status)}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${row.status === 'active'
+                            ? 'bg-green-400 dark:bg-green-300'
+                            : 'bg-gray-400 dark:bg-gray-500'
+                            }`} />
                         {row.status.charAt(0).toUpperCase() + row.status.slice(1)}
                     </span>
                 </Fragment>
@@ -88,28 +106,29 @@ const ShopManagement: FunctionComponent = () => {
         },
         {
             width: "20%",
-            name: <HiOutlineMenuAlt4 className='w-5 h-5 text-gray-500' />,
+            name: <HiOutlineMenuAlt4 className='w-5 h-5 text-gray-500 dark:text-gray-400' />,
             cell: (row) => (
                 <Fragment>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1">
                         <button
                             onClick={() => handleEdit(row)}
-                            className={`${row.uuid === '-1'
-                                ? 'text-gray-500'
-                                : 'text-blue-600 hover:text-blue-800'} p-1 rounded transition-colors`}
+                            className={`group p-2 rounded-lg transition-all duration-200 ${row.uuid === '-1'
+                                ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                                : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800'
+                                }`}
                             title="Edit shop"
                             disabled={row.uuid === '-1'}
                         >
-                            <Edit2 className="w-4 h-4" />
+                            <Edit2 className="w-4 h-4 transition-transform group-hover:scale-110" />
                         </button>
 
                         <button
                             onClick={() => toggleShopStatus(row.uuid, row.status)}
-                            className={`text-xs px-2 py-1 rounded transition-colors ${row.uuid === '-1'
-                                ? 'text-gray-500'
+                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${row.uuid === '-1'
+                                ? 'text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-800 cursor-not-allowed'
                                 : row.status === 'active'
-                                    ? 'text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100'
-                                    : 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100'
+                                    ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-200 dark:border-red-800 focus:ring-red-500 dark:focus:ring-red-400'
+                                    : 'text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 border border-green-200 dark:border-green-800 focus:ring-green-500 dark:focus:ring-green-400'
                                 }`}
                             disabled={row.uuid === '-1'}
                             title={row.status === 'active' ? 'Deactivate shop' : 'Activate shop'}
@@ -119,20 +138,35 @@ const ShopManagement: FunctionComponent = () => {
 
                         <button
                             onClick={() => handleDelete(row.uuid, row.name)}
-                            className={`${row.uuid === '-1'
-                                ? 'text-gray-500'
-                                : 'text-red-600 hover:text-red-800'} p-1 rounded transition-colors`}
+                            className={`group p-2 rounded-lg transition-all duration-200 ${row.uuid === '-1'
+                                ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                                : 'text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800'
+                                }`}
                             title="Delete shop"
                             disabled={row.uuid === '-1'}
                         >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4 transition-transform group-hover:scale-110" />
                         </button>
                     </div>
-
                 </Fragment>
             )
         }
     ];
+
+    const getStatusColor = (status: string) => {
+        switch (status.toLowerCase()) {
+            case 'active':
+                return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-700';
+            case 'inactive':
+                return 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700';
+            case 'pending':
+                return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-700';
+            case 'suspended':
+                return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-700';
+            default:
+                return 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700';
+        }
+    };
 
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(13);
@@ -267,15 +301,6 @@ const ShopManagement: FunctionComponent = () => {
         );
     };
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'active': return 'text-green-800 bg-green-100';
-            case 'inactive': return 'text-gray-800 dark:text-gray-400 bg-gray-100';
-            case 'suspended': return 'text-red-800 bg-red-100';
-            default: return 'text-gray-600 bg-gray-100';
-        }
-    };
-
     const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
     };
@@ -297,39 +322,45 @@ const ShopManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="min-h-screen max-w-full mx-auto bg-white dark:bg-gray-700">
-                <div className="bg-white dark:bg-gray-700 rounded-md border overflow-hidden">
-                    <div className="px-6 py-4 border-b border-gray-200">
+            <div className="min-h-screen max-w-full mx-auto bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm dark:shadow-2xl">
+                    <div className="px-6 py-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-850">
                         <div className="flex justify-between items-center">
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-400 flex items-center">
-                                    <Store className="w-6 h-6 mr-2" />
-                                    Shops ({filteredShops.length})
-
+                                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
+                                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg mr-3">
+                                        <Store className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                    <span>
+                                        Shops
+                                        <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                                            {filteredShops.length}
+                                        </span>
+                                    </span>
                                 </h1>
-                                <p className="text-gray-600 mt-1">
+                                <p className="text-gray-600 dark:text-gray-400 mt-2">
                                     Manage your shop locations and settings
                                 </p>
                             </div>
 
                             <div className='flex items-center space-x-4'>
-                                <div className="flex relative">
+                                <div className="flex relative group">
                                     <Input
                                         type="text"
                                         placeholder="Search shops..."
                                         value={searchTerm}
                                         onChange={handleSearch}
-                                        className="rounded-md px-3 py-2.5 pr-10"
+                                        className="rounded-lg px-4 py-2.5 pr-12 w-64 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200"
                                     />
                                     <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                        <HiOutlineSearch className="h-5 w-5 text-gray-400" />
+                                        <HiOutlineSearch className="h-5 w-5 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors" />
                                     </div>
                                 </div>
 
                                 <div className="flex items-center space-x-3">
                                     <Button
                                         onClick={handleAddShopClicked}
-                                        className="flex items-center px-4 py-2 bg-green-600 text-white dark:text-gray-100 rounded-lg hover:bg-green-700"
+                                        className="flex items-center px-4 py-2.5 bg-gradient-to-r from-green-600 to-green-700 dark:from-green-500 dark:to-green-600 text-white rounded-lg hover:from-green-700 hover:to-green-800 dark:hover:from-green-600 dark:hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transform hover:scale-105 transition-all duration-200 shadow-lg dark:shadow-green-900/25"
                                     >
                                         <HiOutlinePlus className="w-4 h-4 mr-2" />
                                         Add Shop
@@ -346,7 +377,8 @@ const ShopManagement: FunctionComponent = () => {
                         </div>
                     </div>
 
-                    <div className="overflow-x-auto">
+                    {/* Data Table Section */}
+                    <div className="overflow-x-auto bg-white dark:bg-gray-800">
                         <DataTable
                             columns={columns}
                             data={getPaginatedData()}
@@ -362,12 +394,113 @@ const ShopManagement: FunctionComponent = () => {
                             onChangePage={handlePageChange}
                             fixedHeader
                             fixedHeaderScrollHeight="calc(100vh - 350px)"
+                            customStyles={{
+                                table: {
+                                    style: {
+                                        backgroundColor: 'transparent',
+                                    },
+                                },
+                                head: {
+                                    style: {
+                                        fontSize: '14px',
+                                        fontWeight: '600',
+                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
+                                        color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
+                                        borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                    },
+                                },
+                                headRow: {
+                                    style: {
+                                        borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                        minHeight: '52px',
+                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
+                                    },
+                                },
+                                rows: {
+                                    style: {
+                                        minHeight: '64px',
+                                        backgroundColor: 'transparent',
+                                        color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
+                                        borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                        '&:hover': {
+                                            backgroundColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(249 250 251)',
+                                            cursor: 'pointer',
+                                        },
+                                    },
+                                    stripedStyle: {
+                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(248 250 252)',
+                                    },
+                                },
+                                cells: {
+                                    style: {
+                                        paddingLeft: '24px',
+                                        paddingRight: '24px',
+                                        paddingTop: '16px',
+                                        paddingBottom: '16px',
+                                    },
+                                },
+                                pagination: {
+                                    style: {
+                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
+                                        borderTopColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                        color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
+                                        fontSize: '14px',
+                                        minHeight: '56px',
+                                    },
+                                    pageButtonsStyle: {
+                                        borderRadius: '6px',
+                                        height: '32px',
+                                        width: '32px',
+                                        padding: '4px',
+                                        margin: '0 2px',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s',
+                                        color: mode === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
+                                        fill: mode === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
+                                        backgroundColor: 'transparent',
+                                        '&:hover:not(:disabled)': {
+                                            backgroundColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                            color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(17 24 39)',
+                                        },
+                                        '&:focus': {
+                                            outline: 'none',
+                                            boxShadow: mode === 'dark'
+                                                ? '0 0 0 2px rgb(59 130 246)'
+                                                : '0 0 0 2px rgb(37 99 235)',
+                                        },
+                                    },
+                                },
+                                progress: {
+                                    style: {
+                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(255 255 255)',
+                                    },
+                                },
+                            }}
                             noDataComponent={
-                                <div className="text-center py-8">
-                                    <Store className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                                    <p className="text-gray-500">
-                                        {searchTerm ? 'No shops found matching your search.' : 'No shops found.'}
-                                    </p>
+                                <div className="text-center py-12 bg-white dark:bg-gray-800">
+                                    <div className="flex flex-col items-center">
+                                        <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
+                                            <Store className="w-12 h-12 text-gray-400 dark:text-gray-500" />
+                                        </div>
+                                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                                            {searchTerm ? 'No matching shops found' : 'No shops yet'}
+                                        </h3>
+                                        <p className="text-gray-500 dark:text-gray-400 max-w-sm">
+                                            {searchTerm
+                                                ? 'Try adjusting your search terms or filters.'
+                                                : 'Get started by adding your first shop location.'
+                                            }
+                                        </p>
+                                        {!searchTerm && (
+                                            <Button
+                                                onClick={handleAddShopClicked}
+                                                className="mt-4 flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
+                                            >
+                                                <HiOutlinePlus className="w-4 h-4 mr-2" />
+                                                Add Your First Shop
+                                            </Button>
+                                        )}
+                                    </div>
                                 </div>
                             }
                         />
