@@ -10,7 +10,7 @@ import MonthlySalesChart from './partials/MonthlySalesChart';
 import dashboardService from '../../services/dashboard.service';
 import RenderTopProductRow from './partials/RenderTopProductRow';
 import RenderTransactionRow from './partials/RenderTransactionRow';
-import { hasPermission, isCurrentMonth, isFutureMonth } from '../../utils';
+import { hasAnyPermission, isCurrentMonth, isFutureMonth } from '../../utils';
 import { useState, useEffect, Fragment, type FunctionComponent } from 'react';
 import TransactionDetailsModal from '../transactions/partials/TransactionDetailsModal';
 import { HiChevronLeft, HiChevronRight, HiOutlineBanknotes, HiOutlineBuildingStorefront, HiOutlineCurrencyDollar, HiOutlineShieldCheck, HiOutlineUserGroup } from 'react-icons/hi2';
@@ -51,10 +51,10 @@ const Dashboard: FunctionComponent = () => {
     const endRecord = Math.min(offset + pageSize, totalRecords);
 
     const [cards, setCards] = useState([
-        { key: "total_sales", title: 'Total Sales', value: 0, icon: <HiOutlineBanknotes />, bgColor: 'bg-green-500 dark:bg-green-600' },
+        { key: "totalSales", title: 'Total Sales', value: 0, icon: <HiOutlineBanknotes />, bgColor: 'bg-green-500 dark:bg-green-600' },
         { key: "stock", title: 'Stock', value: 0, icon: <HiOutlineBuildingStorefront />, bgColor: 'bg-blue-500 dark:bg-blue-600' },
-        { key: "all_customers", title: 'All Customers', value: 0, icon: <HiOutlineUserGroup />, bgColor: 'bg-purple-500 dark:bg-purple-600' },
-        { key: "my_total_transactions", title: 'My Transaction', value: 0, icon: <HiOutlineShieldCheck />, bgColor: 'bg-orange-500 dark:bg-orange-600' },
+        { key: "allCustomers", title: 'All Customers', value: 0, icon: <HiOutlineUserGroup />, bgColor: 'bg-purple-500 dark:bg-purple-600' },
+        { key: "myTotalTransactions", title: 'My Transaction', value: 0, icon: <HiOutlineShieldCheck />, bgColor: 'bg-orange-500 dark:bg-orange-600' },
     ]);
 
     useEffect(() => {
@@ -198,7 +198,7 @@ const Dashboard: FunctionComponent = () => {
                         <div className="grid gap-6 grid-cols-1 lg:grid-cols-5">
                             <div className="lg:col-span-2">
                                 {
-                                    user && hasPermission(user, 'permTransactions') ? <DataTable<TopProduct>
+                                    user && hasAnyPermission(user, ['settings.shop.manage', 'settings.tax.manage', 'settings.payment.manage']) ? <DataTable<TopProduct>
                                         title="Top Products"
                                         headers={topProductsHeaders}
                                         data={topProductsData}

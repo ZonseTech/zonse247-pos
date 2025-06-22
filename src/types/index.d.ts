@@ -71,7 +71,7 @@ type TopProduct = {
 };
 
 type DashboardCounts = {
-	totalSales: string;
+	totalSales: number;
 	stock: number;
 	totalUsers: number;
 	allCustomers: number;
