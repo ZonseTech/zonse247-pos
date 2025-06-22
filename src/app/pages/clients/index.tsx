@@ -331,7 +331,7 @@ const ClientManagement: FunctionComponent = () => {
         <AppLayout>
             <div className="min-h-screen max-w-full mx-auto bg-white dark:bg-gray-700">
                 <div className="bg-white dark:bg-gray-700 rounded-md border overflow-hidden">
-                    <div className="px-6 py-4 border-b border-gray-200">
+                    <div className="px-6 py-4">
                         <div className="flex justify-between items-center">
                             <div>
                                 <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-400 flex items-center">

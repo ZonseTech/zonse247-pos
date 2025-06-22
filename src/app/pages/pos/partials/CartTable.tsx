@@ -59,7 +59,7 @@ const CartTable: FunctionComponent = () => {
                             {cart.length === 0 ? (
                                 <tr>
                                     <td colSpan={5} className="p-0">
-                                        <div className="flex flex-col items-center justify-center py-20 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/30">
+                                        <div className="flex flex-col flex-1 items-center justify-center py-20 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/30">
                                             <div className="relative mb-6">
                                                 <HiOutlineShoppingCart className="h-20 w-20 text-gray-300 dark:text-gray-600" />
                                                 <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">

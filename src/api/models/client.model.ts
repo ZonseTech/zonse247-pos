@@ -51,7 +51,7 @@ export class ClientModel {
     }
 
     static async findByCredentials(clientUuid: string, authKey: string): Promise<Client | null> {
-        return sealDBModel.findById(TABLE_NAMES.CLIENTS, { clientUuid, authKey });
+        return sealDBModel.findById(TABLE_NAMES.CLIENTS, { uuid: clientUuid, authKey });
     }
 
     static async create(clientData: Omit<Client, 'id'>): Promise<Client> {

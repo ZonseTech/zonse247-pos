@@ -490,17 +490,31 @@ const WorkstationManagement: FunctionComponent = () => {
                                         style: {
                                             fontSize: '14px',
                                             fontWeight: '600',
+                                            backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
+                                            color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
+                                            borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
                                         },
                                     },
                                     headRow: {
                                         style: {
-                                            borderBottomColor: 'rgb(229 231 235)',
+                                            borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
                                             minHeight: '52px',
+                                            backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
                                         },
                                     },
                                     rows: {
                                         style: {
                                             minHeight: '64px',
+                                            backgroundColor: 'transparent',
+                                            color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
+                                            borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                            '&:hover': {
+                                                backgroundColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(249 250 251)',
+                                                cursor: 'pointer',
+                                            },
+                                        },
+                                        stripedStyle: {
+                                            backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(248 250 252)',
                                         },
                                     },
                                     cells: {
@@ -513,10 +527,38 @@ const WorkstationManagement: FunctionComponent = () => {
                                     },
                                     pagination: {
                                         style: {
-                                            backgroundColor: 'transparent',
-                                            borderTopColor: 'rgb(229 231 235)',
-                                            color: 'rgb(55 65 81)',
+                                            backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
+                                            borderTopColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                            color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
                                             fontSize: '14px',
+                                            minHeight: '56px',
+                                        },
+                                        pageButtonsStyle: {
+                                            borderRadius: '6px',
+                                            height: '32px',
+                                            width: '32px',
+                                            padding: '4px',
+                                            margin: '0 2px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s',
+                                            color: mode === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
+                                            fill: mode === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
+                                            backgroundColor: 'transparent',
+                                            '&:hover:not(:disabled)': {
+                                                backgroundColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                                color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(17 24 39)',
+                                            },
+                                            '&:focus': {
+                                                outline: 'none',
+                                                boxShadow: mode === 'dark'
+                                                    ? '0 0 0 2px rgb(59 130 246)'
+                                                    : '0 0 0 2px rgb(37 99 235)',
+                                            },
+                                        },
+                                    },
+                                    progress: {
+                                        style: {
+                                            backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(255 255 255)',
                                         },
                                     },
                                 }}

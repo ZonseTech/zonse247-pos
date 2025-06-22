@@ -23,7 +23,7 @@ import RolePermissionRoutes from './role-permission.routes'
 import { AuthMiddleware } from '../middlewares/auth.middleware'
 import { preventSQLInjection, preventXSS, sanitizeInput } from '../middlewares/security.middleware'
 import { authLimiter } from '../middlewares/rate-limit.middleware'
-import { validateParams } from '../middlewares/validation.middleware';
+import { validateBody, validateParams } from '../middlewares/validation.middleware';
 import { ClientController } from '../controllers/client.controller';
 import { asyncHandler } from '../middlewares/error.middleware';
 import { ShopController } from '../controllers/shop.controller';
@@ -64,6 +64,12 @@ router.get(
 router.use(
     '/on-boarding',
     asyncHandler(OnboardingController.getOnboardingStatus)
+);
+
+router.post(
+    '/auth/verify-client',
+    validateBody(clientValidationSchemas.verifyClient),
+    asyncHandler(ClientController.verify)
 );
 
 router.use('/auth', authLimiter, AuthRoutes);
