@@ -9,6 +9,11 @@ type Props = {
 }
 
 const RenderTransactionRow: FunctionComponent<Props> = ({ trans, setIsOpenDetails, setTransaction }): ReactElement => {
+
+	console.log('====================================');
+	console.log(trans);
+	console.log('====================================');
+
 	return <tr key={trans.uuid}>
 		<td className="px-6 py-4 whitespace-nowrap">
 			<div
