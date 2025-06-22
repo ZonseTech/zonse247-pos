@@ -19,8 +19,8 @@ const customerSerive = {
 	},
 	async store(data: Customer): Promise<Customer> {
 		return api
-			.post(endpoints.store, data)
-			.then((res) => res.data)
+			.post<ApiResponse<Customer>>(endpoints.store, data as any)
+			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
 			});
