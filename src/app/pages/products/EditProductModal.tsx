@@ -106,7 +106,7 @@ const EditProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product
 				promoPrice: product?.uuid ? values.promoPrice.toString() : "0.00",
 				stock: values.stock,
 				minStock: values.minStock.toString(),
-				quantity: values.quantity.toString(),
+				quantity: values.quantity,
 			}
 
 			await productsService.update(productValues?.uuid?.toString(), data);

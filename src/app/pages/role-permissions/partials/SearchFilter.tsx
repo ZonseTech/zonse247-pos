@@ -48,7 +48,7 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
                 >
                     <option value="all">All Scopes</option>
                     {scopes.map(scope => (
-                        <option key={scope} value={scope}>{scope}</option>
+                        <option key={scope.toString()} value={scope.toString()}>{scope.toString()}</option>
                     ))}
                 </select>
             )}

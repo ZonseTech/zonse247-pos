@@ -4,13 +4,12 @@ import DatePicker from "react-datepicker";
 import Loader from "../../../components/Loader";
 import { formatCurrency } from "../../../utils";
 import relativeTime from 'dayjs/plugin/relativeTime'
-import IconButton from "../../../components/IconButton";
 import { Input, ZonseThemeContext } from "../../../components";
 import TransactionDetailsModal from "./TransactionDetailsModal";
 import DataTable, { type TableColumn } from "react-data-table-component";
 import { HiOutlineSearch, HiOutlineMenuAlt4, HiOutlineDownload, HiOutlineFilter } from "react-icons/hi";
 import transactionService from "../../../services/transactions.service";
-import { HiOutlineCalendarDateRange, HiOutlineEye, HiOutlineClock, HiOutlineCurrencyDollar } from "react-icons/hi2";
+import { HiOutlineCalendarDateRange, HiOutlineEye, HiOutlineClock } from "react-icons/hi2";
 import { type ChangeEvent, type Dispatch, forwardRef, type FunctionComponent, type SetStateAction, useContext, useEffect, useState } from "react";
 
 dayjs.extend(relativeTime);

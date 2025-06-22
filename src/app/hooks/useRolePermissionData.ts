@@ -17,15 +17,15 @@ export const useRolePermissionData = () => {
 
         try {
             const [rolesData, permissionsData, categoriesData, scopesData] = await Promise.all([
-                roleService.getAll(),
-                permissionService.getAll(),
+                roleService.list(),
+                permissionService.list(),
                 permissionService.getCategories(),
                 permissionService.getScopes(),
             ]);
 
-            setRoles(rolesData);
-            setPermissions(permissionsData);
-            setCategories(categoriesData.map((item: any) => item.category || item));
+            setRoles(rolesData.data);
+            setPermissions(permissionsData.data);
+            setCategories(categoriesData.data.map((item: any) => item.category || item));
             setScopes(Object.values(PermissionScope));
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to load data';

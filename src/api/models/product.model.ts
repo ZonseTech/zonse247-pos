@@ -7,7 +7,7 @@ export class ProductModel {
         this.data = productData;
     }
 
-    static create(params: Record<string, any>, auth: AuthContext): ProductModel {
+    static create(params: Record<string, any>, auth: AuthenticatedUser): ProductModel {
         const product = new ProductModel({
             uuid: uuidv4(),
             barcode: parseInt(params.barcode),
@@ -32,7 +32,7 @@ export class ProductModel {
         return product;
     }
 
-    static fromParams(params: Record<string, any>, auth: AuthContext): ProductModel {
+    static fromParams(params: Record<string, any>, auth: AuthenticatedUser): ProductModel {
         return new ProductModel({
             uuid: params.uuid,
             barcode: parseInt(params.barcode),

@@ -158,7 +158,7 @@ export class AnalyticsModel {
 
         const topProducts = [] as Array<TopProduct>;
 
-        productSummary.forEach((summary, productUuid) => {
+        productSummary.forEach((summary, productUuid: string) => {
             const product = productMap.get(productUuid);
             if (product) {
                 if (product.uuid) {
@@ -169,7 +169,7 @@ export class AnalyticsModel {
                 }
 
                 topProducts.push({
-                    uuid: product.uuid || productUuid.toString(),
+                    uuid: product.uuid || productUuid,
                     name: product.name || 'Unknown Product',
                     quantity: summary.quantity,
                     summedSellPrice: Math.round(summary.summedSellPrice * 100) / 100,

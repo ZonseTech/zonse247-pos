@@ -1,11 +1,3 @@
-interface Transaction {
-    uuid: string;
-    userUuid: string;
-    date: string;
-    createdAt?: string;
-    total: number;
-}
-
 interface MonthlySales {
     date: number;
     totalAmount: number;

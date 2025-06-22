@@ -56,7 +56,7 @@ const AccountInformationModal: FunctionComponent<Props> = ({ user }) => {
 
     const handleOnSubmit = async (values: UserValues) => {
         try {
-            await usersService.put(values.uuid.toString(), values);
+            await usersService.update(values.uuid.toString(), values);
             Report.success("Susccess!", "Password reset successfuly", "Ok");
 
             setIsOpenForm(false);

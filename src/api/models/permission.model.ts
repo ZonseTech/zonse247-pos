@@ -60,7 +60,7 @@ export class PermissionModel {
 
     static async findSystemPermissions(isSystemPermission: boolean): Promise<Permission[]> {
         try {
-            return await sealDBModel.find(PERMISSIONS_DB, { is_system_permission: isSystemPermission });
+            return await sealDBModel.find(PERMISSIONS_DB, { isSystemPermission: isSystemPermission });
         } catch (error) {
             throw new Error(`Error finding system permissions: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
@@ -71,13 +71,13 @@ export class PermissionModel {
         return {
             uuid: data.uuid || uuidv4(),
             name: data.name!,
-            display_name: data.display_name!,
+            displayName: data.displayName!,
             description: data.description || null,
             category: data.category!,
             scope: data.scope || PermissionScope.CLIENT,
-            is_system_permission: data.is_system_permission || false,
-            created_at: data.created_at || now,
-            updated_at: now
+            isSystemPermission: data.isSystemPermission || false,
+            createdAt: data.createdAt || now,
+            updatedAt: now
         };
     }
 

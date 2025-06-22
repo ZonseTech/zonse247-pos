@@ -22,7 +22,7 @@ export const useFilterState = () => {
     const filterRoles = (roles: Role[]): Role[] => {
         return roles.filter(role =>
             role.name?.toLowerCase().includes(filterState.searchTerm.toLowerCase()) ||
-            role.display_name?.toLowerCase().includes(filterState.searchTerm.toLowerCase()) ||
+            role.displayName?.toLowerCase().includes(filterState.searchTerm.toLowerCase()) ||
             role.description?.toLowerCase().includes(filterState.searchTerm.toLowerCase())
         );
     };
@@ -30,7 +30,7 @@ export const useFilterState = () => {
     const filterPermissions = (permissions: Permission[]): Permission[] => {
         return permissions.filter(permission => {
             const matchesSearch = permission.name?.toLowerCase().includes(filterState.searchTerm.toLowerCase()) ||
-                permission.display_name?.toLowerCase().includes(filterState.searchTerm.toLowerCase()) ||
+                permission.displayName?.toLowerCase().includes(filterState.searchTerm.toLowerCase()) ||
                 permission.description?.toLowerCase().includes(filterState.searchTerm.toLowerCase());
             const matchesCategory = filterState.selectedCategory === 'all' || permission.category === filterState.selectedCategory;
             const matchesScope = filterState.selectedScope === 'all' || permission.scope === filterState.selectedScope;

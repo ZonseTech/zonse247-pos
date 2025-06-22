@@ -106,7 +106,7 @@ const CreateProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ produ
 				promoPrice: product?.uuid ? values.promoPrice.toString() : "0.00",
 				stock: values.stock,
 				minStock: values.minStock.toString(),
-				quantity: values.quantity.toString(),
+				quantity: values.quantity,
 			}
 
 			if (productValues?.uuid) {

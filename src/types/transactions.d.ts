@@ -14,6 +14,7 @@ type Transaction = {
     phoneNumber: string;
     total: number;
     paid: number;
+    discount?: number;
     changeAmount: number;
 
     status?: string;

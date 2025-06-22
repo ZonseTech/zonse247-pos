@@ -65,7 +65,7 @@ const HoldOrdersModal: FunctionComponent = () => {
 
                         const cartItems = orderData.items.map(order => products.find(product => {
                             product.orderItems = order.quantity
-                            return product.uuid === order.productId
+                            return product.uuid === order.productUuid
                         }))
 
                         cartItems.map(product => addToCart(product as Product))
