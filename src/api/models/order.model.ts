@@ -10,6 +10,10 @@ export class OrderModel {
         return await sealDBModel.findById(ORDERS_DB, orderId);
     }
 
+    static async findByTransactionUuid(transactionUuid: string): Promise<OrderItem | null> {
+        return await sealDBModel.findById(ORDERS_DB, { transactionUuid });
+    }
+
     static async findByRefNumber(refNumber: string): Promise<OrderItem[]> {
         return await sealDBModel.find(ORDERS_DB, { refNumber });
     }

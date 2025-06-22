@@ -1,7 +1,7 @@
 import { Report } from 'notiflix';
 import { type FunctionComponent, useState } from 'react';
 import { Logo } from '../../../assets/images';
-import { Button, Modal } from '../../../components';
+import { Button, Modal, ModalFooter } from '../../../components';
 import { useApp } from '../../../context/AppProvider';
 import printerService from '../../../services/printer.service';
 import { formatCurrency, formatDate } from '../../../utils';
@@ -25,7 +25,7 @@ const PrinterPreviewModal: FunctionComponent<Props> = ({
 
     const [isPrinting, setIsPrinting] = useState<boolean>(false);
 
-    const { settings, printerOptions }: any = useApp()
+    const { settings, printerOptions } = useApp()
     const handlePrintReceipt = async () => {
         try {
             setIsPrinting(true)
@@ -73,10 +73,10 @@ const PrinterPreviewModal: FunctionComponent<Props> = ({
                     </Button>
                 </div>
             )}
-            className='max-w-sm bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
+            className='max-w-md bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 transition-all transform duration-300'
         >
-            <div className="p-0 max-h-[70vh] overflow-y-auto pr-2">
-                <div className="border-t border-b py-4 mb-4">
+            <div className="p-0 max-h-[60vh] overflow-y-auto pr-2">
+                <div className="border-t border-b py-4 mb-4 pr-2">
                     <div className="flex justify-center mb-4">
                         <div className="p-2 rounded flex items-center justify-center">
                             <img
@@ -92,10 +92,10 @@ const PrinterPreviewModal: FunctionComponent<Props> = ({
                             {settings?.store || ''}
                         </h2>
                         <p className="text-gray-500">
-                            {settings?.addressOne}
+                            {settings?.addressLine1}
                         </p>
                         <p className="text-gray-500">
-                            {settings?.addressTwo}
+                            {settings?.addressLine2}
                         </p>
                         <p className="text-gray-500">
                             Tel: {settings?.contact}
@@ -106,12 +106,12 @@ const PrinterPreviewModal: FunctionComponent<Props> = ({
                 <div className="border-b pb-4 mb-4">
                     <p className="text-gray-600"><span className="inline-block w-28">Ref No</span>: {transaction.refNumber}</p>
                     <p className="text-gray-600"><span className="inline-block w-28">Customer</span>: {transaction?.customer?.name as string || 'Walk in Customer'}</p>
-                    <p className="text-gray-600"><span className="inline-block w-28">Cashier</span>: Administrator</p>
+                    <p className="text-gray-600"><span className="inline-block w-28">Cashier</span>: {transaction?.user?.fullname}</p>
                     <p className="text-gray-600"><span className="inline-block w-28">Date</span>: {formatDate(transaction.date)}</p>
                     {transaction.phoneNumber && (
                         <p className="text-gray-600"><span className="inline-block w-28">Phone</span>: {transaction.phoneNumber}</p>
                     )}
-                    <p className="text-gray-600"><span className="inline-block w-28">Till</span>: {transaction.till}</p>
+                    <p className="text-gray-600"><span className="inline-block w-28">Till</span>: {settings.tillName}</p>
                 </div>
 
                 <div className="mb-4">
@@ -164,13 +164,16 @@ const PrinterPreviewModal: FunctionComponent<Props> = ({
                         <div>{transaction?.paymentMethod?.name || 'Card'}</div>
                     </div>
                 </div>
+            </div>
 
+            <ModalFooter>
                 <div className="mt-6">
                     <div className="bg-red-100 text-red-500 p-4 text-center rounded">
                         Right-Click and Reload if you get stuck after cancelling a print.
                     </div>
                 </div>
-            </div>
+            </ModalFooter>
+
         </Modal>
     );
 };

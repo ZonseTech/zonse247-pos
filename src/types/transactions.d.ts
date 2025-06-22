@@ -21,7 +21,9 @@ type Transaction = {
     updatedAt?: Date;
 
     customer?: Customer;
+    workstation?: Workstation;
     paymentMethod?: PaymentMethod;
+    paymentServiceProvider?: PaymentServiceProvider;
     items?: CartItem[];
     user?: User;
     synced?: 1 | 0;

@@ -6,6 +6,8 @@ import { PaymentMethodModel } from '../models/payment-methods.model';
 import { CustomerModel } from '../models/customer.model';
 import { OrderModel } from '../models/order.model';
 import { OrderService } from './order.service';
+import { PaymentServiceProviderModel } from '../models/payment-service-provider.model';
+import { WorkstationModel } from '../models/work-station.model';
 
 export class TransactionService {
 
@@ -147,7 +149,7 @@ export class TransactionService {
     ): Promise<Transaction> {
         const promises = [];
 
-        if (transaction.customerUuid && transaction.customerUuid !== '1') {
+        if (transaction.customerUuid) {
             promises.push(
                 CustomerModel.findById(transaction.customerUuid)
                     .then(customer => ({ customer }))
@@ -157,7 +159,17 @@ export class TransactionService {
             promises.push(Promise.resolve({ customer: null }));
         }
 
-        if (transaction.paymentMethodUuid && transaction.paymentMethodUuid !== '1') {
+        if (transaction.tillUuid) {
+            promises.push(
+                WorkstationModel.findById(transaction.tillUuid)
+                    .then(workstation => ({ workstation }))
+                    .catch(() => ({ workstation: null }))
+            );
+        } else {
+            promises.push(Promise.resolve({ workstation: null }));
+        }
+
+        if (transaction.paymentMethodUuid) {
             promises.push(
                 PaymentMethodModel.findById(transaction.paymentMethodUuid)
                     .then(paymentMethod => ({ paymentMethod }))
@@ -165,6 +177,16 @@ export class TransactionService {
             );
         } else {
             promises.push(Promise.resolve({ paymentMethod: null }));
+        }
+
+        if (transaction.paymentServiceProviderUuid) {
+            promises.push(
+                PaymentServiceProviderModel.findById(transaction.paymentServiceProviderUuid)
+                    .then(paymentServiceProvider => ({ paymentServiceProvider }))
+                    .catch(() => ({ paymentServiceProvider: null }))
+            );
+        } else {
+            promises.push(Promise.resolve({ paymentServiceProvider: null }));
         }
 
         if (transaction.userUuid) {
@@ -179,7 +201,7 @@ export class TransactionService {
 
         if (includeItems && transaction.uuid) {
             promises.push(
-                OrderModel.findByRefNumber(transaction.uuid)
+                OrderModel.findByRefNumber(transaction.refNumber)
                     .then(async (orderItems) => {
                         const itemsWithProducts = await Promise.all(
                             orderItems.map(async (item) => {
@@ -198,6 +220,7 @@ export class TransactionService {
                                 }
                             })
                         );
+
                         return { items: itemsWithProducts };
                     })
                     .catch(() => ({ items: [] }))
@@ -206,15 +229,17 @@ export class TransactionService {
             promises.push(Promise.resolve({ items: [] }));
         }
 
-        const [customerResult, paymentMethodResult, userResult, itemsResult]: any =
+        const [customerResult, workstationResult, paymentMethodResult, paymentServiceProviderResult, userResult, itemsResult] =
             await Promise.all(promises);
 
         return {
             ...transaction,
             user: userResult.user,
             customer: customerResult.customer,
+            workstation: workstationResult.workstation,
             paymentMethod: paymentMethodResult.paymentMethod,
-            items: includeItems ? itemsResult.items : undefined,
+            paymentServiceProvider: paymentServiceProviderResult.paymentServiceProvider,
+            items: includeItems ? itemsResult.items : [],
         };
     }
 
@@ -239,7 +264,7 @@ export class TransactionService {
             uuid: transactionUuid,
             refNumber: data.refNumber || 'TRX-' + Date.now(),
             discount: data.discount || 0,
-            customerUuid: data.customer?.uuid || null,
+            customerUuid: data.customerUuid || null,
             subtotal: data.subtotal || 0,
             tax: data.tax || 0,
             date: data.date || new Date().toISOString(),
