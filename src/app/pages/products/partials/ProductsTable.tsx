@@ -474,14 +474,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ setSummaryData }) =
                                     : 'Get started by creating your first product.'
                                 }
                             </p>
-                            {!searchTerm && (
-                                <button
-                                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
-                                >
-                                    <HiOutlinePlus className="h-4 w-4" />
-                                    Add Your First product
-                                </button>
-                            )}
                         </div>
                     }
                 />
