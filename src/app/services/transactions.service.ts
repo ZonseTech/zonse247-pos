@@ -2,18 +2,18 @@ import api from './http.service';
 
 const endpoints = {
 	all: 'transactions/all',
-	hold: 'transactions/hold',
-	on_hold: 'transactions/on-hold',
-	customer_orders: 'transactions/customer-orders',
 	by_date: 'transactions/by-date',
-	store: 'transactions/new',
-	update: 'transactions',
-	delete: 'transactions/delete',
-	show: 'transactions',
+	store: 'transactions/post',
+	update: 'transactions/update',
+	delete: 'transactions/transaction',
+	show: 'transactions/transaction',
+	summary: 'transactions/transaction',
+	root: 'transactions',
 };
 
 const transactionService = {
 	endpoints,
+
 	async list(query = {}): Promise<Transaction[]> {
 		return api
 			.get<Transaction[]>(endpoints.all, query)
@@ -22,14 +22,16 @@ const transactionService = {
 				throw err;
 			});
 	},
+
 	async store(data: Transaction): Promise<Transaction> {
 		return api
-			.post(endpoints.store, data)
-			.then((res) => res.data)
+			.post<ApiResponse<Transaction>>(endpoints.store, data as any)
+			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
 			});
 	},
+
 	async update(
 		id: string,
 		data: Record<string, DataTypes>
@@ -41,6 +43,7 @@ const transactionService = {
 				throw err;
 			});
 	},
+
 	async delete(id: string): Promise<DataTypes> {
 		return api
 			.delete(`${endpoints.delete}/${id}`)
@@ -49,6 +52,7 @@ const transactionService = {
 				throw err;
 			});
 	},
+
 	async show(id: string): Promise<Transaction> {
 		return api
 			.get<Transaction>(`${endpoints.show}/${id}`)
@@ -57,9 +61,28 @@ const transactionService = {
 				throw err;
 			});
 	},
+
+	async getSummary(id: string): Promise<any> {
+		return api
+			.get(`${endpoints.summary}/${id}/summary`)
+			.then((res) => res.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+
 	async byDate(query = {}): Promise<Transaction[]> {
 		return api
 			.get<Transaction[]>(endpoints.by_date, query)
+			.then((res) => res.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+
+	async getRoot(): Promise<string> {
+		return api
+			.get<string>(endpoints.root)
 			.then((res) => res.data)
 			.catch((err) => {
 				throw err;

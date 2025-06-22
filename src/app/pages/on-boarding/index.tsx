@@ -17,7 +17,7 @@ import ConfigurationCompleteStep from './partials/steps/ConfigurationCompleteSte
 
 const ClientVerification = () => {
     const registerProps: ShopVerificationParams = {
-        clientId: '',
+        clientUuid: '',
         authKey: '',
         os: '',
         hostname: '',
@@ -26,16 +26,16 @@ const ClientVerification = () => {
 
     const registerValidationSchema: Yup.ObjectSchema<{
         authKey: string;
-        clientId: string;
+        clientUuid: string;
     }, Yup.AnyObject, {
         authKey: undefined;
-        clientId: undefined;
+        clientUuid: undefined;
     }, ""> = Yup.object({
         authKey: Yup.string()
             .required('Auth token is required'),
 
-        clientId: Yup.string()
-            .required('Please enter your clientId'),
+        clientUuid: Yup.string()
+            .required('Please enter your clientUuid'),
     })
 
     const navigate = useNavigate()
@@ -58,16 +58,16 @@ const ClientVerification = () => {
             setSuccess(`Welcome, ${client.companyName}!`);
             setCurrentStep(2);
 
-            await fetchShops(client.clientId);
+            await fetchShops(client.uuid);
         } catch (err) {
             setError((error as any)?.error?.response?.data?.message || 'Verification failed. Please check your credentials.');
         }
     };
 
-    const fetchShops = async (clientId: string) => {
+    const fetchShops = async (clientUuid: string) => {
         setLoading(true);
         try {
-            const response = await shopsService.listByClient(clientId);
+            const response = await shopsService.listByClient(clientUuid);
             setShops(response.data);
         } catch (err) {
             setError('Failed to fetch shops');

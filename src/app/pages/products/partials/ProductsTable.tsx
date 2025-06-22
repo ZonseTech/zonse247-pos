@@ -13,6 +13,8 @@ import DataTable, { type TableColumn, type Themes } from "react-data-table-compo
 import { Input, Select, ZonseThemeContext } from '../../../components';
 import { HiOutlineDownload, HiOutlineMenuAlt4, HiOutlinePencilAlt, HiOutlineRefresh, HiOutlineTrash } from 'react-icons/hi';
 import React, { Fragment, useContext, useEffect, useState } from 'react';
+import { Package, PackagePlusIcon } from 'lucide-react';
+import { HiOutlinePlus } from 'react-icons/hi2';
 
 dayjs.extend(relativeTime);
 
@@ -85,7 +87,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ setSummaryData }) =
                         icon={
                             <HiOutlineTrash
                                 className='w-5 h-5 text-red-600'
-                                onClick={() => handleVoidProduct(parseInt(row.uuid.toString()))}
+                                onClick={() => handleVoidProduct((row.uuid.toString()))}
                             />} />
                 </Fragment>
             ),
@@ -277,7 +279,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ setSummaryData }) =
         }
     }
 
-    const handleVoidProduct = (uuid: number) => {
+    const handleVoidProduct = (uuid: string) => {
         Confirm.show(
             'Void Product',
             'Are you sure you want to void this product?',
@@ -320,7 +322,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ setSummaryData }) =
     const handleOnChangeCategory = (cat: number) => {
         setSearchTerm('');
         const filteredProducts = products.filter(product => {
-            const productCategory = product.categoryId.toString();
+            const productCategory = product.categoryUuid.toString();
             const searchValue = cat.toString();
 
             return productCategory.includes(searchValue);
@@ -335,73 +337,155 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ setSummaryData }) =
     }
 
     return (
-        <div className="bg-white dark:bg-gray-700 rounded-md p-4 mt-4">
-            <div className="flex justify-between items-center pb-4 border-b">
-                <div className="flex gap-2">
-                    <CreateProductModal onProductAdded={handleOnProductAdded} />
-                    <IconButton
-                        color='bg-green-400 hidden'
-                        icon={<HiOutlineDownload className='w-5 h-5' />}
-                    />
-                    {selectedProduct && <EditProductModal
-                        product={selectedProduct}
-                        onProductUpdate={handleOnProductUpdateed}
-                    />}
-                </div>
+        <div className="bg-white dark:bg-gray-800 rounded-md p-4 mt-4 border border-gray-200 dark:border-gray-700 shadow-sm dark:shadow-gray-900/20">
+            <div className="flex justify-between items-center pb-4 border-b border-gray-200 dark:border-gray-700">
                 <div>
-                    <h2 className="text-xl font-medium text-gray-700 flex-1">
+                    <h2 className="text-xl font-medium text-gray-700 dark:text-gray-200 flex-1 flex items-center">
+                        <Package className="w-5 h-5 mr-2 text-gray-600 dark:text-gray-400" />
                         Products
                     </h2>
                 </div>
+
                 <div className='flex gap-2'>
-                    <Select onChange={(e) => handleOnChangeCategory(parseInt(e.target.value))}>
-                        <option value={''}>Filter by Category</option>
+                    <Select
+                        onChange={(e) => handleOnChangeCategory(parseInt(e.target.value))}
+                        className="px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
+                    >
+                        <option value={''} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            Filter by Category
+                        </option>
                         {categories.map((category: Category) => (
-                            <option key={category.uuid} value={category.uuid}>
+                            <option
+                                key={category.uuid}
+                                value={category.uuid}
+                                className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                            >
                                 {category.name as string}
                             </option>
                         ))}
                     </Select>
+
                     <div className="relative">
                         <Input
                             type="text"
-                            placeholder="Search..."
+                            placeholder="Search products..."
                             value={searchTerm}
                             onChange={(e) => {
                                 const value = e.target.value;
                                 const cleanedValue = value.endsWith('$') ? value.slice(0, -1) : value;
-
                                 handleSearch(cleanedValue)
                             }}
-                            className="rounded-md px-3 py-2.5 pr-10"
+                            className="rounded-md px-3 py-2.5 pr-10 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
                         />
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                             <HiOutlineRefresh
-                                className="h-5 w-5 text-gray-600/55 cursor-pointer"
+                                className="h-5 w-5 text-gray-600 dark:text-gray-400 cursor-pointer hover:text-gray-800 dark:hover:text-gray-200 transition-colors p-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
                                 onClick={() => handleSearch("")}
+                                title="Clear search"
                             />
                         </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                        <CreateProductModal onProductAdded={handleOnProductAdded} />
+                        <IconButton
+                            color='bg-green-400 dark:bg-green-500 hidden'
+                            icon={<HiOutlineDownload className='w-5 h-5 text-white' />}
+                        />
+                        {selectedProduct && <EditProductModal
+                            product={selectedProduct}
+                            onProductUpdate={handleOnProductUpdateed}
+                        />}
                     </div>
                 </div>
             </div>
 
-            <DataTable
-                columns={columns}
-                data={data}
-                theme={mode as Themes}
-                // progressComponent={<Loader isLoading={isLoading} />}
-                progressPending={isLoading}
-                highlightOnHover
-                striped
-                responsive
-                pagination
-                paginationServer
-                paginationTotalRows={totalRows}
-                onChangeRowsPerPage={handlePerRowsChange}
-                onChangePage={handlePageChange}
-                fixedHeader
-                fixedHeaderScrollHeight="calc(100vh - 350px)"
-            />
+            <div className="mt-4">
+                <DataTable
+                    columns={columns}
+                    data={data}
+                    theme={mode as Themes}
+                    progressPending={isLoading}
+                    highlightOnHover
+                    striped
+                    responsive
+                    pagination
+                    paginationServer
+                    paginationTotalRows={totalRows}
+                    onChangeRowsPerPage={handlePerRowsChange}
+                    onChangePage={handlePageChange}
+                    fixedHeader
+                    fixedHeaderScrollHeight="calc(100vh - 350px)"
+                    customStyles={{
+                        table: {
+                            style: {
+                                backgroundColor: 'transparent',
+                            },
+                        },
+                        headRow: {
+                            style: {
+                                backgroundColor: mode === 'dark' ? '#374151' : '#f9fafb',
+                                borderBottomColor: mode === 'dark' ? '#4b5563' : '#e5e7eb',
+                            },
+                        },
+                        headCells: {
+                            style: {
+                                color: mode === 'dark' ? '#f3f4f6' : '#374151',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                            },
+                        },
+                        rows: {
+                            style: {
+                                backgroundColor: 'transparent',
+                                borderBottomColor: mode === 'dark' ? '#374151' : '#e5e7eb',
+                                '&:hover': {
+                                    backgroundColor: mode === 'dark' ? '#374151' : '#f9fafb',
+                                },
+                            },
+                            stripedStyle: {
+                                backgroundColor: mode === 'dark' ? '#1f2937' : '#f9fafb',
+                            },
+                        },
+                        cells: {
+                            style: {
+                                color: mode === 'dark' ? '#e5e7eb' : '#374151',
+                            },
+                        },
+                        pagination: {
+                            style: {
+                                backgroundColor: mode === 'dark' ? '#1f2937' : '#ffffff',
+                                borderTopColor: mode === 'dark' ? '#374151' : '#e5e7eb',
+                                color: mode === 'dark' ? '#e5e7eb' : '#374151',
+                            },
+                        },
+                    }}
+                    noDataComponent={
+                        <div className="flex flex-col items-center justify-center py-12 bg-gray-100 dark:bg-gray-700 flex-1">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                                <PackagePlusIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                            </div>
+                            <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                {searchTerm ? 'No matching products' : 'No products yet'}
+                            </h3>
+                            <p className="mt-2 max-w-sm text-center text-sm text-gray-600 dark:text-gray-400">
+                                {searchTerm
+                                    ? 'Try adjusting your search terms or clear the search to see all products.'
+                                    : 'Get started by creating your first product.'
+                                }
+                            </p>
+                            {!searchTerm && (
+                                <button
+                                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
+                                >
+                                    <HiOutlinePlus className="h-4 w-4" />
+                                    Add Your First product
+                                </button>
+                            )}
+                        </div>
+                    }
+                />
+            </div>
         </div>
     );
 };

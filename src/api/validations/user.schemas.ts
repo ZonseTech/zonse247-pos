@@ -158,8 +158,8 @@ export const userValidationSchemas = {
 		})
 	}),
 
-	shopId: Joi.object({
-		shopId: Joi.string().required().messages({
+	shopUuid: Joi.object({
+		shopUuid: Joi.string().required().messages({
 			'string.empty': 'Shop ID is required',
 			'any.required': 'Shop ID is required'
 		})

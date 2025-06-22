@@ -1,5 +1,5 @@
 interface ShopVerificationParams {
-	clientId: string;
+	clientUuid: string;
 	authKey: string;
 	os: string;
 	hostname: string;
@@ -13,7 +13,7 @@ interface ShopOptions {
 
 interface IShop {
 	uuid: string;
-	clientId: string;
+	clientUuid: string;
 	shopCode: string;
 	name: string;
 	description?: string;
@@ -24,6 +24,7 @@ interface IShop {
 	postalCode?: string;
 	country?: string;
 	phone?: string;
+	timezone?: string;
 	email?: string;
 	taxNumber?: string;
 	currencyCode: string;
@@ -33,8 +34,8 @@ interface IShop {
 	receiptFooter?: string;
 	logoUrl?: string;
 	status: 'active' | 'inactive' | 'suspended';
-	createdAt?: string;
-	updatedAt?: string;
+	createdAt?: Date;
+	updatedAt?: Date;
 }
 
 interface ShopRegistration {
@@ -55,9 +56,9 @@ interface ShopRegistration {
 }
 
 interface ClientCredentials {
-	clientId: string;
+	clientUuid: string;
 	authKey: string;
-	shopId: string;
+	shopUuid: string;
 	expiresAt: string;
 	permissions: string[];
 }
@@ -70,13 +71,13 @@ interface WorkstationUser {
 	permissions: string[];
 	isActive: boolean;
 	workstationId: string;
-	shopId: string;
+	shopUuid: string;
 	createdAt: string;
 	lastSync?: string;
 }
 
 interface CreateShopRequest {
-	clientId: string;
+	clientUuid: string;
 	shopCode: string;
 	name: string;
 	description?: string;

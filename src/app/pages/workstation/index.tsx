@@ -14,123 +14,218 @@ const WorkstationManagement: FunctionComponent = () => {
     const columns: Array<TableColumn<Workstation>> = [
         {
             name: "Workstation",
-            cell: (row) => (<Fragment>
-                <div className="flex items-center">
-                    <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                        <Monitor className="w-5 h-5 text-gray-500" />
-                    </div>
-                    <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900 flex items-center">
-                            {row?.tillName}
+            cell: (row) => (
+                <Fragment>
+                    <div className="flex items-center">
+                        <div className="relative w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center ring-1 ring-gray-300 dark:ring-gray-600">
+                            <Monitor className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                             {row?.isPrimary && (
-                                <Star className="w-4 h-4 text-yellow-500 ml-2 fill-current" />
+                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-500 dark:bg-yellow-400 rounded-full flex items-center justify-center">
+                                    <Star className="w-2.5 h-2.5 text-white fill-current" />
+                                </div>
                             )}
                         </div>
-                        <div className="text-sm text-gray-500">
-                            Till #{row?.tillNumber} • {row?.deviceType}
+                        <div className="ml-4 flex-1 min-w-0">
+                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center">
+                                <span className="truncate">{row?.tillName}</span>
+                                {row?.isPrimary && (
+                                    <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-700">
+                                        Primary
+                                    </span>
+                                )}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                                <span className="inline-flex items-center">
+                                    Till #{row?.tillNumber}
+                                    <span className="mx-1">•</span>
+                                    <span className="truncate">{row?.deviceType}</span>
+                                </span>
+                            </div>
+                            {row?.ipAddress && (
+                                <div className="text-xs text-gray-400 dark:text-gray-500 flex items-center mt-1">
+                                    <span className="w-1.5 h-1.5 bg-green-400 dark:bg-green-500 rounded-full mr-1.5"></span>
+                                    {row?.ipAddress}
+                                </div>
+                            )}
                         </div>
-                        {row?.ipAddress && (
-                            <div className="text-xs text-gray-400">{row?.ipAddress}</div>
-                        )}
                     </div>
-                </div>
-            </Fragment>),
+                </Fragment>
+            ),
         },
         {
             name: 'Status',
-            cell: (row) => (<Fragment>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(row?.status)}`}>
-                    {row?.status?.charAt(0)?.toUpperCase() + row?.status?.slice(1)}
-                </span>
-            </Fragment>)
+            cell: (row) => (
+                <Fragment>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(row?.status)}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${getStatusDotColor(row?.status)}`} />
+                        {row?.status?.charAt(0)?.toUpperCase() + row?.status?.slice(1)}
+                    </span>
+                </Fragment>
+            )
         },
         {
             name: 'Last Activity',
-            cell: (row) => (<Fragment>
-                <div className="text-sm text-gray-900">
-                    {row?.lastActivity ? formatDate(row?.lastActivity) : 'Never'}
-                </div>
-                {row?.lastSync && (
-                    <div className="text-xs text-gray-500">
-                        Synced: {formatDate(row?.lastSync)}
+            cell: (row) => (
+                <Fragment>
+                    <div className="space-y-1">
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {row?.lastActivity ? formatDate(row?.lastActivity) : 'Never'}
+                        </div>
+                        {row?.lastSync && (
+                            <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                                <svg className="w-3 h-3 mr-1 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m-15.357-2A7.999 7.999 0 0019.417 15M15 15H9" />
+                                </svg>
+                                Synced: {formatDate(row?.lastSync)}
+                            </div>
+                        )}
                     </div>
-                )}
-            </Fragment>)
+                </Fragment>
+            )
         },
         {
             width: "25%",
-            name: <HiOutlineMenuAlt4 className='w-5 h-5 text-gray-500' />,
-            cell: (row) => (<Fragment>
-                <div className="flex items-center space-x-2">
-                    <button
-                        onClick={() => handleSync(row?.uuid)}
-                        disabled={row.uuid === '-1'}
-                        className={`p-1 rounded transition-colors ${row.uuid === '-1'
-                            ? 'text-gray-500'
-                            : 'text-blue-600 hover:text-blue-800'
-                            }`}
-                        title="Sync workstation"
-                    >
-                        <FaSync className="w-4 h-4" />
-                    </button>
+            name: <HiOutlineMenuAlt4 className='w-5 h-5 text-gray-500 dark:text-gray-400' />,
+            cell: (row) => (
+                <Fragment>
+                    <div className="flex items-center space-x-1">
+                        {/* Sync Button */}
+                        <button
+                            onClick={() => handleSync(row?.uuid)}
+                            disabled={row.uuid === '-1'}
+                            className={`group p-2 rounded-lg transition-all duration-200 ${row.uuid === '-1'
+                                ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                                : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800'
+                                }`}
+                            title="Sync workstation"
+                        >
+                            <FaSync className="w-4 h-4 transition-transform group-hover:rotate-180 duration-300" />
+                        </button>
 
-                    <button
-                        onClick={() => togglePrimary(row?.uuid, row?.isPrimary)}
-                        disabled={row.uuid === '-1'}
-                        className={`p-1 rounded transition-colors ${row.uuid === '-1'
-                            ? 'text-gray-500'
-                            : row?.isPrimary
-                                ? 'text-yellow-600 hover:text-yellow-800'
-                                : 'text-gray-500 hover:text-yellow-600'
-                            }`}
-                        title={row?.isPrimary ? 'Remove as primary' : 'Set as primary'}
-                    >
-                        {row?.isPrimary ? (
-                            <Star className="w-4 h-4 fill-current" />
-                        ) : (
-                            <StarOff className="w-4 h-4" />
-                        )}
-                    </button>
+                        {/* Primary Toggle Button */}
+                        <button
+                            onClick={() => togglePrimary(row?.uuid, row?.isPrimary)}
+                            disabled={row.uuid === '-1'}
+                            className={`group p-2 rounded-lg transition-all duration-200 ${row.uuid === '-1'
+                                ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                                : row?.isPrimary
+                                    ? 'text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:focus:ring-yellow-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800'
+                                    : 'text-gray-600 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:focus:ring-yellow-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800'
+                                }`}
+                            title={row?.isPrimary ? 'Remove as primary' : 'Set as primary'}
+                        >
+                            {row?.isPrimary ? (
+                                <Star className="w-4 h-4 fill-current transition-transform group-hover:scale-110" />
+                            ) : (
+                                <StarOff className="w-4 h-4 transition-transform group-hover:scale-110" />
+                            )}
+                        </button>
 
-                    <button
-                        onClick={() => handleEdit(row)}
-                        disabled={row.uuid === '-1'}
-                        className={`p-1 rounded transition-colors ${row.uuid === '-1'
-                            ? 'text-gray-500'
-                            : 'text-blue-600 hover:text-blue-800'
-                            }`}
-                        title="Edit workstation"
-                    >
-                        <Edit2 className="w-4 h-4" />
-                    </button>
+                        {/* Edit Button */}
+                        <button
+                            onClick={() => handleEdit(row)}
+                            disabled={row.uuid === '-1'}
+                            className={`group p-2 rounded-lg transition-all duration-200 ${row.uuid === '-1'
+                                ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                                : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800'
+                                }`}
+                            title="Edit workstation"
+                        >
+                            <Edit2 className="w-4 h-4 transition-transform group-hover:scale-110" />
+                        </button>
 
-                    <button
-                        onClick={() => toggleWorkstationStatus(row?.uuid, row?.status)}
-                        disabled={row.uuid === '-1'}
-                        className={`text-xs px-2 py-1 rounded transition-colors ${row.uuid === '-1'
-                            ? 'text-gray-500 bg-gray-100'
-                            : getStatusActionColor(row?.status)
-                            }`}
-                        title="Change status"
-                    >
-                        {getStatusAction(row?.status)}
-                    </button>
+                        {/* Status Toggle Button */}
+                        <button
+                            onClick={() => toggleWorkstationStatus(row?.uuid, row?.status)}
+                            disabled={row.uuid === '-1'}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${row.uuid === '-1'
+                                ? 'text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-800 cursor-not-allowed'
+                                : getStatusActionColor(row?.status)
+                                }`}
+                            title="Change status"
+                        >
+                            {getStatusAction(row?.status)}
+                        </button>
 
-                    <button
-                        onClick={() => handleDelete(row?.uuid, row?.tillName)}
-                        disabled={row.uuid === '-1'}
-                        className={`p-1 rounded transition-colors ${row.uuid === '-1'
-                            ? 'text-gray-500'
-                            : 'text-red-600 hover:text-red-800'
-                            }`}
-                        title="Delete workstation"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
-                </div>
-            </Fragment>)
+                        {/* Delete Button */}
+                        <button
+                            onClick={() => handleDelete(row?.uuid, row?.tillName)}
+                            disabled={row.uuid === '-1'}
+                            className={`group p-2 rounded-lg transition-all duration-200 ${row.uuid === '-1'
+                                ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                                : 'text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800'
+                                }`}
+                            title="Delete workstation"
+                        >
+                            <Trash2 className="w-4 h-4 transition-transform group-hover:scale-110" />
+                        </button>
+                    </div>
+                </Fragment>
+            )
         }
     ];
+
+    const getStatusColor = (status: string) => {
+        switch (status?.toLowerCase()) {
+            case 'active':
+                return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-700';
+            case 'inactive':
+                return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-700';
+            case 'syncing':
+                return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-700';
+            case 'maintenance':
+                return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-700';
+            case 'error':
+                return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-700';
+            default:
+                return 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700';
+        }
+    };
+
+    const getStatusDotColor = (status: string) => {
+        switch (status?.toLowerCase()) {
+            case 'active':
+                return 'bg-green-400 dark:bg-green-300';
+            case 'inactive':
+                return 'bg-red-400 dark:bg-red-300';
+            case 'syncing':
+                return 'bg-blue-400 dark:bg-blue-300';
+            case 'maintenance':
+                return 'bg-yellow-400 dark:bg-yellow-300';
+            case 'error':
+                return 'bg-red-400 dark:bg-red-300';
+            default:
+                return 'bg-gray-400 dark:bg-gray-500';
+        }
+    };
+
+    const getStatusActionColor = (status: string) => {
+        switch (status?.toLowerCase()) {
+            case 'active':
+                return 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-200 dark:border-red-800 focus:ring-red-500 dark:focus:ring-red-400';
+            case 'inactive':
+                return 'text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 border border-green-200 dark:border-green-800 focus:ring-green-500 dark:focus:ring-green-400';
+            case 'maintenance':
+                return 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 border border-blue-200 dark:border-blue-800 focus:ring-blue-500 dark:focus:ring-blue-400';
+            default:
+                return 'text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 focus:ring-gray-500 dark:focus:ring-gray-400';
+        }
+    };
+
+    const getStatusAction = (status: string) => {
+        switch (status?.toLowerCase()) {
+            case 'active':
+                return 'Take Offline';
+            case 'inactive':
+                return 'Bring Online';
+            case 'maintenance':
+                return 'Exit Maintenance';
+            case 'error':
+                return 'Reset';
+            default:
+                return 'Toggle Status';
+        }
+    };
 
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(13);
@@ -295,33 +390,6 @@ const WorkstationManagement: FunctionComponent = () => {
         }
     };
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'active': return 'text-green-800 bg-green-100';
-            case 'inactive': return 'text-red-800 bg-red-100';
-            case 'maintenance': return 'text-yellow-800 bg-green-100';
-            default: return 'text-gray-800 dark:text-gray-400 bg-gray-100';
-        }
-    };
-
-    const getStatusActionColor = (status: string) => {
-        switch (status) {
-            case 'active': return 'text-yellow-600 hover:text-yellow-800 bg-green-50 hover:bg-green-100';
-            case 'inactive': return 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100';
-            case 'maintenance': return 'text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100';
-            default: return 'text-gray-600 hover:text-gray-800 dark:text-gray-400 bg-gray-50 hover:bg-gray-100';
-        }
-    };
-
-    const getStatusAction = (status: string) => {
-        switch (status) {
-            case 'active': return 'Maintenance';
-            case 'inactive': return 'Activate';
-            case 'maintenance': return 'Activate';
-            default: return 'Change';
-        }
-    };
-
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleString();
     };
@@ -347,80 +415,188 @@ const WorkstationManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="min-h-screen max-w-full mx-auto bg-white dark:bg-gray-700">
-                <div className="bg-white dark:bg-gray-700 rounded-md border overflow-hidden">
-                    <div className="px-6 py-4 border-b border-gray-200">
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-400 flex items-center">
-                                    <Monitor className="w-6 h-6 mr-2" />
-                                    Workstations ({filteredWorkstations.length})
-                                </h1>
-                                <p className="text-gray-600 mt-1">
-                                    Manage workstations and sync settings
-                                </p>
+            <div className="min-h-screen max-w-full bg-gray-50 dark:bg-gray-900 transition-colors">
+                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 transition-all">
+                    <div className="border-b border-gray-200 bg-white px-6 py-5 dark:border-gray-700 dark:bg-gray-800">
+                        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50 dark:bg-green-900/20">
+                                        <Monitor className="h-6 w-6 text-green-600 dark:text-green-400" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                            Workstations
+                                            <span className="ml-2 inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                                {filteredWorkstations.length}
+                                            </span>
+                                        </h1>
+                                        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                            Manage workstations and sync settings across your infrastructure
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="flex items-center space-x-4">
-                                <div className="flex relative">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                                <div className="relative">
+                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                        <HiOutlineSearch className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                                    </div>
                                     <Input
                                         type="text"
                                         placeholder="Search workstations..."
                                         value={searchTerm}
                                         onChange={handleSearch}
-                                        className="rounded-md px-3 py-2.5 pr-10"
-                                    />
-                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                        <HiOutlineSearch className="h-5 w-5 text-gray-400" />
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center space-x-3">
-                                    <Button
-                                        onClick={handleAddWorkstationClicked}
-                                        className="flex items-center px-4 py-2 bg-green-600 text-white dark:text-gray-100 rounded-lg hover:bg-green-700"
-                                    >
-                                        <HiOutlinePlus className="w-4 h-4 mr-2" />
-                                        Add Workstation
-                                    </Button>
-
-                                    <WorkstationFormModal
-                                        workstation={editingWorkstation || undefined}
-                                        isOpen={showForm}
-                                        onClose={handleCloseForm}
-                                        onWorkstationSaved={handleWorkstationSaved}
+                                        className="block w-full rounded-lg border-gray-300 bg-white pl-10 pr-3 py-2.5 text-sm placeholder-gray-500 shadow-sm transition-all focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:focus:border-green-400 dark:focus:ring-green-400 sm:w-64"
                                     />
                                 </div>
+
+                                <Button
+                                    onClick={handleAddWorkstationClicked}
+                                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-offset-gray-800"
+                                >
+                                    <HiOutlinePlus className="h-4 w-4" />
+                                    Add Workstation
+                                </Button>
                             </div>
                         </div>
                     </div>
 
-                    <div className="overflow-x-auto">
-                        <DataTable
-                            columns={columns}
-                            data={getPaginatedData()}
-                            theme={mode as string}
-                            progressPending={isLoading}
-                            highlightOnHover
-                            striped
-                            responsive
-                            pagination
-                            paginationServer
-                            paginationTotalRows={totalRows}
-                            onChangeRowsPerPage={handlePerRowsChange}
-                            onChangePage={handlePageChange}
-                            fixedHeader
-                            fixedHeaderScrollHeight="calc(100vh - 350px)"
-                            noDataComponent={
-                                <div className="text-center py-8">
-                                    <Monitor className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                                    <p className="text-gray-500">
-                                        {searchTerm ? 'No workstations found matching your search.' : 'No workstations found.'}
-                                    </p>
-                                </div>
-                            }
-                        />
+                    <div className="bg-white dark:bg-gray-800">
+                        <div className="overflow-x-auto">
+                            <DataTable
+                                columns={columns}
+                                data={getPaginatedData()}
+                                theme={mode as string}
+                                progressPending={isLoading}
+                                highlightOnHover
+                                striped
+                                responsive
+                                pagination
+                                paginationServer
+                                paginationTotalRows={totalRows}
+                                onChangeRowsPerPage={handlePerRowsChange}
+                                onChangePage={handlePageChange}
+                                fixedHeader
+                                fixedHeaderScrollHeight="calc(100vh - 350px)"
+                                customStyles={{
+                                    table: {
+                                        style: {
+                                            backgroundColor: 'transparent',
+                                        },
+                                    },
+                                    head: {
+                                        style: {
+                                            fontSize: '14px',
+                                            fontWeight: '600',
+                                            backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
+                                            color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
+                                            borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                        },
+                                    },
+                                    headRow: {
+                                        style: {
+                                            borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                            minHeight: '52px',
+                                            backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
+                                        },
+                                    },
+                                    rows: {
+                                        style: {
+                                            minHeight: '64px',
+                                            backgroundColor: 'transparent',
+                                            color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
+                                            borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                            '&:hover': {
+                                                backgroundColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(249 250 251)',
+                                                cursor: 'pointer',
+                                            },
+                                        },
+                                        stripedStyle: {
+                                            backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(248 250 252)',
+                                        },
+                                    },
+                                    cells: {
+                                        style: {
+                                            paddingLeft: '24px',
+                                            paddingRight: '24px',
+                                            paddingTop: '16px',
+                                            paddingBottom: '16px',
+                                        },
+                                    },
+                                    pagination: {
+                                        style: {
+                                            backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
+                                            borderTopColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                            color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
+                                            fontSize: '14px',
+                                            minHeight: '56px',
+                                        },
+                                        pageButtonsStyle: {
+                                            borderRadius: '6px',
+                                            height: '32px',
+                                            width: '32px',
+                                            padding: '4px',
+                                            margin: '0 2px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s',
+                                            color: mode === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
+                                            fill: mode === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
+                                            backgroundColor: 'transparent',
+                                            '&:hover:not(:disabled)': {
+                                                backgroundColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                                color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(17 24 39)',
+                                            },
+                                            '&:focus': {
+                                                outline: 'none',
+                                                boxShadow: mode === 'dark'
+                                                    ? '0 0 0 2px rgb(59 130 246)'
+                                                    : '0 0 0 2px rgb(37 99 235)',
+                                            },
+                                        },
+                                    },
+                                    progress: {
+                                        style: {
+                                            backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(255 255 255)',
+                                        },
+                                    },
+                                }}
+                                noDataComponent={
+                                    <div className="flex flex-col items-center justify-center py-12">
+                                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                                            <Monitor className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                                        </div>
+                                        <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                            {searchTerm ? 'No matching workstations' : 'No workstations configured'}
+                                        </h3>
+                                        <p className="mt-2 max-w-sm text-center text-sm text-gray-600 dark:text-gray-400">
+                                            {searchTerm
+                                                ? 'Try adjusting your search terms or clear the search to see all workstations.'
+                                                : 'Get started by adding your first workstation to manage and sync settings.'
+                                            }
+                                        </p>
+                                        {!searchTerm && (
+                                            <Button
+                                                onClick={handleAddWorkstationClicked}
+                                                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
+                                            >
+                                                <HiOutlinePlus className="h-4 w-4" />
+                                                Add Your First Workstation
+                                            </Button>
+                                        )}
+                                    </div>
+                                }
+                            />
+                        </div>
                     </div>
+
+                    <WorkstationFormModal
+                        workstation={editingWorkstation || undefined}
+                        isOpen={showForm}
+                        onClose={handleCloseForm}
+                        onWorkstationSaved={handleWorkstationSaved}
+                    />
                 </div>
             </div>
         </AppLayout>

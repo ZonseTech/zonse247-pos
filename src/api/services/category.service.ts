@@ -3,7 +3,7 @@ import { CategoryModel } from "../models/category.model";
 export class CategoryService {
     static async getAllCategories(filters: CategoryFilters): Promise<Category[]> {
         try {
-            return await CategoryModel.findByClientIdAndShopId(filters.clientId, filters.shopId);
+            return await CategoryModel.findByClientUuidAndShopUuid(filters.clientUuid, filters.shopUuid);
         } catch (error) {
             console.error('Error fetching categories:', error);
             throw new Error('Failed to fetch categories');
@@ -17,9 +17,9 @@ export class CategoryService {
         try {
             const createRequest: CreateCategoryRequest = {
                 name: categoryData.name,
-                clientId: user.clientId,
-                shopId: user.shopId,
-                userId: user.userId,
+                clientUuid: user.clientUuid,
+                shopUuid: user.shopUuid,
+                userUuid: user.userUuid,
             };
 
             const validationErrors = CategoryModel.validateCreateRequest(createRequest);
@@ -27,12 +27,12 @@ export class CategoryService {
                 throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
             }
 
-            const existingCategories = await CategoryModel.findByClientIdAndName(
-                user.clientId,
+            const existingCategories = await CategoryModel.findByClientUuidAndName(
+                user.clientUuid,
                 categoryData.name.trim()
             );
 
-            const duplicateInShop = existingCategories.find(cat => cat.shopId === user.shopId);
+            const duplicateInShop = existingCategories.find(cat => cat.shopUuid === user.shopUuid);
             if (duplicateInShop) {
                 throw new Error('Category with this name already exists in the shop');
             }
@@ -57,8 +57,8 @@ export class CategoryService {
             }
 
             const existingCategory = await this.getCategoryById(categoryId, {
-                clientId: user.clientId,
-                shopId: user.shopId
+                clientUuid: user.clientUuid,
+                shopUuid: user.shopUuid
             });
 
             if (!existingCategory) {
@@ -66,13 +66,13 @@ export class CategoryService {
             }
 
             if (updateData.name && updateData.name.trim() !== existingCategory.name) {
-                const existingCategories = await CategoryModel.findByClientIdAndName(
-                    user.clientId,
+                const existingCategories = await CategoryModel.findByClientUuidAndName(
+                    user.clientUuid,
                     updateData.name.trim()
                 );
 
                 const duplicateInShop = existingCategories.find(
-                    cat => cat.shopId === user.shopId && cat.uuid !== categoryId
+                    cat => cat.shopUuid === user.shopUuid && cat.uuid !== categoryId
                 );
                 if (duplicateInShop) {
                     throw new Error('Category with this name already exists in the shop');
@@ -95,8 +95,8 @@ export class CategoryService {
     ): Promise<void> {
         try {
             const existingCategory = await this.getCategoryById(categoryId, {
-                clientId: user.clientId,
-                shopId: user.shopId
+                clientUuid: user.clientUuid,
+                shopUuid: user.shopUuid
             });
 
             if (!existingCategory) {
@@ -127,8 +127,8 @@ export class CategoryService {
             const category = await CategoryModel.findById(categoryId);
 
             if (!category ||
-                category.clientId !== filters.clientId ||
-                category.shopId !== filters.shopId) {
+                category.clientUuid !== filters.clientUuid ||
+                category.shopUuid !== filters.shopUuid) {
                 return null;
             }
 
@@ -139,18 +139,18 @@ export class CategoryService {
         }
     }
 
-    static async getCategoriesByClient(clientId: string): Promise<Category[]> {
+    static async getCategoriesByClient(clientUuid: string): Promise<Category[]> {
         try {
-            return await CategoryModel.findByClientId(clientId);
+            return await CategoryModel.findByClientUuid(clientUuid);
         } catch (error) {
             console.error('Error fetching categories by client:', error);
             throw new Error('Failed to fetch categories by client');
         }
     }
 
-    static async getCategoriesByShop(shopId: string): Promise<Category[]> {
+    static async getCategoriesByShop(shopUuid: string): Promise<Category[]> {
         try {
-            return await CategoryModel.findByShopId(shopId);
+            return await CategoryModel.findByShopUuid(shopUuid);
         } catch (error) {
             console.error('Error fetching categories by shop:', error);
             throw new Error('Failed to fetch categories by shop');
@@ -162,9 +162,9 @@ export class CategoryService {
         filters: CategoryFilters
     ): Promise<Category[]> {
         try {
-            const allCategories = await CategoryModel.findByClientIdAndShopId(
-                filters.clientId,
-                filters.shopId
+            const allCategories = await CategoryModel.findByClientUuidAndShopUuid(
+                filters.clientUuid,
+                filters.shopUuid
             );
 
             return allCategories.filter(category =>
@@ -176,9 +176,9 @@ export class CategoryService {
         }
     }
 
-    static async getUnsyncedCategories(clientId: string): Promise<Category[]> {
+    static async getUnsyncedCategories(clientUuid: string): Promise<Category[]> {
         try {
-            return await CategoryModel.findUnsyncedByClient(clientId);
+            return await CategoryModel.findUnsyncedByClient(clientUuid);
         } catch (error) {
             console.error('Error fetching unsynced categories:', error);
             throw new Error('Failed to fetch unsynced categories');
@@ -188,8 +188,8 @@ export class CategoryService {
     static async markCategoryAsSynced(categoryId: string, user: AuthenticatedUser): Promise<void> {
         try {
             const category = await this.getCategoryById(categoryId, {
-                clientId: user.clientId,
-                shopId: user.shopId
+                clientUuid: user.clientUuid,
+                shopUuid: user.shopUuid
             });
 
             if (!category) {
@@ -209,8 +209,8 @@ export class CategoryService {
     static async markCategoryAsUnsynced(categoryId: string, user: AuthenticatedUser): Promise<void> {
         try {
             const category = await this.getCategoryById(categoryId, {
-                clientId: user.clientId,
-                shopId: user.shopId
+                clientUuid: user.clientUuid,
+                shopUuid: user.shopUuid
             });
 
             if (!category) {
@@ -259,8 +259,8 @@ export class CategoryService {
     ): Promise<boolean> {
         try {
             const category = await this.getCategoryById(categoryId, {
-                clientId: user.clientId,
-                shopId: user.shopId
+                clientUuid: user.clientUuid,
+                shopUuid: user.shopUuid
             });
             return category !== null;
         } catch (error) {

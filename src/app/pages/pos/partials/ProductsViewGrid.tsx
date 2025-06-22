@@ -20,13 +20,13 @@ const ProductsViewGrid: FunctionComponent = () => {
     const [expiredProductsCount, setExpiredProductsCount] = useState(0);
 
     useEffect(() => {
-        const expiredProducts = products.filter(product => {
+        const expiredProducts = products?.filter(product => {
             return product.expirationDate && new Date(product.expirationDate) < new Date();
         });
 
         setExpiredProductsCount(expiredProducts.length);
 
-        const nonExpiredProducts = products.filter(product => {
+        const nonExpiredProducts = products?.filter(product => {
             return !product.expirationDate || new Date(product.expirationDate) >= new Date();
         });
 
@@ -73,7 +73,7 @@ const ProductsViewGrid: FunctionComponent = () => {
         }
 
         const filteredProducts = nonExpiredProducts.filter(product => {
-            const productCategory = product.categoryId.toString();
+            const productCategory = product.categoryUuid.toString();
             const searchValue = cat.toString();
 
             return productCategory.includes(searchValue);

@@ -19,27 +19,27 @@ export class CategoryModel {
         }
     }
 
-    static async findByClientId(clientId: string): Promise<Category[]> {
+    static async findByClientUuid(clientUuid: string): Promise<Category[]> {
         try {
-            return await sealDBModel.find(CATEGORIES_DB, { clientId: clientId });
+            return await sealDBModel.find(CATEGORIES_DB, { clientUuid: clientUuid });
         } catch (error) {
             throw new Error(`Error finding categories by client ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
-    static async findByShopId(shopId: string): Promise<Category[]> {
+    static async findByShopUuid(shopUuid: string): Promise<Category[]> {
         try {
-            return await sealDBModel.find(CATEGORIES_DB, { shopId: shopId });
+            return await sealDBModel.find(CATEGORIES_DB, { shopUuid: shopUuid });
         } catch (error) {
             throw new Error(`Error finding categories by shop ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
-    static async findByClientIdAndShopId(clientId: string, shopId: string): Promise<Category[]> {
+    static async findByClientUuidAndShopUuid(clientUuid: string, shopUuid: string): Promise<Category[]> {
         try {
             return await sealDBModel.find(CATEGORIES_DB, {
-                clientId: clientId,
-                shopId: shopId
+                clientUuid,
+                shopUuid
             });
         } catch (error) {
             throw new Error(`Error finding categories by client ID and shop ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -54,10 +54,10 @@ export class CategoryModel {
         }
     }
 
-    static async findByClientIdAndName(clientId: string, name: string): Promise<Category[]> {
+    static async findByClientUuidAndName(clientUuid: string, name: string): Promise<Category[]> {
         try {
             return await sealDBModel.find(CATEGORIES_DB, {
-                clientId: clientId,
+                clientUuid: clientUuid,
                 name: name
             });
         } catch (error) {
@@ -73,10 +73,10 @@ export class CategoryModel {
         }
     }
 
-    static async findUnsyncedByClient(clientId: string): Promise<Category[]> {
+    static async findUnsyncedByClient(clientUuid: string): Promise<Category[]> {
         try {
             return await sealDBModel.find(CATEGORIES_DB, {
-                clientId: clientId,
+                clientUuid: clientUuid,
                 synced: 0
             });
         } catch (error) {
@@ -89,9 +89,9 @@ export class CategoryModel {
         return {
             uuid: uuidv4(),
             name: data.name,
-            clientId: data.clientId,
-            shopId: data.shopId,
-            userId: data.userId,
+            clientUuid: data.clientUuid,
+            shopUuid: data.shopUuid,
+            userUuid: data.userUuid,
             createdAt: now,
             updatedAt: now,
             synced: 0
@@ -162,15 +162,15 @@ export class CategoryModel {
             errors.push('Category name must be less than 100 characters');
         }
 
-        if (!data.clientId || data.clientId.trim().length === 0) {
+        if (!data.clientUuid || data.clientUuid.trim().length === 0) {
             errors.push('Client ID is required');
         }
 
-        if (!data.shopId || data.shopId.trim().length === 0) {
+        if (!data.shopUuid || data.shopUuid.trim().length === 0) {
             errors.push('Shop ID is required');
         }
 
-        if (!data.userId || data.userId.trim().length === 0) {
+        if (!data.userUuid || data.userUuid.trim().length === 0) {
             errors.push('User ID is required');
         }
 

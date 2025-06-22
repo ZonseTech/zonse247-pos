@@ -53,7 +53,7 @@ const WorkstationFormModal: FunctionComponent<WorkstationFormModalProps> = ({
     } : {
         uuid: generateUUID(),
         shopCode: '',
-        clientId: '',
+        clientUuid: '',
         tillName: '',
         tillNumber: '',
         deviceId: '',
@@ -66,7 +66,7 @@ const WorkstationFormModal: FunctionComponent<WorkstationFormModalProps> = ({
     const workstationValidationSchema = Yup.object().shape({
         uuid: Yup.string().required('UUID is required'),
         shopCode: Yup.string().required('Shop ID is required'),
-        clientId: Yup.string().required('Client ID is required'),
+        clientUuid: Yup.string().required('Client ID is required'),
         tillName: Yup.string()
             .required('Till name is required')
             .min(2, 'Till name must be at least 2 characters')
@@ -158,7 +158,7 @@ const WorkstationFormModal: FunctionComponent<WorkstationFormModalProps> = ({
 
                                     <FormInput
                                         type="text"
-                                        name="clientId"
+                                        name="clientUuid"
                                         label="Client ID"
                                         required
                                         placeholder="Enter client ID"

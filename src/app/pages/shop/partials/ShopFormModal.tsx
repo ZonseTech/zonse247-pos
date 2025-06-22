@@ -73,7 +73,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
         ...shop
     } : {
         uuid: '',
-        clientId: '',
+        clientUuid: '',
         shopCode: '',
         name: '',
         description: '',
@@ -105,7 +105,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
             .min(3, 'Shop code must be at least 3 characters')
             .max(20, 'Shop code is too long')
             .matches(/^[A-Z0-9_-]+$/, 'Shop code can only contain uppercase letters, numbers, hyphens and underscores'),
-        clientId: Yup.string().required('Client ID is required'),
+        clientUuid: Yup.string().required('Client ID is required'),
         description: Yup.string().max(500, 'Description is too long'),
         status: Yup.string().required('Status is required')
     });
@@ -262,7 +262,7 @@ const ShopFormModal: FunctionComponent<ShopFormModalProps> = ({
 
                         <FormInput
                             type="text"
-                            name="clientId"
+                            name="clientUuid"
                             label="Client ID"
                             required
                             placeholder="Enter client ID"

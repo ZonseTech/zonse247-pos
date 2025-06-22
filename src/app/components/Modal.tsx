@@ -66,8 +66,8 @@ const CustomModal: React.FC<CustomModalProps> = ({
             overlayClassName={modalOverlayClass}
             ariaHideApp={false}
         >
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-400">{header ? header : title}</h2>
+            {header ? header : <div className="flex justify-between items-center mb-4">
+                {title && <h2 className="text-xl font-bold text-gray-800 dark:text-gray-400">{title}</h2>}
                 {showCloseButton && (
                     <button
                         onClick={onClose}
@@ -77,7 +77,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
                         &times;
                     </button>
                 )}
-            </div>
+            </div>}
 
             <div>{children}</div>
         </Modal>

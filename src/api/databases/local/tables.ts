@@ -1,5 +1,4 @@
 export const HOLD_ORDERS_DB = 'hold_orders';
-export const SERVICE_PROVIDERS_DB = 'service_provider';
 export const SYNC_STATUS_TABLE = 'sync_status';
 export const CLIENTS_DB = 'clients';
 export const SHOPS_DB = 'shops';
@@ -16,6 +15,7 @@ export const INVENTORY_DB = 'inventory';
 export const TRANSACTIONS_DB = 'transactions';
 export const ORDERS_DB = 'orders';
 export const PAYMENT_METHODS_DB = 'payment_methods';
+export const PAYMENT_SERVICE_PROVIDERS_DB = 'service_provider';
 export const SHOP_SETTINGS_DB = 'shop_settings';
 export const APP_SETUP_DB = 'app_setup';
 export const SUBSCRIPTION_PLANS_DB = 'subscription_plans';
@@ -45,11 +45,12 @@ export default [
 	PERMISSIONS_DB,
 	ROLE_PERMISSIONS_DB,
 	USER_PERMISSIONS_DB,
+	PAYMENT_SERVICE_PROVIDERS_DB
 ];
 
 export const TABLE_NAMES = {
 	HOLD_ORDERS: 'hold_orders',
-	SERVICE_PROVIDERS: 'service_provider',
+	PAYMENT_SERVICE_PROVIDERS: 'service_provider',
 	SYNC_STATUS_TABLE: 'sync_status',
 	CLIENTS: 'clients',
 	SHOPS: 'shops',

@@ -4,12 +4,12 @@ import { TABLE_NAMES } from '../databases/local/tables';
 
 export class WorkstationModel {
 
-    static async findByClientId(clientId: string): Promise<Workstation[]> {
-        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { clientId });
+    static async findByClientUuid(clientUuid: string): Promise<Workstation[]> {
+        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { clientUuid });
     }
 
-    static async findByShopId(shopId: string): Promise<Workstation[]> {
-        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { shopId });
+    static async findByShopUuid(shopUuid: string): Promise<Workstation[]> {
+        return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { shopUuid });
     }
 
     static async findWhere(conditions: Record<string, any>): Promise<Workstation[]> {
@@ -56,7 +56,7 @@ export class WorkstationModel {
         return {
             uuid: uuidv4(),
             shopCode: data.shopCode,
-            clientId: data.clientId,
+            clientUuid: data.clientUuid,
             tillName: data.tillName,
             tillNumber: data.tillNumber,
             deviceId: data.deviceId || '',

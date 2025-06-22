@@ -5,14 +5,14 @@ import { SubscriptionService } from "../services/subscription.service";
 export class SubscriptionController extends BaseController {
     static async list(req: Request, res: Response): Promise<void> {
         try {
-            const { status, clientId, planId } = req.query;
+            const { status, clientUuid, planId } = req.query;
 
             let subscriptions: SubscriptionService;
 
             if (status) {
                 subscriptions = await SubscriptionService.getByStatus(status as string);
-            } else if (clientId) {
-                subscriptions = await SubscriptionService.getByClientId(clientId as string);
+            } else if (clientUuid) {
+                subscriptions = await SubscriptionService.getByClientUuid(clientUuid as string);
             } else if (planId) {
                 subscriptions = await SubscriptionService.getByPlanId(planId as string);
             } else {
@@ -106,10 +106,10 @@ export class SubscriptionController extends BaseController {
         }
     }
 
-    static async getByClientId(req: Request, res: Response): Promise<void> {
+    static async getByClientUuid(req: Request, res: Response): Promise<void> {
         try {
-            const { clientId } = req.params;
-            const subscriptions = await SubscriptionService.getByClientId(clientId);
+            const { clientUuid } = req.params;
+            const subscriptions = await SubscriptionService.getByClientUuid(clientUuid);
             BaseController.sendResponse(res, 200, true, 'Subscriptions retrieved successfully', subscriptions);
         } catch (error: any) {
             console.error('Error fetching subscriptions by client:', error);

@@ -13,93 +13,110 @@ const SubscriptionManagement: FunctionComponent = () => {
     const columns: Array<TableColumn<ClientSubscription>> = [
         {
             name: "Subscription",
-            cell: (row) => (<Fragment>
-                <div className="flex items-center">
-                    <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                        <CreditCard className="w-5 h-5 text-gray-500" />
+            cell: (row) => (
+                <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 transition-colors">
+                        <CreditCard className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                     </div>
-                    <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                            {row?.uuid}
+                    <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
+                            {row?.clientDetails?.clientCode}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="truncate text-xs text-gray-600 dark:text-gray-400">
                             Plan: {row?.planId}
                         </div>
                     </div>
                 </div>
-            </Fragment>),
+            ),
         },
         {
             name: 'Client',
-            cell: (row) => (<Fragment>
-                <div className="text-sm text-gray-900">{row?.clientId}</div>
-            </Fragment>)
+            cell: (row) => (
+                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {row?.clientDetails?.companyName}
+
+                    <div className="truncate text-xs text-gray-600 dark:text-gray-400">
+                        - {row?.clientDetails?.ownerName}
+                    </div>
+                </div>
+            )
         },
         {
             name: 'Status',
-            cell: (row) => (<Fragment>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(row?.status)}`}>
-                    <CheckCircle className="w-3 h-3 mr-1" />
+            cell: (row) => (
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${getStatusColor(row?.status)}`}>
+                    <CheckCircle className="h-3 w-3" />
                     {row?.status?.charAt(0)?.toUpperCase() + row?.status?.slice(1)}
                 </span>
-            </Fragment>)
+            )
         },
         {
             name: 'Period',
-            cell: (row) => (<Fragment>
-                <div className="text-sm">
-                    <div className="text-gray-900">
+            cell: (row) => (
+                <div className="space-y-1 text-sm">
+                    <div className="font-medium text-gray-900 dark:text-gray-100">
                         {new Date(row?.startsAt).toLocaleDateString()}
                     </div>
                     {row?.endsAt && (
-                        <div className="text-gray-500">
+                        <div className="text-gray-600 dark:text-gray-400">
                             to {new Date(row?.endsAt).toLocaleDateString()}
                         </div>
                     )}
                 </div>
-            </Fragment>)
+            )
         },
         {
             name: 'Auto Renew',
-            cell: (row) => (<Fragment>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${row?.autoRenew ? 'text-green-800 bg-green-100' : 'text-gray-800 dark:text-gray-400 bg-gray-100'}`}>
+            cell: (row) => (
+                <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors ${row?.autoRenew
+                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400'
+                    : 'bg-gray-50 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                    }`}>
                     {row?.autoRenew ? 'Yes' : 'No'}
                 </span>
-            </Fragment>)
+            )
+        },
+        {
+            name: 'Payment Method',
+            cell: (row) => (
+                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {row?.paymentMethod}
+                </div>
+            )
         },
         {
             name: 'Next Payment',
-            cell: (row) => (<Fragment>
-                <div className="text-sm text-gray-900">
+            cell: (row) => (
+                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     {row?.nextPaymentDate ? new Date(row?.nextPaymentDate).toLocaleDateString() : 'N/A'}
                 </div>
-            </Fragment>)
+            )
         },
         {
             width: "20%",
-            name: <HiOutlineMenuAlt4 className='w-5 h-5 text-gray-500' />,
-            cell: (row) => (<Fragment>
-                <div className="flex items-center space-x-2">
+            name: <HiOutlineMenuAlt4 className='h-5 w-5 text-gray-500 dark:text-gray-400' />,
+            cell: (row) => (
+                <div className="flex items-center gap-2">
                     <button
                         onClick={() => handleEdit(row)}
                         disabled={row.uuid === '-1'}
-                        className={`p-1 rounded transition-colors ${row.uuid === '-1'
-                            ? 'text-gray-500'
-                            : 'text-blue-600 hover:text-blue-800'
+                        className={`group rounded-lg p-2 transition-all duration-200 ${row.uuid === '-1'
+                            ? 'cursor-not-allowed text-gray-400 dark:text-gray-600'
+                            : 'text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20 dark:hover:text-blue-300'
                             }`}
                         title="Edit subscription"
                     >
-                        <Edit2 className="w-4 h-4" />
+                        <Edit2 className="h-4 w-4 transition-transform group-hover:scale-110" />
                     </button>
 
                     <button
                         onClick={() => toggleSubscriptionStatus(row?.uuid, row?.status)}
                         disabled={row.uuid === '-1'}
-                        className={`text-xs px-2 py-1 rounded transition-colors ${row.uuid === '-1'
-                            ? 'text-gray-500 bg-gray-100'
+                        className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 ${row.uuid === '-1'
+                            ? 'cursor-not-allowed bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600'
                             : row?.status === 'active'
-                                ? 'text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100'
-                                : 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100'
+                                ? 'bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 dark:hover:text-red-300'
+                                : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-300'
                             }`}
                         title={row?.status === 'active' ? 'Cancel subscription' : 'Activate subscription'}
                     >
@@ -109,18 +126,34 @@ const SubscriptionManagement: FunctionComponent = () => {
                     <button
                         onClick={() => handleDelete(row?.uuid)}
                         disabled={row.uuid === '-1'}
-                        className={`p-1 rounded transition-colors ${row.uuid === '-1'
-                            ? 'text-gray-500'
-                            : 'text-red-600 hover:text-red-800'
+                        className={`group rounded-lg p-2 transition-all duration-200 ${row.uuid === '-1'
+                            ? 'cursor-not-allowed text-gray-400 dark:text-gray-600'
+                            : 'text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:text-red-300'
                             }`}
                         title="Delete subscription"
                     >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="h-4 w-4 transition-transform group-hover:scale-110" />
                     </button>
                 </div>
-            </Fragment>)
+            )
         }
     ]
+
+    const getStatusColor = (status: string) => {
+        switch (status?.toLowerCase()) {
+            case 'active':
+                return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400';
+            case 'inactive':
+            case 'cancelled':
+                return 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400';
+            case 'past_due':
+                return 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400';
+            case 'expired':
+                return 'bg-gray-50 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
+            default:
+                return 'bg-gray-50 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
+        }
+    };
 
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(13);
@@ -143,7 +176,7 @@ const SubscriptionManagement: FunctionComponent = () => {
         } else {
             const filtered = subscriptions.filter(subscription =>
                 subscription.uuid.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                subscription.clientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                subscription.clientUuid.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 subscription.planId.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 subscription.status.toLowerCase().includes(searchTerm.toLowerCase())
             );
@@ -268,16 +301,6 @@ const SubscriptionManagement: FunctionComponent = () => {
         );
     };
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'active': return 'text-green-800 bg-green-100';
-            case 'cancelled': return 'text-red-800 bg-red-100';
-            case 'expired': return 'text-orange-800 bg-orange-100';
-            case 'past_due': return 'text-yellow-800 bg-green-100';
-            default: return 'text-gray-800 dark:text-gray-400 bg-gray-100';
-        }
-    };
-
     const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
     };
@@ -299,49 +322,50 @@ const SubscriptionManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="min-h-screen max-w-full mx-auto bg-white dark:bg-gray-700">
-                <div className="bg-white dark:bg-gray-700 rounded-md border overflow-hidden">
-                    <div className="px-6 py-4 border-b border-gray-200">
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-400 flex items-center">
-                                    <CreditCard className="w-6 h-6 mr-2" />
-                                    Client Subscriptions ({filteredSubscriptions.length})
-                                </h1>
-                                <p className="text-gray-600 mt-1">
-                                    Manage client subscriptions and billing
-                                </p>
+            <div className="min-h-screen mx-auto max-w-full transition-colors">
+                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 transition-all">
+                    <div className="border-b border-gray-200 bg-white px-6 py-5 dark:border-gray-700 dark:bg-gray-800">
+                        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                                        <CreditCard className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                            Client Subscriptions
+                                            <span className="ml-2 inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                                {filteredSubscriptions.length}
+                                            </span>
+                                        </h1>
+                                        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                            Manage client subscriptions and billing efficiently
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className='flex items-center space-x-4'>
-                                <div className="flex relative">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                                <div className="relative">
+                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                        <HiOutlineSearch className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                                    </div>
                                     <Input
                                         type="text"
                                         placeholder="Search subscriptions..."
                                         value={searchTerm}
                                         onChange={handleSearch}
-                                        className="rounded-md px-3 py-2.5 pr-10"
+                                        className="block w-full rounded-lg border-gray-300 bg-white pl-10 pr-3 py-2.5 text-sm placeholder-gray-500 shadow-sm transition-all focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:focus:border-blue-400 dark:focus:ring-blue-400 sm:w-64"
                                     />
-                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                        <HiOutlineSearch className="h-5 w-5 text-gray-400" />
-                                    </div>
                                 </div>
-                                <div className="flex items-center space-x-3">
-                                    <Button
-                                        onClick={handleAddSubscriptionClicked}
-                                        className="flex items-center px-4 py-2 bg-green-600 text-white dark:text-gray-100 rounded-lg hover:bg-green-700"
-                                    >
-                                        <HiOutlinePlus className="w-4 h-4 mr-2" />
-                                        {'Add Subscription'}
-                                    </Button>
 
-                                    <SubscriptionFormModal
-                                        subscription={editingSubscription}
-                                        isOpen={showForm}
-                                        onClose={handleCloseForm}
-                                        onSubscriptionSaved={handleSubscriptionSaved}
-                                    />
-                                </div>
+                                <Button
+                                    onClick={handleAddSubscriptionClicked}
+                                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-offset-gray-800"
+                                >
+                                    <HiOutlinePlus className="h-4 w-4" />
+                                    Add Subscription
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -362,16 +386,122 @@ const SubscriptionManagement: FunctionComponent = () => {
                             onChangePage={handlePageChange}
                             fixedHeader
                             fixedHeaderScrollHeight="calc(100vh - 350px)"
+                            customStyles={{
+                                table: {
+                                    style: {
+                                        backgroundColor: 'transparent',
+                                    },
+                                },
+                                head: {
+                                    style: {
+                                        fontSize: '14px',
+                                        fontWeight: '600',
+                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
+                                        color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
+                                        borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                    },
+                                },
+                                headRow: {
+                                    style: {
+                                        borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                        minHeight: '52px',
+                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
+                                    },
+                                },
+                                rows: {
+                                    style: {
+                                        minHeight: '64px',
+                                        backgroundColor: 'transparent',
+                                        color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
+                                        borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                        '&:hover': {
+                                            backgroundColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(249 250 251)',
+                                            cursor: 'pointer',
+                                        },
+                                    },
+                                    stripedStyle: {
+                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(248 250 252)',
+                                    },
+                                },
+                                cells: {
+                                    style: {
+                                        paddingLeft: '24px',
+                                        paddingRight: '24px',
+                                        paddingTop: '16px',
+                                        paddingBottom: '16px',
+                                    },
+                                },
+                                pagination: {
+                                    style: {
+                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
+                                        borderTopColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                        color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
+                                        fontSize: '14px',
+                                        minHeight: '56px',
+                                    },
+                                    pageButtonsStyle: {
+                                        borderRadius: '6px',
+                                        height: '32px',
+                                        width: '32px',
+                                        padding: '4px',
+                                        margin: '0 2px',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s',
+                                        color: mode === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
+                                        fill: mode === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
+                                        backgroundColor: 'transparent',
+                                        '&:hover:not(:disabled)': {
+                                            backgroundColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                            color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(17 24 39)',
+                                        },
+                                        '&:focus': {
+                                            outline: 'none',
+                                            boxShadow: mode === 'dark'
+                                                ? '0 0 0 2px rgb(59 130 246)'
+                                                : '0 0 0 2px rgb(37 99 235)',
+                                        },
+                                    },
+                                },
+                                progress: {
+                                    style: {
+                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(255 255 255)',
+                                    },
+                                },
+                            }}
                             noDataComponent={
-                                <div className="text-center py-8">
-                                    <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                                    <p className="text-gray-500">
-                                        {searchTerm ? 'No subscriptions found matching your search.' : 'No subscriptions found.'}
+                                <div className="flex flex-col items-center justify-center py-12">
+                                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                                        <CreditCard className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                                    </div>
+                                    <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                        {searchTerm ? 'No matching subscriptions' : 'No subscriptions yet'}
+                                    </h3>
+                                    <p className="mt-2 max-w-sm text-center text-sm text-gray-600 dark:text-gray-400">
+                                        {searchTerm
+                                            ? 'Try adjusting your search terms or clear the search to see all subscriptions.'
+                                            : 'Get started by creating your first client subscription.'
+                                        }
                                     </p>
+                                    {!searchTerm && (
+                                        <Button
+                                            onClick={handleAddSubscriptionClicked}
+                                            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
+                                        >
+                                            <HiOutlinePlus className="h-4 w-4" />
+                                            Add Your First Subscription
+                                        </Button>
+                                    )}
                                 </div>
                             }
                         />
                     </div>
+
+                    <SubscriptionFormModal
+                        subscription={editingSubscription}
+                        isOpen={showForm}
+                        onClose={handleCloseForm}
+                        onSubscriptionSaved={handleSubscriptionSaved}
+                    />
                 </div>
             </div>
         </AppLayout>

@@ -24,7 +24,7 @@ const ClientManagement: FunctionComponent = () => {
                                 {row?.companyName}
                             </div>
                             <div className="text-sm text-gray-500">
-                                ID: {row?.clientId}
+                                ID: {row?.clientCode}
                             </div>
                         </div>
                     </div>
@@ -169,7 +169,7 @@ const ClientManagement: FunctionComponent = () => {
                 client.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 client.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                client.clientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                client.clientCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 client.country?.toLowerCase().includes(searchTerm.toLowerCase())
             );
             setFilteredClients(filtered);
@@ -219,7 +219,7 @@ const ClientManagement: FunctionComponent = () => {
         setPerPage(newPerPage);
     };
 
-    const handleDelete = async (clientId: string, companyName: string) => {
+    const handleDelete = async (clientUuid: string, companyName: string) => {
         Confirm.show(
             'Delete Client',
             `Are you sure you want to delete the client "${companyName}"? This action cannot be undone.`,
@@ -227,8 +227,8 @@ const ClientManagement: FunctionComponent = () => {
             'Cancel',
             async () => {
                 try {
-                    await clientsService.delete(clientId);
-                    const updatedClients = clients.filter(client => client.uuid !== clientId);
+                    await clientsService.delete(clientUuid);
+                    const updatedClients = clients.filter(client => client.uuid !== clientUuid);
                     saveClients(updatedClients);
                     Notify.success('Client deleted successfully');
                 } catch (error) {
@@ -246,10 +246,10 @@ const ClientManagement: FunctionComponent = () => {
         );
     };
 
-    const toggleClientStatus = async (clientId: string, currentStatus: string) => {
+    const toggleClientStatus = async (clientUuid: string, currentStatus: string) => {
         const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
         const action = newStatus === 'active' ? 'activate' : 'suspend';
-        const client = clients.find(c => c.uuid === clientId);
+        const client = clients.find(c => c.uuid === clientUuid);
 
         Confirm.show(
             `${action.charAt(0).toUpperCase() + action.slice(1)} Client`,
@@ -263,10 +263,10 @@ const ClientManagement: FunctionComponent = () => {
                         status: newStatus
                     };
 
-                    await clientsService.update(clientId, updatedClientData);
+                    await clientsService.update(clientUuid, updatedClientData);
 
                     const updatedClients = clients.map(client =>
-                        client.uuid === clientId
+                        client.uuid === clientUuid
                             ? { ...client, status: newStatus as 'pending' | 'active' | 'suspended' | 'cancelled' }
                             : client
                     );
@@ -331,7 +331,7 @@ const ClientManagement: FunctionComponent = () => {
         <AppLayout>
             <div className="min-h-screen max-w-full mx-auto bg-white dark:bg-gray-700">
                 <div className="bg-white dark:bg-gray-700 rounded-md border overflow-hidden">
-                    <div className="px-6 py-4 border-b border-gray-200">
+                    <div className="px-6 py-4">
                         <div className="flex justify-between items-center">
                             <div>
                                 <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-400 flex items-center">
@@ -393,6 +393,88 @@ const ClientManagement: FunctionComponent = () => {
                             onChangePage={handlePageChange}
                             fixedHeader
                             fixedHeaderScrollHeight="calc(100vh - 350px)"
+                            customStyles={{
+                                table: {
+                                    style: {
+                                        backgroundColor: 'transparent',
+                                    },
+                                },
+                                head: {
+                                    style: {
+                                        fontSize: '14px',
+                                        fontWeight: '600',
+                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
+                                        color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
+                                        borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                    },
+                                },
+                                headRow: {
+                                    style: {
+                                        borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                        minHeight: '52px',
+                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
+                                    },
+                                },
+                                rows: {
+                                    style: {
+                                        minHeight: '64px',
+                                        backgroundColor: 'transparent',
+                                        color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
+                                        borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                        '&:hover': {
+                                            backgroundColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(249 250 251)',
+                                            cursor: 'pointer',
+                                        },
+                                    },
+                                    stripedStyle: {
+                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(248 250 252)',
+                                    },
+                                },
+                                cells: {
+                                    style: {
+                                        paddingLeft: '24px',
+                                        paddingRight: '24px',
+                                        paddingTop: '16px',
+                                        paddingBottom: '16px',
+                                    },
+                                },
+                                pagination: {
+                                    style: {
+                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
+                                        borderTopColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                        color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
+                                        fontSize: '14px',
+                                        minHeight: '56px',
+                                    },
+                                    pageButtonsStyle: {
+                                        borderRadius: '6px',
+                                        height: '32px',
+                                        width: '32px',
+                                        padding: '4px',
+                                        margin: '0 2px',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s',
+                                        color: mode === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
+                                        fill: mode === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
+                                        backgroundColor: 'transparent',
+                                        '&:hover:not(:disabled)': {
+                                            backgroundColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
+                                            color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(17 24 39)',
+                                        },
+                                        '&:focus': {
+                                            outline: 'none',
+                                            boxShadow: mode === 'dark'
+                                                ? '0 0 0 2px rgb(59 130 246)'
+                                                : '0 0 0 2px rgb(37 99 235)',
+                                        },
+                                    },
+                                },
+                                progress: {
+                                    style: {
+                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(255 255 255)',
+                                    },
+                                },
+                            }}
                             noDataComponent={
                                 <div className="text-center py-8">
                                     <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />

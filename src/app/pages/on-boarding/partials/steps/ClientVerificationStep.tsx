@@ -32,8 +32,8 @@ const ClientVerificationStep = ({
                         <FormWrapper>
                             <FormInput
                                 label='Client ID'
-                                id='clientId'
-                                name='clientId'
+                                id='clientUuid'
+                                name='clientUuid'
                                 type='text'
                                 step={1}
                                 required

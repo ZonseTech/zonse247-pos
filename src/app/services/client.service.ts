@@ -97,9 +97,9 @@ const clientsService = {
         }
     },
 
-    async updateClient(clientId: string, data: Partial<RegisterClientRequest>): Promise<Client> {
+    async updateClient(clientUuid: string, data: Partial<RegisterClientRequest>): Promise<Client> {
         try {
-            const response = await api.put<ApiResponse<Client>>(`${endpoints.updateClient}/${clientId}`, data as any);
+            const response = await api.put<ApiResponse<Client>>(`${endpoints.updateClient}/${clientUuid}`, data as any);
             return response.data.data!;
         } catch (err) {
             console.error('Error updating client:', err);
@@ -107,9 +107,9 @@ const clientsService = {
         }
     },
 
-    async getOnboardingStatus(clientId: string): Promise<OnboardingStatus> {
+    async getOnboardingStatus(clientUuid: string): Promise<OnboardingStatus> {
         try {
-            const response = await api.get<ApiResponse<OnboardingStatus>>(`${endpoints.onboarding}/${clientId}`);
+            const response = await api.get<ApiResponse<OnboardingStatus>>(`${endpoints.onboarding}/${clientUuid}`);
             return response.data.data!;
         } catch (err) {
             console.error('Error fetching onboarding status:', err);
@@ -181,7 +181,7 @@ const clientsService = {
     formatClientForDisplay(client: Client): Record<string, any> {
         return {
             id: client.uuid,
-            clientId: client.clientId,
+            clientCode: client.clientCode,
             companyName: client.companyName,
             ownerName: client.ownerName,
             email: client.email,

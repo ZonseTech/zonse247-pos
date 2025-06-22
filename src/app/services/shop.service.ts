@@ -22,9 +22,9 @@ const shopsService = {
             });
     },
 
-    async listByClient(clientId: string): Promise<ApiResponse> {
+    async listByClient(clientUuid: string): Promise<ApiResponse> {
         return api
-            .get<ApiResponse>(endpoints.list_by_client + '/' + clientId + '/shops')
+            .get<ApiResponse>(endpoints.list_by_client + '/' + clientUuid + '/shops')
             .then((res) => res.data)
             .catch((err: AxiosError) => {
                 throw err?.response?.data;

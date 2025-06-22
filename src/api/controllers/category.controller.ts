@@ -10,8 +10,8 @@ export class CategoryController extends BaseController {
     static getAllCategories = async (req: Request, res: Response): Promise<void> => {
         try {
             const categories = await CategoryService.getAllCategories({
-                clientId: req.auth.clientId,
-                shopId: req.auth.shopId
+                clientUuid: req.auth.clientUuid,
+                shopUuid: req.auth.shopUuid
             });
 
             CategoryController.sendResponse(res, 200, true, 'Categories fetched successfully', categories);
@@ -36,9 +36,9 @@ export class CategoryController extends BaseController {
             const newCategory = await CategoryService.createCategory(
                 categoryData,
                 {
-                    userId: req.auth.uuid,
-                    clientId: req.auth.clientId,
-                    shopId: req.auth.shopId,
+                    userUuid: req.auth.uuid,
+                    clientUuid: req.auth.clientUuid,
+                    shopUuid: req.auth.shopUuid,
                 }
             );
 
@@ -73,9 +73,9 @@ export class CategoryController extends BaseController {
                 categoryId,
                 updateData,
                 {
-                    userId: req.auth.uuid,
-                    clientId: req.auth.clientId,
-                    shopId: req.auth.shopId,
+                    userUuid: req.auth.uuid,
+                    clientUuid: req.auth.clientUuid,
+                    shopUuid: req.auth.shopUuid,
                 }
             );
 
@@ -102,9 +102,9 @@ export class CategoryController extends BaseController {
             }
 
             await CategoryService.deleteCategory(categoryId, {
-                userId: req.auth.uuid,
-                clientId: req.auth.clientId,
-                shopId: req.auth.shopId,
+                userUuid: req.auth.uuid,
+                clientUuid: req.auth.clientUuid,
+                shopUuid: req.auth.shopUuid,
             });
 
             CategoryController.sendResponse(res, 200, true, 'Category deleted successfully');

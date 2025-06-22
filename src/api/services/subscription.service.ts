@@ -5,20 +5,37 @@ import { SubscriptionModel } from "../models/subscription.model";
 export class SubscriptionService {
 
     static async getAll(): Promise<ClientSubscription[]> {
-        return SubscriptionModel.findAll();
+        const subscriptions = await SubscriptionModel.findAll()
+
+        const enhancedSubscriptions = await Promise.all(
+            subscriptions.map(async (subscription) => {
+                const client = await ClientModel.findById(subscription.clientUuid);
+
+                return {
+                    ...subscription,
+                    clientDetails: {
+                        clientCode: client?.clientCode,
+                        companyName: client?.companyName,
+                        ownerName: client?.ownerName
+                    }
+                };
+            })
+        );
+
+        return enhancedSubscriptions
     }
 
     static async getById(id: string): Promise<ClientSubscription | null> {
         return SubscriptionModel.findByUuid(id);
     }
 
-    static async create(data: Omit<ClientSubscription, 'id' | 'created_at' | 'updated_at'>): Promise<ClientSubscription> {
-        const validationError = ClientService.validateRequired(data, ['clientId', 'planId']);
+    static async create(data: Omit<ClientSubscription, 'uuid' | 'createdAt' | 'updatedAt'>): Promise<ClientSubscription> {
+        const validationError = ClientService.validateRequired(data, ['clientUuid', 'planId']);
         if (validationError) {
             throw new Error(validationError);
         }
 
-        const client = await ClientModel.findClientId(data.clientId);
+        const client = await ClientModel.findByClientUuid(data.clientUuid);
         if (!client) {
             throw new Error('Client not found');
         }
@@ -28,7 +45,7 @@ export class SubscriptionService {
             throw new Error('Subscription plan not found or inactive');
         } */
 
-        const existingSubscriptions = await SubscriptionModel.findActiveByClientId(data.clientId);
+        const existingSubscriptions = await SubscriptionModel.findActiveByClientUuid(data.clientUuid);
         if (existingSubscriptions) {
             throw new Error('Client already has an active subscription');
         }
@@ -42,7 +59,7 @@ export class SubscriptionService {
 
         const newSubscription = await SubscriptionModel.create(subscriptionData);
 
-        await ClientModel.update(data.clientId, {
+        await ClientModel.update(data.clientUuid, {
             subscriptionStatus: 'active',
             status: 'active',
             activatedAt: new Date().toISOString()
@@ -74,8 +91,8 @@ export class SubscriptionService {
         return SubscriptionModel.findByStatus(status);
     }
 
-    static async getByClientId(clientId: string): Promise<ClientSubscription[]> {
-        return SubscriptionModel.findByClientId(clientId);
+    static async getByClientUuid(clientUuid: string): Promise<ClientSubscription[]> {
+        return SubscriptionModel.findByClientUuid(clientUuid);
     }
 
     static async getByPlanId(planId: string): Promise<ClientSubscription[]> {
@@ -97,7 +114,7 @@ export class SubscriptionService {
 
         await SubscriptionModel.update(id, cancelData as any);
 
-        await ClientModel.update(subscription.clientId, {
+        await ClientModel.update(subscription.clientUuid, {
             subscriptionStatus: 'cancelled'
         });
 
@@ -142,7 +159,7 @@ export class SubscriptionService {
 
         await SubscriptionModel.update(id, reactivateData as any);
 
-        await ClientModel.update(subscription.clientId, {
+        await ClientModel.update(subscription.clientUuid, {
             subscriptionStatus: 'active',
             status: 'active'
         });
@@ -227,12 +244,12 @@ export class SubscriptionService {
     }
 
     static async createSubscription(data: CreateSubscriptionRequest): Promise<ClientSubscription> {
-        const validationError = ClientService.validateRequired(data, ['clientId', 'planId']);
+        const validationError = ClientService.validateRequired(data, ['clientUuid', 'planId']);
         if (validationError) {
             throw new Error(validationError);
         }
 
-        const client = await ClientModel.findById(data.clientId);
+        const client = await ClientModel.findById(data.clientUuid);
         if (!client) {
             throw new Error('Client not found');
         }
@@ -242,13 +259,13 @@ export class SubscriptionService {
             throw new Error('Subscription plan not found or inactive');
         }
 
-        const existingSubscriptions = await SubscriptionModel.findActiveByClientId(data.clientId);
+        const existingSubscriptions = await SubscriptionModel.findActiveByClientUuid(data.clientUuid);
         if (existingSubscriptions) {
             throw new Error('Client already has an active subscription');
         }
 
         const subscriptionData = SubscriptionModel.buildSubscriptionData(
-            data.clientId,
+            data.clientUuid,
             data.planId,
             plan,
             data.paymentMethod,
@@ -258,7 +275,7 @@ export class SubscriptionService {
         const newSubscription = await SubscriptionModel.create(subscriptionData);
 
         const now = new Date();
-        await ClientModel.update(data.clientId, {
+        await ClientModel.update(data.clientUuid, {
             subscriptionStatus: 'active',
             status: 'active',
             activatedAt: now.toISOString()

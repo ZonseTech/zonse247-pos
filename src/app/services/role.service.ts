@@ -63,18 +63,18 @@ const roleService = {
             });
     },
 
-    async getByClientId(clientId: string): Promise<Array<Role>> {
+    async getByClientUuid(clientUuid: string): Promise<Array<Role>> {
         return api
-            .get<Role[]>(`${roleEndpoints.client}/${clientId}`)
+            .get<Role[]>(`${roleEndpoints.client}/${clientUuid}`)
             .then((res) => res.data)
             .catch((err) => {
                 throw err;
             });
     },
 
-    async getByShopId(shopId: string): Promise<Array<Role>> {
+    async getByShopUuid(shopUuid: string): Promise<Array<Role>> {
         return api
-            .get<Role[]>(`${roleEndpoints.shop}/${shopId}`)
+            .get<Role[]>(`${roleEndpoints.shop}/${shopUuid}`)
             .then((res) => res.data)
             .catch((err) => {
                 throw err;

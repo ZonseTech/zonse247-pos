@@ -19,7 +19,12 @@ interface SubscriptionPlan {
 
 interface ClientSubscription {
     uuid: string;
-    clientId: string;
+    clientUuid: string;
+    clientDetails?: {
+        clientCode: string;
+        companyName: string;
+        ownerName: string;
+    };
     planId: string;
     status: 'active' | 'cancelled' | 'expired' | 'past_due';
     startsAt: string;
@@ -34,7 +39,7 @@ interface ClientSubscription {
 }
 
 interface CreateSubscriptionRequest {
-    clientId: string;
+    clientUuid: string;
     planId: string;
     paymentMethod?: string;
     autoRenew?: boolean;

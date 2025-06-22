@@ -10,7 +10,7 @@ import PaymentMethodRoutes from './payment-method.routes'
 import PrinterRoutes from './printer.routes'
 import SettingsRoutes from './settings.routes'
 import SyncRoutes from './sync.routes'
-import TransactionsRoutes from './transactions.routes'
+import TransactionsRoutes from './transaction.routes'
 import UsersRoutes from './users.routes'
 import ClientsRoutes from './client.routes'
 import SubscriptionsRoutes from './subscription.routes'
@@ -23,7 +23,7 @@ import RolePermissionRoutes from './role-permission.routes'
 import { AuthMiddleware } from '../middlewares/auth.middleware'
 import { preventSQLInjection, preventXSS, sanitizeInput } from '../middlewares/security.middleware'
 import { authLimiter } from '../middlewares/rate-limit.middleware'
-import { validateParams } from '../middlewares/validation.middleware';
+import { validateBody, validateParams } from '../middlewares/validation.middleware';
 import { ClientController } from '../controllers/client.controller';
 import { asyncHandler } from '../middlewares/error.middleware';
 import { ShopController } from '../controllers/shop.controller';
@@ -31,6 +31,7 @@ import { clientValidationSchemas } from '../validations/client.schemas';
 import { shopValidationSchemas } from '../validations/shopValidationSchemas';
 import { OnboardingController } from '../controllers/onboarding.controller';
 import { SettingsController } from '../controllers/settings.controller'
+import PaymentServiceProviderRoutes from './payment-service-provider.routes'
 
 const router = Router();
 const authMiddleware = new AuthMiddleware();
@@ -49,8 +50,8 @@ router.get(
 )
 
 router.get(
-    '/client/:clientId/shops',
-    validateParams(clientValidationSchemas.clientId),
+    '/client/:clientUuid/shops',
+    validateParams(clientValidationSchemas.clientUuid),
     asyncHandler(ClientController.getClientShops)
 );
 
@@ -65,11 +66,18 @@ router.use(
     asyncHandler(OnboardingController.getOnboardingStatus)
 );
 
+router.post(
+    '/auth/verify-client',
+    validateBody(clientValidationSchemas.verifyClient),
+    asyncHandler(ClientController.verify)
+);
+
 router.use('/auth', authLimiter, AuthRoutes);
 router.use('/settings', authLimiter, SettingsRoutes);
 
 router.use('/export', authMiddleware.verifyToken, DatabaseExportRoutes);
 router.use('/sync', authMiddleware.verifyToken, SyncRoutes);
+router.use('/payment-service-providers', authMiddleware.verifyToken, PaymentServiceProviderRoutes);
 router.use('/users', authMiddleware.verifyToken, UsersRoutes);
 router.use('/dashboard', authMiddleware.verifyToken, DashboardRoutes);
 router.use('/printers', authMiddleware.verifyToken, PrinterRoutes);

@@ -96,10 +96,10 @@ export class RoleController extends BaseController {
         }
     }
 
-    static async getByClientId(req: Request<{ clientId: string }>, res: Response): Promise<void> {
+    static async getByClientUuid(req: Request<{ clientUuid: string }>, res: Response): Promise<void> {
         try {
-            const { clientId } = req.params;
-            const roles = await RoleService.getRolesByClientId(clientId);
+            const { clientUuid } = req.params;
+            const roles = await RoleService.getRolesByClientUuid(clientUuid);
             BaseController.sendResponse(res, 200, true, 'Client roles retrieved successfully', roles);
         } catch (error: any) {
             console.error('Error fetching client roles:', error);
@@ -107,10 +107,10 @@ export class RoleController extends BaseController {
         }
     }
 
-    static async getByShopId(req: Request<{ shopId: string }>, res: Response): Promise<void> {
+    static async getByShopUuid(req: Request<{ shopUuid: string }>, res: Response): Promise<void> {
         try {
-            const { shopId } = req.params;
-            const roles = await RoleService.getRolesByShopId(shopId);
+            const { shopUuid } = req.params;
+            const roles = await RoleService.getRolesByShopUuid(shopUuid);
             BaseController.sendResponse(res, 200, true, 'Shop roles retrieved successfully', roles);
         } catch (error: any) {
             console.error('Error fetching shop roles:', error);

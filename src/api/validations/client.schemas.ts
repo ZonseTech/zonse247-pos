@@ -8,11 +8,11 @@ export const clientValidationSchemas = {
                 'string.empty': 'Auth token is required',
                 'any.required': 'Auth token is required'
             }),
-        clientId: Joi.string()
+        clientUuid: Joi.string()
             .required()
             .messages({
-                'string.empty': 'Please enter your clientId',
-                'any.required': 'Please enter your clientId'
+                'string.empty': 'Please enter your clientUuid',
+                'any.required': 'Please enter your clientUuid'
             })
     }),
 
@@ -72,8 +72,8 @@ export const clientValidationSchemas = {
             })
     }).min(1),
 
-    clientIdParam: Joi.object({
-        clientId: Joi.string()
+    clientUuidParam: Joi.object({
+        clientUuid: Joi.string()
             .uuid()
             .required()
             .messages({
@@ -123,8 +123,8 @@ export const clientValidationSchemas = {
         }),
     }),
 
-    clientId: Joi.object({
-        clientId: Joi.string().required().messages({
+    clientUuid: Joi.object({
+        clientUuid: Joi.string().required().messages({
             'any.required': 'Client ID is required',
         }),
     }),

@@ -61,9 +61,9 @@ export class ClientService {
             throw new Error('Client not found');
         }
 
-        const subscriptions = await SubscriptionModel.findByClientId(id);
-        const shops = await ShopModel.findByClientId(id);
-        const workstations = await WorkstationModel.findByClientId(id);
+        const subscriptions = await SubscriptionModel.findByClientUuid(id);
+        const shops = await ShopModel.findByClientUuid(id);
+        const workstations = await WorkstationModel.findByClientUuid(id);
 
         if (subscriptions.length > 0 || shops.length > 0 || workstations.length > 0) {
             throw new Error('Cannot delete client with existing subscriptions, shops, or workstations');
@@ -77,8 +77,8 @@ export class ClientService {
         return { status: true };
     }
 
-    static async verifyClient(clientId: string, authKey: string): Promise<Omit<Client, 'authKey'>> {
-        const client = await ClientModel.findByCredentials(clientId, authKey);
+    static async verifyClient(clientUuid: string, authKey: string): Promise<Omit<Client, 'authKey'>> {
+        const client = await ClientModel.findByCredentials(clientUuid, authKey);
 
         if (!client) {
             throw new Error('Invalid credentials');
@@ -91,8 +91,8 @@ export class ClientService {
         return ClientModel.sanitizeClient(updatedClient);
     }
 
-    static async updateClient(clientId: string, updateData: Partial<RegisterClientRequest>): Promise<Omit<Client, 'authKey'>> {
-        const client = await ClientModel.findById(clientId);
+    static async updateClient(clientUuid: string, updateData: Partial<RegisterClientRequest>): Promise<Omit<Client, 'authKey'>> {
+        const client = await ClientModel.findById(clientUuid);
         if (!client) {
             throw new Error('Client not found');
         }
@@ -104,12 +104,12 @@ export class ClientService {
             }
         }
 
-        const numUpdated = await ClientModel.update(clientId, updateData);
+        const numUpdated = await ClientModel.update(clientUuid, updateData);
         if (numUpdated === 0) {
             throw new Error('Failed to update client');
         }
 
-        const updatedClient = await ClientModel.findById(clientId);
+        const updatedClient = await ClientModel.findById(clientUuid);
         if (!updatedClient) {
             throw new Error('Failed to retrieve updated client data');
         }
@@ -117,17 +117,17 @@ export class ClientService {
         return ClientModel.sanitizeClient(updatedClient);
     }
 
-    static async getOnboardingStatus(clientId: string): Promise<OnboardingStatus> {
-        const client = await ClientModel.findById(clientId);
+    static async getOnboardingStatus(clientUuid: string): Promise<OnboardingStatus> {
+        const client = await ClientModel.findById(clientUuid);
         if (!client) {
             throw new Error('Client not found');
         }
 
-        const subscriptions = await SubscriptionModel.findByClientId(clientId);
+        const subscriptions = await SubscriptionModel.findByClientUuid(clientUuid);
         const activeSubscription = subscriptions.find(sub => sub.status === 'active') || null;
 
-        const shops = await ShopModel.findByClientId(clientId);
-        const workstations = await WorkstationModel.findByClientId(clientId);
+        const shops = await ShopModel.findByClientUuid(clientUuid);
+        const workstations = await WorkstationModel.findByClientUuid(clientUuid);
 
         const onboardingSteps = {
             client_registered: true,

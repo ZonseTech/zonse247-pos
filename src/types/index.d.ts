@@ -29,54 +29,6 @@ interface TextInputProps {
 
 type DataTypes = string | number | undefined | null | boolean;
 
-interface HoldOrder {
-	uuid: string;
-	reference: string;
-	items: Array<CartItem>;
-	total: number;
-	totalItems: number;
-	date: Date | string;
-	status: string;
-	userId?: string;
-	till?: string;
-}
-
-interface Product {
-	id?: number | null;
-	uuid: string;
-	barcode: number | string;
-	expirationDate?: string;
-	createdAt?: string;
-	updatedAt?: string;
-	costPrice?: string;
-	sellPrice?: string;
-	promoPrice?: string;
-	customPrice?: string;
-	categoryId?: string;
-	quantity?: string | number;
-	orderItems?: number;
-	originalQuantity?: number;
-	name?: string;
-	stock?: number;
-	minStock?: string;
-	status?: string;
-	isExpired?: boolean;
-	categoryDetails?: Category;
-	synced?: 1 | 0;
-}
-
-interface CartItem {
-	barcode: number | string;
-	productId: string;
-	name: string;
-	categoryId: string;
-	sellPrice: number;
-	purchasePrice: number;
-	variancePrice?: number;
-	quantity: number;
-	categoryDetails?: Category;
-}
-
 interface AppSettings {
 	theme: 'light' | 'dark';
 	apiUrl: string;
@@ -86,66 +38,6 @@ interface AppSettings {
 	};
 	version: string;
 }
-
-type Transaction = {
-	uuid: string;
-	refNumber?: string;
-	discount: number;
-	customer?: Customer;
-	customerId?: string;
-	status?: string;
-	subtotal: number;
-	tax: number;
-	date: string;
-	createdAt?: string;
-	updatedAt?: string;
-	paymentId?: string;
-	paymentMethod?: PaymentMethod;
-	transactionId?: string;
-	phoneNumber: string;
-	serviceProviderId: number;
-	total: number;
-	paid: number;
-	changeAmount: number;
-	till: string;
-	userId: string;
-	items?: CartItem[];
-	user?: User;
-	synced?: 1 | 0;
-};
-
-type OrderItem = {
-	synced?: 1 | 0;
-	uuid: string;
-	productId: string;
-	transactionId: string;
-	quantity: number;
-	purchasePrice: number;
-	sellPrice: number;
-	createdAt?: string;
-};
-
-type ServiceProvider = {
-	name: string;
-	uuid: string;
-};
-
-type TransactionValues = {
-	paymentMethodId?: string;
-	serviceProviderId?: number;
-	transactionId?: string;
-	phoneNumber?: string;
-	amountPaid: string | number;
-};
-
-type PaymentMethod = {
-	uuid: string;
-	name: string;
-	icon?: string;
-	userId: string;
-	clientId: string;
-	shopId: string;
-};
 
 interface Printer {
 	name: string;

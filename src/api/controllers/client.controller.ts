@@ -75,17 +75,17 @@ export class ClientController extends BaseController {
         }
     }
 
-    static async update(req: Request<{ id?: string; clientId?: string }, ApiResponse<Omit<Client, 'authKey'>>, Partial<RegisterClientRequest>>, res: Response): Promise<void> {
+    static async update(req: Request<{ id?: string; clientUuid?: string }, ApiResponse<Omit<Client, 'authKey'>>, Partial<RegisterClientRequest>>, res: Response): Promise<void> {
         try {
-            const clientId = req.params.id || req.params.clientId;
+            const clientUuid = req.params.id || req.params.clientUuid;
             const updateData = req.body;
 
-            if (!clientId) {
+            if (!clientUuid) {
                 BaseController.sendResponse(res, 400, false, 'Client ID is required');
                 return;
             }
 
-            const updatedClient = await ClientService.updateClient(clientId, updateData);
+            const updatedClient = await ClientService.updateClient(clientUuid, updateData);
             BaseController.sendResponse(res, 200, true, 'Client updated successfully', updatedClient);
         } catch (error: any) {
             console.error('Error updating client:', error);
@@ -121,14 +121,14 @@ export class ClientController extends BaseController {
 
     static async verify(req: Request<{}, ApiResponse<Omit<Client, 'authKey'>>, VerifyClientRequest>, res: Response): Promise<void> {
         try {
-            const { clientId, authKey } = req.body;
+            const { clientUuid, authKey } = req.body;
 
-            if (!clientId || !authKey) {
+            if (!clientUuid || !authKey) {
                 BaseController.sendResponse(res, 400, false, 'Client ID and auth key are required');
                 return;
             }
 
-            const safeClientData = await ClientService.verifyClient(clientId, authKey);
+            const safeClientData = await ClientService.verifyClient(clientUuid, authKey);
             BaseController.sendResponse(res, 200, true, 'Client verified successfully', safeClientData);
         } catch (error: any) {
             console.error('Error verifying client:', error);
@@ -138,11 +138,11 @@ export class ClientController extends BaseController {
         }
     }
 
-    static async getClientShops(req: Request<{ clientId: string }>, res: Response): Promise<void> {
+    static async getClientShops(req: Request<{ clientUuid: string }>, res: Response): Promise<void> {
         try {
-            const { clientId } = req.params;
+            const { clientUuid } = req.params;
 
-            const shops = await ShopService.getShopByClientId(clientId);
+            const shops = await ShopService.getShopByClientUuid(clientUuid);
             BaseController.sendResponse(res, 200, true, 'Client Shops retrieved successfully', shops);
         } catch (error: any) {
             console.error('Error fetching client shops:', error);
@@ -150,16 +150,16 @@ export class ClientController extends BaseController {
         }
     }
 
-    static async getOnboardingStatus(req: Request<{ clientId: string }>, res: Response): Promise<void> {
+    static async getOnboardingStatus(req: Request<{ clientUuid: string }>, res: Response): Promise<void> {
         try {
-            const { clientId } = req.params;
+            const { clientUuid } = req.params;
 
-            if (!clientId) {
+            if (!clientUuid) {
                 BaseController.sendResponse(res, 400, false, 'Client ID is required');
                 return;
             }
 
-            const onboardingStatus = await ClientService.getOnboardingStatus(clientId);
+            const onboardingStatus = await ClientService.getOnboardingStatus(clientUuid);
             BaseController.sendResponse(res, 200, true, 'Onboarding status retrieved successfully', onboardingStatus);
         } catch (error: any) {
             console.error('Error retrieving onboarding status:', error);
