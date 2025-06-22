@@ -29,9 +29,3 @@ interface CartItem {
     productUuid: string;
     quantity: number;
 }
-
-interface AuthContext {
-    clientUuid: string;
-    shopUuid: string;
-    userUuid: string;
-}

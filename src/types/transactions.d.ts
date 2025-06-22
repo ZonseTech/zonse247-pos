@@ -21,6 +21,7 @@ type Transaction = {
     updatedAt?: Date;
 
     customer?: Customer;
+    paymentMethod?: PaymentMethod;
     items?: CartItem[];
     user?: User;
     synced?: 1 | 0;
@@ -32,3 +33,12 @@ type TransactionValues = {
     phoneNumber: string;
     transactionId: string;
 };
+
+interface DateRangeFilters {
+    startDate: Date;
+    endDate: Date;
+    status?: number;
+    user?: number;
+    till?: number;
+    includeItems: boolean;
+}

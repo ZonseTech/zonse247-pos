@@ -31,12 +31,3 @@ interface PaymentServiceProviderFilters {
     clientUuid: string;
     shopUuid: string;
 }
-
-type PaymentMethod = {
-    uuid: string;
-    name: string;
-    icon?: string;
-    clientUuid: string;
-    shopUuid: string;
-    userUuid: string;
-};
