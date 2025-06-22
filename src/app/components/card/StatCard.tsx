@@ -10,122 +10,168 @@ interface Props {
 }
 
 const StatCard: FunctionComponent<Props> = ({ label, value, icon, color, bgColor, onClick }) => {
+    const isClickable = onClick !== undefined;
+
     return (
-        <button
+        <div
             onClick={onClick}
             className={`
-        ${bgColor} 
-        p-6 
-        text-white dark:text-gray-100 
-        rounded-xl 
-        h-24 
-        shadow-lg hover:shadow-xl dark:shadow-2xl dark:hover:shadow-3xl
-        border border-white/10 dark:border-gray-700/50
-        backdrop-blur-sm
-        bg-gradient-to-br from-white/5 to-transparent
-        dark:from-white/5 dark:to-black/20
-        ${onClick === undefined
-                    ? "cursor-none pointer-events-none opacity-90"
-                    : `
-            transition-all duration-300 ease-out
-            hover:scale-105 active:scale-95
-            hover:-translate-y-1
-            focus:outline-none focus:ring-2 focus:ring-white/20 focus:ring-offset-2 
-            dark:focus:ring-gray-400/30 dark:focus:ring-offset-gray-900
-            relative overflow-hidden
-            before:absolute before:inset-0 before:bg-gradient-to-r 
-            before:from-transparent before:via-white/10 before:to-transparent 
-            before:translate-x-[-100%] hover:before:translate-x-[100%] 
-            before:transition-transform before:duration-1000 before:ease-out
-          `
+                group relative
+                ${bgColor || 'bg-gradient-to-br from-slate-600 to-slate-700'} 
+                p-6 
+                text-white
+                rounded-2xl 
+                h-32
+                shadow-lg hover:shadow-2xl
+                border border-white/10
+                backdrop-blur-sm
+                bg-opacity-90
+                overflow-hidden
+                ${isClickable
+                    ? `
+                        cursor-pointer
+                        transition-all duration-300 ease-out
+                        hover:scale-[1.02] active:scale-[0.98]
+                        hover:-translate-y-1
+                        focus:outline-none focus:ring-4 focus:ring-white/20
+                        focus:ring-offset-2 focus:ring-offset-transparent
+                    `
+                    : "cursor-default"
                 }
-      `}
+            `}
         >
+            <div className="
+                absolute inset-0 
+                bg-gradient-to-br from-white/10 via-transparent to-black/10
+                opacity-0 group-hover:opacity-100
+                transition-opacity duration-500
+                pointer-events-none
+                rounded-2xl
+            " />
+
+            {isClickable && (
+                <div className="
+                    absolute inset-0 
+                    bg-gradient-to-r from-transparent via-white/15 to-transparent
+                    translate-x-[-100%] group-hover:translate-x-[100%]
+                    transition-transform duration-1000 ease-out
+                    pointer-events-none
+                " />
+            )}
+
+            <div className="
+                absolute inset-[1px]
+                rounded-2xl
+                bg-gradient-to-b from-white/5 to-transparent
+                pointer-events-none
+            " />
+
             {icon ? (
                 <Fragment>
-                    <div className="flex">
+                    <div className="flex items-start h-full">
                         <div className={`
-              flex items-center justify-center 
-              p-3 
-              rounded-xl 
-              ${color}
-              shadow-lg dark:shadow-xl
-              border border-white/20 dark:border-gray-600/30
-              backdrop-blur-sm
-              transition-all duration-300
-              group-hover:scale-110
-            `}>
+                            flex items-center justify-center 
+                            p-3 
+                            rounded-xl 
+                            ${color || 'bg-white/20'}
+                            shadow-lg
+                            border border-white/30
+                            backdrop-blur-sm
+                            transition-all duration-300
+                            group-hover:scale-110 group-hover:rotate-3
+                            group-hover:shadow-xl
+                            flex-shrink-0
+                        `}>
                             <span className="
-                text-white dark:text-gray-100 
-                text-3xl 
-                drop-shadow-lg
-                transition-transform duration-300 
-                group-hover:rotate-12
-              ">
+                                text-white 
+                                text-2xl 
+                                drop-shadow-lg
+                                transition-all duration-300 
+                                group-hover:scale-110
+                            ">
                                 {icon}
                             </span>
                         </div>
-                        <div className="ml-5 text-left flex-1">
+
+                        <div className="ml-4 text-left flex-1 flex flex-col justify-center h-full">
                             <p className="
-                text-sm font-medium 
-                text-gray-200 dark:text-gray-300
-                opacity-90 
-                transition-all duration-200
-                group-hover:opacity-100
-                mb-1
-              ">
+                                text-xs font-semibold uppercase tracking-wider
+                                text-white/80
+                                opacity-90 
+                                transition-all duration-200
+                                group-hover:opacity-100
+                                mb-2
+                                leading-tight
+                            ">
                                 {label}
                             </p>
-                            <div className="flex items-baseline">
-                                <p className="
-                  text-2xl font-bold 
-                  text-gray-100 dark:text-white
-                  drop-shadow-sm
-                  transition-all duration-200
-                  group-hover:text-white dark:group-hover:text-gray-50
-                ">
-                                    {value}
-                                </p>
-                            </div>
+                            <p className="
+                                text-2xl font-bold 
+                                text-white
+                                drop-shadow-sm
+                                transition-all duration-200
+                                group-hover:scale-105
+                                leading-none
+                            ">
+                                {value}
+                            </p>
                         </div>
                     </div>
                 </Fragment>
             ) : (
                 <div className="
-          flex flex-col items-center justify-center 
-          h-full
-          transition-all duration-300
-        ">
+                    flex flex-col items-center justify-center 
+                    h-full
+                    transition-all duration-300
+                    group-hover:scale-105
+                ">
                     <p className="
-            text-sm font-semibold 
-            mb-2 
-            opacity-90 
-            transition-opacity duration-200
-            group-hover:opacity-100
-          ">
+                        text-xs font-semibold uppercase tracking-wider
+                        text-white/80
+                        mb-3
+                        opacity-90 
+                        transition-opacity duration-200
+                        group-hover:opacity-100
+                        text-center
+                    ">
                         {label}
                     </p>
                     <p className="
-            text-3xl font-bold 
-            drop-shadow-lg
-            transition-all duration-200
-            group-hover:scale-110
-          ">
+                        text-3xl font-bold 
+                        text-white
+                        drop-shadow-lg
+                        transition-all duration-200
+                        group-hover:scale-110
+                        text-center
+                        leading-none
+                    ">
                         {value}
                     </p>
                 </div>
             )}
 
+            {isClickable && (
+                <div className="
+                    absolute bottom-2 right-2
+                    w-2 h-2
+                    bg-white/30
+                    rounded-full
+                    transition-all duration-300
+                    group-hover:bg-white/50
+                    group-hover:scale-125
+                " />
+            )}
+
             <div className="
-        absolute inset-0 
-        bg-gradient-to-br from-white/0 via-white/5 to-white/0
-        dark:from-white/0 dark:via-white/3 dark:to-black/10
-        opacity-0 transition-opacity duration-300
-        hover:opacity-100
-        pointer-events-none
-        rounded-xl
-      " />
-        </button>
+                absolute -inset-1
+                bg-gradient-to-r from-white/0 via-white/10 to-white/0
+                rounded-2xl
+                opacity-0 group-hover:opacity-100
+                transition-opacity duration-300
+                pointer-events-none
+                blur-sm
+            " />
+        </div>
     );
 };
 

@@ -1,5 +1,5 @@
 import CreateCategoryModal from './CreateCategoryModal';
-import { useState, useEffect, FunctionComponent } from 'react';
+import { useState, useEffect, FunctionComponent, Fragment } from 'react';
 import categoriesService from '../../services/category.service';
 import { ErrorAlert } from './partials/ErrorAlert';
 import { PageHeader } from './partials/PageHeader';
@@ -99,44 +99,42 @@ const CategoriesManager: FunctionComponent = () => {
 
     return (
         <div className="min-h-screen transition-colors duration-200 dark:bg-gray-900 bg-gray-50">
-            <div className="max-w-7xl mx-auto p-6">
-                {error && <ErrorAlert error={error} onClose={handleErrorClose} />}
+            {error && <ErrorAlert error={error} onClose={handleErrorClose} />}
 
-                <PageHeader onCreateCategory={handleCreateCategory} />
+            <PageHeader onCreateCategory={handleCreateCategory} />
 
-                <SearchAndFilters
-                    searchTerm={searchTerm}
-                    onSearchChange={setSearchTerm}
-                    sortBy={sortBy}
-                    onSortChange={setSortBy}
-                    viewMode={viewMode}
-                    onViewModeChange={setViewMode}
-                />
+            <SearchAndFilters
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                sortBy={sortBy}
+                onSortChange={setSortBy}
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
+            />
 
-                {loading ? (
-                    <LoadingState />
-                ) : filteredCategories.length > 0 ? (
-                    <>
-                        <CategoriesGrid
-                            categories={filteredCategories}
-                            viewMode={viewMode}
-                            onEdit={handleEditCategory}
-                            onDelete={handleDeleteCategory}
-                        />
-                        <StatisticsPanel categories={categories} />
-                    </>
-                ) : (
-                    <EmptyState searchTerm={searchTerm} onCreateCategory={handleCreateCategory} />
-                )}
+            {loading ? (
+                <LoadingState />
+            ) : filteredCategories.length > 0 ? (
+                <Fragment>
+                    <CategoriesGrid
+                        categories={filteredCategories}
+                        viewMode={viewMode}
+                        onEdit={handleEditCategory}
+                        onDelete={handleDeleteCategory}
+                    />
+                    <StatisticsPanel categories={categories} />
+                </Fragment>
+            ) : (
+                <EmptyState searchTerm={searchTerm} onCreateCategory={handleCreateCategory} />
+            )}
 
-                <CreateCategoryModal
-                    category={editingCategory}
-                    isOpen={showCreateModal || !!editingCategory}
-                    onClose={handleModalClose}
-                    onSuccess={handleModalSuccess}
-                    showAddButton={false}
-                />
-            </div>
+            <CreateCategoryModal
+                category={editingCategory}
+                isOpen={showCreateModal || !!editingCategory}
+                onClose={handleModalClose}
+                onSuccess={handleModalSuccess}
+                showAddButton={false}
+            />
         </div>
     );
 };

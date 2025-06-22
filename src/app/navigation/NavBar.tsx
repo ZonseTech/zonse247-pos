@@ -64,14 +64,23 @@ const NavBar: FunctionComponent = () => {
 
         if (hasAnyPermission(user, ['products.view', 'products.create', 'sales.create', 'refunds.process'])) {
             items.push({
-                type: pathname === ROUTES.PRODUCTS ? 'button' : 'split',
+                type: 'button',
+                color: 'bg-blue-700 hover:bg-blue-800',
+                iconColor: 'bg-blue-800',
+                text: 'Point of Sale',
+                icon: icons.pos,
+                onClick: () => navigate(ROUTES.POS),
+                plusAction: undefined,
+            });
+
+            items.push({
+                type: 'split',
                 color: 'bg-blue-600 hover:bg-blue-700',
                 iconColor: 'bg-blue-700',
-                text: pathname === ROUTES.POS ? 'Products' : 'Point of Sale',
-                icon: pathname === ROUTES.POS ? icons.products : icons.pos,
-                onClick: () => navigate(pathname === ROUTES.POS ? ROUTES.PRODUCTS : ROUTES.POS),
-                plusAction: pathname === ROUTES.PRODUCTS ? undefined :
-                    (hasPermission(user, 'products.create') ? <CreateProductModal /> : undefined),
+                text: 'Products',
+                icon: icons.products,
+                onClick: () => navigate(ROUTES.PRODUCTS),
+                plusAction: (hasPermission(user, 'products.create') ? <CreateProductModal /> : undefined),
             });
 
             if (hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {
