@@ -5,11 +5,10 @@ import type {
 	InternalAxiosRequestConfig,
 } from 'axios';
 
-const host = '139.59.103.109';
-const port = 2025;
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const instance: AxiosInstance = axios.create({
-	baseURL: 'http://' + host + ':' + port,
+	baseURL: API_BASE_URL,
 	timeout: 50000,
 });
 
@@ -19,13 +18,6 @@ enum HttpRequestResponseMessages {
 	ERR_BAD_REQUEST = 'Unauthorised user.',
 	ERR_INVALID_URL = 'The API configurations are not valid. Please double check.',
 }
-
-const getBaseUrl = () => {
-	const api = 'http://' + 'localhost' + ':' + 3000 + '/api/v1';
-	// const api = 'http://' + host + ':' + port + '/api/v1';
-
-	return api;
-};
 
 instance.interceptors.request.use(
 	async (config: InternalAxiosRequestConfig<any>) => {
@@ -56,8 +48,6 @@ instance.interceptors.request.use(
 			if (clientUuid) {
 				config.headers['X-Client-Uuid'] = clientUuid;
 			}
-
-			config.baseURL = getBaseUrl();
 
 			return config;
 		} catch (error) {
