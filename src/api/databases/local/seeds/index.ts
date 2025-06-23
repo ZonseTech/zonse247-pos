@@ -21,7 +21,6 @@ import {
 } from '../tables';
 import bcrypt from 'bcryptjs';
 import { sealDBModel } from '..';
-import { v4 as uuidv4 } from 'uuid';
 import { DEFAULT_PERMISSIONS } from './permission.seed';
 import { DEFAULT_ROLE_PERMISSIONS } from './role-permissions.seed';
 import config from '../../../config';
