@@ -6,6 +6,7 @@ import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from "../../utils/constants";
+import { version } from '../../../../package.json'
 import AuthLayout from "../../layouts/AuthLayout";
 import FormInput from "../../components/FormInput";
 import { useAuth } from "../../context/AuthProvider";
@@ -79,6 +80,11 @@ const Login: FunctionComponent = () => {
                     </Form>
                 )}
             </Formik>
+
+            <p className="text-center text-xs text-gray-500 mt-4">
+                Version {version || '1.0.0'}
+            </p>
+
         </AuthLayout>
     )
 }
