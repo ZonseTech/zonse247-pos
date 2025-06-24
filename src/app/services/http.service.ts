@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import NProgress from 'nprogress';
 import type {
 	AxiosInstance,
 	AxiosResponse,
@@ -6,6 +7,29 @@ import type {
 } from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+NProgress.configure({
+	showSpinner: false,
+	speed: 300,
+	minimum: 0.1,
+	trickleSpeed: 200,
+});
+
+let activeRequests = 0;
+const startProgress = (): void => {
+	if (activeRequests === 0) {
+		NProgress.start();
+	}
+	activeRequests++;
+};
+
+const stopProgress = (): void => {
+	activeRequests--;
+	if (activeRequests <= 0) {
+		activeRequests = 0;
+		NProgress.done();
+	}
+};
 
 const instance: AxiosInstance = axios.create({
 	baseURL: API_BASE_URL,
@@ -22,6 +46,8 @@ enum HttpRequestResponseMessages {
 instance.interceptors.request.use(
 	async (config: InternalAxiosRequestConfig<any>) => {
 		try {
+			startProgress();
+
 			const getFromStorage = (key: string): string | undefined => {
 				try {
 					const value = sessionStorage?.getItem(key);
@@ -52,21 +78,25 @@ instance.interceptors.request.use(
 			return config;
 		} catch (error) {
 			console.error('Error in request interceptor:', error);
+			stopProgress();
 			return config;
 		}
 	},
 	(error) => {
+		stopProgress();
 		return Promise.reject(error);
 	}
 );
 
 instance.interceptors.response.use(
 	(res: AxiosResponse<any, any>) => {
+		stopProgress();
 		return res;
 	},
 	(error: AxiosError) => {
-		const { message, code, response } = error;
+		stopProgress();
 
+		const { message, code, response } = error;
 		const status = response?.status;
 
 		switch (status) {
@@ -119,13 +149,36 @@ instance.interceptors.response.use(
 
 const responseBody = <T>(response: AxiosResponse<T>) => response;
 
+interface APIMethodOptions {
+	showProgress?: boolean;
+	progressMessage?: string;
+}
+
 const api: APIProps = {
 	config: instance,
 	get: async <T>(
 		url: string,
 		params?: Record<string, any>,
-		baseURL?: string
+		baseURL?: string,
+		options?: APIMethodOptions
 	): Promise<AxiosResponse<T, any>> => {
+		const shouldShowProgress = options?.showProgress !== false;
+
+		if (!shouldShowProgress) {
+			try {
+				startProgress();
+				const response = await instance.get<T>(url, {
+					params,
+					baseURL,
+				});
+				stopProgress();
+				return responseBody(response);
+			} catch (error) {
+				stopProgress();
+				throw error;
+			}
+		}
+
 		const response = await instance.get<T>(url, {
 			params,
 			baseURL,
@@ -135,7 +188,8 @@ const api: APIProps = {
 	post: async <T>(
 		url: string,
 		body: T,
-		headers?: Record<string, any>
+		headers?: Record<string, any>,
+		options?: APIMethodOptions
 	): Promise<AxiosResponse<T, any>> => {
 		const response = await instance.post<T>(url, body, headers);
 		return responseBody(response);
@@ -143,14 +197,16 @@ const api: APIProps = {
 	put: async <T>(
 		url: string,
 		body: T,
-		headers?: Record<string, any>
+		headers?: Record<string, any>,
+		options?: APIMethodOptions
 	): Promise<AxiosResponse<T, any>> => {
 		const response = await instance.put<T>(url, body, headers);
 		return responseBody(response);
 	},
 	delete: async <T>(
 		url: string,
-		headers?: Record<string, any>
+		headers?: Record<string, any>,
+		options?: APIMethodOptions
 	): Promise<AxiosResponse<T, any>> => {
 		const response = await instance.delete<T>(url, headers);
 		return responseBody(response);
@@ -158,7 +214,8 @@ const api: APIProps = {
 	patch: async <T>(
 		url: string,
 		body: T,
-		headers?: Record<string, any>
+		headers?: Record<string, any>,
+		options?: APIMethodOptions
 	): Promise<AxiosResponse<T, any>> => {
 		const response = await instance.patch<T>(url, body, headers);
 		return responseBody(response);
@@ -170,27 +227,42 @@ export type APIProps = {
 	get: <T>(
 		url: string,
 		params?: Record<string, any>,
-		baseURL?: string
+		baseURL?: string,
+		options?: APIMethodOptions
 	) => Promise<AxiosResponse<T, any>>;
 	post: <T>(
 		url: string,
 		body: T,
-		headers?: Record<string, any>
+		headers?: Record<string, any>,
+		options?: APIMethodOptions
 	) => Promise<AxiosResponse<T, any>>;
 	put: <T>(
 		url: string,
 		body: T,
-		headers?: Record<string, any>
+		headers?: Record<string, any>,
+		options?: APIMethodOptions
 	) => Promise<AxiosResponse<T, any>>;
 	delete: <T>(
 		url: string,
-		headers?: Record<string, any>
+		headers?: Record<string, any>,
+		options?: APIMethodOptions
 	) => Promise<AxiosResponse<T, any>>;
 	patch: <T>(
 		url: string,
 		body: T,
-		headers?: Record<string, any>
+		headers?: Record<string, any>,
+		options?: APIMethodOptions
 	) => Promise<AxiosResponse<T, any>>;
+};
+
+export const apiUtils = {
+	startProgress,
+	stopProgress,
+	forceStopProgress: () => {
+		activeRequests = 0;
+		NProgress.done();
+	},
+	getActiveRequestCount: () => activeRequests,
 };
 
 export default api;
