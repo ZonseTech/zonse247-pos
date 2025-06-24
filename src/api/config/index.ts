@@ -24,11 +24,14 @@ export interface Config {
 	database: {
 		host: string;
 		port: number;
-		name: string;
+		database: string;
 		user: string;
 		password: string;
 		migrate: boolean;
 		seed: boolean;
+		waitForConnections: boolean;
+		connectionLimit: number;
+		queueLimit: number;
 	};
 	jwt: {
 		secret: string;
@@ -111,11 +114,14 @@ const config: Config = {
 	database: {
 		host: process.env.DB_HOST || 'localhost',
 		port: parseInteger(process.env.DB_PORT, 5432),
-		name: process.env.DB_NAME || 'user_management',
-		user: process.env.DB_USER || 'mysql',
+		database: process.env.DB_NAME || 'zonse247_pos',
+		user: process.env.DB_USER || 'root',
 		password: process.env.DB_PASSWORD || '',
 		migrate: parseBoolean(process.env.DB_MIGRATE),
 		seed: parseBoolean(process.env.DB_SEED),
+		waitForConnections: true,
+		connectionLimit: 10,
+		queueLimit: 0,
 	},
 	jwt: {
 		secret: process.env.JWT_SECRET || '',

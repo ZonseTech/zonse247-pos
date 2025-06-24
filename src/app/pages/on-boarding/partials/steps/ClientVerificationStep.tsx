@@ -65,7 +65,7 @@ const ClientVerificationStep = ({
                                 to={ROUTES.LOGIN}
                                 className="text-[#102f4f] dark:text-sky-500 hover:underline cursor-pointer"
                             >
-                                Jump right back in!
+                                Sign in
                             </Link>
                         </div>
 

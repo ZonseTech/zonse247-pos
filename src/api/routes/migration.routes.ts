@@ -7,7 +7,7 @@ const migrationController = new MigrationController();
 
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
-		cb(null, 'uploads/migrations/');
+		cb(null, 'backups/uploads/migrations/');
 	},
 	filename: (req, file, cb) => {
 		cb(null, `${Date.now()}-${file.originalname}`);
