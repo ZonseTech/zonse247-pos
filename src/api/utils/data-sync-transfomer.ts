@@ -25,7 +25,8 @@ export const transformValue = (column: string, value: any) => {
         'promo_start',
         'promo_end',
         'next_payment_date',
-        'password_changed_at'
+        'password_changed_at',
+        'date'
     ];
 
     if (dateTimeColumns.includes(dbColumn)) {
