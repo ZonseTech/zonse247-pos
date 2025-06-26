@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import syncService from '../services/sync.service';
-import { tables } from '../databases/local/seeds';
+import tables from '../databases/local/seeds/sync-tables';
 
 export class SyncController {
 	getTables = async (req: Request, res: Response) => {

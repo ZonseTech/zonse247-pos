@@ -126,3 +126,4 @@ out/
 
 # Data storage
 .data
+.backups

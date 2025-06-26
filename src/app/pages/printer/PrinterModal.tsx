@@ -28,15 +28,15 @@ const PrinterModal: FunctionComponent = () => {
 
                 const printerExists = printers.some(p => p.name === printerOptions.name);
                 if (!printerExists) {
-                    Notify.info('Previously selected printer is no longer available');
+                    // Notify.info('Previously selected printer is no longer available');
                 }
             }
 
             if (showRefreshNotification) {
-                Notify.success('Printer list refreshed');
+                // Notify.success('Printer list refreshed');
             }
         } catch (error) {
-            Notify.failure('Failed to load printers');
+            // Notify.failure('Failed to load printers');
         } finally {
             setIsLoading(false);
         }

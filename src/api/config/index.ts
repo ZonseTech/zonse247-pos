@@ -26,6 +26,7 @@ export interface Config {
 		port: number;
 		database: string;
 		user: string;
+		dataPath: string;
 		password: string;
 		migrate: boolean;
 		seed: boolean;
@@ -62,6 +63,7 @@ export interface Config {
 	upload: {
 		maxFileSize: string;
 		uploadPath: string;
+		migrationsPath: string;
 	};
 	email: {
 		host: string;
@@ -113,6 +115,7 @@ const config: Config = {
 	},
 	database: {
 		host: process.env.DB_HOST || 'localhost',
+		dataPath: process.env.APP_DATA_PATH || 'zonse247',
 		port: parseInteger(process.env.DB_PORT, 5432),
 		database: process.env.DB_NAME || 'zonse247_pos',
 		user: process.env.DB_USER || 'root',
@@ -154,6 +157,7 @@ const config: Config = {
 	upload: {
 		maxFileSize: process.env.MAX_FILE_SIZE || '10mb',
 		uploadPath: process.env.UPLOAD_PATH || './uploads',
+		migrationsPath: process.env.MIGRATIONS_PATH || './migrations',
 	},
 	email: {
 		host: process.env.SMTP_HOST || 'smtp.gmail.com',

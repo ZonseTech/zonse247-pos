@@ -1,25 +1,19 @@
 import fs from 'fs';
 import path from 'path';
+import config from '../../config';
 import Datastore from '@seald-io/nedb';
 
 export class ExportDBModel {
-	private tables: Array<string>;
-	private databases: { [key: string]: Datastore } = {};
+	private tableName: string;
+	private database: Datastore;
 
-	constructor(tables: Array<string>) {
-		this.tables = tables;
-		this.initializeDatabases();
+	constructor(tableName: string) {
+		this.tableName = tableName;
+		this.initializeDatabase(tableName);
 	}
 
 	private getAppDataPath(): string {
-		const appData = process.env.APPDATA || '';
-		const appName = process.env.APPNAME || 'z-pharmacy';
-
-		if (!appData) {
-			throw new Error('APPDATA environment variable not found');
-		}
-
-		return path.join(appData, appName, 'src', 'api', 'databases');
+		return path.join(config.upload.migrationsPath);
 	}
 
 	private ensureDirectoryExists(dirPath: string): void {
@@ -34,30 +28,28 @@ export class ExportDBModel {
 		}
 	}
 
-	private initializeDatabases() {
+	private initializeDatabase(tableName: string) {
 		try {
 			const databaseDir = this.getAppDataPath();
 
 			this.ensureDirectoryExists(databaseDir);
 
-			this.tables.forEach((tableName) => {
-				try {
-					const dbPath = path.join(databaseDir, `${tableName}.db`);
+			try {
+				const dbPath = path.join(databaseDir, `${tableName}.db`);
 
-					this.databases[tableName] = new Datastore({
-						filename: dbPath,
-						autoload: true,
-					});
+				this.database = new Datastore({
+					filename: dbPath,
+					autoload: true,
+				});
 
-					console.log(`Initialized database for table: ${tableName}`);
-				} catch (error) {
-					console.error(
-						`Error initializing database for table ${tableName}:`,
-						error
-					);
-					throw error;
-				}
-			});
+				console.log(`Initialized database for table: ${tableName}`);
+			} catch (error) {
+				console.error(
+					`Error initializing database for table ${tableName}:`,
+					error
+				);
+				throw error;
+			}
 		} catch (error) {
 			console.error('Error initializing databases:', error);
 			throw error;
@@ -65,16 +57,16 @@ export class ExportDBModel {
 	}
 
 	public getDB(tableName: string): Datastore {
-		if (!this.databases[tableName]) {
+		if (!this.database) {
 			throw new Error(`Database for table ${tableName} not found`);
 		}
-		return this.databases[tableName];
+		return this.database;
 	}
 
-	public find(table: string, conditions: any = {}): Promise<any[]> {
+	public find(conditions: any = {}): Promise<any[]> {
 		return new Promise((resolve, reject) => {
 			try {
-				const db = this.getDB(table);
+				const db = this.database;
 				db.find(conditions, (err: Error | null, docs: any[]) => {
 					if (err) reject(err);
 					else resolve(docs);
@@ -85,10 +77,10 @@ export class ExportDBModel {
 		});
 	}
 
-	public count(table: string, conditions: any = {}): Promise<number> {
+	public count(conditions: any = {}): Promise<number> {
 		return new Promise((resolve, reject) => {
 			try {
-				const db = this.getDB(table);
+				const db = this.database;
 				db.count(conditions, (err: Error | null, count: number) => {
 					if (err) reject(err);
 					else resolve(count);
@@ -99,14 +91,9 @@ export class ExportDBModel {
 		});
 	}
 
-	public getDatabasePaths(): { [key: string]: string } {
+	public getDatabasePaths(): string {
 		const databaseDir = this.getAppDataPath();
-		const paths: { [key: string]: string } = {};
 
-		Object.keys(this.databases).forEach((tableName) => {
-			paths[tableName] = path.join(databaseDir, `${tableName}.db`);
-		});
-
-		return paths;
+		return path.join(databaseDir, `${this.tableName}.db`);
 	}
 }
