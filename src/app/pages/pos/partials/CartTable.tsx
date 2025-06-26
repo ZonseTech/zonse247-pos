@@ -43,7 +43,7 @@ const CartTable: FunctionComponent = () => {
 
     return (
         <Fragment>
-            <div className="flex-grow overflow-auto h-[calc(100vh-494px)] bg-gray-50 dark:bg-gray-900/50">
+            <div className="flex-grow overflow-auto h-[calc(100vh-494px)] mt-4 bg-gray-50 dark:bg-gray-900/50">
                 <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg mx-2 my-2 overflow-hidden">
                     <table className="w-full border-collapse">
                         <thead>
