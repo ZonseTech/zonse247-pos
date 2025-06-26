@@ -33,7 +33,7 @@ import { shopValidationSchemas } from '../validations/shopValidationSchemas';
 import { OnboardingController } from '../controllers/onboarding.controller';
 import { SettingsController } from '../controllers/settings.controller'
 import PaymentServiceProviderRoutes from './payment-service-provider.routes'
-import { DatabaseExportController } from '../controllers/database-export.controller'
+import { DatabaseExportController } from '../controllers/export.controller'
 
 const router = Router();
 const authMiddleware = new AuthMiddleware();

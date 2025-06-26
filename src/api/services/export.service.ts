@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { ExportDBModel } from '../databases/local/exports.db';
 import config from '../config';
+import { ExportDBModel } from '../models/exports.model';
 
 export class DatabaseExportService {
 	private exportDBModel: ExportDBModel;
