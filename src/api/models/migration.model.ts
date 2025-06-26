@@ -338,10 +338,6 @@ export class MigrationModel {
             const placeholders = Object.keys(data).map((_, i) => `?`).join(", ");
             const values = Object.values(data);
 
-            console.log('====================================');
-            console.log(data);
-            console.log('====================================');
-
             const query = `INSERT INTO ${this.currentTableName} (${columns}) VALUES (${placeholders})`;
 
             await connection.execute(query, values);
