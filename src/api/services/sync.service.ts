@@ -140,10 +140,6 @@ export class SyncService {
 							const insertValues = Object.keys(recordData)
 								.map((key) => transformValue(key, recordData[key]));
 
-							console.log('====================================');
-							console.log(JSON.stringify(insertValues, null, 2));
-							console.log('====================================');
-
 							await connection.execute(
 								`INSERT INTO ${tableName} (${insertFields}) VALUES (${insertPlaceholders})`,
 								insertValues
