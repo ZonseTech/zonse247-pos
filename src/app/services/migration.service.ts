@@ -62,6 +62,22 @@ class MigrationService {
 			throw new Error('Failed to fetch migration progress');
 		}
 	}
+
+	async mapData(mappingConfig: MappingConfig, format: 'json' | 'csv' = 'json') {
+		try {
+
+			const result = await api.post<MappingResult>(`${this.baseURL}/migrate`, {
+				columnMappings: mappingConfig.columnMappings,
+				outputFileName: mappingConfig.outputFileName,
+				format: format
+			}) as any
+
+			return result;
+		} catch (error) {
+			console.error('Error mapping data:', error);
+			throw error;
+		}
+	}
 }
 
 export const migrationService = new MigrationService('migration');
