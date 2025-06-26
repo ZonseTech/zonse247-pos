@@ -125,7 +125,7 @@ const SyncData: FunctionComponent = () => {
 	return (
 		<AppLayout>
 			{error && (
-				<div className='mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm'>
+				<div className='mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg'>
 					<div className='flex items-center'>
 						<HiOutlineExclamationTriangle className='w-5 h-5 text-red-500 dark:text-red-400 mr-2' />
 						<span className='text-red-700 dark:text-red-300'>{error}</span>
@@ -156,20 +156,20 @@ const SyncData: FunctionComponent = () => {
 				<div className='flex space-x-3'>
 					<button
 						onClick={handleRefreshAll}
-						className='flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-sm transition-colors'
+						className='flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg transition-colors'
 					>
 						<HiOutlineRefresh className='w-4 h-4 mr-2' />
 						Refresh All
 					</button>
 					<button
 						onClick={() => handleBulkSync('pull')}
-						className='flex items-center px-4 py-2 border border-blue-600 bg-blue-600 hover:bg-blue-700 text-white rounded-sm transition-colors'
+						className='flex items-center px-4 py-2 border border-blue-600 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors'
 					>
 						Pull All
 					</button>
 					<button
 						onClick={() => handleBulkSync('push')}
-						className='flex items-center px-4 py-2 border border-green-600 bg-green-600 hover:bg-green-700 text-white rounded-sm transition-colors'
+						className='flex items-center px-4 py-2 border border-green-600 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors'
 					>
 						Push All
 					</button>
@@ -177,7 +177,7 @@ const SyncData: FunctionComponent = () => {
 			</div>
 
 			<div className='grid grid-cols-1 md:grid-cols-4 gap-6 mb-6'>
-				<div className='bg-white dark:bg-gray-800 rounded-sm shadow-sm p-6 border border-gray-200 dark:border-gray-700'>
+				<div className='bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700'>
 					<div className='flex items-center'>
 						<HiOutlineDatabase className='w-8 h-8 text-blue-500' />
 						<div className='ml-4'>
@@ -190,7 +190,7 @@ const SyncData: FunctionComponent = () => {
 						</div>
 					</div>
 				</div>
-				<div className='bg-white dark:bg-gray-800 rounded-sm shadow-sm p-6 border border-gray-200 dark:border-gray-700'>
+				<div className='bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700'>
 					<div className='flex items-center'>
 						<HiOutlineCheck className='w-8 h-8 text-green-500' />
 						<div className='ml-4'>
@@ -201,7 +201,7 @@ const SyncData: FunctionComponent = () => {
 						</div>
 					</div>
 				</div>
-				<div className='bg-white dark:bg-gray-800 rounded-sm shadow-sm p-6 border border-gray-200 dark:border-gray-700'>
+				<div className='bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700'>
 					<div className='flex items-center'>
 						<HiOutlineRefresh className='w-8 h-8 text-blue-500' />
 						<div className='ml-4'>
@@ -218,7 +218,7 @@ const SyncData: FunctionComponent = () => {
 						</div>
 					</div>
 				</div>
-				<div className='bg-white dark:bg-gray-800 rounded-sm shadow-sm p-6 border border-gray-200 dark:border-gray-700'>
+				<div className='bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700'>
 					<div className='flex items-center'>
 						<HiOutlineExclamationTriangle className='w-8 h-8 text-red-500' />
 						<div className='ml-4'>
@@ -248,7 +248,7 @@ const SyncData: FunctionComponent = () => {
 					<p className='text-gray-600 dark:text-gray-400'>No tables found</p>
 					<button
 						onClick={fetchTables}
-						className='mt-4 px-4 py-2 bg-blue-600 text-white rounded-sm hover:bg-blue-700 transition-colors'
+						className='mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors'
 					>
 						Retry
 					</button>

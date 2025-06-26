@@ -65,7 +65,7 @@ const SyncCard: FunctionComponent<SyncCardProps> = ({
 	return (
 		<div
 			key={table.id}
-			className='bg-white dark:bg-gray-800 rounded-sm shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md dark:hover:shadow-lg transition-shadow duration-200'>
+			className='bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md dark:hover:shadow-lg transition-shadow duration-200'>
 			<div className='p-6'>
 				<div className='flex items-start justify-between mb-4'>
 					<div className='flex items-center'>
