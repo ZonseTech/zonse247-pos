@@ -8,7 +8,6 @@ import IconLabelButton from '../../components/IconLabelButton';
 import { Fragment, FunctionComponent, useEffect, useState } from 'react';
 import { FaWifi } from 'react-icons/fa';
 
-
 const PrinterModal: FunctionComponent = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isOpenForm, setIsOpenForm] = useState(false);
