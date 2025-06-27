@@ -1,0 +1,67 @@
+/* nprogress.css - Custom NProgress styles using Tailwind colors */
+
+/* Progress bar */
+#nprogress {
+    pointer-events: none;
+}
+
+#nprogress .bar {
+    @apply bg-blue-500 dark:bg-blue-400;
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+}
+
+#nprogress .peg {
+    display: block;
+    position: absolute;
+    right: 0px;
+    width: 100px;
+    height: 100%;
+    @apply shadow-lg;
+    box-shadow: 0 0 10px theme('colors.blue.500'), 0 0 5px theme('colors.blue.500');
+    opacity: 1.0;
+    transform: rotate(3deg) translate(0px, -4px);
+}
+
+#nprogress .spinner {
+    display: block;
+    position: fixed;
+    z-index: 1031;
+    top: 15px;
+    right: 15px;
+}
+
+#nprogress .spinner-icon {
+    width: 18px;
+    height: 18px;
+    box-sizing: border-box;
+    border: solid 2px transparent;
+    @apply border-t-blue-500 border-l-blue-500 dark:border-t-blue-400 dark:border-l-blue-400;
+    border-radius: 50%;
+    animation: nprogress-spinner 400ms linear infinite;
+}
+
+.nprogress-custom {
+    @apply pointer-events-none;
+}
+
+@keyframes nprogress-spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Dark mode support using Tailwind's dark mode */
+@media (prefers-color-scheme: dark) {
+    #nprogress .peg {
+        box-shadow: 0 0 10px theme('colors.blue.400'), 0 0 5px theme('colors.blue.400');
+    }
+}

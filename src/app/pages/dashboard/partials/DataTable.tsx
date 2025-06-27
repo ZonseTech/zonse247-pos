@@ -32,7 +32,6 @@ const DataTable = <T,>({
             )}
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h2>
         </div>
-
         <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-white dark:bg-gray-700/50">
@@ -41,12 +40,13 @@ const DataTable = <T,>({
                             <th
                                 key={idx}
                                 className={`
-                                    text-${header.align} 
                                     px-6 py-3 
                                     text-xs font-medium 
                                     text-gray-500 dark:text-gray-400 
                                     uppercase tracking-wider
                                     bg-white dark:bg-gray-700/50
+                                    ${header.align === 'left' ? 'text-left' :
+                                        header.align === 'center' ? 'text-center' : 'text-right'}
                                 `}
                             >
                                 {header.name}
@@ -58,9 +58,7 @@ const DataTable = <T,>({
                     {data.length > 0 ? (
                         data.map((row, index) => (
                             <Fragment key={index}>
-                                <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
-                                    {renderRow(row)}
-                                </tr>
+                                {renderRow(row)}
                             </Fragment>
                         ))
                     ) : (

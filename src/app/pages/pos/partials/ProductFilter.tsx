@@ -1,4 +1,4 @@
-import { Input } from '../../../components';
+import { Input, Select } from '../../../components';
 import { FunctionComponent, PropsWithChildren } from 'react'
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
 const ProductFilter: FunctionComponent<PropsWithChildren<Props>> = ({ categories, searchValue, handleSearch, handleCategory }) => {
 
     return (
-        <div className="flex mb-4 pb-4 border-b">
+        <div className="flex mb-4 pb-4 border-b space-x-4">
             <Input
                 type="text"
                 placeholder="Search product by name or sku"
@@ -22,11 +22,9 @@ const ProductFilter: FunctionComponent<PropsWithChildren<Props>> = ({ categories
 
                     handleSearch(cleanedValue)
                 }}
-                className="flex-grow flex-1 mr-2"
             />
-            <select
+            <Select
                 onChange={(e) => handleCategory(parseFloat(e.target.value))}
-                className="p-2 flex-1 border rounded-sm border-gray-200 focus:outline-none focus:ring-0 focus:border-gray-400"
             >
                 <option value=''>All categories</option>
 
@@ -36,7 +34,7 @@ const ProductFilter: FunctionComponent<PropsWithChildren<Props>> = ({ categories
                     </option>
                 ))}
 
-            </select>
+            </Select>
         </div>
     )
 }
