@@ -21,7 +21,7 @@ const RoleModal: FunctionComponent<Props> = ({ role, isOpen, onSave, onClose }) 
         description: role?.description || '',
         clientUuid: role?.clientUuid || '',
         shopUuid: role?.shopUuid || '',
-        active: role?.isActive !== undefined ? role.isActive : true,
+        isActive: role?.isActive !== undefined ? role.isActive : true,
         isSystemRole: role?.isSystemRole || false,
     };
 
@@ -41,7 +41,7 @@ const RoleModal: FunctionComponent<Props> = ({ role, isOpen, onSave, onClose }) 
 
         shopUuid: Yup.string(),
 
-        active: Yup.boolean(),
+        isActive: Yup.boolean(),
 
         isSystemRole: Yup.boolean(),
     });
@@ -124,7 +124,7 @@ const RoleModal: FunctionComponent<Props> = ({ role, isOpen, onSave, onClose }) 
                                 <FormInput
                                     type='checkbox'
                                     label="Active"
-                                    name="active"
+                                    name="isActive"
                                     className="mt-1"
                                 />
 
