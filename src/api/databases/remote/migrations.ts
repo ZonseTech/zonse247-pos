@@ -409,6 +409,8 @@ const initDatabase = async () => {
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 uuid VARCHAR(100) NOT NULL UNIQUE,
                 shop_uuid VARCHAR(100) NOT NULL,
+                client_uuid VARCHAR(100) NOT NULL,
+                user_uuid VARCHAR(100) NOT NULL,
                 category_uuid VARCHAR(100),
                 barcode VARCHAR(100) NOT NULL,
                 sku VARCHAR(50),
@@ -421,7 +423,7 @@ const initDatabase = async () => {
                 promo_price DECIMAL(10, 2),
                 promo_start DATE,
                 promo_end DATE,
-                quantity INT DEFAULT 0,
+                quantity VARCHAR(100) DEFAULT 0,
                 reserved_quantity INT DEFAULT 0,
                 min_stock INT DEFAULT 0,
                 original_quantity INT DEFAULT 0,
@@ -452,8 +454,6 @@ const initDatabase = async () => {
                 FOREIGN KEY (created_by) REFERENCES ${USERS_DB}(uuid) ON DELETE SET NULL,
                 FOREIGN KEY (last_updated_by) REFERENCES ${USERS_DB}(uuid) ON DELETE SET NULL,
                 
-                UNIQUE KEY unique_shop_barcode (shop_uuid, barcode),
-                UNIQUE KEY unique_shop_sku (shop_uuid, sku),
                 INDEX idx_shop_uuid (shop_uuid),
                 INDEX idx_category_uuid (category_uuid),
                 INDEX idx_barcode (barcode),
@@ -496,7 +496,8 @@ const initDatabase = async () => {
             CREATE TABLE IF NOT EXISTS ${ORDERS_DB} (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 uuid VARCHAR(100) NOT NULL UNIQUE,
-                transaction_uuid VARCHAR(100) NOT NULL,
+                ref_number VARCHAR(100) NOT NULL,
+                transaction_uuid VARCHAR(100) DEFAULT 1,
                 product_uuid VARCHAR(100) NOT NULL,
                 quantity DECIMAL(10, 3) NOT NULL DEFAULT 1,
                 purchase_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
@@ -504,7 +505,6 @@ const initDatabase = async () => {
                 synced TINYINT DEFAULT 0,
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-                FOREIGN KEY (transaction_uuid) REFERENCES ${TRANSACTIONS_DB}(uuid) ON DELETE CASCADE,
                 INDEX idx_transaction_uuid (transaction_uuid)
             )
         `);

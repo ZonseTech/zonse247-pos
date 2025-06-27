@@ -3,6 +3,7 @@ import Papa from 'papaparse';
 import { mysqlPool } from '../config/db';
 import { sealDBModel } from '../databases/local';
 import { PoolConnection } from 'mysql2/promise';
+import migrationTables from '../databases/local/migration-table-columns'
 import { transformValue } from '../utils/data-sync-transfomer';
 
 export class MigrationModel {
@@ -192,8 +193,14 @@ export class MigrationModel {
 
             for (const record of batch) {
                 const cleanRecord = this.prepareRecordForMySQL(record);
-                await this.insertIntoMySQL(connection, cleanRecord);
-                await this.syncToLocalDB(cleanRecord);
+
+                const dataSet = {}
+
+                Object.keys(cleanRecord)
+                    .map(key => dataSet[key.replace(/([A-Z])/g, '_$1').toLowerCase()] = cleanRecord[key])
+
+                await this.insertIntoMySQL(connection, dataSet);
+                await this.syncToLocalDB(dataSet);
             }
 
             await connection.commit();
@@ -220,13 +227,10 @@ export class MigrationModel {
 
             let value: any;
 
-            if (recordColumn === '') {
-                value = null;
-            } else if (data.hasOwnProperty(recordColumn) || recordColumn === '_id') {
-                value = data[recordColumn];
-            } else {
-                value = recordColumn;
-            }
+            if (dbColumn === 'uuid') {
+                value = data['_id'] || data['uuid']
+            } else
+                value = data[recordColumn] === null || data[recordColumn] === '' || data[recordColumn] === undefined ? recordColumn : data[recordColumn];
 
             transformedRow[dbColumn] = transformValue(dbColumn, value);
         });
@@ -236,102 +240,9 @@ export class MigrationModel {
 
     private async insertIntoMySQL(connection: PoolConnection, record: MigrationRecord): Promise<void> {
         try {
-            const columnMappings: TColumnMapping[] = [
-                {
-                    dbColumn: 'uuid',
-                    recordColumn: 'uuid'
-                },
-                {
-                    dbColumn: 'client_id',
-                    recordColumn: '-1'
-                },
-                {
-                    dbColumn: 'shop_id',
-                    recordColumn: '-1'
-                },
-                {
-                    dbColumn: 'username',
-                    recordColumn: 'username'
-                },
-                {
-                    dbColumn: 'password',
-                    recordColumn: 'password'
-                },
-                {
-                    dbColumn: 'fullname',
-                    recordColumn: 'fullname'
-                },
-                {
-                    dbColumn: 'email',
-                    recordColumn: 'example@gmail.com'
-                },
-                {
-                    dbColumn: 'phone',
-                    recordColumn: '+265999888777'
-                },
-                {
-                    dbColumn: 'role_uuid',
-                    recordColumn: 'super-admin'
-                },
-                {
-                    dbColumn: 'status',
-                    recordColumn: 'status'
-                },
-                {
-                    dbColumn: 'accessible_shops',
-                    recordColumn: '["*"]'
-                },
-                {
-                    dbColumn: 'allowed_workstations',
-                    recordColumn: '["*"]'
-                },
-                {
-                    dbColumn: 'max_discount_percent',
-                    recordColumn: '0.00'
-                },
-                {
-                    dbColumn: 'can_override_prices',
-                    recordColumn: '0'
-                },
-                {
-                    dbColumn: 'pin_code',
-                    recordColumn: '1234'
-                },
-                {
-                    dbColumn: 'current_shop_id',
-                    recordColumn: '-1'
-                },
-                {
-                    dbColumn: 'last_login',
-                    recordColumn: 'last_login'
-                },
-                {
-                    dbColumn: 'last_logout',
-                    recordColumn: 'last_logged_out'
-                },
-                {
-                    dbColumn: 'password_changed_at',
-                    recordColumn: ''
-                },
-                {
-                    dbColumn: 'force_password_change',
-                    recordColumn: ''
-                },
-                {
-                    dbColumn: 'created_at',
-                    recordColumn: 'created_at'
-                },
-                {
-                    dbColumn: 'updated_at',
-                    recordColumn: 'updated_at'
-                }
-            ];
+            const columnMappings: TColumnMapping[] = migrationTables[this.currentTableName];
 
             const tableColumns = await this.getTableColumns(connection);
-
-            console.log('====================================');
-            console.log('tableColumns', JSON.stringify(tableColumns, null, 2));
-            console.log('====================================');
 
             const data = this.transformData(record, columnMappings);
             const columns = Object.keys(data).join(", ");
