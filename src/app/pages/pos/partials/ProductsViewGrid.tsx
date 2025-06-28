@@ -137,9 +137,7 @@ const ProductsViewGrid: FunctionComponent = () => {
                                                 : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer text-gray-900 dark:text-gray-100'
                                                 }`}
                                         >
-                                            <div className="col-span-4 font-medium truncate" title={product.name}>
-                                                {product.name}
-                                            </div>
+                                            <div className="col-span-4 font-medium truncate" title={product.name} dangerouslySetInnerHTML={{ __html: product.name }} />
                                             <div className="col-span-3 truncate text-gray-600 dark:text-gray-400" title={product.categoryDetails?.name as string}>
                                                 {product.categoryDetails?.name as string}
                                             </div>

@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 import { Notify } from 'notiflix';
 import { Form, Formik } from 'formik';
 import { LoadingSpinner } from "../LoadingSpinner";
-import roleService from "../../../../services/role.service";
+import rolePermissionService from "../../../../services/role-permission.service";
 import FormWrapper from '../../../../components/FormWrapper';
 import { FunctionComponent, useEffect, useState } from "react";
 import { Button, ModalFooter, Modal } from '../../../../components';
@@ -11,7 +11,7 @@ type Props = {
     role: Role;
     permissions: Permission[];
     isOpen: boolean;
-    onAssign: (selectedPermissions: string[]) => void;
+    onAssign: (selectedPermissions: string[]) => Promise<void>;
     onClose: () => void;
 }
 
@@ -27,7 +27,9 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
     onClose
 }) => {
     const [currentPermissions, setCurrentPermissions] = useState<string[]>([]);
+    const [rolePermissionMappings, setRolePermissionMappings] = useState<Map<string, string>>(new Map());
     const [loading, setLoading] = useState(true);
+    const [savingPermissions, setSavingPermissions] = useState<Set<string>>(new Set());
 
     const initialValues: FormValues = {
         selectedPermissions: currentPermissions,
@@ -46,10 +48,22 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
     const loadCurrentPermissions = async () => {
         setLoading(true);
         try {
-            const result = await roleService.getRolePermissions(role.uuid);
+            const result = await rolePermissionService.getByRoleUuid(role.uuid);
+            const rolePermissions = result?.data || [];
 
-            const permissionIds = result?.data.map(p => p.uuid);
+            const permissionIds: string[] = [];
+            const mappings = new Map<string, string>();
+
+            rolePermissions.forEach(rp => {
+                const permissionUuid = rp.permissionUuid;
+                if (permissionUuid) {
+                    permissionIds.push(permissionUuid);
+                    mappings.set(permissionUuid, rp.uuid);
+                }
+            });
+
             setCurrentPermissions(permissionIds);
+            setRolePermissionMappings(mappings);
         } catch (err) {
             console.error('Failed to load current permissions:', err);
             Notify.failure('Failed to load current permissions');
@@ -58,35 +72,122 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
         }
     };
 
-    const handlePermissionToggle = (permissionId: string, values: FormValues, setFieldValue: any) => {
-        let newSelected;
-        const currentSelected = values.selectedPermissions;
+    const handlePermissionToggle = async (permissionId: string, values: FormValues, setFieldValue: any) => {
+        const isCurrentlySelected = values.selectedPermissions.includes(permissionId);
+        const permission = permissions.find(p => p.uuid === permissionId);
 
-        if (currentSelected.includes(permissionId)) {
-            newSelected = currentSelected.filter(id => id !== permissionId);
-        } else {
-            newSelected = [...currentSelected, permissionId];
+        if (!permission) {
+            Notify.failure('Permission not found');
+            return;
         }
 
-        setFieldValue('selectedPermissions', newSelected);
-    };
+        setSavingPermissions(prev => new Set(prev).add(permissionId));
 
-    const handleSelectAll = (setFieldValue: any) => {
-        const allPermissionIds = permissions.map(p => p.uuid);
-        setFieldValue('selectedPermissions', allPermissionIds);
-    };
-
-    const handleClearAll = (setFieldValue: any) => {
-        setFieldValue('selectedPermissions', []);
-    };
-
-    const handleSubmit = async (values: FormValues) => {
         try {
-            await onAssign(values.selectedPermissions);
-            onClose();
+            if (isCurrentlySelected) {
+                const rolePermissionId = rolePermissionMappings.get(permissionId);
+                if (!rolePermissionId) {
+                    throw new Error('Role-permission relationship not found');
+                }
+
+                await rolePermissionService.delete(rolePermissionId);
+
+                const newSelected = values.selectedPermissions.filter(id => id !== permissionId);
+                setFieldValue('selectedPermissions', newSelected);
+                setCurrentPermissions(newSelected);
+
+                const newMappings = new Map(rolePermissionMappings);
+                newMappings.delete(permissionId);
+                setRolePermissionMappings(newMappings);
+
+                Notify.success(`Permission "${permission.name}" removed from role "${role.name}"`);
+            } else {
+                const response = await rolePermissionService.create({
+                    roleUuid: role.uuid,
+                    permissionUuid: permissionId
+                });
+
+                const newSelected = [...values.selectedPermissions, permissionId];
+                setFieldValue('selectedPermissions', newSelected);
+                setCurrentPermissions(newSelected);
+
+                const newMappings = new Map(rolePermissionMappings);
+                newMappings.set(permissionId, response.data?.uuid || response.data?.id);
+                setRolePermissionMappings(newMappings);
+
+                Notify.success(`Permission "${permission.name}" assigned to role "${role.name}"`);
+            }
+
         } catch (error) {
+            console.error('Error updating permission:', error);
             const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            Notify.failure('Error assigning permissions: ' + errorMessage);
+            const action = isCurrentlySelected ? 'removing' : 'assigning';
+            Notify.failure(`Error ${action} permission: ${errorMessage}`);
+        } finally {
+            setSavingPermissions(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(permissionId);
+                return newSet;
+            });
+        }
+    };
+
+    const handleSelectAll = async (setFieldValue: any, currentSelected: string[]) => {
+        const allPermissionIds = permissions.map(p => p.uuid);
+        const permissionsToAdd = allPermissionIds.filter(id => !currentSelected.includes(id));
+
+        if (permissionsToAdd.length === 0) {
+            Notify.info('All permissions are already assigned');
+            return;
+        }
+
+        try {
+            const assignments = permissionsToAdd.map(permissionUuid => ({
+                roleUuid: role.uuid,
+                permissionUuid
+            }));
+
+            await rolePermissionService.bulkAssign({ assignments });
+
+            setFieldValue('selectedPermissions', allPermissionIds);
+            setCurrentPermissions(allPermissionIds);
+
+            await loadCurrentPermissions();
+
+            Notify.success(`${permissionsToAdd.length} permissions assigned successfully`);
+        } catch (error) {
+            console.error('Error assigning all permissions:', error);
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            Notify.failure('Error assigning all permissions: ' + errorMessage);
+        }
+    };
+
+    const handleClearAll = async (setFieldValue: any, currentSelected: string[]) => {
+        if (currentSelected.length === 0) {
+            Notify.info('No permissions to remove');
+            return;
+        }
+
+        try {
+            const rolePermissionIds = currentSelected
+                .map(permissionUuid => rolePermissionMappings.get(permissionUuid))
+                .filter(id => id !== undefined);
+
+            if (rolePermissionIds.length !== currentSelected.length) {
+                throw new Error('Some role-permission relationships not found');
+            }
+
+            await Promise.all(rolePermissionIds.map(id => rolePermissionService.delete(id)));
+
+            setFieldValue('selectedPermissions', []);
+            setCurrentPermissions([]);
+            setRolePermissionMappings(new Map());
+
+            Notify.success(`${currentSelected.length} permissions removed successfully`);
+        } catch (error) {
+            console.error('Error removing all permissions:', error);
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            Notify.failure('Error removing all permissions: ' + errorMessage);
         }
     };
 
@@ -102,13 +203,14 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
     if (loading) {
         return (
             <Modal
-                title="Loading..."
+                title="Loading permissions..."
                 isOpen={isOpen}
                 onClose={onClose}
                 className='max-w-4xl bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6'
             >
                 <div className="flex justify-center py-8">
                     <LoadingSpinner />
+                    <span className="ml-3 text-gray-600">Loading current role permissions...</span>
                 </div>
             </Modal>
         );
@@ -116,48 +218,61 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
 
     return (
         <Modal
-            title={`Assign Permissions to "${role.name}"`}
+            title={`Manage Permissions for "${role.name}"`}
             isOpen={isOpen}
             onClose={onClose}
             className='max-w-4xl bg-white dark:bg-gray-700 text-gray-700 rounded-2xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto'
         >
             <div className="mb-4">
                 <p className="text-sm text-gray-600 mt-1">
-                    Select permissions to assign to this role
+                    Toggle permissions to assign or remove them from this role. Changes are saved automatically.
                 </p>
             </div>
 
             <Formik
                 initialValues={{ selectedPermissions: currentPermissions }}
                 validationSchema={validationSchema}
-                onSubmit={handleSubmit}
+                onSubmit={() => { }}
                 enableReinitialize={true}
             >
-                {({ isSubmitting, values, setFieldValue }) => (
+                {({ values, setFieldValue }) => (
                     <Form>
                         <FormWrapper>
                             <div className="mb-6">
                                 <div className="flex justify-between items-center mb-4">
                                     <span className="text-sm font-medium text-gray-700">
-                                        {values.selectedPermissions.length} of {permissions.length} permissions selected
+                                        {values.selectedPermissions.length} of {permissions.length} permissions assigned
                                     </span>
                                     <div className="space-x-2">
                                         <button
                                             type="button"
-                                            onClick={() => handleSelectAll(setFieldValue)}
-                                            className="text-sm text-green-600 hover:text-green-800"
+                                            onClick={() => handleSelectAll(setFieldValue, values.selectedPermissions)}
+                                            className="text-sm text-green-600 hover:text-green-800 disabled:opacity-50"
+                                            disabled={savingPermissions.size > 0}
                                         >
-                                            Select All
+                                            Assign All
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => handleClearAll(setFieldValue)}
-                                            className="text-sm text-green-600 hover:text-green-800"
+                                            onClick={() => handleClearAll(setFieldValue, values.selectedPermissions)}
+                                            className="text-sm text-red-600 hover:text-red-800 disabled:opacity-50"
+                                            disabled={savingPermissions.size > 0}
                                         >
-                                            Clear All
+                                            Remove All
                                         </button>
                                     </div>
                                 </div>
+
+                                {savingPermissions.size > 0 && (
+                                    <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                        <div className="flex items-center">
+                                            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                                            <span className="text-sm text-blue-800">
+                                                Updating {savingPermissions.size} permission(s)...
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className="space-y-6">
                                     {Object.entries(groupedPermissions).map(([category, categoryPermissions]) => (
@@ -167,42 +282,65 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
                                                     {category}
                                                 </span>
                                                 <span className="text-sm font-normal text-gray-500">
-                                                    ({categoryPermissions.length} permissions)
+                                                    ({categoryPermissions.filter(p => values.selectedPermissions.includes(p.uuid)).length}/{categoryPermissions.length} assigned)
                                                 </span>
                                             </h4>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                                {categoryPermissions.map(permission => (
-                                                    <label
-                                                        key={permission.uuid}
-                                                        className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
-                                                    >
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={values.selectedPermissions.includes(permission.uuid)}
-                                                            onChange={() => handlePermissionToggle(permission.uuid, values, setFieldValue)}
-                                                            className="mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500"
-                                                        />
-                                                        <div className="flex-1 min-w-0">
-                                                            <div className="text-sm font-medium text-gray-900">
-                                                                {permission.name}
-                                                            </div>
-                                                            <div className="text-xs text-gray-500 mt-1">
-                                                                {permission.description}
-                                                            </div>
-                                                            <div className="flex gap-1 mt-2">
-                                                                <span className="text-xs bg-orange-100 text-orange-800 px-2 py-0.5 rounded">
-                                                                    {permission.scope as string}
-                                                                </span>
-                                                                {permission.isSystemPermission && (
-                                                                    <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">
-                                                                        System
-                                                                    </span>
+                                                {categoryPermissions.map(permission => {
+                                                    const isBeingSaved = savingPermissions.has(permission.uuid);
+                                                    const isAssigned = values.selectedPermissions.includes(permission.uuid);
+
+                                                    return (
+                                                        <label
+                                                            key={permission.uuid}
+                                                            className={`flex items-start space-x-3 p-3 border rounded-lg cursor-pointer transition-colors ${isBeingSaved
+                                                                ? 'bg-gray-100 opacity-75'
+                                                                : isAssigned
+                                                                    ? 'hover:bg-green-50 border-green-200'
+                                                                    : 'hover:bg-gray-50'
+                                                                }`}
+                                                        >
+                                                            <div className="relative">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={isAssigned}
+                                                                    onChange={() => handlePermissionToggle(permission.uuid, values, setFieldValue)}
+                                                                    disabled={isBeingSaved}
+                                                                    className="mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500 disabled:opacity-50"
+                                                                />
+                                                                {isBeingSaved && (
+                                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                                        <div className="w-3 h-3 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                                                                    </div>
                                                                 )}
                                                             </div>
-                                                        </div>
-                                                    </label>
-                                                ))}
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="text-sm font-medium text-gray-900">
+                                                                    {permission.name}
+                                                                </div>
+                                                                <div className="text-xs text-gray-500 mt-1">
+                                                                    {permission.description}
+                                                                </div>
+                                                                <div className="flex gap-1 mt-2">
+                                                                    <span className="text-xs bg-orange-100 text-orange-800 px-2 py-0.5 rounded">
+                                                                        {permission.scope as string}
+                                                                    </span>
+                                                                    {permission.isSystemPermission && (
+                                                                        <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">
+                                                                            System
+                                                                        </span>
+                                                                    )}
+                                                                    {isAssigned && (
+                                                                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                                                                            Assigned
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </label>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     ))}
@@ -211,19 +349,17 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
                         </FormWrapper>
 
                         <ModalFooter className='mb-0 border-t mt-4'>
-                            <div className="flex justify-end space-x-3">
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm text-gray-500">
+                                    All changes are saved automatically
+                                </span>
                                 <Button
                                     type="button"
                                     layout="outline"
                                     onClick={onClose}
+                                    disabled={savingPermissions.size > 0}
                                 >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    loading={isSubmitting}
-                                >
-                                    Save Permissions
+                                    {savingPermissions.size > 0 ? 'Saving...' : 'Close'}
                                 </Button>
                             </div>
                         </ModalFooter>

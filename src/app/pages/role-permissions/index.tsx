@@ -123,12 +123,24 @@ export default function RolePermissionAdmin() {
     }
   };
 
-  const handleAssignPermissions = async (roleId: string, permissionUuids: Array<string>) => {
+  const handleAssignPermissions = async (permissionUuids: Array<string>): Promise<void> => {
+    if (!selectedRole) {
+      throw new Error('No role selected');
+    }
+
+    try {
+      await roleService.assignPermissions(selectedRole.uuid, permissionUuids);
+      // await loadData();
+    } catch (err) {
+      console.error('Failed to assign permissions:', err);
+      throw err;
+    }
+  };
+
+  const handleBulkAssignPermissions = async (roleId: string, permissionUuids: Array<string>) => {
     try {
       await roleService.assignPermissions(roleId, permissionUuids);
       await loadData();
-      setShowAssignModal(false);
-      setSelectedRole(null);
     } catch (err) {
       setError('Failed to assign permissions');
     }
@@ -257,7 +269,7 @@ export default function RolePermissionAdmin() {
           <AssignmentsTab
             roles={roles}
             permissions={permissions}
-            onBulkAssign={handleAssignPermissions}
+            onBulkAssign={handleBulkAssignPermissions}
           />
         )}
 
@@ -288,7 +300,7 @@ export default function RolePermissionAdmin() {
             isOpen={showAssignModal}
             role={selectedRole}
             permissions={permissions}
-            onAssign={(permissionUuids) => handleAssignPermissions(selectedRole.uuid, permissionUuids)}
+            onAssign={handleAssignPermissions}
             onClose={() => {
               setShowAssignModal(false);
               setSelectedRole(null);

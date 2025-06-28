@@ -8,6 +8,7 @@ const rolePermissionEndpoints: Record<string, string> = {
     bulkRemove: 'role-permissions/bulk/remove',
     role: 'role-permissions/role',
     permission: 'role-permissions/permission',
+    checkAssignment: 'role-permissions/role',
 };
 
 const rolePermissionService = {
@@ -86,4 +87,4 @@ const rolePermissionService = {
     },
 };
 
-export default rolePermissionService
+export default rolePermissionService;
