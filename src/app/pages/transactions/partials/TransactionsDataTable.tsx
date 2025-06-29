@@ -164,14 +164,14 @@ const TransactionsDataTable: FunctionComponent<Props> = ({
             if (transaction?.items && Array.isArray(transaction.items)) {
                 transaction.items.forEach(item => {
                     if (item && item.productUuid) {
-                        const { categoryDetails, quantity, productUuid, barcode, sellPrice, purchasePrice, name } = item;
+                        const { productDetails, quantity, productUuid, barcode, sellPrice, purchasePrice, name } = item;
 
                         const product = {
-                            barcode: barcode || '',
+                            barcode: productDetails?.barcode || '',
                             sellPrice: Number(sellPrice) || 0,
                             purchasePrice: Number(purchasePrice) || 0,
-                            name: name || '',
-                            category: categoryDetails?.name || '',
+                            name: productDetails?.name || '',
+                            category: productDetails?.categoryDetails?.name || '',
                             quantity: Number(quantity) || 0,
                         };
 

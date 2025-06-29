@@ -10,7 +10,7 @@ interface Props {
 const ProductsTable: FunctionComponent<Props> = ({ soldProducts }) => {
 	const { mode } = useContext(ZonseThemeContext);
 
-	const columns: TableColumn<CartItem>[] = [
+	const columns = [
 		{
 			name: "Barcode",
 			selector: (row) => row.barcode || '-',
@@ -21,7 +21,7 @@ const ProductsTable: FunctionComponent<Props> = ({ soldProducts }) => {
 		},
 		{
 			name: "Category",
-			selector: (row) => row.categoryDetails.name || '-',
+			selector: (row) => row.category || '-',
 		},
 		{
 			name: "Sell Price",
@@ -57,6 +57,7 @@ const ProductsTable: FunctionComponent<Props> = ({ soldProducts }) => {
 					responsive
 					pagination
 					fixedHeader
+					paginationPerPage={20}
 					fixedHeaderScrollHeight="calc(100vh - 350px)"
 				/>
 			</div>
