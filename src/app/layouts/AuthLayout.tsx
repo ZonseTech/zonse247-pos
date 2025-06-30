@@ -31,7 +31,7 @@ const containerVariants = {
             staggerChildren: 0.2
         }
     }
-}
+} as any
 
 const itemVariants = {
     hidden: {
@@ -46,7 +46,7 @@ const itemVariants = {
             ease: "easeOut"
         }
     }
-}
+} as any
 
 const logoVariants = {
     hidden: {
@@ -71,7 +71,7 @@ const logoVariants = {
             ease: "easeInOut"
         }
     }
-}
+} as any
 
 const imageVariants = {
     hidden: {
@@ -87,7 +87,7 @@ const imageVariants = {
             delay: 0.4
         }
     }
-}
+} as any
 
 const floatingVariants = {
     float: {
@@ -98,7 +98,7 @@ const floatingVariants = {
             ease: "easeInOut"
         }
     }
-}
+} as any
 
 const AuthLayout: FunctionComponent<PropsWithChildren<{ className?: string }>> = ({ className, children }) => {
     return (
