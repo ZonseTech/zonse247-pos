@@ -5,6 +5,15 @@ import type {
 	AxiosResponse,
 	InternalAxiosRequestConfig,
 } from 'axios';
+import { Capacitor } from '@capacitor/core';
+import { Zonse247PosMobileApiOptionsInterface, Zonse247PosMobileApiPlugin } from 'zonse247-pos-mobile-api';
+
+let RoomDb: Zonse247PosMobileApiPlugin = null;
+if (Capacitor.isNativePlatform()) {
+	import('zonse247-pos-mobile-api').then(module => {
+		RoomDb = module.Zonse247PosMobileApi;
+	});
+}
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -31,7 +40,7 @@ const stopProgress = (): void => {
 	}
 };
 
-const instance: AxiosInstance = axios.create({
+const httpInstance: AxiosInstance = axios.create({
 	baseURL: API_BASE_URL,
 	timeout: 50000,
 });
@@ -43,7 +52,7 @@ enum HttpRequestResponseMessages {
 	ERR_INVALID_URL = 'The API configurations are not valid. Please double check.',
 }
 
-instance.interceptors.request.use(
+httpInstance.interceptors.request.use(
 	async (config: InternalAxiosRequestConfig<any>) => {
 		try {
 			startProgress();
@@ -88,7 +97,7 @@ instance.interceptors.request.use(
 	}
 );
 
-instance.interceptors.response.use(
+httpInstance.interceptors.response.use(
 	(res: AxiosResponse<any, any>) => {
 		stopProgress();
 		return res;
@@ -103,43 +112,33 @@ instance.interceptors.response.use(
 			case 400:
 				console.error(message);
 				break;
-
 			case 401:
 				break;
-
 			case 403:
 				sessionStorage.clear();
 				break;
-
 			case 404:
 				error.message = (response?.data as any)?.message || message || '';
 				break;
-
 			case 422:
 				error.message = (response?.data as any)?.message || message || '';
 				break;
-
 			case 500:
 				error.message = `Internal Server Error - ${message}`;
 				break;
-
 			default:
 				if (code === AxiosError.ECONNABORTED) {
 					error.message = HttpRequestResponseMessages.ECONNABORTED;
 				}
-
 				if (code === AxiosError.ERR_NETWORK) {
 					error.message = HttpRequestResponseMessages.ERR_NETWORK;
 				}
-
 				if (code === AxiosError.ERR_BAD_REQUEST) {
 					error.message = HttpRequestResponseMessages.ERR_BAD_REQUEST;
 				}
-
 				if (code === AxiosError.ERR_INVALID_URL) {
 					error.message = HttpRequestResponseMessages.ERR_INVALID_URL;
 				}
-
 				break;
 		}
 
@@ -147,30 +146,93 @@ instance.interceptors.response.use(
 	}
 );
 
-const responseBody = <T>(response: AxiosResponse<T>) => response;
+class SecureLocalAPI {
+	static async request(method: string, endpoint: string, params?: Record<string, any>, body?: any): Promise<any> {
+		if (Capacitor.isNativePlatform() && RoomDb) {
+			const result = await RoomDb.apiRequest({
+				method,
+				endpoint,
+				params: params || {},
+				body: body || {}
+			});
 
-interface APIMethodOptions {
-	showProgress?: boolean;
-	progressMessage?: string;
+			if (!result.success) {
+				throw new Error(result.error || result.message);
+			}
+
+			return {
+				data: result.data,
+				status: result.statusCode,
+				statusText: 'OK',
+				headers: {},
+				config: {} as any,
+			};
+		} else {
+			throw new Error('Local API not supported on this platform');
+		}
+	}
 }
 
+const responseBody = <T>(response: AxiosResponse<T> | { data: T; status: number }): AxiosResponse<T> => {
+	if ('config' in response) {
+		return response;
+	}
+
+	return {
+		data: response.data,
+		status: response.status,
+		statusText: 'OK',
+		headers: {},
+		config: {} as any,
+	} as AxiosResponse<T>;
+};
+
+const extractParamsFromUrl = (url: string): { cleanUrl: string; pathParams: Record<string, string> } => {
+	let cleanUrl = url;
+	const pathParams: Record<string, string> = {};
+
+	const idMatch = url.match(/\/(\d+)$/);
+	if (idMatch) {
+		pathParams.id = idMatch[1];
+		cleanUrl = url.replace(/\/\d+$/, '/:id');
+	}
+
+	return { cleanUrl, pathParams };
+};
+
 const api: APIProps = {
-	config: instance,
+	config: httpInstance,
+
 	get: async <T>(
 		url: string,
 		params?: Record<string, any>,
 		baseURL?: string,
 		options?: APIMethodOptions
 	): Promise<AxiosResponse<T, any>> => {
+		const shouldUseLocal = Capacitor.isNativePlatform() || options?.useLocal;
+
+		if (shouldUseLocal) {
+			try {
+				startProgress();
+
+				const { cleanUrl, pathParams } = extractParamsFromUrl(url);
+				const allParams = { ...pathParams, ...(params || {}) };
+
+				const response = await SecureLocalAPI.request('GET', cleanUrl, allParams);
+				stopProgress();
+				return responseBody({ data: response.data as T, status: response.status });
+			} catch (error) {
+				stopProgress();
+				throw error;
+			}
+		}
+
 		const shouldShowProgress = options?.showProgress !== false;
 
 		if (!shouldShowProgress) {
 			try {
 				startProgress();
-				const response = await instance.get<T>(url, {
-					params,
-					baseURL,
-				});
+				const response = await httpInstance.get<T>(url, { params, baseURL });
 				stopProgress();
 				return responseBody(response);
 			} catch (error) {
@@ -179,80 +241,111 @@ const api: APIProps = {
 			}
 		}
 
-		const response = await instance.get<T>(url, {
-			params,
-			baseURL,
-		});
+		const response = await httpInstance.get<T>(url, { params, baseURL });
 		return responseBody(response);
 	},
+
 	post: async <T>(
 		url: string,
 		body: T,
 		headers?: Record<string, any>,
 		options?: APIMethodOptions
 	): Promise<AxiosResponse<T, any>> => {
-		const response = await instance.post<T>(url, body, headers);
+		const shouldUseLocal = Capacitor.isNativePlatform() || options?.useLocal;
+
+		if (shouldUseLocal) {
+			try {
+				startProgress();
+
+				const response = await SecureLocalAPI.request('POST', url, {}, body);
+				stopProgress();
+				return responseBody({ data: response.data as T, status: response.status });
+			} catch (error) {
+				stopProgress();
+				throw error;
+			}
+		}
+
+		const response = await httpInstance.post<T>(url, body, headers);
 		return responseBody(response);
 	},
+
 	put: async <T>(
 		url: string,
 		body: T,
 		headers?: Record<string, any>,
 		options?: APIMethodOptions
 	): Promise<AxiosResponse<T, any>> => {
-		const response = await instance.put<T>(url, body, headers);
+		const shouldUseLocal = Capacitor.isNativePlatform() || options?.useLocal;
+
+		if (shouldUseLocal) {
+			try {
+				startProgress();
+
+				const { cleanUrl, pathParams } = extractParamsFromUrl(url);
+				const response = await SecureLocalAPI.request('PUT', cleanUrl, pathParams, body);
+				stopProgress();
+				return responseBody({ data: response.data as T, status: response.status });
+			} catch (error) {
+				stopProgress();
+				throw error;
+			}
+		}
+
+		const response = await httpInstance.put<T>(url, body, headers);
 		return responseBody(response);
 	},
+
 	delete: async <T>(
 		url: string,
 		headers?: Record<string, any>,
 		options?: APIMethodOptions
 	): Promise<AxiosResponse<T, any>> => {
-		const response = await instance.delete<T>(url, headers);
+		const shouldUseLocal = Capacitor.isNativePlatform() || options?.useLocal;
+
+		if (shouldUseLocal) {
+			try {
+				startProgress();
+
+				const { cleanUrl, pathParams } = extractParamsFromUrl(url);
+				const response = await SecureLocalAPI.request('DELETE', cleanUrl, pathParams);
+				stopProgress();
+				return responseBody({ data: response.data as T, status: response.status });
+			} catch (error) {
+				stopProgress();
+				throw error;
+			}
+		}
+
+		const response = await httpInstance.delete<T>(url, headers);
 		return responseBody(response);
 	},
+
 	patch: async <T>(
 		url: string,
 		body: T,
 		headers?: Record<string, any>,
 		options?: APIMethodOptions
 	): Promise<AxiosResponse<T, any>> => {
-		const response = await instance.patch<T>(url, body, headers);
+		const shouldUseLocal = Capacitor.isNativePlatform() || options?.useLocal;
+
+		if (shouldUseLocal) {
+			try {
+				startProgress();
+
+				const { cleanUrl, pathParams } = extractParamsFromUrl(url);
+				const response = await SecureLocalAPI.request('PATCH', cleanUrl, pathParams, body);
+				stopProgress();
+				return responseBody({ data: response.data as T, status: response.status });
+			} catch (error) {
+				stopProgress();
+				throw error;
+			}
+		}
+
+		const response = await httpInstance.patch<T>(url, body, headers);
 		return responseBody(response);
 	},
-};
-
-export type APIProps = {
-	config: AxiosInstance;
-	get: <T>(
-		url: string,
-		params?: Record<string, any>,
-		baseURL?: string,
-		options?: APIMethodOptions
-	) => Promise<AxiosResponse<T, any>>;
-	post: <T>(
-		url: string,
-		body: T,
-		headers?: Record<string, any>,
-		options?: APIMethodOptions
-	) => Promise<AxiosResponse<T, any>>;
-	put: <T>(
-		url: string,
-		body: T,
-		headers?: Record<string, any>,
-		options?: APIMethodOptions
-	) => Promise<AxiosResponse<T, any>>;
-	delete: <T>(
-		url: string,
-		headers?: Record<string, any>,
-		options?: APIMethodOptions
-	) => Promise<AxiosResponse<T, any>>;
-	patch: <T>(
-		url: string,
-		body: T,
-		headers?: Record<string, any>,
-		options?: APIMethodOptions
-	) => Promise<AxiosResponse<T, any>>;
 };
 
 export const apiUtils = {
@@ -263,6 +356,7 @@ export const apiUtils = {
 		NProgress.done();
 	},
 	getActiveRequestCount: () => activeRequests,
+	SecureLocalAPI,
 };
 
 export default api;

@@ -44,7 +44,7 @@ export const useAppInitialization = () => {
             return { success: true, verified: isVerified }
 
         } catch (error) {
-            console.error(`App initialization attempt ${attemptNumber} failed:`, error)
+            console.error(`App initialization attempt ${attemptNumber} failed:`, JSON.stringify(error, null, 2))
 
             if (attemptNumber < INIT_CONFIG.MAX_RETRY_ATTEMPTS && isRetryableError(error)) {
                 await new Promise(resolve =>

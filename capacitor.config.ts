@@ -1,13 +1,16 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
+  appId: 'com.zonse247.pos',
   appName: 'ionic-app-base',
   webDir: 'dist',
   server: {
     androidScheme: 'http'
   },
   plugins: {
+    CapacitorHttp: {
+      enabled: true,
+    },
     CapacitorSQLite: {
       iosDatabaseLocation: 'Library/CapacitorDatabase',
       iosIsEncryption: true,
