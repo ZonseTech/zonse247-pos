@@ -6,14 +6,14 @@ import type {
 	InternalAxiosRequestConfig,
 } from 'axios';
 import { Capacitor } from '@capacitor/core';
-import { Zonse247PosMobileApiOptionsInterface, Zonse247PosMobileApiPlugin } from 'zonse247-pos-mobile-api';
+// import { Zonse247PosMobileApiPlugin } from 'zonse247-pos-mobile-api';
 
-let RoomDb: Zonse247PosMobileApiPlugin = null;
-if (Capacitor.isNativePlatform()) {
-	import('zonse247-pos-mobile-api').then(module => {
-		RoomDb = module.Zonse247PosMobileApi;
-	});
-}
+let RoomDb: any = null;
+// if (Capacitor.isNativePlatform()) {
+// 	import('zonse247-pos-mobile-api').then(module => {
+// 		RoomDb = module.Zonse247PosMobileApi;
+// 	});
+// }
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -146,37 +146,37 @@ httpInstance.interceptors.response.use(
 	}
 );
 
-class SecureLocalAPI {
-	static async request(method: string, endpoint: string, params?: Record<string, any>, body?: any): Promise<any> {
-		if (Capacitor.isNativePlatform() && RoomDb) {
-			const result = await RoomDb.apiRequest({
-				method,
-				endpoint,
-				params: params || {},
-				body: body || {}
-			});
+// class SecureLocalAPI {
+// 	static async request(method: string, endpoint: string, params?: Record<string, any>, body?: any): Promise<any> {
+// 		if (Capacitor.isNativePlatform() && RoomDb) {
+// 			const result = await RoomDb.apiRequest({
+// 				method,
+// 				endpoint,
+// 				params: params || {},
+// 				body: body || {}
+// 			});
 
-			if (!result.success) {
-				throw new Error(result.error || result.message);
-			}
+// 			if (!result.success) {
+// 				throw new Error(result.error || result.message);
+// 			}
 
-			return {
-				data: result.data,
-				status: result.statusCode,
-				statusText: 'OK',
-				headers: {},
-				config: {} as any,
-			};
-		} else {
-			throw new Error('Local API not supported on this platform');
-		}
-	}
-}
+// 			return {
+// 				data: result.data,
+// 				status: result.statusCode,
+// 				statusText: 'OK',
+// 				headers: {},
+// 				config: {} as any,
+// 			};
+// 		} else {
+// 			throw new Error('Local API not supported on this platform');
+// 		}
+// 	}
+// }
 
 const responseBody = <T>(response: AxiosResponse<T> | { data: T; status: number }): AxiosResponse<T> => {
-	if ('config' in response) {
-		return response;
-	}
+	// if ('config' in response) {
+	// 	return response;
+	// }
 
 	return {
 		data: response.data,
@@ -187,18 +187,18 @@ const responseBody = <T>(response: AxiosResponse<T> | { data: T; status: number 
 	} as AxiosResponse<T>;
 };
 
-const extractParamsFromUrl = (url: string): { cleanUrl: string; pathParams: Record<string, string> } => {
-	let cleanUrl = url;
-	const pathParams: Record<string, string> = {};
+// const extractParamsFromUrl = (url: string): { cleanUrl: string; pathParams: Record<string, string> } => {
+// 	let cleanUrl = url;
+// 	const pathParams: Record<string, string> = {};
 
-	const idMatch = url.match(/\/(\d+)$/);
-	if (idMatch) {
-		pathParams.id = idMatch[1];
-		cleanUrl = url.replace(/\/\d+$/, '/:id');
-	}
+// 	const idMatch = url.match(/\/(\d+)$/);
+// 	if (idMatch) {
+// 		pathParams.id = idMatch[1];
+// 		cleanUrl = url.replace(/\/\d+$/, '/:id');
+// 	}
 
-	return { cleanUrl, pathParams };
-};
+// 	return { cleanUrl, pathParams };
+// };
 
 const api: APIProps = {
 	config: httpInstance,
@@ -209,37 +209,37 @@ const api: APIProps = {
 		baseURL?: string,
 		options?: APIMethodOptions
 	): Promise<AxiosResponse<T, any>> => {
-		const shouldUseLocal = Capacitor.isNativePlatform() || options?.useLocal;
+		// const shouldUseLocal = Capacitor.isNativePlatform() || options?.useLocal;
 
-		if (shouldUseLocal) {
-			try {
-				startProgress();
+		// if (shouldUseLocal) {
+		// 	try {
+		// 		startProgress();
 
-				const { cleanUrl, pathParams } = extractParamsFromUrl(url);
-				const allParams = { ...pathParams, ...(params || {}) };
+		// 		const { cleanUrl, pathParams } = extractParamsFromUrl(url);
+		// 		const allParams = { ...pathParams, ...(params || {}) };
 
-				const response = await SecureLocalAPI.request('GET', cleanUrl, allParams);
-				stopProgress();
-				return responseBody({ data: response.data as T, status: response.status });
-			} catch (error) {
-				stopProgress();
-				throw error;
-			}
-		}
+		// 		const response = await SecureLocalAPI.request('GET', cleanUrl, allParams);
+		// 		stopProgress();
+		// 		return responseBody({ data: response.data as T, status: response.status });
+		// 	} catch (error) {
+		// 		stopProgress();
+		// 		throw error;
+		// 	}
+		// }
 
-		const shouldShowProgress = options?.showProgress !== false;
+		// const shouldShowProgress = options?.showProgress !== false;
 
-		if (!shouldShowProgress) {
-			try {
-				startProgress();
-				const response = await httpInstance.get<T>(url, { params, baseURL });
-				stopProgress();
-				return responseBody(response);
-			} catch (error) {
-				stopProgress();
-				throw error;
-			}
-		}
+		// if (!shouldShowProgress) {
+		// 	try {
+		// 		startProgress();
+		// 		const response = await httpInstance.get<T>(url, { params, baseURL });
+		// 		stopProgress();
+		// 		return responseBody(response);
+		// 	} catch (error) {
+		// 		stopProgress();
+		// 		throw error;
+		// 	}
+		// }
 
 		const response = await httpInstance.get<T>(url, { params, baseURL });
 		return responseBody(response);
@@ -251,20 +251,20 @@ const api: APIProps = {
 		headers?: Record<string, any>,
 		options?: APIMethodOptions
 	): Promise<AxiosResponse<T, any>> => {
-		const shouldUseLocal = Capacitor.isNativePlatform() || options?.useLocal;
+		// const shouldUseLocal = Capacitor.isNativePlatform() || options?.useLocal;
 
-		if (shouldUseLocal) {
-			try {
-				startProgress();
+		// if (shouldUseLocal) {
+		// 	try {
+		// 		startProgress();
 
-				const response = await SecureLocalAPI.request('POST', url, {}, body);
-				stopProgress();
-				return responseBody({ data: response.data as T, status: response.status });
-			} catch (error) {
-				stopProgress();
-				throw error;
-			}
-		}
+		// 		const response = await SecureLocalAPI.request('POST', url, {}, body);
+		// 		stopProgress();
+		// 		return responseBody({ data: response.data as T, status: response.status });
+		// 	} catch (error) {
+		// 		stopProgress();
+		// 		throw error;
+		// 	}
+		// }
 
 		const response = await httpInstance.post<T>(url, body, headers);
 		return responseBody(response);
@@ -276,21 +276,21 @@ const api: APIProps = {
 		headers?: Record<string, any>,
 		options?: APIMethodOptions
 	): Promise<AxiosResponse<T, any>> => {
-		const shouldUseLocal = Capacitor.isNativePlatform() || options?.useLocal;
+		// const shouldUseLocal = Capacitor.isNativePlatform() || options?.useLocal;
 
-		if (shouldUseLocal) {
-			try {
-				startProgress();
+		// if (shouldUseLocal) {
+		// 	try {
+		// 		startProgress();
 
-				const { cleanUrl, pathParams } = extractParamsFromUrl(url);
-				const response = await SecureLocalAPI.request('PUT', cleanUrl, pathParams, body);
-				stopProgress();
-				return responseBody({ data: response.data as T, status: response.status });
-			} catch (error) {
-				stopProgress();
-				throw error;
-			}
-		}
+		// 		const { cleanUrl, pathParams } = extractParamsFromUrl(url);
+		// 		const response = await SecureLocalAPI.request('PUT', cleanUrl, pathParams, body);
+		// 		stopProgress();
+		// 		return responseBody({ data: response.data as T, status: response.status });
+		// 	} catch (error) {
+		// 		stopProgress();
+		// 		throw error;
+		// 	}
+		// }
 
 		const response = await httpInstance.put<T>(url, body, headers);
 		return responseBody(response);
@@ -301,21 +301,21 @@ const api: APIProps = {
 		headers?: Record<string, any>,
 		options?: APIMethodOptions
 	): Promise<AxiosResponse<T, any>> => {
-		const shouldUseLocal = Capacitor.isNativePlatform() || options?.useLocal;
+		// const shouldUseLocal = Capacitor.isNativePlatform() || options?.useLocal;
 
-		if (shouldUseLocal) {
-			try {
-				startProgress();
+		// if (shouldUseLocal) {
+		// 	try {
+		// 		startProgress();
 
-				const { cleanUrl, pathParams } = extractParamsFromUrl(url);
-				const response = await SecureLocalAPI.request('DELETE', cleanUrl, pathParams);
-				stopProgress();
-				return responseBody({ data: response.data as T, status: response.status });
-			} catch (error) {
-				stopProgress();
-				throw error;
-			}
-		}
+		// 		const { cleanUrl, pathParams } = extractParamsFromUrl(url);
+		// 		const response = await SecureLocalAPI.request('DELETE', cleanUrl, pathParams);
+		// 		stopProgress();
+		// 		return responseBody({ data: response.data as T, status: response.status });
+		// 	} catch (error) {
+		// 		stopProgress();
+		// 		throw error;
+		// 	}
+		// }
 
 		const response = await httpInstance.delete<T>(url, headers);
 		return responseBody(response);
@@ -327,21 +327,21 @@ const api: APIProps = {
 		headers?: Record<string, any>,
 		options?: APIMethodOptions
 	): Promise<AxiosResponse<T, any>> => {
-		const shouldUseLocal = Capacitor.isNativePlatform() || options?.useLocal;
+		// const shouldUseLocal = Capacitor.isNativePlatform() || options?.useLocal;
 
-		if (shouldUseLocal) {
-			try {
-				startProgress();
+		// if (shouldUseLocal) {
+		// 	try {
+		// 		startProgress();
 
-				const { cleanUrl, pathParams } = extractParamsFromUrl(url);
-				const response = await SecureLocalAPI.request('PATCH', cleanUrl, pathParams, body);
-				stopProgress();
-				return responseBody({ data: response.data as T, status: response.status });
-			} catch (error) {
-				stopProgress();
-				throw error;
-			}
-		}
+		// 		const { cleanUrl, pathParams } = extractParamsFromUrl(url);
+		// 		const response = await SecureLocalAPI.request('PATCH', cleanUrl, pathParams, body);
+		// 		stopProgress();
+		// 		return responseBody({ data: response.data as T, status: response.status });
+		// 	} catch (error) {
+		// 		stopProgress();
+		// 		throw error;
+		// 	}
+		// }
 
 		const response = await httpInstance.patch<T>(url, body, headers);
 		return responseBody(response);
@@ -356,7 +356,7 @@ export const apiUtils = {
 		NProgress.done();
 	},
 	getActiveRequestCount: () => activeRequests,
-	SecureLocalAPI,
+	// SecureLocalAPI,
 };
 
 export default api;
