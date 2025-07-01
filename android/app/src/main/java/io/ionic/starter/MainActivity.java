@@ -1,4 +1,4 @@
-package io.ionic.starter;
+package com.zonse247.pos;
 
 import com.getcapacitor.BridgeActivity;
 
