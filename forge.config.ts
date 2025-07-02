@@ -20,7 +20,6 @@ const config: ForgeConfig = {
 		new MakerRpm({}),
 		new MakerSquirrel({
 			name: 'zonse247_pos',
-			setupIcon: path.resolve('src/assets/icon.ico'),
 			authors: 'Zonse247 Devs',
 			description: 'Zonse247 POS',
 			exe: 'zonse247_pos.exe',

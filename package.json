@@ -3,7 +3,7 @@
   "private": true,
   "productName": "zonse247_pos",
   "version": "2.0.1",
-  "description": "My Electron application description",
+  "description": "zonse247 POS by Zonse247 Devs",
   "main": ".vite/build/main.js",
   "keywords": [],
   "author": {
