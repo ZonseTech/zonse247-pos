@@ -1,6 +1,5 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './assets/css/app.css'
 import './assets/css/nprogress.css'
 import App from './App'
 

@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import cors from 'cors';
 import { app } from 'electron';
 import compression from 'compression';
@@ -79,6 +78,8 @@ class Server {
 				timestamp: new Date().toISOString(),
 				environment: config.server.environment,
 				version: process.env.npm_package_version || '1.0.0',
+				...process.env,
+				...config,
 			});
 		});
 

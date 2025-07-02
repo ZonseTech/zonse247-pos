@@ -144,10 +144,14 @@ export class SealDBModel {
 		});
 	}
 
-	public async findById<T = any>(table: string, conditions: string | Record<string, any>): Promise<T | null> {
+	public async findById<T = any>(
+		table: string,
+		conditions: string | Record<string, any>
+	): Promise<T | null> {
 		return new Promise((resolve, reject) => {
 			const db = this.getDB(table);
-			const query = typeof conditions === 'string' ? { uuid: conditions } : conditions;
+			const query =
+				typeof conditions === 'string' ? { uuid: conditions } : conditions;
 
 			db.findOne(query, (err, doc) => {
 				if (err) return reject(err);
@@ -430,11 +434,18 @@ export class SealDBModel {
 			uuid: string;
 			data: any;
 		}>
-	): Promise<{ successful: number; failed: Array<{ uuid: string; error: Error }> }> {
+	): Promise<{
+		successful: number;
+		failed: Array<{ uuid: string; error: Error }>;
+	}> {
 		const results = await Promise.allSettled(
 			updates.map(async (update) => {
 				try {
-					const numReplaced = await this.update(table, update.uuid, update.data);
+					const numReplaced = await this.update(
+						table,
+						update.uuid,
+						update.data
+					);
 					return { success: true, uuid: update.uuid, numReplaced };
 				} catch (error) {
 					return { success: false, uuid: update.uuid, error: error as Error };
@@ -442,24 +453,23 @@ export class SealDBModel {
 			})
 		);
 
-		const successful = results.filter(r =>
-			r.status === 'fulfilled' && r.value.success
+		const successful = results.filter(
+			(r) => r.status === 'fulfilled' && r.value.success
 		).length;
 
 		const failed = results
-			.filter(r => r.status === 'fulfilled' && !r.value.success)
-			.map(r => ({
+			.filter((r) => r.status === 'fulfilled' && !r.value.success)
+			.map((r) => ({
 				uuid: (r as PromiseFulfilledResult<any>).value.uuid,
-				error: (r as PromiseFulfilledResult<any>).value.error
+				error: (r as PromiseFulfilledResult<any>).value.error,
 			}));
 
-		// Add rejected promises to failed array
 		results
-			.filter(r => r.status === 'rejected')
+			.filter((r) => r.status === 'rejected')
 			.forEach((r, index) => {
 				failed.push({
 					uuid: updates[index].uuid,
-					error: new Error((r as PromiseRejectedResult).reason)
+					error: new Error((r as PromiseRejectedResult).reason),
 				});
 			});
 
@@ -471,10 +481,10 @@ export class SealDBModel {
 		conditions: Array<Record<string, any>>
 	): Promise<Array<T | null>> {
 		const results = await Promise.allSettled(
-			conditions.map(condition => this.findById<T>(table, condition))
+			conditions.map((condition) => this.findById<T>(table, condition))
 		);
 
-		return results.map(result =>
+		return results.map((result) =>
 			result.status === 'fulfilled' ? result.value : null
 		);
 	}
@@ -488,26 +498,29 @@ export class SealDBModel {
 			try {
 				const db = this.getDB(table);
 
-				db.find({
-					uuid: { $in: productUuids },
-					clientUuid: auth.clientUuid,
-					shopUuid: auth.shopUuid
-				}, (err: Error | null, docs: any[]) => {
-					if (err) {
-						reject(err);
-						return;
+				db.find(
+					{
+						uuid: { $in: productUuids },
+						clientUuid: auth.clientUuid,
+						shopUuid: auth.shopUuid,
+					},
+					(err: Error | null, docs: any[]) => {
+						if (err) {
+							reject(err);
+							return;
+						}
+
+						const productMap = new Map<string, any>();
+						docs.forEach((doc) => {
+							productMap.set(doc.uuid, doc);
+						});
+
+						const results = productUuids.map(
+							(uuid) => productMap.get(uuid) || null
+						);
+						resolve(results);
 					}
-
-					// Create a map for quick lookup
-					const productMap = new Map<string, any>();
-					docs.forEach(doc => {
-						productMap.set(doc.uuid, doc);
-					});
-
-					// Return products in the same order as requested UUIDs
-					const results = productUuids.map(uuid => productMap.get(uuid) || null);
-					resolve(results);
-				});
+				);
 			} catch (error) {
 				reject(error);
 			}
@@ -528,11 +541,13 @@ export class SealDBModel {
 		skipped: Array<{ productUuid: string; reason: string }>;
 	}> {
 		try {
-			// Step 1: Fetch all products in one optimized query
-			const productUuids = inventoryUpdates.map(update => update.productUuid);
-			const products = await this.findProductsByUuids(table, productUuids, auth);
+			const productUuids = inventoryUpdates.map((update) => update.productUuid);
+			const products = await this.findProductsByUuids(
+				table,
+				productUuids,
+				auth
+			);
 
-			// Step 2: Prepare valid updates
 			const validUpdates: Array<{ uuid: string; data: any }> = [];
 			const skipped: Array<{ productUuid: string; reason: string }> = [];
 
@@ -543,7 +558,7 @@ export class SealDBModel {
 				if (!product) {
 					skipped.push({
 						productUuid: update.productUuid,
-						reason: 'Product not found'
+						reason: 'Product not found',
 					});
 					continue;
 				}
@@ -551,35 +566,34 @@ export class SealDBModel {
 				if (!product.quantity) {
 					skipped.push({
 						productUuid: update.productUuid,
-						reason: 'No quantity available'
+						reason: 'No quantity available',
 					});
 					continue;
 				}
 
 				const currentQuantity = parseInt(product.quantity.toString());
-				const newQuantity = currentQuantity - parseInt(update.quantityToDecrement.toString());
+				const newQuantity =
+					currentQuantity - parseInt(update.quantityToDecrement.toString());
 
 				validUpdates.push({
 					uuid: product.uuid,
 					data: {
 						quantity: newQuantity,
-						userId: update.userId
-					}
+						userId: update.userId,
+					},
 				});
 			}
 
-			// Step 3: Execute bulk update
 			const bulkResult = await this.bulkUpdate(table, validUpdates);
 
 			return {
 				successful: bulkResult.successful,
-				failed: bulkResult.failed.map(f => ({
+				failed: bulkResult.failed.map((f) => ({
 					productUuid: f.uuid,
-					error: f.error.message
+					error: f.error.message,
 				})),
-				skipped
+				skipped,
 			};
-
 		} catch (error) {
 			throw new Error(`Bulk inventory update failed: ${error}`);
 		}
