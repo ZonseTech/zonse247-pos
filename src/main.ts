@@ -1,3 +1,5 @@
+import '@dotenvx/dotenvx/config';
+import { loadEnvironment } from './api/utils/env-loader';
 import { app, BrowserWindow, screen, shell } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
@@ -6,6 +8,8 @@ import startServer from './api/server';
 import { Capacitor } from '@capacitor/core';
 
 let server;
+
+loadEnvironment();
 
 if (started) {
 	app.quit();
