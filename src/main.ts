@@ -1,5 +1,3 @@
-import '@dotenvx/dotenvx/config';
-import { loadEnvironment } from './api/utils/env-loader';
 import { app, BrowserWindow, screen, shell } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
@@ -9,14 +7,11 @@ import { Capacitor } from '@capacitor/core';
 
 let server;
 
-loadEnvironment();
-
 if (started) {
 	app.quit();
 }
 
-const createWindow = () => {
-	server = startServer;
+const createWindow = async () => {
 	const primaryDisplay = screen.getPrimaryDisplay();
 	const { width, height } = primaryDisplay.workAreaSize;
 
@@ -29,6 +24,7 @@ const createWindow = () => {
 			contextIsolation: true,
 			nodeIntegration: true,
 		},
+		show: false,
 	});
 
 	const menuBuilder = new MenuBuilder(mainWindow);
@@ -40,16 +36,31 @@ const createWindow = () => {
 	});
 
 	if (!Capacitor.isNativePlatform()) {
-		server.start();
+		try {
+			server = startServer;
+			await server.start();
+			console.log('Server started successfully');
+		} catch (error) {
+			console.error('Failed to start server:', error);
+			app.quit();
+			return;
+		}
 	}
 
-	if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-		mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+	try {
+		if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+			await mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+		} else {
+			await mainWindow.loadFile(
+				path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
+			);
+		}
+
+		mainWindow.show();
 		mainWindow.webContents.openDevTools();
-	} else {
-		mainWindow.loadFile(
-			path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
-		);
+	} catch (error) {
+		console.error('Failed to load window content:', error);
+		app.quit();
 	}
 };
 

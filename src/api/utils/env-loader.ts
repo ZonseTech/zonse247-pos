@@ -1,23 +1,18 @@
 import { join } from 'path';
-import { app } from 'electron';
 import { readFileSync, existsSync } from 'fs';
 
 export function loadEnvironment(): AppConfig {
-	const isDev = !app.isPackaged;
+	const envPath = join(process.resourcesPath, '.env');
 
-	if (!isDev) {
-		const envPath = join(process.resourcesPath, '.env.production');
+	if (existsSync(envPath)) {
+		const envContent = readFileSync(envPath, 'utf8');
 
-		if (existsSync(envPath)) {
-			const envContent = readFileSync(envPath, 'utf8');
-
-			envContent.split('\n').forEach((line) => {
-				const [key, value] = line.split('=');
-				if (key && value) {
-					process.env[key.trim()] = value.trim();
-				}
-			});
-		}
+		envContent.split('\n').forEach((line) => {
+			const [key, value] = line.split('=');
+			if (key && value) {
+				process.env[key.trim()] = value.trim();
+			}
+		});
 	}
 
 	return {

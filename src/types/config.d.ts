@@ -8,11 +8,17 @@ interface AppConfig {
 interface Config {
 	app: {
 		name: string;
+		appName: string;
 		version: string;
 		description: string;
+		author: string;
+		website: string;
 		users: string;
-		contact: string;
 		license: string;
+		contact: string;
+		copyright: string;
+		environment: string;
+		title: string;
 	};
 	server: {
 		port: number;
@@ -23,10 +29,10 @@ interface Config {
 	};
 	database: {
 		host: string;
+		dataPath: string;
 		port: number;
 		database: string;
 		user: string;
-		dataPath: string;
 		password: string;
 		migrate: boolean;
 		seed: boolean;
@@ -70,12 +76,21 @@ interface Config {
 		port: number;
 		user: string;
 		password: string;
-		secure: string;
 		from: string;
+		secure: boolean;
 	};
 	redis: {
 		host: string;
 		port: number;
 		password?: string;
+	};
+	client: {
+		apiUrl: string;
+		appTitle: string;
+		debugMode: boolean;
+	};
+	api: {
+		version: string;
+		prefix: string;
 	};
 }
