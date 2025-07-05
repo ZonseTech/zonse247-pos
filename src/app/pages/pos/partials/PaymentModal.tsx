@@ -94,137 +94,139 @@ const PaymentModal: FunctionComponent = () => {
                 title="Payment Processing"
                 isOpen={isPaymentModalOpen}
                 onClose={handlePayment}
-                className="max-w-4xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700"
+                className="max-w-4xl max-h-[90vh] bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
             >
-                <ConfirmPaymentModal
-                    changeAmount={changeAmount}
-                    totalAmountPaid={rawPayment}
-                    isPaymentSufficient={isPaymentSufficient}
-                    setIsPaymentModalOpen={setIsPaymentModalOpen}
-                    setPaymentMethod={setPaymentMethod}
-                    setDisplayPayment={handleClear}
-                >
-                    <div className="flex flex-col gap-6 p-2">
-                        <div className="flex flex-col gap-4">
-                            {paymentMethod !== "1" && (
-                                <div className="space-y-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                                    <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-3">
-                                        Digital Payment Details
-                                    </h3>
-                                    <FormSelectBox
-                                        label='Service Provider'
-                                        name='paymentServiceProviderUuid'
-                                        required
-                                        options={paymentServiceProvider.map((service: PaymentServiceProvider) => ({
-                                            value: service?.uuid,
-                                            label: service?.name
-                                        }))}
-                                    />
+                <div className="max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800">
+                    <ConfirmPaymentModal
+                        changeAmount={changeAmount}
+                        totalAmountPaid={rawPayment}
+                        isPaymentSufficient={isPaymentSufficient}
+                        setIsPaymentModalOpen={setIsPaymentModalOpen}
+                        setPaymentMethod={setPaymentMethod}
+                        setDisplayPayment={handleClear}
+                    >
+                        <div className="flex flex-col gap-6 p-2">
+                            <div className="flex flex-col gap-4">
+                                {paymentMethod !== "1" && (
+                                    <div className="space-y-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                        <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-3">
+                                            Digital Payment Details
+                                        </h3>
+                                        <FormSelectBox
+                                            label='Service Provider'
+                                            name='paymentServiceProviderUuid'
+                                            required
+                                            options={paymentServiceProvider.map((service: PaymentServiceProvider) => ({
+                                                value: service?.uuid,
+                                                label: service?.name
+                                            }))}
+                                        />
 
-                                    <FormInput
-                                        label='Transaction ID'
-                                        name="transactionId"
-                                        type="text"
-                                        required
-                                        placeholder="Enter transaction ID"
-                                        className='p-3'
-                                    />
-
-                                    <FormInput
-                                        label='Phone Number'
-                                        name="phoneNumber"
-                                        type="text"
-                                        inputMode='tel'
-                                        required
-                                        placeholder="Mobile phone number"
-                                        className='p-3'
-                                    />
-                                </div>
-                            )}
-
-                            <div className="space-y-3">
-                                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Total Amount</span>
-                                        <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{formatCurrency(price)}</span>
-                                    </div>
-                                </div>
-
-                                <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4 border border-emerald-200 dark:border-emerald-800">
-                                    <div className="flex flex-col gap-2">
-                                        <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Payment Amount</span>
-                                        <input
+                                        <FormInput
+                                            label='Transaction ID'
+                                            name="transactionId"
                                             type="text"
-                                            inputMode="decimal"
-                                            value={displayPayment}
-                                            name='amountPaid'
-                                            onChange={(e) => formatAndSetPayment(e.target.value)}
-                                            className="w-full bg-transparent text-right outline-none text-emerald-900 dark:text-emerald-100 
-                                                     text-2xl font-bold placeholder-emerald-400 dark:placeholder-emerald-500
-                                                     focus:ring-2 focus:ring-emerald-500/20 dark:focus:ring-emerald-400/20 rounded px-2 py-1"
-                                            placeholder="0.00"
+                                            required
+                                            placeholder="Enter transaction ID"
+                                            className='p-3'
+                                        />
+
+                                        <FormInput
+                                            label='Phone Number'
+                                            name="phoneNumber"
+                                            type="text"
+                                            inputMode='tel'
+                                            required
+                                            placeholder="Mobile phone number"
+                                            className='p-3'
                                         />
                                     </div>
-                                </div>
+                                )}
 
-                                {changeAmount > 0 && (
-                                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                                <div className="space-y-3">
+                                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
                                         <div className="flex justify-between items-center">
-                                            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Change Amount</span>
-                                            <span className="text-lg font-bold text-blue-900 dark:text-blue-100">{formatCurrency(changeAmount)}</span>
+                                            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Total Amount</span>
+                                            <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{formatCurrency(price)}</span>
                                         </div>
                                     </div>
-                                )}
+
+                                    <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4 border border-emerald-200 dark:border-emerald-800">
+                                        <div className="flex flex-col gap-2">
+                                            <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Payment Amount</span>
+                                            <input
+                                                type="text"
+                                                inputMode="decimal"
+                                                value={displayPayment}
+                                                name='amountPaid'
+                                                onChange={(e) => formatAndSetPayment(e.target.value)}
+                                                className="w-full bg-transparent text-right outline-none text-emerald-900 dark:text-emerald-100 
+                                                         text-2xl font-bold placeholder-emerald-400 dark:placeholder-emerald-500
+                                                         focus:ring-2 focus:ring-emerald-500/20 dark:focus:ring-emerald-400/20 rounded px-2 py-1"
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {changeAmount > 0 && (
+                                        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Change Amount</span>
+                                                <span className="text-lg font-bold text-blue-900 dark:text-blue-100">{formatCurrency(changeAmount)}</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Payment Keypad</h3>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {[1, 2, 3, 'AC', 4, 5, 6, '←', 7, 8, 9, '.', '', 0, ''].map((key, idx) => {
+                                        if (key === '') return <div key={idx}></div>;
+
+                                        let onClick = () => {
+                                            /* Handle on click */
+                                        };
+                                        let className = 'bg-gradient-to-b from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 text-slate-700 border border-slate-300';
+                                        let darkClassName = 'dark:from-slate-600 dark:to-slate-700 dark:hover:from-slate-500 dark:hover:to-slate-600 dark:text-slate-100 dark:border-slate-500';
+
+                                        if (typeof key === 'number') {
+                                            onClick = () => handleNumberInput(key);
+                                        } else if (key === 'AC') {
+                                            onClick = handleClear;
+                                            className = 'bg-gradient-to-b from-red-400 to-red-500 hover:from-red-500 hover:to-red-600 text-white border-red-500';
+                                            darkClassName = 'dark:from-red-500 dark:to-red-600 dark:hover:from-red-600 dark:hover:to-red-700';
+                                        } else if (key === '←') {
+                                            onClick = handleBackspace;
+                                            className = 'bg-gradient-to-b from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white border-orange-500';
+                                            darkClassName = 'dark:from-orange-500 dark:to-orange-600 dark:hover:from-orange-600 dark:hover:to-orange-700';
+                                        } else if (key === '.') {
+                                            onClick = handleDecimalPoint;
+                                            className = 'bg-gradient-to-b from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white border-blue-500';
+                                            darkClassName = 'dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700';
+                                        }
+
+                                        return (
+                                            <button
+                                                key={idx}
+                                                onClick={onClick}
+                                                type="button"
+                                                className={`${className} ${darkClassName} 
+                                                          h-12 rounded-lg text-lg font-semibold shadow-sm
+                                                          hover:shadow-md active:scale-95 
+                                                          focus:outline-none focus:ring-2 focus:ring-blue-500/20
+                                                          transition-all duration-150 ease-in-out`}
+                                            >
+                                                {key}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         </div>
-
-                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
-                            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Payment Keypad</h3>
-                            <div className="grid grid-cols-4 gap-2">
-                                {[1, 2, 3, 'AC', 4, 5, 6, '←', 7, 8, 9, '.', '', 0, ''].map((key, idx) => {
-                                    if (key === '') return <div key={idx}></div>;
-
-                                    let onClick = () => {
-                                        /* Handle on click */
-                                    };
-                                    let className = 'bg-gradient-to-b from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 text-slate-700 border border-slate-300';
-                                    let darkClassName = 'dark:from-slate-600 dark:to-slate-700 dark:hover:from-slate-500 dark:hover:to-slate-600 dark:text-slate-100 dark:border-slate-500';
-
-                                    if (typeof key === 'number') {
-                                        onClick = () => handleNumberInput(key);
-                                    } else if (key === 'AC') {
-                                        onClick = handleClear;
-                                        className = 'bg-gradient-to-b from-red-400 to-red-500 hover:from-red-500 hover:to-red-600 text-white border-red-500';
-                                        darkClassName = 'dark:from-red-500 dark:to-red-600 dark:hover:from-red-600 dark:hover:to-red-700';
-                                    } else if (key === '←') {
-                                        onClick = handleBackspace;
-                                        className = 'bg-gradient-to-b from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white border-orange-500';
-                                        darkClassName = 'dark:from-orange-500 dark:to-orange-600 dark:hover:from-orange-600 dark:hover:to-orange-700';
-                                    } else if (key === '.') {
-                                        onClick = handleDecimalPoint;
-                                        className = 'bg-gradient-to-b from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white border-blue-500';
-                                        darkClassName = 'dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700';
-                                    }
-
-                                    return (
-                                        <button
-                                            key={idx}
-                                            onClick={onClick}
-                                            type="button"
-                                            className={`${className} ${darkClassName} 
-                                                      h-12 rounded-lg text-lg font-semibold shadow-sm
-                                                      hover:shadow-md active:scale-95 
-                                                      focus:outline-none focus:ring-2 focus:ring-blue-500/20
-                                                      transition-all duration-150 ease-in-out`}
-                                        >
-                                            {key}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </div>
-                </ConfirmPaymentModal>
+                    </ConfirmPaymentModal>
+                </div>
             </Modal>
         </Fragment>
     );

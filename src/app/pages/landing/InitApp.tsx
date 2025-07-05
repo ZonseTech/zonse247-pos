@@ -66,10 +66,6 @@ const InitApp: FunctionComponent = () => {
                     timeoutPromise
                 ])
 
-                if (!isMountedRef.current) {
-                    return { success: false, error: 'Component unmounted' }
-                }
-
                 const isVerified = validateSettingsResponse(settings)
 
                 setState((prev) => ({
@@ -85,10 +81,6 @@ const InitApp: FunctionComponent = () => {
                     `App initialization attempt ${attemptNumber} failed:`,
                     error
                 )
-
-                if (!isMountedRef.current) {
-                    return { success: false, error: 'Component unmounted' }
-                }
 
                 if (
                     attemptNumber < INIT_CONFIG.MAX_RETRY_ATTEMPTS &&
@@ -127,12 +119,10 @@ const InitApp: FunctionComponent = () => {
         initializeApp()
     }, [initializeApp])
 
-    // Initialize app on mount
     useEffect(() => {
         initializeApp()
     }, [initializeApp])
 
-    // Handle navigation after successful initialization
     useEffect(() => {
         if (!state.isLoading && !state.error) {
             if (state.isAccountVerified) {
@@ -143,7 +133,6 @@ const InitApp: FunctionComponent = () => {
         }
     }, [state.isLoading, state.error, state.isAccountVerified, navigate])
 
-    // Cleanup on unmount
     useEffect(() => {
         return () => {
             isMountedRef.current = false
