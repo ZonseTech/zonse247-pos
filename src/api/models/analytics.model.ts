@@ -7,14 +7,15 @@ import {
     CUSTOMERS_DB,
 } from '../databases/local/tables';
 import { sealDBModel } from '../databases/local';
+import dayjs from 'dayjs';
 
 export class AnalyticsModel {
     static async getMonthlySalesData(userUuid: string, year: number, month: number): Promise<Array<MonthlySales>> {
         const lastDayOfMonth = new Date(year, month, 0);
         const firstDayOfMonth = new Date(year, month - 1, 1);
 
-        const endDate = lastDayOfMonth.toISOString().split('T')[0];
-        const startDate = firstDayOfMonth.toISOString().split('T')[0];
+        const endDate = dayjs(lastDayOfMonth).format('YYYY-MM-DD');
+        const startDate = dayjs(firstDayOfMonth).format('YYYY-MM-DD');
 
         const transactions: Array<Transaction> = await sealDBModel.find(
             TRANSACTIONS_DB,
@@ -31,15 +32,30 @@ export class AnalyticsModel {
         const daysInMonth = lastDayOfMonth.getDate();
 
         for (let day = 1; day <= daysInMonth; day++) {
-            const currentDate = new Date(year, month - 1, day);
-            const dateString = currentDate.toISOString().split('T')[0];
+            const currentDate = dayjs().format('YYYY-MM-DD');
+
+            console.log('====================================');
+            console.log(currentDate);
+            console.log('====================================');
 
             const dayTransactions = transactions.filter(
-                (transaction) =>
-                    transaction.date.toString().split('T')[0] === dateString
+                (transaction) => {
+                    const t = dayjs(transaction.date).format('YYYY-MM-DD')
+
+                    console.log('====================================');
+                    console.log(t);
+                    console.log('====================================');
+
+                    return t === currentDate
+                }
             );
 
             const totalAmount = dayTransactions.reduce((sum, transaction) => {
+
+                console.log('====================================');
+                console.log('transaction', transaction.date);
+                console.log('====================================');
+
                 return sum + (transaction.total || 0);
             }, 0);
 
@@ -150,7 +166,7 @@ export class AnalyticsModel {
             };
 
             productSummary.set(productUuid, {
-                quantity: existing.quantity + order.quantity,
+                quantity: parseInt(existing.quantity?.toString()) + parseInt(order.quantity),
                 summedSellPrice:
                     existing.summedSellPrice + order.sellPrice * order.quantity,
             });
@@ -160,9 +176,10 @@ export class AnalyticsModel {
 
         productSummary.forEach((summary, productUuid: string) => {
             const product = productMap.get(productUuid);
+
             if (product) {
                 if (product.uuid) {
-                    const categoryKey = product.uuid.toString();
+                    const categoryKey = product.categoryUuid.toString();
                     if (categoryMap.has(categoryKey)) {
                         product.categoryDetails = categoryMap.get(categoryKey);
                     }
