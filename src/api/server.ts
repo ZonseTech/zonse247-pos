@@ -80,8 +80,6 @@ class Server {
 				timestamp: new Date().toISOString(),
 				environment: config.server.environment,
 				version: process.env.npm_package_version || '1.0.0',
-				...config,
-				...process.env,
 			});
 		});
 
