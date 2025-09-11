@@ -12,6 +12,7 @@ interface Product {
     sellPrice?: string;
     promoPrice?: string;
     customPrice?: string;
+    discount?: number;
     categoryUuid?: string;
     quantity?: string | number;
     orderItems?: number;
