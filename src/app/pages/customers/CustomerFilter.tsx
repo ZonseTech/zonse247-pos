@@ -124,7 +124,7 @@ const CustomerFilter: FunctionComponent = () => {
 
     return (
         <Fragment>
-            <div className="flex mb-4 px-2.5 pt-2.5">
+            <div className="flex w-full items-center">
                 <Select
                     value={options.find(opt => opt.value.toString() === customer.toString())}
                     onChange={(selectedOption) => {

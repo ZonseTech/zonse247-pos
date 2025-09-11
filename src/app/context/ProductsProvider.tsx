@@ -219,6 +219,7 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
                 name: product.name,
                 purchasePrice: parseFloat(product.costPrice || '0'),
                 sellPrice: price,
+                discount: product.discount ?? 0,
                 quantity: isConsumableProduct ? 0 : quantity,
                 categoryUuid: product.categoryUuid.toString(),
             }]);
@@ -261,9 +262,9 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
         const prevItem = cart.find(item => item.productUuid === id) as CartItem;
         const isConsumable = prevItem.categoryUuid === DEFAULT_SEED_KEY
 
-        if (isConsumable && quantity < 0)
+        if (!isConsumable && quantity < 1)
             return
-        if (quantity < 1) return;
+        // if (quantity < 1) return;
 
         setCart(prev => prev.map(item =>
             item.productUuid === id ? { ...item, quantity } : item

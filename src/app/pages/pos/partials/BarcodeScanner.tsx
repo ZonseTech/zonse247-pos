@@ -1,14 +1,46 @@
-import { HiOutlineQrcode } from 'react-icons/hi';
-import { Button, Input } from '../../../components';
+import { Input } from '../../../components';
 import { useProducts } from '../../../context/ProductsProvider';
 import { FunctionComponent, useState, useEffect, Fragment, useRef } from 'react';
 import { Confirm } from 'notiflix';
+import { createPortal } from 'react-dom';
+import { useFocusManager } from '../../../hooks/useFocusManager';
 
-const BarcodeScanner: FunctionComponent = () => {
+interface BarcodeScannerProps {
+    externalInput?: string;
+    onExternalInputProcessed?: () => void;
+    focusManager: ReturnType<typeof useFocusManager>;
+}
+
+const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
+    externalInput = '',
+    onExternalInputProcessed,
+    focusManager
+}) => {
     const [barcode, setBarcode] = useState('');
     const { products, addToCart } = useProducts();
     const inputRef = useRef<HTMLInputElement>(null);
+    const dropdownRef = useRef<HTMLDivElement>(null);
     const [filteredProduct, setFilteredProduct] = useState(products);
+
+    const isActive = focusManager.isActive('barcode');
+
+    useEffect(() => {
+        if (externalInput !== '' && isActive) {
+            if (externalInput === 'Del') {
+                setBarcode(prev => prev.slice(0, -1));
+            } else if (externalInput === 'OK') {
+                handleManualEntry();
+            } else if (externalInput === '•') {
+                setBarcode(prev => prev + '.');
+            } else {
+                setBarcode(prev => prev + externalInput);
+            }
+
+            if (onExternalInputProcessed) {
+                onExternalInputProcessed();
+            }
+        }
+    }, [externalInput, isActive]);
 
     useEffect(() => {
         const handleBarcodeScanner = (e: KeyboardEvent) => {
@@ -39,10 +71,29 @@ const BarcodeScanner: FunctionComponent = () => {
     }, [barcode, products, addToCart]);
 
     useEffect(() => {
-        if (inputRef.current) {
+        // Auto-focus when scanner becomes active
+        if (isActive && inputRef.current) {
             inputRef.current.focus();
         }
-    }, []);
+    }, [isActive]);
+
+    useEffect(() => {
+        if (barcode.trim() !== '' && filteredProduct.length > 0 && inputRef.current && dropdownRef.current) {
+            const inputRect = inputRef.current.getBoundingClientRect();
+            const dropdown = dropdownRef.current;
+
+            const top = inputRect.bottom + window.scrollY;
+            const left = inputRect.left + window.scrollX;
+
+            Object.assign(dropdown.style, {
+                position: 'fixed',
+                top: `${top}px`,
+                left: `${left}px`,
+                width: `${inputRect.width}px`,
+                zIndex: '9999',
+            });
+        }
+    }, [barcode, filteredProduct]);
 
     const handleManualEntry = () => {
         const product = products.find(p => p.barcode.toString() === barcode.trim());
@@ -50,60 +101,87 @@ const BarcodeScanner: FunctionComponent = () => {
             addToCart(product);
             setBarcode('');
         } else {
-            Confirm.show('Product not found', 'Product not found. Please check the barcode.', 'Ok');
+            if (barcode.trim() !== '') {
+                Confirm.show('Product not found', 'Product not found. Please check the barcode.', 'Ok');
+            }
         }
+    };
+
+    const handleInputFocus = () => {
+        // Set barcode scanner as active when focused
+        focusManager.setActiveComponent('barcode');
+    };
+
+    const handleInputBlur = () => {
+        // Clear focus when input loses focus (with a small delay to allow for dropdown interactions)
+        setTimeout(() => {
+            if (document.activeElement !== inputRef.current) {
+                focusManager.clearFocus();
+            }
+        }, 100);
+    };
+
+    const handleInputClick = () => {
+        // Also set active on click
+        focusManager.setActiveComponent('barcode');
     };
 
     return (
         <Fragment>
-            <div className="flex px-2.5">
+            <div className="flex w-full">
                 <Input
                     ref={inputRef}
                     type="text"
-                    placeholder="Scan barcode or type the number then hit enter"
                     value={barcode}
                     onChange={(e) => {
                         const value = e.target.value;
-                        const cleanedValue = value.endsWith('$') ? value.slice(0, -1) : value;
+                        const cleanedValue = value.endsWith("'") ? value.slice(0, -1) : value;
                         setBarcode(cleanedValue);
                     }}
-                    className="flex-grow p-3 border rounded-l-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:border-transparent transition-colors"
+                    className={`w-full p-2 border-2 border-gray-800 focus:outline-none text-lg text-center transition-all duration-200 ${isActive ? 'ring-2 ring-blue-500 dark:ring-blue-400 bg-blue-50 dark:bg-blue-900/20' : ''
+                        }`}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             handleManualEntry();
                         }
                     }}
+                    onFocus={handleInputFocus}
+                    onBlur={handleInputBlur}
+                    onClick={handleInputClick}
                 />
-                <Button
-                    className='text-white dark:text-gray-100 p-3 border border-l-0 rounded-l-none rounded-r-md bg-current dark:bg-emerald-600 hover:bg-emerald-700 dark:hover:bg-emerald-500 border-emerald-600 dark:border-emerald-600 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors flex items-center gap-2 font-medium'
-                    onClick={handleManualEntry}
-                    disabled={barcode.trim() === ''}>
-                    <HiOutlineQrcode className='w-5 h-5' />
-                    <span>Scan</span>
-                </Button>
             </div>
 
-            {barcode.trim() !== '' && filteredProduct.length > 0 && (
-                <div className="border border-gray-200 dark:border-gray-700 rounded-lg mt-3 max-h-60 overflow-y-auto bg-white dark:bg-gray-900 shadow-sm dark:shadow-lg">
-                    {filteredProduct.map(product => (
-                        <div
-                            key={product.uuid}
-                            className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer flex justify-between items-center border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors"
-                            onClick={() => {
-                                addToCart(product);
-                                setBarcode('');
-                            }}
-                        >
-                            <span className="font-medium text-gray-900 dark:text-gray-100 truncate pr-4">
-                                {product.name}
-                            </span>
-                            <span className="text-gray-500 dark:text-gray-400 font-mono text-sm flex-shrink-0">
-                                {product.barcode}
-                            </span>
-                        </div>
-                    ))}
-                </div>
-            )}
+            {barcode.trim() !== '' && filteredProduct.length > 0 &&
+                createPortal(
+                    <div
+                        ref={dropdownRef}
+                        className="border border-gray-200 dark:border-gray-700 rounded-none max-h-60 overflow-y-auto bg-white dark:bg-gray-900 shadow-sm dark:shadow-lg"
+                        data-dropdown="true"
+                    >
+                        {filteredProduct.map(product => (
+                            <div
+                                key={product.uuid}
+                                className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer flex justify-between items-center border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors"
+                                onClick={() => {
+                                    addToCart(product);
+                                    setBarcode('');
+                                    if (inputRef.current) {
+                                        inputRef.current.focus();
+                                    }
+                                }}
+                            >
+                                <span className="font-medium text-gray-900 dark:text-gray-100 truncate pr-4">
+                                    {product.name}
+                                </span>
+                                <span className="text-gray-500 dark:text-gray-400 font-mono text-sm flex-shrink-0">
+                                    {product.barcode}
+                                </span>
+                            </div>
+                        ))}
+                    </div>,
+                    document.body
+                )
+            }
         </Fragment>
     );
 };
