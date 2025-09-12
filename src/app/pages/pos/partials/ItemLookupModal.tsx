@@ -24,7 +24,6 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
     const [isTouchDevice, setIsTouchDevice] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // Detect if device supports touch
     useEffect(() => {
         setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
     }, []);
@@ -66,7 +65,6 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
     };
 
     const handleInputBlur = () => {
-        // Small delay to allow keyboard button clicks to register
         setTimeout(() => {
             setShowVirtualKeyboard(false);
         }, 100);
@@ -74,7 +72,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
 
     const handleKeyPress = (key: string) => {
         setSearchTerm(prev => prev + key);
-        // Keep focus on input
+
         if (inputRef.current) {
             inputRef.current.focus();
         }
@@ -95,7 +93,6 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
     };
 
     const handleEnter = () => {
-        // If there's exactly one product, add it to cart
         if (filteredProducts.length === 1) {
             const product = filteredProducts[0];
             const quantity = parseFloat((product.quantity || 0).toString());
@@ -110,20 +107,20 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-gradient-to-br from-purple-100 to-blue-100 rounded-lg shadow-xl w-full max-w-6xl h-5/6 flex flex-col overflow-hidden">
-                <div className="flex items-center justify-between p-6 bg-gradient-to-r from-purple-200 to-blue-200 border-b border-gray-300">
-                    <h2 className="text-2xl uppercase font-bold text-gray-800">
+            <div className="bg-white rounded-sm shadow-xl w-full max-w-6xl h-5/6 flex flex-col overflow-hidden border border-gray-200">
+                <div className="flex items-center justify-between p-6 bg-slate-50 border-b border-gray-200">
+                    <h2 className="text-2xl uppercase font-bold text-slate-800">
                         Search
                     </h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-600 hover:text-gray-800 transition-colors"
+                        className="text-slate-500 hover:text-slate-700 transition-colors p-1 rounded-sm hover:bg-slate-200"
                     >
                         <X className="w-6 h-6" />
                     </button>
                 </div>
 
-                <div className="p-6 bg-white/80 border-b border-gray-300">
+                <div className="p-6 bg-gray-50 border-b border-gray-200">
                     <input
                         ref={inputRef}
                         type="text"
@@ -132,21 +129,20 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                         onFocus={handleInputFocus}
                         onBlur={handleInputBlur}
                         placeholder="Search product name or code..."
-                        className="w-full px-4 py-3 text-lg text-center border border-gray-300 rounded-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 bg-white"
+                        className="w-full px-4 py-3 text-lg text-center border border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm"
                         autoFocus
-                        // Disable browser virtual keyboard on touch devices when our virtual keyboard is shown
                         inputMode={isTouchDevice && showVirtualKeyboard ? "none" : "text"}
                     />
                 </div>
 
-                <div className="grid grid-cols-12 bg-gradient-to-r from-purple-200 to-blue-200 gap-4 px-6 py-4 font-bold text-lg text-gray-800 border-b border-gray-400">
+                <div className="grid grid-cols-12 bg-slate-100 gap-4 px-6 py-4 font-semibold text-lg text-slate-700 border-b border-gray-200">
                     <div className="col-span-6">PRODUCT NAME</div>
                     <div className="col-span-4 text-right">CURRENT SELLING PRICE</div>
                 </div>
 
-                <div className={`flex-1 overflow-auto bg-white/90 ${showVirtualKeyboard ? 'pb-0' : ''}`}>
+                <div className={`flex-1 overflow-auto bg-white ${showVirtualKeyboard ? 'pb-0' : ''}`}>
                     {filteredProducts.length > 0 ? (
-                        <div className="divide-y divide-gray-300">
+                        <div className="divide-y divide-gray-100">
                             {filteredProducts.map((product, index) => {
                                 const quantity = parseFloat((product.quantity || 0).toString());
                                 const isOutOfStock = quantity <= 0;
@@ -157,14 +153,14 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                                     <div
                                         key={product.uuid}
                                         onClick={() => handleAddToCart(product)}
-                                        className={`grid grid-cols-12 gap-4 px-6 py-4 text-lg cursor-pointer ${index % 2 === 0 ? 'bg-purple-50/80' : 'bg-blue-50/80'
-                                            } ${isOutOfStock ? 'opacity-60' : 'hover:bg-purple-100/80'}`}
+                                        className={`grid grid-cols-12 gap-4 px-6 py-4 text-lg cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                                            } ${isOutOfStock ? 'opacity-60' : 'hover:bg-blue-50 hover:shadow-sm'} transition-colors duration-150`}
                                     >
-                                        <div className="col-span-6 font-semibold text-gray-800 flex items-center">
+                                        <div className="col-span-6 font-medium text-slate-800 flex items-center">
                                             {product.name}
-                                            <span className="ml-2 text-sm text-gray-600">({product.categoryDetails?.name})</span>
+                                            <span className="ml-2 text-sm text-slate-500 font-normal">({product.categoryDetails?.name})</span>
                                         </div>
-                                        <div className="col-span-4 text-right font-bold flex items-center justify-end">
+                                        <div className="col-span-4 text-right font-semibold flex items-center justify-end text-slate-900">
                                             {formatCurrency(parseFloat((product.sellPrice || 0).toString()))}
                                         </div>
                                     </div>
@@ -172,12 +168,12 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                             })}
                         </div>
                     ) : (
-                        <div className="flex flex-1 flex-col items-center justify-center text-gray-600 py-12">
-                            <Package className="w-16 h-16 mb-4 opacity-50" />
-                            <h3 className="text-xl font-medium mb-2">
+                        <div className="flex flex-1 flex-col items-center justify-center text-slate-500 py-12">
+                            <Package className="w-16 h-16 mb-4 text-slate-400" />
+                            <h3 className="text-xl font-medium mb-2 text-slate-600">
                                 No products found
                             </h3>
-                            <p className="text-lg max-w-md text-center opacity-75">
+                            <p className="text-lg max-w-md text-center text-slate-500">
                                 {searchTerm
                                     ? 'No products match your current search criteria.'
                                     : 'Start typing to search for products.'
@@ -192,7 +188,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                     onBackspace={handleBackspace}
                     onSpace={handleSpace}
                     onEnter={handleEnter}
-                    className="border-t border-gray-300"
+                    className="border-t border-gray-200"
                 />
             </div>
         </div>

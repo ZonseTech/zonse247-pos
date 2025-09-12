@@ -6,7 +6,7 @@ const Panel: FunctionComponent<PropsWithChildren<{ size?: Size, className?: stri
     const sizeClass = size === '1' || size === 'full' ? 'w-full' : `w-${size}`
 
     return (
-        <div className={`${sizeClass} flex flex-col h-full bg-white dark:bg-gray-800 ${className}`}>
+        <div className={`${sizeClass} flex flex-col h-full ${className}`}>
             <div className="flex flex-col h-full overflow-hidden p-0">
                 {children}
             </div>
