@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-export type FocusableComponent = 'barcode' | 'quantity' | null;
+export type FocusableComponent = 'barcode' | 'quantity' | 'cash' | null;
 
 interface FocusManagerState {
     activeComponent: FocusableComponent;

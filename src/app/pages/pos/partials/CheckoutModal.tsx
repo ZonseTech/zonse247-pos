@@ -44,9 +44,6 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
             setAccountNumber('');
             setProcessing(false);
             setActiveInput(null);
-            if (checkoutType === CHECKOUT.CASH) {
-                focusManager.setActiveComponent('cash');
-            }
         }
     }, [isOpen, checkoutType, focusManager]);
 

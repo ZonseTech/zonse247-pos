@@ -115,38 +115,6 @@ const POSSystem: FunctionComponent = () => {
         }
     };
 
-    const handlePriceNumpadInput = (itemId: string, value: string) => {
-        if (value === 'Del') {
-            const currentValue = customPriceInputs[itemId] || '';
-            if (currentValue.length > 0) {
-                const newValue = currentValue.slice(0, -1);
-                handlePriceInputChange(itemId, newValue);
-            }
-        } else if (value === 'OK') {
-            focusManager.clearFocus();
-        } else if (value === '•') {
-            const currentValue = customPriceInputs[itemId] || '';
-            if (!currentValue.includes('.')) {
-                const newValue = currentValue === '' ? '0.' : currentValue + '.';
-                handlePriceInputChange(itemId, newValue);
-            }
-        } else if (!isNaN(parseInt(value))) {
-            const currentValue = customPriceInputs[itemId] || '';
-            let newValue;
-
-            if (currentValue === '0') {
-                newValue = value;
-            } else {
-                newValue = currentValue + value;
-            }
-
-            const numericValue = parseFloat(newValue);
-            if (numericValue <= 999999.99) {
-                handlePriceInputChange(itemId, newValue);
-            }
-        }
-    };
-
     const handlePriceInputChange = (itemId: string, value: string) => {
         setCustomPriceInputs(prev => ({
             ...prev,
@@ -340,11 +308,11 @@ const POSSystem: FunctionComponent = () => {
             />
 
             <CheckoutModal
+                total={total}
+                checkoutType={checkoutType}
                 isOpen={isCheckoutModalOpen}
                 onClose={() => setIsCheckoutModalOpen(false)}
-                total={total}
                 onCompleteTransaction={handleCompleteTransaction}
-                checkoutType={checkoutType}
             />
         </div>
     );
