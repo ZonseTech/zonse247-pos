@@ -1,20 +1,50 @@
 import { FunctionComponent } from 'react';
 import { useFocusManager } from '../hooks/useFocusManager';
 
+type NumpadType = 'standard' | 'simple' | 'basic';
+
 interface NumpadProps {
     onButtonClick: (value: string) => void;
     className?: string;
     focusManager?: ReturnType<typeof useFocusManager>;
+    type?: NumpadType;
 }
 
-const Numpad: FunctionComponent<NumpadProps> = ({ onButtonClick, className = '', focusManager }) => {
-    const numpadButtons = [
-        '1', '2', '3',
-        '4', '5', '6',
-        '7', '8', '9',
-        '0', '00', '000',
-        'Del', '•', 'OK'
-    ];
+const Numpad: FunctionComponent<NumpadProps> = ({
+    onButtonClick,
+    className = '',
+    focusManager,
+    type = 'standard'
+}) => {
+    const getNumpadButtons = (numpadType: NumpadType): string[] => {
+        switch (numpadType) {
+            case 'simple':
+                return [
+                    '1', '2', '3',
+                    '4', '5', '6',
+                    '7', '8', '9',
+                    'Del', '0', 'OK'
+                ];
+            case 'basic':
+                return [
+                    '1', '2', '3',
+                    '4', '5', '6',
+                    '7', '8', '9',
+                    '•', '0', 'Del'
+                ];
+            case 'standard':
+            default:
+                return [
+                    '1', '2', '3',
+                    '4', '5', '6',
+                    '7', '8', '9',
+                    '0', '00', '000',
+                    'Del', '•', 'OK'
+                ];
+        }
+    };
+
+    const numpadButtons = getNumpadButtons(type);
 
     const getButtonClass = (btn: string): string => {
         let buttonClass = "font-bold text-3xl py-10 font-bold transition-all ";
@@ -28,54 +58,26 @@ const Numpad: FunctionComponent<NumpadProps> = ({ onButtonClick, className = '',
         return buttonClass;
     };
 
-    const getFocusIndicatorText = (): string => {
-        if (!focusManager) return 'NUMPAD';
-
-        const { activeComponent, activeItemId } = focusManager;
-
-        if (activeComponent === 'barcode') {
-            return 'SCANNING MODE';
-        } else if (activeComponent === 'quantity' && activeItemId) {
-            return 'QUANTITY MODE';
-        }
-
-        return 'NUMPAD - CLICK TO FOCUS';
-    };
-
-    const getFocusIndicatorColor = (): string => {
-        if (!focusManager) return 'bg-gray-600';
-
-        const { activeComponent } = focusManager;
-
-        if (activeComponent === 'barcode') {
-            return 'bg-blue-600';
-        } else if (activeComponent === 'quantity') {
-            return 'bg-green-600';
-        }
-
-        return 'bg-gray-600';
-    };
-
     return (
         <div className={`${className}`}>
-            <div className={`${getFocusIndicatorColor()} text-white text-center py-2 mb-2 text-sm font-bold`}>
-                {getFocusIndicatorText()}
-            </div>
-
             <div className="grid grid-cols-3 gap-1 numpad-container">
                 {numpadButtons.map((btn, index) => (
-                    <button
-                        key={index}
-                        onMouseDown={(e) => {
-                            e.preventDefault();
-                            onButtonClick(btn);
-                        }}
-                        className={getButtonClass(btn)}
-                        disabled={!focusManager || (!focusManager.activeComponent)}
-                        tabIndex={-1}
-                    >
-                        {btn}
-                    </button>
+                    btn ? (
+                        <button
+                            key={index}
+                            onMouseDown={(e) => {
+                                e.preventDefault();
+                                onButtonClick(btn);
+                            }}
+                            className={getButtonClass(btn)}
+                            disabled={!focusManager || (!focusManager.activeComponent)}
+                            tabIndex={-1}
+                        >
+                            {btn}
+                        </button>
+                    ) : (
+                        <div key={index} className="py-10" />
+                    )
                 ))}
             </div>
         </div>
