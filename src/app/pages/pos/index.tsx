@@ -88,8 +88,6 @@ const POSSystem: FunctionComponent = () => {
             setNumpadInput(value);
         } else if (focusManager.activeComponent === 'quantity' && focusManager.activeItemId) {
             handleQuantityNumpadInput(focusManager.activeItemId, value);
-        } else if (focusManager.activeComponent === 'price' && focusManager.activeItemId) {
-            handlePriceNumpadInput(focusManager.activeItemId, value);
         }
     };
 
