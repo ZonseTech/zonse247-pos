@@ -14,7 +14,9 @@ interface FunctionButtonsProps {
     onItemLookup?: () => void;
     onReprint?: () => void;
     onDiscount?: () => void;
-    onCheckout?: () => void;
+    onBankTransfer?: () => void;
+    onEPayment?: () => void;
+    onPayCash?: () => void;
 }
 
 const FunctionButtons: FunctionComponent<FunctionButtonsProps> = ({
@@ -24,7 +26,9 @@ const FunctionButtons: FunctionComponent<FunctionButtonsProps> = ({
     onItemLookup,
     onReprint,
     onDiscount,
-    onCheckout
+    onBankTransfer,
+    onEPayment,
+    onPayCash,
 }) => {
     const buttonConfigs: Array<FunctionButtonConfig> = [
         { label: 'VOID(F4)\nSALE', color: 'bg-red-500', action: 'void', shortcut: 'F4' },
@@ -33,7 +37,9 @@ const FunctionButtons: FunctionComponent<FunctionButtonsProps> = ({
         { label: 'ITEM(F2)\nLOOKUP', color: 'bg-blue-500', action: 'lookup', shortcut: 'F2' },
         { label: 'REPRINT\n(F11)', color: 'bg-blue-500', action: 'reprint', shortcut: 'F11' },
         { label: 'DISCOUNT\n(F9)', color: 'bg-blue-500', action: 'discount', shortcut: 'F9' },
-        { label: 'CHECKOUT\n(F10)', color: 'bg-orange-500', action: 'checkout', shortcut: 'F10' },
+        { label: 'BANK(F5)\nTRASFER', color: 'bg-green-500', action: 'bank-transfer', shortcut: 'F5' },
+        { label: 'E(F8)\nPAYMENT', color: 'bg-green-500', action: 'e-payment', shortcut: 'F8' },
+        { label: 'PAY(F10)\nCASH', color: 'bg-green-500', action: 'pay-cash', shortcut: 'F10' },
     ];
 
     const handleButtonClick = (action: string) => {
@@ -56,8 +62,14 @@ const FunctionButtons: FunctionComponent<FunctionButtonsProps> = ({
             case 'discount':
                 onDiscount?.();
                 break;
-            case 'checkout':
-                onCheckout?.();
+            case 'bank-transfer':
+                onBankTransfer?.();
+                break;
+            case 'e-payment':
+                onEPayment?.();
+                break;
+            case 'pay-cash':
+                onPayCash?.();
                 break;
             default:
                 console.log('Unknown action:', action);

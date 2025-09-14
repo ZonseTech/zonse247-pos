@@ -189,6 +189,10 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     }, [isActive]);
 
     useEffect(() => {
+        if (inputRef) inputRef.current.focus()
+    }, [])
+
+    useEffect(() => {
         if (barcode.trim() !== '' && filteredProduct.length > 0 && inputRef.current && dropdownRef.current) {
             const inputRect = inputRef.current.getBoundingClientRect();
             const dropdown = dropdownRef.current;
@@ -242,12 +246,12 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     return (
         <Fragment>
             <div className="flex w-full">
-                <Input
+                <input
                     ref={inputRef}
                     type="text"
                     value={barcode}
                     onChange={handleInputChange}
-                    className={`w-full p-2 border-2 border-gray-800 focus:outline-none text-lg text-center transition-all duration-200 ${isActive ? 'ring-2 ring-blue-500 dark:ring-blue-400 bg-blue-50 dark:bg-blue-900/20' : ''
+                    className={`w-full p-2 border-2 border-gray-800 focus:outline-none text-lg text-center transition-all duration-200 ${isActive ? 'ring-2 ring-gray-500 dark:ring-gray-400 bg-gray-50 dark:bg-gray-900/20' : ''
                         }`}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
