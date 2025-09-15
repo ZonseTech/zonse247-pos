@@ -68,6 +68,11 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
         return key;
     };
 
+    // Prevent mouse down from taking focus away from input
+    const handleMouseDown = (e: React.MouseEvent) => {
+        e.preventDefault();
+    };
+
     const keyBaseClasses = "flex items-center justify-center text-xl font-semibold rounded-lg transition-all duration-150 select-none cursor-pointer active:scale-95 h-14 shadow-md";
     const regularKeyClasses = "bg-gradient-to-b from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 active:from-gray-300 active:to-gray-400 border border-gray-400 text-gray-800 dark:from-gray-700 dark:to-gray-800 dark:hover:from-gray-600 dark:hover:to-gray-700 dark:active:from-gray-500 dark:active:to-gray-600 dark:border-gray-600 dark:text-gray-200";
     const specialKeyClasses = "bg-gradient-to-b from-gray-300 to-gray-400 hover:from-gray-400 hover:to-gray-500 active:from-gray-500 active:to-gray-600 border border-gray-500 text-gray-800 dark:from-gray-600 dark:to-gray-700 dark:hover:from-gray-500 dark:hover:to-gray-600 dark:active:from-gray-400 dark:active:to-gray-500 dark:border-gray-500 dark:text-gray-200";
@@ -78,13 +83,15 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
     const rowGridClass = "grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-1 auto-cols-fr";
 
     return (
-        <div className={`bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 p-3 border border-gray-300 dark:border-gray-600 rounded-none w-full min-w-0 ${className}`}>
+        <div className={`virtual-keyboard bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 p-3 border border-gray-300 dark:border-gray-600 rounded-none w-full min-w-0 ${className}`}>
             <div className="flex-1 space-y-2">
                 <div className={rowGridClass}>
                     <button
+                        onMouseDown={handleMouseDown}
                         onClick={() => handleKeyPress('`')}
                         className={`${keyBaseClasses} ${regularKeyClasses}`}
                         style={{ gridColumn: 'span 1' }}
+                        tabIndex={-1}
                     >
                         <span className="text-xs">{getKeyDisplayText('`', '~')}</span>
                     </button>
@@ -96,9 +103,11 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                     ].map(({ key, shift }) => (
                         <button
                             key={key}
+                            onMouseDown={handleMouseDown}
                             onClick={() => handleKeyPress(key)}
                             className={`${keyBaseClasses} ${regularKeyClasses}`}
                             style={{ gridColumn: 'span 1' }}
+                            tabIndex={-1}
                         >
                             <div className="flex flex-col items-center leading-none">
                                 <span className="text-xs">{shift}</span>
@@ -107,9 +116,11 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         </button>
                     ))}
                     <button
+                        onMouseDown={handleMouseDown}
                         onClick={onBackspace}
                         className={`${keyBaseClasses} ${backKeyClasses}`}
                         style={{ gridColumn: 'span 2' }}
+                        tabIndex={-1}
                     >
                         Backspace
                     </button>
@@ -117,9 +128,11 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
 
                 <div className={rowGridClass}>
                     <button
+                        onMouseDown={handleMouseDown}
                         onClick={() => handleKeyPress('\t')}
                         className={`${keyBaseClasses} ${specialKeyClasses}`}
                         style={{ gridColumn: 'span 1.6' }}
+                        tabIndex={-1}
                     >
                         Tab
                     </button>
@@ -128,9 +141,11 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         return (
                             <button
                                 key={key}
+                                onMouseDown={handleMouseDown}
                                 onClick={() => handleKeyPress(key)}
                                 className={`${keyBaseClasses} ${regularKeyClasses}`}
                                 style={{ gridColumn: 'span 1' }}
+                                tabIndex={-1}
                             >
                                 {shiftKey ? (
                                     <div className="flex flex-col items-center leading-none">
@@ -144,9 +159,11 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         );
                     })}
                     <button
+                        onMouseDown={handleMouseDown}
                         onClick={() => handleKeyPress('\\')}
                         className={`${keyBaseClasses} ${regularKeyClasses}`}
                         style={{ gridColumn: 'span 1.2' }}
+                        tabIndex={-1}
                     >
                         <div className="flex flex-col items-center leading-none">
                             <span className="text-xs">|</span>
@@ -157,9 +174,11 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
 
                 <div className={rowGridClass}>
                     <button
+                        onMouseDown={handleMouseDown}
                         onClick={handleCapsLock}
                         className={`${keyBaseClasses} ${capsLock ? activeSpecialClasses : specialKeyClasses}`}
                         style={{ gridColumn: 'span 2' }}
+                        tabIndex={-1}
                     >
                         Caps Lock
                     </button>
@@ -168,9 +187,11 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         return (
                             <button
                                 key={key}
+                                onMouseDown={handleMouseDown}
                                 onClick={() => handleKeyPress(key)}
                                 className={`${keyBaseClasses} ${regularKeyClasses}`}
                                 style={{ gridColumn: 'span 1' }}
+                                tabIndex={-1}
                             >
                                 {shiftKey ? (
                                     <div className="flex flex-col items-center leading-none">
@@ -184,9 +205,11 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         );
                     })}
                     <button
+                        onMouseDown={handleMouseDown}
                         onClick={onEnter}
                         className={`${keyBaseClasses} ${enterKeyClasses}`}
                         style={{ gridColumn: 'span 1.6' }}
+                        tabIndex={-1}
                     >
                         Enter
                     </button>
@@ -194,9 +217,11 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
 
                 <div className={rowGridClass}>
                     <button
+                        onMouseDown={handleMouseDown}
                         onClick={handleShift}
                         className={`${keyBaseClasses} ${isShiftPressed ? activeSpecialClasses : specialKeyClasses}`}
                         style={{ gridColumn: 'span 2.4' }}
+                        tabIndex={-1}
                     >
                         Shift
                     </button>
@@ -205,9 +230,11 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         return (
                             <button
                                 key={key}
+                                onMouseDown={handleMouseDown}
                                 onClick={() => handleKeyPress(key)}
                                 className={`${keyBaseClasses} ${regularKeyClasses}`}
                                 style={{ gridColumn: 'span 1' }}
+                                tabIndex={-1}
                             >
                                 {shiftKey ? (
                                     <div className="flex flex-col items-center leading-none">
@@ -221,9 +248,11 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         );
                     })}
                     <button
+                        onMouseDown={handleMouseDown}
                         onClick={handleShift}
                         className={`${keyBaseClasses} ${isShiftPressed ? activeSpecialClasses : specialKeyClasses}`}
                         style={{ gridColumn: 'span 2.4' }}
+                        tabIndex={-1}
                     >
                         Shift
                     </button>
@@ -231,37 +260,47 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
 
                 <div className={rowGridClass}>
                     <button
+                        onMouseDown={handleMouseDown}
                         onClick={() => handleKeyPress('ctrl')}
                         className={`${keyBaseClasses} ${specialKeyClasses}`}
                         style={{ gridColumn: 'span 1.6' }}
+                        tabIndex={-1}
                     >
                         Ctrl
                     </button>
                     <button
+                        onMouseDown={handleMouseDown}
                         onClick={() => handleKeyPress('alt')}
                         className={`${keyBaseClasses} ${specialKeyClasses}`}
                         style={{ gridColumn: 'span 1.2' }}
+                        tabIndex={-1}
                     >
                         Alt
                     </button>
                     <button
+                        onMouseDown={handleMouseDown}
                         onClick={onSpace}
                         className={`${keyBaseClasses} ${regularKeyClasses}`}
                         style={{ gridColumn: 'span 7.2' }}
+                        tabIndex={-1}
                     >
                         space
                     </button>
                     <button
+                        onMouseDown={handleMouseDown}
                         onClick={() => handleKeyPress('alt')}
                         className={`${keyBaseClasses} ${specialKeyClasses}`}
                         style={{ gridColumn: 'span 1.2' }}
+                        tabIndex={-1}
                     >
                         Alt
                     </button>
                     <button
+                        onMouseDown={handleMouseDown}
                         onClick={() => handleKeyPress('ctrl')}
                         className={`${keyBaseClasses} ${specialKeyClasses}`}
                         style={{ gridColumn: 'span 1.6' }}
+                        tabIndex={-1}
                     >
                         Ctrl
                     </button>
