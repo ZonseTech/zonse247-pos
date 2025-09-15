@@ -27,7 +27,7 @@ const InitApp: FunctionComponent = () => {
     const navigate = useNavigate()
     const isMountedRef = useRef(true)
 
-    const [state, setState] = useState<InitializationState>({
+    const [initialization, setInitialization] = useState<InitializationState>({
         isAccountVerified: false,
         isLoading: true,
         error: null,
@@ -41,14 +41,13 @@ const InitApp: FunctionComponent = () => {
                     return { success: false, error: 'Component unmounted' }
                 }
 
-                setState((prev) => ({
+                setInitialization((prev) => ({
                     ...prev,
                     isLoading: true,
                     error: null,
                     retryCount: attemptNumber - 1,
                 }))
 
-                // Create timeout promise
                 const timeoutPromise = new Promise<never>((_, reject) =>
                     setTimeout(
                         () => reject(new Error('Request timeout')),
@@ -56,11 +55,9 @@ const InitApp: FunctionComponent = () => {
                     )
                 )
 
-                // Create API promises
                 const settingsPromise = settingsService.load()
                 const setupPromise = settingsService.setup()
 
-                // Race the API calls against timeout
                 const [settings, setup] = await Promise.race([
                     Promise.all([settingsPromise, setupPromise]),
                     timeoutPromise
@@ -68,7 +65,7 @@ const InitApp: FunctionComponent = () => {
 
                 const isVerified = validateSettingsResponse(settings)
 
-                setState((prev) => ({
+                setInitialization((prev) => ({
                     ...prev,
                     isAccountVerified: setup?.isCompleted || false,
                     isLoading: false,
@@ -101,7 +98,7 @@ const InitApp: FunctionComponent = () => {
                         ? error.message
                         : 'Failed to initialize application'
 
-                setState((prev) => ({
+                setInitialization((prev) => ({
                     ...prev,
                     isAccountVerified: false,
                     isLoading: false,
@@ -124,14 +121,14 @@ const InitApp: FunctionComponent = () => {
     }, [initializeApp])
 
     useEffect(() => {
-        if (!state.isLoading && !state.error) {
-            if (state.isAccountVerified) {
+        if (!initialization.isLoading && !initialization.error) {
+            if (initialization.isAccountVerified) {
                 navigate(ROUTES.LOGIN)
             } else {
                 navigate(ROUTES.LANDING_PAGE)
             }
         }
-    }, [state.isLoading, state.error, state.isAccountVerified, navigate])
+    }, [initialization.isLoading, initialization.error, initialization.isAccountVerified, navigate])
 
     useEffect(() => {
         return () => {
@@ -139,12 +136,12 @@ const InitApp: FunctionComponent = () => {
         }
     }, [])
 
-    if (state.error) {
+    if (initialization.error) {
         return (
             <InitializationError
-                error={state.error}
+                error={initialization.error}
                 onRetry={retry}
-                retryCount={state.retryCount}
+                retryCount={initialization.retryCount}
             />
         )
     }
@@ -152,16 +149,16 @@ const InitApp: FunctionComponent = () => {
     return (
         <div className="relative">
             <PageLoader />
-            {state.retryCount > 0 && (
+            {initialization.retryCount > 0 && (
                 <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
                     <div className="bg-white shadow-lg rounded-lg px-4 py-2">
                         <p className="text-sm text-gray-600">
-                            Retrying... ({state.retryCount}/{INIT_CONFIG.MAX_RETRY_ATTEMPTS})
+                            Retrying... ({initialization.retryCount}/{INIT_CONFIG.MAX_RETRY_ATTEMPTS})
                         </p>
                     </div>
                 </div>
             )}
-            {!state.isLoading && !state.error && (
+            {!initialization.isLoading && !initialization.error && (
                 <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
                     <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2">
                         <p className="text-sm text-green-700">

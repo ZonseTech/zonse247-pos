@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useMemo } from 'react'
 import { ThemeContext } from '../context/ThemeContext'
 import defaultTheme from '../theme/config'
 import { mergeDeep } from '../utils/mergeDeep'
-import useDarkMode from '../hooks/use-dark-mode'
+import useDarkMode from '../hooks/useDarkMode'
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode

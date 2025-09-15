@@ -30,7 +30,6 @@ import { RiGroup3Line } from 'react-icons/ri';
 const NavBar: FunctionComponent = () => {
     const { user, signout } = useAuth();
     const navigate = useNavigate();
-    const { pathname } = useLocation();
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleMenu = () => setIsOpen(!isOpen);

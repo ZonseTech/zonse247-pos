@@ -39,6 +39,7 @@ interface CartItem {
     name: string;
     categoryUuid: string;
     sellPrice: number;
+    discount: number;
     purchasePrice: number;
     variancePrice?: number;
     quantity: number;

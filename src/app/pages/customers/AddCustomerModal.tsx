@@ -65,7 +65,7 @@ const AddCustomerModal: FunctionComponent<PropsWithChildren<Props>> = ({ handleS
             <IconButton
                 color='bg-green-500'
                 icon={<HiOutlinePlus className='w-3.5 h-3.5' />}
-                className='rounded-r-sm rounded-l-none'
+                className='rounded-r-sm rounded-l-none py-4'
                 onClick={handleNewCustomerClicked}
             />
 
