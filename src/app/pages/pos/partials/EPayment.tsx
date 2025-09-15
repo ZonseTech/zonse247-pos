@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useRef, useState } from 'react';
+import React, { FunctionComponent, useRef, useState, useEffect } from 'react';
 import { ActiveInputType } from './CheckoutModal';
 import VirtualKeyboard from '../../../components/VirtualKeyboard';
 import { Phone } from 'lucide-react';
@@ -9,6 +9,7 @@ interface EPaymentProps {
     activeInput: ActiveInputType;
     processing: boolean;
     onPhoneChange: (phone: string) => void;
+    onActiveInputChange: (input: ActiveInputType) => void;
 }
 
 export const E_PAYMENT_METHODS = [
@@ -22,12 +23,36 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
     activeInput,
     processing,
     onPhoneChange,
+    onActiveInputChange,
 }) => {
     const phoneInputRef = useRef<HTMLInputElement>(null);
     const [selectedSubMethod, setSelectedSubMethod] = useState('airtel-money');
 
+    useEffect(() => {
+        if (phoneInputRef.current) {
+            phoneInputRef.current.focus();
+        }
+    }, []);
+
     const handleOnMethodSelect = (methodId: string) => {
         setSelectedSubMethod(methodId);
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.replace(/\D/g, '');
+        if (value.length <= 10) {
+            onPhoneChange(value);
+        }
+    };
+
+    const handleInputFocus = () => {
+        onActiveInputChange('phone');
+    };
+
+    const handleInputBlur = () => {
+        setTimeout(() => {
+            onActiveInputChange(null);
+        }, 100);
     };
 
     const handleVirtualKeyPress = (key: string) => {
@@ -46,6 +71,10 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
         if (activeInput === 'phone' && phoneNumber.length >= 9) {
             phoneInputRef.current?.blur();
         }
+    };
+
+    const handleVirtualSpace = () => {
+        // 
     };
 
     return (
@@ -81,16 +110,13 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                                 ref={phoneInputRef}
                                 type="tel"
                                 value={phoneNumber}
-                                onChange={(e) => {
-                                    if (activeInput !== 'phone') {
-                                        onPhoneChange(e.target.value.replace(/\D/g, '').slice(0, 10));
-                                    }
-                                }}
-                                onFocus={() => { }}
-                                onBlur={() => { }}
+                                onChange={handleInputChange}
+                                onFocus={handleInputFocus}
+                                onBlur={handleInputBlur}
                                 placeholder="e.g., 0881234567"
                                 disabled={processing}
-                                className={`w-full p-4 border border-gray-300 rounded-none text-xl font-mono ${activeInput === 'phone' ? 'bg-blue-50 border-blue-500' : ''
+                                maxLength={10}
+                                className={`w-full p-4 border border-gray-300 rounded-none text-black text-xl font-mono ${activeInput === 'phone' ? 'border-gray-500' : ''
                                     } ${processing ? 'opacity-50 cursor-not-allowed' : ''}`}
                             />
                         </div>
@@ -124,8 +150,8 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                 onKeyPress={handleVirtualKeyPress}
                 onBackspace={handleVirtualBackspace}
                 onEnter={handleVirtualEnter}
-                onSpace={() => { /* TODO */ }}
-                className="w-full mt-4"
+                onSpace={handleVirtualSpace}
+                className="virtual-keyboard w-full mt-4"
             />
         </div>
     );

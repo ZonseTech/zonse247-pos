@@ -20,7 +20,6 @@ export const CHECKOUT = {
 
 export type PaymentMethod = typeof CHECKOUT[keyof typeof CHECKOUT];
 
-
 export type ActiveInputType = 'phone' | 'account' | null;
 
 const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
@@ -45,7 +44,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
             setProcessing(false);
             setActiveInput(null);
         }
-    }, [isOpen, checkoutType, focusManager]);
+    }, []);
 
     const handleKeyDown = (event: KeyboardEvent) => {
         if (!isOpen || processing) return;
@@ -97,7 +96,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
             case CHECKOUT.CASH:
                 return parseFloat(cashTendered || '0') >= total;
             case CHECKOUT.E_PAYMENT:
-                return true;
+                return phoneNumber.length >= 9;
             case CHECKOUT.BANK_TRANSFER:
                 return accountNumber.length > 0;
             default:
@@ -169,6 +168,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                             activeInput={activeInput}
                             processing={processing}
                             onPhoneChange={setPhoneNumber}
+                            onActiveInputChange={setActiveInput}
                         />
                     )}
 
@@ -179,6 +179,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                             activeInput={activeInput}
                             processing={processing}
                             onAccountChange={setAccountNumber}
+                            onActiveInputChange={setActiveInput}
                         />
                     )}
 

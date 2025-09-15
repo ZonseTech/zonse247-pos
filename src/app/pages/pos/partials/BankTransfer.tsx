@@ -8,6 +8,7 @@ interface BankTransferProps {
     activeInput: ActiveInputType;
     processing: boolean;
     onAccountChange: (account: string) => void;
+    onActiveInputChange: (input: ActiveInputType) => void;
 }
 
 const BankTransfer: FunctionComponent<BankTransferProps> = ({
@@ -16,12 +17,30 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
     activeInput,
     processing,
     onAccountChange,
+    onActiveInputChange,
 }) => {
     const accountInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        if (accountInputRef) accountInputRef.current.focus()
-    }, [])
+        if (accountInputRef.current) {
+            accountInputRef.current.focus();
+        }
+    }, []);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (value.length <= 20 && /^[a-zA-Z0-9\s]*$/.test(value)) {
+            onAccountChange(value);
+        }
+    };
+
+    const handleInputFocus = () => {
+        onActiveInputChange('account');
+    };
+
+    const handleInputBlur = () => {
+        onActiveInputChange(null);
+    };
 
     const handleVirtualKeyPress = (key: string) => {
         if (activeInput === 'account' && /^[a-zA-Z0-9]$/.test(key) && accountNumber.length < 20) {
@@ -56,16 +75,13 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
                         ref={accountInputRef}
                         type="text"
                         value={accountNumber}
-                        onChange={(e) => {
-                            if (activeInput !== 'account') {
-                                onAccountChange(e.target.value);
-                            }
-                        }}
-                        onFocus={() => { }}
-                        onBlur={() => { }}
+                        onChange={handleInputChange}
+                        onFocus={handleInputFocus}
+                        onBlur={handleInputBlur}
                         placeholder="Enter account number"
                         disabled={processing}
-                        className={`w-full p-4 border border-gray-300 rounded-none text-xl font-mono mb-4 ${activeInput === 'account' ? 'bg-blue-50 border-blue-500' : ''
+                        maxLength={20}
+                        className={`w-full p-4 border border-gray-300 rounded-none text-black text-xl font-mono mb-4 ${activeInput === 'account' ? 'border-gray-500' : ''
                             } ${processing ? 'opacity-50 cursor-not-allowed' : ''}`}
                     />
                 </div>

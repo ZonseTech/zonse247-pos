@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import { Report } from 'notiflix';
 import { Form, Formik, } from 'formik';
 import { Input } from '../../../components'
 import { useApp } from '../../../context/AppProvider';
@@ -8,7 +9,6 @@ import { useProducts } from '../../../context/ProductsProvider';
 import { formatCurrency, generateReferenceNumber } from '../../../utils';
 import { Fragment, type FunctionComponent, type PropsWithChildren, useState } from 'react'
 import transactionService from '../../../services/transactions.service';
-import { Report } from 'notiflix';
 import { HiOutlineCash, HiOutlineCreditCard, HiOutlineRefresh, HiOutlineCheck } from 'react-icons/hi';
 
 type Props = {

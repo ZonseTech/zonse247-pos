@@ -49,11 +49,11 @@ const POSSystem: FunctionComponent = () => {
                     event.preventDefault();
                     handleParkSale();
                     break;
-                case 'F9':
+                case 'F5':
                     event.preventDefault();
                     handleDiscount();
                     break;
-                case 'F5':
+                case 'F12':
                     event.preventDefault();
                     handleOnBankTransfer();
                     break;
