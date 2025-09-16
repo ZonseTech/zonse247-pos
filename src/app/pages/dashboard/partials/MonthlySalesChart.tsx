@@ -5,6 +5,7 @@ import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, XAxis, YA
 const MonthlySalesChart: FunctionComponent<{ data: Array<MonthlySales>; chartHeader: ReactElement }> = ({ data, chartHeader }) => {
 	const CustomizedLabel = (props) => {
 		const { x, y, width, height, value } = props;
+
 		return (
 			<text
 				x={x + width / 2}
@@ -15,9 +16,9 @@ const MonthlySalesChart: FunctionComponent<{ data: Array<MonthlySales>; chartHea
 				dominantBaseline="middle"
 				fontSize="14"
 				fontWeight="bold"
-				transform={`rotate(-90, ${x + width / 2}, ${y + height / 2})`}
+				transform={value === 0 ? "" : `rotate(-90, ${x + width / 2}, ${y + height / 2})`}
 			>
-				{formatCurrency(value)}
+				{(value === 0) ? '0' : formatCurrency(value)}
 			</text>
 		);
 	};

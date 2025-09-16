@@ -37,6 +37,7 @@ type TransactionValues = {
     paymentServiceProviderUuid?: string;
     phoneNumber: string;
     transactionId: string;
+    cashTendered: string;
 };
 
 interface DateRangeFilters {

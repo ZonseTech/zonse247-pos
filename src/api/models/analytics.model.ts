@@ -13,7 +13,6 @@ export class AnalyticsModel {
     static async getMonthlySalesData(userUuid: string, year: number, month: number): Promise<Array<MonthlySales>> {
         const lastDayOfMonth = new Date(year, month, 0);
         const firstDayOfMonth = new Date(year, month - 1, 1);
-
         const endDate = dayjs(lastDayOfMonth).format('YYYY-MM-DD');
         const startDate = dayjs(firstDayOfMonth).format('YYYY-MM-DD');
 
@@ -32,30 +31,14 @@ export class AnalyticsModel {
         const daysInMonth = lastDayOfMonth.getDate();
 
         for (let day = 1; day <= daysInMonth; day++) {
-            const currentDate = dayjs().format('YYYY-MM-DD');
+            const currentDate = dayjs(new Date(year, month - 1, day)).format('YYYY-MM-DD');
 
-            console.log('====================================');
-            console.log(currentDate);
-            console.log('====================================');
-
-            const dayTransactions = transactions.filter(
-                (transaction) => {
-                    const t = dayjs(transaction.date).format('YYYY-MM-DD')
-
-                    console.log('====================================');
-                    console.log(t);
-                    console.log('====================================');
-
-                    return t === currentDate
-                }
-            );
+            const dayTransactions = transactions.filter((transaction) => {
+                const t = dayjs(transaction.date).format('YYYY-MM-DD');
+                return t === currentDate;
+            });
 
             const totalAmount = dayTransactions.reduce((sum, transaction) => {
-
-                console.log('====================================');
-                console.log('transaction', transaction.date);
-                console.log('====================================');
-
                 return sum + (transaction.total || 0);
             }, 0);
 
@@ -68,7 +51,6 @@ export class AnalyticsModel {
         return salesData;
     }
 
-    // Get user transactions with pagination
     static async getUserTransactions(
         userUuid: string,
         limit: number,
@@ -129,7 +111,6 @@ export class AnalyticsModel {
         };
     }
 
-    // Get top products
     static async getTopProducts(): Promise<Array<TopProduct>> {
         const [orders, products, categories] = await Promise.all([
             sealDBModel.findAll(ORDERS_DB),
@@ -239,7 +220,6 @@ export class AnalyticsModel {
         };
     }
 
-    // Get transaction items
     static async getTransactionItems(transactionUuid: string): Promise<{
         transaction: Transaction | null;
         orderItems: Array<any>;
@@ -272,7 +252,6 @@ export class AnalyticsModel {
         };
     }
 
-    // Get transaction details
     static async getTransactionDetails(transactionUuid: string): Promise<{
         transaction: Transaction | null;
         orderItems: Array<any>;

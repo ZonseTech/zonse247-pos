@@ -68,7 +68,6 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
         return key;
     };
 
-    // Prevent mouse down from taking focus away from input
     const handleMouseDown = (e: React.MouseEvent) => {
         e.preventDefault();
     };
@@ -87,6 +86,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
             <div className="flex-1 space-y-2">
                 <div className={rowGridClass}>
                     <button
+                        type="button"
                         onMouseDown={handleMouseDown}
                         onClick={() => handleKeyPress('`')}
                         className={`${keyBaseClasses} ${regularKeyClasses}`}
@@ -102,6 +102,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         { key: '0', shift: ')' }, { key: '-', shift: '_' }, { key: '=', shift: '+' }
                     ].map(({ key, shift }) => (
                         <button
+                            type="button"
                             key={key}
                             onMouseDown={handleMouseDown}
                             onClick={() => handleKeyPress(key)}
@@ -116,6 +117,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         </button>
                     ))}
                     <button
+                        type="button"
                         onMouseDown={handleMouseDown}
                         onClick={onBackspace}
                         className={`${keyBaseClasses} ${backKeyClasses}`}
@@ -128,6 +130,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
 
                 <div className={rowGridClass}>
                     <button
+                        type="button"
                         onMouseDown={handleMouseDown}
                         onClick={() => handleKeyPress('\t')}
                         className={`${keyBaseClasses} ${specialKeyClasses}`}
@@ -140,6 +143,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         const shiftKey = key === '[' ? '{' : key === ']' ? '}' : undefined;
                         return (
                             <button
+                                type="button"
                                 key={key}
                                 onMouseDown={handleMouseDown}
                                 onClick={() => handleKeyPress(key)}
@@ -159,6 +163,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         );
                     })}
                     <button
+                        type="button"
                         onMouseDown={handleMouseDown}
                         onClick={() => handleKeyPress('\\')}
                         className={`${keyBaseClasses} ${regularKeyClasses}`}
@@ -174,6 +179,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
 
                 <div className={rowGridClass}>
                     <button
+                        type="button"
                         onMouseDown={handleMouseDown}
                         onClick={handleCapsLock}
                         className={`${keyBaseClasses} ${capsLock ? activeSpecialClasses : specialKeyClasses}`}
@@ -186,6 +192,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         const shiftKey = key === ';' ? ':' : key === "'" ? '"' : undefined;
                         return (
                             <button
+                                type="button"
                                 key={key}
                                 onMouseDown={handleMouseDown}
                                 onClick={() => handleKeyPress(key)}
@@ -205,6 +212,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         );
                     })}
                     <button
+                        type="button"
                         onMouseDown={handleMouseDown}
                         onClick={onEnter}
                         className={`${keyBaseClasses} ${enterKeyClasses}`}
@@ -217,6 +225,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
 
                 <div className={rowGridClass}>
                     <button
+                        type="button"
                         onMouseDown={handleMouseDown}
                         onClick={handleShift}
                         className={`${keyBaseClasses} ${isShiftPressed ? activeSpecialClasses : specialKeyClasses}`}
@@ -229,6 +238,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         const shiftKey = key === ',' ? '<' : key === '.' ? '>' : key === '/' ? '?' : undefined;
                         return (
                             <button
+                                type="button"
                                 key={key}
                                 onMouseDown={handleMouseDown}
                                 onClick={() => handleKeyPress(key)}
@@ -248,6 +258,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         );
                     })}
                     <button
+                        type="button"
                         onMouseDown={handleMouseDown}
                         onClick={handleShift}
                         className={`${keyBaseClasses} ${isShiftPressed ? activeSpecialClasses : specialKeyClasses}`}
@@ -260,6 +271,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
 
                 <div className={rowGridClass}>
                     <button
+                        type="button"
                         onMouseDown={handleMouseDown}
                         onClick={() => handleKeyPress('ctrl')}
                         className={`${keyBaseClasses} ${specialKeyClasses}`}
@@ -269,6 +281,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         Ctrl
                     </button>
                     <button
+                        type="button"
                         onMouseDown={handleMouseDown}
                         onClick={() => handleKeyPress('alt')}
                         className={`${keyBaseClasses} ${specialKeyClasses}`}
@@ -278,6 +291,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         Alt
                     </button>
                     <button
+                        type="button"
                         onMouseDown={handleMouseDown}
                         onClick={onSpace}
                         className={`${keyBaseClasses} ${regularKeyClasses}`}
@@ -287,6 +301,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         space
                     </button>
                     <button
+                        type="button"
                         onMouseDown={handleMouseDown}
                         onClick={() => handleKeyPress('alt')}
                         className={`${keyBaseClasses} ${specialKeyClasses}`}
@@ -296,6 +311,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                         Alt
                     </button>
                     <button
+                        type="button"
                         onMouseDown={handleMouseDown}
                         onClick={() => handleKeyPress('ctrl')}
                         className={`${keyBaseClasses} ${specialKeyClasses}`}

@@ -9,6 +9,7 @@ interface ItemLookupModalProps {
     products: Product[];
     categories: Category[];
     onAddToCart: (product: Product) => void;
+    barcodeScannerInputRef: React.RefObject<HTMLInputElement>;
 }
 
 const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
@@ -17,6 +18,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
     products,
     categories,
     onAddToCart,
+    barcodeScannerInputRef
 }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -55,6 +57,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
 
     const handleAddToCart = (product: Product) => {
         onAddToCart(product);
+        barcodeScannerInputRef.current?.focus();
         onClose();
     };
 

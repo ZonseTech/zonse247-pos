@@ -1,25 +1,31 @@
 import { FunctionComponent, useEffect, useRef } from 'react';
 import { ActiveInputType } from './CheckoutModal';
 import VirtualKeyboard from '../../../components/VirtualKeyboard';
+import { FormikErrors } from 'formik';
+import FormInput from '../../../components/FormInput';
 
 interface BankTransferProps {
     total: number;
-    accountNumber: string;
+    values: TransactionValues;
     activeInput: ActiveInputType;
-    processing: boolean;
-    onAccountChange: (account: string) => void;
+    onValueChange: (field: keyof TransactionValues, value: any, shouldValidate?: boolean) => Promise<void | FormikErrors<TransactionValues>>
     onActiveInputChange: (input: ActiveInputType) => void;
 }
 
 const BankTransfer: FunctionComponent<BankTransferProps> = ({
     total,
-    accountNumber,
+    values,
     activeInput,
-    processing,
-    onAccountChange,
+    onValueChange,
     onActiveInputChange,
 }) => {
     const accountInputRef = useRef<HTMLInputElement>(null);
+    const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const isVirtualKeyboardActive = useRef(false);
+
+    useEffect(() => {
+        onValueChange('paymentServiceProviderUuid', 'nb-bank')
+    }, [])
 
     useEffect(() => {
         if (accountInputRef.current) {
@@ -27,63 +33,164 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
         }
     }, []);
 
+    useEffect(() => {
+        return () => {
+            if (blurTimeoutRef.current) {
+                clearTimeout(blurTimeoutRef.current);
+            }
+        };
+    }, []);
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        if (value.length <= 20 && /^[a-zA-Z0-9\s]*$/.test(value)) {
-            onAccountChange(value);
+        const { name, value } = e.target;
+
+        if (name === 'transactionId') {
+            if (value.length <= 50 && /^[a-zA-Z0-9\s\-]*$/.test(value)) {
+                onValueChange('transactionId', value);
+            }
         }
     };
 
     const handleInputFocus = () => {
-        onActiveInputChange('account');
+        if (blurTimeoutRef.current) {
+            clearTimeout(blurTimeoutRef.current);
+            blurTimeoutRef.current = null;
+        }
+        onActiveInputChange('referenceNo');
     };
 
-    const handleInputBlur = () => {
-        onActiveInputChange(null);
+    const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        if (isVirtualKeyboardActive.current) {
+            e.target.focus();
+            return;
+        }
+
+        if (blurTimeoutRef.current) {
+            clearTimeout(blurTimeoutRef.current);
+        }
+
+        blurTimeoutRef.current = setTimeout(() => {
+            if (!isVirtualKeyboardActive.current) {
+                onActiveInputChange(null);
+            }
+            blurTimeoutRef.current = null;
+        }, 200);
     };
 
     const handleVirtualKeyPress = (key: string) => {
-        if (activeInput === 'account' && /^[a-zA-Z0-9]$/.test(key) && accountNumber.length < 20) {
-            onAccountChange(accountNumber + key);
+        isVirtualKeyboardActive.current = true;
+        const currentAccount = values.transactionId || '';
+
+        if (activeInput === 'referenceNo' && /^[a-zA-Z0-9]$/.test(key) && currentAccount.length < 50) {
+            onValueChange('transactionId', currentAccount + key);
         }
+
+        setTimeout(() => {
+            isVirtualKeyboardActive.current = false;
+        }, 50);
     };
 
     const handleVirtualBackspace = () => {
-        if (activeInput === 'account') {
-            onAccountChange(accountNumber.slice(0, -1));
+        isVirtualKeyboardActive.current = true;
+        const currentAccount = values.transactionId || '';
+
+        if (activeInput === 'referenceNo') {
+            onValueChange('transactionId', currentAccount.slice(0, -1));
         }
+
+        setTimeout(() => {
+            isVirtualKeyboardActive.current = false;
+        }, 50);
     };
 
     const handleVirtualEnter = () => {
-        if (activeInput === 'account' && accountNumber.length > 0) {
-            accountInputRef.current?.blur();
+        isVirtualKeyboardActive.current = true;
+        const currentAccount = values.transactionId || '';
+
+        if (activeInput === 'referenceNo' && currentAccount.length > 0) {
+            setTimeout(() => {
+                accountInputRef.current?.blur();
+                onActiveInputChange(null);
+                isVirtualKeyboardActive.current = false;
+            }, 50);
+        } else {
+            setTimeout(() => {
+                isVirtualKeyboardActive.current = false;
+            }, 50);
         }
     };
 
     const handleVirtualSpace = () => {
-        if (activeInput === 'account' && accountNumber.length < 20) {
-            onAccountChange(accountNumber + ' ');
+        isVirtualKeyboardActive.current = true;
+        const currentAccount = values.transactionId || '';
+
+        if (activeInput === 'referenceNo' && currentAccount.length < 50) {
+            onValueChange('transactionId', currentAccount + ' ');
         }
+
+        setTimeout(() => {
+            isVirtualKeyboardActive.current = false;
+        }, 50);
+    };
+
+    const handleVirtualKeyboardMouseDown = (e: React.MouseEvent) => {
+        e.preventDefault();
+        isVirtualKeyboardActive.current = true;
+    };
+
+    const handleVirtualKeyboardMouseUp = () => {
+        setTimeout(() => {
+            isVirtualKeyboardActive.current = false;
+        }, 100);
     };
 
     return (
         <div className="flex flex-col">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-                <div className="mb-6">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div>
                     <h3 className="text-3xl font-bold text-black dark:text-gray-400 mb-4">ACCOUNT DETAILS</h3>
-                    <input
-                        ref={accountInputRef}
-                        type="text"
-                        value={accountNumber}
-                        onChange={handleInputChange}
-                        onFocus={handleInputFocus}
-                        onBlur={handleInputBlur}
-                        placeholder="Enter account number"
-                        disabled={processing}
-                        maxLength={20}
-                        className={`w-full p-4 border border-gray-300 rounded-none text-black text-xl font-mono mb-4 ${activeInput === 'account' ? 'border-gray-500' : ''
-                            } ${processing ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    />
+                    <div className="mb-6">
+                        <label className="block text-lg font-semibold text-black dark:text-gray-400 mb-2">
+                            BANK
+                        </label>
+                        <select
+                            className="w-full p-4 border border-gray-300 rounded-none text-black text-xl"
+                            onChange={(e) => onValueChange('paymentServiceProviderUuid', e.target.value)}
+                            value={values.paymentServiceProviderUuid}
+                            name='paymentServiceProviderUuid'
+                        >
+                            <option value="">Select Bank</option>
+                            <option value="nb-bank">NB Bank</option>
+                            <option value="standard-bank">Standard Bank</option>
+                            <option value="fmb">FMB</option>
+                            <option value="nedbank">Nedbank</option>
+                            <option value="national-bank">National Bank of Malawi</option>
+                        </select>
+                    </div>
+
+                    <div className="mb-6">
+                        <label className="block text-lg font-semibold text-black dark:text-gray-400 mb-2">
+                            REFERENCE NUMBER (Optional)
+                        </label>
+                        <FormInput
+                            ref={accountInputRef}
+                            type="text"
+                            name="transactionId"
+                            value={values.transactionId || ''}
+                            onChange={handleInputChange}
+                            onFocus={handleInputFocus}
+                            onBlur={handleInputBlur}
+                            placeholder="Transfer reference number"
+                            maxLength={50}
+                            className={`w-full p-4 border border-gray-300 rounded-none text-black text-xl font-mono ${activeInput === 'referenceNo' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                                }`}
+                        />
+                        {activeInput === 'referenceNo' && (
+                            <div className="text-sm text-blue-600 mt-1">
+                                Use virtual keyboard to enter reference number (letters, numbers, spaces, and dashes)
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="space-y-8">
@@ -99,24 +206,21 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
                             MK {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                     </div>
-                    {processing && (
-                        <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded">
-                            <div className="flex items-center gap-2">
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700"></div>
-                                <span className="font-bold">Processing bank transfer...</span>
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
 
-            <VirtualKeyboard
-                onKeyPress={handleVirtualKeyPress}
-                onBackspace={handleVirtualBackspace}
-                onEnter={handleVirtualEnter}
-                onSpace={handleVirtualSpace}
-                className="w-full mt-4"
-            />
+            <div
+                onMouseDown={handleVirtualKeyboardMouseDown}
+                onMouseUp={handleVirtualKeyboardMouseUp}
+            >
+                <VirtualKeyboard
+                    onKeyPress={handleVirtualKeyPress}
+                    onBackspace={handleVirtualBackspace}
+                    onEnter={handleVirtualEnter}
+                    onSpace={handleVirtualSpace}
+                    className="w-full mt-4"
+                />
+            </div>
         </div>
     );
 };

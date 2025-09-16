@@ -7,7 +7,7 @@ import FunctionButtons from './partials/FunctionButtons';
 import ItemLookupModal from './partials/ItemLookupModal';
 import { useProducts } from '../../context/ProductsProvider';
 import { useFocusManager } from '../../hooks/useFocusManager';
-import { FunctionComponent, useState, useEffect } from 'react';
+import { FunctionComponent, useState, useEffect, useRef } from 'react';
 import CheckoutModal, { CHECKOUT, PaymentMethod } from './partials/CheckoutModal';
 
 const POSSystem: FunctionComponent = () => {
@@ -23,9 +23,11 @@ const POSSystem: FunctionComponent = () => {
     } = useProducts();
 
     const focusManager = useFocusManager();
+    const barcodeScannerInputRef = useRef<HTMLInputElement>(null);
     const [numpadInput, setNumpadInput] = useState('');
     const [isLookupModalOpen, setIsLookupModalOpen] = useState(false);
     const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+    const [paymentMethodUuid, setPaymentMethodUuid] = useState<PaymentMethod>(CHECKOUT.CASH);
     const [customPriceInputs, setCustomPriceInputs] = useState<Record<string, string>>({});
 
     useEffect(() => {
@@ -55,15 +57,15 @@ const POSSystem: FunctionComponent = () => {
                     break;
                 case 'F12':
                     event.preventDefault();
-                    handleOnBankTransfer();
+                    handleCompleteTransaction(CHECKOUT.BANK_TRANSFER);
                     break;
                 case 'F8':
                     event.preventDefault();
-                    handleOnEPayment();
+                    handleCompleteTransaction(CHECKOUT.E_PAYMENT);
                     break;
                 case 'F10':
                     event.preventDefault();
-                    handleOnPayCash();
+                    handleCompleteTransaction(CHECKOUT.CASH);
                     break;
                 case 'F11':
                     event.preventDefault();
@@ -133,31 +135,14 @@ const POSSystem: FunctionComponent = () => {
         }
     };
 
-    const handleCompleteTransaction = (paymentMethod: string, cashTendered?: number) => {
-        console.log('Transaction completed:', {
-            paymentMethod,
-            cashTendered,
-            total,
-            cart: cart.map(item => ({
-                name: item.name,
-                quantity: item.quantity,
-                price: item.sellPrice,
-                total: item.quantity * (item.sellPrice)
-            }))
-        });
+    const handleCompleteTransaction = (paymentMethod: PaymentMethod) => {
+        if (cart.length === 0) {
+            console.log('Cannot checkout with empty cart');
+            return;
+        }
 
-        // Here you would typically:
-        // 1. Save the transaction to your database
-        // 2. Print the receipt
-        // 3. Update inventory
-        // 4. Clear the cart
-
-        clearCart();
-        setCustomPriceInputs({});
-        setIsCheckoutModalOpen(false);
-        focusManager.clearFocus();
-
-        alert('Transaction completed successfully!');
+        setPaymentMethodUuid(paymentMethod);
+        setIsCheckoutModalOpen(true);
     };
 
     const handleVoidSale = () => {
@@ -188,36 +173,6 @@ const POSSystem: FunctionComponent = () => {
     const handleDiscount = () => {
         console.log('Applying discount...');
         // Add discount logic
-    };
-
-    const [checkoutType, setCheckoutType] = useState<PaymentMethod>(CHECKOUT.CASH);
-
-    const handleOnBankTransfer = () => {
-        if (cart.length === 0) {
-            console.log('Cannot checkout with empty cart');
-            return;
-        }
-
-        setCheckoutType(CHECKOUT.BANK_TRANSFER);
-        setIsCheckoutModalOpen(true);
-    };
-
-    const handleOnEPayment = () => {
-        if (cart.length === 0) {
-            console.log('Cannot checkout with empty cart');
-            return;
-        }
-        setCheckoutType(CHECKOUT.E_PAYMENT);
-        setIsCheckoutModalOpen(true);
-    };
-
-    const handleOnPayCash = () => {
-        if (cart.length === 0) {
-            console.log('Cannot checkout with empty cart');
-            return;
-        }
-        setCheckoutType(CHECKOUT.CASH);
-        setIsCheckoutModalOpen(true);
     };
 
     const handleAddToCartFromLookup = (product: Product) => {
@@ -265,6 +220,7 @@ const POSSystem: FunctionComponent = () => {
                             </label>
                             <BarcodeScanner
                                 externalInput={numpadInput}
+                                barcodeScannerInputRef={barcodeScannerInputRef}
                                 onExternalInputProcessed={handleNumpadInputProcessed}
                                 focusManager={focusManager}
                             />
@@ -289,9 +245,9 @@ const POSSystem: FunctionComponent = () => {
                                 onItemLookup={handleItemLookup}
                                 onReprint={handleReprint}
                                 onDiscount={handleDiscount}
-                                onBankTransfer={handleOnBankTransfer}
-                                onEPayment={handleOnEPayment}
-                                onPayCash={handleOnPayCash}
+                                onBankTransfer={() => handleCompleteTransaction(CHECKOUT.BANK_TRANSFER)}
+                                onEPayment={() => handleCompleteTransaction(CHECKOUT.E_PAYMENT)}
+                                onPayCash={() => handleCompleteTransaction(CHECKOUT.CASH)}
                             />
                         </div>
                     </Panel>
@@ -305,14 +261,14 @@ const POSSystem: FunctionComponent = () => {
                 products={products}
                 categories={categories}
                 onAddToCart={handleAddToCartFromLookup}
+                barcodeScannerInputRef={barcodeScannerInputRef}
             />
 
             <CheckoutModal
-                total={total}
-                checkoutType={checkoutType}
+                focusManager={focusManager}
+                paymentMethodUuid={paymentMethodUuid}
                 isOpen={isCheckoutModalOpen}
                 onClose={() => setIsCheckoutModalOpen(false)}
-                onCompleteTransaction={handleCompleteTransaction}
             />
         </div>
     );

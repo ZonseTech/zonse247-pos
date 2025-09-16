@@ -20,9 +20,8 @@ const StatCard: FunctionComponent<Props> = ({ label, value, icon, color, bgColor
                 ${bgColor || 'bg-gradient-to-br from-slate-600 to-slate-700'} 
                 p-6 
                 text-white
-                rounded-2xl 
+                rounded-lg 
                 h-32
-                shadow-lg hover:shadow-2xl
                 border border-white/10
                 backdrop-blur-sm
                 bg-opacity-90
@@ -46,7 +45,7 @@ const StatCard: FunctionComponent<Props> = ({ label, value, icon, color, bgColor
                 opacity-0 group-hover:opacity-100
                 transition-opacity duration-500
                 pointer-events-none
-                rounded-2xl
+                rounded-lg
             " />
 
             {isClickable && (
@@ -61,7 +60,7 @@ const StatCard: FunctionComponent<Props> = ({ label, value, icon, color, bgColor
 
             <div className="
                 absolute inset-[1px]
-                rounded-2xl
+                rounded-lg
                 bg-gradient-to-b from-white/5 to-transparent
                 pointer-events-none
             " />
@@ -74,7 +73,6 @@ const StatCard: FunctionComponent<Props> = ({ label, value, icon, color, bgColor
                             p-3 
                             rounded-xl 
                             ${color || 'bg-white/20'}
-                            shadow-lg
                             border border-white/30
                             backdrop-blur-sm
                             transition-all duration-300
@@ -84,7 +82,7 @@ const StatCard: FunctionComponent<Props> = ({ label, value, icon, color, bgColor
                         `}>
                             <span className="
                                 text-white 
-                                text-2xl 
+                                text-lg 
                                 drop-shadow-lg
                                 transition-all duration-300 
                                 group-hover:scale-110
@@ -106,9 +104,8 @@ const StatCard: FunctionComponent<Props> = ({ label, value, icon, color, bgColor
                                 {label}
                             </p>
                             <p className="
-                                text-2xl font-bold 
+                                text-lg font-bold 
                                 text-white
-                                drop-shadow-sm
                                 transition-all duration-200
                                 group-hover:scale-105
                                 leading-none
@@ -165,7 +162,7 @@ const StatCard: FunctionComponent<Props> = ({ label, value, icon, color, bgColor
             <div className="
                 absolute -inset-1
                 bg-gradient-to-r from-white/0 via-white/10 to-white/0
-                rounded-2xl
+                rounded-lg
                 opacity-0 group-hover:opacity-100
                 transition-opacity duration-300
                 pointer-events-none

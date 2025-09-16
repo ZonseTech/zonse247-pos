@@ -44,7 +44,7 @@ const Login: FunctionComponent = () => {
 
             toast.success('Welcome back! ' + user.user.fullname)
 
-            navigate(ROUTES.DASHBOARD);
+            navigate(ROUTES.POS);
             location.reload()
         } catch (error: any) {
             setAuthError(error.message);
