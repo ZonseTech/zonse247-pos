@@ -10,6 +10,7 @@ import { ThemeContext } from '../context/ThemeContext';
 
 interface TextInputProps {
 	label?: string;
+	ref?: React.RefObject<HTMLInputElement>;
 	id?: string;
 	name: string;
 	type?: string;
