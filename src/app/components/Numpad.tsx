@@ -65,6 +65,7 @@ const Numpad: FunctionComponent<NumpadProps> = ({
                     btn ? (
                         <button
                             key={index}
+                            type="button"
                             onMouseDown={(e) => {
                                 e.preventDefault();
                                 onButtonClick(btn);
