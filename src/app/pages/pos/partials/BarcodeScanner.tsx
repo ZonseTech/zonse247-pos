@@ -9,16 +9,17 @@ interface BarcodeScannerProps {
     externalInput?: string;
     onExternalInputProcessed?: () => void;
     focusManager: ReturnType<typeof useFocusManager>;
+    barcodeScannerInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     externalInput = '',
     onExternalInputProcessed,
-    focusManager
+    focusManager,
+    barcodeScannerInputRef
 }) => {
     const [barcode, setBarcode] = useState('');
     const { products, addToCart } = useProducts();
-    const inputRef = useRef<HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [filteredProduct, setFilteredProduct] = useState(products);
 
@@ -61,8 +62,8 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                 setBarcode('');
                 barcodeBuffer.current = '';
 
-                if (inputRef.current) {
-                    inputRef.current.focus();
+                if (barcodeScannerInputRef.current) {
+                    barcodeScannerInputRef.current.focus();
                 }
                 return true;
             }
@@ -105,8 +106,8 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
 
             console.log(`Product added to cart: ${product.name}`);
 
-            if (inputRef.current) {
-                inputRef.current.focus();
+            if (barcodeScannerInputRef.current) {
+                barcodeScannerInputRef.current.focus();
             }
         } else {
             Confirm.show(
@@ -183,18 +184,18 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     }, [barcode, products, addToCart, isActive]);
 
     useEffect(() => {
-        if (isActive && inputRef.current) {
-            inputRef.current.focus();
+        if (isActive && barcodeScannerInputRef.current) {
+            barcodeScannerInputRef.current.focus();
         }
     }, [isActive]);
 
     useEffect(() => {
-        if (inputRef) inputRef.current.focus()
+        if (barcodeScannerInputRef) barcodeScannerInputRef.current.focus()
     }, [])
 
     useEffect(() => {
-        if (barcode.trim() !== '' && filteredProduct.length > 0 && inputRef.current && dropdownRef.current) {
-            const inputRect = inputRef.current.getBoundingClientRect();
+        if (barcode.trim() !== '' && filteredProduct.length > 0 && barcodeScannerInputRef.current && dropdownRef.current) {
+            const inputRect = barcodeScannerInputRef.current.getBoundingClientRect();
             const dropdown = dropdownRef.current;
 
             const top = inputRect.bottom + window.scrollY;
@@ -220,7 +221,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
 
     const handleInputBlur = () => {
         setTimeout(() => {
-            if (document.activeElement !== inputRef.current) {
+            if (document.activeElement !== barcodeScannerInputRef.current) {
                 focusManager.clearFocus();
             }
         }, 100);
@@ -247,7 +248,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
         <Fragment>
             <div className="flex w-full">
                 <input
-                    ref={inputRef}
+                    ref={barcodeScannerInputRef}
                     type="text"
                     value={barcode}
                     onChange={handleInputChange}
@@ -281,8 +282,8 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                                     addToCart(product);
                                     showSuccessFeedback(product.name);
                                     setBarcode('');
-                                    if (inputRef.current) {
-                                        inputRef.current.focus();
+                                    if (barcodeScannerInputRef.current) {
+                                        barcodeScannerInputRef.current.focus();
                                     }
                                 }}
                             >

@@ -1,49 +1,53 @@
 import { FunctionComponent, useState, useEffect, useRef } from 'react';
 import Numpad from '../../../components/Numpad';
 import { useFocusManager } from '../../../hooks/useFocusManager';
+import { FormikErrors } from 'formik';
 
 interface CashPaymentProps {
     total: number;
-    onCashTenderedChange: (cashTendered: string) => void;
+    values: TransactionValues;
+    onValueChange: (field: keyof TransactionValues, value: any, shouldValidate?: boolean) => Promise<void | FormikErrors<TransactionValues>>
     focusManager: ReturnType<typeof useFocusManager>;
-    processing: boolean;
 }
 
 const CashPayment: FunctionComponent<CashPaymentProps> = ({
     total,
-    onCashTenderedChange,
+    values,
+    onValueChange,
     focusManager,
-    processing
 }) => {
-    const [cashTendered, setCashTendered] = useState<string>('');
     const [change, setChange] = useState<number>(0);
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        if (inputRef) inputRef.current.focus()
-    }, [])
+        if (inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, []);
 
     useEffect(() => {
-        const tendered = parseFloat(cashTendered) || 0;
+        const tendered = parseFloat(values.cashTendered) || 0;
         setChange(Math.max(0, tendered - total));
-        onCashTenderedChange(cashTendered);
-    }, [cashTendered, total, onCashTenderedChange]);
+    }, [values.cashTendered, total]);
 
     const handleNumpadClick = (value: string) => {
+        const currentCash = values.cashTendered || '';
+
         if (value === 'Del') {
-            setCashTendered(prev => prev.slice(0, -1));
+            onValueChange('cashTendered', currentCash.slice(0, -1));
         } else if (value === 'Clear') {
-            setCashTendered('');
+            onValueChange('cashTendered', '');
         } else if (value === '•') {
-            if (!cashTendered.includes('.')) {
-                setCashTendered(prev => prev === '' ? '0.' : prev + '.');
+            if (!currentCash.includes('.')) {
+                const newValue = currentCash === '' ? '0.' : currentCash + '.';
+                onValueChange('cashTendered', newValue);
             }
         } else if (!isNaN(parseInt(value))) {
-            setCashTendered(prev => {
-                const newValue = prev === '0' ? value : prev + value;
-                const numericValue = parseFloat(newValue);
-                return numericValue <= 9999999.99 ? newValue : prev;
-            });
+            const newValue = currentCash === '0' ? value : currentCash + value;
+            const numericValue = parseFloat(newValue);
+            if (numericValue <= 9999999.99) {
+                onValueChange('cashTendered', newValue);
+            }
         }
     };
 
@@ -51,23 +55,37 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
         if (!focusManager.isActive('cash')) return;
 
         const { key } = event;
+        const currentCash = values.cashTendered || '';
+
         if (key === 'Backspace') {
-            setCashTendered(prev => prev.slice(0, -1));
+            onValueChange('cashTendered', currentCash.slice(0, -1));
             event.preventDefault();
         } else if (key === 'Enter') {
             event.preventDefault();
         } else if (key === '.') {
-            if (!cashTendered.includes('.')) {
-                setCashTendered(prev => prev === '' ? '0.' : prev + '.');
+            if (!currentCash.includes('.')) {
+                const newValue = currentCash === '' ? '0.' : currentCash + '.';
+                onValueChange('cashTendered', newValue);
             }
             event.preventDefault();
         } else if (/^\d$/.test(key)) {
-            setCashTendered(prev => {
-                const newValue = prev === '0' ? key : prev + key;
-                const numericValue = parseFloat(newValue);
-                return numericValue <= 9999999.99 ? newValue : prev;
-            });
+            const newValue = currentCash === '0' ? key : currentCash + key;
+            const numericValue = parseFloat(newValue);
+            if (numericValue <= 9999999.99) {
+                onValueChange('cashTendered', newValue);
+            }
             event.preventDefault();
+        }
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.replace('MK ', '').replace(/,/g, '');
+        const numericValue = parseFloat(value);
+
+        if (!isNaN(numericValue) && numericValue <= 9999999.99) {
+            onValueChange('cashTendered', value);
+        } else if (value === '') {
+            onValueChange('cashTendered', '');
         }
     };
 
@@ -77,6 +95,11 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
 
     const handleBlur = () => {
         focusManager.clearFocus();
+    };
+
+    const formatDisplayValue = (value: string) => {
+        const numericValue = parseFloat(value) || 0;
+        return `MK ${numericValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     };
 
     return (
@@ -104,16 +127,13 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
                     <h3 className="text-5xl font-bold text-black dark:text-gray-400 mb-2">CASH TENDERED</h3>
                     <input
                         type="text"
-                        value={`MK ${(parseFloat(cashTendered) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                        onChange={(e) => {
-                            const value = e.target.value.replace('MK ', '').replace(/,/g, '');
-                            setCashTendered(value);
-                        }}
+                        value={formatDisplayValue(values.cashTendered || '')}
+                        onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
                         onFocus={handleFocus}
                         onBlur={handleBlur}
                         ref={inputRef}
-                        className="bg-gray-800 text-white text-center p-6 text-5xl font-bold rounded-none w-full"
+                        className={`bg-gray-800 text-white text-center p-6 text-5xl font-bold rounded-none w-full`}
                     />
                 </div>
                 <div>
@@ -125,14 +145,6 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
                         className="bg-gray-800 text-yellow-400 text-center p-6 text-5xl font-bold rounded-none w-full"
                     />
                 </div>
-                {processing && (
-                    <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded">
-                        <div className="flex items-center gap-2">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700"></div>
-                            <span className="font-bold">Processing cash payment...</span>
-                        </div>
-                    </div>
-                )}
             </div>
         </div>
     );

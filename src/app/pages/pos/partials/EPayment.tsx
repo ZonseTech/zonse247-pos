@@ -2,13 +2,14 @@ import React, { FunctionComponent, useRef, useState, useEffect } from 'react';
 import { ActiveInputType } from './CheckoutModal';
 import VirtualKeyboard from '../../../components/VirtualKeyboard';
 import { Phone } from 'lucide-react';
+import { FormikErrors } from 'formik';
+import FormInput from '../../../components/FormInput';
 
 interface EPaymentProps {
     total: number;
-    phoneNumber: string;
+    values: TransactionValues;
     activeInput: ActiveInputType;
-    processing: boolean;
-    onPhoneChange: (phone: string) => void;
+    onValueChange: (field: keyof TransactionValues, value: any, shouldValidate?: boolean) => Promise<void | FormikErrors<TransactionValues>>
     onActiveInputChange: (input: ActiveInputType) => void;
 }
 
@@ -19,14 +20,20 @@ export const E_PAYMENT_METHODS = [
 
 const EPayment: FunctionComponent<EPaymentProps> = ({
     total,
-    phoneNumber,
+    values,
     activeInput,
-    processing,
-    onPhoneChange,
+    onValueChange,
     onActiveInputChange,
 }) => {
     const phoneInputRef = useRef<HTMLInputElement>(null);
+    const referenceNumberInputRef = useRef<HTMLInputElement>(null);
     const [selectedSubMethod, setSelectedSubMethod] = useState('airtel-money');
+    const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const isVirtualKeyboardActive = useRef(false);
+
+    useEffect(() => {
+        if (selectedSubMethod) onValueChange('paymentServiceProviderUuid', selectedSubMethod)
+    }, [])
 
     useEffect(() => {
         if (phoneInputRef.current) {
@@ -36,46 +43,133 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
 
     const handleOnMethodSelect = (methodId: string) => {
         setSelectedSubMethod(methodId);
-    };
+        onValueChange('paymentServiceProviderUuid', methodId);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value.replace(/\D/g, '');
-        if (value.length <= 10) {
-            onPhoneChange(value);
-        }
-    };
-
-    const handleInputFocus = () => {
-        onActiveInputChange('phone');
-    };
-
-    const handleInputBlur = () => {
         setTimeout(() => {
-            onActiveInputChange(null);
+            phoneInputRef.current?.focus();
         }, 100);
     };
 
-    const handleVirtualKeyPress = (key: string) => {
-        if (activeInput === 'phone' && /^\d$/.test(key) && phoneNumber.length < 10) {
-            onPhoneChange(phoneNumber + key);
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+
+        if (name === 'phoneNumber') {
+            const numericValue = value.replace(/\D/g, '');
+            if (numericValue.length <= 10) {
+                onValueChange('phoneNumber', numericValue);
+            }
+        } else if (name === 'transactionId') {
+            onValueChange('transactionId', value);
         }
+    };
+
+    const handleInputFocus = (elementName: ActiveInputType) => {
+        if (blurTimeoutRef.current) {
+            clearTimeout(blurTimeoutRef.current);
+            blurTimeoutRef.current = null;
+        }
+        onActiveInputChange(elementName);
+    };
+
+    const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        if (isVirtualKeyboardActive.current) {
+            e.target.focus();
+            return;
+        }
+
+        if (blurTimeoutRef.current) {
+            clearTimeout(blurTimeoutRef.current);
+        }
+
+        blurTimeoutRef.current = setTimeout(() => {
+            if (!isVirtualKeyboardActive.current) {
+                onActiveInputChange(null);
+            }
+            blurTimeoutRef.current = null;
+        }, 200);
+    };
+
+    const handleVirtualKeyPress = (key: string) => {
+        isVirtualKeyboardActive.current = true;
+
+        if (activeInput === 'phoneNumber' && /^\d$/.test(key) && values.phoneNumber.length < 10) {
+            onValueChange('phoneNumber', values.phoneNumber + key);
+        } else if (activeInput === 'referenceNo') {
+            if (/^[a-zA-Z0-9]$/.test(key)) {
+                onValueChange('transactionId', values.transactionId + key);
+            }
+        }
+
+        setTimeout(() => {
+            isVirtualKeyboardActive.current = false;
+        }, 50);
     };
 
     const handleVirtualBackspace = () => {
-        if (activeInput === 'phone') {
-            onPhoneChange(phoneNumber.slice(0, -1));
+        isVirtualKeyboardActive.current = true;
+
+        if (activeInput === 'phoneNumber') {
+            onValueChange('phoneNumber', values.phoneNumber.slice(0, -1));
+        } else if (activeInput === 'referenceNo') {
+            onValueChange('transactionId', values.transactionId.slice(0, -1));
         }
+
+        setTimeout(() => {
+            isVirtualKeyboardActive.current = false;
+        }, 50);
     };
 
     const handleVirtualEnter = () => {
-        if (activeInput === 'phone' && phoneNumber.length >= 9) {
-            phoneInputRef.current?.blur();
+        isVirtualKeyboardActive.current = true;
+
+        if (activeInput === 'phoneNumber' && values.phoneNumber.length >= 9) {
+            setTimeout(() => {
+                referenceNumberInputRef.current?.focus();
+                isVirtualKeyboardActive.current = false;
+            }, 50);
+        } else if (activeInput === 'referenceNo' && values.transactionId.length >= 5) {
+            setTimeout(() => {
+                referenceNumberInputRef.current?.blur();
+                onActiveInputChange(null);
+                isVirtualKeyboardActive.current = false;
+            }, 50);
+        } else {
+            setTimeout(() => {
+                isVirtualKeyboardActive.current = false;
+            }, 50);
         }
     };
 
     const handleVirtualSpace = () => {
-        // 
+        isVirtualKeyboardActive.current = true;
+
+        if (activeInput === 'referenceNo') {
+            onValueChange('transactionId', values.transactionId + ' ');
+        }
+
+        setTimeout(() => {
+            isVirtualKeyboardActive.current = false;
+        }, 50);
     };
+
+    const handleVirtualKeyboardMouseDown = (e: React.MouseEvent) => {
+        e.preventDefault();
+        isVirtualKeyboardActive.current = true;
+    };
+
+    const handleVirtualKeyboardMouseUp = () => {
+        setTimeout(() => {
+            isVirtualKeyboardActive.current = false;
+        }, 100);
+    };
+
+    useEffect(() => {
+        return () => {
+            if (blurTimeoutRef.current) {
+                clearTimeout(blurTimeoutRef.current);
+            }
+        };
+    }, []);
 
     return (
         <div className="flex flex-col">
@@ -88,12 +182,15 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                                 return (
                                     <button
                                         key={method.id}
-                                        onClick={() => handleOnMethodSelect(method.id)}
-                                        disabled={processing}
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            handleOnMethodSelect(method.id)
+                                        }}
                                         className={`p-6 rounded-none flex flex-col items-center gap-3 transition-colors ${selectedSubMethod === method.id
                                             ? method.color + ' text-white'
                                             : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                                            } ${processing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            }`}
                                     >
                                         <IconComponent size={32} />
                                         <span className="text-sm font-bold text-center">{method.name}</span>
@@ -106,21 +203,50 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                     {(selectedSubMethod === 'airtel-money' || selectedSubMethod === 'tnm-mpamba') && (
                         <div className="mb-6">
                             <h3 className="text-2xl font-bold text-black dark:text-gray-400 mb-3">PHONE NUMBER</h3>
-                            <input
+                            <FormInput
                                 ref={phoneInputRef}
                                 type="tel"
-                                value={phoneNumber}
+                                value={values.phoneNumber}
                                 onChange={handleInputChange}
-                                onFocus={handleInputFocus}
+                                onFocus={() => handleInputFocus('phoneNumber')}
                                 onBlur={handleInputBlur}
                                 placeholder="e.g., 0881234567"
-                                disabled={processing}
+                                name='phoneNumber'
                                 maxLength={10}
-                                className={`w-full p-4 border border-gray-300 rounded-none text-black text-xl font-mono ${activeInput === 'phone' ? 'border-gray-500' : ''
-                                    } ${processing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`w-full p-4 border border-gray-300 rounded-none text-black text-xl font-mono ${activeInput === 'phoneNumber' ? 'border-blue-500 bg-blue-50' : ''
+                                    }`}
                             />
+                            {activeInput === 'phoneNumber' && (
+                                <div className="text-sm text-blue-600 mt-1">
+                                    Use virtual keyboard to enter phone number (numbers only)
+                                </div>
+                            )}
                         </div>
                     )}
+
+                    <div className="">
+                        <h3 className="text-2xl font-bold text-black dark:text-gray-400 mb-3">
+                            REFERENCE NUMBER
+                        </h3>
+                        <FormInput
+                            ref={referenceNumberInputRef}
+                            type="text"
+                            value={values.transactionId}
+                            onChange={handleInputChange}
+                            onFocus={() => handleInputFocus('referenceNo')}
+                            onBlur={handleInputBlur}
+                            placeholder="REF.GGJH878.292..."
+                            name='transactionId'
+                            maxLength={50}
+                            className={`w-full p-4 border border-gray-300 rounded-none text-black text-xl font-mono ${activeInput === 'referenceNo' ? 'border-blue-500 bg-blue-50' : ''
+                                }`}
+                        />
+                        {activeInput === 'referenceNo' && (
+                            <div className="text-sm text-blue-600 mt-1">
+                                Use virtual keyboard to enter reference number (letters and numbers)
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="space-y-8">
@@ -136,23 +262,21 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                             MK {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                     </div>
-                    {processing && (
-                        <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded">
-                            <div className="flex items-center gap-2">
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700"></div>
-                                <span className="font-bold">Processing e-payment...</span>
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
-            <VirtualKeyboard
-                onKeyPress={handleVirtualKeyPress}
-                onBackspace={handleVirtualBackspace}
-                onEnter={handleVirtualEnter}
-                onSpace={handleVirtualSpace}
-                className="virtual-keyboard w-full mt-4"
-            />
+
+            <div
+                onMouseDown={handleVirtualKeyboardMouseDown}
+                onMouseUp={handleVirtualKeyboardMouseUp}
+            >
+                <VirtualKeyboard
+                    onKeyPress={handleVirtualKeyPress}
+                    onBackspace={handleVirtualBackspace}
+                    onEnter={handleVirtualEnter}
+                    onSpace={handleVirtualSpace}
+                    className="virtual-keyboard w-full mt-4"
+                />
+            </div>
         </div>
     );
 };
