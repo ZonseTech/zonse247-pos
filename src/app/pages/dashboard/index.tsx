@@ -246,7 +246,7 @@ const Dashboard: FunctionComponent = () => {
                             </div>
 
                             <div className="lg:col-span-3">
-                                <div className="bg-white dark:bg-gray-800 rounded-xl px-6 pb-7 shadow-sm border border-gray-100 dark:border-gray-700  transition-colors duration-300">
+                                <div className="bg-white dark:bg-gray-800">
                                     <MonthlySalesChart data={monthlySalesData} chartHeader={
                                         <Fragment>
                                             <div className="flex items-center justify-between gap-3">
