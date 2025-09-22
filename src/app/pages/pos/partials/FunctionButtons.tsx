@@ -32,11 +32,11 @@ const FunctionButtons: FunctionComponent<FunctionButtonsProps> = ({
 }) => {
     const buttonConfigs: Array<FunctionButtonConfig> = [
         { label: 'VOID(F4)\nSALE', color: 'bg-red-500', action: 'void', shortcut: 'F4' },
-        // { label: 'PARK(F7)\nSALE', color: 'bg-red-500', action: 'park', shortcut: 'F7' },
-        // { label: 'DRAWER\n(F6)', color: 'bg-blue-500', action: 'drawer', shortcut: 'F6' },
+        { label: 'PARK(F7)\nSALE', color: 'bg-red-500', action: 'park', shortcut: 'F7' },
+        { label: 'DRAWER\n(F6)', color: 'bg-blue-500', action: 'drawer', shortcut: 'F6' },
         { label: 'ITEM(F2)\nLOOKUP', color: 'bg-blue-500', action: 'lookup', shortcut: 'F2' },
-        // { label: 'REPRINT\n(F11)', color: 'bg-blue-500', action: 'reprint', shortcut: 'F11' },
-        // { label: 'DISCOUNT\n(F5)', color: 'bg-blue-500', action: 'discount', shortcut: 'F5' },
+        { label: 'REPRINT\n(F11)', color: 'bg-blue-500', action: 'reprint', shortcut: 'F11' },
+        { label: 'DISCOUNT\n(F5)', color: 'bg-blue-500', action: 'discount', shortcut: 'F5' },
         { label: 'BANK(F12)\nTRASFER', color: 'bg-green-500', action: 'bank-transfer', shortcut: 'F12' },
         { label: 'E(F8)\nPAYMENT', color: 'bg-green-500', action: 'e-payment', shortcut: 'F8' },
         { label: 'PAY(F10)\nCASH', color: 'bg-green-500', action: 'pay-cash', shortcut: 'F10' },

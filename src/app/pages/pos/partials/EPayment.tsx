@@ -216,11 +216,6 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                                 className={`w-full p-4 border border-gray-300 rounded-none text-black text-xl font-mono ${activeInput === 'phoneNumber' ? 'border-blue-500 bg-blue-50' : ''
                                     }`}
                             />
-                            {activeInput === 'phoneNumber' && (
-                                <div className="text-sm text-blue-600 mt-1">
-                                    Use virtual keyboard to enter phone number (numbers only)
-                                </div>
-                            )}
                         </div>
                     )}
 
@@ -241,11 +236,6 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                             className={`w-full p-4 border border-gray-300 rounded-none text-black text-xl font-mono ${activeInput === 'referenceNo' ? 'border-blue-500 bg-blue-50' : ''
                                 }`}
                         />
-                        {activeInput === 'referenceNo' && (
-                            <div className="text-sm text-blue-600 mt-1">
-                                Use virtual keyboard to enter reference number (letters and numbers)
-                            </div>
-                        )}
                     </div>
                 </div>
 
