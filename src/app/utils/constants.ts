@@ -14,6 +14,7 @@ export enum ROUTES {
 	EXPORT_DB = '/export-db',
 	MIGRATIONS = '/migrations',
 	LOGIN = '/login',
+	SETTINGS = '/settings',
 	LANDING_PAGE = '/landing-page',
 	GET_STARTED = '/sign-in',
 }
