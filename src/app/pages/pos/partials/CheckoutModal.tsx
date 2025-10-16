@@ -5,7 +5,7 @@ import CashPayment from './CashPayment';
 import BankTransfer from './BankTransfer';
 import { FunctionComponent, useState, useEffect } from 'react';
 import { useFocusManager } from '../../../hooks/useFocusManager';
-import { useProducts } from '../../../context/ProductsProvider';
+import { useProducts } from '../../../hooks/useProducts';
 import { useAuth } from '../../../context/AuthProvider';
 import { useApp } from '../../../context/AppProvider';
 import transactionService from '../../../services/transactions.service';

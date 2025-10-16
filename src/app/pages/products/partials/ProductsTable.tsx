@@ -1,23 +1,20 @@
 import dayjs from 'dayjs';
 import { toast } from 'react-toastify';
 import { Confirm, Notify } from 'notiflix';
-import Loader from '../../../components/Loader';
 import { formatCurrency } from '../../../utils';
 import EditProductModal from '../EditProductModal';
 import relativeTime from 'dayjs/plugin/relativeTime'
 import CreateProductModal from '../CreateProductModal';
 import IconButton from '../../../components/IconButton';
-import { useProducts } from '../../../context/ProductsProvider';
+import { useProducts } from '../../../hooks/useProducts';
 import productsService from '../../../services/products.service';
 import DataTable, { type TableColumn, type Themes } from "react-data-table-component";
 import { Input, Select, ZonseThemeContext } from '../../../components';
 import { HiOutlineDownload, HiOutlineMenuAlt4, HiOutlinePencilAlt, HiOutlineRefresh, HiOutlineTrash } from 'react-icons/hi';
 import React, { Fragment, useContext, useEffect, useState } from 'react';
 import { Package, PackagePlusIcon } from 'lucide-react';
-import { HiOutlinePlus } from 'react-icons/hi2';
 
 dayjs.extend(relativeTime);
-
 
 interface TransactionTableProps {
     setSummaryData: any;

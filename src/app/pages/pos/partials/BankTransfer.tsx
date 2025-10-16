@@ -185,11 +185,6 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
                             className={`w-full p-4 border border-gray-300 rounded-none text-black text-xl font-mono ${activeInput === 'referenceNo' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
                                 }`}
                         />
-                        {activeInput === 'referenceNo' && (
-                            <div className="text-sm text-blue-600 mt-1">
-                                Use virtual keyboard to enter reference number (letters, numbers, spaces, and dashes)
-                            </div>
-                        )}
                     </div>
                 </div>
 

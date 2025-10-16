@@ -3,12 +3,21 @@ import { formatCurrency } from "../../../utils"
 import { Button, Modal } from "../../../components"
 import { HiOutlineClipboardList } from "react-icons/hi"
 import { useState, type FunctionComponent, Fragment } from "react"
-import { useProducts } from "../../../context/ProductsProvider"
+import { useProducts } from '../../../hooks/useProducts';
 import IconLabelButton from "../../../components/IconLabelButton"
 import holdOrderService from "../../../services/hold-orders.service"
 
-const HoldOrdersModal: FunctionComponent = () => {
-    const [isOpen, setIsOpen] = useState(false)
+
+interface ItemLookupModalProps {
+    isOpen: boolean;
+    onClickOpen: () => void;
+}
+
+const HoldOrdersModal: FunctionComponent<ItemLookupModalProps> = ({
+    isOpen,
+    onClickOpen,
+}) => {
+
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [holdOrders, setHoldOrders] = useState<Array<HoldOrder>>([])
@@ -40,12 +49,12 @@ const HoldOrdersModal: FunctionComponent = () => {
     }
 
     const handleOpenModal = () => {
-        setIsOpen(true)
+        onClickOpen()
         fetchHoldOrders()
     }
 
     const handleCloseModal = () => {
-        setIsOpen(false)
+        onClickOpen()
         setError(null)
     }
 
@@ -82,7 +91,7 @@ const HoldOrdersModal: FunctionComponent = () => {
                             "Ok"
                         );
 
-                        setIsOpen(false);
+                        onClickOpen();
                     } catch (error) {
                         console.error("Error loading hold order:", error);
                         Report.failure(

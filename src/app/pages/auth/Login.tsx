@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Form, Formik } from 'formik'
 import { toast } from 'react-toastify'
 import Alert from "../../components/Alert";
@@ -11,12 +11,22 @@ import AuthLayout from "../../layouts/AuthLayout";
 import FormInput from "../../components/FormInput";
 import { useAuth } from "../../context/AuthProvider";
 import FormWrapper from "../../components/FormWrapper";
+import VirtualKeyboard from "../../components/VirtualKeyboard";
 import type { Dispatch, FunctionComponent, SetStateAction } from "react";
+
+interface AuthProps {
+    username: string;
+    password: string;
+}
 
 const Login: FunctionComponent = () => {
     const auth = useAuth()
     const navigate = useNavigate();
     const [authError, setAuthError]: [string, Dispatch<SetStateAction<string>>] = useState('')
+    const [activeField, setActiveField] = useState<'username' | 'password' | null>('username')
+    const usernameInputRef = useRef<HTMLInputElement>(null)
+    const passwordInputRef = useRef<HTMLInputElement>(null)
+    const formikRef = useRef<any>(null)
 
     const loginProps: AuthProps = {
         password: '',
@@ -32,18 +42,53 @@ const Login: FunctionComponent = () => {
     }, ""> = Yup.object({
         password: Yup.string()
             .required('Password is required'),
-
         username: Yup.string()
             .required('Please enter your username'),
     })
 
+    const handleKeyPress = (key: string) => {
+        if (!activeField) return;
+
+        const fieldName = activeField;
+        const currentValue = formikRef.current?.values[fieldName] || '';
+        const newValue = currentValue + key;
+
+        formikRef.current?.setFieldValue(fieldName, newValue);
+    }
+
+    const handleBackspace = () => {
+        if (!activeField) return;
+
+        const fieldName = activeField;
+        const currentValue = formikRef.current?.values[fieldName] || '';
+        const newValue = currentValue.slice(0, -1);
+
+        formikRef.current?.setFieldValue(fieldName, newValue);
+    }
+
+    const handleSpace = () => {
+        if (!activeField) return;
+
+        const fieldName = activeField;
+        const currentValue = formikRef.current?.values[fieldName] || '';
+        const newValue = currentValue + ' ';
+
+        formikRef.current?.setFieldValue(fieldName, newValue);
+    }
+
+    const handleEnter = () => {
+        if (activeField === 'username') {
+            setActiveField('password')
+            passwordInputRef.current?.focus()
+        } else if (activeField === 'password') {
+            formikRef.current?.submitForm()
+        }
+    }
+
     const handleSubmit = async (values: AuthProps): Promise<void> => {
         try {
-
             const user = await auth.signin(values)
-
             toast.success('Welcome back! ' + user.user.fullname)
-
             navigate(ROUTES.POS);
             location.reload()
         } catch (error: any) {
@@ -52,42 +97,76 @@ const Login: FunctionComponent = () => {
     }
 
     return (
-        <AuthLayout className='max-w-4xl'>
+        <AuthLayout
+            className='max-w-md'
+            showKeyboard={true}
+            keyboard={
+                <VirtualKeyboard
+                    onKeyPress={handleKeyPress}
+                    onBackspace={handleBackspace}
+                    onEnter={handleEnter}
+                    onSpace={handleSpace}
+                />
+            }
+        >
             <Formik
+                innerRef={formikRef}
                 initialValues={loginProps}
                 validationSchema={loginValidationSchema}
                 onSubmit={handleSubmit}
             >
                 {({ isSubmitting }) => (
                     <Form>
-
                         <h1 className="mb-4 text-xl text-center font-semibold text-gray-700 dark:text-gray-400">
                             Sign in
                         </h1>
-
                         <FormWrapper>
                             {(authError) && <Alert type="danger"><span>{authError}</span></Alert>}
 
-                            <FormInput label='Username' id='username' name='username' type='text' step={1} required placeholder="johnbob" className="mt-1" />
+                            <FormInput
+                                inputRef={usernameInputRef}
+                                label='Username'
+                                id='username'
+                                name='username'
+                                type='text'
+                                step={1}
+                                required
+                                placeholder="johnbob"
+                                className="mt-1"
+                                readOnly={false}
+                                onClick={() => {
+                                    setActiveField('username')
+                                    usernameInputRef.current?.focus()
+                                }}
+                            />
 
-                            <FormInput label='Password' id='password' name='password' type='password' step={2} required placeholder="***************" />
 
-                            <Button type='submit' className="mt-1 mb-8" block loading={isSubmitting}>
+                            <FormInput
+                                inputRef={passwordInputRef}
+                                label='Password'
+                                id='password'
+                                name='password'
+                                type='password'
+                                step={2}
+                                required
+                                placeholder="***************"
+                                className="mt-1"
+                                readOnly={false}
+                                onClick={() => {
+                                    setActiveField('password')
+                                    passwordInputRef.current?.focus()
+                                }}
+                            />
+
+                            <Button type='submit' className="mt-6 mb-8" block loading={isSubmitting}>
                                 Log in
                             </Button>
                         </FormWrapper>
-
                     </Form>
                 )}
             </Formik>
-
-            <p className="text-center text-xs text-gray-500 mt-4">
-                Version {version || '1.0.0'}
-            </p>
-
         </AuthLayout>
     )
 }
-
 
 export default Login;

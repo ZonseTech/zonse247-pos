@@ -1,6 +1,7 @@
 export enum ROUTES {
 	POS = '/pos',
 	USERS = '/users',
+	MY_PROFILE = '/my-profile',
 	ROLES_PERMISSIONS = '/roles-and-permissions',
 	DASHBOARD = '/dashboard',
 	TRANSACTIONS = '/transactions',
@@ -14,6 +15,7 @@ export enum ROUTES {
 	EXPORT_DB = '/export-db',
 	MIGRATIONS = '/migrations',
 	LOGIN = '/login',
+	SETTINGS = '/settings',
 	LANDING_PAGE = '/landing-page',
 	GET_STARTED = '/sign-in',
 }

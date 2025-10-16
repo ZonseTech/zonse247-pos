@@ -5,10 +5,11 @@ import Footer from '../../components/Footer';
 import BarcodeScanner from './partials/BarcodeScanner';
 import FunctionButtons from './partials/FunctionButtons';
 import ItemLookupModal from './partials/ItemLookupModal';
-import { useProducts } from '../../context/ProductsProvider';
 import { useFocusManager } from '../../hooks/useFocusManager';
 import { FunctionComponent, useState, useEffect, useRef } from 'react';
 import CheckoutModal, { CHECKOUT, PaymentMethod } from './partials/CheckoutModal';
+import { useProducts } from '../../hooks/useProducts';
+import HoldOrdersModal from './partials/HoldOrdersModal';
 
 const POSSystem: FunctionComponent = () => {
     const {
@@ -27,6 +28,7 @@ const POSSystem: FunctionComponent = () => {
     const [numpadInput, setNumpadInput] = useState('');
     const [isLookupModalOpen, setIsLookupModalOpen] = useState(false);
     const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+    const [isHoldOrdersModalOpen, setIsHoldOrdersModalOpen] = useState(false);
     const [paymentMethodUuid, setPaymentMethodUuid] = useState<PaymentMethod>(CHECKOUT.CASH);
     const [customPriceInputs, setCustomPriceInputs] = useState<Record<string, string>>({});
 
@@ -50,6 +52,10 @@ const POSSystem: FunctionComponent = () => {
                 case 'F7':
                     event.preventDefault();
                     handleParkSale();
+                    break;
+                case 'F3':
+                    event.preventDefault();
+                    handleParkedSales();
                     break;
                 case 'F5':
                     event.preventDefault();
@@ -156,6 +162,10 @@ const POSSystem: FunctionComponent = () => {
         // Add park sale logic
     };
 
+    const handleParkedSales = () => {
+        setIsHoldOrdersModalOpen(true)
+    };
+
     const handleOpenDrawer = () => {
         console.log('Opening cash drawer...');
         // Add drawer opening logic
@@ -241,6 +251,7 @@ const POSSystem: FunctionComponent = () => {
                             <FunctionButtons
                                 onVoidSale={handleVoidSale}
                                 onParkSale={handleParkSale}
+                                onParkedSales={handleParkedSales}
                                 onOpenDrawer={handleOpenDrawer}
                                 onItemLookup={handleItemLookup}
                                 onReprint={handleReprint}
@@ -252,8 +263,14 @@ const POSSystem: FunctionComponent = () => {
                         </div>
                     </Panel>
                 </div>
-                <Footer />
+                <div className="border-t border-gray-200 dark:border-gray-700">
+                    <Footer />
+                </div>
             </div>
+
+            <HoldOrdersModal
+                isOpen={isHoldOrdersModalOpen}
+                onClickOpen={() => setIsHoldOrdersModalOpen(false)} />
 
             <ItemLookupModal
                 isOpen={isLookupModalOpen}

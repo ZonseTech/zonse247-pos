@@ -1,6 +1,7 @@
 import { Outlet } from "react-router"
 import { type FunctionComponent } from "react"
 import NavBar from "../navigation/NavBar"
+import Footer from "../components/Footer"
 
 const ProtectedLayout: FunctionComponent = () => {
 	return (
@@ -16,6 +17,10 @@ const ProtectedLayout: FunctionComponent = () => {
 					</div>
 				</div>
 			</main>
+
+			<div className="border-t border-gray-200 dark:border-gray-700">
+				<Footer />
+			</div>
 		</div>
 	)
 }

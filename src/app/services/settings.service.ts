@@ -48,6 +48,12 @@ const settingsService = {
 				throw err;
 			});
 	},
+	async update(params: any) {
+
+	},
+	async reset() {
+
+	}
 };
 
 export default settingsService;

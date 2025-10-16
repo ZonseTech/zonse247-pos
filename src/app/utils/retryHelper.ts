@@ -39,10 +39,6 @@ export const isRetryableError = (error) => {
 };
 
 export const validateSettingsResponse = (settings: WorkstatSettings) => {
-	console.log('====================================');
-	console.log(settings);
-	console.log('====================================');
-
 	if (!settings) return false;
 
 	const requiredFields = ['uuid', 'clientUuid', 'isActive'];

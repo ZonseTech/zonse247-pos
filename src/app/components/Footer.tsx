@@ -1,6 +1,8 @@
 import { useState, useEffect, FunctionComponent } from 'react'
 import { useAuth } from '../context/AuthProvider';
 import { Clock, User } from 'lucide-react';
+import { Link } from 'react-router';
+import { ROUTES } from '../utils/constants';
 
 const Footer: FunctionComponent = () => {
     const { user } = useAuth();
@@ -26,7 +28,7 @@ const Footer: FunctionComponent = () => {
     }
 
     return (
-        <div className="flex justify-between items-center text-xl text-gray-600 mb-3">
+        <div className="flex justify-between items-center text-xl text-gray-600 mb-3 pt-3 px-4">
             <div className="flex items-center gap-2">
                 <Clock className="w-6 h-6" />
                 <span>{formatTime(currentTime)}</span>
@@ -34,10 +36,10 @@ const Footer: FunctionComponent = () => {
 
             <span>Zonse247 Pos @ {currentTime.getFullYear()}</span>
 
-            <div className="flex items-center gap-2">
+            {user && <Link to={ROUTES.MY_PROFILE} className="flex items-center gap-2">
                 <User className="w-6 h-6" />
                 <span>{user?.fullname}</span>
-            </div>
+            </Link>}
         </div>
     )
 }
