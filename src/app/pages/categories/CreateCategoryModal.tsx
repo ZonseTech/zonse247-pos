@@ -8,7 +8,6 @@ import FormWrapper from '../../components/FormWrapper'
 import FormInput from '../../components/FormInput';
 import categoriesService from '../../services/category.service';
 import { Confirm } from 'notiflix/build/notiflix-confirm-aio';
-import { useProducts } from '../../context/ProductsProvider';
 
 type Props = {
     category?: Category;
@@ -16,7 +15,7 @@ type Props = {
     children?: React.ReactNode;
     isOpen?: boolean;
     onClose?: () => void;
-    onSuccess?: () => void;
+    onSuccess?: (...arg: any) => void;
 }
 
 const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
@@ -26,7 +25,6 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
     onClose,
     onSuccess
 }) => {
-    const { reloadProducts } = useProducts();
     const [isOpenForm, setIsOpenForm] = useState(isOpen);
     const [categoryValues, setCategoryValues] = useState<Partial<Category>>({
         uuid: '',
@@ -92,15 +90,14 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
                 setCategoryValues({ uuid: '', name: '', description: '', color: '#3B82F6' });
 
                 if (onSuccess) {
-                    onSuccess();
+                    onSuccess?.();
                 }
 
                 if (onClose) {
-                    onClose();
+                    onClose?.();
                 }
 
                 setIsOpenForm(false);
-                reloadProducts();
             } else {
                 await categoriesService.store(values);
 
@@ -110,8 +107,6 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
                     okButtonText: "Add Another Category",
                     cancelButtonText: "Close",
                 };
-
-                reloadProducts();
 
                 Confirm.show(
                     diagOptions.title,
@@ -128,7 +123,7 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
                             onClose();
                         }
                         if (onSuccess) {
-                            onSuccess();
+                            onSuccess?.();
                         }
                     }
                 );

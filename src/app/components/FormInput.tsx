@@ -23,6 +23,7 @@ interface TextInputProps {
 	timeFormat?: string;
 	maxDate?: string;
 	placeholderText?: string;
+	inputRef?: React.RefObject<HTMLInputElement>
 }
 
 const FormInput: React.FC<TextInputProps & React.InputHTMLAttributes<HTMLInputElement>> = ({

@@ -1,8 +1,8 @@
 import Select from 'react-select'
 import AddCustomerModal from './AddCustomerModal';
-import { useProducts } from '../../context/ProductsProvider';
 import { Fragment, FunctionComponent, useContext, useEffect, useState } from 'react'
 import { ZonseThemeContext } from '../../components';
+import { useProducts } from '../../hooks/useProducts';
 
 const CustomerFilter: FunctionComponent = () => {
     const { mode } = useContext(ZonseThemeContext);
