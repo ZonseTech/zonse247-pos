@@ -72,7 +72,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
         e.preventDefault();
     };
 
-    const keyBaseClasses = "flex items-center justify-center text-xl font-semibold rounded-lg transition-all duration-150 select-none cursor-pointer active:scale-95 h-14 shadow-md";
+    const keyBaseClasses = "flex items-center justify-center text-xl font-semibold rounded-lg transition-all duration-150 select-none cursor-pointer active:scale-95 h-14 shadow-sm";
     const regularKeyClasses = "bg-gradient-to-b from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 active:from-gray-300 active:to-gray-400 border border-gray-400 text-gray-800 dark:from-gray-700 dark:to-gray-800 dark:hover:from-gray-600 dark:hover:to-gray-700 dark:active:from-gray-500 dark:active:to-gray-600 dark:border-gray-600 dark:text-gray-200";
     const specialKeyClasses = "bg-gradient-to-b from-gray-300 to-gray-400 hover:from-gray-400 hover:to-gray-500 active:from-gray-500 active:to-gray-600 border border-gray-500 text-gray-800 dark:from-gray-600 dark:to-gray-700 dark:hover:from-gray-500 dark:hover:to-gray-600 dark:active:from-gray-400 dark:active:to-gray-500 dark:border-gray-500 dark:text-gray-200";
     const activeSpecialClasses = "bg-gradient-to-b from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white border-blue-600 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-400 dark:hover:to-blue-500 dark:border-blue-500";
@@ -82,7 +82,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
     const rowGridClass = "grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-1 auto-cols-fr";
 
     return (
-        <div className={`virtual-keyboard bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 p-3 border border-gray-300 dark:border-gray-600 rounded-none w-full min-w-0 ${className}`}>
+        <div className={`virtual-keyboard bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 p-3 border-none border-gray-300 dark:border-gray-600 rounded-none w-full min-w-0 ${className}`}>
             <div className="flex-1 space-y-2">
                 <div className={rowGridClass}>
                     <button

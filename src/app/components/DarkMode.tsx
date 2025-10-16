@@ -2,6 +2,7 @@ import { type FunctionComponent, useContext } from 'react'
 import { ThemeContext } from '../context/ThemeContext';
 import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi2';
 import IconButton from './IconButton';
+import classNames from 'classnames';
 
 interface DarkModeProps {
 	color?: string;
@@ -25,6 +26,7 @@ const DarkMode: FunctionComponent<DarkModeProps> = ({ color = 'bg-green-500' }) 
 			)}
 			color={color}
 			onClick={toggleMode}
+			className='bg-transparent'
 		/>
 	)
 }

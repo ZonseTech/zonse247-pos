@@ -4,6 +4,7 @@ import type { FunctionComponent, PropsWithChildren } from 'react'
 import { version } from '../../../package.json'
 import BackgroundParticles from '../components/BackgroundParticles'
 import Footer from '../components/Footer'
+import DarkMode from '../components/DarkMode'
 
 const Link: FunctionComponent<PropsWithChildren<any>> = ({ to, className, children, ...props }) => (
     <motion.a
@@ -107,8 +108,11 @@ const AuthLayout: FunctionComponent<PropsWithChildren<AuthLayoutProps>> = ({
                             />
                         </Link>
                     </motion.div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                        v{version || '1.0.0'}
+                    <div className='flex items-center justify-between'>
+                        <DarkMode color="bg-[#102f4f]" />
+                        <div className="text-xs mx-4 text-gray-500 dark:text-gray-400">
+                            v{version || '1.0.0'}
+                        </div>
                     </div>
                 </div>
             </motion.header>
@@ -136,7 +140,7 @@ const AuthLayout: FunctionComponent<PropsWithChildren<AuthLayoutProps>> = ({
             )}
 
             <motion.footer
-                className="py-2 border border-t"
+                className="py-2 border-t border-gray-200 dark:border-gray-700"
                 initial={{ y: 80 }}
                 animate={{ y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
