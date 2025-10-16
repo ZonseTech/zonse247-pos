@@ -3,7 +3,7 @@ import PriceControl from './PriceControl';
 import { formatCurrency } from '../../../utils';
 import { Fragment } from 'react';
 import type { FunctionComponent } from 'react'
-import { useProducts } from '../../../context/ProductsProvider';
+import { useProducts } from '../../../hooks/useProducts';
 import { HiOutlineShoppingCart } from 'react-icons/hi';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { DEFAULT_SEED_KEY } from '../../../constants';
@@ -77,7 +77,7 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                     <tbody className="bg-white dark:bg-gray-900">
                         {cart.length === 0 ? (
                             <tr>
-                                <td rowSpan={19} colSpan={7} className="p-0 border-b border-gray-200 dark:border-gray-700">
+                                <td rowSpan={19} colSpan={7} className="p-0 border-none">
                                     <div className="flex flex-col flex-1 items-center justify-center py-44 text-gray-500 dark:text-gray-400">
                                         <div className="relative mb-6">
                                             <HiOutlineShoppingCart className="h-20 w-20 text-gray-300 dark:text-gray-600" />

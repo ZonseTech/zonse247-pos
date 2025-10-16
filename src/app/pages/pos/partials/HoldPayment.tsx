@@ -1,7 +1,7 @@
 import { Report } from "notiflix"
 import { HiOutlineHand, HiOutlineShoppingCart, HiOutlineCurrencyDollar } from "react-icons/hi"
 import { Fragment, useState, type ChangeEvent, type FunctionComponent } from "react"
-import { useProducts } from "../../../context/ProductsProvider"
+import { useProducts } from '../../../hooks/useProducts';
 import { Modal, Input } from "../../../components"
 import holdOrderService from "../../../services/hold-orders.service"
 import { formatCurrency } from "../../../utils"
