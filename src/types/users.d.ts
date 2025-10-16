@@ -6,6 +6,8 @@ interface User {
     password: string;
     fullname: string;
     email?: string | null;
+    departmentId?: string | null;
+    departmentName?: string | null;
     phone?: string | null;
     roleUuid: string;
     roleName?: string | null;
