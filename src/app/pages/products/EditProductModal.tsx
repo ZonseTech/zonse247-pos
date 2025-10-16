@@ -7,7 +7,7 @@ import { Fragment, FunctionComponent, PropsWithChildren, useEffect, useState } f
 import { Button, ModalFooter, Modal } from '../../components'
 import productsService from '../../services/products.service';
 import FormSelectBox from '../../components/FormSelectBox';
-import { useProducts } from '../../context/ProductsProvider';
+import { useProducts } from '../../hooks/useProducts';
 
 type Props = {
 	product: Product;
