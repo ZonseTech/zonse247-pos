@@ -1,5 +1,4 @@
-import { Input } from '../../../components';
-import { useProducts } from '../../../context/ProductsProvider';
+import { useProducts } from '../../../hooks/useProducts';
 import { FunctionComponent, useState, useEffect, Fragment, useRef } from 'react';
 import { Confirm } from 'notiflix';
 import { createPortal } from 'react-dom';
