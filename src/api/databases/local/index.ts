@@ -134,10 +134,32 @@ export class SealDBModel {
 		return new Promise((resolve, reject) => {
 			try {
 				const db = this.getDB(table);
-				db.find(conditions, (err: Error | null, docs: any) => {
+				db.find(conditions, (err: Error | null, docs: T) => {
 					if (err) reject(err);
 					else resolve(docs);
 				});
+			} catch (error) {
+				reject(error);
+			}
+		});
+	}
+
+	public findWithPagination<T = any>(
+		table: string,
+		conditions: any = {},
+		skip: number = 0,
+		limit: number = 10
+	): Promise<T[]> {
+		return new Promise((resolve, reject) => {
+			try {
+				const db = this.getDB(table);
+				db.find(conditions)
+					.skip(skip)
+					.limit(limit)
+					.exec((err: Error | null, docs: T[]) => {
+						if (err) reject(err);
+						else resolve(docs);
+					});
 			} catch (error) {
 				reject(error);
 			}
