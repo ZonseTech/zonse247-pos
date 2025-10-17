@@ -33,6 +33,18 @@ export class InventoryModel {
         });
     }
 
+    static async findActiveWithPagination(
+        auth: AuthenticatedUser,
+        skip: number,
+        limit: number
+    ): Promise<Product[]> {
+        return await sealDBModel.findWithPagination(INVENTORY_DB, {
+            status: { $ne: 'void' },
+            clientUuid: auth.clientUuid,
+            shopUuid: auth.shopUuid
+        }, skip, limit);
+    }
+
     static async findBySku(sku: string, auth: AuthenticatedUser): Promise<Product | null> {
         const products = await sealDBModel.find(INVENTORY_DB, {
             barcode: parseInt(sku),

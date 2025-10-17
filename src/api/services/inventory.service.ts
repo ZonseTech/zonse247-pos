@@ -11,30 +11,38 @@ export class InventoryService {
         return await InventoryModel.findActive(auth);
     }
 
-    static async getProductsWithCategories(auth: AuthenticatedUser): Promise<Product[]> {
+    static async getProductsWithCategories(
+        auth: AuthenticatedUser,
+        page: number = 1,
+        limit: number = 10
+    ): Promise<{ products: Product[]; total: number; totalPages: number }> {
         const categories: Category[] = await CategoryService.getAllCategories(auth);
 
         const categoryMap = new Map<string, Category>();
         categories.forEach((category) => {
-            categoryMap.set(category.uuid.toString(), category);
-            if (category.name) {
-                categoryMap.set(category.name as string, category);
-            }
+            categoryMap.set(category.uuid, category);
         });
 
-        const products: Product[] = await InventoryModel.findActive(auth);
+        // Get total count of active products
+        const totalProducts = await InventoryModel.getCount(auth, false);
+        const totalPages = Math.ceil(totalProducts / limit);
 
-        const enhancedProducts = products.map((product) => {
-            if (product.categoryUuid) {
-                const categoryKey = product.categoryUuid.toString();
-                if (categoryMap.has(categoryKey)) {
-                    product.categoryDetails = categoryMap.get(categoryKey);
-                }
-            }
-            return product;
-        });
+        // Calculate skip for pagination
+        const skip = (page - 1) * limit;
 
-        return enhancedProducts;
+        // Get paginated products
+        const products: Product[] = await InventoryModel.findActiveWithPagination(auth, skip, limit);
+
+        const enhancedProducts = products.map((product) => ({
+            ...product,
+            categoryDetails: product.categoryUuid ? categoryMap.get(product.categoryUuid) : undefined
+        }));
+
+        return {
+            products: enhancedProducts,
+            total: totalProducts,
+            totalPages
+        };
     }
 
     static async createProduct(productData: Record<string, any>, auth: AuthenticatedUser): Promise<void> {
