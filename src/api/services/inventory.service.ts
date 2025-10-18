@@ -2,6 +2,42 @@ import { InventoryModel } from '../models/inventory.model';
 import { CategoryService } from './category.service';
 
 export class InventoryService {
+    static async getProductsSummary(auth: AuthenticatedUser): Promise<{
+        totalStock: number;
+        newStock: number;
+        expiringSoon: number;
+        expired: number;
+    }> {
+        const currentDate = new Date();
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        const thirtyDaysLater = new Date();
+        const products = await InventoryModel.findActive(auth);
+        thirtyDaysLater.setDate(thirtyDaysLater.getDate() + 30);
+
+        return {
+            totalStock: products.filter(item => item.status !== 'void').length,
+            newStock: products.filter(item => {
+                if (!item.createdAt || item.status === 'void') return false;
+                if (item.expirationDate) {
+                    const expiryDate = new Date(item.expirationDate);
+                    if (expiryDate <= currentDate) return false;
+                }
+                const createdDate = new Date(item.createdAt);
+                return createdDate >= oneWeekAgo;
+            }).length,
+            expiringSoon: products.filter(item => {
+                if (!item.expirationDate || item.status === 'void') return false;
+                const expiryDate = new Date(item.expirationDate);
+                return expiryDate > currentDate && expiryDate <= thirtyDaysLater;
+            }).length,
+            expired: products.filter(item => {
+                if (!item.expirationDate || item.status === 'void') return false;
+                const expiryDate = new Date(item.expirationDate);
+                return expiryDate <= currentDate;
+            }).length
+        };
+    }
 
     static async getProductByUuid(productId: string, auth: AuthenticatedUser): Promise<Product | null> {
         return await InventoryModel.findById(productId, auth);
@@ -14,7 +50,9 @@ export class InventoryService {
     static async getProductsWithCategories(
         auth: AuthenticatedUser,
         page: number = 1,
-        limit: number = 10
+        perPage: number = 10,
+        search: string = '',
+        filter: string = 'all'
     ): Promise<{ products: Product[]; total: number; totalPages: number }> {
         const categories: Category[] = await CategoryService.getAllCategories(auth);
 
@@ -23,17 +61,21 @@ export class InventoryService {
             categoryMap.set(category.uuid, category);
         });
 
-        // Get total count of active products
-        const totalProducts = await InventoryModel.getCount(auth, false);
-        const totalPages = Math.ceil(totalProducts / limit);
-
         // Calculate skip for pagination
-        const skip = (page - 1) * limit;
+        const skip = (page - 1) * perPage;
 
-        // Get paginated products
-        const products: Product[] = await InventoryModel.findActiveWithPagination(auth, skip, limit);
+        // Get paginated and filtered products
+        const products: Product[] = await InventoryModel.findActiveWithPagination(
+            auth,
+            skip,
+            perPage,
+            search,
+            filter
+        );
 
-        const enhancedProducts = products.map((product) => ({
+        // Get total count based on filter and search
+        const totalProducts = await InventoryModel.getFilteredCount(auth, search, filter);
+        const totalPages = Math.ceil(totalProducts / perPage); const enhancedProducts = products.map((product) => ({
             ...product,
             categoryDetails: product.categoryUuid ? categoryMap.get(product.categoryUuid) : undefined
         }));

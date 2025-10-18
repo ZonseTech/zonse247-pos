@@ -36,13 +36,90 @@ export class InventoryModel {
     static async findActiveWithPagination(
         auth: AuthenticatedUser,
         skip: number,
-        limit: number
+        limit: number,
+        search: string = '',
+        filter: string = 'all'
     ): Promise<Product[]> {
-        return await sealDBModel.findWithPagination(INVENTORY_DB, {
-            status: { $ne: 'void' },
+        const query: any = {
             clientUuid: auth.clientUuid,
             shopUuid: auth.shopUuid
-        }, skip, limit);
+        };
+
+        // Apply filter
+        if (filter === 'all') {
+            query.status = { $ne: 'void' };
+        } else if (filter === 'new') {
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            query.createdAt = { $gte: oneWeekAgo.toISOString() };
+            query.status = { $ne: 'void' };
+        } else if (filter === 'expiring') {
+            const now = new Date();
+            const thirtyDaysLater = new Date();
+            thirtyDaysLater.setDate(thirtyDaysLater.getDate() + 30);
+            query.expirationDate = {
+                $gt: now.toISOString(),
+                $lte: thirtyDaysLater.toISOString()
+            };
+            query.status = { $ne: 'void' };
+        } else if (filter === 'expired') {
+            const now = new Date();
+            query.expirationDate = { $lte: now.toISOString() };
+        }
+
+        // Apply search
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { barcode: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        return await sealDBModel.findWithPagination(INVENTORY_DB, query, skip, limit);
+    }
+
+    static async getFilteredCount(
+        auth: AuthenticatedUser,
+        search: string = '',
+        filter: string = 'all'
+    ): Promise<number> {
+        const query: any = {
+            clientUuid: auth.clientUuid,
+            shopUuid: auth.shopUuid
+        };
+
+        // Apply same filters as in findActiveWithPagination
+        if (filter === 'all') {
+            query.status = { $ne: 'void' };
+        } else if (filter === 'new') {
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            query.createdAt = { $gte: oneWeekAgo.toISOString() };
+            query.status = { $ne: 'void' };
+        } else if (filter === 'expiring') {
+            const now = new Date();
+            const thirtyDaysLater = new Date();
+            thirtyDaysLater.setDate(thirtyDaysLater.getDate() + 30);
+            query.expirationDate = {
+                $gt: now.toISOString(),
+                $lte: thirtyDaysLater.toISOString()
+            };
+            query.status = { $ne: 'void' };
+        } else if (filter === 'expired') {
+            const now = new Date();
+            query.expirationDate = { $lte: now.toISOString() };
+        }
+
+        // Apply search
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { barcode: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const products = await sealDBModel.find(INVENTORY_DB, query);
+        return Array.isArray(products) ? products.length : 0;
     }
 
     static async findBySku(sku: string, auth: AuthenticatedUser): Promise<Product | null> {
