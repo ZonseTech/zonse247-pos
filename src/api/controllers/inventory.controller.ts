@@ -62,13 +62,15 @@ export class InventoryController extends BaseController {
             const perPage = parseInt(req.query.perPage as string) || 10;
             const search = req.query.search as string || '';
             const filter = req.query.filter as string || 'all';
+            const categoryId = req.query.categoryId ? parseInt(req.query.categoryId as string) : undefined;
 
             const { products, total, totalPages } = await InventoryService.getProductsWithCategories(
                 auth,
                 page,
                 perPage,
                 search,
-                filter
+                filter,
+                categoryId
             );
 
             BaseController.sendSuccess(res, 'Products with categories retrieved successfully.', {
@@ -84,7 +86,9 @@ export class InventoryController extends BaseController {
             console.error('Error fetching products with categories:', error);
             BaseController.sendServerError(res, 'Failed to fetch products with categories.');
         }
-    } static async createProduct(req: Request, res: Response): Promise<void> {
+    }
+
+    static async createProduct(req: Request, res: Response): Promise<void> {
         try {
             const auth = InventoryController.getAuthContext(req);
             const newProduct = await InventoryService.createProduct(req.body, auth);

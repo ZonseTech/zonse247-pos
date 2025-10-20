@@ -52,29 +52,30 @@ export class InventoryService {
         page: number = 1,
         perPage: number = 10,
         search: string = '',
-        filter: string = 'all'
+        filter: string = 'all',
+        categoryId?: number
     ): Promise<{ products: Product[]; total: number; totalPages: number }> {
         const categories: Category[] = await CategoryService.getAllCategories(auth);
 
         const categoryMap = new Map<string, Category>();
         categories.forEach((category) => {
-            categoryMap.set(category.uuid, category);
+            if (category.uuid) {
+                categoryMap.set(category.uuid, category);
+            }
         });
 
-        // Calculate skip for pagination
         const skip = (page - 1) * perPage;
 
-        // Get paginated and filtered products
         const products: Product[] = await InventoryModel.findActiveWithPagination(
             auth,
             skip,
             perPage,
             search,
-            filter
+            filter,
+            categoryId
         );
 
-        // Get total count based on filter and search
-        const totalProducts = await InventoryModel.getFilteredCount(auth, search, filter);
+        const totalProducts = await InventoryModel.getFilteredCount(auth, search, filter, categoryId);
         const totalPages = Math.ceil(totalProducts / perPage); const enhancedProducts = products.map((product) => ({
             ...product,
             categoryDetails: product.categoryUuid ? categoryMap.get(product.categoryUuid) : undefined

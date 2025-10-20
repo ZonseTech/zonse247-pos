@@ -13,9 +13,43 @@ const endpoints = {
 
 const productsService = {
 	endpoints,
-	async list(query = {}): Promise<Product[]> {
+	async getSummary(): Promise<{
+		totalStock: number;
+		newStock: number;
+		expiringSoon: number;
+		expired: number;
+	}> {
 		return api
-			.get<ApiResponse<Product[]>>(endpoints.all, query)
+			.get<ApiResponse<{
+				totalStock: number;
+				newStock: number;
+				expiringSoon: number;
+				expired: number;
+			}>>('inventory/summary')
+			.then((res) => res.data.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+	async list(query = {}): Promise<{
+		products: Product[];
+		pagination: {
+			currentPage: number;
+			totalPages: number;
+			totalItems: number;
+			itemsPerPage: number;
+		};
+	}> {
+		return api
+			.get<ApiResponse<{
+				products: Product[];
+				pagination: {
+					currentPage: number;
+					totalPages: number;
+					totalItems: number;
+					itemsPerPage: number;
+				};
+			}>>(endpoints.all, query)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;

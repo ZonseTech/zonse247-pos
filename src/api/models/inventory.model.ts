@@ -38,14 +38,14 @@ export class InventoryModel {
         skip: number,
         limit: number,
         search: string = '',
-        filter: string = 'all'
+        filter: string = 'all',
+        categoryId?: number
     ): Promise<Product[]> {
         const query: any = {
             clientUuid: auth.clientUuid,
             shopUuid: auth.shopUuid
         };
 
-        // Apply filter
         if (filter === 'all') {
             query.status = { $ne: 'void' };
         } else if (filter === 'new') {
@@ -67,7 +67,10 @@ export class InventoryModel {
             query.expirationDate = { $lte: now.toISOString() };
         }
 
-        // Apply search
+        if (categoryId) {
+            query.categoryUuid = categoryId.toString();
+        }
+
         if (search) {
             query.$or = [
                 { name: { $regex: search, $options: 'i' } },
@@ -81,14 +84,18 @@ export class InventoryModel {
     static async getFilteredCount(
         auth: AuthenticatedUser,
         search: string = '',
-        filter: string = 'all'
+        filter: string = 'all',
+        categoryId?: number
     ): Promise<number> {
         const query: any = {
             clientUuid: auth.clientUuid,
             shopUuid: auth.shopUuid
         };
 
-        // Apply same filters as in findActiveWithPagination
+        if (categoryId) {
+            query.categoryUuid = categoryId.toString();
+        }
+
         if (filter === 'all') {
             query.status = { $ne: 'void' };
         } else if (filter === 'new') {
@@ -110,7 +117,6 @@ export class InventoryModel {
             query.expirationDate = { $lte: now.toISOString() };
         }
 
-        // Apply search
         if (search) {
             query.$or = [
                 { name: { $regex: search, $options: 'i' } },

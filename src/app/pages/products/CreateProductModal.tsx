@@ -156,10 +156,10 @@ const CreateProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ produ
 	return (
 		<Fragment>
 			<IconButton
-				color='bg-blue-600'
+				color=''
 				className='rounded-r-sm rounded-l-none'
 				onClick={handleAddProductClicked}
-				icon={<HiOutlinePlus className='w-5 h-5' />}
+				icon={<HiOutlinePlus className='w-5 h-5 text-blue-600' />}
 			/>
 
 			<Modal
