@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import productsService from '../../../services/products.service';
+import productsService from '../services/products.service';
 
 export interface SummaryCard {
     title: string;
