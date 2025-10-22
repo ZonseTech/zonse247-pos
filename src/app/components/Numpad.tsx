@@ -6,6 +6,7 @@ type NumpadType = 'standard' | 'simple' | 'basic';
 interface NumpadProps {
     onButtonClick: (value: string) => void;
     className?: string;
+    title?: string;
     focusManager?: ReturnType<typeof useFocusManager>;
     type?: NumpadType;
 }
@@ -14,6 +15,7 @@ const Numpad: FunctionComponent<NumpadProps> = ({
     onButtonClick,
     className = '',
     focusManager,
+    title,
     type = 'standard'
 }) => {
     const getNumpadButtons = (numpadType: NumpadType): string[] => {
@@ -59,27 +61,31 @@ const Numpad: FunctionComponent<NumpadProps> = ({
     };
 
     return (
-        <div className={`${className}`}>
-            <div className="grid grid-cols-3 gap-1 numpad-container">
-                {numpadButtons.map((btn, index) => (
-                    btn ? (
-                        <button
-                            key={index}
-                            type="button"
-                            onMouseDown={(e) => {
-                                e.preventDefault();
-                                onButtonClick(btn);
-                            }}
-                            className={getButtonClass(btn)}
-                            disabled={!focusManager || (!focusManager.activeComponent)}
-                            tabIndex={-1}
-                        >
-                            {btn}
-                        </button>
-                    ) : (
-                        <div key={index} className="py-10" />
-                    )
-                ))}
+        <div>
+            {title && <h3 className="text-3xl font-bold text-black dark:text-gray-400 mb-4 uppercase">{title}</h3>}
+
+            <div className={`${className}`}>
+                <div className="grid grid-cols-3 gap-1 numpad-container">
+                    {numpadButtons.map((btn, index) => (
+                        btn ? (
+                            <button
+                                key={index}
+                                type="button"
+                                onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    onButtonClick(btn);
+                                }}
+                                className={getButtonClass(btn)}
+                                disabled={!focusManager || (!focusManager.activeComponent)}
+                                tabIndex={-1}
+                            >
+                                {btn}
+                            </button>
+                        ) : (
+                            <div key={index} className="py-10" />
+                        )
+                    ))}
+                </div>
             </div>
         </div>
     );
