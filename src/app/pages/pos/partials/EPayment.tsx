@@ -173,9 +173,9 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
 
     return (
         <div className="flex flex-col">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 <div>
-                    <div className="mb-6">
+                    <div className="mb-2">
                         <div className="grid grid-cols-2 gap-4">
                             {E_PAYMENT_METHODS.map((method) => {
                                 const IconComponent = method.icon;
@@ -202,7 +202,7 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
 
                     {(selectedSubMethod === 'airtel-money' || selectedSubMethod === 'tnm-mpamba') && (
                         <div className="mb-6">
-                            <h3 className="text-2xl font-bold text-black dark:text-gray-400 mb-3">PHONE NUMBER</h3>
+                            <h3 className="text-xl font-bold text-black dark:text-gray-400 mb-3">PHONE NUMBER</h3>
                             <FormInput
                                 ref={phoneInputRef}
                                 type="tel"
@@ -220,7 +220,7 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                     )}
 
                     <div className="">
-                        <h3 className="text-2xl font-bold text-black dark:text-gray-400 mb-3">
+                        <h3 className="text-xl font-bold text-black dark:text-gray-400 mb-3">
                             REFERENCE NUMBER
                         </h3>
                         <FormInput

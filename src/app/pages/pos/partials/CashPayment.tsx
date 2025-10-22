@@ -105,12 +105,12 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
     return (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
             <div>
-                <h3 className="text-3xl font-bold text-black dark:text-gray-400 mb-4">ENTER CASH AMOUNT</h3>
                 <Numpad
                     onButtonClick={handleNumpadClick}
                     focusManager={focusManager}
                     className='h-fit'
                     type='basic'
+                    title="Enter Cash Amount"
                 />
             </div>
             <div className='space-y-8'>

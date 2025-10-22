@@ -9,9 +9,10 @@ import { StatisticsPanel } from './partials/StatisticsPanel';
 import { EmptyState } from './partials/EmptyState';
 import CreateCategoryModal from './CreateCategoryModal';
 import { useProducts } from '../../hooks/useProducts';
+import { useProductManagement } from '../../hooks/useProductManagement';
 
 const CategoriesManager: FunctionComponent = () => {
-    const { categories, isLoading, setCategories, reloadProducts } = useProducts();
+    const { categories, isLoading } = useProductManagement();
     const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -50,7 +51,7 @@ const CategoriesManager: FunctionComponent = () => {
         if (window.confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
             try {
                 await categoriesService.delete(categoryUuid);
-                await reloadProducts();
+                // await reloadProducts();
             } catch (err) {
                 console.error('Error deleting category:', err);
                 setError('Failed to delete category. Please try again.');
@@ -78,13 +79,13 @@ const CategoriesManager: FunctionComponent = () => {
                 const updatedCategories = categories.map((cat) =>
                     cat.uuid === newCategory.uuid ? newCategory : cat
                 );
-                setCategories(updatedCategories);
+                // setCategories(updatedCategories);
             } else {
-                setCategories([...categories, newCategory]);
+                // setCategories([...categories, newCategory]);
             }
             setShowCreateModal(false);
             setEditingCategory(null);
-            await reloadProducts();
+            // await reloadProducts();
         } catch (err) {
             console.error('Error updating categories:', err);
             setError('Failed to update categories. Please try again.');

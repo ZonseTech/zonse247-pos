@@ -57,7 +57,7 @@ const productsService = {
 	},
 	async index(query = {}): Promise<Product[]> {
 		return api
-			.get<ApiResponse<Product[]>>(endpoints.all, query)
+			.get<ApiResponse<Product[]>>(endpoints.index, query)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;

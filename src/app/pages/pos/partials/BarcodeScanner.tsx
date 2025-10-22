@@ -103,8 +103,6 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
             setBarcode('');
             showSuccessFeedback(product.name);
 
-            console.log(`Product added to cart: ${product.name}`);
-
             if (barcodeScannerInputRef.current) {
                 barcodeScannerInputRef.current.focus();
             }

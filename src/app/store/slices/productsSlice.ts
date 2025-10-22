@@ -88,9 +88,6 @@ export const fetchAllProductData = createAsyncThunk(
     async (_, { dispatch }) => {
         await Promise.all([
             dispatch(fetchProducts()),
-            dispatch(fetchCategories()),
-            dispatch(fetchPaymentMethods()),
-            dispatch(fetchPaymentServiceProvider()),
         ])
     }
 )
@@ -111,9 +108,6 @@ export const fetchAllProductDataWithCache = createAsyncThunk(
 
         await Promise.all([
             dispatch(fetchProducts()),
-            dispatch(fetchCategories()),
-            dispatch(fetchPaymentMethods()),
-            dispatch(fetchPaymentServiceProvider()),
         ])
     }
 )
@@ -148,10 +142,11 @@ const productsSlice = createSlice({
                 state.loading = true
                 state.error = null
             })
-            // .addCase(fetchProducts.fulfilled, (state, action) => {
-            //     state.loading = false
-            //     state.products = action.payload
-            // })
+            .addCase(fetchProducts.fulfilled, (state, action) => {
+                state.loading = false
+                state.products = action.payload
+                state.lastFetched = Date.now()
+            })
             .addCase(fetchProducts.rejected, (state, action) => {
                 state.loading = false
                 state.error = action.payload as string
@@ -168,11 +163,6 @@ const productsSlice = createSlice({
             .addCase(fetchAllProductDataWithCache.fulfilled, (state) => {
                 state.lastFetched = Date.now()
                 state.loading = false
-            })
-            .addCase(fetchProducts.fulfilled, (state, action) => {
-                state.loading = false
-                state.products = action.payload
-                state.lastFetched = Date.now()
             })
             .addCase(fetchAllProductData.pending, (state) => {
                 state.loading = true

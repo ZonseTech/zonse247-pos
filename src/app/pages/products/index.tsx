@@ -4,30 +4,29 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import EditProductModal from './EditProductModal';
 import Filters from './partials/Filters';
 import CreateProductModal from './CreateProductModal';
-import { useProducts } from '../../hooks/useProducts';
 import DataTable, { type Themes } from "react-data-table-component";
 import { Input, Select, ZonseThemeContext } from '../../components';
-import { HiOutlineRefresh } from 'react-icons/hi';
+import { HiOutlineSearch } from 'react-icons/hi';
 import { FunctionComponent, useContext, useEffect } from 'react';
 import { PackagePlusIcon } from 'lucide-react';
 import { getProductColumns } from './config/tableColumns';
-import { useProductManagement } from './hooks/useProductManagement';
-import { useProductSummary } from './hooks/useProductSummary';
+import { useProductManagement } from '../../hooks/useProductManagement';
+import { useProductSummary } from '../../hooks/useProductSummary';
 import { getTableStyles } from './config/tableStyles';
 
 dayjs.extend(relativeTime);
 
 const Products: FunctionComponent = () => {
-    const { categories } = useProducts();
     const { mode } = useContext(ZonseThemeContext);
-
     const {
         isLoading,
         data,
         totalRows,
+        categories,
         searchTerm,
         selectedProduct,
         loadProducts,
+        loadCategories,
         handleSearch,
         handleVoidProduct,
         handleEditProduct,
@@ -51,9 +50,9 @@ const Products: FunctionComponent = () => {
     }
 
     useEffect(() => {
-        loadSummary();
-        loadProducts();
-    }, []);
+        loadSummary()
+        loadCategories()
+    }, [])
 
     return (
         <AppLayout>
@@ -69,26 +68,6 @@ const Products: FunctionComponent = () => {
 
                     <div className='flex flex-col lg:flex-row justify-end gap-3 pr-4'>
                         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                            <div className="relative w-full sm:w-64">
-                                <Input
-                                    type="text"
-                                    placeholder="Search products..."
-                                    value={searchTerm}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        const cleanedValue = value.endsWith('$') ? value.slice(0, -1) : value;
-                                        handleSearch(cleanedValue);
-                                    }}
-                                    className="rounded-md px-3 h-9 pr-10 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors w-full"
-                                />
-                                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                    <HiOutlineRefresh
-                                        className="h-5 w-5 text-gray-600 dark:text-gray-400 cursor-pointer hover:text-gray-800 dark:hover:text-gray-200 transition-colors p-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
-                                        onClick={() => handleSearch("")}
-                                        title="Clear search"
-                                    />
-                                </div>
-                            </div>
                             <Select
                                 onChange={(e) => handleFilterByCategory(parseInt(e.target.value))}
                                 className="h-9 px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors w-full sm:w-48"
@@ -106,6 +85,26 @@ const Products: FunctionComponent = () => {
                                     </option>
                                 ))}
                             </Select>
+                            <div className="relative w-full sm:w-64">
+                                <Input
+                                    type="text"
+                                    placeholder="Search products..."
+                                    value={searchTerm}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        const cleanedValue = value.endsWith('$') ? value.slice(0, -1) : value;
+                                        handleSearch(cleanedValue);
+                                    }}
+                                    className="rounded-md px-3 h-9 pr-10 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors w-full"
+                                />
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <HiOutlineSearch
+                                        className="h-5 w-5 text-gray-600 dark:text-gray-400 cursor-pointer hover:text-gray-800 dark:hover:text-gray-200 transition-colors p-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
+                                        onClick={() => applyFilters()}
+                                        title="Clear search"
+                                    />
+                                </div>
+                            </div>
                         </div>
                         <div className="w-full lg:w-auto">
                             <Filters

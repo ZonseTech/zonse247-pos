@@ -38,9 +38,6 @@ export const useProducts = () => {
     const { isAuthenticated, user: authUser } = useAuth()
 
     const products = useAppSelector((state) => state.products.products)
-    const categories = useAppSelector((state) => state.products.categories)
-    const paymentMethods = useAppSelector((state) => state.products.paymentMethods)
-    const paymentServiceProvider = useAppSelector((state) => state.products.paymentServiceProvider)
     const productsLoading = useAppSelector((state) => state.products.loading)
 
     const cart = useAppSelector((state) => state.cart.items)
@@ -66,23 +63,6 @@ export const useProducts = () => {
 
             return
         }
-
-        const initializeData = async () => {
-            dispatch(setLoading(true))
-            try {
-                await Promise.all([
-                    dispatch(fetchAllProductData()),
-                    dispatch(fetchCustomers()),
-                ])
-
-                dispatch(setUser(authUser))
-                dispatch(setTill({} as Till))
-            } finally {
-                dispatch(setLoading(false))
-            }
-        }
-
-        // initializeData()
     }, [isAuthenticated, authUser, dispatch])
 
     useEffect(() => {
@@ -185,10 +165,7 @@ export const useProducts = () => {
     return {
         products,
         cart,
-        categories,
         customers,
-        paymentMethods,
-        paymentServiceProvider,
         user,
         till,
         selectedCustomer,

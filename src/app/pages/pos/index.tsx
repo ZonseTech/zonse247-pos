@@ -19,7 +19,6 @@ const POSSystem: FunctionComponent = () => {
         total,
         clearCart,
         products,
-        categories,
         addToCart
     } = useProducts();
 
@@ -143,7 +142,6 @@ const POSSystem: FunctionComponent = () => {
 
     const handleCompleteTransaction = (paymentMethod: PaymentMethod) => {
         if (cart.length === 0) {
-            console.log('Cannot checkout with empty cart');
             return;
         }
 
@@ -276,7 +274,6 @@ const POSSystem: FunctionComponent = () => {
                 isOpen={isLookupModalOpen}
                 onClose={() => setIsLookupModalOpen(false)}
                 products={products}
-                categories={categories}
                 onAddToCart={handleAddToCartFromLookup}
                 barcodeScannerInputRef={barcodeScannerInputRef}
             />
