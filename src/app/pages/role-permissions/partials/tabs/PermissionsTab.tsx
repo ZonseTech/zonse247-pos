@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext, Fragment, ChangeEvent } from 'react';
-import { Shield, Edit2, Trash2, Plus } from 'lucide-react';
-import { HiOutlineMenuAlt4, HiOutlineSearch } from 'react-icons/hi';
+import { HiOutlineSearch } from 'react-icons/hi';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { Input, ZonseThemeContext } from '../../../../components';
+import { getTableStyles } from '../../../../utils/table-styles';
+import { Shield } from 'lucide-react';
 
 export const PermissionsTab: React.FC<PermissionTabProps> = ({ permissions }) => {
     const { mode } = useContext(ZonseThemeContext);
@@ -123,8 +124,8 @@ export const PermissionsTab: React.FC<PermissionTabProps> = ({ permissions }) =>
 
     return (
         <div>
-            <div className="bg-white dark:bg-gray-700 rounded-md border overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+            <div className="overflow-hidden">
+                <div className="py-4 border-b border-gray-200 dark:border-gray-600">
                     <div className="flex justify-between items-center">
                         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                             All Permissions {filteredPermissions.length}
@@ -158,7 +159,8 @@ export const PermissionsTab: React.FC<PermissionTabProps> = ({ permissions }) =>
                     onChangeRowsPerPage={handlePerRowsChange}
                     onChangePage={handlePageChange}
                     fixedHeader
-                    fixedHeaderScrollHeight="calc(100vh - 400px)"
+                    fixedHeaderScrollHeight="calc(100vh - 450px)"
+                    customStyles={getTableStyles(mode)}
                     noDataComponent={
                         <div className="text-center py-8">
                             <Shield className="w-12 h-12 text-gray-400 mx-auto mb-4" />

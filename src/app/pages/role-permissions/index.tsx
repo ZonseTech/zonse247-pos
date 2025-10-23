@@ -12,6 +12,7 @@ import { SearchFilter } from './partials/SearchFilter';
 import { LoadingSpinner } from './partials/LoadingSpinner';
 import AppLayout from '../../layouts/AppLayout';
 import { Notify } from 'notiflix';
+import PageHeader from '../../components/page/PageHeader';
 
 export default function RolePermissionAdmin() {
   const [activeTab, setActiveTab] = useState('roles');
@@ -167,11 +168,11 @@ export default function RolePermissionAdmin() {
 
   return (
     <AppLayout>
-      <div className="min-h-screen p-6 max-w-full mx-auto bg-white dark:bg-gray-700">
-        <div className="mb-4">
-          <h1 className="text-3xl font-bold text-gray-900">Role & Permission</h1>
-          <p className="mt-2 text-gray-600">Manage system roles and permissions</p>
-        </div>
+      <div className="min-h-screen max-w-full ">
+        <PageHeader
+          title="Role & Permission"
+          description="Manage system roles and permissions"
+        />
 
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
