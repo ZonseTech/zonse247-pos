@@ -38,7 +38,7 @@ const Footer: FunctionComponent = () => {
 
             {user && <Link to={ROUTES.MY_PROFILE} className="flex items-center gap-2">
                 <User className="w-6 h-6" />
-                <span>{user?.fullname}</span>
+                <span className='capitalize'>{user?.fullname}</span>
             </Link>}
         </div>
     )
