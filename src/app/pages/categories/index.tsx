@@ -1,15 +1,16 @@
 import { useState, useEffect, FunctionComponent, Fragment } from 'react';
 import categoriesService from '../../services/category.service';
 import { ErrorAlert } from './partials/ErrorAlert';
-import { PageHeader } from './partials/PageHeader';
 import { SearchAndFilters } from './partials/SearchAndFilters';
 import { LoadingState } from './partials/LoadingState';
 import { CategoriesGrid } from './partials/CategoriesGrid';
 import { StatisticsPanel } from './partials/StatisticsPanel';
 import { EmptyState } from './partials/EmptyState';
 import CreateCategoryModal from './CreateCategoryModal';
-import { useProducts } from '../../hooks/useProducts';
 import { useProductManagement } from '../../hooks/useProductManagement';
+import { Button } from '../../components';
+import { HiOutlinePlus } from 'react-icons/hi';
+import PageHeader from '../../components/page/PageHeader';
 
 const CategoriesManager: FunctionComponent = () => {
     const { categories, isLoading } = useProductManagement();
@@ -98,19 +99,35 @@ const CategoriesManager: FunctionComponent = () => {
     };
 
     return (
-        <div className="min-h-screen transition-colors duration-200 dark:bg-gray-900 bg-gray-50">
+        <div className="min-h-screen max-w-full">
+            <div className="flex items-center justify-between">
+                <PageHeader
+                    title="Categories"
+                    description="Manage your product categories"
+                />
+
+                <div className="flex items-center space-x-4">
+                    <SearchAndFilters
+                        searchTerm={searchTerm}
+                        onSearchChange={setSearchTerm}
+                        sortBy={sortBy}
+                        onSortChange={setSortBy}
+                        viewMode={viewMode}
+                        onViewModeChange={setViewMode}
+                    />
+
+                    <Button
+                        onClick={handleCreateCategory}
+                        theme='success'
+                    >
+                        <HiOutlinePlus size={20} />
+                        <span>Add Category</span>
+                    </Button>
+                </div>
+            </div>
+
             {error && <ErrorAlert error={error} onClose={handleErrorClose} />}
 
-            <PageHeader onCreateCategory={handleCreateCategory} />
-
-            <SearchAndFilters
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                sortBy={sortBy}
-                onSortChange={setSortBy}
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
-            />
 
             {isLoading ? (
                 <LoadingState />

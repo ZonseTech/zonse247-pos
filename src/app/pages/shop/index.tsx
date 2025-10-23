@@ -8,6 +8,8 @@ import { useState, useEffect, Fragment, useContext, FunctionComponent, ChangeEve
 import ShopFormModal from './partials/ShopFormModal';
 import { Notify, Confirm } from 'notiflix';
 import { HiOutlinePlus } from 'react-icons/hi2';
+import PageHeader from '../../components/page/PageHeader';
+import { getTableStyles } from '../../utils/table-styles';
 
 const ShopManagement: FunctionComponent = () => {
     const columns: Array<TableColumn<IShop>> = [
@@ -322,190 +324,91 @@ const ShopManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="min-h-screen max-w-full mx-auto bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm dark:shadow-2xl">
-                    <div className="px-6 py-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-850">
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
-                                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg mr-3">
-                                        <Store className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                                    </div>
-                                    <span>
-                                        Shops
-                                        <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                                            {filteredShops.length}
-                                        </span>
-                                    </span>
-                                </h1>
-                                <p className="text-gray-600 dark:text-gray-400 mt-2">
-                                    Manage your shop locations and settings
-                                </p>
-                            </div>
+            <div className="transition-colors duration-200">
+                <div className="flex justify-between items-center">
 
-                            <div className='flex items-center space-x-4'>
-                                <div className="flex relative group">
-                                    <Input
-                                        type="text"
-                                        placeholder="Search shops..."
-                                        value={searchTerm}
-                                        onChange={handleSearch}
-                                        className="rounded-lg px-4 py-2.5 pr-12 w-64 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200"
-                                    />
-                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                        <HiOutlineSearch className="h-5 w-5 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors" />
-                                    </div>
-                                </div>
+                    <PageHeader
+                        title='Shops'
+                        description='Manage your shop locations and settings'
+                    />
 
-                                <div className="flex items-center space-x-3">
-                                    <Button
-                                        onClick={handleAddShopClicked}
-                                        className="flex items-center px-4 py-2.5 bg-gradient-to-r from-green-600 to-green-700 dark:from-green-500 dark:to-green-600 text-white rounded-lg hover:from-green-700 hover:to-green-800 dark:hover:from-green-600 dark:hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transform hover:scale-105 transition-all duration-200 shadow-lg dark:shadow-green-900/25"
-                                    >
-                                        <HiOutlinePlus className="w-4 h-4 mr-2" />
-                                        Add Shop
-                                    </Button>
-
-                                    <ShopFormModal
-                                        shop={editingShop || undefined}
-                                        isOpen={showForm}
-                                        onClose={handleCloseForm}
-                                        onShopSaved={handleShopSaved}
-                                    />
-                                </div>
+                    <div className='flex items-center space-x-4'>
+                        <div className="flex relative group">
+                            <Input
+                                type="text"
+                                placeholder="Search shops..."
+                                value={searchTerm}
+                                onChange={handleSearch}
+                                className="rounded-lg px-4 py-2.5 pr-12 w-64 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200"
+                            />
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <HiOutlineSearch className="h-5 w-5 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors" />
                             </div>
                         </div>
-                    </div>
 
-                    {/* Data Table Section */}
-                    <div className="overflow-x-auto bg-white dark:bg-gray-800">
-                        <DataTable
-                            columns={columns}
-                            data={getPaginatedData()}
-                            theme={mode as string}
-                            progressPending={isLoading}
-                            highlightOnHover
-                            striped
-                            responsive
-                            pagination
-                            paginationServer
-                            paginationTotalRows={totalRows}
-                            onChangeRowsPerPage={handlePerRowsChange}
-                            onChangePage={handlePageChange}
-                            fixedHeader
-                            fixedHeaderScrollHeight="calc(100vh - 350px)"
-                            customStyles={{
-                                table: {
-                                    style: {
-                                        backgroundColor: 'transparent',
-                                    },
-                                },
-                                head: {
-                                    style: {
-                                        fontSize: '14px',
-                                        fontWeight: '600',
-                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
-                                        color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
-                                        borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
-                                    },
-                                },
-                                headRow: {
-                                    style: {
-                                        borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
-                                        minHeight: '52px',
-                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
-                                    },
-                                },
-                                rows: {
-                                    style: {
-                                        minHeight: '64px',
-                                        backgroundColor: 'transparent',
-                                        color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
-                                        borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
-                                        '&:hover': {
-                                            backgroundColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(249 250 251)',
-                                            cursor: 'pointer',
-                                        },
-                                    },
-                                    stripedStyle: {
-                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(248 250 252)',
-                                    },
-                                },
-                                cells: {
-                                    style: {
-                                        paddingLeft: '24px',
-                                        paddingRight: '24px',
-                                        paddingTop: '16px',
-                                        paddingBottom: '16px',
-                                    },
-                                },
-                                pagination: {
-                                    style: {
-                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
-                                        borderTopColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
-                                        color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
-                                        fontSize: '14px',
-                                        minHeight: '56px',
-                                    },
-                                    pageButtonsStyle: {
-                                        borderRadius: '6px',
-                                        height: '32px',
-                                        width: '32px',
-                                        padding: '4px',
-                                        margin: '0 2px',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s',
-                                        color: mode === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
-                                        fill: mode === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
-                                        backgroundColor: 'transparent',
-                                        '&:hover:not(:disabled)': {
-                                            backgroundColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
-                                            color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(17 24 39)',
-                                        },
-                                        '&:focus': {
-                                            outline: 'none',
-                                            boxShadow: mode === 'dark'
-                                                ? '0 0 0 2px rgb(59 130 246)'
-                                                : '0 0 0 2px rgb(37 99 235)',
-                                        },
-                                    },
-                                },
-                                progress: {
-                                    style: {
-                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(255 255 255)',
-                                    },
-                                },
-                            }}
-                            noDataComponent={
-                                <div className="text-center py-12 bg-white dark:bg-gray-800">
-                                    <div className="flex flex-col items-center">
-                                        <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
-                                            <Store className="w-12 h-12 text-gray-400 dark:text-gray-500" />
-                                        </div>
-                                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                                            {searchTerm ? 'No matching shops found' : 'No shops yet'}
-                                        </h3>
-                                        <p className="text-gray-500 dark:text-gray-400 max-w-sm">
-                                            {searchTerm
-                                                ? 'Try adjusting your search terms or filters.'
-                                                : 'Get started by adding your first shop location.'
-                                            }
-                                        </p>
-                                        {!searchTerm && (
-                                            <Button
-                                                onClick={handleAddShopClicked}
-                                                className="mt-4 flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
-                                            >
-                                                <HiOutlinePlus className="w-4 h-4 mr-2" />
-                                                Add Your First Shop
-                                            </Button>
-                                        )}
-                                    </div>
-                                </div>
-                            }
-                        />
+                        <div className="flex items-center space-x-3">
+                            <Button
+                                onClick={handleAddShopClicked}
+                                className="flex items-center px-4 py-2.5 bg-gradient-to-r from-green-600 to-green-700 dark:from-green-500 dark:to-green-600 text-white rounded-lg hover:from-green-700 hover:to-green-800 dark:hover:from-green-600 dark:hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transform hover:scale-105 transition-all duration-200 shadow-lg dark:shadow-green-900/25"
+                            >
+                                <HiOutlinePlus className="w-4 h-4 mr-2" />
+                                Add Shop
+                            </Button>
+
+                            <ShopFormModal
+                                shop={editingShop || undefined}
+                                isOpen={showForm}
+                                onClose={handleCloseForm}
+                                onShopSaved={handleShopSaved}
+                            />
+                        </div>
                     </div>
                 </div>
+
+                <DataTable
+                    columns={columns}
+                    data={getPaginatedData()}
+                    theme={mode as string}
+                    progressPending={isLoading}
+                    highlightOnHover
+                    striped
+                    responsive
+                    pagination
+                    paginationServer
+                    paginationTotalRows={totalRows}
+                    onChangeRowsPerPage={handlePerRowsChange}
+                    onChangePage={handlePageChange}
+                    fixedHeader
+                    fixedHeaderScrollHeight="calc(100vh - 350px)"
+                    customStyles={getTableStyles(mode)}
+                    noDataComponent={
+                        <div className="text-center py-12 bg-white dark:bg-gray-800">
+                            <div className="flex flex-col items-center">
+                                <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
+                                    <Store className="w-12 h-12 text-gray-400 dark:text-gray-500" />
+                                </div>
+                                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                                    {searchTerm ? 'No matching shops found' : 'No shops yet'}
+                                </h3>
+                                <p className="text-gray-500 dark:text-gray-400 max-w-sm">
+                                    {searchTerm
+                                        ? 'Try adjusting your search terms or filters.'
+                                        : 'Get started by adding your first shop location.'
+                                    }
+                                </p>
+                                {!searchTerm && (
+                                    <Button
+                                        onClick={handleAddShopClicked}
+                                        className="mt-4 flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
+                                    >
+                                        <HiOutlinePlus className="w-4 h-4 mr-2" />
+                                        Add Your First Shop
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+                    }
+                />
             </div>
         </AppLayout>
     );

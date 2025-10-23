@@ -156,20 +156,20 @@ const SyncData: FunctionComponent = () => {
 				<div className='flex space-x-3'>
 					<button
 						onClick={handleRefreshAll}
-						className='flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg transition-colors'
+						className='flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-sm transition-colors'
 					>
 						<HiOutlineRefresh className='w-4 h-4 mr-2' />
 						Refresh All
 					</button>
 					<button
 						onClick={() => handleBulkSync('pull')}
-						className='flex items-center px-4 py-2 border border-blue-600 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors'
+						className='flex items-center px-4 py-2 border border-blue-600 bg-blue-600 hover:bg-blue-700 text-white rounded-sm transition-colors'
 					>
 						Pull All
 					</button>
 					<button
 						onClick={() => handleBulkSync('push')}
-						className='flex items-center px-4 py-2 border border-green-600 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors'
+						className='flex items-center px-4 py-2 border border-green-600 bg-green-600 hover:bg-green-700 text-white rounded-sm transition-colors'
 					>
 						Push All
 					</button>
