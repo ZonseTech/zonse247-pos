@@ -9,13 +9,20 @@ import {
     HiOutlineQrcode,
     HiOutlinePresentationChartBar,
     HiOutlinePrinter,
+    HiOutlineFolderDownload,
 } from 'react-icons/hi';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useAuth } from '../../context/AuthProvider';
-import { HiBuildingStorefront, HiOutlineArrowPath, HiOutlineBuildingOffice2, HiOutlineKey, HiOutlineServerStack, HiOutlineWrenchScrewdriver } from 'react-icons/hi2';
+import {
+    HiOutlineArrowPath,
+    HiOutlineBuildingOffice2,
+    HiOutlineBuildingStorefront,
+    HiOutlineKey,
+    HiOutlineServerStack,
+    HiOutlineWrenchScrewdriver
+} from 'react-icons/hi2';
 import { hasAnyPermission, hasPermission, hasRole } from '../../utils';
-import { FaFileExport } from 'react-icons/fa';
 import { LucideSubscript } from 'lucide-react';
 import { RiGroup3Line } from 'react-icons/ri';
 import { NavItem } from './RenderNavItem';
@@ -35,9 +42,9 @@ const navItems = (): NavItem[] => {
         workstations: <HiOutlineBuildingOffice2 className="h-5 w-5" />,
         subscription: <LucideSubscript className="h-5 w-5" />,
         client: <RiGroup3Line className="h-5 w-5" />,
-        shop: <HiBuildingStorefront className="h-5 w-5" />,
+        shop: <HiOutlineBuildingStorefront className="h-5 w-5" />,
         migrations: <HiOutlineServerStack className="h-5 w-5" />,
-        export_db: <FaFileExport className="h-5 w-5" />,
+        export_db: <HiOutlineFolderDownload className="h-5 w-5" />,
         transactions: <HiOutlinePresentationChartBar className="h-5 w-5" />,
         users: <HiOutlineUsers className="h-5 w-5" />,
         role_permissions: <HiOutlineKey className="h-5 w-5" />,
@@ -123,7 +130,16 @@ const navItems = (): NavItem[] => {
         });
     }
 
-    if (hasAnyPermission(user, ['settings.shop.manage', 'settings.tax.manage', 'settings.payment.manage'])) {
+    if (hasAnyPermission(user, ['settings.shop.manage'])) {
+        items.push({
+            type: 'button',
+            color: 'bg-cyan-500 hover:bg-cyan-600',
+            iconColor: 'bg-cyan-600',
+            text: "Shops",
+            icon: icons.shop,
+            onClick: () => navigate(ROUTES.SHOPS),
+        });
+
         items.push({
             type: 'button',
             color: 'bg-cyan-600 hover:bg-cyan-700',
@@ -131,6 +147,15 @@ const navItems = (): NavItem[] => {
             text: "Workstations",
             icon: icons.workstations,
             onClick: () => navigate(ROUTES.WORK_STATIONS),
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-green-500 hover:bg-green-600',
+            iconColor: 'bg-green-600',
+            text: "Settings",
+            icon: icons.settings,
+            onClick: () => navigate(ROUTES.SETTINGS)
         });
     }
 
@@ -142,15 +167,6 @@ const navItems = (): NavItem[] => {
             text: "Subscription",
             icon: icons.subscription,
             onClick: () => navigate(ROUTES.SUBSCRIPTION),
-        });
-
-        items.push({
-            type: 'button',
-            color: 'bg-cyan-500 hover:bg-cyan-600',
-            iconColor: 'bg-cyan-600',
-            text: "Shops",
-            icon: icons.shop,
-            onClick: () => navigate(ROUTES.SHOPS),
         });
 
         items.push({
@@ -181,15 +197,6 @@ const navItems = (): NavItem[] => {
                 onClick: () => navigate(ROUTES.EXPORT_DB),
             });
         }
-
-        items.push({
-            type: 'button',
-            color: 'bg-green-500 hover:bg-green-600',
-            iconColor: 'bg-green-600',
-            text: "Settings",
-            icon: icons.settings,
-            onClick: () => navigate(ROUTES.SETTINGS)
-        });
     }
 
     items.push({
