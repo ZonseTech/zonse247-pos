@@ -5,8 +5,8 @@ import FormInput from '../../components/FormInput';
 import FormWrapper from '../../components/FormWrapper';
 import FormSelectBox from '../../components/FormSelectBox';
 import { Fragment, useState, useEffect } from 'react';
-import type { FunctionComponent } from 'react';
-import clientsService from '../../services/client.service';
+import type { ChangeEvent, FunctionComponent } from 'react';
+import tenantService from '../../services/tenant.service';
 import CountryPicker from '../../components/CountryPicker';
 import { SelectMenuOption } from '../../../types/country';
 import { COUNTRIES } from '../../utils/countries';
@@ -17,26 +17,35 @@ import { ROUTES } from '../../utils/constants';
 import { useLocation } from 'react-router';
 import { DEFAULT_COUNTRY_CODE } from '../../constants';
 import { tenantValidationSchema } from '../../schemas/tenant.schema';
+import { getInitialFormValues } from '../../utils/mergeDeep';
+import { capitalizeEachWord, formatDateForInput } from '../../utils';
+import {
+    businessTypes,
+    msonkhoStatuses,
+    statuses,
+    subscriptionPlans,
+    subscriptionStatuses
+} from '../../utils/tenant-status';
 
 const TenantFormModal: FunctionComponent = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [client, setClient] = useState<Client | null>(null);
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [tenant, setTenant] = useState<Tenant | null>(null);
 
-    const { id } = location.state || {};
+    const { tenantId } = location.state || {};
 
     useEffect(() => {
-        const fetchClient = async () => {
-            if (id) {
+        const fetchTenant = async () => {
+            if (tenantId) {
                 setLoading(true);
                 try {
-                    const clientData = await clientsService.show(id);
-                    setClient(clientData);
+                    const tenantData = await tenantService.show(tenantId);
+                    setTenant(tenantData);
                 } catch (error: any) {
-                    console.error('Error fetching client:', error);
-                    const errorMessage = error?.response?.data?.message || 'Failed to load client details';
+                    console.error('Error fetching tenant:', error);
+                    const errorMessage = error?.response?.data?.message || 'Failed to load tenant details';
                     Notify.failure(errorMessage);
                     navigate(ROUTES.TENANTS);
                 } finally {
@@ -45,74 +54,23 @@ const TenantFormModal: FunctionComponent = () => {
             }
         };
 
-        fetchClient();
-    }, [id, navigate]);
+        fetchTenant();
+    }, [tenantId, navigate]);
 
-    const businessTypes = [
-        { label: 'Product Based', value: 'PRODUCT_BASED' },
-        { label: 'Service Based', value: 'SERVICE_BASED' }
-    ];
-
-    const subscriptionStatuses = [
-        { label: 'Active', value: 'ACTIVE' },
-        { label: 'Suspended', value: 'SUSPENDED' },
-        { label: 'Cancelled', value: 'CANCELLED' },
-        { label: 'Trial', value: 'TRIAL' }
-    ];
-
-    const statuses = [
-        { label: 'Pending', value: 'pending' },
-        { label: 'Active', value: 'active' },
-        { label: 'Suspended', value: 'suspended' },
-        { label: 'Cancelled', value: 'cancelled' }
-    ];
-
-    const msonkhoStatuses = [
-        { label: 'Verified', value: 'VERIFIED' },
-        { label: 'Pending', value: 'PENDING' },
-        { label: 'Failed', value: 'FAILED' }
-    ];
-
-    const subscriptionPlans = [
-        { label: 'Basic', value: 'BASIC' },
-        { label: 'Standard', value: 'STANDARD' },
-        { label: 'Premium', value: 'PREMIUM' },
-        { label: 'Enterprise', value: 'ENTERPRISE' }
-    ];
-
-    const initialClientValues = client ? {
-        uuid: client.uuid || '',
-        clientCode: client.clientCode || '',
-        businessName: client.businessName || '',
-        tin: client.tin || '',
-        businessType: client.businessType || 'PRODUCT_BASED',
-        ownerName: client.ownerName || '',
-        email: client.email || '',
-        phone: client.phone || '',
-        address: client.address || '',
-        country: client.country?.replace('Malawi', 'MW') || 'MW',
-        mraPortalUsername: client.mraPortalUsername || '',
-        msonkhoOnlineStatus: client.msonkhoOnlineStatus || 'PENDING',
-        subscriptionPlan: client.subscriptionPlan || '',
-        registeredAt: client.registeredAt || '',
-        subscriptionStatus: client.subscriptionStatus || 'TRIAL',
-        trialEndsAt: client.trialEndsAt || '',
-        authKey: client.authKey || '',
-        status: client.status || 'pending'
-    } : {
-        uuid: '',
-        clientCode: '',
+    const defaultTenantValues: TenantFormValues = {
+        tenantCode: '',
         businessName: '',
+        tradingName: '',
         tin: '',
         businessType: 'PRODUCT_BASED',
         ownerName: '',
         email: '',
-        phone: '',
+        phoneNumber: '',
         address: '',
         country: 'MW',
         mraPortalUsername: '',
         msonkhoOnlineStatus: 'PENDING',
-        subscriptionPlan: '',
+        subscriptionPlan: 'BASIC',
         registeredAt: '',
         subscriptionStatus: 'TRIAL',
         trialEndsAt: '',
@@ -120,23 +78,34 @@ const TenantFormModal: FunctionComponent = () => {
         status: 'pending'
     };
 
-    const handleSubmit = async (values: Client, { resetForm }: any) => {
+    const initialTenantValues = getInitialFormValues(defaultTenantValues, {
+        ...tenant as unknown as TenantFormValues,
+        country: tenant?.country?.replace('Malawi', 'MW') ?? 'MW',
+        registeredAt: formatDateForInput(tenant?.registeredAt) ?? '',
+        trialEndsAt: formatDateForInput(tenant?.trialEndsAt) ?? '',
+        businessType: tenant?.businessType ?? 'PRODUCT_BASED',
+        msonkhoOnlineStatus: tenant?.msonkhoOnlineStatus ?? 'PENDING',
+        subscriptionStatus: tenant?.subscriptionStatus ?? 'TRIAL',
+        status: tenant?.status ?? 'pending',
+    }, 'tenantId');
+
+    const handleSubmit = async (values: TenantFormValues, { resetForm }: any) => {
         try {
-            if (client && client.uuid) {
-                await clientsService.update(client.uuid, values);
-                Report.success("Updated!", "Client details updated successfully!", "Ok", () => {
+            if (tenant && tenant.tenantId) {
+                await tenantService.update(tenant.tenantId, values);
+                Report.success("Updated!", "Tenant details updated successfully!", "Ok", () => {
                     navigate(ROUTES.TENANTS);
                 });
             } else {
-                await clientsService.store(values);
-                Report.success("Great!", "Client details saved!", "Ok", () => {
+                await tenantService.store(values);
+                Report.success("Great!", "Tenant details saved!", "Ok", () => {
                     resetForm();
                     navigate(ROUTES.TENANTS);
                 });
             }
         } catch (error: any) {
-            console.error('Error saving client:', error);
-            const errorMessage = error?.response?.data?.message || 'An error occurred while saving the client';
+            console.error('Error saving tenant:', error);
+            const errorMessage = error?.response?.data?.message || 'An error occurred while saving the tenant';
             Notify.failure(errorMessage);
         }
     };
@@ -146,7 +115,7 @@ const TenantFormModal: FunctionComponent = () => {
             <AppLayout>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
                     <div className="flex items-center justify-center h-64">
-                        <div className="text-gray-600 dark:text-gray-400">Loading client details...</div>
+                        <div className="text-gray-600 dark:text-gray-400">Loading tenant details...</div>
                     </div>
                 </div>
             </AppLayout>
@@ -157,17 +126,27 @@ const TenantFormModal: FunctionComponent = () => {
         <Fragment>
             <AppLayout>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-                    <div className='mb-6 border-b border-gray-300 dark:border-gray-600'>
-                        <PageHeader
-                            title={client ? 'Edit Tenant' : 'Add Tenant'}
-                            description='Required fields are marked with an asterisk (*)'
-                        />
+                    <div className='sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-300 dark:border-gray-600'>
+                        <div className='flex justify-between items-center'>
+                            <PageHeader
+                                title={tenant ? 'Edit Tenant' : 'Add Tenant'}
+                                description='Required fields are marked with an asterisk (*)'
+                            />
+
+                            <Button
+                                type="button"
+                                theme='danger'
+                                onClick={() => navigate(ROUTES.TENANTS)}
+                            >
+                                Cancel
+                            </Button>
+                        </div>
                     </div>
 
                     <Formik
                         onSubmit={handleSubmit}
                         enableReinitialize={true}
-                        initialValues={initialClientValues}
+                        initialValues={initialTenantValues}
                         validationSchema={tenantValidationSchema}
                     >
                         {({ isSubmitting, values, setFieldValue }) => (
@@ -191,13 +170,13 @@ const TenantFormModal: FunctionComponent = () => {
                                             </h3>
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
-                                            {values.uuid && (
+                                            {values.tenantId && (
                                                 <FormInput
                                                     type="text"
-                                                    name="clientCode"
-                                                    label="Client Code"
+                                                    name="tenantCode"
+                                                    label="Tenant Code"
                                                     readOnly
-                                                    placeholder="Unique client identifier"
+                                                    placeholder="Unique tenant identifier"
                                                 />
                                             )}
 
@@ -207,6 +186,21 @@ const TenantFormModal: FunctionComponent = () => {
                                                 label="Business Name"
                                                 required
                                                 placeholder="Enter business name"
+                                                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                                    const formattedName = capitalizeEachWord(e.target.value);
+                                                    setFieldValue('businessName', formattedName);
+                                                }}
+                                            />
+
+                                            <FormInput
+                                                type="text"
+                                                name="tradingName"
+                                                label="Trading Name"
+                                                placeholder="Enter trading name (optional)"
+                                                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                                    const formattedName = capitalizeEachWord(e.target.value);
+                                                    setFieldValue('tradingName', formattedName);
+                                                }}
                                             />
 
                                             <FormInput
@@ -228,6 +222,10 @@ const TenantFormModal: FunctionComponent = () => {
                                                 type="text"
                                                 name="ownerName"
                                                 label="Owner Name"
+                                                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                                    const formattedName = capitalizeEachWord(e.target.value);
+                                                    setFieldValue('ownerName', formattedName);
+                                                }}
                                                 required
                                                 placeholder="Enter owner full name"
                                             />
@@ -254,14 +252,6 @@ const TenantFormModal: FunctionComponent = () => {
                                                 placeholder="contact@company.com"
                                             />
 
-                                            <FormInput
-                                                type="tel"
-                                                name="phone"
-                                                label="Phone"
-                                                required
-                                                placeholder="Enter phone number"
-                                            />
-
                                             <CountryPicker
                                                 id={'countries'}
                                                 open={isOpen}
@@ -273,9 +263,19 @@ const TenantFormModal: FunctionComponent = () => {
                                             />
 
                                             <FormInput
+                                                type="tel"
+                                                name="phoneNumber"
+                                                label="Phone"
+                                                required
+                                                placeholder="Enter phone number"
+                                            />
+
+                                            <FormInput
                                                 type="text"
                                                 name="address"
                                                 label="Address"
+                                                required
+                                                className='capitalize'
                                                 placeholder="Enter full address"
                                             />
                                         </div>
@@ -360,21 +360,14 @@ const TenantFormModal: FunctionComponent = () => {
                                         </div>
                                     </div>
 
-                                    <div className="pt-6 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                                        <Button
-                                            type="button"
-                                            theme='danger'
-                                            onClick={() => navigate(ROUTES.TENANTS)}
-                                        >
-                                            Cancel
-                                        </Button>
+                                    <div className=" pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-end">
                                         <Button
                                             type="submit"
                                             loading={isSubmitting}
                                             className="px-8"
                                             theme='success'
                                         >
-                                            {client ? 'Update Tenant' : 'Create Tenant'}
+                                            {tenant ? 'Update Tenant' : 'Create Tenant'}
                                         </Button>
                                     </div>
                                 </FormWrapper>

@@ -13,7 +13,7 @@ import type { FunctionComponent } from 'react';
 import roleService from '../../../services/role.service';
 import { UserStatus } from '../../../utils/constants';
 import { useAuth } from '../../../context/AuthProvider';
-import clientsService from '../../../services/client.service';
+import clientsService from '../../../services/tenant.service';
 
 const UserFormModal: FunctionComponent<UserFormModalProps> = ({
     user,
