@@ -17,9 +17,9 @@ interface Workstation {
     synced?: number;
 }
 
-interface CreateWorkstationRequest {
-    shopCode: string;
-    clientUuid: string;
+interface CreateTerminalRequest {
+    branchCode: string;
+    tenantId: string;
     tillName: string;
     tillNumber: string;
     deviceId?: string;
