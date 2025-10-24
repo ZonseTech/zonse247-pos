@@ -4,7 +4,6 @@ export const getTableStyles = (mode: Mode): TableStyles => ({
     table: {
         style: {
             backgroundColor: 'transparent',
-            borderRadius: '0.5rem',
             overflow: 'hidden',
             boxShadow: mode === 'dark'
                 ? '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)'
@@ -61,7 +60,7 @@ export const getTableStyles = (mode: Mode): TableStyles => ({
             fontWeight: '500',
         },
         pageButtonsStyle: {
-            borderRadius: '0.375rem',
+            borderRadius: '0.17rem',
             height: '32px',
             minWidth: '32px',
             padding: '0 6px',

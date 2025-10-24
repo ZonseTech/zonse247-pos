@@ -9,6 +9,8 @@ import workstationsService from '../../services/workstation.service';
 import { Edit2, Trash2, Monitor, Star, StarOff } from 'lucide-react';
 import { useState, useEffect, Fragment, useContext, FunctionComponent, ChangeEvent } from 'react';
 import { FaSync } from 'react-icons/fa';
+import PageHeader from '../../components/page/PageHeader';
+import { getTableStyles } from '../../utils/table-styles';
 
 const WorkstationManagement: FunctionComponent = () => {
     const columns: Array<TableColumn<Workstation>> = [
@@ -415,190 +417,90 @@ const WorkstationManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="min-h-screen max-w-full bg-gray-50 dark:bg-gray-900 transition-colors">
-                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 transition-all">
-                    <div className="border-b border-gray-200 bg-white px-6 py-5 dark:border-gray-700 dark:bg-gray-800">
-                        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                            <div className="flex-1">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50 dark:bg-green-900/20">
-                                        <Monitor className="h-6 w-6 text-green-600 dark:text-green-400" />
-                                    </div>
-                                    <div>
-                                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                            Workstations
-                                            <span className="ml-2 inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                                                {filteredWorkstations.length}
-                                            </span>
-                                        </h1>
-                                        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                            Manage workstations and sync settings across your infrastructure
-                                        </p>
-                                    </div>
-                                </div>
+            <div className="min-h-screen max-w-full">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+                    <PageHeader
+                        title='Workstations'
+                        description='Manage workstations and sync settings across your infrastructure'
+                    />
+
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                        <div className="relative">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <HiOutlineSearch className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                             </div>
-
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                                <div className="relative">
-                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <HiOutlineSearch className="h-5 w-5 text-gray-400 dark:text-gray-500" />
-                                    </div>
-                                    <Input
-                                        type="text"
-                                        placeholder="Search workstations..."
-                                        value={searchTerm}
-                                        onChange={handleSearch}
-                                        className="block w-full rounded-lg border-gray-300 bg-white pl-10 pr-3 py-2.5 text-sm placeholder-gray-500 shadow-sm transition-all focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:focus:border-green-400 dark:focus:ring-green-400 sm:w-64"
-                                    />
-                                </div>
-
-                                <Button
-                                    onClick={handleAddWorkstationClicked}
-                                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-offset-gray-800"
-                                >
-                                    <HiOutlinePlus className="h-4 w-4" />
-                                    Add Workstation
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800">
-                        <div className="overflow-x-auto">
-                            <DataTable
-                                columns={columns}
-                                data={getPaginatedData()}
-                                theme={mode as string}
-                                progressPending={isLoading}
-                                highlightOnHover
-                                striped
-                                responsive
-                                pagination
-                                paginationServer
-                                paginationTotalRows={totalRows}
-                                onChangeRowsPerPage={handlePerRowsChange}
-                                onChangePage={handlePageChange}
-                                fixedHeader
-                                fixedHeaderScrollHeight="calc(100vh - 350px)"
-                                customStyles={{
-                                    table: {
-                                        style: {
-                                            backgroundColor: 'transparent',
-                                        },
-                                    },
-                                    head: {
-                                        style: {
-                                            fontSize: '14px',
-                                            fontWeight: '600',
-                                            backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
-                                            color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
-                                            borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
-                                        },
-                                    },
-                                    headRow: {
-                                        style: {
-                                            borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
-                                            minHeight: '52px',
-                                            backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
-                                        },
-                                    },
-                                    rows: {
-                                        style: {
-                                            minHeight: '64px',
-                                            backgroundColor: 'transparent',
-                                            color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
-                                            borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
-                                            '&:hover': {
-                                                backgroundColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(249 250 251)',
-                                                cursor: 'pointer',
-                                            },
-                                        },
-                                        stripedStyle: {
-                                            backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(248 250 252)',
-                                        },
-                                    },
-                                    cells: {
-                                        style: {
-                                            paddingLeft: '24px',
-                                            paddingRight: '24px',
-                                            paddingTop: '16px',
-                                            paddingBottom: '16px',
-                                        },
-                                    },
-                                    pagination: {
-                                        style: {
-                                            backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
-                                            borderTopColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
-                                            color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
-                                            fontSize: '14px',
-                                            minHeight: '56px',
-                                        },
-                                        pageButtonsStyle: {
-                                            borderRadius: '6px',
-                                            height: '32px',
-                                            width: '32px',
-                                            padding: '4px',
-                                            margin: '0 2px',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s',
-                                            color: mode === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
-                                            fill: mode === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
-                                            backgroundColor: 'transparent',
-                                            '&:hover:not(:disabled)': {
-                                                backgroundColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
-                                                color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(17 24 39)',
-                                            },
-                                            '&:focus': {
-                                                outline: 'none',
-                                                boxShadow: mode === 'dark'
-                                                    ? '0 0 0 2px rgb(59 130 246)'
-                                                    : '0 0 0 2px rgb(37 99 235)',
-                                            },
-                                        },
-                                    },
-                                    progress: {
-                                        style: {
-                                            backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(255 255 255)',
-                                        },
-                                    },
-                                }}
-                                noDataComponent={
-                                    <div className="flex flex-col items-center justify-center py-12">
-                                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-                                            <Monitor className="h-8 w-8 text-gray-400 dark:text-gray-500" />
-                                        </div>
-                                        <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                            {searchTerm ? 'No matching workstations' : 'No workstations configured'}
-                                        </h3>
-                                        <p className="mt-2 max-w-sm text-center text-sm text-gray-600 dark:text-gray-400">
-                                            {searchTerm
-                                                ? 'Try adjusting your search terms or clear the search to see all workstations.'
-                                                : 'Get started by adding your first workstation to manage and sync settings.'
-                                            }
-                                        </p>
-                                        {!searchTerm && (
-                                            <Button
-                                                onClick={handleAddWorkstationClicked}
-                                                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
-                                            >
-                                                <HiOutlinePlus className="h-4 w-4" />
-                                                Add Your First Workstation
-                                            </Button>
-                                        )}
-                                    </div>
-                                }
+                            <Input
+                                type="text"
+                                placeholder="Search workstations..."
+                                value={searchTerm}
+                                onChange={handleSearch}
+                                className="block w-full rounded-lg border-gray-300 bg-white pl-10 pr-3 py-2.5 text-sm placeholder-gray-500 shadow-sm transition-all focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:focus:border-green-400 dark:focus:ring-green-400 sm:w-64"
                             />
                         </div>
-                    </div>
 
-                    <WorkstationFormModal
-                        workstation={editingWorkstation || undefined}
-                        isOpen={showForm}
-                        onClose={handleCloseForm}
-                        onWorkstationSaved={handleWorkstationSaved}
-                    />
+                        <Button
+                            theme='success'
+                            onClick={handleAddWorkstationClicked}
+                        >
+                            <HiOutlinePlus className="h-4 w-4" />
+                            Add Workstation
+                        </Button>
+                    </div>
                 </div>
+
+                <DataTable
+                    columns={columns}
+                    data={getPaginatedData()}
+                    theme={mode as string}
+                    progressPending={isLoading}
+                    highlightOnHover
+                    striped
+                    responsive
+                    pagination
+                    paginationServer
+                    paginationTotalRows={totalRows}
+                    onChangeRowsPerPage={handlePerRowsChange}
+                    onChangePage={handlePageChange}
+                    fixedHeader
+                    fixedHeaderScrollHeight="calc(100vh - 350px)"
+                    customStyles={getTableStyles(mode)}
+                    noDataComponent={
+                        <div className="flex flex-col items-center justify-center py-12">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                                <Monitor className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                            </div>
+                            <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                {searchTerm ? 'No matching workstations' : 'No workstations configured'}
+                            </h3>
+                            <p className="mt-2 max-w-sm text-center text-sm text-gray-600 dark:text-gray-400">
+                                {searchTerm
+                                    ? 'Try adjusting your search terms or clear the search to see all workstations.'
+                                    : 'Get started by adding your first workstation to manage and sync settings.'
+                                }
+                            </p>
+                            {!searchTerm && (
+                                <Button
+                                    onClick={handleAddWorkstationClicked}
+                                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
+                                >
+                                    <HiOutlinePlus className="h-4 w-4" />
+                                    Add Your First Workstation
+                                </Button>
+                            )}
+                        </div>
+                    }
+                />
+
+                <WorkstationFormModal
+                    workstation={editingWorkstation || undefined}
+                    isOpen={showForm}
+                    onClose={handleCloseForm}
+                    onWorkstationSaved={handleWorkstationSaved}
+                />
+
             </div>
+
         </AppLayout>
     );
 };

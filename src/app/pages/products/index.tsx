@@ -12,7 +12,7 @@ import { PackagePlusIcon } from 'lucide-react';
 import { getProductColumns } from './config/tableColumns';
 import { useProductManagement } from '../../hooks/useProductManagement';
 import { useProductSummary } from '../../hooks/useProductSummary';
-import { getTableStyles } from './config/tableStyles';
+import { getTableStyles } from '../../utils/table-styles';
 
 dayjs.extend(relativeTime);
 
