@@ -6,10 +6,10 @@ import { ROUTES } from '../../utils/constants';
 import AuthLayout from '../../layouts/AuthLayout';
 import SuccessAlert from './partials/SuccessAlert';
 import StepIndicator from './partials/StepIndicator';
-import shopsService from '../../services/shop.service';
+import branchService from '../../services/branch.service';
 import tenantService from '../../services/tenant.service';
 import settingsService from '../../services/settings.service';
-import ShopSelectionStep from './partials/steps/ShopSelectionStep';
+import BranchSelectionStep from './partials/steps/BranchSelectionStep';
 import workstationsService from '../../services/workstation.service';
 import ClientVerificationStep from './partials/steps/ClientVerificationStep';
 import WorkstationSelectionStep from './partials/steps/WorkstationSelectionStep';
@@ -43,8 +43,8 @@ const ClientVerification: FunctionComponent = () => {
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
-    const [shops, setShops] = useState<Array<IShop>>([]);
-    const [selectedShop, setSelectedShop] = useState<IShop>(null);
+    const [branches, setTenantBranches] = useState<Array<Branch>>([]);
+    const [selectedBranch, setSelectedBranch] = useState<Branch>(null);
     const [verifiedTenant, setVerifiedTenant] = useState<Tenant>(null);
     const [workstations, setWorkstations] = useState<Array<Workstation>>([]);
     const [selectedWorkstation, setSelectedWorkstation] = useState<Workstation>(null);
@@ -58,31 +58,31 @@ const ClientVerification: FunctionComponent = () => {
             setSuccess(`Welcome, ${tenant.businessName}!`);
             setCurrentStep(2);
 
-            await fetchShopsByTenantId(tenant.tenantId);
+            await fetchBranchesByTenantId(tenant.tenantId);
         } catch (err) {
             setError((error as any)?.error?.response?.data?.message || 'Verification failed. Please check your credentials.');
         }
     };
 
-    const fetchShopsByTenantId = async (tenantId: string) => {
+    const fetchBranchesByTenantId = async (tenantId: string) => {
         setLoading(true);
         try {
-            const response = await shopsService.listByClient(tenantId);
-            setShops(response.data);
+            const response = await branchService.listByTenantId(tenantId);
+            setTenantBranches(response.data);
         } catch (err) {
-            setError('Failed to fetch shops');
+            setError('Failed to fetch branches');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleShopSelect = async (shop: IShop) => {
-        setSelectedShop(shop);
+    const handleBranchSelect = async (branch: Branch) => {
+        setSelectedBranch(branch);
         setError('');
         setLoading(true);
 
         try {
-            const stationsList = await workstationsService.listByShopCode(shop.shopCode);
+            const stationsList = await workstationsService.listByShopCode(branch.branchId);
             setWorkstations(stationsList);
             setCurrentStep(3);
         } catch (err) {
@@ -109,7 +109,7 @@ const ClientVerification: FunctionComponent = () => {
         try {
             await settingsService.store({
                 tenantId: verifiedTenant.tenantId,
-                shopUuid: selectedShop.uuid,
+                branchId: selectedBranch.branchId,
                 workstationUuid: selectedWorkstation.uuid
             });
             setSuccess('Machine configuration completed successfully!');
@@ -143,9 +143,9 @@ const ClientVerification: FunctionComponent = () => {
                 )}
 
                 {currentStep === 2 && (
-                    <ShopSelectionStep
-                        shops={shops}
-                        onShopSelect={handleShopSelect}
+                    <BranchSelectionStep
+                        branches={branches}
+                        onBranchSelect={handleBranchSelect}
                     />
                 )}
 
@@ -153,7 +153,7 @@ const ClientVerification: FunctionComponent = () => {
                     <WorkstationSelectionStep
                         workstations={workstations}
                         selectedWorkstation={selectedWorkstation}
-                        selectedShop={selectedShop}
+                        selectedBranch={selectedBranch}
                         onWorkstationSelect={handleWorkstationSelect}
                         onSubmit={handleSubmitConfiguration}
                         loading={loading}
@@ -163,7 +163,7 @@ const ClientVerification: FunctionComponent = () => {
                 {currentStep === 4 && (
                     <ConfigurationCompleteStep
                         verifiedTenant={verifiedTenant}
-                        selectedShop={selectedShop}
+                        selectedBranch={selectedBranch}
                         selectedWorkstation={selectedWorkstation}
                         onReset={resetProcess}
                     />

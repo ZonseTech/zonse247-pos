@@ -6,14 +6,14 @@ import { Monitor, AlertCircle } from "lucide-react";
 const WorkstationSelectionStep: FunctionComponent<{
     workstations: Array<Workstation>,
     selectedWorkstation: Workstation,
-    selectedShop: IShop,
+    selectedBranch: Branch,
     onWorkstationSelect,
     onSubmit,
     loading
 }> = ({
     workstations,
     selectedWorkstation,
-    selectedShop,
+    selectedBranch,
     onWorkstationSelect,
     onSubmit,
     loading
@@ -22,7 +22,7 @@ const WorkstationSelectionStep: FunctionComponent<{
             {workstations.length > 0 && <div className="text-center">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Select Workstation</h2>
                 <p className="text-gray-600">
-                    Choose the workstation for <strong>{selectedShop?.name}</strong>
+                    Choose the workstation for <strong>{selectedBranch?.branchName}</strong>
                 </p>
             </div>}
 
@@ -58,7 +58,7 @@ const WorkstationSelectionStep: FunctionComponent<{
                         <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                         <h3 className="text-lg font-medium text-gray-900 mb-2">No Workstations Found</h3>
                         <p className="text-gray-500 mb-4">
-                            No workstations are available for <strong>{selectedShop?.name}</strong> at this time.
+                            No workstations are available for <strong>{selectedBranch?.branchName}</strong> at this time.
                         </p>
                         <p className="text-sm text-gray-400">
                             Please contact your administrator to set up workstations for this shop.

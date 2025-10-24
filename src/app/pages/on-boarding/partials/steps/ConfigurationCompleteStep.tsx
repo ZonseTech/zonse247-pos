@@ -4,12 +4,12 @@ import { Button } from "../../../../components";
 
 const ConfigurationCompleteStep: FunctionComponent<{
     verifiedTenant: Tenant,
-    selectedShop: IShop,
+    selectedBranch: Branch,
     selectedWorkstation: Workstation,
     onReset
 }> = ({
     verifiedTenant,
-    selectedShop,
+    selectedBranch,
     selectedWorkstation,
     onReset
 }) => {
@@ -24,7 +24,7 @@ const ConfigurationCompleteStep: FunctionComponent<{
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
                         <div className="text-left space-y-2 text-gray-900">
                             <p><strong>Client:</strong> {verifiedTenant?.businessName}</p>
-                            <p><strong>Shop:</strong> {selectedShop?.name}</p>
+                            <p><strong>Shop:</strong> {selectedBranch?.branchName}</p>
                             <p><strong>Workstation:</strong> {selectedWorkstation?.tillName}-{selectedWorkstation.tillNumber}</p>
                             <p><strong>Status:</strong> <span className="text-green-600">Ready for use</span></p>
                         </div>

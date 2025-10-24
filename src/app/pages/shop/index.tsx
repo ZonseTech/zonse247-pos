@@ -1,6 +1,6 @@
 import AppLayout from '../../layouts/AppLayout';
 import { HiOutlineMenuAlt4, HiOutlineSearch } from 'react-icons/hi';
-import shopsService from '../../services/shop.service';
+import shopsService from '../../services/branch.service';
 import { Button, Input, ZonseThemeContext } from '../../components';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { Edit2, Trash2, Store, MapPin, Phone, Mail } from 'lucide-react';
