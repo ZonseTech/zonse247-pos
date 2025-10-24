@@ -47,7 +47,7 @@ const TenantFormModal: FunctionComponent = () => {
                     console.error('Error fetching tenant:', error);
                     const errorMessage = error?.response?.data?.message || 'Failed to load tenant details';
                     Notify.failure(errorMessage);
-                    navigate(ROUTES.TENANTS);
+                    // navigate(ROUTES.TENANTS);
                 } finally {
                     setLoading(false);
                 }

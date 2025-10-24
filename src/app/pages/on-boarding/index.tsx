@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { useState } from 'react';
+import { FunctionComponent, useState } from 'react';
 import { useNavigate } from 'react-router';
 import ErrorAlert from './partials/ErrorAlert';
 import { ROUTES } from '../../utils/constants';
@@ -7,7 +7,7 @@ import AuthLayout from '../../layouts/AuthLayout';
 import SuccessAlert from './partials/SuccessAlert';
 import StepIndicator from './partials/StepIndicator';
 import shopsService from '../../services/shop.service';
-import clientsService from '../../services/tenant.service';
+import tenantService from '../../services/tenant.service';
 import settingsService from '../../services/settings.service';
 import ShopSelectionStep from './partials/steps/ShopSelectionStep';
 import workstationsService from '../../services/workstation.service';
@@ -15,9 +15,9 @@ import ClientVerificationStep from './partials/steps/ClientVerificationStep';
 import WorkstationSelectionStep from './partials/steps/WorkstationSelectionStep';
 import ConfigurationCompleteStep from './partials/steps/ConfigurationCompleteStep';
 
-const ClientVerification = () => {
-    const registerProps: ShopVerificationParams = {
-        clientUuid: '',
+const ClientVerification: FunctionComponent = () => {
+    const registerProps: TerminalVerificationParams = {
+        tenantCode: '',
         authKey: '',
         os: '',
         hostname: '',
@@ -26,16 +26,16 @@ const ClientVerification = () => {
 
     const registerValidationSchema: Yup.ObjectSchema<{
         authKey: string;
-        clientUuid: string;
+        tenantCode: string;
     }, Yup.AnyObject, {
         authKey: undefined;
-        clientUuid: undefined;
+        tenantCode: undefined;
     }, ""> = Yup.object({
         authKey: Yup.string()
             .required('Auth token is required'),
 
-        clientUuid: Yup.string()
-            .required('Please enter your clientUuid'),
+        tenantCode: Yup.string()
+            .required('Please enter your tenant code'),
     })
 
     const navigate = useNavigate()
@@ -45,29 +45,29 @@ const ClientVerification = () => {
     const [currentStep, setCurrentStep] = useState(1);
     const [shops, setShops] = useState<Array<IShop>>([]);
     const [selectedShop, setSelectedShop] = useState<IShop>(null);
-    const [verifiedClient, setVerifiedClient] = useState<Client>(null);
+    const [verifiedTenant, setVerifiedTenant] = useState<Tenant>(null);
     const [workstations, setWorkstations] = useState<Array<Workstation>>([]);
     const [selectedWorkstation, setSelectedWorkstation] = useState<Workstation>(null);
 
-    const handleVerifyClient = async (credentials: ShopVerificationParams) => {
+    const handleVerifyClient = async (credentials: TerminalVerificationParams) => {
         setError('');
 
         try {
-            const client = await clientsService.verify(credentials);
-            setVerifiedClient(client);
-            setSuccess(`Welcome, ${client.companyName}!`);
+            const tenant = await tenantService.verify(credentials);
+            setVerifiedTenant(tenant);
+            setSuccess(`Welcome, ${tenant.businessName}!`);
             setCurrentStep(2);
 
-            await fetchShops(client.uuid);
+            await fetchShopsByTenantId(tenant.tenantId);
         } catch (err) {
             setError((error as any)?.error?.response?.data?.message || 'Verification failed. Please check your credentials.');
         }
     };
 
-    const fetchShops = async (clientUuid: string) => {
+    const fetchShopsByTenantId = async (tenantId: string) => {
         setLoading(true);
         try {
-            const response = await shopsService.listByClient(clientUuid);
+            const response = await shopsService.listByClient(tenantId);
             setShops(response.data);
         } catch (err) {
             setError('Failed to fetch shops');
@@ -108,7 +108,7 @@ const ClientVerification = () => {
 
         try {
             await settingsService.store({
-                clientUuid: verifiedClient.uuid,
+                tenantId: verifiedTenant.tenantId,
                 shopUuid: selectedShop.uuid,
                 workstationUuid: selectedWorkstation.uuid
             });
@@ -162,7 +162,7 @@ const ClientVerification = () => {
 
                 {currentStep === 4 && (
                     <ConfigurationCompleteStep
-                        verifiedClient={verifiedClient}
+                        verifiedTenant={verifiedTenant}
                         selectedShop={selectedShop}
                         selectedWorkstation={selectedWorkstation}
                         onReset={resetProcess}

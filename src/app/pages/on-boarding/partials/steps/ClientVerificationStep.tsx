@@ -25,19 +25,19 @@ const ClientVerificationStep = ({
                                 Client Verification
                             </h1>
                             <p className="text-gray-500 text-sm leading mt-2">
-                                Enter your Client ID and Auth Key to verify your account
+                                Enter your Client Code and Auth Key to verify your account
                             </p>
                         </div>
 
                         <FormWrapper>
                             <FormInput
-                                label='Client ID'
-                                id='clientUuid'
-                                name='clientUuid'
+                                label='Client Code'
+                                id='tenantCode'
+                                name='tenantCode'
                                 type='text'
                                 step={1}
                                 required
-                                placeholder="Enter client ID from email"
+                                placeholder="Enter client Code from email"
                             />
 
                             <FormTextArea
