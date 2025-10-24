@@ -64,6 +64,7 @@ const FormInput: React.FC<TextInputProps & React.InputHTMLAttributes<HTMLInputEl
 					showTimeSelect={type === 'datetime' || showTimeSelect}
 					timeFormat={timeFormat}
 					{...props as any}
+					wrapperClassName='min-w-full'
 					className={cls} />
 				{meta.touched && meta.error ? (
 					<HelperText valid={false}>
