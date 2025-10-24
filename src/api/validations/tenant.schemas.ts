@@ -74,7 +74,6 @@ export const tenantValidationSchemas = {
 
     tenantId: Joi.object({
         tenantId: Joi.string()
-            .uuid()
             .required()
             .messages({
                 'string.guid': 'Tenant ID must be a valid UUID',

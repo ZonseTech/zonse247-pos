@@ -1,3 +1,5 @@
+// default-auth-key-1761310617487
+
 import {
 	APP_SETUP_DB,
 	CATEGORIES_DB,
@@ -20,6 +22,8 @@ import { sealDBModel } from '..';
 import { DEFAULT_PERMISSIONS } from './permission.seed';
 import { DEFAULT_ROLE_PERMISSIONS } from './role-permissions.seed';
 import config from '../../../config';
+
+const now = new Date();
 
 const checkOrCreateDefaultRoles = async () => {
 	try {
@@ -130,44 +134,10 @@ const checkOrCreateDefaultRolePermissions = async () => {
 	}
 };
 
-const checkOrCreateDefaultShop = async () => {
-	try {
-		const shop = await sealDBModel.findById(BRANCHES_TABLE, '-1');
-		if (shop) return;
-
-		const defaultShop: IShop = {
-			uuid: '-1',
-			tenantId: '-1',
-			name: 'Default Shop',
-			shopCode: 'SHOP001',
-			addressLine1: '123 Main Street',
-			city: 'Lilongwe',
-			country: 'Malawi',
-			phone: '+1234567890',
-			email: 'shop@example.com',
-			timezone: 'UTC',
-			currencySymbol: 'MK',
-			currencyCode: 'MKW',
-			taxRate: 0.00,
-			chargeTax: false,
-			status: 'active',
-			synced: 0,
-			createdAt: new Date(),
-			updatedAt: new Date()
-		};
-
-		await sealDBModel.insert(BRANCHES_TABLE, defaultShop);
-	} catch (err) {
-		console.error('Error creating default shop:', err);
-	}
-};
-
 const checkOrCreateDefaultTenant = async () => {
 	try {
 		const tenant = await sealDBModel.findById(TENANT_TABLE, '-1');
 		if (tenant) return;
-
-		const now = new Date();
 
 		const defaultTenant: Tenant = {
 			tenantId: '-1',
@@ -204,6 +174,40 @@ const checkOrCreateDefaultTenant = async () => {
 	}
 };
 
+const checkOrCreateDefaultBranch = async () => {
+	try {
+		const branch = await sealDBModel.findById(BRANCHES_TABLE, '-1');
+		if (branch) return;
+
+		const defaultBranch: Branch = {
+			branchId: '-1',
+			tenantId: '-1',
+			branchName: 'Default Branch',
+			branchCode: 'BR001',
+			addressLine1: '123 Main Street',
+			city: 'Lilongwe',
+			district: 'Lilongwe Urban',
+			phoneNumber: '+265999000111',
+			email: 'branch@example.com',
+			currencySymbol: 'K',
+			currencyCode: 'MKW',
+			taxRate: 0.00,
+			chargeTax: false,
+			status: 'active',
+			isActive: true,
+			isVirtualWarehouse: false,
+			synced: false,
+			mraApprovalStatus: 'PENDING',
+			createdAt: now,
+			updatedAt: now
+		};
+
+		await sealDBModel.insert(BRANCHES_TABLE, defaultBranch);
+		console.log('✅ Default branch created successfully.');
+	} catch (err) {
+		console.error('❌ Error creating default branch:', err);
+	}
+};
 
 const checkOrCreateDefaultWorkStation = async () => {
 	try {
@@ -522,7 +526,7 @@ const seedDatabase = async () => {
 		checkOrCreateDefaultRoles()
 		checkOrCreateDefaultPermissions()
 		checkOrCreateDefaultRolePermissions()
-		checkOrCreateDefaultShop()
+		checkOrCreateDefaultBranch()
 		checkOrCreateDefaultTenant()
 		checkOrCreateDefaultWorkStation()
 		checkOrCreateDefaultSubscriptionPlans()

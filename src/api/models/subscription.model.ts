@@ -109,8 +109,8 @@ export class SubscriptionModel {
         return sealDBModel.findById(TABLE_NAMES.SUBSCRIPTION_PLANS, id);
     }
 
-    static async findActiveByClientUuid(clientUuid: string): Promise<ClientSubscription> {
-        return sealDBModel.findById(TABLE_NAMES.CLIENT_SUBSCRIPTIONS, { clientUuid, status: 'active' });
+    static async findActiveByTenantId(tenantId: string): Promise<ClientSubscription> {
+        return sealDBModel.findById(TABLE_NAMES.CLIENT_SUBSCRIPTIONS, { tenantId, status: 'active' });
     }
 
     static async findByTenantId(clientUuid: string): Promise<ClientSubscription[]> {
