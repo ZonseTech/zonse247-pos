@@ -1,6 +1,6 @@
-import { ClientService } from "./client.service";
+import { TenantService } from "./tenant.service";
 import { ShopModel } from "../models/shop.model";
-import { ClientModel } from "../models/client.model";
+import { TenantModel } from "../models/tenant.model";
 import { SubscriptionModel } from "../models/subscription.model";
 
 export class ShopService {
@@ -43,9 +43,9 @@ export class ShopService {
 		}
 	}
 
-	static async getShopByClientUuid(id: string): Promise<IShop[]> {
+	static async getShopsByTenantId(id: string): Promise<IShop[]> {
 		if (!id) {
-			throw new Error('Client ID is required');
+			throw new Error('Tenant ID is required');
 		}
 
 		const shops = await ShopModel.findByClientUuid(id);
@@ -66,12 +66,12 @@ export class ShopService {
 	}
 
 	static async createShop(data: CreateShopRequest): Promise<IShop> {
-		const validationError = ClientService.validateRequired(data, ['clientUuid', 'shopCode', 'name']);
+		const validationError = TenantService.validateRequired(data, ['clientUuid', 'shopCode', 'name']);
 		if (validationError) {
 			throw new Error(validationError);
 		}
 
-		const client = await ClientModel.findByClientUuid(data.clientUuid);
+		const client = await TenantModel.findByTenantCode(data.clientUuid);
 		if (!client) {
 			throw new Error('Client not found');
 		}

@@ -1,11 +1,11 @@
-import { ClientService } from "./client.service";
+import { TenantService } from "./tenant.service";
 import { ShopModel } from "../models/shop.model";
 import { WorkstationModel } from "../models/work-station.model";
 
 export class WorkstationService {
 
     static async createWorkstation(data: CreateWorkstationRequest): Promise<Workstation> {
-        const validationError = ClientService.validateRequired(data, ['shopCode', 'clientUuid', 'tillName', 'tillNumber']);
+        const validationError = TenantService.validateRequired(data, ['shopCode', 'clientUuid', 'tillName', 'tillNumber']);
         if (validationError) {
             throw new Error(validationError);
         }
@@ -38,7 +38,7 @@ export class WorkstationService {
     static async getAllWorkstations(query: any = {}): Promise<Workstation[]> {
         try {
             if (query.clientUuid) {
-                return await WorkstationModel.findByClientUuid(query.clientUuid);
+                return await WorkstationModel.findByTenantId(query.clientUuid);
             }
 
             if (query.shopCode) {

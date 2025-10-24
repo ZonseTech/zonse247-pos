@@ -1,6 +1,6 @@
 import { RoleModel } from "../models/role.model";
 import { RolePermissionModel } from "../models/role-permission.model";
-import { ClientService } from "./client.service";
+import { TenantService } from "./tenant.service";
 import { PermissionModel } from "../models/permission.model";
 
 export class RoleService {
@@ -49,7 +49,7 @@ export class RoleService {
     }
 
     static async createRole(data: CreateRoleRequest): Promise<Role> {
-        const validationError = ClientService.validateRequired(data, ['name', 'displayName']);
+        const validationError = TenantService.validateRequired(data, ['name', 'displayName']);
         if (validationError) {
             throw new Error(validationError);
         }
