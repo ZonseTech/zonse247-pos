@@ -1,18 +1,18 @@
 import api from './http.service';
 
 const endpoints: Record<string, string> = {
-    all: 'clients/all',
-    store: 'clients/post',
-    update: 'clients/update',
-    show: 'clients/client',
-    delete: 'clients/client',
-    register: 'clients/register-client',
-    verify: 'auth/verify-client',
-    updateClient: 'clients/update-client',
-    onboarding: 'clients/onboarding-status'
+    all: 'tenants/all',
+    store: 'tenants/post',
+    update: 'tenants/update',
+    show: 'tenants',
+    delete: 'tenants/tenant',
+    register: 'tenants/register-tenant',
+    verify: 'auth/verify-tenant',
+    updateClient: 'tenants/update-tenant',
+    onboarding: 'tenants/onboarding-status'
 };
 
-const clientsService = {
+const tenantsService = {
     endpoints,
     async list(query: ClientQueryParams = {}): Promise<Array<Tenant>> {
         try {
@@ -87,12 +87,11 @@ const clientsService = {
         }
     },
 
-    async verify(credentials: VerifyClientRequest): Promise<Client> {
+    async verify(credentials: TerminalVerificationParams): Promise<Tenant> {
         try {
-            const response = await api.post<ApiResponse<Client>>(endpoints.verify, credentials as any);
+            const response = await api.post<ApiResponse<Tenant>>(endpoints.verify, credentials as any);
             return response.data.data!;
         } catch (err) {
-            console.error('Error verifying client:', err);
             throw err;
         }
     },
@@ -301,4 +300,4 @@ const clientsService = {
 };
 
 
-export default clientsService;
+export default tenantsService;
