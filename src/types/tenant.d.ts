@@ -42,3 +42,8 @@ type TenantFormValues = Omit<
     registeredAt?: string;
     activatedAt?: string;
 };
+
+interface VerifyTenantRequest {
+    tenantCode: string;
+    authKey: string;
+}

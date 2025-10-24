@@ -1,11 +1,3 @@
-interface ShopVerificationParams {
-	clientUuid: string;
-	authKey: string;
-	os: string;
-	hostname: string;
-	macAddress: string;
-}
-
 interface ShopOptions {
 	uuid: string;
 	name: string;

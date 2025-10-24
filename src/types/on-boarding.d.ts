@@ -27,13 +27,13 @@ interface ApiResponse<T = any> {
 }
 
 interface OnboardingStatus {
-    client: Omit<Client, 'authKey'>;
+    tenant: Omit<Tenant, 'authKey'>;
     subscription: any;
     shops: any[];
     workstations: any[];
     onboarding: {
         steps: {
-            clientRegistered: boolean;
+            tenantRegistered: boolean;
             subscriptionActive: boolean;
             shopCreated: boolean;
             workstationSetup: boolean;
