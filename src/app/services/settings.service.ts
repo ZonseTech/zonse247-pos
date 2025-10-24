@@ -38,7 +38,7 @@ const settingsService = {
 
 	async store(params: {
 		tenantId: string,
-		shopUuid: string,
+		branchId: string,
 		workstationUuid: string
 	}): Promise<Setting> {
 		return api
