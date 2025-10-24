@@ -28,8 +28,8 @@ import { RiGroup3Line } from 'react-icons/ri';
 import { NavItem } from './RenderNavItem';
 
 const navItems = (): NavItem[] => {
-    const { user, signout } = useAuth();
     const navigate = useNavigate();
+    const { user, signout } = useAuth();
 
     const icons = {
         pos: <HiOutlineShoppingCart className="h-6 w-6 mr-1" />,
@@ -41,7 +41,7 @@ const navItems = (): NavItem[] => {
         printer: <HiOutlinePrinter className="h-5 w-5" />,
         workstations: <HiOutlineBuildingOffice2 className="h-5 w-5" />,
         subscription: <LucideSubscript className="h-5 w-5" />,
-        client: <RiGroup3Line className="h-5 w-5" />,
+        tenants: <RiGroup3Line className="h-5 w-5" />,
         shop: <HiOutlineBuildingStorefront className="h-5 w-5" />,
         migrations: <HiOutlineServerStack className="h-5 w-5" />,
         export_db: <HiOutlineFolderDownload className="h-5 w-5" />,
@@ -135,7 +135,7 @@ const navItems = (): NavItem[] => {
             type: 'button',
             color: 'bg-cyan-500 hover:bg-cyan-600',
             iconColor: 'bg-cyan-600',
-            text: "Shops",
+            text: "Branches",
             icon: icons.shop,
             onClick: () => navigate(ROUTES.SHOPS),
         });
@@ -144,7 +144,7 @@ const navItems = (): NavItem[] => {
             type: 'button',
             color: 'bg-cyan-600 hover:bg-cyan-700',
             iconColor: 'bg-cyan-700',
-            text: "Workstations",
+            text: "Terminals",
             icon: icons.workstations,
             onClick: () => navigate(ROUTES.WORK_STATIONS),
         });
@@ -164,7 +164,7 @@ const navItems = (): NavItem[] => {
             type: 'button',
             color: 'bg-purple-600 hover:bg-purple-700',
             iconColor: 'bg-purple-700',
-            text: "Subscription",
+            text: "Subscriptions",
             icon: icons.subscription,
             onClick: () => navigate(ROUTES.SUBSCRIPTION),
         });
@@ -173,9 +173,9 @@ const navItems = (): NavItem[] => {
             type: 'button',
             color: 'bg-cyan-400 hover:bg-cyan-500',
             iconColor: 'bg-cyan-500',
-            text: "Clients",
-            icon: icons.client,
-            onClick: () => navigate(ROUTES.CLIENTS),
+            text: "Tenants",
+            icon: icons.tenants,
+            onClick: () => navigate(ROUTES.TENANTS),
         });
 
         items.push({

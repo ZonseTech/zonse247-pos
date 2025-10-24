@@ -17,7 +17,8 @@ const Dashboard = lazy(() => import('../pages/dashboard'))
 const LandingPage = lazy(() => import('../pages/landing'))
 const ShopManagement = lazy(() => import('../pages/shop'))
 const Migrations = lazy(() => import('../pages/migrations'))
-const ClientManagement = lazy(() => import('../pages/clients'))
+const TenantForm = lazy(() => import('../pages/tenants/create'))
+const TenantsManagement = lazy(() => import('../pages/tenants'))
 const Transactions = lazy(() => import('../pages/transactions'))
 const DatabaseExporter = lazy(() => import('../pages/export-db'))
 const AccountDetails = lazy(() => import('../pages/auth/MyProfile'))
@@ -48,7 +49,8 @@ const AppRoutes: FunctionComponent = () => {
 				<Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
 				<Route path={ROUTES.SHOPS} element={<ShopManagement />} />
 				<Route path={ROUTES.MIGRATIONS} element={<Migrations />} />
-				<Route path={ROUTES.CLIENTS} element={<ClientManagement />} />
+				<Route path={ROUTES.TENANTS} element={<TenantsManagement />} />
+				<Route path={ROUTES.TENANT_FORM} element={<TenantForm />} />
 				<Route path={ROUTES.TRANSACTIONS} element={<Transactions />} />
 				<Route path={ROUTES.EXPORT_DB} element={<DatabaseExporter />} />
 				<Route path={ROUTES.WORK_STATIONS} element={<WorkStationManagement />} />
