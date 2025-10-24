@@ -4,7 +4,7 @@ import { TABLE_NAMES } from '../databases/local/tables';
 
 export class WorkstationModel {
 
-    static async findByClientUuid(clientUuid: string): Promise<Workstation[]> {
+    static async findByTenantId(clientUuid: string): Promise<Workstation[]> {
         return sealDBModel.find(TABLE_NAMES.WORKSTATIONS, { clientUuid });
     }
 

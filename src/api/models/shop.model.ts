@@ -8,7 +8,7 @@ export class ShopModel {
         return sealDBModel.find(TABLE_NAMES.SHOPS, conditions);
     }
 
-    static async findByClientUuid(clientUuid: string): Promise<IShop[]> {
+    static async findByTenantId(clientUuid: string): Promise<IShop[]> {
         return sealDBModel.find(TABLE_NAMES.SHOPS, { clientUuid });
     }
 
