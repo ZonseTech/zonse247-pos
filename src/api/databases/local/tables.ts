@@ -1,8 +1,9 @@
 export const HOLD_ORDERS_DB = 'hold_orders';
 export const SYNC_STATUS_TABLE = 'sync_status';
-export const CLIENTS_DB = 'clients';
-export const SHOPS_DB = 'shops';
-export const WORKSTATIONS_DB = 'workstations';
+export const TENANT_TABLE = 'tenants';
+export const MRA_API_CONFIG_TABLE = 'MRA_API_CONFIG_TABLE';
+export const BRANCHES_TABLE = 'branches';
+export const TERMINALS_TABLE = 'terminals';
 export const USER_SESSIONS_DB = 'user_sessions';
 export const USERS_DB = 'users';
 export const ROLES_DB = 'roles';
@@ -18,8 +19,8 @@ export const PAYMENT_METHODS_DB = 'payment_methods';
 export const PAYMENT_SERVICE_PROVIDERS_DB = 'service_provider';
 export const SHOP_SETTINGS_DB = 'shop_settings';
 export const APP_SETUP_DB = 'app_setup';
-export const SUBSCRIPTION_PLANS_DB = 'subscription_plans';
-export const CLIENT_SUBSCRIPTIONS_DB = 'client_subscriptions';
+export const SUBSCRIPTION_PLANS_TABLE = 'subscription_plans';
+export const TENANT_SUBSCRIPTIONS_TABLE = 'tenant_subscriptions';
 export const AUDIT_LOGS_DB = 'audit_logs';
 
 export default [
@@ -30,15 +31,15 @@ export default [
 	ORDERS_DB,
 	TRANSACTIONS_DB,
 	USERS_DB,
-	SHOPS_DB,
-	CLIENTS_DB,
-	WORKSTATIONS_DB,
+	BRANCHES_TABLE,
+	TENANT_TABLE,
+	TERMINALS_TABLE,
 	USER_SESSIONS_DB,
 	CATEGORIES_DB,
 	CUSTOMERS_DB,
 	SHOP_SETTINGS_DB,
-	SUBSCRIPTION_PLANS_DB,
-	CLIENT_SUBSCRIPTIONS_DB,
+	SUBSCRIPTION_PLANS_TABLE,
+	TENANT_SUBSCRIPTIONS_TABLE,
 	AUDIT_LOGS_DB,
 	ROLES_DB,
 	APP_SETUP_DB,

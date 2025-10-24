@@ -1,8 +1,8 @@
 import {
 	APP_SETUP_DB,
 	CATEGORIES_DB,
-	CLIENT_SUBSCRIPTIONS_DB,
-	CLIENTS_DB,
+	TENANT_SUBSCRIPTIONS_TABLE,
+	TENANT_TABLE,
 	CUSTOMERS_DB,
 	PAYMENT_METHODS_DB,
 	PAYMENT_SERVICE_PROVIDERS_DB,
@@ -10,10 +10,10 @@ import {
 	ROLE_PERMISSIONS_DB,
 	ROLES_DB,
 	SHOP_SETTINGS_DB,
-	SHOPS_DB,
-	SUBSCRIPTION_PLANS_DB,
+	BRANCHES_TABLE,
+	SUBSCRIPTION_PLANS_TABLE,
 	USERS_DB,
-	WORKSTATIONS_DB,
+	TERMINALS_TABLE,
 } from '../tables';
 import bcrypt from 'bcryptjs';
 import { sealDBModel } from '..';
@@ -132,7 +132,7 @@ const checkOrCreateDefaultRolePermissions = async () => {
 
 const checkOrCreateDefaultShop = async () => {
 	try {
-		const shop = await sealDBModel.findById(SHOPS_DB, '-1');
+		const shop = await sealDBModel.findById(BRANCHES_TABLE, '-1');
 		if (shop) return;
 
 		const defaultShop: IShop = {
@@ -156,7 +156,7 @@ const checkOrCreateDefaultShop = async () => {
 			updatedAt: new Date()
 		};
 
-		await sealDBModel.insert(SHOPS_DB, defaultShop);
+		await sealDBModel.insert(BRANCHES_TABLE, defaultShop);
 	} catch (err) {
 		console.error('Error creating default shop:', err);
 	}
@@ -164,7 +164,7 @@ const checkOrCreateDefaultShop = async () => {
 
 const checkOrCreateDefaultClient = async () => {
 	try {
-		const client = await sealDBModel.findById(CLIENTS_DB, '-1');
+		const client = await sealDBModel.findById(TENANT_TABLE, '-1');
 		if (client) return;
 
 		const defaultClient: Client = {
@@ -188,7 +188,7 @@ const checkOrCreateDefaultClient = async () => {
 			synced: 0
 		};
 
-		await sealDBModel.insert(CLIENTS_DB, defaultClient);
+		await sealDBModel.insert(TENANT_TABLE, defaultClient);
 	} catch (err) {
 		console.error('Error creating default client:', err);
 	}
@@ -196,7 +196,7 @@ const checkOrCreateDefaultClient = async () => {
 
 const checkOrCreateDefaultWorkStation = async () => {
 	try {
-		const workstation = await sealDBModel.findById(WORKSTATIONS_DB, '-1');
+		const workstation = await sealDBModel.findById(TERMINALS_TABLE, '-1');
 		if (workstation) return;
 
 		const defaultWorkStation: Workstation = {
@@ -218,7 +218,7 @@ const checkOrCreateDefaultWorkStation = async () => {
 			synced: 0
 		};
 
-		await sealDBModel.insert(WORKSTATIONS_DB, defaultWorkStation);
+		await sealDBModel.insert(TERMINALS_TABLE, defaultWorkStation);
 	} catch (err) {
 		console.error('Error creating default workstation:', err);
 	}
@@ -263,9 +263,9 @@ const checkOrCreateDefaultSubscriptionPlans = async () => {
 		];
 
 		for (const plan of plans) {
-			const existing = await sealDBModel.findById(SUBSCRIPTION_PLANS_DB, plan.uuid);
+			const existing = await sealDBModel.findById(SUBSCRIPTION_PLANS_TABLE, plan.uuid);
 			if (!existing) {
-				await sealDBModel.insert(SUBSCRIPTION_PLANS_DB, plan);
+				await sealDBModel.insert(SUBSCRIPTION_PLANS_TABLE, plan);
 			}
 		}
 	} catch (err) {
@@ -275,7 +275,7 @@ const checkOrCreateDefaultSubscriptionPlans = async () => {
 
 const checkOrCreateDefaultClientSubscriptions = async () => {
 	try {
-		const subscription = await sealDBModel.findById(CLIENT_SUBSCRIPTIONS_DB, '-1');
+		const subscription = await sealDBModel.findById(TENANT_SUBSCRIPTIONS_TABLE, '-1');
 		if (subscription) return;
 
 		const defaultSubscription: ClientSubscription = {
@@ -295,7 +295,7 @@ const checkOrCreateDefaultClientSubscriptions = async () => {
 			updatedAt: new Date().toISOString()
 		};
 
-		await sealDBModel.insert(CLIENT_SUBSCRIPTIONS_DB, defaultSubscription);
+		await sealDBModel.insert(TENANT_SUBSCRIPTIONS_TABLE, defaultSubscription);
 	} catch (err) {
 		console.error('Error creating default client subscription:', err);
 	}

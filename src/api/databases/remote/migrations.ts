@@ -1,8 +1,8 @@
 import { mysqlPool } from '../../config/db';
 import {
-    CLIENTS_DB,
-    SHOPS_DB,
-    WORKSTATIONS_DB,
+    TENANT_TABLE,
+    BRANCHES_TABLE,
+    TERMINALS_TABLE,
     USERS_DB,
     USER_SESSIONS_DB,
     CATEGORIES_DB,
@@ -12,14 +12,15 @@ import {
     ORDERS_DB,
     PAYMENT_METHODS_DB,
     SHOP_SETTINGS_DB,
-    SUBSCRIPTION_PLANS_DB,
-    CLIENT_SUBSCRIPTIONS_DB,
+    SUBSCRIPTION_PLANS_TABLE,
+    TENANT_SUBSCRIPTIONS_TABLE,
     AUDIT_LOGS_DB,
     ROLES_DB,
     PERMISSIONS_DB,
     ROLE_PERMISSIONS_DB,
     USER_PERMISSIONS_DB,
-    PAYMENT_SERVICE_PROVIDERS_DB
+    PAYMENT_SERVICE_PROVIDERS_DB,
+    MRA_API_CONFIG_TABLE
 } from '../local/tables';
 
 const testConnection = async () => {
@@ -39,18 +40,22 @@ const initDatabase = async () => {
         const connection = await mysqlPool.getConnection();
 
         await connection.query(`
-            CREATE TABLE IF NOT EXISTS ${CLIENTS_DB} (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                uuid VARCHAR(100) NOT NULL UNIQUE,
-                client_code VARCHAR(50) NOT NULL UNIQUE,
-                company_name VARCHAR(200) NOT NULL,
+            CREATE TABLE IF NOT EXISTS ${TENANT_TABLE} (
+                tenant_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                business_name VARCHAR(255) NOT NULL,
+                tin VARCHAR(50) UNIQUE NOT NULL,
+                business_type ENUM('PRODUCT_BASED', 'SERVICE_BASED') NOT NULL,
+                phone_number VARCHAR(20) NOT NULL,
+                email VARCHAR(255) NOT NULL UNIQUE,
+                mra_portal_username VARCHAR(100),
+                msonkho_online_status ENUM('VERIFIED', 'PENDING', 'FAILED') DEFAULT 'PENDING',
+                subscription_plan VARCHAR(50),
+                subscription_status ENUM('ACTIVE', 'SUSPENDED', 'CANCELLED', 'TRIAL') DEFAULT 'TRIAL',
+                uuid CHAR(36) NOT NULL UNIQUE,
+                tenant_code VARCHAR(50) NOT NULL UNIQUE,
                 owner_name VARCHAR(100) NOT NULL,
-                email VARCHAR(100) NOT NULL UNIQUE,
-                phone VARCHAR(20) NOT NULL,
                 address TEXT,
                 country VARCHAR(50),
-                timezone VARCHAR(50) DEFAULT 'UTC',
-                subscription_status ENUM('active', 'inactive', 'suspended', 'trial') DEFAULT 'trial',
                 trial_ends_at TIMESTAMP(3) NULL,
                 auth_key VARCHAR(255) NOT NULL UNIQUE,
                 status ENUM('pending', 'active', 'suspended', 'cancelled') DEFAULT 'pending',
@@ -59,16 +64,37 @@ const initDatabase = async () => {
                 synced TINYINT DEFAULT 0,
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-                INDEX idx_client_code (client_code),
+                
+                INDEX idx_tin (tin),
+                INDEX idx_subscription_status (subscription_status),
+                INDEX idx_tenant_code (tenant_code),
                 INDEX idx_auth_key (auth_key),
                 INDEX idx_email (email)
-            )
+            );
         `);
 
         await connection.query(`
-            CREATE TABLE IF NOT EXISTS ${SUBSCRIPTION_PLANS_DB} (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                uuid VARCHAR(100) NOT NULL UNIQUE,
+            CREATE TABLE ${MRA_API_CONFIG_TABLE} (
+                config_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                tenant_id UUID NOT NULL,
+                environment ENUM('SANDBOX', 'PRODUCTION') DEFAULT 'SANDBOX',
+                api_base_url VARCHAR(255) NOT NULL,
+                api_key VARCHAR(255) ENCRYPTED,
+                api_secret VARCHAR(255) ENCRYPTED,
+                last_sync_timestamp TIMESTAMP,
+                sync_status ENUM('SUCCESS', 'FAILED', 'IN_PROGRESS') DEFAULT 'SUCCESS',
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                
+                FOREIGN KEY (tenant_id) REFERENCES tenants(tenant_id) ON DELETE CASCADE,
+                UNIQUE KEY unique_tenant_env (tenant_id, environment)
+            );    
+        `)
+
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS ${SUBSCRIPTION_PLANS_TABLE} (
+                subscription_plan_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                 name VARCHAR(100) NOT NULL,
                 description TEXT,
                 price DECIMAL(10, 2) NOT NULL,
@@ -86,11 +112,10 @@ const initDatabase = async () => {
         `);
 
         await connection.query(`
-            CREATE TABLE IF NOT EXISTS ${CLIENT_SUBSCRIPTIONS_DB} (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                uuid VARCHAR(100) NOT NULL UNIQUE,
-                client_uuid VARCHAR(100) NOT NULL,
-                plan_id VARCHAR(100) NOT NULL,
+            CREATE TABLE IF NOT EXISTS ${TENANT_SUBSCRIPTIONS_TABLE} (
+                tenant_subscription_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                tenant_id UUID NOT NULL,
+                subscription_plan_id VARCHAR(100) NOT NULL,
                 status ENUM('active', 'cancelled', 'expired', 'past_due') DEFAULT 'active',
                 starts_at TIMESTAMP(3) NOT NULL,
                 ends_at TIMESTAMP(3) NULL,
@@ -100,71 +125,87 @@ const initDatabase = async () => {
                 synced TINYINT DEFAULT 0,
                 last_payment_date TIMESTAMP(3) NULL,
                 next_payment_date TIMESTAMP(3) NULL,
+
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-                FOREIGN KEY (client_uuid) REFERENCES ${CLIENTS_DB}(uuid) ON DELETE CASCADE,
-                FOREIGN KEY (plan_id) REFERENCES ${SUBSCRIPTION_PLANS_DB}(uuid) ON DELETE RESTRICT
+                FOREIGN KEY (tenant_id) REFERENCES ${TENANT_TABLE}(uuid) ON DELETE CASCADE,
+                FOREIGN KEY (plan_id) REFERENCES ${SUBSCRIPTION_PLANS_TABLE}(uuid) ON DELETE RESTRICT
             )
         `);
 
         await connection.query(`
-            CREATE TABLE IF NOT EXISTS ${SHOPS_DB} (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                uuid VARCHAR(100) NOT NULL UNIQUE,
-                client_uuid VARCHAR(100) NOT NULL,
-                shop_code VARCHAR(50) NOT NULL,
-                name VARCHAR(200) NOT NULL,
+            CREATE TABLE IF NOT EXISTS ${BRANCHES_TABLE} (
+                branch_id VARCHAR(36) PRIMARY KEY,
+                tenant_id VARCHAR(36) NOT NULL,
+                branch_name VARCHAR(255) NOT NULL,
+                branch_code VARCHAR(50) NOT NULL,
                 description TEXT,
                 address_line1 VARCHAR(255),
                 address_line2 VARCHAR(255),
+                address TEXT,
                 city VARCHAR(100),
                 state VARCHAR(100),
+                district VARCHAR(100),
                 postal_code VARCHAR(20),
                 country VARCHAR(50),
-                phone VARCHAR(20),
+                phone_number VARCHAR(20),
                 email VARCHAR(100),
-                tax_number VARCHAR(50),
-                timezone VARCHAR(50) DEFAULT 'UTC',
                 currency_code VARCHAR(3) DEFAULT 'MKW',
                 currency_symbol VARCHAR(10) DEFAULT 'K',
                 tax_rate DECIMAL(5, 2) DEFAULT 0.00,
                 charge_tax BOOLEAN DEFAULT FALSE,
                 receipt_footer TEXT,
                 logo_url VARCHAR(500),
+                is_virtual_warehouse BOOLEAN DEFAULT FALSE,
+                is_active BOOLEAN DEFAULT TRUE,
                 synced TINYINT DEFAULT 0,
+                mra_approval_status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
+                mra_approval_date TIMESTAMP NULL,
                 status ENUM('active', 'inactive', 'suspended') DEFAULT 'active',
-                created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
-                updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-                FOREIGN KEY (client_uuid) REFERENCES ${CLIENTS_DB}(uuid) ON DELETE CASCADE,
-                UNIQUE KEY unique_client_shop (client_uuid, shop_code),
-                INDEX idx_client_uuid (client_uuid),
-                INDEX idx_shop_code (shop_code)
+                created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP(3),
+                updated_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+                
+                FOREIGN KEY (tenant_id) REFERENCES tenants(tenant_id) ON DELETE CASCADE,
+                UNIQUE KEY unique_tenant_shop (tenant_id, shop_code),
+                UNIQUE KEY unique_tenant_branch_code (tenant_id, branch_code),
+                INDEX idx_tenant_id (tenant_id),
+                INDEX idx_shop_code (shop_code),
+                INDEX idx_tenant_active (tenant_id, is_active)
             )
         `);
 
         await connection.query(`
-            CREATE TABLE IF NOT EXISTS ${WORKSTATIONS_DB} (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                uuid VARCHAR(100) NOT NULL UNIQUE,
-                shop_code VARCHAR(100) NOT NULL,
-                client_uuid VARCHAR(100) NOT NULL,
-                till_name VARCHAR(100) NOT NULL,
+            CREATE TABLE IF NOT EXISTS ${TERMINALS_TABLE} (
+                terminal_id VARCHAR(36) PRIMARY KEY,
+                tenant_id VARCHAR(100) NOT NULL,
+                branch_id VARCHAR(100) NOT NULL,
+                terminal_code VARCHAR(100) UNIQUE NOT NULL,
                 till_number VARCHAR(50) NOT NULL,
-                device_id VARCHAR(255),
+                device_os VARCHAR(255),
                 device_type ENUM('desktop', 'tablet', 'mobile', 'web') DEFAULT 'desktop',
-                ip_address VARCHAR(45),
-                last_sync TIMESTAMP(3) NULL,
+                mac_address VARCHAR(45),
+                activation_code VARCHAR(255),
+                activation_status ENUM('PENDING', 'ACTIVATED', 'DEACTIVATED', 'SUSPENDED') DEFAULT 'PENDING',
+                activation_date TIMESTAMP NULL,
                 status ENUM('active', 'inactive', 'maintenance') DEFAULT 'active',
                 is_primary BOOLEAN DEFAULT FALSE,
+                mra_application_status ENUM('APPLIED', 'APPROVED', 'REJECTED') DEFAULT 'APPLIED',
+                mra_approval_date TIMESTAMP NULL,
                 registered_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 last_activity TIMESTAMP(3) NULL,
+                last_sync TIMESTAMP(3) NULL,
+                last_sync_timestamp TIMESTAMP NULL,
                 synced TINYINT DEFAULT 0,
-                created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
-                updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-                FOREIGN KEY (client_uuid) REFERENCES ${CLIENTS_DB}(uuid) ON DELETE CASCADE,
-                UNIQUE KEY unique_shop_till (shop_code, till_number),
-                INDEX idx_shop_code (shop_code),
-                INDEX idx_client_uuid (client_uuid)
+                created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP(3),
+                updated_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+                
+                FOREIGN KEY (tenant_id) REFERENCES tenants(tenant_id) ON DELETE CASCADE,
+                FOREIGN KEY (branch_id) REFERENCES branches(branch_id) ON DELETE CASCADE,
+                UNIQUE KEY unique_tenant_till_number (tenant_id, till_number),
+                INDEX idx_tenant_id (tenant_id),
+                INDEX idx_branch_id (branch_id),
+                INDEX idx_tenant_branch (tenant_id, branch_id),
+                INDEX idx_activation_status (activation_status)
             )
         `);
 
@@ -172,8 +213,8 @@ const initDatabase = async () => {
             CREATE TABLE IF NOT EXISTS ${ROLES_DB} (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 uuid VARCHAR(100) NOT NULL UNIQUE,
-                client_uuid VARCHAR(100) NOT NULL,
-                shop_uuid VARCHAR(100),
+                tenant_id VARCHAR(100) NOT NULL,
+                branch_id VARCHAR(100),
                 name VARCHAR(50) NOT NULL,
                 display_name VARCHAR(100) NOT NULL,
                 description TEXT,
@@ -183,12 +224,12 @@ const initDatabase = async () => {
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
                 
-                FOREIGN KEY (client_uuid) REFERENCES ${CLIENTS_DB}(uuid) ON DELETE CASCADE,
-                FOREIGN KEY (shop_uuid) REFERENCES ${SHOPS_DB}(uuid) ON DELETE CASCADE,
+                FOREIGN KEY (tenant_id) REFERENCES ${TENANT_TABLE}(uuid) ON DELETE CASCADE,
+                FOREIGN KEY (branch_id) REFERENCES ${BRANCHES_TABLE}(uuid) ON DELETE CASCADE,
                 
-                UNIQUE KEY unique_client_shop_role (client_uuid, shop_uuid, name),
-                INDEX idx_client_uuid (client_uuid),
-                INDEX idx_shop_uuid (shop_uuid),
+                UNIQUE KEY unique_client_shop_role (tenant_, branch_id, name),
+                INDEX idx_tenant_id (tenant_id),
+                INDEX idx_branch_id (branch_id),
                 INDEX idx_name (name)
             )
         `);
@@ -236,8 +277,8 @@ const initDatabase = async () => {
             CREATE TABLE IF NOT EXISTS ${USERS_DB} (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 uuid VARCHAR(100) NOT NULL UNIQUE,
-                client_uuid VARCHAR(100) NOT NULL,
-                shop_uuid VARCHAR(100) NOT NULL,
+                tenant_id VARCHAR(100) NOT NULL,
+                branch_id VARCHAR(100) NOT NULL,
                 username VARCHAR(50) NOT NULL,
                 password VARCHAR(255) NOT NULL,
                 fullname VARCHAR(100) NOT NULL,
@@ -250,7 +291,7 @@ const initDatabase = async () => {
                 max_discount_percent DECIMAL(5, 2) DEFAULT 0.00,
                 can_override_prices BOOLEAN DEFAULT FALSE,
                 pin_code VARCHAR(10),
-                current_shop_uuid VARCHAR(100) NULL,
+                current_branch_id VARCHAR(100) NULL,
                 last_login TIMESTAMP(3) NULL,
                 last_logout TIMESTAMP(3) NULL,
                 password_changed_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -259,13 +300,13 @@ const initDatabase = async () => {
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
 
-                FOREIGN KEY (shop_uuid) REFERENCES ${SHOPS_DB}(uuid) ON DELETE CASCADE,
-                FOREIGN KEY (client_uuid) REFERENCES ${CLIENTS_DB}(uuid) ON DELETE CASCADE,
+                FOREIGN KEY (branch_id) REFERENCES ${BRANCHES_TABLE}(uuid) ON DELETE CASCADE,
+                FOREIGN KEY (tenant_id) REFERENCES ${TENANT_TABLE}(uuid) ON DELETE CASCADE,
                 FOREIGN KEY (role_uuid) REFERENCES ${ROLES_DB}(uuid) ON DELETE RESTRICT,
-                FOREIGN KEY (current_shop_uuid) REFERENCES ${SHOPS_DB}(uuid) ON DELETE SET NULL,
+                FOREIGN KEY (current_branch_id) REFERENCES ${BRANCHES_TABLE}(uuid) ON DELETE SET NULL,
 
-                UNIQUE KEY unique_client_username (client_uuid, username),
-                INDEX idx_client_uuid (client_uuid),
+                UNIQUE KEY unique_client_username (tenant_, username),
+                INDEX idx_tenant_id (tenant_id),
                 INDEX idx_username (username),
                 INDEX idx_role_uuid (role_uuid)
             )
@@ -276,20 +317,20 @@ const initDatabase = async () => {
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 user_uuid VARCHAR(100) NOT NULL,
                 permission_uuid VARCHAR(100) NOT NULL,
-                shop_uuid VARCHAR(100),
+                branch_id VARCHAR(100),
                 granted BOOLEAN NOT NULL,
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 created_by VARCHAR(100),
                 synced TINYINT DEFAULT 0,
                 FOREIGN KEY (user_uuid) REFERENCES ${USERS_DB}(uuid) ON DELETE CASCADE,
                 FOREIGN KEY (permission_uuid) REFERENCES ${PERMISSIONS_DB}(uuid) ON DELETE CASCADE,
-                FOREIGN KEY (shop_uuid) REFERENCES ${SHOPS_DB}(uuid) ON DELETE CASCADE,
+                FOREIGN KEY (branch_id) REFERENCES ${BRANCHES_TABLE}(uuid) ON DELETE CASCADE,
                 FOREIGN KEY (created_by) REFERENCES ${USERS_DB}(uuid) ON DELETE SET NULL,
                 
-                UNIQUE KEY unique_user_permission_shop (user_uuid, permission_uuid, shop_uuid),
+                UNIQUE KEY unique_user_permission_shop (user_uuid, permission_uuid, branch_id),
                 INDEX idx_user_uuid (user_uuid),
                 INDEX idx_permission_uuid (permission_uuid),
-                INDEX idx_shop_uuid (shop_uuid)
+                INDEX idx_branch_id (branch_id)
             )
         `);
 
@@ -310,7 +351,7 @@ const initDatabase = async () => {
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
                 FOREIGN KEY (user_uuid) REFERENCES ${USERS_DB}(uuid) ON DELETE CASCADE,
-                FOREIGN KEY (workstation_uuid) REFERENCES ${WORKSTATIONS_DB}(uuid) ON DELETE CASCADE,
+                FOREIGN KEY (workstation_uuid) REFERENCES ${TERMINALS_TABLE}(uuid) ON DELETE CASCADE,
                 INDEX idx_user_uuid (user_uuid),
                 INDEX idx_session_token (session_token),
                 INDEX idx_workstation_uuid (workstation_uuid)
@@ -321,8 +362,8 @@ const initDatabase = async () => {
             CREATE TABLE IF NOT EXISTS ${CATEGORIES_DB} (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 uuid VARCHAR(100) NOT NULL UNIQUE,
-                shop_uuid VARCHAR(100) NOT NULL,
-                client_uuid VARCHAR(100) NOT NULL,
+                branch_id VARCHAR(100) NOT NULL,
+                tenant_id VARCHAR(100) NOT NULL,
                 user_uuid VARCHAR(100) NOT NULL,
                 name VARCHAR(100) NOT NULL,
                 description TEXT,
@@ -333,9 +374,9 @@ const initDatabase = async () => {
                 synced TINYINT DEFAULT 0,
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-                FOREIGN KEY (shop_uuid) REFERENCES ${SHOPS_DB}(uuid) ON DELETE CASCADE,
-                UNIQUE KEY unique_shop_category (shop_uuid, name),
-                INDEX idx_shop_uuid (shop_uuid)
+                FOREIGN KEY (branch_id) REFERENCES ${BRANCHES_TABLE}(uuid) ON DELETE CASCADE,
+                UNIQUE KEY unique_shop_category (branch_id, name),
+                INDEX idx_branch_id (branch_id)
             )
         `);
 
@@ -343,8 +384,8 @@ const initDatabase = async () => {
             CREATE TABLE IF NOT EXISTS ${PAYMENT_SERVICE_PROVIDERS_DB} (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 uuid VARCHAR(100) NOT NULL UNIQUE,
-                shop_uuid VARCHAR(100) NOT NULL,
-                client_uuid VARCHAR(100) NOT NULL,
+                branch_id VARCHAR(100) NOT NULL,
+                tenant_id VARCHAR(100) NOT NULL,
                 user_uuid VARCHAR(100) NOT NULL,
                 name VARCHAR(100) NOT NULL,
                 description TEXT,
@@ -354,9 +395,9 @@ const initDatabase = async () => {
                 synced TINYINT DEFAULT 0,
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-                FOREIGN KEY (shop_uuid) REFERENCES ${SHOPS_DB}(uuid) ON DELETE CASCADE,
-                UNIQUE KEY unique_shop_service_provider(shop_uuid, name),
-                INDEX idx_shop_uuid (shop_uuid)
+                FOREIGN KEY (branch_id) REFERENCES ${BRANCHES_TABLE}(uuid) ON DELETE CASCADE,
+                UNIQUE KEY unique_shop_service_provider(branch_id, name),
+                INDEX idx_branch_id (branch_id)
             )
         `);
 
@@ -364,15 +405,15 @@ const initDatabase = async () => {
             CREATE TABLE IF NOT EXISTS ${CUSTOMERS_DB} (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 uuid VARCHAR(100) NOT NULL UNIQUE,
-                client_uuid VARCHAR(100) NOT NULL,
-                shop_uuid VARCHAR(100) NOT NULL,
+                tenant_id VARCHAR(100) NOT NULL,
+                branch_id VARCHAR(100) NOT NULL,
                 user_uuid VARCHAR(100),
                 name VARCHAR(100) NOT NULL,
                 synced TINYINT DEFAULT 0,
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-                FOREIGN KEY (shop_uuid) REFERENCES ${SHOPS_DB}(uuid) ON DELETE CASCADE,
-                INDEX idx_shop_uuid (shop_uuid)
+                FOREIGN KEY (branch_id) REFERENCES ${BRANCHES_TABLE}(uuid) ON DELETE CASCADE,
+                INDEX idx_branch_id (branch_id)
             )
         `);
 
@@ -380,8 +421,8 @@ const initDatabase = async () => {
             CREATE TABLE IF NOT EXISTS ${PAYMENT_METHODS_DB} (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 uuid VARCHAR(100) NOT NULL UNIQUE,
-                shop_uuid VARCHAR(100) NOT NULL,
-                client_uuid VARCHAR(100) NOT NULL,
+                branch_id VARCHAR(100) NOT NULL,
+                tenant_id VARCHAR(100) NOT NULL,
                 user_uuid VARCHAR(100) NOT NULL,
                 name VARCHAR(50) NOT NULL,
                 is_active BOOLEAN DEFAULT TRUE,
@@ -390,15 +431,15 @@ const initDatabase = async () => {
                 synced TINYINT DEFAULT 0,
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-                FOREIGN KEY (shop_uuid) REFERENCES ${SHOPS_DB}(uuid) ON DELETE CASCADE,
-                FOREIGN KEY (client_uuid) REFERENCES ${CLIENTS_DB}(uuid) ON DELETE CASCADE,
+                FOREIGN KEY (branch_id) REFERENCES ${BRANCHES_TABLE}(uuid) ON DELETE CASCADE,
+                FOREIGN KEY (tenant_id) REFERENCES ${TENANT_TABLE}(uuid) ON DELETE CASCADE,
                 FOREIGN KEY (user_uuid) REFERENCES ${USERS_DB}(uuid) ON DELETE CASCADE,
-                UNIQUE KEY unique_${SHOPS_DB}_${PAYMENT_METHODS_DB} (shop_uuid, name),
+                UNIQUE KEY unique_${BRANCHES_TABLE}_${PAYMENT_METHODS_DB} (branch_id, name),
                 UNIQUE KEY unique_${USERS_DB}_${PAYMENT_METHODS_DB} (user_uuid, name),
-                UNIQUE KEY unique_${CLIENTS_DB}_${PAYMENT_METHODS_DB} (client_uuid, name),
-                INDEX idx_shop_uuid (shop_uuid),
+                UNIQUE KEY unique_${TENANT_TABLE}_${PAYMENT_METHODS_DB} (tenant_, name),
+                INDEX idx_branch_id (branch_id),
                 INDEX idx_user_uuid (user_uuid),
-                INDEX idx_client_uuid (client_uuid)
+                INDEX idx_tenant_id (tenant_id)
             )
         `);
 
@@ -406,8 +447,8 @@ const initDatabase = async () => {
             CREATE TABLE IF NOT EXISTS ${INVENTORY_DB} (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 uuid VARCHAR(100) NOT NULL UNIQUE,
-                shop_uuid VARCHAR(100) NOT NULL,
-                client_uuid VARCHAR(100) NOT NULL,
+                branch_id VARCHAR(100) NOT NULL,
+                tenant_id VARCHAR(100) NOT NULL,
                 user_uuid VARCHAR(100) NOT NULL,
                 category_uuid VARCHAR(100),
                 barcode VARCHAR(100) NOT NULL,
@@ -447,12 +488,12 @@ const initDatabase = async () => {
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
                 
-                FOREIGN KEY (shop_uuid) REFERENCES ${SHOPS_DB}(uuid) ON DELETE CASCADE,
+                FOREIGN KEY (branch_id) REFERENCES ${BRANCHES_TABLE}(uuid) ON DELETE CASCADE,
                 FOREIGN KEY (category_uuid) REFERENCES ${CATEGORIES_DB}(uuid) ON DELETE SET NULL,
                 FOREIGN KEY (created_by) REFERENCES ${USERS_DB}(uuid) ON DELETE SET NULL,
                 FOREIGN KEY (last_updated_by) REFERENCES ${USERS_DB}(uuid) ON DELETE SET NULL,
                 
-                INDEX idx_shop_uuid (shop_uuid),
+                INDEX idx_branch_id (branch_id),
                 INDEX idx_category_uuid (category_uuid),
                 INDEX idx_barcode (barcode),
                 INDEX idx_name (name),
@@ -479,14 +520,14 @@ const initDatabase = async () => {
                 change_amount DECIMAL(10, 2) DEFAULT 0.00,
                 till_uuid VARCHAR(100),
                 user_uuid VARCHAR(100),
-                client_uuid VARCHAR(100) NOT NULL,
-                shop_uuid VARCHAR(100) NOT NULL,
+                tenant_id VARCHAR(100) NOT NULL,
+                branch_id VARCHAR(100) NOT NULL,
                 status VARCHAR(50),
                 synced TINYINT DEFAULT 0,
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-                FOREIGN KEY (shop_uuid) REFERENCES ${SHOPS_DB}(uuid) ON DELETE CASCADE,
-                INDEX idx_shop_uuid (shop_uuid)
+                FOREIGN KEY (branch_id) REFERENCES ${BRANCHES_TABLE}(uuid) ON DELETE CASCADE,
+                INDEX idx_branch_id (branch_id)
             )
         `);
 
@@ -511,8 +552,8 @@ const initDatabase = async () => {
             CREATE TABLE IF NOT EXISTS ${SHOP_SETTINGS_DB} (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 uuid VARCHAR(100) NOT NULL UNIQUE,
-                client_uuid VARCHAR(100) NOT NULL,
-                shop_uuid VARCHAR(100) NOT NULL,
+                tenant_id VARCHAR(100) NOT NULL,
+                branch_id VARCHAR(100) NOT NULL,
                 workstation_uuid VARCHAR(100) NOT NULL,
                 app VARCHAR(100),
                 store VARCHAR(255),
@@ -528,9 +569,9 @@ const initDatabase = async () => {
                 synced TINYINT DEFAULT 0,
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-                FOREIGN KEY (shop_uuid) REFERENCES ${SHOPS_DB}(uuid) ON DELETE CASCADE,
-                UNIQUE KEY unique_shop_settings (shop_uuid),
-                INDEX idx_shop_uuid (shop_uuid)
+                FOREIGN KEY (branch_id) REFERENCES ${BRANCHES_TABLE}(uuid) ON DELETE CASCADE,
+                UNIQUE KEY unique_shop_settings (branch_id),
+                INDEX idx_branch_id (branch_id)
             )
         `);
 
@@ -538,8 +579,8 @@ const initDatabase = async () => {
             CREATE TABLE IF NOT EXISTS ${AUDIT_LOGS_DB} (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 uuid VARCHAR(100) NOT NULL UNIQUE,
-                client_uuid VARCHAR(100),
-                shop_uuid VARCHAR(100),
+                tenant_id VARCHAR(100),
+                branch_id VARCHAR(100),
                 user_uuid VARCHAR(100),
                 workstation_uuid VARCHAR(100),
                 action_type ENUM('create', 'update', 'delete', 'login', 'logout', 'access', 'export', 'import', 'backup', 'sync') NOT NULL,
@@ -558,13 +599,13 @@ const initDatabase = async () => {
                 severity ENUM('low', 'medium', 'high', 'critical') DEFAULT 'low',
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 
-                FOREIGN KEY (client_uuid) REFERENCES ${CLIENTS_DB}(uuid) ON DELETE SET NULL,
-                FOREIGN KEY (shop_uuid) REFERENCES ${SHOPS_DB}(uuid) ON DELETE SET NULL,
+                FOREIGN KEY (tenant_id) REFERENCES ${TENANT_TABLE}(uuid) ON DELETE SET NULL,
+                FOREIGN KEY (branch_id) REFERENCES ${BRANCHES_TABLE}(uuid) ON DELETE SET NULL,
                 FOREIGN KEY (user_uuid) REFERENCES ${USERS_DB}(uuid) ON DELETE SET NULL,
-                FOREIGN KEY (workstation_uuid) REFERENCES ${WORKSTATIONS_DB}(uuid) ON DELETE SET NULL,
+                FOREIGN KEY (workstation_uuid) REFERENCES ${TERMINALS_TABLE}(uuid) ON DELETE SET NULL,
                 
-                INDEX idx_client_uuid (client_uuid),
-                INDEX idx_shop_uuid (shop_uuid),
+                INDEX idx_tenant_id (tenant_id),
+                INDEX idx_branch_id (branch_id),
                 INDEX idx_user_uuid (user_uuid),
                 INDEX idx_action_type (action_type),
                 INDEX idx_entity_type (entity_type),
@@ -586,7 +627,7 @@ const seedDefaultData = async () => {
         const connection = await mysqlPool.getConnection();
 
         await connection.query(`
-            INSERT IGNORE INTO ${SUBSCRIPTION_PLANS_DB} (uuid, name, description, price, billing_cycle, max_shops, max_users_per_shop, max_products, max_transactions_per_month, features) VALUES
+            INSERT IGNORE INTO ${SUBSCRIPTION_PLANS_TABLE} (uuid, name, description, price, billing_cycle, max_shops, max_users_per_shop, max_products, max_transactions_per_month, features) VALUES
             ('plan-basic-001', 'Basic Plan', 'Perfect for small businesses', 9.99, 'monthly', 1, 3, 500, 1000, '["basic_pos", "inventory_management", "basic_reports"]'),
             ('plan-pro-001', 'Professional Plan', 'Great for growing businesses', 29.99, 'monthly', 3, 10, 5000, 10000, '["advanced_pos", "inventory_management", "advanced_reports", "customer_management", "loyalty_program"]'),
             ('plan-enterprise-001', 'Enterprise Plan', 'For large businesses', 99.99, 'monthly', 10, 50, 50000, 100000, '["full_pos", "advanced_inventory", "comprehensive_reports", "multi_location", "api_access", "custom_integrations"]'),
