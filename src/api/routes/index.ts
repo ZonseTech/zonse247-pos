@@ -12,7 +12,7 @@ import SettingsRoutes from './settings.routes'
 import SyncRoutes from './sync.routes'
 import TransactionsRoutes from './transaction.routes'
 import UsersRoutes from './users.routes'
-import ClientsRoutes from './client.routes'
+import TenantsRoutes from './tenant.routes'
 import SubscriptionsRoutes from './subscription.routes'
 import ShopsRoutes from './shop.routes'
 import WorkStationRoutes from './workstations.routes'
@@ -25,10 +25,10 @@ import { AuthMiddleware } from '../middlewares/auth.middleware'
 import { preventSQLInjection, preventXSS, sanitizeInput } from '../middlewares/security.middleware'
 import { authLimiter } from '../middlewares/rate-limit.middleware'
 import { validateBody, validateParams } from '../middlewares/validation.middleware';
-import { ClientController } from '../controllers/client.controller';
+import { TenantController } from '../controllers/tenant.controller';
 import { asyncHandler } from '../middlewares/error.middleware';
 import { ShopController } from '../controllers/shop.controller';
-import { clientValidationSchemas } from '../validations/client.schemas';
+import { tenantValidationSchemas } from '../validations/tenant.schemas';
 import { shopValidationSchemas } from '../validations/shopValidationSchemas';
 import { OnboardingController } from '../controllers/onboarding.controller';
 import { SettingsController } from '../controllers/settings.controller'
@@ -58,9 +58,9 @@ router.get(
 )
 
 router.get(
-    '/client/:clientUuid/shops',
-    validateParams(clientValidationSchemas.clientUuid),
-    asyncHandler(ClientController.getClientShops)
+    '/tenant/:tenantId/shops',
+    validateParams(tenantValidationSchemas.tenantId),
+    asyncHandler(TenantController.getTenantShops)
 );
 
 router.get(
@@ -75,34 +75,40 @@ router.use(
 );
 
 router.post(
-    '/auth/verify-client',
-    validateBody(clientValidationSchemas.verifyClient),
-    asyncHandler(ClientController.verify)
+    '/auth/verify-tenant',
+    validateBody(tenantValidationSchemas.verifyTenant),
+    asyncHandler(TenantController.verify)
 );
 
-router.use('/auth', authLimiter, AuthRoutes);
 router.use('/settings', authLimiter, SettingsRoutes);
 
-router.use('/mailing', authMiddleware.verifyToken, MailingRoutes);
-router.use('/export', authMiddleware.verifyToken, DatabaseExportRoutes);
-router.use('/sync', authMiddleware.verifyToken, SyncRoutes);
-router.use('/payment-service-providers', authMiddleware.verifyToken, PaymentServiceProviderRoutes);
-router.use('/users', authMiddleware.verifyToken, UsersRoutes);
-router.use('/dashboard', authMiddleware.verifyToken, DashboardRoutes);
-router.use('/printers', authMiddleware.verifyToken, PrinterRoutes);
-router.use('/inventory', authMiddleware.verifyToken, InventoryRoutes);
-router.use('/customers', authMiddleware.verifyToken, CustomersRoutes);
-router.use('/categories', authMiddleware.verifyToken, CategoriesRoutes);
-router.use('/payment-methods', authMiddleware.verifyToken, PaymentMethodRoutes);
-router.use('/migration', authMiddleware.verifyToken, MigrationRoutes);
-router.use('/transactions', authMiddleware.verifyToken, TransactionsRoutes);
-router.use('/hold-orders', authMiddleware.verifyToken, HoldOrdersRoutes);
-router.use('/clients', authMiddleware.verifyToken, ClientsRoutes);
-router.use('/shops', authMiddleware.verifyToken, ShopsRoutes);
-router.use('/subscriptions', authMiddleware.verifyToken, SubscriptionsRoutes);
-router.use('/workstations', authMiddleware.verifyToken, WorkStationRoutes);
-router.use('/roles', authMiddleware.verifyToken, RoleRoutes);
-router.use('/permissions', authMiddleware.verifyToken, PermissionRoutes);
-router.use('/role-permissions', authMiddleware.verifyToken, RolePermissionRoutes);
+router.use(authMiddleware.verifyRequestHeaders)
+
+router.use('/auth', authLimiter, AuthRoutes);
+
+router.use(authMiddleware.verifyToken)
+
+router.use('/tenants', TenantsRoutes);
+
+router.use('/mailing', MailingRoutes);
+router.use('/export', DatabaseExportRoutes);
+router.use('/sync', SyncRoutes);
+router.use('/payment-service-providers', PaymentServiceProviderRoutes);
+router.use('/users', UsersRoutes);
+router.use('/dashboard', DashboardRoutes);
+router.use('/printers', PrinterRoutes);
+router.use('/inventory', InventoryRoutes);
+router.use('/customers', CustomersRoutes);
+router.use('/categories', CategoriesRoutes);
+router.use('/payment-methods', PaymentMethodRoutes);
+router.use('/migration', MigrationRoutes);
+router.use('/transactions', TransactionsRoutes);
+router.use('/hold-orders', HoldOrdersRoutes);
+router.use('/shops', ShopsRoutes);
+router.use('/subscriptions', SubscriptionsRoutes);
+router.use('/workstations', WorkStationRoutes);
+router.use('/roles', RoleRoutes);
+router.use('/permissions', PermissionRoutes);
+router.use('/role-permissions', RolePermissionRoutes);
 
 export default router
