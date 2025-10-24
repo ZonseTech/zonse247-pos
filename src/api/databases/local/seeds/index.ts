@@ -27,7 +27,7 @@ const checkOrCreateDefaultRoles = async () => {
 		if (!superAdminRole) {
 			const defaultSuperAdminRole: Role = {
 				uuid: 'super-admin',
-				clientUuid: '-1',
+				tenantId: '-1',
 				shopUuid: '-1',
 				name: 'super_admin',
 				displayName: 'Super Administrator',
@@ -44,7 +44,7 @@ const checkOrCreateDefaultRoles = async () => {
 		if (!adminRole) {
 			const defaultAdminRole: Role = {
 				uuid: 'admin',
-				clientUuid: '-1',
+				tenantId: '-1',
 				shopUuid: '-1',
 				name: 'admin',
 				displayName: 'Administrator',
@@ -61,7 +61,7 @@ const checkOrCreateDefaultRoles = async () => {
 		if (!managerRole) {
 			const defaultManagerRole: Role = {
 				uuid: 'manager',
-				clientUuid: '-1',
+				tenantId: '-1',
 				shopUuid: '-1',
 				name: 'manager',
 				displayName: 'Manager',
@@ -78,7 +78,7 @@ const checkOrCreateDefaultRoles = async () => {
 		if (!cashierRole) {
 			const defaultCashierRole: Role = {
 				uuid: 'cashier',
-				clientUuid: '-1',
+				tenantId: '-1',
 				shopUuid: '-1',
 				name: 'cashier',
 				displayName: 'Cashier',
@@ -137,7 +137,7 @@ const checkOrCreateDefaultShop = async () => {
 
 		const defaultShop: IShop = {
 			uuid: '-1',
-			clientUuid: '-1',
+			tenantId: '-1',
 			name: 'Default Shop',
 			shopCode: 'SHOP001',
 			addressLine1: '123 Main Street',
@@ -162,37 +162,48 @@ const checkOrCreateDefaultShop = async () => {
 	}
 };
 
-const checkOrCreateDefaultClient = async () => {
+const checkOrCreateDefaultTenant = async () => {
 	try {
-		const client = await sealDBModel.findById(TENANT_TABLE, '-1');
-		if (client) return;
+		const tenant = await sealDBModel.findById(TENANT_TABLE, '-1');
+		if (tenant) return;
 
-		const defaultClient: Client = {
-			uuid: '-1',
-			clientCode: 'DEFAULT_CLIENT',
-			companyName: 'Default Company',
+		const now = new Date();
+
+		const defaultTenant: Tenant = {
+			tenantId: '-1',
+			tenantCode: 'DEFAULT_CLIENT',
+			businessName: 'Default Company',
+			tradingName: 'Default Trading Name',
+			tin: '000000000',
+			businessType: 'PRODUCT_BASED',
 			ownerName: 'System Administrator',
 			email: 'admin@example.com',
-			phone: '+1234567890',
+			phoneNumber: '+1234567890',
 			address: '123 Business Street',
-			country: 'Default Country',
-			timezone: 'UTC',
-			subscriptionStatus: 'active',
-			trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-			authKey: 'default-auth-key-' + Date.now(),
+			country: 'MW',
+			mraPortalUsername: 'admin',
+			msonkhoOnlineStatus: 'PENDING',
+			subscriptionPlan: 'TRIAL',
+			subscriptionStatus: 'TRIAL',
+			authKey: `default-auth-key-${Date.now()}`,
 			status: 'active',
-			registeredAt: new Date().toISOString(),
-			activatedAt: new Date().toISOString(),
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
-			synced: 0
+			registeredAt: now,
+			activatedAt: now,
+			trialEndsAt: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000),
+			isVatRegistered: false,
+			taxOfficeCode: null,
+			synced: false,
+			createdAt: now,
+			updatedAt: now
 		};
 
-		await sealDBModel.insert(TENANT_TABLE, defaultClient);
+		await sealDBModel.insert(TENANT_TABLE, defaultTenant);
+		console.log('✅ Default tenant created successfully');
 	} catch (err) {
-		console.error('Error creating default client:', err);
+		console.error('❌ Error creating default tenant:', err);
 	}
 };
+
 
 const checkOrCreateDefaultWorkStation = async () => {
 	try {
@@ -202,7 +213,7 @@ const checkOrCreateDefaultWorkStation = async () => {
 		const defaultWorkStation: Workstation = {
 			uuid: '-1',
 			shopCode: 'SHOP001',
-			clientUuid: '-1',
+			tenantId: '-1',
 			tillName: 'Main Till',
 			tillNumber: 'TILL001',
 			deviceId: 'DEFAULT_DEVICE',
@@ -273,14 +284,14 @@ const checkOrCreateDefaultSubscriptionPlans = async () => {
 	}
 };
 
-const checkOrCreateDefaultClientSubscriptions = async () => {
+const checkOrCreateDefaultTenantSubscriptions = async () => {
 	try {
 		const subscription = await sealDBModel.findById(TENANT_SUBSCRIPTIONS_TABLE, '-1');
 		if (subscription) return;
 
 		const defaultSubscription: ClientSubscription = {
 			uuid: '-1',
-			clientUuid: '-1',
+			tenantId: '-1',
 			planId: 'basic-monthly',
 			status: 'active',
 			maxShops: 5,
@@ -315,7 +326,7 @@ const checkOrCreateDefaultUser = async () => {
 			username: 'admin',
 			fullname: 'Zonse247 Admin',
 			password: hash,
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			roleUuid: 'super-admin',
 			accessibleShops: ["*"],
@@ -339,7 +350,7 @@ const checkOrCreateDefaultCustomer = async () => {
 
 		const defaultCustomer: Customer = {
 			uuid: '-1',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 			name: 'Walk in customer',
@@ -379,7 +390,7 @@ async function checkOrCreateDefaultSettings(): Promise<void> {
 
 		const defaultSettings: WorkstatSettings = {
 			uuid: '-1',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			workstationUuid: '-1',
 			app: config.app.name,
@@ -409,7 +420,7 @@ async function checkAndCreateDefaultCategory(): Promise<void> {
 
 		const defaultCategory: Category = {
 			uuid: '-1',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 			name: 'Consumables',
@@ -426,14 +437,14 @@ async function checkOrCreateDefaultPaymentMethods(): Promise<void> {
 		{
 			name: 'Cash',
 			uuid: '1',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 		},
 		{
 			name: 'Mobile Transfer',
 			uuid: '2',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 		},
@@ -458,35 +469,35 @@ async function checkOrCreateDefaultPaymentServiceProviders(): Promise<void> {
 		{
 			name: 'Airtel Money',
 			uuid: '1',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 		},
 		{
 			name: 'TNM Mpamba',
 			uuid: '2',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 		},
 		{
 			name: 'National Bank',
 			uuid: '3',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 		},
 		{
 			name: 'FDH',
 			uuid: '4',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 		},
 		{
 			name: 'Standard Bank',
 			uuid: '5',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 		},
@@ -512,10 +523,10 @@ const seedDatabase = async () => {
 		checkOrCreateDefaultPermissions()
 		checkOrCreateDefaultRolePermissions()
 		checkOrCreateDefaultShop()
-		checkOrCreateDefaultClient()
+		checkOrCreateDefaultTenant()
 		checkOrCreateDefaultWorkStation()
 		checkOrCreateDefaultSubscriptionPlans()
-		checkOrCreateDefaultClientSubscriptions()
+		checkOrCreateDefaultTenantSubscriptions()
 
 		checkOrCreateDefaultUser();
 		checkOrCreateDefaultCustomer();

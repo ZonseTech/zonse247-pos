@@ -379,7 +379,7 @@ export class SealDBModel {
 		Object.keys(this.databases).forEach((tableName) => {
 			try {
 				const db = this.databases[tableName];
-				db.ensureIndex({ fieldName: 'uuid', unique: true });
+				// db.ensureIndex({ fieldName: 'uuid', unique: true });
 
 				switch (tableName) {
 					case USERS_DB:
@@ -401,8 +401,8 @@ export class SealDBModel {
 						db.ensureIndex({ fieldName: 'productId' });
 						break;
 					case TERMINALS_TABLE:
-						db.ensureIndex({ fieldName: 'clientUuid' });
-						db.ensureIndex({ fieldName: 'shopUuid' });
+						db.ensureIndex({ fieldName: 'tenantId' });
+						db.ensureIndex({ fieldName: 'branchId' });
 						db.ensureIndex({ fieldName: 'tillNumber' });
 						db.ensureIndex({ fieldName: 'deviceId' });
 						db.ensureIndex({ fieldName: 'status' });
