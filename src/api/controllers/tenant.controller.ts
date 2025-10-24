@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { BaseController } from "./base.controller";
 import { TenantService } from "../services/tenant.service";
-import { ShopService } from "../services/shop.service";
+import { BranchService } from "../services/branch.service";
 
 export class TenantController extends BaseController {
     constructor() {
@@ -136,7 +136,7 @@ export class TenantController extends BaseController {
         }
     }
 
-    static async getTenantShops(req: Request<{ tenantId: string }>, res: Response): Promise<void> {
+    static async getTenantBranches(req: Request<{ tenantId: string }>, res: Response): Promise<void> {
         try {
             const { tenantId } = req.params;
 
@@ -144,10 +144,10 @@ export class TenantController extends BaseController {
                 return BaseController.sendResponse(res, 400, false, 'Tenant ID is required');
             }
 
-            const shops = await ShopService.getShopsByTenantId(tenantId);
-            return BaseController.sendResponse(res, 200, true, 'Tenant shops retrieved successfully', shops);
+            const branches = await BranchService.getBranchesByTenantId(tenantId);
+            return BaseController.sendResponse(res, 200, true, 'Tenant branches retrieved successfully', branches);
         } catch (error: any) {
-            console.error('Error fetching tenant shops:', error);
+            console.error('Error fetching tenant branches:', error);
             return BaseController.sendResponse(res, 500, false, error.message, undefined, error.message);
         }
     }

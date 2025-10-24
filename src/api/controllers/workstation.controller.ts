@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { BaseController } from "./base.controller";
-import { WorkstationService } from "../services/workstation.service";
+import { TerminalService } from "../services/terminal.service";
 
 export class WorkStationController extends BaseController {
 
-    static async createWorkstation(req: Request<{}, ApiResponse<Workstation>, CreateWorkstationRequest>, res: Response): Promise<void> {
+    static async createWorkstation(req: Request<{}, ApiResponse<Workstation>, CreateTerminalRequest>, res: Response): Promise<void> {
         try {
-            const newWorkstation = await WorkstationService.createWorkstation(req.body);
+            const newWorkstation = await TerminalService.createWorkstation(req.body);
             BaseController.sendResponse(res, 201, true, 'Workstation created successfully', newWorkstation);
         } catch (error: any) {
             console.error('Error creating workstation:', error);
@@ -26,7 +26,7 @@ export class WorkStationController extends BaseController {
 
     static async getAllWorkstations(req: Request, res: Response): Promise<void> {
         try {
-            const workstations = await WorkstationService.getAllWorkstations(req.query);
+            const workstations = await TerminalService.getAllWorkstations(req.query);
             BaseController.sendResponse(res, 200, true, 'Workstations retrieved successfully', workstations);
         } catch (error: any) {
             console.error('Error retrieving workstations:', error);
@@ -36,7 +36,7 @@ export class WorkStationController extends BaseController {
 
     static async getWorkstation(req: Request<{ id: string }>, res: Response): Promise<void> {
         try {
-            const workstation = await WorkstationService.getWorkstationById(req.params.id);
+            const workstation = await TerminalService.getWorkstationById(req.params.id);
             if (!workstation) {
                 BaseController.sendResponse(res, 404, false, 'Workstation not found');
                 return;
@@ -50,7 +50,7 @@ export class WorkStationController extends BaseController {
 
     static async updateWorkstation(req: Request<{ id: string }, ApiResponse<Workstation>, Partial<Workstation>>, res: Response): Promise<void> {
         try {
-            const updatedWorkstation = await WorkstationService.updateWorkstation(req.params.id, req.body);
+            const updatedWorkstation = await TerminalService.updateWorkstation(req.params.id, req.body);
             if (!updatedWorkstation) {
                 BaseController.sendResponse(res, 404, false, 'Workstation not found');
                 return;
@@ -72,7 +72,7 @@ export class WorkStationController extends BaseController {
 
     static async deleteWorkstation(req: Request<{ id: string }>, res: Response): Promise<void> {
         try {
-            const deleted = await WorkstationService.deleteWorkstation(req.params.id);
+            const deleted = await TerminalService.deleteWorkstation(req.params.id);
             if (!deleted) {
                 BaseController.sendResponse(res, 404, false, 'Workstation not found');
                 return;
@@ -86,7 +86,7 @@ export class WorkStationController extends BaseController {
 
     static async updateWorkstationStatus(req: Request<{ id: string }, ApiResponse<Workstation>, { status: 'active' | 'inactive' | 'maintenance' }>, res: Response): Promise<void> {
         try {
-            const updatedWorkstation = await WorkstationService.updateWorkstationStatus(req.params.id, req.body.status);
+            const updatedWorkstation = await TerminalService.updateWorkstationStatus(req.params.id, req.body.status);
             if (!updatedWorkstation) {
                 BaseController.sendResponse(res, 404, false, 'Workstation not found');
                 return;
@@ -100,7 +100,7 @@ export class WorkStationController extends BaseController {
 
     static async syncWorkstation(req: Request<{ id: string }>, res: Response): Promise<void> {
         try {
-            const syncResult = await WorkstationService.syncWorkstation(req.params.id);
+            const syncResult = await TerminalService.syncWorkstation(req.params.id);
             BaseController.sendResponse(res, 200, true, 'Workstation synced successfully', syncResult);
         } catch (error: any) {
             console.error('Error syncing workstation:', error);
