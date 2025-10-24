@@ -7,7 +7,7 @@ import AuthLayout from '../../layouts/AuthLayout';
 import SuccessAlert from './partials/SuccessAlert';
 import StepIndicator from './partials/StepIndicator';
 import shopsService from '../../services/shop.service';
-import clientsService from '../../services/client.service';
+import clientsService from '../../services/tenant.service';
 import settingsService from '../../services/settings.service';
 import ShopSelectionStep from './partials/steps/ShopSelectionStep';
 import workstationsService from '../../services/workstation.service';

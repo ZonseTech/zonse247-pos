@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { ChangeEvent, useContext } from 'react';
 import { useField } from 'formik';
 import Label from './Label';
 import Input from './Input';
@@ -155,7 +155,18 @@ const FormInput: React.FC<TextInputProps & React.InputHTMLAttributes<HTMLInputEl
 		);
 	}
 
-	const [field, meta] = useField({ ...props, name });
+	const [field, meta, helpers] = useField({ ...props, name });
+
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		let value = e.target.value;
+
+		if (value.length > 0) {
+			value = value.charAt(0).toUpperCase() + value.slice(1);
+		}
+
+		helpers.setValue(value);
+	};
+
 	return (
 		<div className={classNames(wrapperClass, '')}>
 			<Label htmlFor={id || name}>
@@ -163,6 +174,7 @@ const FormInput: React.FC<TextInputProps & React.InputHTMLAttributes<HTMLInputEl
 			</Label>
 			<Input
 				{...field}
+				// onChange={handleChange}
 				{...props}
 				type={type}
 				step={step as string}
