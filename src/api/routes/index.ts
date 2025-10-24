@@ -14,7 +14,7 @@ import TransactionsRoutes from './transaction.routes'
 import UsersRoutes from './users.routes'
 import TenantsRoutes from './tenant.routes'
 import SubscriptionsRoutes from './subscription.routes'
-import ShopsRoutes from './shop.routes'
+import BranchesRoutes from './branch.routes'
 import WorkStationRoutes from './workstations.routes'
 import RoleRoutes from './role.routes'
 import MailingRoutes from './email.routes'
@@ -27,7 +27,7 @@ import { authLimiter } from '../middlewares/rate-limit.middleware'
 import { validateBody, validateParams } from '../middlewares/validation.middleware';
 import { TenantController } from '../controllers/tenant.controller';
 import { asyncHandler } from '../middlewares/error.middleware';
-import { ShopController } from '../controllers/shop.controller';
+import { BranchController } from '../controllers/branch.controller';
 import { tenantValidationSchemas } from '../validations/tenant.schemas';
 import { shopValidationSchemas } from '../validations/shopValidationSchemas';
 import { OnboardingController } from '../controllers/onboarding.controller';
@@ -57,27 +57,27 @@ router.get(
     asyncHandler(SettingsController.setup)
 )
 
-router.get(
-    '/tenant/:tenantId/shops',
-    validateParams(tenantValidationSchemas.tenantId),
-    asyncHandler(TenantController.getTenantShops)
+router.post(
+    '/auth/verify-tenant',
+    validateBody(tenantValidationSchemas.verifyTenant),
+    asyncHandler(TenantController.verify)
 );
 
 router.get(
-    '/shop/:shopCode/workstations',
+    '/tenant/:tenantId/branches',
+    validateParams(tenantValidationSchemas.tenantId),
+    asyncHandler(TenantController.getTenantBranches)
+);
+
+router.get(
+    '/branch/:branchCode/terminals',
     validateParams(shopValidationSchemas.shopCode),
-    asyncHandler(ShopController.getShopWorkstations)
+    asyncHandler(BranchController.getBranchTerminals)
 );
 
 router.use(
     '/on-boarding',
     asyncHandler(OnboardingController.getOnboardingStatus)
-);
-
-router.post(
-    '/auth/verify-tenant',
-    validateBody(tenantValidationSchemas.verifyTenant),
-    asyncHandler(TenantController.verify)
 );
 
 router.use('/settings', authLimiter, SettingsRoutes);
@@ -89,6 +89,7 @@ router.use('/auth', authLimiter, AuthRoutes);
 router.use(authMiddleware.verifyToken)
 
 router.use('/tenants', TenantsRoutes);
+router.use('/branches', BranchesRoutes);
 
 router.use('/mailing', MailingRoutes);
 router.use('/export', DatabaseExportRoutes);
@@ -104,7 +105,6 @@ router.use('/payment-methods', PaymentMethodRoutes);
 router.use('/migration', MigrationRoutes);
 router.use('/transactions', TransactionsRoutes);
 router.use('/hold-orders', HoldOrdersRoutes);
-router.use('/shops', ShopsRoutes);
 router.use('/subscriptions', SubscriptionsRoutes);
 router.use('/workstations', WorkStationRoutes);
 router.use('/roles', RoleRoutes);
