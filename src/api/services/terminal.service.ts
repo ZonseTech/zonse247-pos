@@ -1,0 +1,158 @@
+import { TenantService } from "./tenant.service";
+import { BranchModel } from "../models/branch.model";
+import { WorkstationModel } from "../models/work-station.model";
+
+export class TerminalService {
+
+    static async createWorkstation(data: CreateTerminalRequest): Promise<Workstation> {
+        const validationError = TenantService.validateRequired(data, ['branchCode', 'tenantId', 'tillName', 'tillNumber']);
+        if (validationError) {
+            throw new Error(validationError);
+        }
+
+        const branch = await BranchModel.findByBranchCode(data.branchCode);
+        if (!branch) {
+            throw new Error('branch not found');
+        }
+
+        if (branch.tenantId !== data.tenantId) {
+            throw new Error('Client does not own this branch');
+        }
+
+        const existingWorkstations = await WorkstationModel.findByShopCodeAndTillNumber(data.branchCode, data.tillNumber);
+        if (existingWorkstations.length > 0) {
+            throw new Error('Till number already exists for this shop');
+        }
+
+        if (data.isPrimary) {
+            const primaryWorkstations = await WorkstationModel.findPrimaryByShopCode(data.branchCode);
+            for (const workstation of primaryWorkstations) {
+                await WorkstationModel.update(workstation.uuid, { isPrimary: false });
+            }
+        }
+
+        const workstationData = WorkstationModel.buildWorkstationData(data);
+        return WorkstationModel.create(workstationData);
+    }
+
+    static async getAllWorkstations(query: any = {}): Promise<Workstation[]> {
+        try {
+            if (query.clientUuid) {
+                return await WorkstationModel.findByTenantId(query.clientUuid);
+            }
+
+            if (query.shopCode) {
+                return await WorkstationModel.findByShopCode(query.shopCode);
+            }
+
+            return await WorkstationModel.findAll();
+        } catch (error) {
+            throw new Error(`Failed to retrieve workstations: ${error}`);
+        }
+    }
+
+    static async getTerminalsByBranchCode(branchCode: string): Promise<Workstation[]> {
+        try {
+            return await WorkstationModel.findByShopCode(branchCode);
+        } catch (error) {
+            throw new Error(`Failed to retrieve workstations: ${error}`);
+        }
+    }
+
+    static async getWorkstationById(id: string): Promise<Workstation | null> {
+        try {
+            return await WorkstationModel.findById(id);
+        } catch (error) {
+            throw new Error(`Failed to retrieve workstation: ${error}`);
+        }
+    }
+
+    static async updateWorkstation(id: string, data: Partial<Workstation>): Promise<Workstation | null> {
+        try {
+            const existingWorkstation = await WorkstationModel.findById(id);
+            if (!existingWorkstation) {
+                throw new Error('Workstation not found');
+            }
+
+            if (data.tillNumber && data.tillNumber !== existingWorkstation.tillNumber) {
+                const conflictingWorkstations = await WorkstationModel.findByShopCodeAndTillNumber(
+                    existingWorkstation.shopCode,
+                    data.tillNumber
+                );
+                if (conflictingWorkstations.length > 0) {
+                    throw new Error('Till number already exists for this shop');
+                }
+            }
+
+            if (data.isPrimary === true && !existingWorkstation.isPrimary) {
+                const primaryWorkstations = await WorkstationModel.findPrimaryByShopCode(existingWorkstation.shopCode);
+                for (const workstation of primaryWorkstations) {
+                    await WorkstationModel.update(workstation.uuid, { isPrimary: false });
+                }
+            }
+
+            const updateData = {
+                ...data,
+                lastActivity: new Date().toISOString()
+            };
+
+            const numUpdated = await WorkstationModel.update(id, updateData);
+            if (numUpdated === 0) {
+                return null;
+            }
+
+            return await WorkstationModel.findById(id);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async deleteWorkstation(id: string): Promise<boolean> {
+        try {
+            const numDeleted = await WorkstationModel.delete(id);
+            return numDeleted > 0;
+        } catch (error) {
+            throw new Error(`Failed to delete workstation: ${error}`);
+        }
+    }
+
+    static async updateWorkstationStatus(id: string, status: 'active' | 'inactive' | 'maintenance'): Promise<Workstation | null> {
+        try {
+            const updateData = {
+                status,
+                lastActivity: new Date().toISOString()
+            };
+
+            const numUpdated = await WorkstationModel.update(id, updateData);
+            if (numUpdated === 0) {
+                return null;
+            }
+
+            return await WorkstationModel.findById(id);
+        } catch (error) {
+            throw new Error(`Failed to update workstation status: ${error}`);
+        }
+    }
+
+    static async syncWorkstation(id: string): Promise<{ status: boolean; lastSync: string }> {
+        try {
+            const workstation = await WorkstationModel.findById(id);
+            if (!workstation) {
+                throw new Error('Workstation not found');
+            }
+
+            const lastSync = new Date().toISOString();
+            await WorkstationModel.update(id, {
+                lastSync: lastSync,
+                lastActivity: lastSync
+            });
+
+            return {
+                status: true,
+                lastSync: lastSync
+            };
+        } catch (error) {
+            throw error;
+        }
+    }
+}

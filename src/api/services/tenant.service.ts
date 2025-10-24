@@ -1,5 +1,5 @@
 import { EmailService } from "./email.service";
-import { ShopModel } from "../models/shop.model";
+import { BranchModel } from "../models/branch.model";
 import { TenantModel } from "../models/tenant.model";
 import { SubscriptionModel } from "../models/subscription.model";
 import { WorkstationModel } from "../models/work-station.model";
@@ -117,7 +117,7 @@ export class TenantService {
         }
 
         const subscriptions = await SubscriptionModel.findByTenantId(tenantId);
-        const shops = await ShopModel.findByTenantId(tenantId);
+        const shops = await BranchModel.findByTenantId(tenantId);
         const workstations = await WorkstationModel.findByTenantId(tenantId);
 
         if (subscriptions.length > 0 || shops.length > 0 || workstations.length > 0) {
@@ -197,7 +197,7 @@ export class TenantService {
         const subscriptions = await SubscriptionModel.findByTenantId(tenantId);
         const activeSubscription = subscriptions.find(sub => sub.status === 'active') || null;
 
-        const shops = await ShopModel.findByTenantId(tenantId);
+        const shops = await BranchModel.findByTenantId(tenantId);
         const workstations = await WorkstationModel.findByTenantId(tenantId);
 
         const onboardingSteps = {
