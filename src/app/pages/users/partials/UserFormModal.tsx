@@ -6,7 +6,7 @@ import FormInput from '../../../components/FormInput';
 import FormWrapper from '../../../components/FormWrapper';
 import FormSelectBox from '../../../components/FormSelectBox';
 import usersService from '../../../services/users.service';
-import workstationsService from '../../../services/workstation.service';
+import workstationsService from '../../../services/terminal.service';
 import shopsService from '../../../services/branch.service';
 import { Fragment, useState, useEffect } from 'react';
 import type { FunctionComponent } from 'react';

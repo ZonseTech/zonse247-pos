@@ -5,7 +5,7 @@ import WorkstationFormModal from './partials/WorkstationFormModal';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { Button, Input, ZonseThemeContext } from '../../components';
 import { HiOutlineMenuAlt4, HiOutlineSearch } from 'react-icons/hi';
-import workstationsService from '../../services/workstation.service';
+import workstationsService from '../../services/terminal.service';
 import { Edit2, Trash2, Monitor, Star, StarOff } from 'lucide-react';
 import { useState, useEffect, Fragment, useContext, FunctionComponent, ChangeEvent } from 'react';
 import { FaSync } from 'react-icons/fa';

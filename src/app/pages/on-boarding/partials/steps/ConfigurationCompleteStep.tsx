@@ -5,12 +5,12 @@ import { Button } from "../../../../components";
 const ConfigurationCompleteStep: FunctionComponent<{
     verifiedTenant: Tenant,
     selectedBranch: Branch,
-    selectedWorkstation: Workstation,
+    selectedTerminal: Terminal,
     onReset
 }> = ({
     verifiedTenant,
     selectedBranch,
-    selectedWorkstation,
+    selectedTerminal,
     onReset
 }) => {
 
@@ -25,7 +25,7 @@ const ConfigurationCompleteStep: FunctionComponent<{
                         <div className="text-left space-y-2 text-gray-900">
                             <p><strong>Client:</strong> {verifiedTenant?.businessName}</p>
                             <p><strong>Shop:</strong> {selectedBranch?.branchName}</p>
-                            <p><strong>Workstation:</strong> {selectedWorkstation?.tillName}-{selectedWorkstation.tillNumber}</p>
+                            <p><strong>Terminal:</strong> {selectedTerminal?.terminalLabel}-{selectedTerminal.terminalPosition}</p>
                             <p><strong>Status:</strong> <span className="text-green-600">Ready for use</span></p>
                         </div>
                     </div>

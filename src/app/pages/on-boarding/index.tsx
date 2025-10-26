@@ -1,24 +1,24 @@
 import * as Yup from 'yup';
-import { FunctionComponent, useState } from 'react';
 import { useNavigate } from 'react-router';
 import ErrorAlert from './partials/ErrorAlert';
 import { ROUTES } from '../../utils/constants';
 import AuthLayout from '../../layouts/AuthLayout';
 import SuccessAlert from './partials/SuccessAlert';
+import { FunctionComponent, useState } from 'react';
 import StepIndicator from './partials/StepIndicator';
 import branchService from '../../services/branch.service';
 import tenantService from '../../services/tenant.service';
 import settingsService from '../../services/settings.service';
+import terminalService from '../../services/terminal.service';
 import BranchSelectionStep from './partials/steps/BranchSelectionStep';
-import workstationsService from '../../services/workstation.service';
+import TerminalSelectionStep from './partials/steps/TerminalSelectionStep';
 import ClientVerificationStep from './partials/steps/ClientVerificationStep';
-import WorkstationSelectionStep from './partials/steps/WorkstationSelectionStep';
 import ConfigurationCompleteStep from './partials/steps/ConfigurationCompleteStep';
 
 const ClientVerification: FunctionComponent = () => {
     const registerProps: TerminalVerificationParams = {
-        tenantCode: '',
-        authKey: '',
+        tenantCode: 'DEFAULT_CLIENT',
+        authKey: 'default-auth-key-1761310617487',
         os: '',
         hostname: '',
         macAddress: ''
@@ -46,8 +46,8 @@ const ClientVerification: FunctionComponent = () => {
     const [branches, setTenantBranches] = useState<Array<Branch>>([]);
     const [selectedBranch, setSelectedBranch] = useState<Branch>(null);
     const [verifiedTenant, setVerifiedTenant] = useState<Tenant>(null);
-    const [workstations, setWorkstations] = useState<Array<Workstation>>([]);
-    const [selectedWorkstation, setSelectedWorkstation] = useState<Workstation>(null);
+    const [terminals, setTerminals] = useState<Array<Terminal>>([]);
+    const [selectedTerminal, setSelectedTerminal] = useState<Terminal>(null);
 
     const handleVerifyClient = async (credentials: TerminalVerificationParams) => {
         setError('');
@@ -82,24 +82,24 @@ const ClientVerification: FunctionComponent = () => {
         setLoading(true);
 
         try {
-            const stationsList = await workstationsService.listByShopCode(branch.branchId);
-            setWorkstations(stationsList);
+            const stationsList = await terminalService.listByBranchId(branch.branchId);
+            setTerminals(stationsList);
             setCurrentStep(3);
         } catch (err) {
-            setError('Failed to fetch workstations');
+            setError('Failed to fetch terminals for the selected branch');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleWorkstationSelect = (workstation: Workstation) => {
-        setSelectedWorkstation(workstation);
+    const handleTerminalSelect = (terminal: Terminal) => {
+        setSelectedTerminal(terminal);
         setError('');
     };
 
     const handleSubmitConfiguration = async () => {
-        if (!selectedWorkstation) {
-            setError('Please select a workstation');
+        if (!selectedTerminal) {
+            setError('Please select a terminal');
             return;
         }
 
@@ -107,15 +107,20 @@ const ClientVerification: FunctionComponent = () => {
         setError('');
 
         try {
-            await settingsService.store({
+            const settings = await settingsService.store({
                 tenantId: verifiedTenant.tenantId,
                 branchId: selectedBranch.branchId,
-                workstationUuid: selectedWorkstation.uuid
+                terminalId: selectedTerminal.terminalId
             });
+
+            console.log('====================================');
+            console.log(settings);
+            console.log('====================================');
+
             setSuccess('Machine configuration completed successfully!');
             setCurrentStep(4);
         } catch (err) {
-            setError('Failed to configure machine. Please try again.');
+            setError(err?.error?.response?.data?.message);
         } finally {
             setLoading(false);
         }
@@ -126,7 +131,7 @@ const ClientVerification: FunctionComponent = () => {
     };
 
     return (
-        <AuthLayout className="max-w-6xl">
+        <AuthLayout className="max-w-7xl">
             <div className="p-6">
                 {success && currentStep !== 4 && <SuccessAlert message={success} />}
 
@@ -150,11 +155,11 @@ const ClientVerification: FunctionComponent = () => {
                 )}
 
                 {currentStep === 3 && (
-                    <WorkstationSelectionStep
-                        workstations={workstations}
-                        selectedWorkstation={selectedWorkstation}
+                    <TerminalSelectionStep
+                        terminals={terminals}
+                        selectedTerminal={selectedTerminal}
                         selectedBranch={selectedBranch}
-                        onWorkstationSelect={handleWorkstationSelect}
+                        onTerminalSelect={handleTerminalSelect}
                         onSubmit={handleSubmitConfiguration}
                         loading={loading}
                     />
@@ -164,7 +169,7 @@ const ClientVerification: FunctionComponent = () => {
                     <ConfigurationCompleteStep
                         verifiedTenant={verifiedTenant}
                         selectedBranch={selectedBranch}
-                        selectedWorkstation={selectedWorkstation}
+                        selectedTerminal={selectedTerminal}
                         onReset={resetProcess}
                     />
                 )}
