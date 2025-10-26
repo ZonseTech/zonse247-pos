@@ -3,24 +3,24 @@ import api from './http.service';
 const endpoints = {
 	setup: 'setup',
 	all: 'settings',
-	store: 'settings/post',
+	store: 'settings/configure',
 };
 
 const settingsService = {
 	endpoints,
 
-	async list(query = {}): Promise<WorkstatSettings> {
+	async list(query = {}): Promise<TerminalSettings> {
 		return api
-			.get<ApiResponse<WorkstatSettings>>(endpoints.all, query)
+			.get<ApiResponse<TerminalSettings>>(endpoints.all, query)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
 			});
 	},
 
-	async load(): Promise<WorkstatSettings> {
+	async load(): Promise<TerminalSettings> {
 		return api
-			.get<ApiResponse<WorkstatSettings>>(endpoints.all)
+			.get<ApiResponse<TerminalSettings>>(endpoints.all)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -39,7 +39,7 @@ const settingsService = {
 	async store(params: {
 		tenantId: string,
 		branchId: string,
-		workstationUuid: string
+		terminalId: string
 	}): Promise<Setting> {
 		return api
 			.post<ApiResponse<Setting>>(endpoints.store, params as any)
