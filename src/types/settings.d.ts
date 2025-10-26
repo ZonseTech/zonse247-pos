@@ -1,4 +1,4 @@
-interface WorkstatSettings {
+interface TerminalSettings {
     uuid: string;
     app: string;
     store: string;
@@ -15,9 +15,9 @@ interface WorkstatSettings {
     tillName?: string;
     status: "active" | "inactive" | "suspended",
     synced?: 1 | 0;
-    clientUuid: string;
-    shopUuid: string;
-    workstationUuid: string;
+    tenantId: string;
+    branchId: string;
+    terminalId: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -38,9 +38,9 @@ interface SetupParams {
 
 interface Setting {
     uuid: string;
-    clientUuid: string;
-    shopUuid: string;
-    workstationUuid: string;
+    tenantId: string;
+    branchId: string;
+    terminalId: string;
     key: string;
     value: string | number | boolean;
     category: 'system' | 'user' | 'shop' | 'workstation';
@@ -52,16 +52,16 @@ interface Setting {
 }
 
 interface SettingsGroup {
-    clientUuid: string;
-    shopUuid: string;
-    workstationUuid: string;
+    tenantId: string;
+    branchId: string;
+    terminalId: string;
     settings: Setting[];
 }
 
 interface CreateSettingRequest {
-    clientUuid: string;
-    shopUuid: string;
-    workstationUuid: string;
+    tenantId: string;
+    branchId: string;
+    terminalId: string;
 }
 
 interface UpdateSettingRequest {

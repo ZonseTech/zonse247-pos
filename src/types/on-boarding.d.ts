@@ -14,16 +14,12 @@ interface SubscriptionPlan {
     updatedAt?: string;
 }
 
-interface VerifyClientRequest {
-    clientUuid: string;
+interface TerminalVerificationParams {
+    tenantCode: string;
     authKey: string;
-}
-
-interface ApiResponse<T = any> {
-    success: boolean;
-    data?: T;
-    message: string;
-    error?: string;
+    os: string;
+    hostname: string;
+    macAddress: string;
 }
 
 interface OnboardingStatus {

@@ -20,11 +20,6 @@ interface RegisterClientRequest {
     timezone?: string;
 }
 
-interface VerifyClientRequest {
-    clientUuid: string;
-    authKey: string;
-}
-
 interface AuthenticatedRequest extends Request {
     client?: Client;
     tenant?: Tenant;
