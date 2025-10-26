@@ -18,6 +18,7 @@ export const ORDERS_DB = 'orders';
 export const PAYMENT_METHODS_DB = 'payment_methods';
 export const PAYMENT_SERVICE_PROVIDERS_DB = 'service_provider';
 export const SHOP_SETTINGS_DB = 'shop_settings';
+export const TERMINAL_SETTINGS_DB = 'shop_settings';
 export const APP_SETUP_DB = 'app_setup';
 export const SUBSCRIPTION_PLANS_TABLE = 'subscription_plans';
 export const TENANT_SUBSCRIPTIONS_TABLE = 'tenant_subscriptions';
@@ -46,6 +47,7 @@ export default [
 	PERMISSIONS_DB,
 	ROLE_PERMISSIONS_DB,
 	USER_PERMISSIONS_DB,
+	TERMINAL_SETTINGS_DB,
 	PAYMENT_SERVICE_PROVIDERS_DB
 ];
 

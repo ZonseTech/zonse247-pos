@@ -181,37 +181,50 @@ const initDatabase = async () => {
 
         await connection.query(`
             CREATE TABLE IF NOT EXISTS ${TERMINALS_TABLE} (
-                terminal_id VARCHAR(36) PRIMARY KEY,
-                tenant_id VARCHAR(100) NOT NULL,
-                branch_id VARCHAR(100) NOT NULL,
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                terminal_id VARCHAR(100) UNIQUE NOT NULL,
+                tenant_id VARCHAR(36) NOT NULL,
+                branch_id VARCHAR(36) NOT NULL,
+                mra_terminal_id VARCHAR(100) UNIQUE,
                 terminal_code VARCHAR(100) UNIQUE NOT NULL,
-                till_number VARCHAR(50) NOT NULL,
-                device_os VARCHAR(255),
-                device_type ENUM('desktop', 'tablet', 'mobile', 'web') DEFAULT 'desktop',
-                mac_address VARCHAR(45),
+                terminal_label VARCHAR(255) NOT NULL,
+                terminal_position INT,
+                device_id VARCHAR(100),
+                os_name VARCHAR(100),
+                os_version VARCHAR(100),
+                os_build VARCHAR(100),
+                mac_address VARCHAR(50),
+                pos_product_id VARCHAR(100),
+                pos_product_version VARCHAR(50),
+                terminal_config_version DECIMAL(10,2),
+                offline_max_transaction_age_hours DECIMAL(10,2),
+                offline_max_cumulative_amount DECIMAL(15,2),
                 activation_code VARCHAR(255),
-                activation_status ENUM('PENDING', 'ACTIVATED', 'DEACTIVATED', 'SUSPENDED') DEFAULT 'PENDING',
+                activation_status ENUM('PENDING', 'ACTIVATED', 'DEACTIVATED', 'SUSPENDED', 'BLOCKED') DEFAULT 'PENDING',
                 activation_date TIMESTAMP NULL,
-                status ENUM('active', 'inactive', 'maintenance') DEFAULT 'active',
                 is_primary BOOLEAN DEFAULT FALSE,
+                is_blocked BOOLEAN DEFAULT FALSE,
+                blocking_reason TEXT,
+                blocked_at TIMESTAMP NULL,
                 mra_application_status ENUM('APPLIED', 'APPROVED', 'REJECTED') DEFAULT 'APPLIED',
                 mra_approval_date TIMESTAMP NULL,
-                registered_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 last_activity TIMESTAMP(3) NULL,
                 last_sync TIMESTAMP(3) NULL,
                 last_sync_timestamp TIMESTAMP NULL,
                 synced TINYINT DEFAULT 0,
+                registered_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
                 
                 FOREIGN KEY (tenant_id) REFERENCES tenants(tenant_id) ON DELETE CASCADE,
                 FOREIGN KEY (branch_id) REFERENCES branches(branch_id) ON DELETE CASCADE,
+
                 UNIQUE KEY unique_tenant_till_number (tenant_id, till_number),
                 INDEX idx_tenant_id (tenant_id),
                 INDEX idx_branch_id (branch_id),
                 INDEX idx_tenant_branch (tenant_id, branch_id),
                 INDEX idx_activation_status (activation_status)
-            )
+            );
         `);
 
         await connection.query(`

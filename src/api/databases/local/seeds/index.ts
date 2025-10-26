@@ -209,33 +209,51 @@ const checkOrCreateDefaultBranch = async () => {
 	}
 };
 
-const checkOrCreateDefaultWorkStation = async () => {
+const checkOrCreateDefaultTerminal = async () => {
 	try {
-		const workstation = await sealDBModel.findById(TERMINALS_TABLE, '-1');
-		if (workstation) return;
+		const terminal = await sealDBModel.findById(TERMINALS_TABLE, '-1');
+		if (terminal) return;
 
-		const defaultWorkStation: Workstation = {
-			uuid: '-1',
-			shopCode: 'SHOP001',
+		const defaultTerminal: Terminal = {
+			terminalId: '-1',
 			tenantId: '-1',
-			tillName: 'Main Till',
-			tillNumber: 'TILL001',
+			branchId: '-1',
+			mraTerminalId: null,
+			terminalCode: 'TERM001',
+			terminalLabel: 'Main Terminal',
+			terminalPosition: 1,
 			deviceId: 'DEFAULT_DEVICE',
-			deviceType: 'desktop',
-			ipAddress: '127.0.0.1',
+			osName: 'Linux',
+			osVersion: '1.0',
+			osBuild: 'build-001',
+			macAddress: '00:00:00:00:00:00',
+			posProductId: 'POS001',
+			posProductVersion: '1.0.0',
+			terminalConfigVersion: 1,
+			offlineMaxTransactionAgeHours: 24,
+			offlineMaxCumulativeAmount: 100000,
+			activationCode: 'DEFAULT',
+			activationStatus: 'ACTIVATED',
+			activationDate: new Date(),
 			isPrimary: true,
-			status: 'active',
-			registeredAt: new Date().toISOString(),
-			lastActivity: new Date().toISOString(),
-			lastSync: new Date().toISOString(),
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
-			synced: 0
+			isBlocked: false,
+			blockingReason: null,
+			blockedAt: null,
+			mraApplicationStatus: 'APPROVED',
+			mraApprovalDate: new Date(),
+			lastActivity: new Date(),
+			lastSync: new Date(),
+			lastSyncTimestamp: new Date(),
+			synced: 0,
+			registeredAt: new Date(),
+			createdAt: new Date(),
+			updatedAt: new Date(),
 		};
 
-		await sealDBModel.insert(TERMINALS_TABLE, defaultWorkStation);
+		await sealDBModel.insert(TERMINALS_TABLE, defaultTerminal);
+		console.log('✅ Default terminal created successfully.');
 	} catch (err) {
-		console.error('Error creating default workstation:', err);
+		console.error('❌ Error creating default terminal:', err);
 	}
 };
 
@@ -528,7 +546,7 @@ const seedDatabase = async () => {
 		checkOrCreateDefaultRolePermissions()
 		checkOrCreateDefaultBranch()
 		checkOrCreateDefaultTenant()
-		checkOrCreateDefaultWorkStation()
+		checkOrCreateDefaultTerminal()
 		checkOrCreateDefaultSubscriptionPlans()
 		checkOrCreateDefaultTenantSubscriptions()
 
