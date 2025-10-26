@@ -19,14 +19,14 @@ const TerminalSelectionStep: FunctionComponent<{
     loading
 }) => (
         <div className="space-y-6">
-            {terminals.length > 0 && <div className="text-center">
+            {terminals.length > 0 && <div className="text-left">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Select terminal</h2>
                 <p className="text-gray-600">
                     Choose the terminal for <strong>{selectedBranch?.branchName}</strong>
                 </p>
             </div>}
 
-            <div className="grid gap-4 max-h-[22rem] overflow-y-auto px-2.5">
+            <div className="grid gap-4 max-h-[22rem] overflow-y-auto">
                 {terminals && terminals.length > 0 ? (
                     terminals.map((terminal) => (
                         <div
@@ -74,7 +74,7 @@ const TerminalSelectionStep: FunctionComponent<{
                     loading={loading}
                     icon={Monitor}
                     block
-                    className="bg-purple-700"
+                    theme="success"
                 >
                     {loading ? 'Configuring...' : 'Configure Machine'}
                 </Button>
