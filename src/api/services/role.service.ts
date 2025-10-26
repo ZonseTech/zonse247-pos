@@ -151,7 +151,7 @@ export class RoleService {
             throw new Error('Shop ID is required');
         }
 
-        return await RoleModel.findByShopUuid(shopUuid);
+        return await RoleModel.findByBranchId(shopUuid);
     }
 
     static async getSystemRoles(): Promise<Role[]> {

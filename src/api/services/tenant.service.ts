@@ -2,7 +2,7 @@ import { EmailService } from "./email.service";
 import { BranchModel } from "../models/branch.model";
 import { TenantModel } from "../models/tenant.model";
 import { SubscriptionModel } from "../models/subscription.model";
-import { WorkstationModel } from "../models/work-station.model";
+import { TerminalModel } from "../models/terminal.model";
 
 export class TenantService {
     static validateEmail(email: string): boolean {
@@ -118,7 +118,7 @@ export class TenantService {
 
         const subscriptions = await SubscriptionModel.findByTenantId(tenantId);
         const shops = await BranchModel.findByTenantId(tenantId);
-        const workstations = await WorkstationModel.findByTenantId(tenantId);
+        const workstations = await TerminalModel.findByTenantId(tenantId);
 
         if (subscriptions.length > 0 || shops.length > 0 || workstations.length > 0) {
             throw new Error('Cannot delete tenant with existing subscriptions, shops, or workstations');
@@ -198,7 +198,7 @@ export class TenantService {
         const activeSubscription = subscriptions.find(sub => sub.status === 'active') || null;
 
         const shops = await BranchModel.findByTenantId(tenantId);
-        const workstations = await WorkstationModel.findByTenantId(tenantId);
+        const workstations = await TerminalModel.findByTenantId(tenantId);
 
         const onboardingSteps = {
             tenantRegistered: true,

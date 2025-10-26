@@ -1,150 +1,153 @@
 import { TenantService } from "./tenant.service";
 import { BranchModel } from "../models/branch.model";
-import { WorkstationModel } from "../models/work-station.model";
+import { TerminalModel } from "../models/terminal.model";
 
 export class TerminalService {
 
-    static async createWorkstation(data: CreateTerminalRequest): Promise<Workstation> {
-        const validationError = TenantService.validateRequired(data, ['branchCode', 'tenantId', 'tillName', 'tillNumber']);
+    static async createTerminal(data: CreateTerminalRequest): Promise<Terminal> {
+        const validationError = TenantService.validateRequired(data, ['branchId', 'tenantId', 'terminalLabel', 'terminalCode']);
         if (validationError) {
             throw new Error(validationError);
         }
 
-        const branch = await BranchModel.findByBranchCode(data.branchCode);
+        const branch = await BranchModel.findByBranchCode(data.branchId);
         if (!branch) {
-            throw new Error('branch not found');
+            throw new Error('Branch not found');
         }
 
         if (branch.tenantId !== data.tenantId) {
-            throw new Error('Client does not own this branch');
+            throw new Error('Tenant does not own this branch');
         }
 
-        const existingWorkstations = await WorkstationModel.findByShopCodeAndTillNumber(data.branchCode, data.tillNumber);
-        if (existingWorkstations.length > 0) {
-            throw new Error('Till number already exists for this shop');
+        const existingTerminals = await TerminalModel.findByBranchIdAndTerminalCode(data.branchId, data.terminalCode);
+        if (existingTerminals.length > 0) {
+            throw new Error('Terminal code already exists for this branch');
         }
 
         if (data.isPrimary) {
-            const primaryWorkstations = await WorkstationModel.findPrimaryByShopCode(data.branchCode);
-            for (const workstation of primaryWorkstations) {
-                await WorkstationModel.update(workstation.uuid, { isPrimary: false });
+            const primaryTerminals = await TerminalModel.findPrimaryByBranchId(data.branchId);
+            for (const terminal of primaryTerminals) {
+                await TerminalModel.update(terminal.terminalId, { isPrimary: false });
             }
         }
 
-        const workstationData = WorkstationModel.buildWorkstationData(data);
-        return WorkstationModel.create(workstationData);
+        return TerminalModel.create(data);
     }
 
-    static async getAllWorkstations(query: any = {}): Promise<Workstation[]> {
+    static async getAllTerminals(query: any = {}): Promise<Terminal[]> {
         try {
-            if (query.clientUuid) {
-                return await WorkstationModel.findByTenantId(query.clientUuid);
+            if (query.tenantId) {
+                return await TerminalModel.findByTenantId(query.tenantId);
             }
 
-            if (query.shopCode) {
-                return await WorkstationModel.findByShopCode(query.shopCode);
+            if (query.branchId) {
+                return await TerminalModel.findByBranchId(query.branchId);
             }
 
-            return await WorkstationModel.findAll();
+            return await TerminalModel.findAll();
         } catch (error) {
-            throw new Error(`Failed to retrieve workstations: ${error}`);
+            throw new Error(`Failed to retrieve terminals: ${error}`);
         }
     }
 
-    static async getTerminalsByBranchCode(branchCode: string): Promise<Workstation[]> {
+    static async getTerminalsByBranchId(branchId: string): Promise<Terminal[]> {
         try {
-            return await WorkstationModel.findByShopCode(branchCode);
+            return await TerminalModel.findByBranchId(branchId);
         } catch (error) {
-            throw new Error(`Failed to retrieve workstations: ${error}`);
+            throw new Error(`Failed to retrieve terminals: ${error}`);
         }
     }
 
-    static async getWorkstationById(id: string): Promise<Workstation | null> {
+    static async getTerminalById(terminalId: string): Promise<Terminal | null> {
         try {
-            return await WorkstationModel.findById(id);
+            return await TerminalModel.findById(terminalId);
         } catch (error) {
-            throw new Error(`Failed to retrieve workstation: ${error}`);
+            throw new Error(`Failed to retrieve terminal: ${error}`);
         }
     }
 
-    static async updateWorkstation(id: string, data: Partial<Workstation>): Promise<Workstation | null> {
+    static async updateTerminal(terminalId: string, data: Partial<Terminal>): Promise<Terminal | null> {
         try {
-            const existingWorkstation = await WorkstationModel.findById(id);
-            if (!existingWorkstation) {
-                throw new Error('Workstation not found');
+            const existingTerminal = await TerminalModel.findById(terminalId);
+            if (!existingTerminal) {
+                throw new Error('Terminal not found');
             }
 
-            if (data.tillNumber && data.tillNumber !== existingWorkstation.tillNumber) {
-                const conflictingWorkstations = await WorkstationModel.findByShopCodeAndTillNumber(
-                    existingWorkstation.shopCode,
-                    data.tillNumber
+            if (data.terminalCode && data.terminalCode !== existingTerminal.terminalCode) {
+                const conflictingTerminals = await TerminalModel.findByBranchIdAndTerminalCode(
+                    existingTerminal.branchId,
+                    data.terminalCode
                 );
-                if (conflictingWorkstations.length > 0) {
-                    throw new Error('Till number already exists for this shop');
+                if (conflictingTerminals.length > 0) {
+                    throw new Error('Terminal code already exists for this branch');
                 }
             }
 
-            if (data.isPrimary === true && !existingWorkstation.isPrimary) {
-                const primaryWorkstations = await WorkstationModel.findPrimaryByShopCode(existingWorkstation.shopCode);
-                for (const workstation of primaryWorkstations) {
-                    await WorkstationModel.update(workstation.uuid, { isPrimary: false });
+            if (data.isPrimary === true && !existingTerminal.isPrimary) {
+                const primaryTerminals = await TerminalModel.findPrimaryByBranchId(existingTerminal.branchId);
+                for (const terminal of primaryTerminals) {
+                    await TerminalModel.update(terminal.terminalId, { isPrimary: false });
                 }
             }
 
             const updateData = {
                 ...data,
-                lastActivity: new Date().toISOString()
+                lastActivity: new Date(),
+                updatedAt: new Date()
             };
 
-            const numUpdated = await WorkstationModel.update(id, updateData);
+            const numUpdated = await TerminalModel.update(terminalId, updateData);
             if (numUpdated === 0) {
                 return null;
             }
 
-            return await WorkstationModel.findById(id);
+            return await TerminalModel.findById(terminalId);
         } catch (error) {
             throw error;
         }
     }
 
-    static async deleteWorkstation(id: string): Promise<boolean> {
+    static async deleteTerminal(terminalId: string): Promise<boolean> {
         try {
-            const numDeleted = await WorkstationModel.delete(id);
+            const numDeleted = await TerminalModel.delete(terminalId);
             return numDeleted > 0;
         } catch (error) {
-            throw new Error(`Failed to delete workstation: ${error}`);
+            throw new Error(`Failed to delete terminal: ${error}`);
         }
     }
 
-    static async updateWorkstationStatus(id: string, status: 'active' | 'inactive' | 'maintenance'): Promise<Workstation | null> {
+    static async updateTerminalStatus(terminalId: string, status: 'PENDING' | 'ACTIVATED' | 'DEACTIVATED' | 'SUSPENDED' | 'BLOCKED'): Promise<Terminal | null> {
         try {
             const updateData = {
-                status,
-                lastActivity: new Date().toISOString()
+                activationStatus: status,
+                lastActivity: new Date(),
+                updatedAt: new Date()
             };
 
-            const numUpdated = await WorkstationModel.update(id, updateData);
+            const numUpdated = await TerminalModel.update(terminalId, updateData);
             if (numUpdated === 0) {
                 return null;
             }
 
-            return await WorkstationModel.findById(id);
+            return await TerminalModel.findById(terminalId);
         } catch (error) {
-            throw new Error(`Failed to update workstation status: ${error}`);
+            throw new Error(`Failed to update terminal status: ${error}`);
         }
     }
 
-    static async syncWorkstation(id: string): Promise<{ status: boolean; lastSync: string }> {
+    static async syncTerminal(terminalId: string): Promise<{ status: boolean; lastSync: Date }> {
         try {
-            const workstation = await WorkstationModel.findById(id);
-            if (!workstation) {
-                throw new Error('Workstation not found');
+            const terminal = await TerminalModel.findById(terminalId);
+            if (!terminal) {
+                throw new Error('Terminal not found');
             }
 
-            const lastSync = new Date().toISOString();
-            await WorkstationModel.update(id, {
+            const lastSync = new Date();
+            await TerminalModel.update(terminalId, {
                 lastSync: lastSync,
-                lastActivity: lastSync
+                lastSyncTimestamp: lastSync,
+                lastActivity: lastSync,
+                updatedAt: lastSync
             });
 
             return {
