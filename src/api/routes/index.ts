@@ -15,7 +15,7 @@ import UsersRoutes from './users.routes'
 import TenantsRoutes from './tenant.routes'
 import SubscriptionsRoutes from './subscription.routes'
 import BranchesRoutes from './branch.routes'
-import WorkStationRoutes from './workstations.routes'
+import WorkStationRoutes from './terminal.routes'
 import RoleRoutes from './role.routes'
 import MailingRoutes from './email.routes'
 import AuthRoutes from './auth.routes'
@@ -29,7 +29,7 @@ import { TenantController } from '../controllers/tenant.controller';
 import { asyncHandler } from '../middlewares/error.middleware';
 import { BranchController } from '../controllers/branch.controller';
 import { tenantValidationSchemas } from '../validations/tenant.schemas';
-import { shopValidationSchemas } from '../validations/shopValidationSchemas';
+import { branchValidationSchemas } from '../validations/branch.schemas';
 import { OnboardingController } from '../controllers/onboarding.controller';
 import { SettingsController } from '../controllers/settings.controller'
 import PaymentServiceProviderRoutes from './payment-service-provider.routes'
@@ -70,8 +70,8 @@ router.get(
 );
 
 router.get(
-    '/branch/:branchCode/terminals',
-    validateParams(shopValidationSchemas.shopCode),
+    '/branch/:branchId/terminals',
+    validateParams(branchValidationSchemas.branchId),
     asyncHandler(BranchController.getBranchTerminals)
 );
 
@@ -80,7 +80,15 @@ router.use(
     asyncHandler(OnboardingController.getOnboardingStatus)
 );
 
-router.use('/settings', authLimiter, SettingsRoutes);
+router.post(
+    '/settings/configure',
+    asyncHandler(SettingsController.createSettings)
+);
+
+router.get(
+    '/settings',
+    asyncHandler(SettingsController.getSettings)
+);
 
 router.use(authMiddleware.verifyRequestHeaders)
 
@@ -88,6 +96,7 @@ router.use('/auth', authLimiter, AuthRoutes);
 
 router.use(authMiddleware.verifyToken)
 
+router.use('/settings', SettingsRoutes);
 router.use('/tenants', TenantsRoutes);
 router.use('/branches', BranchesRoutes);
 
