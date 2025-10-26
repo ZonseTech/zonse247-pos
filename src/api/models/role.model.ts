@@ -27,7 +27,7 @@ export class RoleModel {
         }
     }
 
-    static async findByShopUuid(shopUuid: string): Promise<Role[]> {
+    static async findByBranchId(shopUuid: string): Promise<Role[]> {
         try {
             return await sealDBModel.find(ROLES_DB, { shopUuid: shopUuid });
         } catch (error) {
