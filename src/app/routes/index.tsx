@@ -22,7 +22,7 @@ const TenantsManagement = lazy(() => import('../pages/tenants'))
 const Transactions = lazy(() => import('../pages/transactions'))
 const DatabaseExporter = lazy(() => import('../pages/export-db'))
 const AccountDetails = lazy(() => import('../pages/auth/MyProfile'))
-const ClientVerification = lazy(() => import('../pages/on-boarding'))
+const OnBoarding = lazy(() => import('../pages/on-boarding'))
 const WorkStationManagement = lazy(() => import('../pages/workstation'))
 const RolesAndPermissions = lazy(() => import('../pages/role-permissions'))
 const SubscriptionManagement = lazy(() => import('../pages/subscription'))
@@ -36,7 +36,7 @@ const AppRoutes: FunctionComponent = () => {
 			<Route path="/" element={<InitApp />} />
 			<Route path={ROUTES.LOGIN} element={<Login />} />
 			<Route path={ROUTES.LANDING_PAGE} element={<LandingPage />} />
-			<Route path={ROUTES.GET_STARTED} element={<ClientVerification />} />
+			<Route path={ROUTES.GET_STARTED} element={<OnBoarding />} />
 
 			<Route path="/" element={<ProtectedLayoutWithAuth />}>
 				<Route path={ROUTES.POS} element={<PointOfSale />} />

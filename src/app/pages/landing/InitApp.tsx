@@ -7,21 +7,7 @@ import InitializationError from './partials/InitializationError'
 import settingsService from '../../services/settings.service'
 import {
     isRetryableError,
-    validateSettingsResponse,
-} from '../../utils/retryHelper'
-
-interface InitializationState {
-    isAccountVerified: boolean
-    isLoading: boolean
-    error: string | null
-    retryCount: number
-}
-
-interface InitializationResult {
-    success: boolean
-    verified?: boolean
-    error?: string
-}
+} from '../../utils/retry.util'
 
 const InitApp: FunctionComponent = () => {
     const navigate = useNavigate()
@@ -111,6 +97,19 @@ const InitApp: FunctionComponent = () => {
         },
         []
     )
+
+    const validateSettingsResponse = (settings: TerminalSettings) => {
+        if (!settings) return false;
+
+        const requiredFields = ['uuid', 'tenantId', 'isActive'];
+
+        if (typeof settings === 'object' && !Array.isArray(settings)) {
+            sessionStorage.setItem('tenantId', settings.tenantId);
+            return requiredFields.every((field) => settings.hasOwnProperty(field));
+        }
+
+        return false;
+    };
 
     const retry = useCallback(() => {
         initializeApp()
