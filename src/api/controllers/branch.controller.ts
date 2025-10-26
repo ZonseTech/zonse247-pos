@@ -16,19 +16,19 @@ export class BranchController extends BaseController {
         }
     }
 
-    static async getBranchTerminals(req: Request<{ branchCode: string }, ApiResponse<Workstation[]>>, res: Response): Promise<void> {
+    static async getBranchTerminals(req: Request<{ branchId: string }, ApiResponse<Array<Terminal>>>, res: Response): Promise<void> {
         try {
-            const { branchCode } = req.params;
+            const { branchId } = req.params;
 
-            const workstations = await TerminalService.getTerminalsByBranchCode(branchCode);
+            const terminal = await TerminalService.getTerminalsByBranchId(branchId);
 
             BaseController.sendResponse(
                 res, 200, true,
-                'Workstations retrieved successfully',
-                workstations
+                'Terminal retrieved successfully',
+                terminal
             );
         } catch (error: any) {
-            console.error('Error fetching branch workstations:', error);
+            console.error('Error fetching branch Terminal:', error);
             BaseController.sendResponse(res, 500, false, error.message, undefined, error.message);
         }
     }
