@@ -8,7 +8,7 @@ import {
     isRetryableError,
 } from '../../utils/retry.util'
 
-const InitApp: FunctionComponent = () => {
+const InitApp: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings }) => {
     const navigate = useNavigate()
     const isMountedRef = useRef(true)
 
@@ -33,14 +33,11 @@ const InitApp: FunctionComponent = () => {
                     retryCount: attemptNumber - 1,
                 }))
 
-                const localSettings = localStorage.getItem('terminalSettings')
-                const settings = localSettings ? JSON.parse(localSettings) : null
-
-                const isVerified = validateSettingsResponse(settings)
+                const isVerified = validateSettingsResponse(appSettings)
 
                 setInitialization((prev) => ({
                     ...prev,
-                    isAccountVerified: settings?.isConfigured || false,
+                    isAccountVerified: isVerified || false,
                     isLoading: false,
                     error: null,
                 }))
@@ -88,15 +85,10 @@ const InitApp: FunctionComponent = () => {
     const validateSettingsResponse = (settings: any) => {
         if (!settings) return false;
 
-        const requiredFields = ['tenantId', 'branchId', 'terminalId', 'authKey', 'isConfigured'];
+        const requiredFields = ['verificationToken'];
 
         if (typeof settings === 'object' && !Array.isArray(settings)) {
-
-            sessionStorage.setItem('tenantId', settings.tenantId);
-            sessionStorage.setItem('branchId', settings.branchId);
-            sessionStorage.setItem('terminalId', settings.terminalId);
-
-            return requiredFields.every((field) => settings.hasOwnProperty(field)) && settings.isConfigured === true;
+            return requiredFields.every((field) => settings.hasOwnProperty(field));
         }
 
         return false;
