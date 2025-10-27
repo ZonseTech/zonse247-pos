@@ -1,4 +1,5 @@
 import api from './http.service';
+import { version } from '../../../package.json';
 
 const endpoints = {
 	setup: 'setup',
@@ -48,6 +49,30 @@ const settingsService = {
 				throw err;
 			});
 	},
+
+	async saveSettingsLocally(params: {
+		tenantId: string,
+		branchId: string,
+		terminalId: string,
+		tenantSignature: string,
+	}) {
+		try {
+			const settings = {
+				...params,
+				lastConfigured: new Date().toISOString(),
+				configVersion: version,
+				isConfigured: true
+			};
+
+			localStorage.setItem('terminalSettings', JSON.stringify(settings));
+
+			return settings;
+		} catch (error) {
+			console.error('Failed to save settings locally:', error);
+			throw new Error('Failed to save terminal settings locally');
+		}
+	},
+
 	async update(params: any) {
 
 	},

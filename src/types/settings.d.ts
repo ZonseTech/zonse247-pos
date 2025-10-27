@@ -4,6 +4,7 @@ interface TerminalSettings {
     store: string;
     addressLine1?: string;
     addressLine2?: string;
+    tenantSignature: string;
     country?: string;
     city?: string;
     contact: string;
@@ -40,6 +41,7 @@ interface Setting {
     uuid: string;
     tenantId: string;
     branchId: string;
+    tenantSignature: string;
     terminalId: string;
     key: string;
     value: string | number | boolean;

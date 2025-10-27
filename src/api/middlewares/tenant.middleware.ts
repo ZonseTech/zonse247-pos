@@ -5,7 +5,14 @@ import { BaseController } from "../controllers/base.controller";
 export class TenantMiddleware {
     subscriptionStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const tenantId = req.headers?.['X-Tenant-Id'] as string;
+            const tenantSignature = req.headers?.['x-tenant-signature'] as string;
+
+            // decode tenantId from tenant-signature
+            const tenantId = tenantSignature
+
+            console.log('====================================');
+            console.log(tenantId);
+            console.log('====================================');
 
             const tenant: Omit<Tenant, 'authKey'> = await TenantService.getTenantById(
                 tenantId

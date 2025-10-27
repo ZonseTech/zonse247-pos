@@ -10,10 +10,10 @@ import branchService from '../../services/branch.service';
 import tenantService from '../../services/tenant.service';
 import settingsService from '../../services/settings.service';
 import terminalService from '../../services/terminal.service';
-import BranchSelectionStep from './partials/steps/BranchSelectionStep';
-import TerminalSelectionStep from './partials/steps/TerminalSelectionStep';
-import ClientVerificationStep from './partials/steps/ClientVerificationStep';
-import ConfigurationCompleteStep from './partials/steps/ConfigurationCompleteStep';
+import BranchSelectionStep from './steps/BranchSelectionStep';
+import TerminalSelectionStep from './steps/TerminalSelectionStep';
+import ClientVerificationStep from './steps/ClientVerificationStep';
+import ConfigurationCompleteStep from './steps/ConfigurationCompleteStep';
 
 const ClientVerification: FunctionComponent = () => {
     const registerProps: TerminalVerificationParams = {
@@ -107,15 +107,15 @@ const ClientVerification: FunctionComponent = () => {
         setError('');
 
         try {
-            const settings = await settingsService.store({
+            const params = {
                 tenantId: verifiedTenant.tenantId,
                 branchId: selectedBranch.branchId,
                 terminalId: selectedTerminal.terminalId
-            });
+            }
 
-            console.log('====================================');
-            console.log(settings);
-            console.log('====================================');
+            const data = await settingsService.store(params);
+
+            await settingsService.saveSettingsLocally({ ...params, tenantSignature: data.tenantSignature });
 
             setSuccess('Machine configuration completed successfully!');
             setCurrentStep(4);

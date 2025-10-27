@@ -21,11 +21,20 @@ export class SettingsService {
 
     static async store(settingsData: CreateSettingRequest): Promise<TerminalSettings> {
         try {
-            return await SettingsModel.create(settingsData);
+            const settings = await SettingsModel.create(settingsData);
+
+            settings.tenantSignature = this.setTenantSignature(settings);
+
+            return settings;
         } catch (error) {
             console.error('Error in settings service - createOrUpdateSettings:', error);
             throw error;
         }
+    }
+
+    private static setTenantSignature(settings: TerminalSettings): string {
+        const dataString = `${settings.tenantId}|${settings.branchId}|${settings.terminalId}|${settings.authKey}`;
+        return Buffer.from(dataString).toString('base64');
     }
 
     static async getSetting(
