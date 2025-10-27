@@ -1,9 +1,10 @@
-import { app, BrowserWindow, screen, shell } from 'electron';
 import path from 'node:path';
-import started from 'electron-squirrel-startup';
-import MenuBuilder from './partials/menu';
 import startServer from './api/server';
+import MenuBuilder from './partials/menu';
 import { Capacitor } from '@capacitor/core';
+import started from 'electron-squirrel-startup';
+import { app, BrowserWindow, screen, shell, ipcMain } from 'electron';
+import { SecureSettingsService } from './api/services/secure-settings.service';
 
 let server;
 
@@ -11,7 +12,7 @@ if (started) {
 	app.quit();
 }
 
-const createWindow = async () => {
+const createWindow = async (skipOnboarding: boolean = false) => {
 	const primaryDisplay = screen.getPrimaryDisplay();
 	const { width, height } = primaryDisplay.workAreaSize;
 
@@ -22,7 +23,7 @@ const createWindow = async () => {
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			contextIsolation: true,
-			nodeIntegration: true,
+			nodeIntegration: false,
 		},
 		show: false,
 	});
@@ -57,6 +58,10 @@ const createWindow = async () => {
 			);
 		}
 
+		mainWindow.webContents.on('did-finish-load', () => {
+			mainWindow.webContents.send('onboarding-status', { skipOnboarding });
+		});
+
 		mainWindow.show();
 	} catch (error) {
 		console.error('Failed to load window content:', error);
@@ -64,7 +69,77 @@ const createWindow = async () => {
 	}
 };
 
-app.whenReady().then(createWindow);
+function setupIPC() {
+	ipcMain.handle('settings:save-setup', async (event, setupData) => {
+		try {
+			await SecureSettingsService.saveAppSetup(setupData);
+			return { success: true };
+		} catch (error: any) {
+			console.error('Failed to save setup:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('settings:get-setup', async () => {
+		try {
+			const setup = await SecureSettingsService.getAppSetup();
+			return { success: true, data: setup };
+		} catch (error: any) {
+			console.error('Failed to get setup:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('settings:has-setup', async () => {
+		try {
+			const hasSetup = await SecureSettingsService.hasAppSetup();
+			return { success: true, data: hasSetup };
+		} catch (error: any) {
+			console.error('Failed to check setup:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('settings:get-tenant-signature', async () => {
+		try {
+			const verificationToken = await SecureSettingsService.getTenantSignature();
+			return { success: true, data: verificationToken };
+		} catch (error: any) {
+			console.error('Failed to get verificationToken:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('settings:update-setup', async (event, updates) => {
+		try {
+			await SecureSettingsService.updateAppSetup(updates);
+			return { success: true };
+		} catch (error: any) {
+			console.error('Failed to update setup:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('settings:clear-setup', async () => {
+		try {
+			await SecureSettingsService.clearAppSetup();
+			return { success: true };
+		} catch (error: any) {
+			console.error('Failed to clear setup:', error);
+			return { success: false, error: error.message };
+		}
+	});
+}
+
+app.whenReady().then(async () => {
+	await SecureSettingsService.initialize();
+
+	setupIPC();
+
+	const hasSetup = await SecureSettingsService.hasAppSetup();
+
+	await createWindow(!hasSetup);
+});
 
 app.on('window-all-closed', () => {
 	if (process.platform !== 'darwin') {
