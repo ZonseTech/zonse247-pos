@@ -27,7 +27,7 @@ export class CategoryModel {
         }
     }
 
-    static async findByShopUuid(shopUuid: string): Promise<Category[]> {
+    static async findByBranchId(shopUuid: string): Promise<Category[]> {
         try {
             return await sealDBModel.find(CATEGORIES_DB, { shopUuid: shopUuid });
         } catch (error) {

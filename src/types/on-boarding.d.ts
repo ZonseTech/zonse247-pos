@@ -14,26 +14,22 @@ interface SubscriptionPlan {
     updatedAt?: string;
 }
 
-interface VerifyClientRequest {
-    clientUuid: string;
+interface TerminalVerificationParams {
+    tenantCode: string;
     authKey: string;
-}
-
-interface ApiResponse<T = any> {
-    success: boolean;
-    data?: T;
-    message: string;
-    error?: string;
+    os: string;
+    hostname: string;
+    macAddress: string;
 }
 
 interface OnboardingStatus {
-    client: Omit<Client, 'authKey'>;
+    tenant: Omit<Tenant, 'authKey'>;
     subscription: any;
     shops: any[];
     workstations: any[];
     onboarding: {
         steps: {
-            clientRegistered: boolean;
+            tenantRegistered: boolean;
             subscriptionActive: boolean;
             shopCreated: boolean;
             workstationSetup: boolean;

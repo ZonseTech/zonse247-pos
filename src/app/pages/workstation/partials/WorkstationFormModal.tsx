@@ -7,7 +7,7 @@ import { Button, Modal } from '../../../components';
 import FormInput from '../../../components/FormInput';
 import FormWrapper from '../../../components/FormWrapper';
 import FormSelectBox from '../../../components/FormSelectBox';
-import workstationsService from '../../../services/workstation.service';
+import workstationsService from '../../../services/terminal.service';
 
 interface WorkstationFormModalProps {
     workstation?: Workstation;

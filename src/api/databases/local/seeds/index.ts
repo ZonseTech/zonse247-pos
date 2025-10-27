@@ -1,3 +1,5 @@
+// default-auth-key-1761310617487
+
 import {
 	APP_SETUP_DB,
 	CATEGORIES_DB,
@@ -21,13 +23,15 @@ import { DEFAULT_PERMISSIONS } from './permission.seed';
 import { DEFAULT_ROLE_PERMISSIONS } from './role-permissions.seed';
 import config from '../../../config';
 
+const now = new Date();
+
 const checkOrCreateDefaultRoles = async () => {
 	try {
 		const superAdminRole = await sealDBModel.findById(ROLES_DB, 'super-admin');
 		if (!superAdminRole) {
 			const defaultSuperAdminRole: Role = {
 				uuid: 'super-admin',
-				clientUuid: '-1',
+				tenantId: '-1',
 				shopUuid: '-1',
 				name: 'super_admin',
 				displayName: 'Super Administrator',
@@ -44,7 +48,7 @@ const checkOrCreateDefaultRoles = async () => {
 		if (!adminRole) {
 			const defaultAdminRole: Role = {
 				uuid: 'admin',
-				clientUuid: '-1',
+				tenantId: '-1',
 				shopUuid: '-1',
 				name: 'admin',
 				displayName: 'Administrator',
@@ -61,7 +65,7 @@ const checkOrCreateDefaultRoles = async () => {
 		if (!managerRole) {
 			const defaultManagerRole: Role = {
 				uuid: 'manager',
-				clientUuid: '-1',
+				tenantId: '-1',
 				shopUuid: '-1',
 				name: 'manager',
 				displayName: 'Manager',
@@ -78,7 +82,7 @@ const checkOrCreateDefaultRoles = async () => {
 		if (!cashierRole) {
 			const defaultCashierRole: Role = {
 				uuid: 'cashier',
-				clientUuid: '-1',
+				tenantId: '-1',
 				shopUuid: '-1',
 				name: 'cashier',
 				displayName: 'Cashier',
@@ -130,97 +134,126 @@ const checkOrCreateDefaultRolePermissions = async () => {
 	}
 };
 
-const checkOrCreateDefaultShop = async () => {
+const checkOrCreateDefaultTenant = async () => {
 	try {
-		const shop = await sealDBModel.findById(BRANCHES_TABLE, '-1');
-		if (shop) return;
+		const tenant = await sealDBModel.findById(TENANT_TABLE, '-1');
+		if (tenant) return;
 
-		const defaultShop: IShop = {
-			uuid: '-1',
-			clientUuid: '-1',
-			name: 'Default Shop',
-			shopCode: 'SHOP001',
+		const defaultTenant: Tenant = {
+			tenantId: '-1',
+			tenantCode: 'DEFAULT_CLIENT',
+			businessName: 'Default Company',
+			tradingName: 'Default Trading Name',
+			tin: '000000000',
+			businessType: 'PRODUCT_BASED',
+			ownerName: 'System Administrator',
+			email: 'admin@example.com',
+			phoneNumber: '+1234567890',
+			address: '123 Business Street',
+			country: 'MW',
+			mraPortalUsername: 'admin',
+			msonkhoOnlineStatus: 'PENDING',
+			subscriptionPlan: 'TRIAL',
+			subscriptionStatus: 'TRIAL',
+			authKey: `default-auth-key-${Date.now()}`,
+			status: 'active',
+			registeredAt: now,
+			activatedAt: now,
+			trialEndsAt: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000),
+			isVatRegistered: false,
+			taxOfficeCode: null,
+			synced: false,
+			createdAt: now,
+			updatedAt: now
+		};
+
+		await sealDBModel.insert(TENANT_TABLE, defaultTenant);
+		console.log('✅ Default tenant created successfully');
+	} catch (err) {
+		console.error('❌ Error creating default tenant:', err);
+	}
+};
+
+const checkOrCreateDefaultBranch = async () => {
+	try {
+		const branch = await sealDBModel.findById(BRANCHES_TABLE, '-1');
+		if (branch) return;
+
+		const defaultBranch: Branch = {
+			branchId: '-1',
+			tenantId: '-1',
+			branchName: 'Default Branch',
+			branchCode: 'BR001',
 			addressLine1: '123 Main Street',
 			city: 'Lilongwe',
-			country: 'Malawi',
-			phone: '+1234567890',
-			email: 'shop@example.com',
-			timezone: 'UTC',
-			currencySymbol: 'MK',
+			district: 'Lilongwe Urban',
+			phoneNumber: '+265999000111',
+			email: 'branch@example.com',
+			currencySymbol: 'K',
 			currencyCode: 'MKW',
 			taxRate: 0.00,
 			chargeTax: false,
 			status: 'active',
-			synced: 0,
-			createdAt: new Date(),
-			updatedAt: new Date()
+			isActive: true,
+			isVirtualWarehouse: false,
+			synced: false,
+			mraApprovalStatus: 'PENDING',
+			createdAt: now,
+			updatedAt: now
 		};
 
-		await sealDBModel.insert(BRANCHES_TABLE, defaultShop);
+		await sealDBModel.insert(BRANCHES_TABLE, defaultBranch);
+		console.log('✅ Default branch created successfully.');
 	} catch (err) {
-		console.error('Error creating default shop:', err);
+		console.error('❌ Error creating default branch:', err);
 	}
 };
 
-const checkOrCreateDefaultClient = async () => {
+const checkOrCreateDefaultTerminal = async () => {
 	try {
-		const client = await sealDBModel.findById(TENANT_TABLE, '-1');
-		if (client) return;
+		const terminal = await sealDBModel.findById(TERMINALS_TABLE, '-1');
+		if (terminal) return;
 
-		const defaultClient: Client = {
-			uuid: '-1',
-			clientCode: 'DEFAULT_CLIENT',
-			companyName: 'Default Company',
-			ownerName: 'System Administrator',
-			email: 'admin@example.com',
-			phone: '+1234567890',
-			address: '123 Business Street',
-			country: 'Default Country',
-			timezone: 'UTC',
-			subscriptionStatus: 'active',
-			trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-			authKey: 'default-auth-key-' + Date.now(),
-			status: 'active',
-			registeredAt: new Date().toISOString(),
-			activatedAt: new Date().toISOString(),
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
-			synced: 0
-		};
-
-		await sealDBModel.insert(TENANT_TABLE, defaultClient);
-	} catch (err) {
-		console.error('Error creating default client:', err);
-	}
-};
-
-const checkOrCreateDefaultWorkStation = async () => {
-	try {
-		const workstation = await sealDBModel.findById(TERMINALS_TABLE, '-1');
-		if (workstation) return;
-
-		const defaultWorkStation: Workstation = {
-			uuid: '-1',
-			shopCode: 'SHOP001',
-			clientUuid: '-1',
-			tillName: 'Main Till',
-			tillNumber: 'TILL001',
+		const defaultTerminal: Terminal = {
+			terminalId: '-1',
+			tenantId: '-1',
+			branchId: '-1',
+			mraTerminalId: null,
+			terminalCode: 'TERM001',
+			terminalLabel: 'Main Terminal',
+			terminalPosition: 1,
 			deviceId: 'DEFAULT_DEVICE',
-			deviceType: 'desktop',
-			ipAddress: '127.0.0.1',
+			osName: 'Linux',
+			osVersion: '1.0',
+			osBuild: 'build-001',
+			macAddress: '00:00:00:00:00:00',
+			posProductId: 'POS001',
+			posProductVersion: '1.0.0',
+			terminalConfigVersion: 1,
+			offlineMaxTransactionAgeHours: 24,
+			offlineMaxCumulativeAmount: 100000,
+			activationCode: 'DEFAULT',
+			activationStatus: 'ACTIVATED',
+			activationDate: new Date(),
 			isPrimary: true,
-			status: 'active',
-			registeredAt: new Date().toISOString(),
-			lastActivity: new Date().toISOString(),
-			lastSync: new Date().toISOString(),
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
-			synced: 0
+			isBlocked: false,
+			blockingReason: null,
+			blockedAt: null,
+			mraApplicationStatus: 'APPROVED',
+			mraApprovalDate: new Date(),
+			lastActivity: new Date(),
+			lastSync: new Date(),
+			lastSyncTimestamp: new Date(),
+			synced: 0,
+			registeredAt: new Date(),
+			createdAt: new Date(),
+			updatedAt: new Date(),
 		};
 
-		await sealDBModel.insert(TERMINALS_TABLE, defaultWorkStation);
+		await sealDBModel.insert(TERMINALS_TABLE, defaultTerminal);
+		console.log('✅ Default terminal created successfully.');
 	} catch (err) {
-		console.error('Error creating default workstation:', err);
+		console.error('❌ Error creating default terminal:', err);
 	}
 };
 
@@ -273,14 +306,14 @@ const checkOrCreateDefaultSubscriptionPlans = async () => {
 	}
 };
 
-const checkOrCreateDefaultClientSubscriptions = async () => {
+const checkOrCreateDefaultTenantSubscriptions = async () => {
 	try {
 		const subscription = await sealDBModel.findById(TENANT_SUBSCRIPTIONS_TABLE, '-1');
 		if (subscription) return;
 
 		const defaultSubscription: ClientSubscription = {
 			uuid: '-1',
-			clientUuid: '-1',
+			tenantId: '-1',
 			planId: 'basic-monthly',
 			status: 'active',
 			maxShops: 5,
@@ -315,7 +348,7 @@ const checkOrCreateDefaultUser = async () => {
 			username: 'admin',
 			fullname: 'Zonse247 Admin',
 			password: hash,
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			roleUuid: 'super-admin',
 			accessibleShops: ["*"],
@@ -339,7 +372,7 @@ const checkOrCreateDefaultCustomer = async () => {
 
 		const defaultCustomer: Customer = {
 			uuid: '-1',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 			name: 'Walk in customer',
@@ -379,7 +412,7 @@ async function checkOrCreateDefaultSettings(): Promise<void> {
 
 		const defaultSettings: WorkstatSettings = {
 			uuid: '-1',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			workstationUuid: '-1',
 			app: config.app.name,
@@ -409,7 +442,7 @@ async function checkAndCreateDefaultCategory(): Promise<void> {
 
 		const defaultCategory: Category = {
 			uuid: '-1',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 			name: 'Consumables',
@@ -426,14 +459,14 @@ async function checkOrCreateDefaultPaymentMethods(): Promise<void> {
 		{
 			name: 'Cash',
 			uuid: '1',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 		},
 		{
 			name: 'Mobile Transfer',
 			uuid: '2',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 		},
@@ -458,35 +491,35 @@ async function checkOrCreateDefaultPaymentServiceProviders(): Promise<void> {
 		{
 			name: 'Airtel Money',
 			uuid: '1',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 		},
 		{
 			name: 'TNM Mpamba',
 			uuid: '2',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 		},
 		{
 			name: 'National Bank',
 			uuid: '3',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 		},
 		{
 			name: 'FDH',
 			uuid: '4',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 		},
 		{
 			name: 'Standard Bank',
 			uuid: '5',
-			clientUuid: '-1',
+			tenantId: '-1',
 			shopUuid: '-1',
 			userUuid: '-1',
 		},
@@ -511,11 +544,11 @@ const seedDatabase = async () => {
 		checkOrCreateDefaultRoles()
 		checkOrCreateDefaultPermissions()
 		checkOrCreateDefaultRolePermissions()
-		checkOrCreateDefaultShop()
-		checkOrCreateDefaultClient()
-		checkOrCreateDefaultWorkStation()
+		checkOrCreateDefaultBranch()
+		checkOrCreateDefaultTenant()
+		checkOrCreateDefaultTerminal()
 		checkOrCreateDefaultSubscriptionPlans()
-		checkOrCreateDefaultClientSubscriptions()
+		checkOrCreateDefaultTenantSubscriptions()
 
 		checkOrCreateDefaultUser();
 		checkOrCreateDefaultCustomer();

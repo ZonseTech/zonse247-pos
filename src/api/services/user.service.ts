@@ -314,7 +314,7 @@ export class UserService {
 			throw new Error('Shop ID is required.');
 		}
 
-		const users = await UserModel.findByShopUuid(shopUuid);
+		const users = await UserModel.findByBranchId(shopUuid);
 
 		const publicUsers = await Promise.all(
 			users.map(async (user) => {

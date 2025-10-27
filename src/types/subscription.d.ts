@@ -9,6 +9,7 @@ interface SubscriptionPlan {
     name: string;
     description?: string;
     price: number;
+    maxBranches: number;
     billingCycle: 'monthly' | 'yearly' | 'lifetime';
     features?: string[];
     isActive: boolean;

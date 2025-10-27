@@ -27,7 +27,7 @@ export class PaymentServiceProviderModel {
         }
     }
 
-    static async findByShopUuid(shopUuid: string): Promise<PaymentServiceProvider[]> {
+    static async findByBranchId(shopUuid: string): Promise<PaymentServiceProvider[]> {
         try {
             return await sealDBModel.find(PAYMENT_SERVICE_PROVIDERS_DB, { shopUuid });
         } catch (error) {

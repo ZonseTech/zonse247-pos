@@ -20,14 +20,11 @@ interface RegisterClientRequest {
     timezone?: string;
 }
 
-interface VerifyClientRequest {
-    clientUuid: string;
-    authKey: string;
-}
-
 interface AuthenticatedRequest extends Request {
     client?: Client;
+    tenant?: Tenant;
     clientUuid?: string;
+    tenantId?: string;
 }
 
 interface ClientProps extends Omit<Client, 'authKey'> {
@@ -55,25 +52,6 @@ interface Client {
     createdAt?: string;
     updatedAt?: string;
     synced?: number;
-}
-
-interface OnboardingStatus {
-    client: Omit<Client, 'authKey'>;
-    subscription: any;
-    shops: any[];
-    workstations: any[];
-    onboarding: {
-        steps: {
-            clientRegistered: boolean;
-            subscriptionActive: boolean;
-            shopCreated: boolean;
-            workstation_Setup: boolean;
-        };
-        completedSteps: number;
-        totalSteps: number;
-        completionPercentage: number;
-        isComplete: boolean;
-    };
 }
 
 interface ApiResponse<T = any> {
@@ -107,10 +85,5 @@ interface RegisterClientRequest {
     address?: string;
     country?: string;
     timezone?: string;
-}
-
-interface VerifyClientRequest {
-    clientUuid: string;
-    authKey: string;
 }
 

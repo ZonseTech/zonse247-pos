@@ -65,7 +65,7 @@ export class UserModel {
         }
     }
 
-    static async findByShopUuid(shopUuid: string): Promise<User[]> {
+    static async findByBranchId(shopUuid: string): Promise<User[]> {
         try {
             return await sealDBModel.find(USERS_DB, { shopUuid: shopUuid });
         } catch (error) {

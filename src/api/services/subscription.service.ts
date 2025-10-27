@@ -1,5 +1,5 @@
-import { ClientService } from "./client.service";
-import { ClientModel } from "../models/client.model";
+import { TenantService } from "./tenant.service";
+import { TenantModel } from "../models/tenant.model";
 import { SubscriptionModel } from "../models/subscription.model";
 
 export class SubscriptionService {
@@ -9,14 +9,14 @@ export class SubscriptionService {
 
         const enhancedSubscriptions = await Promise.all(
             subscriptions.map(async (subscription) => {
-                const client = await ClientModel.findById(subscription.clientUuid);
+                const tenant = await TenantModel.findById(subscription.clientUuid);
 
                 return {
                     ...subscription,
                     clientDetails: {
-                        clientCode: client?.clientCode,
-                        companyName: client?.companyName,
-                        ownerName: client?.ownerName
+                        tenantCode: tenant?.tenantCode,
+                        companyName: tenant?.businessName,
+                        ownerName: tenant?.ownerName
                     }
                 };
             })
@@ -30,12 +30,12 @@ export class SubscriptionService {
     }
 
     static async create(data: Omit<ClientSubscription, 'uuid' | 'createdAt' | 'updatedAt'>): Promise<ClientSubscription> {
-        const validationError = ClientService.validateRequired(data, ['clientUuid', 'planId']);
+        const validationError = TenantService.validateRequired(data, ['clientUuid', 'planId']);
         if (validationError) {
             throw new Error(validationError);
         }
 
-        const client = await ClientModel.findByClientUuid(data.clientUuid);
+        const client = await TenantModel.findById(data.clientUuid);
         if (!client) {
             throw new Error('Client not found');
         }
@@ -59,7 +59,7 @@ export class SubscriptionService {
 
         const newSubscription = await SubscriptionModel.create(subscriptionData);
 
-        await ClientModel.update(data.clientUuid, {
+        await TenantModel.update(data.clientUuid, {
             subscriptionStatus: 'active',
             status: 'active',
             activatedAt: new Date().toISOString()
@@ -114,7 +114,7 @@ export class SubscriptionService {
 
         await SubscriptionModel.update(id, cancelData as any);
 
-        await ClientModel.update(subscription.clientUuid, {
+        await TenantModel.update(subscription.clientUuid, {
             subscriptionStatus: 'cancelled'
         });
 
@@ -159,7 +159,7 @@ export class SubscriptionService {
 
         await SubscriptionModel.update(id, reactivateData as any);
 
-        await ClientModel.update(subscription.clientUuid, {
+        await TenantModel.update(subscription.clientUuid, {
             subscriptionStatus: 'active',
             status: 'active'
         });
@@ -244,12 +244,12 @@ export class SubscriptionService {
     }
 
     static async createSubscription(data: CreateSubscriptionRequest): Promise<ClientSubscription> {
-        const validationError = ClientService.validateRequired(data, ['clientUuid', 'planId']);
+        const validationError = TenantService.validateRequired(data, ['clientUuid', 'planId']);
         if (validationError) {
             throw new Error(validationError);
         }
 
-        const client = await ClientModel.findById(data.clientUuid);
+        const client = await TenantModel.findById(data.clientUuid);
         if (!client) {
             throw new Error('Client not found');
         }
@@ -275,7 +275,7 @@ export class SubscriptionService {
         const newSubscription = await SubscriptionModel.create(subscriptionData);
 
         const now = new Date();
-        await ClientModel.update(data.clientUuid, {
+        await TenantModel.update(data.clientUuid, {
             subscriptionStatus: 'active',
             status: 'active',
             activatedAt: now.toISOString()

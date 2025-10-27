@@ -74,14 +74,14 @@ httpInstance.interceptors.request.use(
 			};
 
 			const token = getFromStorage('token');
-			const clientUuid = getFromStorage('clientUuid');
+			const tenantId = getFromStorage('tenantId');
 
 			if (token) {
 				config.headers.Authorization = `Bearer ${token}`;
 			}
 
-			if (clientUuid) {
-				config.headers['X-Client-Uuid'] = clientUuid;
+			if (tenantId) {
+				config.headers['X-Tenant-Id'] = tenantId;
 			}
 
 			return config;

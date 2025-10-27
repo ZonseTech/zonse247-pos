@@ -7,7 +7,7 @@ import { CustomerModel } from '../models/customer.model';
 import { OrderModel } from '../models/order.model';
 import { OrderService } from './order.service';
 import { PaymentServiceProviderModel } from '../models/payment-service-provider.model';
-import { WorkstationModel } from '../models/work-station.model';
+import { TerminalModel } from '../models/terminal.model';
 import { CategoryModel } from '../models/category.model';
 
 export class TransactionService {
@@ -162,7 +162,7 @@ export class TransactionService {
 
         if (transaction.tillUuid) {
             promises.push(
-                WorkstationModel.findById(transaction.tillUuid)
+                TerminalModel.findById(transaction.tillUuid)
                     .then(workstation => ({ workstation }))
                     .catch(() => ({ workstation: null }))
             );

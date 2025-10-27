@@ -1,24 +1,24 @@
 import * as Yup from 'yup';
-import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import ErrorAlert from './partials/ErrorAlert';
 import { ROUTES } from '../../utils/constants';
 import AuthLayout from '../../layouts/AuthLayout';
 import SuccessAlert from './partials/SuccessAlert';
+import { FunctionComponent, useState } from 'react';
 import StepIndicator from './partials/StepIndicator';
-import shopsService from '../../services/shop.service';
-import clientsService from '../../services/client.service';
+import branchService from '../../services/branch.service';
+import tenantService from '../../services/tenant.service';
 import settingsService from '../../services/settings.service';
-import ShopSelectionStep from './partials/steps/ShopSelectionStep';
-import workstationsService from '../../services/workstation.service';
-import ClientVerificationStep from './partials/steps/ClientVerificationStep';
-import WorkstationSelectionStep from './partials/steps/WorkstationSelectionStep';
-import ConfigurationCompleteStep from './partials/steps/ConfigurationCompleteStep';
+import terminalService from '../../services/terminal.service';
+import BranchSelectionStep from './steps/BranchSelectionStep';
+import TerminalSelectionStep from './steps/TerminalSelectionStep';
+import ClientVerificationStep from './steps/ClientVerificationStep';
+import ConfigurationCompleteStep from './steps/ConfigurationCompleteStep';
 
-const ClientVerification = () => {
-    const registerProps: ShopVerificationParams = {
-        clientUuid: '',
-        authKey: '',
+const ClientVerification: FunctionComponent = () => {
+    const registerProps: TerminalVerificationParams = {
+        tenantCode: 'DEFAULT_CLIENT',
+        authKey: 'default-auth-key-1761310617487',
         os: '',
         hostname: '',
         macAddress: ''
@@ -26,16 +26,16 @@ const ClientVerification = () => {
 
     const registerValidationSchema: Yup.ObjectSchema<{
         authKey: string;
-        clientUuid: string;
+        tenantCode: string;
     }, Yup.AnyObject, {
         authKey: undefined;
-        clientUuid: undefined;
+        tenantCode: undefined;
     }, ""> = Yup.object({
         authKey: Yup.string()
             .required('Auth token is required'),
 
-        clientUuid: Yup.string()
-            .required('Please enter your clientUuid'),
+        tenantCode: Yup.string()
+            .required('Please enter your tenant code'),
     })
 
     const navigate = useNavigate()
@@ -43,63 +43,63 @@ const ClientVerification = () => {
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
-    const [shops, setShops] = useState<Array<IShop>>([]);
-    const [selectedShop, setSelectedShop] = useState<IShop>(null);
-    const [verifiedClient, setVerifiedClient] = useState<Client>(null);
-    const [workstations, setWorkstations] = useState<Array<Workstation>>([]);
-    const [selectedWorkstation, setSelectedWorkstation] = useState<Workstation>(null);
+    const [branches, setTenantBranches] = useState<Array<Branch>>([]);
+    const [selectedBranch, setSelectedBranch] = useState<Branch>(null);
+    const [verifiedTenant, setVerifiedTenant] = useState<Tenant>(null);
+    const [terminals, setTerminals] = useState<Array<Terminal>>([]);
+    const [selectedTerminal, setSelectedTerminal] = useState<Terminal>(null);
 
-    const handleVerifyClient = async (credentials: ShopVerificationParams) => {
+    const handleVerifyClient = async (credentials: TerminalVerificationParams) => {
         setError('');
 
         try {
-            const client = await clientsService.verify(credentials);
-            setVerifiedClient(client);
-            setSuccess(`Welcome, ${client.companyName}!`);
+            const tenant = await tenantService.verify(credentials);
+            setVerifiedTenant(tenant);
+            setSuccess(`Welcome, ${tenant.businessName}!`);
             setCurrentStep(2);
 
-            await fetchShops(client.uuid);
+            await fetchBranchesByTenantId(tenant.tenantId);
         } catch (err) {
             setError((error as any)?.error?.response?.data?.message || 'Verification failed. Please check your credentials.');
         }
     };
 
-    const fetchShops = async (clientUuid: string) => {
+    const fetchBranchesByTenantId = async (tenantId: string) => {
         setLoading(true);
         try {
-            const response = await shopsService.listByClient(clientUuid);
-            setShops(response.data);
+            const response = await branchService.listByTenantId(tenantId);
+            setTenantBranches(response.data);
         } catch (err) {
-            setError('Failed to fetch shops');
+            setError('Failed to fetch branches');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleShopSelect = async (shop: IShop) => {
-        setSelectedShop(shop);
+    const handleBranchSelect = async (branch: Branch) => {
+        setSelectedBranch(branch);
         setError('');
         setLoading(true);
 
         try {
-            const stationsList = await workstationsService.listByShopCode(shop.shopCode);
-            setWorkstations(stationsList);
+            const stationsList = await terminalService.listByBranchId(branch.branchId);
+            setTerminals(stationsList);
             setCurrentStep(3);
         } catch (err) {
-            setError('Failed to fetch workstations');
+            setError('Failed to fetch terminals for the selected branch');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleWorkstationSelect = (workstation: Workstation) => {
-        setSelectedWorkstation(workstation);
+    const handleTerminalSelect = (terminal: Terminal) => {
+        setSelectedTerminal(terminal);
         setError('');
     };
 
     const handleSubmitConfiguration = async () => {
-        if (!selectedWorkstation) {
-            setError('Please select a workstation');
+        if (!selectedTerminal) {
+            setError('Please select a terminal');
             return;
         }
 
@@ -107,15 +107,20 @@ const ClientVerification = () => {
         setError('');
 
         try {
-            await settingsService.store({
-                clientUuid: verifiedClient.uuid,
-                shopUuid: selectedShop.uuid,
-                workstationUuid: selectedWorkstation.uuid
-            });
+            const params = {
+                tenantId: verifiedTenant.tenantId,
+                branchId: selectedBranch.branchId,
+                terminalId: selectedTerminal.terminalId
+            }
+
+            const data = await settingsService.store(params);
+
+            await settingsService.saveSettingsLocally({ ...params, tenantSignature: data.tenantSignature });
+
             setSuccess('Machine configuration completed successfully!');
             setCurrentStep(4);
         } catch (err) {
-            setError('Failed to configure machine. Please try again.');
+            setError(err?.error?.response?.data?.message);
         } finally {
             setLoading(false);
         }
@@ -126,7 +131,7 @@ const ClientVerification = () => {
     };
 
     return (
-        <AuthLayout className="max-w-6xl">
+        <AuthLayout className="max-w-7xl">
             <div className="p-6">
                 {success && currentStep !== 4 && <SuccessAlert message={success} />}
 
@@ -143,18 +148,18 @@ const ClientVerification = () => {
                 )}
 
                 {currentStep === 2 && (
-                    <ShopSelectionStep
-                        shops={shops}
-                        onShopSelect={handleShopSelect}
+                    <BranchSelectionStep
+                        branches={branches}
+                        onBranchSelect={handleBranchSelect}
                     />
                 )}
 
                 {currentStep === 3 && (
-                    <WorkstationSelectionStep
-                        workstations={workstations}
-                        selectedWorkstation={selectedWorkstation}
-                        selectedShop={selectedShop}
-                        onWorkstationSelect={handleWorkstationSelect}
+                    <TerminalSelectionStep
+                        terminals={terminals}
+                        selectedTerminal={selectedTerminal}
+                        selectedBranch={selectedBranch}
+                        onTerminalSelect={handleTerminalSelect}
                         onSubmit={handleSubmitConfiguration}
                         loading={loading}
                     />
@@ -162,9 +167,9 @@ const ClientVerification = () => {
 
                 {currentStep === 4 && (
                     <ConfigurationCompleteStep
-                        verifiedClient={verifiedClient}
-                        selectedShop={selectedShop}
-                        selectedWorkstation={selectedWorkstation}
+                        verifiedTenant={verifiedTenant}
+                        selectedBranch={selectedBranch}
+                        selectedTerminal={selectedTerminal}
                         onReset={resetProcess}
                     />
                 )}

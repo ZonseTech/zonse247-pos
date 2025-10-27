@@ -1,10 +1,11 @@
-import settingsService from '../services/settings.service';
-import { createContext, useContext, useState, useEffect, type ReactNode, type FunctionComponent, } from 'react';
-import printerService from '../services/printer.service';
 import { useAuth } from './AuthProvider';
+import printerService from '../services/printer.service';
+import settingsService from '../services/settings.service';
+import type { ReactNode, FunctionComponent, } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 interface AppContextType {
-    settings: WorkstatSettings | null;
+    settings: TerminalSettings | null;
     printerOptions: PrinterInfo | null;
     isLoading: boolean;
     error: Error | null;
@@ -22,7 +23,7 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
     const { auth } = useAuth()
     const [error, setError] = useState<Error | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [settings, setSettings] = useState<WorkstatSettings | null>(null);
+    const [settings, setSettings] = useState<TerminalSettings | null>(null);
     const [printerOptions, setPrinterOptions] = useState<PrinterInfo | null>(null);
 
     const fetchSettings = async () => {

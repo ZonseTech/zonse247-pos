@@ -4,24 +4,9 @@ import { ROUTES } from '../../utils/constants'
 import { useEffect, useState, useCallback, useRef, FunctionComponent } from 'react'
 import PageLoader from '../../components/PageLoader'
 import InitializationError from './partials/InitializationError'
-import settingsService from '../../services/settings.service'
 import {
     isRetryableError,
-    validateSettingsResponse,
-} from '../../utils/retryHelper'
-
-interface InitializationState {
-    isAccountVerified: boolean
-    isLoading: boolean
-    error: string | null
-    retryCount: number
-}
-
-interface InitializationResult {
-    success: boolean
-    verified?: boolean
-    error?: string
-}
+} from '../../utils/retry.util'
 
 const InitApp: FunctionComponent = () => {
     const navigate = useNavigate()
@@ -48,26 +33,14 @@ const InitApp: FunctionComponent = () => {
                     retryCount: attemptNumber - 1,
                 }))
 
-                const timeoutPromise = new Promise<never>((_, reject) =>
-                    setTimeout(
-                        () => reject(new Error('Request timeout')),
-                        INIT_CONFIG.TIMEOUT_DURATION
-                    )
-                )
-
-                const settingsPromise = settingsService.load()
-                const setupPromise = settingsService.setup()
-
-                const [settings, setup] = await Promise.race([
-                    Promise.all([settingsPromise, setupPromise]),
-                    timeoutPromise
-                ])
+                const localSettings = localStorage.getItem('terminalSettings')
+                const settings = localSettings ? JSON.parse(localSettings) : null
 
                 const isVerified = validateSettingsResponse(settings)
 
                 setInitialization((prev) => ({
                     ...prev,
-                    isAccountVerified: setup?.isCompleted || false,
+                    isAccountVerified: settings?.isConfigured || false,
                     isLoading: false,
                     error: null,
                 }))
@@ -111,6 +84,23 @@ const InitApp: FunctionComponent = () => {
         },
         []
     )
+
+    const validateSettingsResponse = (settings: any) => {
+        if (!settings) return false;
+
+        const requiredFields = ['tenantId', 'branchId', 'terminalId', 'authKey', 'isConfigured'];
+
+        if (typeof settings === 'object' && !Array.isArray(settings)) {
+
+            sessionStorage.setItem('tenantId', settings.tenantId);
+            sessionStorage.setItem('branchId', settings.branchId);
+            sessionStorage.setItem('terminalId', settings.terminalId);
+
+            return requiredFields.every((field) => settings.hasOwnProperty(field)) && settings.isConfigured === true;
+        }
+
+        return false;
+    };
 
     const retry = useCallback(() => {
         initializeApp()

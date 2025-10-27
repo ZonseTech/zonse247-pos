@@ -57,6 +57,12 @@ export const formatDate = (dateString: string) => {
 	});
 };
 
+export const formatDateForInput = (date?: Date | null): string => {
+	if (!date) return '';
+	const d = new Date(date);
+	return d.toISOString().split('T')[0];
+};
+
 export const generateReferenceNumber = () => {
 	const generateString: Array<string | number> = [];
 
@@ -153,4 +159,28 @@ export const toSnakeCase = (obj: any): any => {
 		}, {} as any);
 	}
 	return obj;
+};
+
+export const capitalizeEachWord = (name: string) => {
+	if (!name) return '';
+
+	const prefixes = ['mc', 'mac', 'o\'', 'de', 'van', 'von', 'di', 'le', 'la'];
+
+	return name
+		.toLowerCase()
+		.split(' ')
+		.map(word => {
+			for (const prefix of prefixes) {
+				if (word.startsWith(prefix) && word.length > prefix.length) {
+					if (prefix === 'o\'') {
+						return "O'" + word.charAt(2).toUpperCase() + word.slice(3);
+					}
+					return prefix.charAt(0).toUpperCase() + prefix.slice(1) +
+						word.charAt(prefix.length).toUpperCase() + word.slice(prefix.length + 1);
+				}
+			}
+
+			return word.charAt(0).toUpperCase() + word.slice(1);
+		})
+		.join(' ');
 };

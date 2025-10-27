@@ -151,7 +151,7 @@ export class PaymentServiceProviderService {
 
     static async getPaymentServiceProvidersByShop(shopUuid: string): Promise<PaymentServiceProvider[]> {
         try {
-            return await PaymentServiceProviderModel.findByShopUuid(shopUuid);
+            return await PaymentServiceProviderModel.findByBranchId(shopUuid);
         } catch (error) {
             console.error('Error fetching payment service providers by shop:', error);
             throw new Error('Failed to fetch payment service providers by shop');

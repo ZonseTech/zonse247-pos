@@ -160,7 +160,7 @@ export class CategoryService {
 
     static async getCategoriesByShop(shopUuid: string): Promise<Category[]> {
         try {
-            const categories = await CategoryModel.findByShopUuid(shopUuid);
+            const categories = await CategoryModel.findByBranchId(shopUuid);
             return await this.enrichCategoriesWithItemCount(categories, { shopUuid });
         } catch (error) {
             console.error('Error fetching categories by shop:', error);

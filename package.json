@@ -78,6 +78,7 @@
     "react-tooltip": "^5.28.1",
     "react-transition-group": "^4.4.5",
     "recharts": "^2.15.3",
+    "redux-persist": "^6.0.0",
     "sanitize-filename": "^1.6.3",
     "tsx": "^4.19.4",
     "typescript-nedb-orm": "^1.7.0",

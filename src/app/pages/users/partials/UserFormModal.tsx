@@ -6,14 +6,14 @@ import FormInput from '../../../components/FormInput';
 import FormWrapper from '../../../components/FormWrapper';
 import FormSelectBox from '../../../components/FormSelectBox';
 import usersService from '../../../services/users.service';
-import workstationsService from '../../../services/workstation.service';
-import shopsService from '../../../services/shop.service';
+import workstationsService from '../../../services/terminal.service';
+import shopsService from '../../../services/branch.service';
 import { Fragment, useState, useEffect } from 'react';
 import type { FunctionComponent } from 'react';
 import roleService from '../../../services/role.service';
 import { UserStatus } from '../../../utils/constants';
 import { useAuth } from '../../../context/AuthProvider';
-import clientsService from '../../../services/client.service';
+import clientsService from '../../../services/tenant.service';
 
 const UserFormModal: FunctionComponent<UserFormModalProps> = ({
     user,

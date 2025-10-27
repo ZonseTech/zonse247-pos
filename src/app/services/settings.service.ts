@@ -1,26 +1,27 @@
 import api from './http.service';
+import { version } from '../../../package.json';
 
 const endpoints = {
 	setup: 'setup',
 	all: 'settings',
-	store: 'settings/post',
+	store: 'settings/configure',
 };
 
 const settingsService = {
 	endpoints,
 
-	async list(query = {}): Promise<WorkstatSettings> {
+	async list(query = {}): Promise<TerminalSettings> {
 		return api
-			.get<ApiResponse<WorkstatSettings>>(endpoints.all, query)
+			.get<ApiResponse<TerminalSettings>>(endpoints.all, query)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
 			});
 	},
 
-	async load(): Promise<WorkstatSettings> {
+	async load(): Promise<TerminalSettings> {
 		return api
-			.get<ApiResponse<WorkstatSettings>>(endpoints.all)
+			.get<ApiResponse<TerminalSettings>>(endpoints.all)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -37,9 +38,9 @@ const settingsService = {
 	},
 
 	async store(params: {
-		clientUuid: string,
-		shopUuid: string,
-		workstationUuid: string
+		tenantId: string,
+		branchId: string,
+		terminalId: string
 	}): Promise<Setting> {
 		return api
 			.post<ApiResponse<Setting>>(endpoints.store, params as any)
@@ -48,6 +49,30 @@ const settingsService = {
 				throw err;
 			});
 	},
+
+	async saveSettingsLocally(params: {
+		tenantId: string,
+		branchId: string,
+		terminalId: string,
+		tenantSignature: string,
+	}) {
+		try {
+			const settings = {
+				...params,
+				lastConfigured: new Date().toISOString(),
+				configVersion: version,
+				isConfigured: true
+			};
+
+			localStorage.setItem('terminalSettings', JSON.stringify(settings));
+
+			return settings;
+		} catch (error) {
+			console.error('Failed to save settings locally:', error);
+			throw new Error('Failed to save terminal settings locally');
+		}
+	},
+
 	async update(params: any) {
 
 	},

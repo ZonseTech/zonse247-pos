@@ -1,18 +1,18 @@
 import { v4 as uuidv4 } from 'uuid';
 import { sealDBModel } from "../databases/local";
-import { APP_SETUP_DB, TENANT_TABLE, SHOP_SETTINGS_DB, BRANCHES_TABLE, TERMINALS_TABLE } from "../databases/local/tables";
+import { APP_SETUP_DB, TENANT_TABLE, TERMINAL_SETTINGS_DB, BRANCHES_TABLE, TERMINALS_TABLE } from "../databases/local/tables";
 
 export class SettingsModel {
-    static async findByContext(clientUuid: string, shopUuid: string, workstationUuid: string): Promise<Setting[]> {
+    static async findByContext(tenantId: string, branchId: string, terminalId: string): Promise<Setting[]> {
         try {
             const conditions = {
-                clientUuid,
-                shopUuid,
-                workstationUuid,
+                tenantId,
+                branchId,
+                terminalId,
                 status: 'active'
             };
 
-            return await sealDBModel.find<Setting[]>(SHOP_SETTINGS_DB, conditions);
+            return await sealDBModel.find<Setting[]>(TERMINAL_SETTINGS_DB, conditions);
         } catch (error) {
             console.error('Error finding settings by context:', error);
             throw error;
@@ -20,21 +20,21 @@ export class SettingsModel {
     }
 
     static async findByKey(
-        clientUuid: string,
-        shopUuid: string,
-        workstationUuid: string,
+        tenantId: string,
+        branchId: string,
+        terminalId: string,
         key: string
     ): Promise<Setting | null> {
         try {
             const conditions = {
-                clientUuid,
-                shopUuid,
-                workstationUuid,
+                tenantId,
+                branchId,
+                terminalId,
                 key,
                 status: 'active'
             };
 
-            return await sealDBModel.findById<Setting>(SHOP_SETTINGS_DB, conditions);
+            return await sealDBModel.findById<Setting>(TERMINAL_SETTINGS_DB, conditions);
         } catch (error) {
             console.error('Error finding setting by key:', error);
             throw error;
@@ -43,7 +43,7 @@ export class SettingsModel {
 
     static async findAll(): Promise<Setting[]> {
         try {
-            return await sealDBModel.findAll(SHOP_SETTINGS_DB);
+            return await sealDBModel.findAll(TERMINAL_SETTINGS_DB);
         } catch (error) {
             console.error('Error finding all settings:', error);
             throw error;
@@ -60,65 +60,47 @@ export class SettingsModel {
         }
     }
 
-    static async create(params: CreateSettingRequest): Promise<WorkstatSettings> {
+    static async create(params: CreateSettingRequest): Promise<TerminalSettings> {
         try {
             const now = new Date();
 
-            const client = await sealDBModel.findById<Client>(TENANT_TABLE, params.clientUuid);
-            const shop = await sealDBModel.findById<IShop>(BRANCHES_TABLE, params.shopUuid);
-            const workstation = await sealDBModel.findById<WorkstatSettings>(TERMINALS_TABLE, params.workstationUuid);
+            const tenant = await sealDBModel.findById<Tenant>(TENANT_TABLE, params.tenantId);
+            const branch = await sealDBModel.findById<Branch>(BRANCHES_TABLE, params.branchId);
+            const terminal = await sealDBModel.findById<Terminal>(TERMINALS_TABLE, params.terminalId);
 
-            const setting: WorkstatSettings = {
+            const setting = {
                 uuid: uuidv4(),
-                clientUuid: params.clientUuid,
-                shopUuid: params.shopUuid,
-                workstationUuid: params.workstationUuid,
-                app: client.companyName,
-                store: shop.name,
-                addressLine1: shop.addressLine1,
-                addressLine2: shop.addressLine2,
-                country: shop.country,
-                city: shop.city,
-                contact: client.phone,
-                tax: shop.taxRate,
-                symbol: shop.currencySymbol,
-                chargeTax: shop.chargeTax,
-                footer: shop.receiptFooter,
-                img: shop.logoUrl,
-                tillName: workstation.tillName,
-                status: shop.status,
+                tenantId: params.tenantId,
+                branchId: params.branchId,
+                terminalId: params.terminalId,
+                // app: tenant.companyName,
+                // store: branch.name,
+                addressLine1: branch?.addressLine1,
+                addressLine2: branch?.addressLine2,
+                // country: branch.country,
+                city: branch?.city,
+                // contact: tenant.phone,
+                tax: branch?.taxRate,
+                symbol: branch?.currencySymbol,
+                chargeTax: branch?.chargeTax,
+                footer: branch?.receiptFooter,
+                img: branch?.logoUrl,
+                // tillName: terminal.tillName,
+                status: branch?.status,
                 createdAt: now,
                 updatedAt: now
             };
 
-            return await sealDBModel.insert(SHOP_SETTINGS_DB, setting);
+            return await sealDBModel.insert(TERMINAL_SETTINGS_DB, setting);
         } catch (error) {
             console.error('Error creating setting:', error);
             throw error;
         }
     }
 
-    static async updateSetup(): Promise<boolean> {
-        try {
-            const uuid = '-1';
-            const updateData = {
-                isCompleted: true,
-                accountActivated: true,
-                shopConfigured: true,
-                workstationSetup: true,
-            }
-
-            const numUpdated = await sealDBModel.update(APP_SETUP_DB, uuid, updateData);
-            return numUpdated > 0;
-        } catch (error) {
-            console.error('Error updating setup setting:', error);
-            throw error;
-        }
-    }
-
     static async update(uuid: string, updateData: UpdateSettingRequest): Promise<boolean> {
         try {
-            const numUpdated = await sealDBModel.update(SHOP_SETTINGS_DB, uuid, updateData);
+            const numUpdated = await sealDBModel.update(TERMINAL_SETTINGS_DB, uuid, updateData);
             return numUpdated > 0;
         } catch (error) {
             console.error('Error updating setting:', error);
@@ -128,7 +110,7 @@ export class SettingsModel {
 
     static async delete(uuid: string): Promise<boolean> {
         try {
-            const numDeleted = await sealDBModel.delete(SHOP_SETTINGS_DB, uuid);
+            const numDeleted = await sealDBModel.delete(TERMINAL_SETTINGS_DB, uuid);
             return numDeleted > 0;
         } catch (error) {
             console.error('Error deleting setting:', error);
@@ -136,9 +118,9 @@ export class SettingsModel {
         }
     }
 
-    static async getSettingsGroup(): Promise<WorkstatSettings> {
+    static async getSettingsGroup(): Promise<TerminalSettings> {
         try {
-            const settings = await sealDBModel.findAll(SHOP_SETTINGS_DB);
+            const settings = await sealDBModel.findAll(TERMINAL_SETTINGS_DB);
             return settings[0]
         } catch (error) {
             console.error('Error getting settings group:', error);
@@ -147,21 +129,21 @@ export class SettingsModel {
     }
 
     static async getSettingsByCategory(
-        clientUuid: string,
-        shopUuid: string,
-        workstationUuid: string,
+        tenantId: string,
+        branchId: string,
+        terminalId: string,
         category: string
     ): Promise<Setting[]> {
         try {
             const conditions = {
-                clientUuid,
-                shopUuid,
-                workstationUuid,
+                tenantId,
+                branchId,
+                terminalId,
                 category,
                 status: 'active'
             };
 
-            return await sealDBModel.find<Setting[]>(SHOP_SETTINGS_DB, conditions);
+            return await sealDBModel.find<Setting[]>(TERMINAL_SETTINGS_DB, conditions);
         } catch (error) {
             console.error('Error getting settings by category:', error);
             throw error;

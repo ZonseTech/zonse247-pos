@@ -1,8 +1,6 @@
-// pages/settings/Index.tsx
 import { useState } from 'react';
 import { Notify, Report } from 'notiflix';
 import { Form, Formik } from 'formik';
-import * as Yup from 'yup';
 import {
     HiOutlineCog,
     HiOutlineCheck,
