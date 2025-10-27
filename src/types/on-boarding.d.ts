@@ -15,15 +15,14 @@ interface SubscriptionPlan {
 }
 
 interface TerminalVerificationParams {
-    tenantCode: string;
-    authKey: string;
+    verificationToken: string;
     os: string;
     hostname: string;
     macAddress: string;
 }
 
 interface OnboardingStatus {
-    tenant: Omit<Tenant, 'authKey'>;
+    tenant: Omit<Tenant, 'verificationToken'>;
     subscription: any;
     shops: any[];
     workstations: any[];

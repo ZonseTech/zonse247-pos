@@ -50,7 +50,7 @@ interface ShopRegistration {
 
 interface ClientCredentials {
 	clientUuid: string;
-	authKey: string;
+	verificationToken: string;
 	shopUuid: string;
 	expiresAt: string;
 	permissions: string[];

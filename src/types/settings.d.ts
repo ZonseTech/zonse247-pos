@@ -2,6 +2,7 @@ interface TerminalSettings {
     uuid: string;
     app: string;
     store: string;
+    verificationToken: string;
     addressLine1?: string;
     addressLine2?: string;
     tenantSignature: string;
@@ -27,14 +28,6 @@ interface Settings {
     synced?: 1 | 0;
     uuid: string;
     settings: Setting;
-}
-
-interface SetupParams {
-    uuid: string;
-    isCompleted: boolean;
-    accountActivated: boolean;
-    shopConfigured: boolean;
-    workstationSetup: boolean;
 }
 
 interface Setting {

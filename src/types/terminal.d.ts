@@ -1,6 +1,6 @@
 interface TerminalVerificationParams {
     tenantCode: string;
-    authKey: string;
+    verificationToken: string;
     os: string;
     hostname: string;
     macAddress: string;
