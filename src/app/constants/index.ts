@@ -4,3 +4,4 @@ export const INIT_CONFIG = {
 	RETRY_DELAY: 1000,
 	TIMEOUT_DURATION: 10000,
 }
+export const DEFAULT_COUNTRY_CODE = 'MW';

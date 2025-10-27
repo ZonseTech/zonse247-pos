@@ -1,15 +1,28 @@
-import AppLayout from '../../layouts/AppLayout';
-import { HiOutlineMenuAlt4, HiOutlineSearch } from 'react-icons/hi';
-import clientsService from '../../services/client.service';
-import { Button, Input, ZonseThemeContext } from '../../components';
-import DataTable, { TableColumn } from 'react-data-table-component';
-import { Edit2, Trash2, Building2, Globe, Phone, Mail } from 'lucide-react';
-import { useState, useEffect, Fragment, useContext, FunctionComponent, ChangeEvent } from 'react';
-import ClientFormModal from './partials/ClientFormModal';
 import { Notify, Confirm } from 'notiflix';
 import { HiOutlinePlus } from 'react-icons/hi2';
+import AppLayout from '../../layouts/AppLayout';
+import { useNavigate } from 'react-router';
+import { ROUTES } from '../../utils/constants';
+import { getTableStyles } from '../../utils/table-styles';
+import PageHeader from '../../components/page/PageHeader';
+import clientsService from '../../services/client.service';
+import { HiOutlineMenuAlt4, HiOutlineSearch } from 'react-icons/hi';
+import DataTable, { TableColumn } from 'react-data-table-component';
+import { Button, Input, ZonseThemeContext } from '../../components';
+import { Edit2, Trash2, Building2, Globe, Phone, Mail } from 'lucide-react';
+import { useState, useEffect, Fragment, useContext, FunctionComponent, ChangeEvent, PropsWithChildren } from 'react';
 
-const ClientManagement: FunctionComponent = () => {
+const TenantsManagement: FunctionComponent<PropsWithChildren> = () => {
+    const navigate = useNavigate();
+    const [page, setPage] = useState(1);
+    const [perPage, setPerPage] = useState(13);
+    const [totalRows, setTotalRows] = useState(0);
+    const { mode } = useContext(ZonseThemeContext);
+    const [isLoading, setIsLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [clients, setClients] = useState<Client[]>([]);
+    const [filteredClients, setFilteredClients] = useState<Array<Client>>([]);
+
     const columns: Array<TableColumn<Client>> = [
         {
             name: "Client",
@@ -103,7 +116,7 @@ const ClientManagement: FunctionComponent = () => {
                 <Fragment>
                     <div className="flex items-center space-x-2">
                         <button
-                            onClick={() => handleEdit(row)}
+                            onClick={() => navigate(ROUTES.TENANT_FORM, { state: { id: row.uuid } })}
                             disabled={row.uuid === '-1'}
                             className={`p-1 rounded transition-colors ${row.uuid === '-1'
                                 ? 'text-gray-500'
@@ -146,17 +159,6 @@ const ClientManagement: FunctionComponent = () => {
         }
     ];
 
-    const [page, setPage] = useState(1);
-    const [perPage, setPerPage] = useState(13);
-    const [totalRows, setTotalRows] = useState(0);
-    const { mode } = useContext(ZonseThemeContext);
-    const [showForm, setShowForm] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [clients, setClients] = useState<Client[]>([]);
-    const [editingClient, setEditingClient] = useState<Client | null>(null);
-    const [filteredClients, setFilteredClients] = useState<Array<Client>>([]);
-
     useEffect(() => {
         loadClients();
     }, []);
@@ -197,11 +199,6 @@ const ClientManagement: FunctionComponent = () => {
         setClients(updatedClients);
         setFilteredClients(updatedClients);
         setTotalRows(updatedClients.length);
-    };
-
-    const handleEdit = (client: Client) => {
-        setEditingClient(client);
-        setShowForm(true);
     };
 
     const getPaginatedData = () => {
@@ -312,183 +309,68 @@ const ClientManagement: FunctionComponent = () => {
         setSearchTerm(event.target.value);
     };
 
-    const handleClientSaved = () => {
-        loadClients();
-        setShowForm(false);
-        setEditingClient(null);
-    };
-
-    const handleCloseForm = () => {
-        setShowForm(false);
-        setEditingClient(null);
-    };
-
-    const handleAddClientClicked = () => {
-        setShowForm(!showForm);
-    };
-
     return (
         <AppLayout>
-            <div className="min-h-screen max-w-full mx-auto bg-white dark:bg-gray-700">
-                <div className="bg-white dark:bg-gray-700 rounded-md border overflow-hidden">
-                    <div className="px-6 py-4">
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-400 flex items-center">
-                                    <Building2 className="w-6 h-6 mr-2" />
-                                    Clients ({filteredClients.length})
-                                </h1>
-                                <p className="text-gray-600 mt-1">
-                                    Manage client accounts and subscriptions
-                                </p>
-                            </div>
+            <div className="max-w-full">
+                <div className="flex justify-between items-center">
+                    <PageHeader
+                        title='Tenants'
+                        description='Manage tenants accounts and subscriptions'
+                    />
 
-                            <div className="flex items-center space-x-4">
-                                <div className="flex relative">
-                                    <Input
-                                        type="text"
-                                        placeholder="Search clients..."
-                                        value={searchTerm}
-                                        onChange={handleSearch}
-                                        className="rounded-md px-3 py-2.5 pr-10"
-                                    />
-                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                        <HiOutlineSearch className="h-5 w-5 text-gray-400" />
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center space-x-3">
-                                    <Button
-                                        onClick={handleAddClientClicked}
-                                        className="flex items-center px-4 py-2 bg-blue-600 text-white dark:text-gray-100 rounded-lg hover:bg-blue-700"
-                                    >
-                                        <HiOutlinePlus className="w-4 h-4 mr-2" />
-                                        {'Add Client'}
-                                    </Button>
-
-                                    <ClientFormModal
-                                        client={editingClient || undefined}
-                                        isOpen={showForm}
-                                        onClose={handleCloseForm}
-                                        onClientSaved={handleClientSaved}
-                                    />
-                                </div>
+                    <div className="flex items-center space-x-4">
+                        <div className="flex relative">
+                            <Input
+                                type="text"
+                                placeholder="Search tenant..."
+                                value={searchTerm}
+                                onChange={handleSearch}
+                                className="rounded-md px-3 py-2.5 pr-10"
+                            />
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <HiOutlineSearch className="h-5 w-5 text-gray-400" />
                             </div>
                         </div>
-                    </div>
 
-                    <div className="overflow-x-auto">
-                        <DataTable
-                            columns={columns}
-                            data={getPaginatedData()}
-                            theme={mode as string}
-                            progressPending={isLoading}
-                            highlightOnHover
-                            striped
-                            responsive
-                            pagination
-                            paginationServer
-                            paginationTotalRows={totalRows}
-                            onChangeRowsPerPage={handlePerRowsChange}
-                            onChangePage={handlePageChange}
-                            fixedHeader
-                            fixedHeaderScrollHeight="calc(100vh - 350px)"
-                            customStyles={{
-                                table: {
-                                    style: {
-                                        backgroundColor: 'transparent',
-                                    },
-                                },
-                                head: {
-                                    style: {
-                                        fontSize: '14px',
-                                        fontWeight: '600',
-                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
-                                        color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
-                                        borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
-                                    },
-                                },
-                                headRow: {
-                                    style: {
-                                        borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
-                                        minHeight: '52px',
-                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
-                                    },
-                                },
-                                rows: {
-                                    style: {
-                                        minHeight: '64px',
-                                        backgroundColor: 'transparent',
-                                        color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
-                                        borderBottomColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
-                                        '&:hover': {
-                                            backgroundColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(249 250 251)',
-                                            cursor: 'pointer',
-                                        },
-                                    },
-                                    stripedStyle: {
-                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(248 250 252)',
-                                    },
-                                },
-                                cells: {
-                                    style: {
-                                        paddingLeft: '24px',
-                                        paddingRight: '24px',
-                                        paddingTop: '16px',
-                                        paddingBottom: '16px',
-                                    },
-                                },
-                                pagination: {
-                                    style: {
-                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(249 250 251)',
-                                        borderTopColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
-                                        color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(55 65 81)',
-                                        fontSize: '14px',
-                                        minHeight: '56px',
-                                    },
-                                    pageButtonsStyle: {
-                                        borderRadius: '6px',
-                                        height: '32px',
-                                        width: '32px',
-                                        padding: '4px',
-                                        margin: '0 2px',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s',
-                                        color: mode === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
-                                        fill: mode === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
-                                        backgroundColor: 'transparent',
-                                        '&:hover:not(:disabled)': {
-                                            backgroundColor: mode === 'dark' ? 'rgb(55 65 81)' : 'rgb(229 231 235)',
-                                            color: mode === 'dark' ? 'rgb(243 244 246)' : 'rgb(17 24 39)',
-                                        },
-                                        '&:focus': {
-                                            outline: 'none',
-                                            boxShadow: mode === 'dark'
-                                                ? '0 0 0 2px rgb(59 130 246)'
-                                                : '0 0 0 2px rgb(37 99 235)',
-                                        },
-                                    },
-                                },
-                                progress: {
-                                    style: {
-                                        backgroundColor: mode === 'dark' ? 'rgb(31 41 55)' : 'rgb(255 255 255)',
-                                    },
-                                },
-                            }}
-                            noDataComponent={
-                                <div className="text-center py-8">
-                                    <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                                    <p className="text-gray-500">
-                                        {searchTerm ? 'No clients found matching your search.' : 'No clients found.'}
-                                    </p>
-                                </div>
-                            }
-                        />
+                        <div className="flex items-center space-x-3">
+                            <Button
+                                onClick={() => navigate(ROUTES.TENANT_FORM)}
+                                theme='success'
+                            >
+                                <HiOutlinePlus className="w-4 h-4 mr-2" />
+                                {'Add Tenant'}
+                            </Button>
+                        </div>
                     </div>
                 </div>
+                <DataTable
+                    columns={columns}
+                    data={getPaginatedData()}
+                    theme={mode as string}
+                    progressPending={isLoading}
+                    highlightOnHover
+                    striped
+                    responsive
+                    pagination
+                    paginationServer
+                    paginationTotalRows={totalRows}
+                    onChangeRowsPerPage={handlePerRowsChange}
+                    onChangePage={handlePageChange}
+                    fixedHeader
+                    fixedHeaderScrollHeight="calc(100vh - 350px)"
+                    customStyles={getTableStyles(mode)}
+                    noDataComponent={
+                        <div className="text-center py-8">
+                            <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                            <p className="text-gray-500">
+                                {searchTerm ? 'No clients found matching your search.' : 'No clients found.'}
+                            </p>
+                        </div>
+                    }
+                />
             </div>
         </AppLayout>
     );
 };
 
-export default ClientManagement;
+export default TenantsManagement;

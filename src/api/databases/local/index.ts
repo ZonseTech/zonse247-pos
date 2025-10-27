@@ -11,7 +11,7 @@ import tables, {
 	SYNC_STATUS_TABLE,
 	TRANSACTIONS_DB,
 	USERS_DB,
-	WORKSTATIONS_DB,
+	TERMINALS_TABLE,
 } from './tables';
 import config from '../../config';
 import Datastore from '@seald-io/nedb';
@@ -400,7 +400,7 @@ export class SealDBModel {
 						db.ensureIndex({ fieldName: 'refNumber' });
 						db.ensureIndex({ fieldName: 'productId' });
 						break;
-					case WORKSTATIONS_DB:
+					case TERMINALS_TABLE:
 						db.ensureIndex({ fieldName: 'clientUuid' });
 						db.ensureIndex({ fieldName: 'shopUuid' });
 						db.ensureIndex({ fieldName: 'tillNumber' });

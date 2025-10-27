@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { sealDBModel } from "../databases/local";
-import { APP_SETUP_DB, CLIENTS_DB, SHOP_SETTINGS_DB, SHOPS_DB, WORKSTATIONS_DB } from "../databases/local/tables";
+import { APP_SETUP_DB, TENANT_TABLE, SHOP_SETTINGS_DB, BRANCHES_TABLE, TERMINALS_TABLE } from "../databases/local/tables";
 
 export class SettingsModel {
     static async findByContext(clientUuid: string, shopUuid: string, workstationUuid: string): Promise<Setting[]> {
@@ -64,9 +64,9 @@ export class SettingsModel {
         try {
             const now = new Date();
 
-            const client = await sealDBModel.findById<Client>(CLIENTS_DB, params.clientUuid);
-            const shop = await sealDBModel.findById<IShop>(SHOPS_DB, params.shopUuid);
-            const workstation = await sealDBModel.findById<WorkstatSettings>(WORKSTATIONS_DB, params.workstationUuid);
+            const client = await sealDBModel.findById<Client>(TENANT_TABLE, params.clientUuid);
+            const shop = await sealDBModel.findById<IShop>(BRANCHES_TABLE, params.shopUuid);
+            const workstation = await sealDBModel.findById<WorkstatSettings>(TERMINALS_TABLE, params.workstationUuid);
 
             const setting: WorkstatSettings = {
                 uuid: uuidv4(),

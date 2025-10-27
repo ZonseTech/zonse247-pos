@@ -9,7 +9,10 @@ export enum ROUTES {
 	PRODUCTS = '/products',
 	WORK_STATIONS = '/work-stations',
 	SUBSCRIPTION = '/subscription',
-	CLIENTS = '/clients',
+
+	TENANTS = '/tenants',
+	TENANT_FORM = '/tenants/form',
+
 	SHOPS = '/shops',
 	SYNC_DATA = '/sync-data',
 	EXPORT_DB = '/export-db',
