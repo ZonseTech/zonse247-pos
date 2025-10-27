@@ -148,7 +148,7 @@ export const tenantValidationSchema = Yup.object().shape({
     registeredAt: Yup.string()
         .notRequired(),
 
-    authKey: Yup.string()
+    verificationToken: Yup.string()
         .notRequired(),
 
     status: Yup.string()
