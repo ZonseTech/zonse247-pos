@@ -33,7 +33,7 @@ export class EmailService {
 
     static generateWelcomeEmailTemplate(data: WelcomeEmailData): { subject: string; html: string; text: string } {
         const baseUrl = process.env.CLIENT_PORTAL_URL || 'https://pos.zonse247.com';
-        const verificationUrl = data.verificationUrl || `${baseUrl}/verify?clientId=${data.tenantCode}&authKey=${data.authKey}`;
+        const verificationUrl = data.verificationUrl || `${baseUrl}/verify?clientId=${data.tenantCode}&verificationToken=${data.verificationToken}`;
 
         const subject = `Welcome to Our Platform, ${data.businessName}!`;
 
@@ -59,7 +59,7 @@ export class EmailService {
                             <h3 style="margin-top: 0; color: #667eea;">Your Account Details:</h3>
                             <p><strong>Company:</strong> ${data.businessName}</p>
                             <p><strong>Client ID:</strong> ${data.tenantCode}</p>
-                            <p><strong>Authentication Key:</strong> ${data.authKey}</p>
+                            <p><strong>Authentication Key:</strong> ${data.verificationToken}</p>
                         </div>
                         
                         <p>To complete your registration and activate your account, please click the button below:</p>

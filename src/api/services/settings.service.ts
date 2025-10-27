@@ -33,7 +33,7 @@ export class SettingsService {
     }
 
     private static setTenantSignature(settings: TerminalSettings): string {
-        const dataString = `${settings.tenantId}|${settings.branchId}|${settings.terminalId}|${settings.authKey}`;
+        const dataString = `${settings.tenantId}|${settings.branchId}|${settings.terminalId}|${settings.verificationToken}`;
         return Buffer.from(dataString).toString('base64');
     }
 

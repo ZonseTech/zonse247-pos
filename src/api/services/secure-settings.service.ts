@@ -2,9 +2,11 @@ import crypto from 'crypto';
 import { app } from 'electron';
 import path from 'path';
 import fs from 'fs/promises';
-import { SettingsModel } from '../models/settings.model';
+import { sealDBModel } from '../databases/local';
+import { APP_SETUP_DB } from '../databases/local/tables';
 
 export class SecureSettingsService {
+    private static initialized = false;
     private static readonly KEY_LENGTH = 32;
     private static readonly IV_LENGTH = 16;
     private static readonly AUTH_TAG_LENGTH = 16;
@@ -12,6 +14,10 @@ export class SecureSettingsService {
     private static encryptionKey: Buffer | null = null;
 
     static async initialize(): Promise<void> {
+        if (this.initialized) {
+            return;
+        }
+
         try {
             const keyPath = path.join(app.getPath('userData'), '.keystore');
 
@@ -19,27 +25,24 @@ export class SecureSettingsService {
                 const existingKey = await fs.readFile(keyPath);
                 this.encryptionKey = existingKey;
                 console.log('Encryption key loaded from keystore');
-                return;
             } catch (error) {
+                console.log('Generating new encryption key...');
+                const machineId = await this.getMachineId();
+                const appSalt = 'pos-terminal-seal-app-v1';
+
+                this.encryptionKey = crypto.pbkdf2Sync(
+                    machineId,
+                    appSalt,
+                    100000,
+                    this.KEY_LENGTH,
+                    'sha256'
+                );
+
+                await fs.writeFile(keyPath, this.encryptionKey, { mode: 0o600 });
+                console.log('New encryption key generated and stored');
             }
 
-            const machineId = await this.getMachineId();
-            const appSalt = 'pos-terminal-app-v1';
-
-            this.encryptionKey = crypto.pbkdf2Sync(
-                machineId,
-                appSalt,
-                100000,
-                this.KEY_LENGTH,
-                'sha256'
-            );
-
-            console.log('====================================');
-            console.log(this.encryptionKey);
-            console.log('====================================');
-
-            await fs.writeFile(keyPath, this.encryptionKey, { mode: 0o600 });
-            console.log('New encryption key generated and stored');
+            this.initialized = true;
         } catch (error) {
             console.error('Error initializing encryption:', error);
             throw new Error('Failed to initialize encryption');
@@ -61,7 +64,7 @@ export class SecureSettingsService {
 
     private static encrypt(text: string): EncryptionResult {
         if (!this.encryptionKey) {
-            throw new Error('Encryption key not initialized. Call initialize() first.');
+            throw new Error('Encryption key not initialized');
         }
 
         const iv = crypto.randomBytes(this.IV_LENGTH);
@@ -69,7 +72,6 @@ export class SecureSettingsService {
 
         let encrypted = cipher.update(text, 'utf8', 'hex');
         encrypted += cipher.final('hex');
-
         const authTag = cipher.getAuthTag();
 
         return {
@@ -80,11 +82,10 @@ export class SecureSettingsService {
 
     private static decrypt(encrypted: string, ivHex: string): string {
         if (!this.encryptionKey) {
-            throw new Error('Encryption key not initialized. Call initialize() first.');
+            throw new Error('Encryption key not initialized');
         }
 
         const iv = Buffer.from(ivHex, 'hex');
-
         const encryptedData = encrypted.slice(0, -this.AUTH_TAG_LENGTH * 2);
         const authTag = Buffer.from(encrypted.slice(-this.AUTH_TAG_LENGTH * 2), 'hex');
 
@@ -97,148 +98,203 @@ export class SecureSettingsService {
         return decrypted;
     }
 
-    private static setTenantSignature(settings: CreateSettingRequest): string {
-        const dataString = `${settings.tenantId}|${settings.branchId}|${settings.terminalId}`;
-        const hmac = crypto.createHmac('sha256', this.encryptionKey || 'fallback');
+    private static createDataSignature(
+        verificationToken: string,
+        tenantId: string,
+        branchId: string,
+        terminalId: string
+    ): string {
+        if (!this.encryptionKey) {
+            throw new Error('Encryption key not initialized');
+        }
+
+        const dataString = `${verificationToken}|${tenantId}|${branchId}|${terminalId}`;
+        const hmac = crypto.createHmac('sha256', this.encryptionKey);
         hmac.update(dataString);
         return hmac.digest('hex');
     }
 
-    static async store(settingsData: CreateSettingRequest): Promise<TerminalSettings> {
+    static async saveAppSetup(params: SetupParams): Promise<void> {
         try {
-            if (!this.encryptionKey) {
+            if (!this.initialized) {
                 await this.initialize();
             }
 
-            const { encrypted, iv } = this.encrypt(settingsData.authKey);
+            const { encrypted, iv } = this.encrypt(params.verificationToken);
 
-            const dataToStore = {
-                ...settingsData,
-                encryptedAuthKey: encrypted,
+            const signature = this.createDataSignature(
+                params.verificationToken,
+                params.tenantId,
+                params.branchId,
+                params.terminalId
+            );
+
+            const now = new Date();
+            const encryptedSetup = {
+                uuid: '-1',
+                tenantId: params.tenantId,
+                branchId: params.branchId,
+                terminalId: params.terminalId,
+                encryptedVerificationToken: encrypted,
                 iv: iv,
-                authKey: undefined,
+                dataSignature: signature,
+                createdAt: now,
+                updatedAt: now,
             };
 
-            const settings = await SettingsModel.create(dataToStore);
+            try {
+                await sealDBModel.delete(APP_SETUP_DB, '-1');
+            } catch (error) {
+                // Ignore if doesn't exist
+            }
 
-            settings.tenantSignature = this.setTenantSignature(settingsData);
-
-            return {
-                ...settings,
-                authKey: settingsData.authKey,
-            };
+            await sealDBModel.insert(APP_SETUP_DB, encryptedSetup);
         } catch (error) {
-            console.error('Error in settings service - store:', error);
+            console.error('Error saving app setup:', error);
             throw error;
         }
     }
 
-    /**
-     * Retrieve settings and decrypt authKey
-     */
-    static async retrieve(settingsId?: string): Promise<TerminalSettings | null> {
+    static async getAppSetup(): Promise<SetupParams | null> {
         try {
-            if (!this.encryptionKey) {
+            if (!this.initialized) {
                 await this.initialize();
             }
 
-            // Retrieve from database
-            const settings = await SettingsModel.findOne(settingsId);
+            const encryptedSetup = await sealDBModel.findById<any>(
+                APP_SETUP_DB,
+                '-1'
+            );
 
-            if (!settings) {
+            if (!encryptedSetup) {
                 return null;
             }
 
-            // Decrypt authKey
-            const authKey = this.decrypt(settings.encryptedAuthKey, settings.iv);
+            const verificationToken = this.decrypt(
+                encryptedSetup.encryptedVerificationToken,
+                encryptedSetup.iv
+            );
+
+            const expectedSignature = this.createDataSignature(
+                verificationToken,
+                encryptedSetup.tenantId,
+                encryptedSetup.branchId,
+                encryptedSetup.terminalId
+            );
+
+            if (encryptedSetup.dataSignature !== expectedSignature) {
+                console.warn('Data signature mismatch - data may be tampered');
+            }
 
             return {
-                ...settings,
-                authKey,
+                uuid: encryptedSetup.uuid,
+                tenantId: encryptedSetup.tenantId,
+                branchId: encryptedSetup.branchId,
+                terminalId: encryptedSetup.terminalId,
+                verificationToken: verificationToken,
+                tenantSignature: encryptedSetup.dataSignature,
+                createdAt: encryptedSetup.createdAt,
+                updatedAt: encryptedSetup.updatedAt,
             };
         } catch (error) {
-            console.error('Error in settings service - retrieve:', error);
+            console.error('Error getting app setup:', error);
+            return null;
+        }
+    }
+
+    static async hasAppSetup(): Promise<boolean> {
+        try {
+            const setup = await sealDBModel.findById(APP_SETUP_DB, '-1');
+            return setup !== null;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    static async clearAppSetup(): Promise<void> {
+        try {
+            await sealDBModel.delete(APP_SETUP_DB, '-1');
+            console.log('App setup cleared');
+        } catch (error) {
+            console.error('Error clearing app setup:', error);
             throw error;
         }
     }
 
-    /**
-     * Verify tenant signature
-     */
-    static verifySignature(settings: TerminalSettings): boolean {
-        const expectedSignature = this.setTenantSignature(settings);
-        return crypto.timingSafeEqual(
-            Buffer.from(settings.tenantSignature),
-            Buffer.from(expectedSignature)
-        );
+    static async updateAppSetup(updates: Partial<SetupParams>): Promise<void> {
+        try {
+            const existing = await this.getAppSetup();
+            if (!existing) {
+                throw new Error('No existing setup found');
+            }
+
+            const updated = {
+                ...existing,
+                ...updates,
+            };
+
+            await this.saveAppSetup(updated);
+        } catch (error) {
+            console.error('Error updating app setup:', error);
+            throw error;
+        }
+    }
+
+    static async getTenantSignature(): Promise<string | null> {
+        try {
+            const setup = await this.getAppSetup();
+            return setup?.tenantSignature || null;
+        } catch (error) {
+            console.error('Error getting tenantSignature:', error);
+            return null;
+        }
     }
 
     /**
-     * Update settings
+     * Encrypt a tenantId and return the encrypted string
+     * @param tenantId - The plain tenant ID to encrypt (e.g., 'tenant-456')
+     * @returns The encrypted tenant ID string (e.g., '70610b28-c886-4647-acb5-d7565883545f')
      */
-    static async update(
-        settingsId: string,
-        updateData: Partial<CreateSettingRequest>
-    ): Promise<TerminalSettings> {
+    static async encryptTenantId(tenantId: string): Promise<string> {
         try {
-            if (!this.encryptionKey) {
+            if (!this.initialized) {
                 await this.initialize();
             }
 
-            const existing = await this.retrieve(settingsId);
-            if (!existing) {
-                throw new Error('Settings not found');
-            }
+            const { encrypted, iv } = this.encrypt(tenantId);
 
-            // If authKey is being updated, encrypt it
-            let encryptedUpdate = { ...updateData };
-            if (updateData.authKey) {
-                const { encrypted, iv } = this.encrypt(updateData.authKey);
-                encryptedUpdate = {
-                    ...updateData,
-                    encryptedAuthKey: encrypted,
-                    iv: iv,
-                    authKey: undefined,
-                };
-            }
+            const encryptedString = `${encrypted}:${iv}`;
 
-            // Update in database
-            const updated = await SettingsModel.update(settingsId, encryptedUpdate);
-
-            // Update signature
-            const fullSettings = { ...existing, ...updateData };
-            updated.tenantSignature = this.setTenantSignature(fullSettings);
-
-            return this.retrieve(settingsId);
+            console.log('TenantId encrypted successfully');
+            return encryptedString;
         } catch (error) {
-            console.error('Error in settings service - update:', error);
+            console.error('Error encrypting tenantId:', error);
             throw error;
         }
     }
 
     /**
-     * Clear all settings (for logout/reset)
+     * Decrypt an encrypted tenantId string
+     * @param encryptedTenantId - The encrypted tenant ID (e.g., '70610b28-c886-4647-acb5-d7565883545f')
+     * @returns Object containing the decrypted tenantId
      */
-    static async clear(): Promise<void> {
+    static async decryptTenantId(encryptedTenantId: string): Promise<{ tenantId: string }> {
         try {
-            await SettingsModel.deleteAll();
-            console.log('Settings cleared');
-        } catch (error) {
-            console.error('Error clearing settings:', error);
-            throw error;
-        }
-    }
+            if (!this.initialized) {
+                await this.initialize();
+            }
 
-    /**
-     * Check if settings exist (for onboarding check)
-     */
-    static async hasSettings(): Promise<boolean> {
-        try {
-            const settings = await SettingsModel.findOne();
-            return settings !== null;
+            const [encrypted, iv] = encryptedTenantId.split(':');
+
+            if (!encrypted || !iv) {
+                throw new Error('Invalid encrypted tenantId format');
+            }
+
+            const tenantId = this.decrypt(encrypted, iv);
+
+            return { tenantId };
         } catch (error) {
-            console.error('Error checking settings:', error);
-            return false;
+            throw error;
         }
     }
 }
