@@ -1,7 +1,4 @@
-// default-auth-key-1761310617487
-
 import {
-	APP_SETUP_DB,
 	CATEGORIES_DB,
 	TENANT_SUBSCRIPTIONS_TABLE,
 	TENANT_TABLE,
@@ -155,7 +152,7 @@ const checkOrCreateDefaultTenant = async () => {
 			msonkhoOnlineStatus: 'PENDING',
 			subscriptionPlan: 'TRIAL',
 			subscriptionStatus: 'TRIAL',
-			authKey: `default-auth-key-${Date.now()}`,
+			verificationToken: `default-auth-key-${Date.now()}`,
 			status: 'active',
 			registeredAt: now,
 			activatedAt: now,
@@ -385,23 +382,23 @@ const checkOrCreateDefaultCustomer = async () => {
 };
 
 const checkOrCreateSetupStatus = async () => {
-	try {
-		const setup = await sealDBModel.findById(APP_SETUP_DB, '-1');
+	// try {
+	// 	const setup = await sealDBModel.findById(APP_SETUP_DB, '-1');
 
-		if (setup) return;
+	// 	if (setup) return;
 
-		const setupData: SetupParams = {
-			uuid: '-1',
-			isCompleted: false,
-			accountActivated: false,
-			shopConfigured: false,
-			workstationSetup: false,
-		};
+	// 	const setupData: SetupParams = {
+	// 		uuid: '-1',
+	// 		isCompleted: false,
+	// 		accountActivated: false,
+	// 		branchConfigured: false,
+	// 		tenantSetup: false,
+	// 	};
 
-		await sealDBModel.insert(APP_SETUP_DB, setupData);
-	} catch (err) {
-		console.error(err);
-	}
+	// 	await sealDBModel.insert(APP_SETUP_DB, setupData);
+	// } catch (err) {
+	// 	console.error(err);
+	// }
 };
 
 async function checkOrCreateDefaultSettings(): Promise<void> {
@@ -410,11 +407,11 @@ async function checkOrCreateDefaultSettings(): Promise<void> {
 
 		if (settings) return;
 
-		const defaultSettings: WorkstatSettings = {
+		const defaultSettings: TerminalSettings = {
 			uuid: '-1',
 			tenantId: '-1',
-			shopUuid: '-1',
-			workstationUuid: '-1',
+			branchId: '-1',
+			terminalId: '-1',
 			app: config.app.name,
 			store: 'Main Till',
 			addressLine1: '123 Business Street',
@@ -556,7 +553,7 @@ const seedDatabase = async () => {
 		checkOrCreateDefaultPaymentMethods();
 		checkOrCreateDefaultPaymentServiceProviders()
 		checkOrCreateDefaultSettings();
-		checkOrCreateSetupStatus();
+		// checkOrCreateSetupStatus();
 
 		console.log('Seed migrated successfully');
 		return true;

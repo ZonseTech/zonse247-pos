@@ -1,6 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 import { sealDBModel } from "../databases/local";
-import { APP_SETUP_DB, TENANT_TABLE, TERMINAL_SETTINGS_DB, BRANCHES_TABLE, TERMINALS_TABLE } from "../databases/local/tables";
+import {
+    TENANT_TABLE,
+    TERMINAL_SETTINGS_DB,
+    BRANCHES_TABLE,
+    TERMINALS_TABLE
+} from "../databases/local/tables";
+import { SecureSettingsService } from '../services/secure-settings.service';
 
 export class SettingsModel {
     static async findByContext(tenantId: string, branchId: string, terminalId: string): Promise<Setting[]> {
@@ -50,12 +56,21 @@ export class SettingsModel {
         }
     }
 
-    static async getAppSetup(): Promise<SetupParams> {
+
+    static async getAppSetup(): Promise<SetupParams | null> {
         try {
-            const setup = await sealDBModel.findById<SetupParams>(APP_SETUP_DB, '-1');
-            return setup;
+            return await SecureSettingsService.getAppSetup();
         } catch (error) {
             console.error('Error finding app setup:', error);
+            throw error;
+        }
+    }
+
+    static async saveAppSetup(params: SetupParams): Promise<void> {
+        try {
+            await SecureSettingsService.saveAppSetup(params);
+        } catch (error) {
+            console.error('Error saving app setup:', error);
             throw error;
         }
     }
@@ -63,6 +78,19 @@ export class SettingsModel {
     static async create(params: CreateSettingRequest): Promise<TerminalSettings> {
         try {
             const now = new Date();
+
+            const setup = await this.getAppSetup();
+            if (!setup) {
+                throw new Error('No app setup found. Please configure terminal first.');
+            }
+
+            if (
+                params.tenantId !== setup.tenantId ||
+                params.branchId !== setup.branchId ||
+                params.terminalId !== setup.terminalId
+            ) {
+                throw new Error('Settings params do not match configured setup');
+            }
 
             const tenant = await sealDBModel.findById<Tenant>(TENANT_TABLE, params.tenantId);
             const branch = await sealDBModel.findById<Branch>(BRANCHES_TABLE, params.branchId);
@@ -73,19 +101,14 @@ export class SettingsModel {
                 tenantId: params.tenantId,
                 branchId: params.branchId,
                 terminalId: params.terminalId,
-                // app: tenant.companyName,
-                // store: branch.name,
                 addressLine1: branch?.addressLine1,
                 addressLine2: branch?.addressLine2,
-                // country: branch.country,
                 city: branch?.city,
-                // contact: tenant.phone,
                 tax: branch?.taxRate,
                 symbol: branch?.currencySymbol,
                 chargeTax: branch?.chargeTax,
                 footer: branch?.receiptFooter,
                 img: branch?.logoUrl,
-                // tillName: terminal.tillName,
                 status: branch?.status,
                 createdAt: now,
                 updatedAt: now
@@ -121,7 +144,7 @@ export class SettingsModel {
     static async getSettingsGroup(): Promise<TerminalSettings> {
         try {
             const settings = await sealDBModel.findAll(TERMINAL_SETTINGS_DB);
-            return settings[0]
+            return settings[0];
         } catch (error) {
             console.error('Error getting settings group:', error);
             throw error;
@@ -147,6 +170,33 @@ export class SettingsModel {
         } catch (error) {
             console.error('Error getting settings by category:', error);
             throw error;
+        }
+    }
+
+    static async getVerificationToken(): Promise<string | null> {
+        try {
+            return await SecureSettingsService.getTenantSignature();
+        } catch (error) {
+            console.error('Error getting tenant signature: ', error);
+            return null;
+        }
+    }
+
+    static async clearAppSetup(): Promise<void> {
+        try {
+            await SecureSettingsService.clearAppSetup();
+        } catch (error) {
+            console.error('Error clearing app setup:', error);
+            throw error;
+        }
+    }
+
+    static async isConfigured(): Promise<boolean> {
+        try {
+            return await SecureSettingsService.hasAppSetup();
+        } catch (error) {
+            console.error('Error checking configuration:', error);
+            return false;
         }
     }
 }

@@ -14,7 +14,7 @@ export class TenantMiddleware {
             console.log(tenantId);
             console.log('====================================');
 
-            const tenant: Omit<Tenant, 'authKey'> = await TenantService.getTenantById(
+            const tenant: Omit<Tenant, 'verificationToken'> = await TenantService.getTenantById(
                 tenantId
             );
 
@@ -101,7 +101,7 @@ export class TenantMiddleware {
         }
     };
 
-    private checkSubscriptionStatus(tenant: Omit<Tenant, 'authKey'>): {
+    private checkSubscriptionStatus(tenant: Omit<Tenant, 'verificationToken'>): {
         isValid: boolean;
         message: string;
         daysRemaining: number | null;

@@ -182,6 +182,22 @@ export class SealDBModel {
 		});
 	}
 
+	public async findOne<T = any>(
+		table: string,
+		conditions: string | Record<string, any>
+	): Promise<T | null> {
+		return new Promise((resolve, reject) => {
+			const db = this.getDB(table);
+			const query =
+				typeof conditions === 'string' ? { uuid: conditions } : conditions;
+
+			db.findOne(query, (err, doc) => {
+				if (err) return reject(err);
+				resolve(doc);
+			});
+		});
+	}
+
 	public insert(table: string, data: any): Promise<any> {
 		return new Promise((resolve, reject) => {
 			try {

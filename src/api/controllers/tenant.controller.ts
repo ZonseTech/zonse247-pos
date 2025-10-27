@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { BaseController } from "./base.controller";
 import { TenantService } from "../services/tenant.service";
 import { BranchService } from "../services/branch.service";
+import { SecureSettingsService } from "../services/secure-settings.service";
 
 export class TenantController extends BaseController {
     constructor() {
@@ -39,7 +40,7 @@ export class TenantController extends BaseController {
         }
     }
 
-    static async show(req: Request<{ tenantId: string }, ApiResponse<Omit<Tenant, 'authKey'>>>, res: Response): Promise<void> {
+    static async show(req: Request<{ tenantId: string }, ApiResponse<Omit<Tenant, 'verificationToken'>>>, res: Response): Promise<void> {
         try {
             const { tenantId } = req.params;
 
@@ -57,7 +58,7 @@ export class TenantController extends BaseController {
         }
     }
 
-    static async showByCode(req: Request<{ tenantCode: string }, ApiResponse<Omit<Tenant, 'authKey'>>>, res: Response): Promise<void> {
+    static async showByCode(req: Request<{ tenantCode: string }, ApiResponse<Omit<Tenant, 'verificationToken'>>>, res: Response): Promise<void> {
         try {
             const { tenantCode } = req.params;
 
@@ -93,7 +94,7 @@ export class TenantController extends BaseController {
         }
     }
 
-    static async update(req: Request<{ id: string }, ApiResponse<Omit<Tenant, 'authKey'>>, Partial<TenantFormValues>>, res: Response): Promise<void> {
+    static async update(req: Request<{ id: string }, ApiResponse<Omit<Tenant, 'verificationToken'>>, Partial<TenantFormValues>>, res: Response): Promise<void> {
         try {
             const tenantId = req.params.id;
             const updateData = req.body;
@@ -118,15 +119,17 @@ export class TenantController extends BaseController {
         }
     }
 
-    static async verify(req: Request<{}, ApiResponse<Omit<Tenant, 'authKey'>>, VerifyTenantRequest>, res: Response): Promise<void> {
+    static async verify(req: Request<{}, ApiResponse<Omit<Tenant, 'verificationToken'>>, VerifyTenantRequest>, res: Response): Promise<void> {
         try {
-            const { tenantCode, authKey } = req.body;
+            const { verificationToken } = req.body;
 
-            if (!tenantCode || !authKey) {
-                return BaseController.sendResponse(res, 400, false, 'Tenant code and auth key are required');
+            if (!verificationToken) {
+                return BaseController.sendResponse(res, 400, false, 'Verification token is required');
             }
 
-            const safeTenantData = await TenantService.verifyTenant(tenantCode, authKey);
+            const { tenantId } = await SecureSettingsService.decryptTenantId(verificationToken)
+
+            const safeTenantData = await TenantService.verifyTenant(tenantId);
             return BaseController.sendResponse(res, 200, true, 'Tenant verified successfully', safeTenantData);
         } catch (error: any) {
             console.error('Error verifying tenant:', error);
@@ -188,7 +191,7 @@ export class TenantController extends BaseController {
         }
     }
 
-    static async updateMsonkhoStatus(req: Request<{ tenantId: string }, ApiResponse<Omit<Tenant, 'authKey'>>, { status: MsonkhoOnlineStatus }>, res: Response): Promise<void> {
+    static async updateMsonkhoStatus(req: Request<{ tenantId: string }, ApiResponse<Omit<Tenant, 'verificationToken'>>, { status: MsonkhoOnlineStatus }>, res: Response): Promise<void> {
         try {
             const { tenantId } = req.params;
             const { status } = req.body;
