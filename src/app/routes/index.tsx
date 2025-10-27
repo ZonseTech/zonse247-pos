@@ -29,14 +29,13 @@ const SubscriptionManagement = lazy(() => import('../pages/subscription'))
 
 const ProtectedLayoutWithAuth = withProtectedRoute(ProtectedLayout)
 
-const AppRoutes: FunctionComponent = () => {
+const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings }) => {
 	const routes = useMemo(() => (
 		<Routes>
 
-			<Route path="/" element={<InitApp />} />
+			<Route path="/" element={<InitApp appSettings={appSettings} />} />
 			<Route path={ROUTES.LOGIN} element={<Login />} />
 			<Route path={ROUTES.LANDING_PAGE} element={<LandingPage />} />
-			<Route path={ROUTES.GET_STARTED} element={<OnBoarding />} />
 
 			<Route path="/" element={<ProtectedLayoutWithAuth />}>
 				<Route path={ROUTES.POS} element={<PointOfSale />} />
