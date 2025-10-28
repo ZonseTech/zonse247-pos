@@ -5,6 +5,7 @@ import ProtectedLayout from '../layouts/ProtectedLayout'
 import { lazy, useMemo } from 'react'
 import withProtectedRoute from '../navigation/partials/withProtectedRoute'
 import InitApp from '../pages/landing/InitApp'
+import { useMenuHandler } from '../hooks/useMenuHandler'
 
 const Users = lazy(() => import('../pages/users'))
 const PointOfSale = lazy(() => import('../pages/pos'))
@@ -30,6 +31,8 @@ const SubscriptionManagement = lazy(() => import('../pages/subscription'))
 const ProtectedLayoutWithAuth = withProtectedRoute(ProtectedLayout)
 
 const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings }) => {
+	useMenuHandler()
+
 	const routes = useMemo(() => (
 		<Routes>
 

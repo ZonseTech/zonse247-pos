@@ -5,18 +5,6 @@ import {
 	BrowserWindow,
 	MenuItemConstructorOptions,
 } from 'electron';
-import {
-	checkForUpdates,
-	getDocs,
-	handleClick,
-	sendFeedback,
-	showAbout,
-} from './menu-controller';
-
-interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
-	selector?: string;
-	submenu?: DarwinMenuItemConstructorOptions[] | Menu;
-}
 
 export default class MenuBuilder {
 	mainWindow: BrowserWindow;
@@ -35,21 +23,14 @@ export default class MenuBuilder {
 			this.setupDevelopmentEnvironment();
 		}
 
-		const template =
-			process.platform === 'darwin'
-				? this.buildDarwinTemplate()
-				: this.buildDefaultTemplate();
-
-		const menu = Menu.buildFromTemplate(template);
-		Menu.setApplicationMenu(null);
-
+		const menu = Menu.buildFromTemplate(this.buildDefaultTemplate());
+		Menu.setApplicationMenu(menu);
 		return menu;
 	}
 
 	setupDevelopmentEnvironment(): void {
 		this.mainWindow.webContents.on('context-menu', (_, props) => {
 			const { x, y } = props;
-
 			Menu.buildFromTemplate([
 				{
 					label: 'Inspect element',
@@ -65,136 +46,26 @@ export default class MenuBuilder {
 		});
 	}
 
-	buildDarwinTemplate(): MenuItemConstructorOptions[] {
-		const subMenuAbout: DarwinMenuItemConstructorOptions = {
-			label: app.name,
-			submenu: [
-				{ role: 'about' },
-				{ type: 'separator' },
-				{ role: 'services' },
-				{ type: 'separator' },
-				{ role: 'hide' },
-				{ role: 'hideOthers' },
-				{ role: 'unhide' },
-				{ type: 'separator' },
-				{ role: 'quit' },
-			],
-		};
+	private navigateTo(route: string): void {
+		this.mainWindow.webContents.send('menu-navigate', route);
+	}
 
-		const subMenuEdit: DarwinMenuItemConstructorOptions = {
-			label: 'Edit',
-			submenu: [
-				{ label: 'Undo', accelerator: 'Command+Z', selector: 'undo:' },
-				{ label: 'Redo', accelerator: 'Shift+Command+Z', selector: 'redo:' },
-				{ type: 'separator' },
-				{ label: 'Cut', accelerator: 'Command+X', selector: 'cut:' },
-				{ label: 'Copy', accelerator: 'Command+C', selector: 'copy:' },
-				{ label: 'Paste', accelerator: 'Command+V', selector: 'paste:' },
-				{
-					label: 'Select All',
-					accelerator: 'Command+A',
-					selector: 'selectAll:',
-				},
-			],
-		};
+	private openModal(modal: string): void {
+		this.mainWindow.webContents.send('menu-open-modal', modal);
+	}
 
-		const subMenuViewDev: MenuItemConstructorOptions = {
-			label: 'View',
-			submenu: [
-				{
-					label: 'Reload',
-					accelerator: 'Command+R',
-					click: () => {
-						this.mainWindow.webContents.reload();
-					},
-				},
-				{
-					label: 'Toggle Full Screen',
-					accelerator: 'Ctrl+Command+F',
-					click: () => {
-						this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
-					},
-				},
-				{
-					label: 'Toggle Developer Tools',
-					accelerator: 'Alt+Command+I',
-					click: () => {
-						this.mainWindow.webContents.toggleDevTools();
-					},
-				},
-			],
-		};
-
-		const subMenuViewProd: MenuItemConstructorOptions = {
-			label: 'View',
-			submenu: [
-				{
-					label: 'Toggle Full Screen',
-					accelerator: 'Ctrl+Command+F',
-					click: () => {
-						this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
-					},
-				},
-			],
-		};
-
-		const subMenuWindow: DarwinMenuItemConstructorOptions = {
-			label: 'Window',
-			submenu: [
-				{
-					label: 'Minimize',
-					accelerator: 'Command+M',
-					selector: 'performMiniaturize:',
-				},
-				{ label: 'Close', accelerator: 'Command+W', selector: 'performClose:' },
-				{ type: 'separator' },
-				{ label: 'Bring All to Front', selector: 'arrangeInFront:' },
-			],
-		};
-
-		const subMenuHelp: MenuItemConstructorOptions = {
-			label: 'Help',
-			submenu: [
-				{
-					label: 'Learn More',
-					click() {
-						shell.openExternal('https://electronjs.org');
-					},
-				},
-				{
-					label: 'Documentation',
-					click() {
-						shell.openExternal(
-							'https://github.com/electron/electron/tree/main/docs#readme'
-						);
-					},
-				},
-				{
-					label: 'Community Discussions',
-					click() {
-						shell.openExternal('https://www.electronjs.org/community');
-					},
-				},
-				{
-					label: 'Search Issues',
-					click() {
-						shell.openExternal('https://github.com/electron/electron/issues');
-					},
-				},
-			],
-		};
-
-		const subMenuView =
-			process.env.NODE_ENV === 'development' ||
-			process.env.DEBUG_PROD === 'true'
-				? subMenuViewDev
-				: subMenuViewProd;
-
-		return [subMenuAbout, subMenuEdit, subMenuView, subMenuWindow, subMenuHelp];
+	private performAction(action: string): void {
+		if (action === 'logout') {
+			this.mainWindow.webContents.send('menu-logout');
+		} else if (action === 'restore-database') {
+			this.mainWindow.webContents.send('menu-restore-database');
+		} else if (action === 'check-updates') {
+			this.mainWindow.webContents.send('menu-check-updates');
+		}
 	}
 
 	buildDefaultTemplate(): MenuItemConstructorOptions[] {
-		const templateDefault: MenuItemConstructorOptions[] = [
+		const templateDefault: Array<MenuItemConstructorOptions> = [
 			{
 				label: 'File',
 				submenu: [
@@ -203,29 +74,45 @@ export default class MenuBuilder {
 						submenu: [
 							{
 								label: 'Product',
-								click: () => handleClick('newProductModal'),
+								accelerator: 'CommandOrControl+N',
+								click: () => this.openModal('new-product'),
 							},
 							{
 								label: 'Category',
-								click: () => handleClick('newCategoryModal'),
+								click: () => this.openModal('new-category'),
 							},
 							{
 								label: 'Customer',
-								click: () => handleClick('newCustomerModal'),
+								click: () => this.openModal('new-customer'),
 							},
 						] as MenuItemConstructorOptions[],
 					},
-					{ label: 'Backup' },
-					{ label: 'Restore' },
+					{ type: 'separator' },
+					{
+						label: 'Backup Database',
+						click: () => this.navigateTo('/export-db'),
+					},
+					{
+						label: 'Restore Database',
+						click: () => this.performAction('restore-database'),
+					},
+					{ type: 'separator' },
+					{
+						label: 'Sync Data',
+						accelerator: 'CommandOrControl+Shift+S',
+						click: () => this.navigateTo('/sync-data'),
+					},
+					{ type: 'separator' },
 					{
 						label: 'Logout',
-						click: () => handleClick('log-out'),
+						accelerator: 'CommandOrControl+Shift+L',
+						click: () => this.performAction('logout'),
 					},
-					{ label: 'Quit', role: 'quit' },
+					{ label: 'Quit', role: 'quit', accelerator: 'CommandOrControl+Q' },
 				] as MenuItemConstructorOptions[],
 			},
 			{
-				label: '&Edit',
+				label: 'Edit',
 				submenu: [
 					{ role: 'undo' },
 					{ role: 'redo' },
@@ -239,35 +126,94 @@ export default class MenuBuilder {
 				] as MenuItemConstructorOptions[],
 			},
 			{
-				label: '&View',
+				label: 'View',
 				submenu: [
 					{
 						label: 'Point of Sale',
-						click: () => handleClick('pointofsale'),
+						accelerator: 'CommandOrControl+P',
+						click: () => this.navigateTo('/pos'),
 					},
 					{
-						label: 'Transactions',
-						click: () => handleClick('transactions'),
-					},
-					{
-						label: 'Products',
-						click: () => handleClick('productModal'),
-					},
-					{
-						label: 'Settings',
-						click: () => handleClick('settings'),
+						label: 'Dashboard',
+						accelerator: 'CommandOrControl+D',
+						click: () => this.navigateTo('/dashboard'),
 					},
 					{ type: 'separator' },
-					{ label: 'Refresh', role: 'reload' },
+					{
+						label: 'Products',
+						click: () => this.navigateTo('/products'),
+					},
+					{
+						label: 'Categories',
+						click: () => this.navigateTo('/categories'),
+					},
+					{ type: 'separator' },
+					{
+						label: 'Transactions',
+						accelerator: 'CommandOrControl+T',
+						click: () => this.navigateTo('/transactions'),
+					},
+					{ type: 'separator' },
+					{
+						label: 'Refresh',
+						role: 'reload',
+						accelerator: 'CommandOrControl+R',
+					},
 					...(!app.isPackaged
-						? [{ role: 'toggleDevTools' } as MenuItemConstructorOptions]
+						? [{ role: 'toggleDevTools' as const, accelerator: 'CommandOrControl+Shift+I' } as MenuItemConstructorOptions]
 						: []),
 					{ type: 'separator' },
 					{ role: 'resetZoom' },
-					{ role: 'zoomIn' },
-					{ role: 'zoomOut' },
+					{ role: 'zoomIn', accelerator: 'CommandOrControl+Plus' },
+					{ role: 'zoomOut', accelerator: 'CommandOrControl+-' },
 					{ type: 'separator' },
-					{ role: 'togglefullscreen' },
+					{ role: 'togglefullscreen', accelerator: 'F11' },
+				] as MenuItemConstructorOptions[],
+			},
+			{
+				label: 'Management',
+				submenu: [
+					{
+						label: 'Users',
+						click: () => this.navigateTo('/users'),
+					},
+					{
+						label: 'Security & Roles',
+						click: () => this.navigateTo('/roles-permissions'),
+					},
+					{ type: 'separator' },
+					{
+						label: 'Branches',
+						click: () => this.navigateTo('/shops'),
+					},
+					{
+						label: 'Terminals',
+						click: () => this.navigateTo('/workstations'),
+					},
+					{ type: 'separator' },
+					{
+						label: 'Settings',
+						accelerator: 'CommandOrControl+,',
+						click: () => this.navigateTo('/settings'),
+					},
+				] as MenuItemConstructorOptions[],
+			},
+			{
+				label: 'Admin',
+				submenu: [
+					{
+						label: 'Subscriptions',
+						click: () => this.navigateTo('/subscriptions'),
+					},
+					{
+						label: 'Tenants',
+						click: () => this.navigateTo('/tenants'),
+					},
+					{ type: 'separator' },
+					{
+						label: 'Migrations',
+						click: () => this.navigateTo('/migrations'),
+					},
 				] as MenuItemConstructorOptions[],
 			},
 			{
@@ -275,21 +221,25 @@ export default class MenuBuilder {
 				submenu: [
 					{
 						label: 'Documentation',
-						click: () => getDocs(),
+						click: () => {
+							shell.openExternal('https://docs.zonse247.com');
+						},
 					},
 					{
-						label: 'Send feedback',
-						click: () => sendFeedback(),
+						label: 'Send Feedback',
+						click: () => {
+							shell.openExternal('https://zonse247.com/feedback');
+						},
 					},
 					{ type: 'separator' },
 					{
-						label: 'Check for updates...',
-						click: () => checkForUpdates(),
+						label: 'Check for Updates...',
+						click: () => this.performAction('check-updates'),
 					},
 					{ type: 'separator' },
 					{
 						label: `About ${app.getName()}`,
-						click: () => showAbout(),
+						click: () => this.openModal('about'),
 					},
 				] as MenuItemConstructorOptions[],
 			},

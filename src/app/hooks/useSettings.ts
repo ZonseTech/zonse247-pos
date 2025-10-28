@@ -1,21 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 
-declare global {
-    interface Window {
-        electronAPI: {
-            settings: {
-                saveSetup: (setupData: SetupData) => Promise<ApiResponse<void>>;
-                getSetup: () => Promise<ApiResponse<SetupData>>;
-                hasSetup: () => Promise<ApiResponse<boolean>>;
-                getSignature: () => Promise<ApiResponse<string>>;
-                updateSetup: (updates: Partial<SetupData>) => Promise<ApiResponse<void>>;
-                clearSetup: () => Promise<ApiResponse<void>>;
-            };
-            onOnboardingStatus: (callback: (status: { skipOnboarding: boolean }) => void) => void;
-        };
-    }
-}
-
 interface UseSettingsReturn {
     setup: SetupData | null;
     loading: boolean;

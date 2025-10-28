@@ -5,6 +5,7 @@ import type {
 	AxiosResponse,
 	InternalAxiosRequestConfig,
 } from 'axios';
+import { isElectron } from '../../helpers/index.helper';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -42,11 +43,6 @@ enum HttpRequestResponseMessages {
 	ERR_BAD_REQUEST = 'Unauthorised user.',
 	ERR_INVALID_URL = 'The API configurations are not valid. Please double check.',
 }
-
-const isElectron = (): boolean => {
-	return typeof window !== 'undefined' &&
-		window.electronAPI !== undefined;
-};
 
 const getToken = async (): Promise<string | undefined> => {
 	try {
