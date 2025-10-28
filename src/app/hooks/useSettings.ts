@@ -145,6 +145,7 @@ export function useSettings(): UseSettingsReturn {
     const getSignature = useCallback(async (): Promise<string | null> => {
         try {
             const result = await window.electronAPI.settings.getSignature();
+
             return result.success ? result.data || null : null;
         } catch (err: any) {
             console.error('Error getting verificationToken:', err);

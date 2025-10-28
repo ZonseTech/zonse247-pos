@@ -22,9 +22,9 @@ export class AuthMiddleware {
 		next: NextFunction
 	): void => {
 		try {
-			const tenantId = req.headers['x-tenant-id'] as string | undefined;
+			const tenantSignature = req.headers['x-tenant-signature'] as string | undefined;
 
-			if (!tenantId || tenantId.trim() === '') {
+			if (!tenantSignature || tenantSignature.trim() === '') {
 				return BaseController.sendResponseWithSubscription(
 					res,
 					400,
@@ -35,7 +35,7 @@ export class AuthMiddleware {
 				);
 			}
 
-			req.headers['x-tenant-id'] = tenantId.trim();
+			req.headers['x-tenant-signature'] = tenantSignature.trim();
 
 			next();
 		} catch (error) {

@@ -64,10 +64,11 @@ const getToken = async (): Promise<string | undefined> => {
 	}
 };
 
-const getTenantId = async (): Promise<string | undefined> => {
+const getTenantSignature = async (): Promise<string | undefined> => {
 	if (isElectron()) {
 		try {
 			const result = await window.electronAPI.settings.getSignature();
+
 			if (result.success && result.data) {
 				return result.data;
 			}
@@ -83,14 +84,14 @@ httpInstance.interceptors.request.use(
 			startProgress();
 
 			const token = await getToken();
-			const tenantId = await getTenantId();
+			const tenantSignature = await getTenantSignature();
 
 			if (token) {
 				config.headers.Authorization = `Bearer ${token}`;
 			}
 
-			if (tenantId) {
-				config.headers['X-Tenant-Signature'] = tenantId;
+			if (tenantSignature) {
+				config.headers['X-Tenant-Signature'] = tenantSignature;
 			}
 
 			return config;

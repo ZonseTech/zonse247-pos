@@ -251,6 +251,48 @@ export class SecureSettingsService {
     }
 
     /**
+     * Verify if a received signature matches the expected signature for the current setup
+     * @param receivedSignature - The signature received from the client (x-tenant-signature header)
+     * @returns Object with verification result and setup data if valid
+     */
+    static async verifyTenantSignature(receivedSignature: string): Promise<{
+        isValid: boolean;
+        tenantId?: string;
+        branchId?: string;
+        terminalId?: string;
+        verificationToken?: string;
+    }> {
+        try {
+            if (!this.initialized) {
+                await this.initialize();
+            }
+
+            const setup = await this.getAppSetup();
+
+            if (!setup) {
+                return { isValid: false };
+            }
+
+            const isValid = receivedSignature === setup.tenantSignature;
+
+            if (isValid) {
+                return {
+                    isValid: true,
+                    tenantId: setup.tenantId,
+                    branchId: setup.branchId,
+                    terminalId: setup.terminalId,
+                    verificationToken: setup.verificationToken
+                };
+            }
+
+            return { isValid: false };
+        } catch (error) {
+            console.error('Error verifying tenant signature:', error);
+            return { isValid: false };
+        }
+    }
+
+    /**
      * Encrypt a tenantId and return the encrypted string
      * @param tenantId - The plain tenant ID to encrypt (e.g., 'tenant-456')
      * @returns The encrypted tenant ID string (e.g., '70610b28-c886-4647-acb5-d7565883545f')

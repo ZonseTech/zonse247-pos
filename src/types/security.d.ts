@@ -15,11 +15,15 @@ interface SetupParams {
 }
 
 interface SetupData {
-    id: string;
+    uuid: string;
     tenantId: string;
     branchId: string;
     terminalId: string;
-    verificationToken: string;
+    encryptedVerificationToken: string;
+    iv: string;
+    dataSignature: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 interface EncryptedSetupParams {

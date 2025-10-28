@@ -52,11 +52,6 @@ router.get(
     asyncHandler(exportController.downloadFile)
 );
 
-router.get(
-    '/setup',
-    asyncHandler(SettingsController.setup)
-)
-
 router.post(
     '/auth/verify-tenant',
     validateBody(tenantValidationSchemas.verifyTenant),
