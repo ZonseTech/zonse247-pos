@@ -1,5 +1,3 @@
-// import '@dotenvx/dotenvx/config';
-// import 'dotenv/config';
 import cors from 'cors';
 import { app } from 'electron';
 import compression from 'compression';
