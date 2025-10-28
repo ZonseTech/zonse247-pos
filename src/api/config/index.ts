@@ -1,20 +1,3 @@
-const parseBoolean = (
-	value: string | undefined,
-	defaultValue = false
-): boolean => {
-	if (!value) return defaultValue;
-	return value?.toLowerCase() === 'true';
-};
-
-const parseInteger = (
-	value: string | undefined,
-	defaultValue: number
-): number => {
-	if (!value) return defaultValue;
-	const parsed = parseInt(value, 10);
-	return isNaN(parsed) ? defaultValue : parsed;
-};
-
 const config: Config = {
 	app: {
 		name: 'Zonse247 POS',
@@ -113,16 +96,6 @@ const config: Config = {
 };
 
 export const validateConfig = async (): Promise<boolean> => {
-	const requiredConfigValues = [
-		'JWT_SECRET',
-		'JWT_REFRESH_SECRET',
-		'DB_HOST',
-		'DB_NAME',
-		'DB_USER',
-		'DB_PASSWORD',
-	];
-
-	// Since we're using hardcoded values, we'll check if they exist in the config
 	const missingValues: string[] = [];
 
 	if (!config.jwt.secret) missingValues.push('JWT_SECRET');
