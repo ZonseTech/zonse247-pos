@@ -149,6 +149,11 @@ export class SecureSettingsService {
             }
 
             await sealDBModel.insert(APP_SETUP_DB, encryptedSetup);
+
+            // pull tenant users after saving setup
+            const syncService = new (await import('./sync.service')).SyncService();
+            await syncService.syncTable('users', 'pull');
+
         } catch (error) {
             console.error('Error saving app setup:', error);
             throw error;

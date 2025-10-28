@@ -18,7 +18,7 @@ import OnboardingFlow from './pages/on-boarding';
 
 Modal.setAppElement('#root')
 const App: FunctionComponent = () => {
-    const { setup, loading, hasSetup, saveSetup, error } = useSettings();
+    const { setup, loading, hasSetup, saveSetup } = useSettings();
     const [showOnboarding, setShowOnboarding] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
 
