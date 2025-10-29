@@ -7,7 +7,6 @@ const endpoints: Record<string, string> = {
     update: 'branches/update',
     show: 'branches',
     delete: 'branches',
-    list_by_tenant: 'tenant'
 };
 
 const shopsService = {
@@ -16,15 +15,6 @@ const shopsService = {
     async list(query = {}): Promise<ApiResponse> {
         return api
             .get<ApiResponse>(endpoints.all, query)
-            .then((res) => res.data)
-            .catch((err: AxiosError) => {
-                throw err?.response?.data;
-            });
-    },
-
-    async listByTenantId(tenantId: string): Promise<ApiResponse> {
-        return api
-            .get<ApiResponse>(endpoints.list_by_tenant + '/' + tenantId + '/branches')
             .then((res) => res.data)
             .catch((err: AxiosError) => {
                 throw err?.response?.data;

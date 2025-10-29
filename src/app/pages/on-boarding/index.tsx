@@ -3,10 +3,10 @@ import ErrorAlert from './partials/ErrorAlert';
 import AuthLayout from '../../layouts/AuthLayout';
 import { FunctionComponent, useState } from 'react';
 import StepIndicator from './partials/StepIndicator';
-import branchService from '../../services/branch.service';
 import tenantService from '../../services/tenant.service';
 import terminalService from '../../services/terminal.service';
 import BranchSelectionStep from './steps/BranchSelectionStep';
+import onboardingService from '../../services/on-boarding.service';
 import TerminalSelectionStep from './steps/TerminalSelectionStep';
 import TenantVerificationStep from './steps/TenantVerificationStep';
 import { toast } from 'react-toastify';
@@ -49,7 +49,7 @@ const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, er
         setLocalError('');
 
         try {
-            const tenant = await tenantService.verify(credentials);
+            const tenant = await onboardingService.verify(credentials);
             setVerifiedTenant(tenant);
             setSuccess(`Welcome, ${tenant.businessName}!`);
             setCurrentStep(2);
@@ -63,7 +63,7 @@ const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, er
     const fetchBranchesByTenantId = async (tenantId: string) => {
         setLoading(true);
         try {
-            const response = await branchService.listByTenantId(tenantId);
+            const response = await onboardingService.listByTenantId(tenantId);
             setTenantBranches(response.data);
         } catch (err) {
             setLocalError('Failed to fetch branches');
@@ -78,7 +78,7 @@ const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, er
         setLoading(true);
 
         try {
-            const stationsList = await terminalService.listByBranchId(branch.branchId);
+            const stationsList = await onboardingService.listByBranchId(branch.branchId);
             setTerminals(stationsList);
             setCurrentStep(3);
         } catch (err) {
@@ -142,7 +142,6 @@ const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, er
                     totalSteps={3}
                     onBack={canGoBack ? handleBackToPreviousStep : null}
                 >
-                    {/* Display either parent error or local error */}
                     {displayError && <ErrorAlert message={displayError} />}
 
                     {currentStep === 1 && (

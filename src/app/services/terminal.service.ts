@@ -9,7 +9,6 @@ const endpoints: Record<string, string> = {
     delete: 'terminal/workstation',
     sync: 'terminal/sync',
     status: 'terminal/status',
-    list_by_branch: 'branch'
 };
 
 const terminalService = {
@@ -20,16 +19,6 @@ const terminalService = {
             .then((res) => res.data.data as Array<Workstation>)
             .catch((err) => {
                 throw err;
-            });
-    },
-
-
-    async listByBranchId(branchId: string): Promise<Array<Terminal>> {
-        return api
-            .get<ApiResponse<Array<Terminal>>>(endpoints.list_by_branch + '/' + branchId + '/terminals')
-            .then((res) => res.data.data)
-            .catch((err: AxiosError) => {
-                throw err?.response?.data;
             });
     },
 

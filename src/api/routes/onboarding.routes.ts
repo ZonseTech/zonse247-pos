@@ -18,7 +18,7 @@ router.get(
 );
 
 router.post(
-    '/auth/verify-tenant',
+    '/verify-tenant',
     validateBody(tenantValidationSchemas.verifyTenant),
     asyncHandler(TenantController.verify)
 );
@@ -36,7 +36,7 @@ router.get(
 );
 
 router.use(
-    '/on-boarding',
+    '/status',
     asyncHandler(OnboardingController.getOnboardingStatus)
 );
 
