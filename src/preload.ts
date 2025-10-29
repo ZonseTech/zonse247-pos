@@ -11,6 +11,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
 
     menu: {
+        rebuild: (userPermissions: { permissions: string[], roles: string[] }) =>
+            ipcRenderer.invoke('menu:rebuild', userPermissions),
         onNavigate: (callback: (route: string) => void) => {
             const listener = (_event: any, route: string) => callback(route);
             ipcRenderer.on('menu-navigate', listener);
