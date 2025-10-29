@@ -4,6 +4,7 @@ import {
 	BrowserWindow,
 	MenuItemConstructorOptions,
 } from 'electron';
+import { ROUTES } from '../app/utils/constants';
 import { hasAnyPermission, hasPermission, hasRole } from '../app/utils';
 
 export default class MenuBuilder {
@@ -96,7 +97,7 @@ export default class MenuBuilder {
 		if (hasRole(this.user, 'admin') || hasPermission(this.user, 'system.backup')) {
 			fileSubmenu.push({
 				label: 'Backup Database',
-				click: () => this.navigateTo('/export-db'),
+				click: () => this.navigateTo(ROUTES.EXPORT_DB),
 			});
 			fileSubmenu.push({
 				label: 'Restore Database',
@@ -109,7 +110,7 @@ export default class MenuBuilder {
 			fileSubmenu.push({
 				label: 'Sync Data',
 				accelerator: 'CommandOrControl+Shift+S',
-				click: () => this.navigateTo('/sync-data'),
+				click: () => this.navigateTo(ROUTES.SYNC_DATA),
 			});
 			fileSubmenu.push({ type: 'separator' });
 			fileSubmenu.push({
@@ -136,14 +137,15 @@ export default class MenuBuilder {
 			viewSubmenu.push({
 				label: 'Point of Sale',
 				accelerator: 'CommandOrControl+P',
-				click: () => this.navigateTo('/pos'),
+				click: () => this.navigateTo(ROUTES.POS),
 			});
 		}
+
 		if (this.user) {
 			viewSubmenu.push({
 				label: 'Dashboard',
 				accelerator: 'CommandOrControl+D',
-				click: () => this.navigateTo('/dashboard'),
+				click: () => this.navigateTo(ROUTES.DASHBOARD),
 			});
 		}
 
@@ -153,11 +155,11 @@ export default class MenuBuilder {
 			}
 			viewSubmenu.push({
 				label: 'Products',
-				click: () => this.navigateTo('/products'),
+				click: () => this.navigateTo(ROUTES.PRODUCTS),
 			});
 			viewSubmenu.push({
 				label: 'Categories',
-				click: () => this.navigateTo('/categories'),
+				click: () => this.navigateTo(ROUTES.CATEGORIES),
 			});
 		}
 
@@ -166,7 +168,7 @@ export default class MenuBuilder {
 			viewSubmenu.push({
 				label: 'Transactions',
 				accelerator: 'CommandOrControl+T',
-				click: () => this.navigateTo('/transactions'),
+				click: () => this.navigateTo(ROUTES.TRANSACTIONS),
 			});
 		}
 
@@ -203,14 +205,14 @@ export default class MenuBuilder {
 		if (hasAnyPermission(this.user, ['users.view', 'users.create', 'users.edit', 'users.delete'])) {
 			managementSubmenu.push({
 				label: 'Users',
-				click: () => this.navigateTo('/users'),
+				click: () => this.navigateTo(ROUTES.USERS),
 			});
 		}
 
 		if (hasAnyPermission(this.user, ['users.roles.assign', 'users.create', 'users.edit'])) {
 			managementSubmenu.push({
 				label: 'Security & Roles',
-				click: () => this.navigateTo('/roles-permissions'),
+				click: () => this.navigateTo(ROUTES.ROLES_PERMISSIONS),
 			});
 		}
 
@@ -220,17 +222,17 @@ export default class MenuBuilder {
 			}
 			managementSubmenu.push({
 				label: 'Branches',
-				click: () => this.navigateTo('/shops'),
+				click: () => this.navigateTo(ROUTES.BRANCHES),
 			});
 			managementSubmenu.push({
 				label: 'Terminals',
-				click: () => this.navigateTo('/workstations'),
+				click: () => this.navigateTo(ROUTES.TERMINALS),
 			});
 			managementSubmenu.push({ type: 'separator' });
 			managementSubmenu.push({
 				label: 'Settings',
 				accelerator: 'CommandOrControl+,',
-				click: () => this.navigateTo('/settings'),
+				click: () => this.navigateTo(ROUTES.SETTINGS),
 			});
 		}
 
@@ -245,16 +247,16 @@ export default class MenuBuilder {
 			const adminSubmenu: Array<MenuItemConstructorOptions> = [
 				{
 					label: 'Subscriptions',
-					click: () => this.navigateTo('/subscriptions'),
+					click: () => this.navigateTo(ROUTES.SUBSCRIPTIONS),
 				},
 				{
 					label: 'Tenants',
-					click: () => this.navigateTo('/tenants'),
+					click: () => this.navigateTo(ROUTES.TENANTS),
 				},
 				{ type: 'separator' },
 				{
 					label: 'Migrations',
-					click: () => this.navigateTo('/migrations'),
+					click: () => this.navigateTo(ROUTES.MIGRATIONS),
 				},
 			];
 

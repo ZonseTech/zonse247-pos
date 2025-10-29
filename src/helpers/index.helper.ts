@@ -22,7 +22,9 @@ declare global {
     }
 }
 
-export const isElectron = (): boolean => {
-    return typeof window !== 'undefined' &&
-        window.electronAPI !== undefined;
-};
+export function isElectron() {
+    return !!(
+        (typeof process !== 'undefined' && process.versions && process.versions.electron) ||
+        (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.includes('Electron'))
+    );
+}

@@ -1,20 +1,20 @@
-import { useEffect, useState } from 'react';
-import { useSettings } from './hooks/useSettings';
 import Modal from 'react-modal'
-import { Suspense } from 'react'
+import { store } from './store'
 import AppRoutes from './routes'
+import { Suspense } from 'react'
+import { Provider } from 'react-redux'
 import { HashRouter } from "react-router"
+import { useEffect, useState } from 'react';
 import type { FunctionComponent } from 'react'
 import { ToastContainer } from 'react-toastify'
+import OnboardingFlow from './pages/on-boarding';
+import { useSettings } from './hooks/useSettings';
+import { DataManager } from './config/data-manager'
 import { AppProvider } from './context/AppProvider'
 import { AuthProvider } from './context/AuthProvider'
 import ZonseUIKitContext from './components/ZonseUIKitContext'
-import { Provider } from 'react-redux'
-import { store } from './store'
 import { NavigationProgress } from './components/loader/NavigationProgress'
 import { EnhancedPageLoader } from './components/loader/EnhancedPageLoader'
-import { DataManager } from './config/data-manager'
-import OnboardingFlow from './pages/on-boarding';
 
 Modal.setAppElement('#root')
 const App: FunctionComponent = () => {
