@@ -95,7 +95,10 @@ export default class MenuBuilder {
 			}
 		}
 
-		if (hasRole(this.user, 'admin') || hasPermission(this.user, 'system.backup')) {
+		if (
+			hasRole(this.user, 'admin') ||
+			hasPermission(this.user, 'system.backup')
+		) {
 			fileSubmenu.push({
 				label: 'Backup Database',
 				click: () => this.navigateTo(ROUTES.EXPORT_DB),
@@ -124,7 +127,7 @@ export default class MenuBuilder {
 		fileSubmenu.push({
 			label: 'Quit',
 			role: 'quit',
-			accelerator: 'CommandOrControl+Q'
+			accelerator: 'CommandOrControl+Q',
 		});
 
 		template.push({
@@ -134,7 +137,14 @@ export default class MenuBuilder {
 
 		const viewSubmenu: Array<MenuItemConstructorOptions> = [];
 
-		if (hasAnyPermission(this.user, ['products.view', 'products.create', 'sales.create', 'refunds.process'])) {
+		if (
+			hasAnyPermission(this.user, [
+				'products.view',
+				'products.create',
+				'sales.create',
+				'refunds.process',
+			])
+		) {
 			viewSubmenu.push({
 				label: 'Point of Sale',
 				accelerator: 'CommandOrControl+P',
@@ -150,7 +160,13 @@ export default class MenuBuilder {
 			});
 		}
 
-		if (hasAnyPermission(this.user, ['products.view', 'products.create', 'products.edit'])) {
+		if (
+			hasAnyPermission(this.user, [
+				'products.view',
+				'products.create',
+				'products.edit',
+			])
+		) {
 			if (viewSubmenu.length > 0) {
 				viewSubmenu.push({ type: 'separator' });
 			}
@@ -164,7 +180,13 @@ export default class MenuBuilder {
 			});
 		}
 
-		if (hasAnyPermission(this.user, ['reports.sales.daily', 'reports.sales.detailed', 'payments.view'])) {
+		if (
+			hasAnyPermission(this.user, [
+				'reports.sales.daily',
+				'reports.sales.detailed',
+				'payments.view',
+			])
+		) {
 			viewSubmenu.push({ type: 'separator' });
 			viewSubmenu.push({
 				label: 'Transactions',
@@ -183,15 +205,10 @@ export default class MenuBuilder {
 		if (!app.isPackaged) {
 			viewSubmenu.push({
 				role: 'toggleDevTools',
-				accelerator: 'CommandOrControl+Shift+I'
+				accelerator: 'CommandOrControl+Shift+I',
 			});
 		}
 
-		viewSubmenu.push({ type: 'separator' });
-		viewSubmenu.push({ role: 'resetZoom' });
-		viewSubmenu.push({ role: 'zoomIn', accelerator: 'CommandOrControl+Plus' });
-		viewSubmenu.push({ role: 'zoomOut', accelerator: 'CommandOrControl+-' });
-		viewSubmenu.push({ type: 'separator' });
 		viewSubmenu.push({ role: 'togglefullscreen', accelerator: 'F11' });
 
 		if (viewSubmenu.length > 0) {
@@ -203,14 +220,27 @@ export default class MenuBuilder {
 
 		const managementSubmenu: Array<MenuItemConstructorOptions> = [];
 
-		if (hasAnyPermission(this.user, ['users.view', 'users.create', 'users.edit', 'users.delete'])) {
+		if (
+			hasAnyPermission(this.user, [
+				'users.view',
+				'users.create',
+				'users.edit',
+				'users.delete',
+			])
+		) {
 			managementSubmenu.push({
 				label: 'Users',
 				click: () => this.navigateTo(ROUTES.USERS),
 			});
 		}
 
-		if (hasAnyPermission(this.user, ['users.roles.assign', 'users.create', 'users.edit'])) {
+		if (
+			hasAnyPermission(this.user, [
+				'users.roles.assign',
+				'users.create',
+				'users.edit',
+			])
+		) {
 			managementSubmenu.push({
 				label: 'Security & Roles',
 				click: () => this.navigateTo(ROUTES.ROLES_PERMISSIONS),
@@ -244,7 +274,10 @@ export default class MenuBuilder {
 			});
 		}
 
-		if (hasRole(this.user, 'admin') || hasPermission(this.user, 'system.admin')) {
+		if (
+			hasRole(this.user, 'admin') ||
+			hasPermission(this.user, 'system.admin')
+		) {
 			const adminSubmenu: Array<MenuItemConstructorOptions> = [
 				{
 					label: 'Subscriptions',
