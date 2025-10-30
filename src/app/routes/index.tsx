@@ -6,6 +6,7 @@ import { lazy, useMemo } from 'react'
 import withProtectedRoute from '../navigation/partials/withProtectedRoute'
 import InitApp from '../pages/landing/InitApp'
 import { useMenuHandler } from '../hooks/useMenuHandler'
+import { useModalManager } from '../hooks/useModalManager'
 
 const Users = lazy(() => import('../pages/users'))
 const PointOfSale = lazy(() => import('../pages/pos'))
@@ -32,6 +33,7 @@ const ProtectedLayoutWithAuth = withProtectedRoute(ProtectedLayout)
 
 const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings }) => {
 	useMenuHandler()
+	useModalManager()
 
 	const routes = useMemo(() => (
 		<Routes>

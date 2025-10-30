@@ -11,8 +11,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
 
     menu: {
-        rebuild: (userPermissions: { permissions: string[], roles: string[] }) =>
-            ipcRenderer.invoke('menu:rebuild', userPermissions),
+        rebuild: (user: User) =>
+            ipcRenderer.invoke('menu:rebuild', user),
         onNavigate: (callback: (route: string) => void) => {
             const listener = (_event: any, route: string) => callback(route);
             ipcRenderer.on('menu-navigate', listener);
@@ -28,15 +28,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
             ipcRenderer.on('menu-logout', listener);
             return () => ipcRenderer.removeListener('menu-logout', listener);
         },
-        onRestoreDatabase: (callback: (filePath: string) => void) => {
-            const listener = (_event: any, filePath: string) => callback(filePath);
-            ipcRenderer.on('menu-restore-database', listener);
-            return () => ipcRenderer.removeListener('menu-restore-database', listener);
-        },
+        onRestoreDatabase: (filePath: string) =>
+            ipcRenderer.invoke('menu:restore-database', filePath)
+        ,
         onCheckUpdates: (callback: () => void) => {
             const listener = () => callback();
-            ipcRenderer.on('menu-check-updates', listener);
-            return () => ipcRenderer.removeListener('menu-check-updates', listener);
+            ipcRenderer.on('menu:check-updates', listener);
+            return () => ipcRenderer.removeListener('menu:check-updates', listener);
         },
     },
 

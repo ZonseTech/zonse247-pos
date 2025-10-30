@@ -137,7 +137,7 @@ const navItems = (): NavItem[] => {
             iconColor: 'bg-cyan-600',
             text: "Branches",
             icon: icons.shop,
-            onClick: () => navigate(ROUTES.SHOPS),
+            onClick: () => navigate(ROUTES.BRANCHES),
         });
 
         items.push({
@@ -146,7 +146,7 @@ const navItems = (): NavItem[] => {
             iconColor: 'bg-cyan-700',
             text: "Terminals",
             icon: icons.workstations,
-            onClick: () => navigate(ROUTES.WORK_STATIONS),
+            onClick: () => navigate(ROUTES.TERMINALS),
         });
 
         items.push({
@@ -166,7 +166,7 @@ const navItems = (): NavItem[] => {
             iconColor: 'bg-purple-700',
             text: "Subscriptions",
             icon: icons.subscription,
-            onClick: () => navigate(ROUTES.SUBSCRIPTION),
+            onClick: () => navigate(ROUTES.SUBSCRIPTIONS),
         });
 
         items.push({
