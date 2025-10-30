@@ -175,12 +175,10 @@ const POSSystem: FunctionComponent = () => {
 
     const handleReprint = () => {
         console.log('Reprinting receipt...');
-        // Add reprint logic
     };
 
     const handleDiscount = () => {
         console.log('Applying discount...');
-        // Add discount logic
     };
 
     const handleAddToCartFromLookup = (product: Product) => {
@@ -190,7 +188,7 @@ const POSSystem: FunctionComponent = () => {
     return (
         <div className="flex flex-col h-full">
             <div className="flex-1 overflow-auto pb-32">
-                <div className="my-3">
+                <div className="mb-3">
                     <div className="flex items-center justify-between">
                         <Panel size='1/2'>
                             <h1 className="text-7xl uppercase tracking-wider font-bold text-black dark:text-gray-400">BALANCE DUE</h1>
@@ -221,7 +219,7 @@ const POSSystem: FunctionComponent = () => {
 
             <div className="fixed bottom-0 left-0 right-0 z-50 px-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg">
                 <div>
-                    <div className="flex gap-x-4 my-6">
+                    <div className="flex gap-x-4 my-3">
                         <Panel size='3/4'>
                             <label className="block text-lg font-bold text-black dark:text-gray-400 mb-1">
                                 SCAN/ENTER PRODUCT CODE

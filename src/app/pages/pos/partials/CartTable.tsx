@@ -27,9 +27,9 @@ const CartTable: FunctionComponent<CartTableProps> = ({
 
     return (
         <Fragment>
-            <div className="flex-grow overflow-auto max-h-[calc(100vh-450px)] border border-gray-300 dark:border-gray-600 rounded-none shadow-sm">
+            <div className="flex-grow overflow-auto max-h-[calc(60vh)]">
                 <table className="w-full table-fixed border-collapse">
-                    <thead className="bg-gray-50 dark:bg-gray-800">
+                    <thead className="border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800">
                         <tr className="border-b-2 border-gray-300 dark:border-gray-600">
                             <th className="w-1/3 text-left p-3 uppercase tracking-wider sticky top-0 z-20 
                                          font-semibold text-gray-700 dark:text-gray-200 
@@ -77,8 +77,8 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                     <tbody className="bg-white dark:bg-gray-900">
                         {cart.length === 0 ? (
                             <tr>
-                                <td rowSpan={19} colSpan={7} className="p-0 border-none">
-                                    <div className="flex flex-col flex-1 items-center justify-center py-44 text-gray-500 dark:text-gray-400">
+                                <td rowSpan={10} colSpan={7} className="p-0 border-none">
+                                    <div className="flex flex-col flex-1 items-center justify-center py-24 text-gray-500 dark:text-gray-400">
                                         <div className="relative mb-6">
                                             <HiOutlineShoppingCart className="h-20 w-20 text-gray-300 dark:text-gray-600" />
                                             <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">

@@ -49,7 +49,7 @@ const Numpad: FunctionComponent<NumpadProps> = ({
     const numpadButtons = getNumpadButtons(type);
 
     const getButtonClass = (btn: string): string => {
-        let buttonClass = "font-bold text-3xl py-10 font-bold transition-all ";
+        let buttonClass = "font-bold text-md py-8 font-bold transition-all ";
         if (btn === 'Del') {
             buttonClass += "bg-red-500 hover:bg-red-600 text-white";
         } else if (btn === 'OK') {

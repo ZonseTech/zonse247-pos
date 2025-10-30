@@ -3,8 +3,6 @@ import ErrorAlert from './partials/ErrorAlert';
 import AuthLayout from '../../layouts/AuthLayout';
 import { FunctionComponent, useState } from 'react';
 import StepIndicator from './partials/StepIndicator';
-import tenantService from '../../services/tenant.service';
-import terminalService from '../../services/terminal.service';
 import BranchSelectionStep from './steps/BranchSelectionStep';
 import onboardingService from '../../services/on-boarding.service';
 import TerminalSelectionStep from './steps/TerminalSelectionStep';
@@ -18,7 +16,8 @@ interface OnboardingFlowProps {
 
 const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, error: parentError }) => {
     const registerProps: TerminalVerificationParams = {
-        verificationToken: '3f81127ca4ba63eb4902be2696970d568dea:b1c00587834336e5a45dd2758536449a',
+        verificationToken: 'dde554bc85d3a99315c40c41d475f4fb4dc0:e80add87ecffcfb859998f4ed92b8b81',
+        // verificationToken: '3f81127ca4ba63eb4902be2696970d568dea:b1c00587834336e5a45dd2758536449a',
         os: '',
         hostname: '',
         macAddress: ''

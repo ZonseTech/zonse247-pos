@@ -3,7 +3,7 @@ import { Button } from "../../../components";
 import FormTextArea from "../../../components/FormTextArea";
 import FormWrapper from "../../../components/FormWrapper";
 
-const ClientVerificationStep = ({
+const TenantVerificationStep = ({
     credentials,
     credentialsValidationSchema,
     onSubmit
@@ -51,4 +51,4 @@ const ClientVerificationStep = ({
 }
 
 
-export default ClientVerificationStep
+export default TenantVerificationStep
