@@ -64,7 +64,7 @@ export class TenantService {
                     ownerName: tenant.ownerName,
                     email: tenant.email,
                     tenantCode: tenant.tenantCode,
-                    authKey: tenant.authKey,
+                    verificationToken: tenant.verificationToken,
                 });
 
                 console.log(`Welcome email sent successfully to ${tenant.email} for business: ${tenant.businessName}`);
@@ -85,7 +85,7 @@ export class TenantService {
         return tenant;
     }
 
-    static async getAllTenants(query: any = {}): Promise<Omit<Tenant, 'authKey'>[]> {
+    static async getAllTenants(query: any = {}): Promise<Omit<Tenant, 'verificationToken'>[]> {
         try {
             const tenants = await TenantModel.findAll(query);
             return tenants.map(tenant => TenantModel.sanitizeTenant(tenant));
@@ -94,7 +94,7 @@ export class TenantService {
         }
     }
 
-    static async getTenantById(tenantId: string): Promise<Omit<Tenant, 'authKey'>> {
+    static async getTenantById(tenantId: string): Promise<Omit<Tenant, 'verificationToken'>> {
         const tenant = await TenantModel.findById(tenantId);
         if (!tenant) {
             throw new Error('Tenant not found');
@@ -102,7 +102,7 @@ export class TenantService {
         return TenantModel.sanitizeTenant(tenant);
     }
 
-    static async getTenantByCode(tenantCode: string): Promise<Omit<Tenant, 'authKey'>> {
+    static async getTenantByCode(tenantCode: string): Promise<Omit<Tenant, 'verificationToken'>> {
         const tenant = await TenantModel.findByTenantCode(tenantCode);
         if (!tenant) {
             throw new Error('Tenant not found');
@@ -132,19 +132,17 @@ export class TenantService {
         return { status: true };
     }
 
-    static async verifyTenant(tenantCode: string, authKey: string): Promise<Omit<Tenant, 'authKey'>> {
-        const tenant = await TenantModel.findByCredentials(tenantCode, authKey);
+    static async verifyTenant(tenantId: string): Promise<Omit<Tenant, 'verificationToken'>> {
+        const tenant = await TenantModel.findById(tenantId);
 
         if (!tenant) {
             throw new Error('Invalid tenant credentials');
         }
 
-        if (tenant.tenantId) {
-            await TenantModel.update(tenant.tenantId, {
-                status: 'active',
-                activatedAt: new Date()
-            });
-        }
+        await TenantModel.update(tenantId, {
+            status: 'active',
+            activatedAt: new Date()
+        })
 
         const updatedTenant = {
             ...tenant,
@@ -155,7 +153,7 @@ export class TenantService {
         return TenantModel.sanitizeTenant(updatedTenant);
     }
 
-    static async updateTenant(tenantId: string, updateData: Partial<TenantFormValues>): Promise<Omit<Tenant, 'authKey'>> {
+    static async updateTenant(tenantId: string, updateData: Partial<TenantFormValues>): Promise<Omit<Tenant, 'verificationToken'>> {
         const tenant = await TenantModel.findById(tenantId);
         if (!tenant) {
             throw new Error('Tenant not found');
@@ -240,7 +238,7 @@ export class TenantService {
                 ownerName: tenant.ownerName,
                 email: tenant.email,
                 tenantCode: tenant.tenantCode,
-                authKey: tenant.authKey,
+                verificationToken: tenant.verificationToken,
             });
 
             console.log(`Welcome email resent successfully to ${tenant.email}`);
@@ -265,7 +263,7 @@ export class TenantService {
         }
     }
 
-    static async updateMsonkhoStatus(tenantId: string, status: MsonkhoOnlineStatus): Promise<Omit<Tenant, 'authKey'>> {
+    static async updateMsonkhoStatus(tenantId: string, status: MsonkhoOnlineStatus): Promise<Omit<Tenant, 'verificationToken'>> {
         const tenant = await TenantModel.findById(tenantId);
         if (!tenant) {
             throw new Error('Tenant not found');

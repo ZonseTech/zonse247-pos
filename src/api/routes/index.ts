@@ -18,26 +18,17 @@ import BranchesRoutes from './branch.routes'
 import WorkStationRoutes from './terminal.routes'
 import RoleRoutes from './role.routes'
 import MailingRoutes from './email.routes'
+import OnboardingRoutes from './onboarding.routes'
 import AuthRoutes from './auth.routes'
 import PermissionRoutes from './permission.routes'
 import RolePermissionRoutes from './role-permission.routes'
 import { AuthMiddleware } from '../middlewares/auth.middleware'
 import { preventSQLInjection, preventXSS, sanitizeInput } from '../middlewares/security.middleware'
 import { authLimiter } from '../middlewares/rate-limit.middleware'
-import { validateBody, validateParams } from '../middlewares/validation.middleware';
-import { TenantController } from '../controllers/tenant.controller';
-import { asyncHandler } from '../middlewares/error.middleware';
-import { BranchController } from '../controllers/branch.controller';
-import { tenantValidationSchemas } from '../validations/tenant.schemas';
-import { branchValidationSchemas } from '../validations/branch.schemas';
-import { OnboardingController } from '../controllers/onboarding.controller';
-import { SettingsController } from '../controllers/settings.controller'
 import PaymentServiceProviderRoutes from './payment-service-provider.routes'
-import { DatabaseExportController } from '../controllers/export.controller'
 
 const router = Router();
 const authMiddleware = new AuthMiddleware();
-const exportController = new DatabaseExportController()
 
 router.use(sanitizeInput);
 router.use(preventSQLInjection);
@@ -47,48 +38,7 @@ router.use((req, res, next) => {
     next();
 });
 
-router.get(
-    '/export/download/:filename',
-    asyncHandler(exportController.downloadFile)
-);
-
-router.get(
-    '/setup',
-    asyncHandler(SettingsController.setup)
-)
-
-router.post(
-    '/auth/verify-tenant',
-    validateBody(tenantValidationSchemas.verifyTenant),
-    asyncHandler(TenantController.verify)
-);
-
-router.get(
-    '/tenant/:tenantId/branches',
-    validateParams(tenantValidationSchemas.tenantId),
-    asyncHandler(TenantController.getTenantBranches)
-);
-
-router.get(
-    '/branch/:branchId/terminals',
-    validateParams(branchValidationSchemas.branchId),
-    asyncHandler(BranchController.getBranchTerminals)
-);
-
-router.use(
-    '/on-boarding',
-    asyncHandler(OnboardingController.getOnboardingStatus)
-);
-
-router.post(
-    '/settings/configure',
-    asyncHandler(SettingsController.createSettings)
-);
-
-router.get(
-    '/settings',
-    asyncHandler(SettingsController.getSettings)
-);
+router.use('/on-boarding', OnboardingRoutes);
 
 router.use(authMiddleware.verifyRequestHeaders)
 

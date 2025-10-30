@@ -1,15 +1,6 @@
 import { SettingsModel } from "../models/settings.model";
 
 export class SettingsService {
-    static async checkAppSetup(): Promise<SetupParams> {
-        try {
-            return await SettingsModel.getAppSetup();
-        } catch (error) {
-            console.error('Error in app setup service - checkAppSetup:', error);
-            throw error;
-        }
-    }
-
     static async getSettings(): Promise<TerminalSettings> {
         try {
             return await SettingsModel.getSettingsGroup();
@@ -33,7 +24,7 @@ export class SettingsService {
     }
 
     private static setTenantSignature(settings: TerminalSettings): string {
-        const dataString = `${settings.tenantId}|${settings.branchId}|${settings.terminalId}|${settings.authKey}`;
+        const dataString = `${settings.tenantId}|${settings.branchId}|${settings.terminalId}|${settings.verificationToken}`;
         return Buffer.from(dataString).toString('base64');
     }
 

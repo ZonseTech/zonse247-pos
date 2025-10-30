@@ -27,7 +27,7 @@ interface AuthenticatedRequest extends Request {
     tenantId?: string;
 }
 
-interface ClientProps extends Omit<Client, 'authKey'> {
+interface ClientProps extends Omit<Client, 'verificationToken'> {
 
 }
 
@@ -44,7 +44,7 @@ interface Client {
     timezone: string;
     subscriptionStatus: 'active' | 'inactive' | 'suspended' | 'expired' | 'trial' | 'cancelled';
     trialEndsAt: string;
-    authKey: string;
+    verificationToken: string;
     status: string;
     emailSent?: boolean;
     registeredAt: string;

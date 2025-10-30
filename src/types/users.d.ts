@@ -23,6 +23,8 @@ interface User {
     lastLogout?: Date | null;
     passwordChangedAt?: Date;
     forcePasswordChange?: boolean;
+    roles: Array<string>;
+    permissions: Array<string>;
     synced?: 0 | 1,
     createdAt?: Date;
     updatedAt?: Date;

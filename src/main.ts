@@ -1,17 +1,20 @@
-import { app, BrowserWindow, screen, shell } from 'electron';
 import path from 'node:path';
-import started from 'electron-squirrel-startup';
-import MenuBuilder from './partials/menu';
 import startServer from './api/server';
-import { Capacitor } from '@capacitor/core';
+import MenuBuilder from './partials/menu';
+import { setupIPC } from './ipc/setup.ipc';
+import started from 'electron-squirrel-startup';
+import { isElectron } from './helpers/index.helper';
+import { app, BrowserWindow, screen, shell } from 'electron';
+import { SecureSettingsService } from './api/services/secure-settings.service';
+import { setupMenuIPC } from './ipc/menu.ipc';
 
-let server;
+let server = null;
 
 if (started) {
 	app.quit();
 }
 
-const createWindow = async () => {
+const createWindow = async (skipOnboarding: boolean = false) => {
 	const primaryDisplay = screen.getPrimaryDisplay();
 	const { width, height } = primaryDisplay.workAreaSize;
 
@@ -22,7 +25,7 @@ const createWindow = async () => {
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			contextIsolation: true,
-			nodeIntegration: true,
+			nodeIntegration: false,
 		},
 		show: false,
 	});
@@ -35,7 +38,7 @@ const createWindow = async () => {
 		return { action: 'deny' };
 	});
 
-	if (!Capacitor.isNativePlatform()) {
+	if (isElectron()) {
 		try {
 			server = startServer;
 			await server.start();
@@ -57,6 +60,10 @@ const createWindow = async () => {
 			);
 		}
 
+		mainWindow.webContents.on('did-finish-load', () => {
+			mainWindow.webContents.send('onboarding-status', { skipOnboarding });
+		});
+
 		mainWindow.show();
 	} catch (error) {
 		console.error('Failed to load window content:', error);
@@ -64,7 +71,16 @@ const createWindow = async () => {
 	}
 };
 
-app.whenReady().then(createWindow);
+app.whenReady().then(async () => {
+	await SecureSettingsService.initialize();
+
+	setupIPC();
+	setupMenuIPC();
+
+	const hasSetup = await SecureSettingsService.hasAppSetup();
+
+	await createWindow(!hasSetup);
+});
 
 app.on('window-all-closed', () => {
 	if (process.platform !== 'darwin') {

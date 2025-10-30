@@ -2,18 +2,12 @@ import Joi from 'joi';
 
 export const tenantValidationSchemas = {
     verifyTenant: Joi.object({
-        authKey: Joi.string()
+        verificationToken: Joi.string()
             .required()
             .messages({
                 'string.empty': 'Auth token is required',
                 'any.required': 'Auth token is required'
             }),
-        tenantCode: Joi.string()
-            .required()
-            .messages({
-                'string.empty': 'Please enter your tenantCode',
-                'any.required': 'Please enter your tenantCode'
-            })
     }),
 
     createTenant: Joi.object({

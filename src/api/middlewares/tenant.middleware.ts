@@ -1,21 +1,43 @@
 import { Request, Response, NextFunction } from "express";
 import { TenantService } from "../services/tenant.service";
 import { BaseController } from "../controllers/base.controller";
+import { SecureSettingsService } from "../services/secure-settings.service";
 
 export class TenantMiddleware {
     subscriptionStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const tenantSignature = req.headers?.['x-tenant-signature'] as string;
 
-            // decode tenantId from tenant-signature
-            const tenantId = tenantSignature
+            if (!tenantSignature) {
+                BaseController.sendForbiddenWithSubscription(
+                    res,
+                    'Missing tenant signature',
+                    'unauthorized'
+                );
+                return;
+            }
 
             console.log('====================================');
-            console.log(tenantId);
+            console.log("Verifying tenant signature");
             console.log('====================================');
 
-            const tenant: Omit<Tenant, 'authKey'> = await TenantService.getTenantById(
-                tenantId
+            const verification = await SecureSettingsService.verifyTenantSignature(tenantSignature);
+
+            if (!verification.isValid) {
+                BaseController.sendForbiddenWithSubscription(
+                    res,
+                    'Invalid tenant signature. Please re-authenticate.',
+                    'unauthorized'
+                );
+                return;
+            }
+
+            console.log('====================================');
+            console.log('Signature verified for tenant:', verification.tenantId);
+            console.log('====================================');
+
+            const tenant: Omit<Tenant, 'verificationToken'> = await TenantService.getTenantById(
+                verification.tenantId!
             );
 
             if (!tenant) {
@@ -57,12 +79,18 @@ export class TenantMiddleware {
                 res.setHeader('X-Subscription-Status', tenant.subscriptionStatus);
             }
 
+            (req as any).tenantContext = {
+                tenantId: verification.tenantId,
+                branchId: verification.branchId,
+                terminalId: verification.terminalId
+            };
+
             next();
         } catch (error) {
             console.error('Error in subscription status middleware:', error);
             BaseController.sendServerErrorWithSubscription(
                 res,
-                'Tenant not found',
+                'Authentication error',
                 'error'
             );
         }
@@ -101,7 +129,7 @@ export class TenantMiddleware {
         }
     };
 
-    private checkSubscriptionStatus(tenant: Omit<Tenant, 'authKey'>): {
+    private checkSubscriptionStatus(tenant: Omit<Tenant, 'verificationToken'>): {
         isValid: boolean;
         message: string;
         daysRemaining: number | null;

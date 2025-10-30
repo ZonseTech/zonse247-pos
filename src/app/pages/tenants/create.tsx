@@ -74,7 +74,7 @@ const TenantFormModal: FunctionComponent = () => {
         registeredAt: '',
         subscriptionStatus: 'TRIAL',
         trialEndsAt: '',
-        authKey: '',
+        verificationToken: '',
         status: 'pending'
     };
 
@@ -154,7 +154,7 @@ const TenantFormModal: FunctionComponent = () => {
                                 <FormWrapper>
                                     <FormInput
                                         type="hidden"
-                                        name="authKey"
+                                        name="verificationToken"
                                         readOnly
                                     />
 

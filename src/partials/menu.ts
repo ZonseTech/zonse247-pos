@@ -1,33 +1,21 @@
 import {
 	app,
 	Menu,
-	shell,
 	BrowserWindow,
 	MenuItemConstructorOptions,
 } from 'electron';
-import {
-	checkForUpdates,
-	getDocs,
-	handleClick,
-	sendFeedback,
-	showAbout,
-} from './menu-controller';
-
-interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
-	selector?: string;
-	submenu?: DarwinMenuItemConstructorOptions[] | Menu;
-}
+import { ROUTES } from '../app/utils/constants';
+import { hasAnyPermission, hasPermission, hasRole } from '../app/utils';
 
 export default class MenuBuilder {
 	mainWindow: BrowserWindow;
-	private isMac: boolean;
+	private user: User | null = null;
 
 	constructor(mainWindow: BrowserWindow) {
 		this.mainWindow = mainWindow;
-		this.isMac = process.platform === 'darwin';
 	}
 
-	buildMenu(): Menu {
+	buildMenu(user?: User): Menu {
 		if (
 			process.env.NODE_ENV === 'development' ||
 			process.env.DEBUG_PROD === 'true'
@@ -35,21 +23,15 @@ export default class MenuBuilder {
 			this.setupDevelopmentEnvironment();
 		}
 
-		const template =
-			process.platform === 'darwin'
-				? this.buildDarwinTemplate()
-				: this.buildDefaultTemplate();
-
-		const menu = Menu.buildFromTemplate(template);
-		Menu.setApplicationMenu(null);
-
+		this.user = user || null;
+		const menu = Menu.buildFromTemplate(this.buildDefaultTemplate());
+		Menu.setApplicationMenu(menu);
 		return menu;
 	}
 
 	setupDevelopmentEnvironment(): void {
 		this.mainWindow.webContents.on('context-menu', (_, props) => {
 			const { x, y } = props;
-
 			Menu.buildFromTemplate([
 				{
 					label: 'Inspect element',
@@ -65,236 +47,246 @@ export default class MenuBuilder {
 		});
 	}
 
-	buildDarwinTemplate(): MenuItemConstructorOptions[] {
-		const subMenuAbout: DarwinMenuItemConstructorOptions = {
-			label: app.name,
-			submenu: [
-				{ role: 'about' },
-				{ type: 'separator' },
-				{ role: 'services' },
-				{ type: 'separator' },
-				{ role: 'hide' },
-				{ role: 'hideOthers' },
-				{ role: 'unhide' },
-				{ type: 'separator' },
-				{ role: 'quit' },
-			],
-		};
+	private navigateTo(route: string): void {
+		this.mainWindow.webContents.send('menu-navigate', route);
+	}
 
-		const subMenuEdit: DarwinMenuItemConstructorOptions = {
-			label: 'Edit',
-			submenu: [
-				{ label: 'Undo', accelerator: 'Command+Z', selector: 'undo:' },
-				{ label: 'Redo', accelerator: 'Shift+Command+Z', selector: 'redo:' },
+	private openModal(modal: string): void {
+		this.mainWindow.webContents.send('menu-open-modal', modal);
+	}
+
+	private performAction(action: string): void {
+		this.mainWindow.webContents.send('menu-perform-action', action);
+	}
+
+	buildDefaultTemplate(): Array<MenuItemConstructorOptions> {
+		const template: Array<MenuItemConstructorOptions> = [];
+		const fileSubmenu: Array<MenuItemConstructorOptions> = [];
+
+		if (hasAnyPermission(this.user, ['products.create', 'products.edit'])) {
+			const newSubmenu: Array<MenuItemConstructorOptions> = [];
+
+			if (hasPermission(this.user, 'products.create')) {
+				newSubmenu.push({
+					label: 'Product',
+					accelerator: 'CommandOrControl+N',
+					click: () => this.openModal('new-product'),
+				});
+				newSubmenu.push({
+					label: 'Category',
+					click: () => this.openModal('new-category'),
+				});
+			}
+
+			if (hasPermission(this.user, 'sales.create')) {
+				newSubmenu.push({
+					label: 'Customer',
+					click: () => this.openModal('new-customer'),
+				});
+			}
+
+			if (newSubmenu.length > 0) {
+				fileSubmenu.push({
+					label: 'New',
+					submenu: newSubmenu,
+				});
+				fileSubmenu.push({ type: 'separator' });
+			}
+		}
+
+		if (hasRole(this.user, 'admin') || hasPermission(this.user, 'system.backup')) {
+			fileSubmenu.push({
+				label: 'Backup Database',
+				click: () => this.navigateTo(ROUTES.EXPORT_DB),
+			});
+			fileSubmenu.push({
+				label: 'Restore Database',
+				click: () => this.performAction('restore-database'),
+			});
+			fileSubmenu.push({ type: 'separator' });
+		}
+
+		if (this.user) {
+			fileSubmenu.push({
+				label: 'Sync Data',
+				accelerator: 'CommandOrControl+Shift+S',
+				click: () => this.navigateTo(ROUTES.SYNC_DATA),
+			});
+			fileSubmenu.push({ type: 'separator' });
+			fileSubmenu.push({
+				label: 'Logout',
+				accelerator: 'CommandOrControl+Shift+L',
+				click: () => this.performAction('logout'),
+			});
+		}
+
+		fileSubmenu.push({
+			label: 'Quit',
+			role: 'quit',
+			accelerator: 'CommandOrControl+Q'
+		});
+
+		template.push({
+			label: 'File',
+			submenu: fileSubmenu,
+		});
+
+		const viewSubmenu: Array<MenuItemConstructorOptions> = [];
+
+		if (hasAnyPermission(this.user, ['products.view', 'products.create', 'sales.create', 'refunds.process'])) {
+			viewSubmenu.push({
+				label: 'Point of Sale',
+				accelerator: 'CommandOrControl+P',
+				click: () => this.navigateTo(ROUTES.POS),
+			});
+		}
+
+		if (this.user) {
+			viewSubmenu.push({
+				label: 'Dashboard',
+				accelerator: 'CommandOrControl+D',
+				click: () => this.navigateTo(ROUTES.DASHBOARD),
+			});
+		}
+
+		if (hasAnyPermission(this.user, ['products.view', 'products.create', 'products.edit'])) {
+			if (viewSubmenu.length > 0) {
+				viewSubmenu.push({ type: 'separator' });
+			}
+			viewSubmenu.push({
+				label: 'Products',
+				click: () => this.navigateTo(ROUTES.PRODUCTS),
+			});
+			viewSubmenu.push({
+				label: 'Categories',
+				click: () => this.navigateTo(ROUTES.CATEGORIES),
+			});
+		}
+
+		if (hasAnyPermission(this.user, ['reports.sales.daily', 'reports.sales.detailed', 'payments.view'])) {
+			viewSubmenu.push({ type: 'separator' });
+			viewSubmenu.push({
+				label: 'Transactions',
+				accelerator: 'CommandOrControl+T',
+				click: () => this.navigateTo(ROUTES.TRANSACTIONS),
+			});
+		}
+
+		viewSubmenu.push({ type: 'separator' });
+		viewSubmenu.push({
+			label: 'Refresh',
+			role: 'reload',
+			accelerator: 'CommandOrControl+R',
+		});
+
+		if (!app.isPackaged) {
+			viewSubmenu.push({
+				role: 'toggleDevTools',
+				accelerator: 'CommandOrControl+Shift+I'
+			});
+		}
+
+		viewSubmenu.push({ type: 'separator' });
+		viewSubmenu.push({ role: 'resetZoom' });
+		viewSubmenu.push({ role: 'zoomIn', accelerator: 'CommandOrControl+Plus' });
+		viewSubmenu.push({ role: 'zoomOut', accelerator: 'CommandOrControl+-' });
+		viewSubmenu.push({ type: 'separator' });
+		viewSubmenu.push({ role: 'togglefullscreen', accelerator: 'F11' });
+
+		if (viewSubmenu.length > 0) {
+			template.push({
+				label: 'View',
+				submenu: viewSubmenu,
+			});
+		}
+
+		const managementSubmenu: Array<MenuItemConstructorOptions> = [];
+
+		if (hasAnyPermission(this.user, ['users.view', 'users.create', 'users.edit', 'users.delete'])) {
+			managementSubmenu.push({
+				label: 'Users',
+				click: () => this.navigateTo(ROUTES.USERS),
+			});
+		}
+
+		if (hasAnyPermission(this.user, ['users.roles.assign', 'users.create', 'users.edit'])) {
+			managementSubmenu.push({
+				label: 'Security & Roles',
+				click: () => this.navigateTo(ROUTES.ROLES_PERMISSIONS),
+			});
+		}
+
+		if (hasPermission(this.user, 'settings.shop.manage')) {
+			if (managementSubmenu.length > 0) {
+				managementSubmenu.push({ type: 'separator' });
+			}
+			managementSubmenu.push({
+				label: 'Branches',
+				click: () => this.navigateTo(ROUTES.BRANCHES),
+			});
+			managementSubmenu.push({
+				label: 'Terminals',
+				click: () => this.navigateTo(ROUTES.TERMINALS),
+			});
+			managementSubmenu.push({ type: 'separator' });
+			managementSubmenu.push({
+				label: 'Settings',
+				accelerator: 'CommandOrControl+,',
+				click: () => this.navigateTo(ROUTES.SETTINGS),
+			});
+		}
+
+		if (managementSubmenu.length > 0) {
+			template.push({
+				label: 'Management',
+				submenu: managementSubmenu,
+			});
+		}
+
+		if (hasRole(this.user, 'admin') || hasPermission(this.user, 'system.admin')) {
+			const adminSubmenu: Array<MenuItemConstructorOptions> = [
+				{
+					label: 'Subscriptions',
+					click: () => this.navigateTo(ROUTES.SUBSCRIPTIONS),
+				},
+				{
+					label: 'Tenants',
+					click: () => this.navigateTo(ROUTES.TENANTS),
+				},
 				{ type: 'separator' },
-				{ label: 'Cut', accelerator: 'Command+X', selector: 'cut:' },
-				{ label: 'Copy', accelerator: 'Command+C', selector: 'copy:' },
-				{ label: 'Paste', accelerator: 'Command+V', selector: 'paste:' },
 				{
-					label: 'Select All',
-					accelerator: 'Command+A',
-					selector: 'selectAll:',
+					label: 'Migrations',
+					click: () => this.navigateTo(ROUTES.MIGRATIONS),
 				},
-			],
-		};
+			];
 
-		const subMenuViewDev: MenuItemConstructorOptions = {
-			label: 'View',
-			submenu: [
-				{
-					label: 'Reload',
-					accelerator: 'Command+R',
-					click: () => {
-						this.mainWindow.webContents.reload();
-					},
-				},
-				{
-					label: 'Toggle Full Screen',
-					accelerator: 'Ctrl+Command+F',
-					click: () => {
-						this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
-					},
-				},
-				{
-					label: 'Toggle Developer Tools',
-					accelerator: 'Alt+Command+I',
-					click: () => {
-						this.mainWindow.webContents.toggleDevTools();
-					},
-				},
-			],
-		};
+			template.push({
+				label: 'Admin',
+				submenu: adminSubmenu,
+			});
+		}
 
-		const subMenuViewProd: MenuItemConstructorOptions = {
-			label: 'View',
-			submenu: [
-				{
-					label: 'Toggle Full Screen',
-					accelerator: 'Ctrl+Command+F',
-					click: () => {
-						this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
-					},
-				},
-			],
-		};
-
-		const subMenuWindow: DarwinMenuItemConstructorOptions = {
-			label: 'Window',
-			submenu: [
-				{
-					label: 'Minimize',
-					accelerator: 'Command+M',
-					selector: 'performMiniaturize:',
-				},
-				{ label: 'Close', accelerator: 'Command+W', selector: 'performClose:' },
-				{ type: 'separator' },
-				{ label: 'Bring All to Front', selector: 'arrangeInFront:' },
-			],
-		};
-
-		const subMenuHelp: MenuItemConstructorOptions = {
+		template.push({
 			label: 'Help',
 			submenu: [
 				{
-					label: 'Learn More',
-					click() {
-						shell.openExternal('https://electronjs.org');
-					},
-				},
-				{
 					label: 'Documentation',
-					click() {
-						shell.openExternal(
-							'https://github.com/electron/electron/tree/main/docs#readme'
-						);
+					click: () => {
+						require('electron').shell.openExternal('https://pos-docs.zonse247.com');
 					},
 				},
 				{
-					label: 'Community Discussions',
-					click() {
-						shell.openExternal('https://www.electronjs.org/community');
-					},
+					label: 'Check for Updates...',
+					click: () => this.performAction('check-updates'),
 				},
+				{ type: 'separator' },
 				{
-					label: 'Search Issues',
-					click() {
-						shell.openExternal('https://github.com/electron/electron/issues');
-					},
+					label: `About ${app.getName()}`,
+					click: () => this.openModal('about'),
 				},
-			],
-		};
+			] as Array<MenuItemConstructorOptions>,
+		});
 
-		const subMenuView =
-			process.env.NODE_ENV === 'development' ||
-			process.env.DEBUG_PROD === 'true'
-				? subMenuViewDev
-				: subMenuViewProd;
-
-		return [subMenuAbout, subMenuEdit, subMenuView, subMenuWindow, subMenuHelp];
-	}
-
-	buildDefaultTemplate(): MenuItemConstructorOptions[] {
-		const templateDefault: MenuItemConstructorOptions[] = [
-			{
-				label: 'File',
-				submenu: [
-					{
-						label: 'New',
-						submenu: [
-							{
-								label: 'Product',
-								click: () => handleClick('newProductModal'),
-							},
-							{
-								label: 'Category',
-								click: () => handleClick('newCategoryModal'),
-							},
-							{
-								label: 'Customer',
-								click: () => handleClick('newCustomerModal'),
-							},
-						] as MenuItemConstructorOptions[],
-					},
-					{ label: 'Backup' },
-					{ label: 'Restore' },
-					{
-						label: 'Logout',
-						click: () => handleClick('log-out'),
-					},
-					{ label: 'Quit', role: 'quit' },
-				] as MenuItemConstructorOptions[],
-			},
-			{
-				label: '&Edit',
-				submenu: [
-					{ role: 'undo' },
-					{ role: 'redo' },
-					{ type: 'separator' },
-					{ role: 'cut' },
-					{ role: 'copy' },
-					{ role: 'paste' },
-					{ role: 'delete' },
-					{ type: 'separator' },
-					{ role: 'selectAll' },
-				] as MenuItemConstructorOptions[],
-			},
-			{
-				label: '&View',
-				submenu: [
-					{
-						label: 'Point of Sale',
-						click: () => handleClick('pointofsale'),
-					},
-					{
-						label: 'Transactions',
-						click: () => handleClick('transactions'),
-					},
-					{
-						label: 'Products',
-						click: () => handleClick('productModal'),
-					},
-					{
-						label: 'Settings',
-						click: () => handleClick('settings'),
-					},
-					{ type: 'separator' },
-					{ label: 'Refresh', role: 'reload' },
-					...(!app.isPackaged
-						? [{ role: 'toggleDevTools' } as MenuItemConstructorOptions]
-						: []),
-					{ type: 'separator' },
-					{ role: 'resetZoom' },
-					{ role: 'zoomIn' },
-					{ role: 'zoomOut' },
-					{ type: 'separator' },
-					{ role: 'togglefullscreen' },
-				] as MenuItemConstructorOptions[],
-			},
-			{
-				label: 'Help',
-				submenu: [
-					{
-						label: 'Documentation',
-						click: () => getDocs(),
-					},
-					{
-						label: 'Send feedback',
-						click: () => sendFeedback(),
-					},
-					{ type: 'separator' },
-					{
-						label: 'Check for updates...',
-						click: () => checkForUpdates(),
-					},
-					{ type: 'separator' },
-					{
-						label: `About ${app.getName()}`,
-						click: () => showAbout(),
-					},
-				] as MenuItemConstructorOptions[],
-			},
-		];
-
-		return templateDefault;
+		return template;
 	}
 }

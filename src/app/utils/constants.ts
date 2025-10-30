@@ -7,13 +7,13 @@ export enum ROUTES {
 	TRANSACTIONS = '/transactions',
 	CATEGORIES = '/categories',
 	PRODUCTS = '/products',
-	WORK_STATIONS = '/work-stations',
-	SUBSCRIPTION = '/subscription',
+	TERMINALS = '/terminals',
+	SUBSCRIPTIONS = '/subscriptions',
 
 	TENANTS = '/tenants',
 	TENANT_FORM = '/tenants/form',
 
-	SHOPS = '/shops',
+	BRANCHES = '/branches',
 	SYNC_DATA = '/sync-data',
 	EXPORT_DB = '/export-db',
 	MIGRATIONS = '/migrations',

@@ -8,7 +8,7 @@ export class TenantModel {
         return 'TNT-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
     }
 
-    static generateAuthKey(): string {
+    static generateVerificationToken(): string {
         return crypto.randomBytes(32).toString('hex');
     }
 
@@ -65,9 +65,8 @@ export class TenantModel {
         return results.length > 0 ? results[0] : null;
     }
 
-    static async findByCredentials(tenantCode: string, authKey: string): Promise<Tenant | null> {
-        const results = await sealDBModel.find(TENANT_TABLE, { tenantCode, authKey });
-        return results.length > 0 ? results[0] : null;
+    static async findByCredentials(verificationToken: string): Promise<Tenant | null> {
+        return await sealDBModel.findOne(TENANT_TABLE, { verificationToken });
     }
 
     static async create(data: TenantFormValues): Promise<Tenant> {
@@ -110,7 +109,7 @@ export class TenantModel {
             address: data.address || null,
             country: data.country || null,
             trialEndsAt: trialEndDate,
-            authKey: this.generateAuthKey(),
+            verificationToken: this.generateVerificationToken(),
             status: data.status || 'pending',
             registeredAt: new Date(),
             activatedAt: null,
@@ -118,8 +117,8 @@ export class TenantModel {
         };
     }
 
-    static sanitizeTenant(tenant: Tenant): Omit<Tenant, 'authKey'> {
-        const { authKey, ...safeTenant } = tenant;
+    static sanitizeTenant(tenant: Tenant): Omit<Tenant, 'verificationToken'> {
+        const { verificationToken, ...safeTenant } = tenant;
         return safeTenant;
     }
 }

@@ -1,22 +1,36 @@
-interface CreateSettingRequest {
+interface EncryptionResult {
+    encrypted: string;
+    iv: string;
+}
+
+interface SetupParams {
+    uuid: string;
     tenantId: string;
     branchId: string;
     terminalId: string;
-    authKey: string;
-    branchName?: string;
-    terminalName?: string;
-}
-
-interface TerminalSettings extends CreateSettingRequest {
-    id?: string;
-    tenantSignature: string;
-    encryptedAuthKey: string;
-    iv: string;
+    verificationToken: string;
+    tenantSignature?: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
 
-interface EncryptionResult {
-    encrypted: string;
+interface SetupData {
+    uuid: string;
+    tenantId: string;
+    branchId: string;
+    terminalId: string;
+    encryptedVerificationToken: string;
     iv: string;
+    dataSignature: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+interface EncryptedSetupParams {
+    id: string;
+    encryptedVerificationToken: string;
+    iv: string;
+    dataSignature: string;
+    createdAt: Date;
+    updatedAt: Date;
 }

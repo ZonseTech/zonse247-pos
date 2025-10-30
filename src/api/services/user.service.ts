@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import validator from 'validator';
 import { PERMISSIONS_DB, ROLE_PERMISSIONS_DB, ROLES_DB } from '../databases/local/tables';

@@ -1,45 +1,39 @@
 import * as Yup from 'yup';
-import { useNavigate } from 'react-router';
 import ErrorAlert from './partials/ErrorAlert';
-import { ROUTES } from '../../utils/constants';
 import AuthLayout from '../../layouts/AuthLayout';
-import SuccessAlert from './partials/SuccessAlert';
 import { FunctionComponent, useState } from 'react';
 import StepIndicator from './partials/StepIndicator';
-import branchService from '../../services/branch.service';
 import tenantService from '../../services/tenant.service';
-import settingsService from '../../services/settings.service';
 import terminalService from '../../services/terminal.service';
 import BranchSelectionStep from './steps/BranchSelectionStep';
+import onboardingService from '../../services/on-boarding.service';
 import TerminalSelectionStep from './steps/TerminalSelectionStep';
-import ClientVerificationStep from './steps/ClientVerificationStep';
-import ConfigurationCompleteStep from './steps/ConfigurationCompleteStep';
+import TenantVerificationStep from './steps/TenantVerificationStep';
+import { toast } from 'react-toastify';
 
-const ClientVerification: FunctionComponent = () => {
+interface OnboardingFlowProps {
+    onComplete: (setupData: any) => void;
+    error?: string | null;
+}
+
+const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, error: parentError }) => {
     const registerProps: TerminalVerificationParams = {
-        tenantCode: 'DEFAULT_CLIENT',
-        authKey: 'default-auth-key-1761310617487',
+        verificationToken: '3f81127ca4ba63eb4902be2696970d568dea:b1c00587834336e5a45dd2758536449a',
         os: '',
         hostname: '',
         macAddress: ''
     }
 
     const registerValidationSchema: Yup.ObjectSchema<{
-        authKey: string;
-        tenantCode: string;
+        verificationToken: string;
     }, Yup.AnyObject, {
-        authKey: undefined;
-        tenantCode: undefined;
+        verificationToken: undefined;
     }, ""> = Yup.object({
-        authKey: Yup.string()
-            .required('Auth token is required'),
-
-        tenantCode: Yup.string()
-            .required('Please enter your tenant code'),
+        verificationToken: Yup.string()
+            .required('Verification token is required'),
     })
 
-    const navigate = useNavigate()
-    const [error, setError] = useState('');
+    const [localError, setLocalError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
@@ -49,28 +43,30 @@ const ClientVerification: FunctionComponent = () => {
     const [terminals, setTerminals] = useState<Array<Terminal>>([]);
     const [selectedTerminal, setSelectedTerminal] = useState<Terminal>(null);
 
+    const displayError = parentError || localError;
+
     const handleVerifyClient = async (credentials: TerminalVerificationParams) => {
-        setError('');
+        setLocalError('');
 
         try {
-            const tenant = await tenantService.verify(credentials);
+            const tenant = await onboardingService.verify(credentials);
             setVerifiedTenant(tenant);
             setSuccess(`Welcome, ${tenant.businessName}!`);
             setCurrentStep(2);
 
             await fetchBranchesByTenantId(tenant.tenantId);
         } catch (err) {
-            setError((error as any)?.error?.response?.data?.message || 'Verification failed. Please check your credentials.');
+            setLocalError((err as any)?.error?.response?.data?.message || 'Verification failed. Please check your credentials.');
         }
     };
 
     const fetchBranchesByTenantId = async (tenantId: string) => {
         setLoading(true);
         try {
-            const response = await branchService.listByTenantId(tenantId);
+            const response = await onboardingService.listByTenantId(tenantId);
             setTenantBranches(response.data);
         } catch (err) {
-            setError('Failed to fetch branches');
+            setLocalError('Failed to fetch branches');
         } finally {
             setLoading(false);
         }
@@ -78,15 +74,15 @@ const ClientVerification: FunctionComponent = () => {
 
     const handleBranchSelect = async (branch: Branch) => {
         setSelectedBranch(branch);
-        setError('');
+        setLocalError('');
         setLoading(true);
 
         try {
-            const stationsList = await terminalService.listByBranchId(branch.branchId);
+            const stationsList = await onboardingService.listByBranchId(branch.branchId);
             setTerminals(stationsList);
             setCurrentStep(3);
         } catch (err) {
-            setError('Failed to fetch terminals for the selected branch');
+            setLocalError('Failed to fetch terminals for the selected branch');
         } finally {
             setLoading(false);
         }
@@ -94,88 +90,90 @@ const ClientVerification: FunctionComponent = () => {
 
     const handleTerminalSelect = (terminal: Terminal) => {
         setSelectedTerminal(terminal);
-        setError('');
+        setLocalError('');
     };
 
     const handleSubmitConfiguration = async () => {
         if (!selectedTerminal) {
-            setError('Please select a terminal');
+            setLocalError('Please select a terminal');
             return;
         }
 
         setLoading(true);
-        setError('');
+        setLocalError('');
 
         try {
             const params = {
+                verificationToken: registerProps.verificationToken,
                 tenantId: verifiedTenant.tenantId,
                 branchId: selectedBranch.branchId,
                 terminalId: selectedTerminal.terminalId
             }
 
-            const data = await settingsService.store(params);
+            await onComplete(params);
 
-            await settingsService.saveSettingsLocally({ ...params, tenantSignature: data.tenantSignature });
-
-            setSuccess('Machine configuration completed successfully!');
-            setCurrentStep(4);
+            toast('Machine configuration completed successfully!');
         } catch (err) {
-            setError(err?.error?.response?.data?.message);
+            setLocalError(err?.error?.response?.data?.message || 'Configuration failed');
         } finally {
             setLoading(false);
         }
     };
 
-    const resetProcess = () => {
-        navigate(ROUTES.LOGIN)
+    const handleBackToPreviousStep = () => {
+        setLocalError('');
+        setSuccess('');
+
+        if (currentStep === 2) {
+            setCurrentStep(1);
+        } else if (currentStep === 3) {
+            setCurrentStep(2);
+            setSelectedTerminal(null);
+        }
     };
 
+    const canGoBack = currentStep > 1 && currentStep < 4;
+
     return (
-        <AuthLayout className="max-w-7xl">
+        <AuthLayout className="max-w-7xl w-full mx-auto">
             <div className="p-6">
-                {success && currentStep !== 4 && <SuccessAlert message={success} />}
+                <StepIndicator
+                    currentStep={currentStep}
+                    totalSteps={3}
+                    onBack={canGoBack ? handleBackToPreviousStep : null}
+                >
+                    {displayError && <ErrorAlert message={displayError} />}
 
-                <StepIndicator currentStep={currentStep} />
+                    {currentStep === 1 && (
+                        <TenantVerificationStep
+                            credentials={registerProps}
+                            credentialsValidationSchema={registerValidationSchema}
+                            onSubmit={handleVerifyClient}
+                        />
+                    )}
 
-                {error && <ErrorAlert message={error} />}
+                    {currentStep === 2 && (
+                        <BranchSelectionStep
+                            branches={branches}
+                            onBranchSelect={handleBranchSelect}
+                        />
+                    )}
 
-                {currentStep === 1 && (
-                    <ClientVerificationStep
-                        credentials={registerProps}
-                        credentialsValidationSchema={registerValidationSchema}
-                        onSubmit={handleVerifyClient}
-                    />
-                )}
-
-                {currentStep === 2 && (
-                    <BranchSelectionStep
-                        branches={branches}
-                        onBranchSelect={handleBranchSelect}
-                    />
-                )}
-
-                {currentStep === 3 && (
-                    <TerminalSelectionStep
-                        terminals={terminals}
-                        selectedTerminal={selectedTerminal}
-                        selectedBranch={selectedBranch}
-                        onTerminalSelect={handleTerminalSelect}
-                        onSubmit={handleSubmitConfiguration}
-                        loading={loading}
-                    />
-                )}
-
-                {currentStep === 4 && (
-                    <ConfigurationCompleteStep
-                        verifiedTenant={verifiedTenant}
-                        selectedBranch={selectedBranch}
-                        selectedTerminal={selectedTerminal}
-                        onReset={resetProcess}
-                    />
-                )}
+                    {currentStep === 3 && (
+                        <TerminalSelectionStep
+                            terminals={terminals}
+                            selectedTerminal={selectedTerminal}
+                            selectedBranch={selectedBranch}
+                            onTerminalSelect={handleTerminalSelect}
+                            onSubmit={handleSubmitConfiguration}
+                            loading={loading}
+                        />
+                    )}
+                </StepIndicator>
             </div>
         </AuthLayout>
     );
 };
 
-export default ClientVerification;
+
+export default OnboardingFlow;

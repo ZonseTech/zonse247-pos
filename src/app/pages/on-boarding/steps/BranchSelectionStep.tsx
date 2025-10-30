@@ -3,7 +3,7 @@ import { FunctionComponent } from "react";
 import StatusBadge from "../partials/StatusBadge";
 
 const BranchSelectionStep: FunctionComponent<{ branches: Array<Branch>, onBranchSelect }> = ({ branches, onBranchSelect }) => (
-    <div className="space-y-6">
+    <div className="space-y-6 mb-4">
         {branches.length > 0 && <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Select branch</h2>
             <p className="text-gray-600">Choose the branch associated with this terminal</p>

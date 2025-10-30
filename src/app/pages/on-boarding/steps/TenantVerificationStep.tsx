@@ -1,10 +1,7 @@
 import { Form, Formik } from "formik";
-import { Link } from "react-router-dom";
 import { Button } from "../../../components";
-import FormInput from "../../../components/FormInput";
 import FormTextArea from "../../../components/FormTextArea";
 import FormWrapper from "../../../components/FormWrapper";
-import { ROUTES } from "../../../utils/constants";
 
 const ClientVerificationStep = ({
     credentials,
@@ -18,36 +15,26 @@ const ClientVerificationStep = ({
                 validationSchema={credentialsValidationSchema}
                 onSubmit={onSubmit}
             >
-                {({ isSubmitting, values }) => (
-                    <Form>
+                {({ isSubmitting }) => (
+                    <Form className="max-w-7xl">
                         <div className="mb-3 text-center">
                             <h1 className="text-gray-700 dark:text-gray-400 font-semibold text-xl">
                                 Client Verification
                             </h1>
                             <p className="text-gray-500 text-sm leading mt-2">
-                                Enter your Client Code and Auth Key to verify your account
+                                Enter your Verification Key to verify your account
                             </p>
                         </div>
 
                         <FormWrapper>
-                            <FormInput
-                                label='Client Code'
-                                id='tenantCode'
-                                name='tenantCode'
-                                type='text'
-                                step={1}
-                                required
-                                placeholder="Enter client Code from email"
-                            />
-
                             <FormTextArea
-                                label='Auth token'
-                                id='authKey'
-                                name='authKey'
+                                label='Verification token'
+                                id='verificationToken'
+                                name='verificationToken'
                                 rows={3}
                                 className="rounded-sm"
                                 required
-                                placeholder="Paste auth token from email"
+                                placeholder="Paste verification token from email"
                             />
 
                             <Button
@@ -55,20 +42,9 @@ const ClientVerificationStep = ({
                                 className="mt-1 mb-8 bg-[#102f4f]"
                                 block
                                 loading={isSubmitting}>
-                                Activate Workstation
+                                Verify
                             </Button>
                         </FormWrapper>
-
-                        <div className="text-center text-xs text-gray-500">
-                            Already have an account?{' '}
-                            <Link
-                                to={ROUTES.LOGIN}
-                                className="text-[#102f4f] dark:text-sky-500 hover:underline cursor-pointer"
-                            >
-                                Sign in
-                            </Link>
-                        </div>
-
                     </Form>)}
             </Formik>
         </div>)

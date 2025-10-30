@@ -27,7 +27,7 @@ interface Tenant extends BaseTimestamps {
     address?: string | null;
     country?: string | null;
     trialEndsAt?: Date | null;
-    authKey: string;
+    verificationToken: string;
     status: TenantStatus;
     registeredAt?: Date | null;
     activatedAt?: Date | null;
@@ -44,6 +44,5 @@ type TenantFormValues = Omit<
 };
 
 interface VerifyTenantRequest {
-    tenantCode: string;
-    authKey: string;
+    verificationToken: string;
 }

@@ -7,7 +7,6 @@ const endpoints: Record<string, string> = {
     show: 'tenants',
     delete: 'tenants/tenant',
     register: 'tenants/register-tenant',
-    verify: 'auth/verify-tenant',
     updateClient: 'tenants/update-tenant',
     onboarding: 'tenants/onboarding-status'
 };
@@ -83,15 +82,6 @@ const tenantsService = {
             return response.data.data!;
         } catch (err) {
             console.error('Error registering client:', err);
-            throw err;
-        }
-    },
-
-    async verify(credentials: TerminalVerificationParams): Promise<Tenant> {
-        try {
-            const response = await api.post<ApiResponse<Tenant>>(endpoints.verify, credentials as any);
-            return response.data.data!;
-        } catch (err) {
             throw err;
         }
     },

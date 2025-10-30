@@ -14,6 +14,6 @@ interface WelcomeEmailData {
     tenantCode: string;
     ownerName: string;
     email: string;
-    authKey: string;
+    verificationToken: string;
     verificationUrl?: string;
 }
