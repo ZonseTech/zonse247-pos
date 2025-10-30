@@ -76,7 +76,7 @@ const TenantsManagement: FunctionComponent = () => {
     return (
         <AppLayout>
             <div className="max-w-full">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-600">
                     <PageHeader
                         title='Tenants'
                         description='Manage tenants accounts and subscriptions'
@@ -88,7 +88,7 @@ const TenantsManagement: FunctionComponent = () => {
                         <div className="flex items-center space-x-3">
                             <Button
                                 onClick={() => navigate(ROUTES.TENANT_FORM)}
-                                theme='success'
+                                theme='primary'
                             >
                                 <HiOutlinePlus className="w-4 h-4 mr-2" />
                                 {'Add Tenant'}
