@@ -3,6 +3,7 @@ import {
 	Menu,
 	BrowserWindow,
 	MenuItemConstructorOptions,
+	shell,
 } from 'electron';
 import { ROUTES } from '../app/utils/constants';
 import { hasAnyPermission, hasPermission, hasRole } from '../app/utils';
@@ -56,7 +57,7 @@ export default class MenuBuilder {
 	}
 
 	private performAction(action: string): void {
-		this.mainWindow.webContents.send('menu-perform-action', action);
+		this.mainWindow.webContents.send(action);
 	}
 
 	buildDefaultTemplate(): Array<MenuItemConstructorOptions> {
@@ -101,7 +102,7 @@ export default class MenuBuilder {
 			});
 			fileSubmenu.push({
 				label: 'Restore Database',
-				click: () => this.performAction('restore-database'),
+				click: () => this.performAction('menu:restore-database'),
 			});
 			fileSubmenu.push({ type: 'separator' });
 		}
@@ -116,7 +117,7 @@ export default class MenuBuilder {
 			fileSubmenu.push({
 				label: 'Logout',
 				accelerator: 'CommandOrControl+Shift+L',
-				click: () => this.performAction('logout'),
+				click: () => this.performAction('menu-logout'),
 			});
 		}
 
@@ -272,12 +273,12 @@ export default class MenuBuilder {
 				{
 					label: 'Documentation',
 					click: () => {
-						require('electron').shell.openExternal('https://pos-docs.zonse247.com');
+						shell.openExternal('https://pos-docs.zonse247.com');
 					},
 				},
 				{
 					label: 'Check for Updates...',
-					click: () => this.performAction('check-updates'),
+					click: () => this.performAction('menu:check-updates'),
 				},
 				{ type: 'separator' },
 				{
