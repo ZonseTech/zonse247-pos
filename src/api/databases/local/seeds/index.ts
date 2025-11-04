@@ -36,7 +36,7 @@ const checkOrCreateDefaultRoles = async () => {
 				isSystemRole: true,
 				isActive: true,
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 			await sealDBModel.insert(ROLES_DB, defaultSuperAdminRole);
 		}
@@ -53,7 +53,7 @@ const checkOrCreateDefaultRoles = async () => {
 				isSystemRole: true,
 				isActive: true,
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 			await sealDBModel.insert(ROLES_DB, defaultAdminRole);
 		}
@@ -70,7 +70,7 @@ const checkOrCreateDefaultRoles = async () => {
 				isSystemRole: true,
 				isActive: true,
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 			await sealDBModel.insert(ROLES_DB, defaultManagerRole);
 		}
@@ -87,7 +87,7 @@ const checkOrCreateDefaultRoles = async () => {
 				isSystemRole: true,
 				isActive: true,
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 			await sealDBModel.insert(ROLES_DB, defaultCashierRole);
 		}
@@ -98,9 +98,11 @@ const checkOrCreateDefaultRoles = async () => {
 
 const checkOrCreateDefaultPermissions = async () => {
 	try {
-
 		for (const permission of DEFAULT_PERMISSIONS) {
-			const existing = await sealDBModel.findById<Permission>(PERMISSIONS_DB, permission.uuid);
+			const existing = await sealDBModel.findById<Permission>(
+				PERMISSIONS_DB,
+				permission.uuid
+			);
 			if (!existing) {
 				await sealDBModel.insert(PERMISSIONS_DB, permission);
 			}
@@ -112,16 +114,18 @@ const checkOrCreateDefaultPermissions = async () => {
 
 const checkOrCreateDefaultRolePermissions = async () => {
 	try {
-
 		for (const rp of DEFAULT_ROLE_PERMISSIONS) {
 			const existingId = `${rp.roleUuid}-${rp.permissionUuid}`;
-			const existing = await sealDBModel.findById(ROLE_PERMISSIONS_DB, existingId);
+			const existing = await sealDBModel.findById(
+				ROLE_PERMISSIONS_DB,
+				existingId
+			);
 			if (!existing) {
 				const rolePermission: RolePermission = {
 					uuid: existingId,
 					roleUuid: rp.roleUuid,
 					permissionUuid: rp.permissionUuid,
-					createdAt: new Date()
+					createdAt: new Date(),
 				};
 				await sealDBModel.insert(ROLE_PERMISSIONS_DB, rolePermission);
 			}
@@ -161,7 +165,7 @@ const checkOrCreateDefaultTenant = async () => {
 			taxOfficeCode: null,
 			synced: false,
 			createdAt: now,
-			updatedAt: now
+			updatedAt: now,
 		};
 
 		await sealDBModel.insert(TENANT_TABLE, defaultTenant);
@@ -188,7 +192,7 @@ const checkOrCreateDefaultBranch = async () => {
 			email: 'branch@example.com',
 			currencySymbol: 'K',
 			currencyCode: 'MKW',
-			taxRate: 0.00,
+			taxRate: 0.0,
 			chargeTax: false,
 			status: 'active',
 			isActive: true,
@@ -196,7 +200,7 @@ const checkOrCreateDefaultBranch = async () => {
 			synced: false,
 			mraApprovalStatus: 'PENDING',
 			createdAt: now,
-			updatedAt: now
+			updatedAt: now,
 		};
 
 		await sealDBModel.insert(BRANCHES_TABLE, defaultBranch);
@@ -263,10 +267,15 @@ const checkOrCreateDefaultSubscriptionPlans = async () => {
 				description: 'Basic POS features with monthly billing',
 				price: 29.99,
 				billingCycle: 'monthly' as const,
-				features: ['Basic POS', 'Up to 1000 products', 'Basic reports', 'Email support'],
+				features: [
+					'Basic POS',
+					'Up to 1000 products',
+					'Basic reports',
+					'Email support',
+				],
 				isActive: true,
 				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString()
+				updatedAt: new Date().toISOString(),
 			},
 			{
 				uuid: 'pro-monthly',
@@ -274,10 +283,16 @@ const checkOrCreateDefaultSubscriptionPlans = async () => {
 				description: 'Advanced POS features with monthly billing',
 				price: 59.99,
 				billingCycle: 'monthly' as const,
-				features: ['Advanced POS', 'Unlimited products', 'Advanced reports', 'Inventory management', 'Priority support'],
+				features: [
+					'Advanced POS',
+					'Unlimited products',
+					'Advanced reports',
+					'Inventory management',
+					'Priority support',
+				],
 				isActive: true,
 				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString()
+				updatedAt: new Date().toISOString(),
 			},
 			{
 				uuid: 'enterprise-yearly',
@@ -285,15 +300,24 @@ const checkOrCreateDefaultSubscriptionPlans = async () => {
 				description: 'Full-featured POS with yearly billing',
 				price: 599.99,
 				billingCycle: 'yearly' as const,
-				features: ['All features', 'Multi-location', 'API access', 'Custom integrations', '24/7 support'],
+				features: [
+					'All features',
+					'Multi-location',
+					'API access',
+					'Custom integrations',
+					'24/7 support',
+				],
 				isActive: true,
 				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString()
-			}
+				updatedAt: new Date().toISOString(),
+			},
 		];
 
 		for (const plan of plans) {
-			const existing = await sealDBModel.findById(SUBSCRIPTION_PLANS_TABLE, plan.uuid);
+			const existing = await sealDBModel.findById(
+				SUBSCRIPTION_PLANS_TABLE,
+				plan.uuid
+			);
 			if (!existing) {
 				await sealDBModel.insert(SUBSCRIPTION_PLANS_TABLE, plan);
 			}
@@ -305,10 +329,13 @@ const checkOrCreateDefaultSubscriptionPlans = async () => {
 
 const checkOrCreateDefaultTenantSubscriptions = async () => {
 	try {
-		const subscription = await sealDBModel.findById(TENANT_SUBSCRIPTIONS_TABLE, '-1');
+		const subscription = await sealDBModel.findById(
+			TENANT_SUBSCRIPTIONS_TABLE,
+			'-1'
+		);
 		if (subscription) return;
 
-		const defaultSubscription: ClientSubscription = {
+		const defaultSubscription: TenantSubscription = {
 			uuid: '-1',
 			tenantId: '-1',
 			planId: 'basic-monthly',
@@ -320,9 +347,11 @@ const checkOrCreateDefaultTenantSubscriptions = async () => {
 			paymentMethod: 'trial',
 			synced: 0,
 			lastPaymentDate: new Date().toISOString(),
-			nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+			nextPaymentDate: new Date(
+				Date.now() + 30 * 24 * 60 * 60 * 1000
+			).toISOString(),
 			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString()
+			updatedAt: new Date().toISOString(),
 		};
 
 		await sealDBModel.insert(TENANT_SUBSCRIPTIONS_TABLE, defaultSubscription);
@@ -348,8 +377,8 @@ const checkOrCreateDefaultUser = async () => {
 			tenantId: '-1',
 			shopUuid: '-1',
 			roleUuid: 'super-admin',
-			accessibleShops: ["*"],
-			allowedWorkstations: ["*"],
+			accessibleShops: ['*'],
+			allowedWorkstations: ['*'],
 			email: 'zonse247@gmail.com',
 			status: 'active',
 			synced: 0,
@@ -384,9 +413,7 @@ const checkOrCreateDefaultCustomer = async () => {
 const checkOrCreateSetupStatus = async () => {
 	// try {
 	// 	const setup = await sealDBModel.findById(APP_SETUP_DB, '-1');
-
 	// 	if (setup) return;
-
 	// 	const setupData: SetupParams = {
 	// 		uuid: '-1',
 	// 		isCompleted: false,
@@ -394,7 +421,6 @@ const checkOrCreateSetupStatus = async () => {
 	// 		branchConfigured: false,
 	// 		tenantSetup: false,
 	// 	};
-
 	// 	await sealDBModel.insert(APP_SETUP_DB, setupData);
 	// } catch (err) {
 	// 	console.error(err);
@@ -416,13 +442,13 @@ async function checkOrCreateDefaultSettings(): Promise<void> {
 			store: 'Main Till',
 			addressLine1: '123 Business Street',
 			addressLine2: '123 Business Street',
-			country: "Malawi",
+			country: 'Malawi',
 			city: 'Lilongwe',
 			contact: config.app.contact,
 			tax: '0.00',
 			symbol: 'MK',
 			footer: 'Footer',
-			status: "active"
+			status: 'active',
 		};
 
 		await sealDBModel.insert(SHOP_SETTINGS_DB, defaultSettings);
@@ -538,20 +564,20 @@ async function checkOrCreateDefaultPaymentServiceProviders(): Promise<void> {
 
 const seedDatabase = async () => {
 	try {
-		checkOrCreateDefaultRoles()
-		checkOrCreateDefaultPermissions()
-		checkOrCreateDefaultRolePermissions()
-		checkOrCreateDefaultBranch()
-		checkOrCreateDefaultTenant()
-		checkOrCreateDefaultTerminal()
-		checkOrCreateDefaultSubscriptionPlans()
-		checkOrCreateDefaultTenantSubscriptions()
+		checkOrCreateDefaultRoles();
+		checkOrCreateDefaultPermissions();
+		checkOrCreateDefaultRolePermissions();
+		checkOrCreateDefaultBranch();
+		checkOrCreateDefaultTenant();
+		checkOrCreateDefaultTerminal();
+		checkOrCreateDefaultSubscriptionPlans();
+		checkOrCreateDefaultTenantSubscriptions();
 
 		checkOrCreateDefaultUser();
 		checkOrCreateDefaultCustomer();
 		checkAndCreateDefaultCategory();
 		checkOrCreateDefaultPaymentMethods();
-		checkOrCreateDefaultPaymentServiceProviders()
+		checkOrCreateDefaultPaymentServiceProviders();
 		checkOrCreateDefaultSettings();
 		// checkOrCreateSetupStatus();
 
