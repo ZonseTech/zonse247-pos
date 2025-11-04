@@ -49,7 +49,8 @@ const Numpad: FunctionComponent<NumpadProps> = ({
     const numpadButtons = getNumpadButtons(type);
 
     const getButtonClass = (btn: string): string => {
-        let buttonClass = "font-bold text-md py-8 font-bold transition-all ";
+        let buttonClass = "font-bold text-md font-bold transition-all h-full ";
+
         if (btn === 'Del') {
             buttonClass += "bg-red-500 hover:bg-red-600 text-white";
         } else if (btn === 'OK') {
@@ -57,15 +58,15 @@ const Numpad: FunctionComponent<NumpadProps> = ({
         } else {
             buttonClass += "bg-black hover:bg-gray-800 text-white";
         }
+
         return buttonClass;
     };
 
     return (
-        <div>
+        <div className="flex flex-col h-[calc(56vh)]">
             {title && <h3 className="text-3xl font-bold text-black dark:text-gray-400 mb-4 uppercase">{title}</h3>}
-
-            <div className={`${className}`}>
-                <div className="grid grid-cols-3 gap-1 numpad-container">
+            <div className={`flex-1 ${className}`}>
+                <div className="grid grid-cols-3 gap-1 h-full" style={{ gridTemplateRows: 'repeat(5, 1fr)' }}>
                     {numpadButtons.map((btn, index) => (
                         btn ? (
                             <button
@@ -82,7 +83,7 @@ const Numpad: FunctionComponent<NumpadProps> = ({
                                 {btn}
                             </button>
                         ) : (
-                            <div key={index} className="py-10" />
+                            <div key={index} />
                         )
                     ))}
                 </div>
