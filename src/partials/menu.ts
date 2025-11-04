@@ -229,6 +229,10 @@ export default class MenuBuilder {
 			])
 		) {
 			managementSubmenu.push({
+				label: 'Billing',
+				click: () => this.navigateTo(ROUTES.SUBSCRIPTION_BILLING),
+			});
+			managementSubmenu.push({
 				label: 'Users',
 				click: () => this.navigateTo(ROUTES.USERS),
 			});

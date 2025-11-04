@@ -11,7 +11,7 @@ import type { ChangeEvent, FunctionComponent } from 'react'
 import FormSelectBox from '../../../components/FormSelectBox'
 
 interface SubscriptionFormModalProps {
-    subscription?: ClientSubscription | null;
+    subscription?: TenantSubscription | null;
     isOpen?: boolean;
     onClose?: () => void;
     onSubscriptionSaved?: () => void;
@@ -58,7 +58,7 @@ const SubscriptionFormModal: FunctionComponent<SubscriptionFormModalProps> = ({
         });
     };
 
-    const initialSubscriptionValues: ClientSubscription = subscription ? {
+    const initialSubscriptionValues: TenantSubscription = subscription ? {
         ...subscription,
         startsAt: subscription.startsAt ? new Date(subscription.startsAt).toISOString().split('T')[0] : '',
         endsAt: subscription.endsAt ? new Date(subscription.endsAt).toISOString().split('T')[0] : '',
@@ -116,7 +116,7 @@ const SubscriptionFormModal: FunctionComponent<SubscriptionFormModalProps> = ({
             .typeError('Please enter a valid date')
     });
 
-    const handleSubmit = async (values: ClientSubscription, { resetForm }: any) => {
+    const handleSubmit = async (values: TenantSubscription, { resetForm }: any) => {
         try {
             const submitValues = {
                 ...values,

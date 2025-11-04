@@ -26,8 +26,9 @@ const Transactions = lazy(() => import('../pages/transactions'))
 const DatabaseExporter = lazy(() => import('../pages/export-db'))
 const AccountDetails = lazy(() => import('../pages/auth/MyProfile'))
 const WorkStationManagement = lazy(() => import('../pages/workstation'))
-const RolesAndPermissions = lazy(() => import('../pages/role-permissions'))
 const SubscriptionManagement = lazy(() => import('../pages/subscription'))
+const RolesAndPermissions = lazy(() => import('../pages/role-permissions'))
+const SubscriptionBilling = lazy(() => import('../pages/subscription/billing'))
 
 const ProtectedLayoutWithAuth = withProtectedRoute(ProtectedLayout)
 
@@ -59,6 +60,7 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 				<Route path={ROUTES.EXPORT_DB} element={<DatabaseExporter />} />
 				<Route path={ROUTES.TERMINALS} element={<WorkStationManagement />} />
 				<Route path={ROUTES.SUBSCRIPTIONS} element={<SubscriptionManagement />} />
+				<Route path={ROUTES.SUBSCRIPTION_BILLING} element={<SubscriptionBilling />} />
 				<Route path={ROUTES.ROLES_PERMISSIONS} element={<RolesAndPermissions />} />
 
 				<Route path="*" element={<Navigate to="/not-found" />} />

@@ -8,7 +8,10 @@ export enum ROUTES {
 	CATEGORIES = '/categories',
 	PRODUCTS = '/products',
 	TERMINALS = '/terminals',
+
 	SUBSCRIPTIONS = '/subscriptions',
+	SUBSCRIPTION_BILLING = '/subscriptions/billing',
+	SUBSCRIPTION_PLAN_FORM = '/subscription-plans/form',
 
 	TENANTS = '/tenants',
 	TENANT_FORM = '/tenants/form',
@@ -29,11 +32,11 @@ export enum PermissionScope {
 	CLIENT = 'client',
 	SHOP = 'shop',
 	WORKSTATION = 'workstation',
-	SELF = 'self'
+	SELF = 'self',
 }
 
 export enum UserStatus {
 	ACTIVE = 'active',
 	INACTIVE = 'inactive',
-	SUSPENDED = 'suspended'
+	SUSPENDED = 'suspended',
 }

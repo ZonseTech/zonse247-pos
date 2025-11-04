@@ -76,12 +76,10 @@ const TenantsManagement: FunctionComponent = () => {
     return (
         <AppLayout>
             <div className="max-w-full">
-                <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-600">
-                    <PageHeader
-                        title='Tenants'
-                        description='Manage tenants accounts and subscriptions'
-                    />
-
+                <PageHeader
+                    title='Tenants'
+                    description='Manage tenants accounts and subscriptions'
+                >
                     <div className="flex items-center space-x-4">
                         <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
 
@@ -95,7 +93,7 @@ const TenantsManagement: FunctionComponent = () => {
                             </Button>
                         </div>
                     </div>
-                </div>
+                </PageHeader>
                 <DataTable
                     columns={columns}
                     data={getPaginatedData()}
