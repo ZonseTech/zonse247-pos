@@ -42,9 +42,6 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
                 if (authData) {
                     setAuth(JSON.parse(authData));
                 }
-                // if (!auth) {
-                //     await api.get('users/check')
-                // }
             } catch (err) {
                 console.error('Error accessing electron store:', err);
             } finally {
@@ -118,7 +115,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
             diagOptions.cancelButtonText,
             async () => {
                 try {
-                    await api.get('auth/logout/' + user?.uuid)
+                    await api.get('auth/logout/' + user?.userId)
                         .then((() => {
                             setUser(null);
                             setAuth(null);

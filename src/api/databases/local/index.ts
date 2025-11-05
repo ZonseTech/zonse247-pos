@@ -64,10 +64,10 @@ export class SealDBModel {
 						autoload: true,
 					});
 
-					this.databases[tableName].ensureIndex({
-						fieldName: 'uuid',
-						unique: true,
-					});
+					// this.databases[tableName].ensureIndex({
+					// 	fieldName: 'uuid',
+					// 	unique: true,
+					// });
 					this.initializeSyncStatus(tableName);
 
 					console.log(`Initialized database for table: ${tableName}`);
@@ -219,7 +219,7 @@ export class SealDBModel {
 		});
 	}
 
-	public update(table: string, id: string, data: any): Promise<number> {
+	public update(table: string, conditions: string | Record<string, any>, data: any): Promise<number> {
 		return new Promise((resolve, reject) => {
 			try {
 				const db = this.getDB(table);
@@ -228,8 +228,11 @@ export class SealDBModel {
 					updatedAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
 				};
 
+				const query =
+					typeof conditions === 'string' ? { uuid: conditions } : conditions;
+
 				db.update(
-					{ uuid: id },
+					query,
 					{ $set: updateData },
 					{},
 					(err: Error | null, numReplaced: number) => {
@@ -243,11 +246,14 @@ export class SealDBModel {
 		});
 	}
 
-	public delete(table: string, id: string): Promise<number> {
+	public delete(table: string, conditions: string | Record<string, any>): Promise<number> {
 		return new Promise((resolve, reject) => {
 			try {
 				const db = this.getDB(table);
-				db.remove({ uuid: id }, {}, (err: Error | null, numRemoved: number) => {
+				const query =
+					typeof conditions === 'string' ? { uuid: conditions } : conditions;
+
+				db.remove(query, {}, (err: Error | null, numRemoved: number) => {
 					if (err) reject(err);
 					else resolve(numRemoved);
 				});
@@ -395,7 +401,7 @@ export class SealDBModel {
 		Object.keys(this.databases).forEach((tableName) => {
 			try {
 				const db = this.databases[tableName];
-				db.ensureIndex({ fieldName: 'uuid', unique: true });
+				// db.ensureIndex({ fieldName: 'uuid', unique: true });
 
 				switch (tableName) {
 					case USERS_DB:
@@ -425,8 +431,8 @@ export class SealDBModel {
 						db.ensureIndex({ fieldName: 'isPrimary' });
 						break;
 					case ROLES_DB:
-						db.ensureIndex({ fieldName: 'clientUuid' });
-						db.ensureIndex({ fieldName: 'shopUuid' });
+						db.ensureIndex({ fieldName: 'tenantId' });
+						db.ensureIndex({ fieldName: 'branchId' });
 						db.ensureIndex({ fieldName: 'name' });
 						db.ensureIndex({ fieldName: 'isSystemRole' });
 						db.ensureIndex({ fieldName: 'isActive' });
@@ -438,13 +444,13 @@ export class SealDBModel {
 						db.ensureIndex({ fieldName: 'isSystemPermission' });
 						break;
 					case ROLE_PERMISSIONS_DB:
-						db.ensureIndex({ fieldName: 'roleUuid' });
-						db.ensureIndex({ fieldName: 'permissionUuid' });
+						db.ensureIndex({ fieldName: 'roleId' });
+						db.ensureIndex({ fieldName: 'permissionId' });
 						break;
 					case SHOP_SETTINGS_DB:
-						db.ensureIndex({ fieldName: 'clientUuid' });
-						db.ensureIndex({ fieldName: 'shopUuid' });
-						db.ensureIndex({ fieldName: 'workstationUuid' });
+						db.ensureIndex({ fieldName: 'tenantId' });
+						db.ensureIndex({ fieldName: 'branchId' });
+						db.ensureIndex({ fieldName: 'terminalId' });
 						break;
 				}
 				console.log(`Ensured indexes for table: ${tableName}`);

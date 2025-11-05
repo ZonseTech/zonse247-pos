@@ -5,7 +5,7 @@ interface SubscriptionResponse {
 }
 
 interface SubscriptionPlan {
-	uuid: string;
+	planId: string;
 	name: string;
 	description?: string;
 	price: number;
@@ -18,9 +18,9 @@ interface SubscriptionPlan {
 }
 
 interface TenantSubscription {
-	uuid: string;
-	clientUuid: string;
-	clientDetails?: {
+	subscriptionId: string;
+	tenantId: string;
+	tenantDetails?: {
 		clientCode: string;
 		companyName: string;
 		ownerName: string;
@@ -40,7 +40,7 @@ interface TenantSubscription {
 }
 
 interface CreateSubscriptionRequest {
-	clientUuid: string;
+	tenantId: string;
 	planId: string;
 	paymentMethod?: string;
 	autoRenew?: boolean;
@@ -65,13 +65,6 @@ interface ProcessPaymentRequest {
 	paymentMethod: string;
 }
 
-interface ApiResponse<T = any> {
-	success: boolean;
-	message: string;
-	data?: T;
-	error?: string;
-}
-
 interface SubscriptionStats {
 	total: number;
 	active: number;
@@ -80,4 +73,42 @@ interface SubscriptionStats {
 	pastDue: number;
 	monthlyRevenue: number;
 	annualRevenue: number;
+}
+
+// ----------------------------------------------------------------------------------------- //
+interface PlanFeature {
+	name: string;
+	included: boolean;
+	tooltip?: string;
+}
+
+interface PlanLimits {
+	terminals: number;
+	users: number;
+	products: number;
+	storage: string;
+}
+
+interface PricingPlan {
+	id: string;
+	name: string;
+	description: string;
+	monthlyPrice: number;
+	yearlyPrice: number;
+	color: 'blue' | 'green' | 'purple' | 'gray';
+	popular?: boolean;
+	features: PlanFeature[];
+	limits: PlanLimits;
+	notes?: string;
+}
+
+interface TenantInfo {
+	businessName: string;
+	email: string;
+	phone: string;
+	address: string;
+}
+
+interface PaymentInfo {
+	referenceNumber?: string;
 }

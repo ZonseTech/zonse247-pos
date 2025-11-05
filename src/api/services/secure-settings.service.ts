@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { sealDBModel } from '../databases/local';
 import { APP_SETUP_DB } from '../databases/local/tables';
+import { SyncService } from './sync.service';
 
 export class SecureSettingsService {
     private static initialized = false;
@@ -130,8 +131,8 @@ export class SecureSettingsService {
             );
 
             const now = new Date();
-            const encryptedSetup = {
-                uuid: '-1',
+            const encryptedSetup: SetupData = {
+                setupId: '-1',
                 tenantId: params.tenantId,
                 branchId: params.branchId,
                 terminalId: params.terminalId,
@@ -150,8 +151,7 @@ export class SecureSettingsService {
 
             await sealDBModel.insert(APP_SETUP_DB, encryptedSetup);
 
-            // pull tenant users after saving setup
-            const syncService = new (await import('./sync.service')).SyncService();
+            const syncService = new SyncService();
             await syncService.syncTable('users', 'pull');
 
         } catch (error) {
@@ -168,7 +168,7 @@ export class SecureSettingsService {
 
             const encryptedSetup = await sealDBModel.findById<any>(
                 APP_SETUP_DB,
-                '-1'
+                { setupId: '-1' }
             );
 
             if (!encryptedSetup) {
@@ -192,7 +192,7 @@ export class SecureSettingsService {
             }
 
             return {
-                uuid: encryptedSetup.uuid,
+                setupId: encryptedSetup.setupId,
                 tenantId: encryptedSetup.tenantId,
                 branchId: encryptedSetup.branchId,
                 terminalId: encryptedSetup.terminalId,
@@ -209,7 +209,7 @@ export class SecureSettingsService {
 
     static async hasAppSetup(): Promise<boolean> {
         try {
-            const setup = await sealDBModel.findById(APP_SETUP_DB, '-1');
+            const setup = await sealDBModel.findById(APP_SETUP_DB, { setupId: '-1' });
             return setup !== null;
         } catch (error) {
             return false;

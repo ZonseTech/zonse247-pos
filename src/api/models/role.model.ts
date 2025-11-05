@@ -13,7 +13,7 @@ export class RoleModel {
 
     static async findById(id: string): Promise<Role | null> {
         try {
-            return await sealDBModel.findById<Role>(ROLES_DB, id);
+            return await sealDBModel.findById<Role>(ROLES_DB, { roleId: id });
         } catch (error) {
             throw new Error(`Error finding role by ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
@@ -65,9 +65,9 @@ export class RoleModel {
     static buildRoleData(data: CreateRoleRequest): Role {
         const now = new Date();
         return {
-            uuid: uuidv4(),
-            clientUuid: data.clientUuid,
-            shopUuid: data.shopUuid || null,
+            roleId: uuidv4(),
+            tenantId: data.tenantId,
+            branchId: data.branchId || null,
             name: data.name,
             displayName: data.displayName,
             description: data.description || null,

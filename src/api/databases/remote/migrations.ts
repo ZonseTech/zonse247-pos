@@ -20,7 +20,8 @@ import {
     ROLE_PERMISSIONS_DB,
     USER_PERMISSIONS_DB,
     PAYMENT_SERVICE_PROVIDERS_DB,
-    MRA_API_CONFIG_TABLE
+    MRA_API_CONFIG_TABLE,
+    PLAN_FEATURES
 } from '../local/tables';
 
 const testConnection = async () => {
@@ -97,21 +98,33 @@ const initDatabase = async () => {
 
         await connection.query(`
             CREATE TABLE IF NOT EXISTS ${SUBSCRIPTION_PLANS_TABLE} (
-                subscription_plan_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                subscription_plan_id INT PRIMARY KEY AUTO_INCREMENT,
+                plan_code VARCHAR(50) UNIQUE NOT NULL, -- 'free', 'cloud', 'cloud-mra'
                 name VARCHAR(100) NOT NULL,
                 description TEXT,
-                price DECIMAL(10, 2) NOT NULL,
-                billing_cycle ENUM('monthly', 'yearly', 'lifetime') NOT NULL,
-                max_shops INT DEFAULT 1,
-                max_users_per_shop INT DEFAULT 5,
-                max_products INT DEFAULT 1000,
-                max_transactions_per_month INT DEFAULT 10000,
-                features JSON,
+                monthly_price DECIMAL(12, 2) NOT NULL DEFAULT 0,
+                yearly_price DECIMAL(12, 2) NOT NULL DEFAULT 0,
+                color VARCHAR(20) NOT NULL DEFAULT 'gray',
+                is_popular BOOLEAN DEFAULT FALSE,
                 is_active BOOLEAN DEFAULT TRUE,
+                features JSON NOT NULL,
+                limits JSON NOT NULL,
+                notes TEXT,
                 synced TINYINT DEFAULT 0,
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)
-            )
+            );
+        `);
+
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS ${PLAN_FEATURES} (
+                feature_category_id INT PRIMARY KEY AUTO_INCREMENT,
+                title VARCHAR(100) NOT NULL,
+                features JSON NOT NULL,
+                display_order INT DEFAULT 0,
+                created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
+                updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)
+            );
         `);
 
         await connection.query(`

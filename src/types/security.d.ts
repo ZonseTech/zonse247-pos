@@ -4,7 +4,7 @@ interface EncryptionResult {
 }
 
 interface SetupParams {
-    uuid: string;
+    setupId: string;
     tenantId: string;
     branchId: string;
     terminalId: string;
@@ -15,7 +15,7 @@ interface SetupParams {
 }
 
 interface SetupData {
-    uuid: string;
+    setupId: string;
     tenantId: string;
     branchId: string;
     terminalId: string;

@@ -23,7 +23,7 @@ const TerminalSelectionStep: FunctionComponent<{
         };
 
         const handleTerminalClick = (terminal: Terminal) => {
-            if (!isTerminalDisabled(terminal)) {
+            if (isTerminalDisabled(terminal)) {
                 onTerminalSelect(terminal);
             }
         };
