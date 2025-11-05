@@ -8,7 +8,7 @@ export class SubscriptionService {
 
 		const enhancedSubscriptions = await Promise.all(
 			subscriptions.map(async (subscription) => {
-				const tenant = await TenantModel.findById(subscription.clientUuid);
+				const tenant = await TenantModel.findById(subscription.tenantId);
 
 				return {
 					...subscription,
@@ -39,18 +39,13 @@ export class SubscriptionService {
 			throw new Error(validationError);
 		}
 
-		const client = await TenantModel.findById(data.clientUuid);
+		const client = await TenantModel.findById(data.tenantId);
 		if (!client) {
 			throw new Error('Client not found');
 		}
 
-		/* const plan = await SubscriptionModel.findById(data.planId);
-        if (!plan || !plan.isActive) {
-            throw new Error('Subscription plan not found or inactive');
-        } */
-
 		const existingSubscriptions =
-			await SubscriptionModel.findActiveByClientUuid(data.clientUuid);
+			await SubscriptionModel.findActiveByTenantId(data.tenantId);
 		if (existingSubscriptions) {
 			throw new Error('Client already has an active subscription');
 		}
@@ -64,10 +59,10 @@ export class SubscriptionService {
 
 		const newSubscription = await SubscriptionModel.create(subscriptionData);
 
-		await TenantModel.update(data.clientUuid, {
-			subscriptionStatus: 'active',
+		await TenantModel.update(data.tenantId, {
+			subscriptionStatus: 'ACTIVE',
 			status: 'active',
-			activatedAt: new Date().toISOString(),
+			activatedAt: new Date(),
 		});
 
 		return newSubscription;
@@ -102,7 +97,7 @@ export class SubscriptionService {
 	static async getByClientUuid(
 		clientUuid: string
 	): Promise<TenantSubscription[]> {
-		return SubscriptionModel.findByClientUuid(clientUuid);
+		return SubscriptionModel.findByTenantId(clientUuid);
 	}
 
 	static async getByPlanId(planId: string): Promise<TenantSubscription[]> {
@@ -124,8 +119,8 @@ export class SubscriptionService {
 
 		await SubscriptionModel.update(id, cancelData as any);
 
-		await TenantModel.update(subscription.clientUuid, {
-			subscriptionStatus: 'cancelled',
+		await TenantModel.update(subscription.tenantId, {
+			subscriptionStatus: 'CANCELLED',
 		});
 
 		return SubscriptionModel.findByUuid(id);
@@ -169,8 +164,8 @@ export class SubscriptionService {
 
 		await SubscriptionModel.update(id, reactivateData as any);
 
-		await TenantModel.update(subscription.clientUuid, {
-			subscriptionStatus: 'active',
+		await TenantModel.update(subscription.tenantId, {
+			subscriptionStatus: 'ACTIVE',
 			status: 'active',
 		});
 
@@ -264,14 +259,14 @@ export class SubscriptionService {
 		data: CreateSubscriptionRequest
 	): Promise<TenantSubscription> {
 		const validationError = TenantService.validateRequired(data, [
-			'clientUuid',
+			'tenantId',
 			'planId',
 		]);
 		if (validationError) {
 			throw new Error(validationError);
 		}
 
-		const client = await TenantModel.findById(data.clientUuid);
+		const client = await TenantModel.findById(data.tenantId);
 		if (!client) {
 			throw new Error('Client not found');
 		}
@@ -282,13 +277,13 @@ export class SubscriptionService {
 		}
 
 		const existingSubscriptions =
-			await SubscriptionModel.findActiveByClientUuid(data.clientUuid);
+			await SubscriptionModel.findActiveByTenantId(data.tenantId);
 		if (existingSubscriptions) {
 			throw new Error('Client already has an active subscription');
 		}
 
 		const subscriptionData = SubscriptionModel.buildSubscriptionData(
-			data.clientUuid,
+			data.tenantId,
 			data.planId,
 			plan,
 			data.paymentMethod,
@@ -298,10 +293,10 @@ export class SubscriptionService {
 		const newSubscription = await SubscriptionModel.create(subscriptionData);
 
 		const now = new Date();
-		await TenantModel.update(data.clientUuid, {
-			subscriptionStatus: 'active',
+		await TenantModel.update(data.tenantId, {
+			subscriptionStatus: 'ACTIVE',
 			status: 'active',
-			activatedAt: now.toISOString(),
+			activatedAt: now,
 		});
 
 		return newSubscription;
