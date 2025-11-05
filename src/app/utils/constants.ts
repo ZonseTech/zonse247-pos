@@ -11,7 +11,7 @@ export enum ROUTES {
 
 	SUBSCRIPTIONS = '/subscriptions',
 	SUBSCRIPTION_BILLING = '/subscriptions/billing',
-	SUBSCRIPTION_PLAN_FORM = '/subscription-plans/form',
+	BILLING_CHECKOUT_FORM = '/subscriptions/billing/checkout-form',
 
 	TENANTS = '/tenants',
 	TENANT_FORM = '/tenants/form',
