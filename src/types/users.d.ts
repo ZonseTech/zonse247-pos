@@ -1,7 +1,7 @@
 interface User {
-    uuid: string;
-    clientUuid: string;
-    shopUuid: string;
+    userId: string;
+    tenantId: string;
+    branchId: string;
     username: string;
     password: string;
     fullname: string;
@@ -9,7 +9,7 @@ interface User {
     departmentId?: string | null;
     departmentName?: string | null;
     phone?: string | null;
-    roleUuid: string;
+    roleId: string;
     roleName?: string | null;
     permissions?: string[] | null;
     status?: UserStatus;
@@ -18,13 +18,13 @@ interface User {
     maxDiscountPercent?: number;
     canOverridePrices?: boolean;
     pinCode?: string | null;
-    currentShopUuid?: string | null;
+    currentBranchId?: string | null;
     lastLogin?: Date | null;
     lastLogout?: Date | null;
     passwordChangedAt?: Date;
     forcePasswordChange?: boolean;
-    roles: Array<string>;
-    permissions: Array<string>;
+    roles?: Array<string>;
+    permissions?: Array<string>;
     synced?: 0 | 1,
     createdAt?: Date;
     updatedAt?: Date;
@@ -61,7 +61,7 @@ interface UserFormModalProps {
 }
 
 interface AuthenticatedUser {
-    userUuid: string;
-    clientUuid: string;
-    shopUuid: string;
+    userId: string;
+    tenantId: string;
+    branchId: string;
 }

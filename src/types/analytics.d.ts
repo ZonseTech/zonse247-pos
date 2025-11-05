@@ -3,11 +3,6 @@ interface MonthlySales {
     totalAmount: number;
 }
 
-interface Category {
-    uuid: string;
-    name: string;
-}
-
 interface TopProduct {
     uuid: string;
     name: string;

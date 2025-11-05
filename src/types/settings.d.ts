@@ -1,5 +1,5 @@
 interface TerminalSettings {
-    uuid: string;
+    settingId: string;
     app: string;
     store: string;
     verificationToken: string;
@@ -26,12 +26,12 @@ interface TerminalSettings {
 
 interface Settings {
     synced?: 1 | 0;
-    uuid: string;
+    settingId: string;
     settings: Setting;
 }
 
 interface Setting {
-    uuid: string;
+    settingId: string;
     tenantId: string;
     branchId: string;
     tenantSignature: string;
