@@ -21,10 +21,12 @@ export const SHOP_SETTINGS_DB = 'shop_settings';
 export const TERMINAL_SETTINGS_DB = 'terminal_settings';
 export const APP_SETUP_DB = 'app_setup';
 export const SUBSCRIPTION_PLANS_TABLE = 'subscription_plans';
+export const PLAN_FEATURES = 'plan_features';
 export const TENANT_SUBSCRIPTIONS_TABLE = 'tenant_subscriptions';
 export const AUDIT_LOGS_DB = 'audit_logs';
 
 export default [
+	PLAN_FEATURES,
 	SYNC_STATUS_TABLE,
 	PAYMENT_METHODS_DB,
 	HOLD_ORDERS_DB,

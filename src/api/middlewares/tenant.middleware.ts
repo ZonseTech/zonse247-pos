@@ -17,10 +17,6 @@ export class TenantMiddleware {
                 return;
             }
 
-            console.log('====================================');
-            console.log("Verifying tenant signature");
-            console.log('====================================');
-
             const verification = await SecureSettingsService.verifyTenantSignature(tenantSignature);
 
             if (!verification.isValid) {
@@ -31,10 +27,6 @@ export class TenantMiddleware {
                 );
                 return;
             }
-
-            console.log('====================================');
-            console.log('Signature verified for tenant:', verification.tenantId);
-            console.log('====================================');
 
             const tenant: Omit<Tenant, 'verificationToken'> = await TenantService.getTenantById(
                 verification.tenantId!

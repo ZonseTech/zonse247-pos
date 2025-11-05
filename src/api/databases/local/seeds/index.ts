@@ -24,12 +24,12 @@ const now = new Date();
 
 const checkOrCreateDefaultRoles = async () => {
 	try {
-		const superAdminRole = await sealDBModel.findById(ROLES_DB, 'super-admin');
+		const superAdminRole = await sealDBModel.findById(ROLES_DB, { roleId: 'super-admin' });
 		if (!superAdminRole) {
 			const defaultSuperAdminRole: Role = {
-				uuid: 'super-admin',
+				roleId: 'super-admin',
 				tenantId: '-1',
-				shopUuid: '-1',
+				branchId: '-1',
 				name: 'super_admin',
 				displayName: 'Super Administrator',
 				description: 'System super administrator with full access',
@@ -41,12 +41,12 @@ const checkOrCreateDefaultRoles = async () => {
 			await sealDBModel.insert(ROLES_DB, defaultSuperAdminRole);
 		}
 
-		const adminRole = await sealDBModel.findById(ROLES_DB, 'admin');
+		const adminRole = await sealDBModel.findById(ROLES_DB, { roleId: 'admin' });
 		if (!adminRole) {
 			const defaultAdminRole: Role = {
-				uuid: 'admin',
+				roleId: 'admin',
 				tenantId: '-1',
-				shopUuid: '-1',
+				branchId: '-1',
 				name: 'admin',
 				displayName: 'Administrator',
 				description: 'Shop administrator with full shop access',
@@ -58,12 +58,12 @@ const checkOrCreateDefaultRoles = async () => {
 			await sealDBModel.insert(ROLES_DB, defaultAdminRole);
 		}
 
-		const managerRole = await sealDBModel.findById(ROLES_DB, 'manager');
+		const managerRole = await sealDBModel.findById(ROLES_DB, { roleId: 'manager' });
 		if (!managerRole) {
 			const defaultManagerRole: Role = {
-				uuid: 'manager',
+				roleId: 'manager',
 				tenantId: '-1',
-				shopUuid: '-1',
+				branchId: '-1',
 				name: 'manager',
 				displayName: 'Manager',
 				description: 'Shop manager with limited administrative access',
@@ -75,12 +75,12 @@ const checkOrCreateDefaultRoles = async () => {
 			await sealDBModel.insert(ROLES_DB, defaultManagerRole);
 		}
 
-		const cashierRole = await sealDBModel.findById(ROLES_DB, 'cashier');
+		const cashierRole = await sealDBModel.findById(ROLES_DB, { roleId: 'cashier' });
 		if (!cashierRole) {
 			const defaultCashierRole: Role = {
-				uuid: 'cashier',
+				roleId: 'cashier',
 				tenantId: '-1',
-				shopUuid: '-1',
+				branchId: '-1',
 				name: 'cashier',
 				displayName: 'Cashier',
 				description: 'Basic cashier role for sales operations',
@@ -101,7 +101,7 @@ const checkOrCreateDefaultPermissions = async () => {
 		for (const permission of DEFAULT_PERMISSIONS) {
 			const existing = await sealDBModel.findById<Permission>(
 				PERMISSIONS_DB,
-				permission.uuid
+				{ permissionId: permission.permissionId }
 			);
 			if (!existing) {
 				await sealDBModel.insert(PERMISSIONS_DB, permission);
@@ -115,16 +115,16 @@ const checkOrCreateDefaultPermissions = async () => {
 const checkOrCreateDefaultRolePermissions = async () => {
 	try {
 		for (const rp of DEFAULT_ROLE_PERMISSIONS) {
-			const existingId = `${rp.roleUuid}-${rp.permissionUuid}`;
+			const existingId = `${rp.rolePermissionId}-${rp.permissionId}`;
 			const existing = await sealDBModel.findById(
 				ROLE_PERMISSIONS_DB,
-				existingId
+				{ rolePermissionId: existingId }
 			);
 			if (!existing) {
 				const rolePermission: RolePermission = {
-					uuid: existingId,
-					roleUuid: rp.roleUuid,
-					permissionUuid: rp.permissionUuid,
+					rolePermissionId: existingId,
+					roleId: rp.roleId,
+					permissionId: rp.permissionId,
 					createdAt: new Date(),
 				};
 				await sealDBModel.insert(ROLE_PERMISSIONS_DB, rolePermission);
@@ -137,7 +137,7 @@ const checkOrCreateDefaultRolePermissions = async () => {
 
 const checkOrCreateDefaultTenant = async () => {
 	try {
-		const tenant = await sealDBModel.findById(TENANT_TABLE, '-1');
+		const tenant = await sealDBModel.findById(TENANT_TABLE, { tenantId: '-1' });
 		if (tenant) return;
 
 		const defaultTenant: Tenant = {
@@ -177,7 +177,7 @@ const checkOrCreateDefaultTenant = async () => {
 
 const checkOrCreateDefaultBranch = async () => {
 	try {
-		const branch = await sealDBModel.findById(BRANCHES_TABLE, '-1');
+		const branch = await sealDBModel.findById(BRANCHES_TABLE, { branchId: '-1' });
 		if (branch) return;
 
 		const defaultBranch: Branch = {
@@ -212,7 +212,7 @@ const checkOrCreateDefaultBranch = async () => {
 
 const checkOrCreateDefaultTerminal = async () => {
 	try {
-		const terminal = await sealDBModel.findById(TERMINALS_TABLE, '-1');
+		const terminal = await sealDBModel.findById(TERMINALS_TABLE, { terminalId: '-1' });
 		if (terminal) return;
 
 		const defaultTerminal: Terminal = {
@@ -262,7 +262,7 @@ const checkOrCreateDefaultSubscriptionPlans = async () => {
 	try {
 		const plans = [
 			{
-				uuid: 'basic-monthly',
+				planId: 'basic-monthly',
 				name: 'Basic Monthly',
 				description: 'Basic POS features with monthly billing',
 				price: 29.99,
@@ -278,7 +278,7 @@ const checkOrCreateDefaultSubscriptionPlans = async () => {
 				updatedAt: new Date().toISOString(),
 			},
 			{
-				uuid: 'pro-monthly',
+				plan: 'pro-monthly',
 				name: 'Pro Monthly',
 				description: 'Advanced POS features with monthly billing',
 				price: 59.99,
@@ -295,7 +295,7 @@ const checkOrCreateDefaultSubscriptionPlans = async () => {
 				updatedAt: new Date().toISOString(),
 			},
 			{
-				uuid: 'enterprise-yearly',
+				plan: 'enterprise-yearly',
 				name: 'Enterprise Yearly',
 				description: 'Full-featured POS with yearly billing',
 				price: 599.99,
@@ -316,7 +316,7 @@ const checkOrCreateDefaultSubscriptionPlans = async () => {
 		for (const plan of plans) {
 			const existing = await sealDBModel.findById(
 				SUBSCRIPTION_PLANS_TABLE,
-				plan.uuid
+				{ planId: plan.planId }
 			);
 			if (!existing) {
 				await sealDBModel.insert(SUBSCRIPTION_PLANS_TABLE, plan);
@@ -331,12 +331,12 @@ const checkOrCreateDefaultTenantSubscriptions = async () => {
 	try {
 		const subscription = await sealDBModel.findById(
 			TENANT_SUBSCRIPTIONS_TABLE,
-			'-1'
+			{ subscriptionId: '-1' }
 		);
 		if (subscription) return;
 
 		const defaultSubscription: TenantSubscription = {
-			uuid: '-1',
+			subscriptionId: '-1',
 			tenantId: '-1',
 			planId: 'basic-monthly',
 			status: 'active',
@@ -370,13 +370,13 @@ const checkOrCreateDefaultUser = async () => {
 		const hash = await bcrypt.hash('admin', saltRounds);
 
 		const adminUser: User = {
-			uuid: '-1',
+			userId: '-1',
 			username: 'admin',
 			fullname: 'Zonse247 Admin',
 			password: hash,
 			tenantId: '-1',
-			shopUuid: '-1',
-			roleUuid: 'super-admin',
+			branchId: '-1',
+			roleId: 'super-admin',
 			accessibleShops: ['*'],
 			allowedWorkstations: ['*'],
 			email: 'zonse247@gmail.com',
@@ -392,15 +392,15 @@ const checkOrCreateDefaultUser = async () => {
 
 const checkOrCreateDefaultCustomer = async () => {
 	try {
-		const customer = await sealDBModel.findById(CUSTOMERS_DB, '-1');
+		const customer = await sealDBModel.findById(CUSTOMERS_DB, { customerId: '-1' });
 
 		if (customer) return;
 
 		const defaultCustomer: Customer = {
-			uuid: '-1',
+			customerId: '-1',
 			tenantId: '-1',
-			shopUuid: '-1',
-			userUuid: '-1',
+			branchId: '-1',
+			userId: '-1',
 			name: 'Walk in customer',
 		};
 
@@ -410,31 +410,14 @@ const checkOrCreateDefaultCustomer = async () => {
 	}
 };
 
-const checkOrCreateSetupStatus = async () => {
-	// try {
-	// 	const setup = await sealDBModel.findById(APP_SETUP_DB, '-1');
-	// 	if (setup) return;
-	// 	const setupData: SetupParams = {
-	// 		uuid: '-1',
-	// 		isCompleted: false,
-	// 		accountActivated: false,
-	// 		branchConfigured: false,
-	// 		tenantSetup: false,
-	// 	};
-	// 	await sealDBModel.insert(APP_SETUP_DB, setupData);
-	// } catch (err) {
-	// 	console.error(err);
-	// }
-};
-
 async function checkOrCreateDefaultSettings(): Promise<void> {
 	try {
-		const settings = await sealDBModel.findById(SHOP_SETTINGS_DB, '-1');
+		const settings = await sealDBModel.findById(SHOP_SETTINGS_DB, { settingId: '-1' });
 
 		if (settings) return;
 
 		const defaultSettings: TerminalSettings = {
-			uuid: '-1',
+			settingId: '-1',
 			tenantId: '-1',
 			branchId: '-1',
 			terminalId: '-1',
@@ -445,6 +428,8 @@ async function checkOrCreateDefaultSettings(): Promise<void> {
 			country: 'Malawi',
 			city: 'Lilongwe',
 			contact: config.app.contact,
+			verificationToken: '',
+			tenantSignature: '',
 			tax: '0.00',
 			symbol: 'MK',
 			footer: 'Footer',
@@ -459,15 +444,15 @@ async function checkOrCreateDefaultSettings(): Promise<void> {
 
 async function checkAndCreateDefaultCategory(): Promise<void> {
 	try {
-		const category = await sealDBModel.findById(CATEGORIES_DB, '-1');
+		const category = await sealDBModel.findById(CATEGORIES_DB, { categoryId: '-1' });
 
 		if (category) return;
 
 		const defaultCategory: Category = {
-			uuid: '-1',
+			categoryId: '-1',
 			tenantId: '-1',
-			shopUuid: '-1',
-			userUuid: '-1',
+			branchId: '-1',
+			userId: '-1',
 			name: 'Consumables',
 		};
 
@@ -481,22 +466,22 @@ async function checkOrCreateDefaultPaymentMethods(): Promise<void> {
 	const DEFAULT_PAYMENT_METHODS: Array<PaymentMethod> = [
 		{
 			name: 'Cash',
-			uuid: '1',
+			methodId: '1',
 			tenantId: '-1',
-			shopUuid: '-1',
-			userUuid: '-1',
+			branchId: '-1',
+			userId: '-1',
 		},
 		{
 			name: 'Mobile Transfer',
-			uuid: '2',
+			methodId: '2',
 			tenantId: '-1',
-			shopUuid: '-1',
-			userUuid: '-1',
+			branchId: '-1',
+			userId: '-1',
 		},
 	];
 
 	try {
-		const paymentMethod = await sealDBModel.findById(PAYMENT_METHODS_DB, '1');
+		const paymentMethod = await sealDBModel.findById(PAYMENT_METHODS_DB, { methodId: '1' });
 
 		if (paymentMethod) return;
 
@@ -513,38 +498,38 @@ async function checkOrCreateDefaultPaymentServiceProviders(): Promise<void> {
 	const p: Array<PaymentServiceProvider> = [
 		{
 			name: 'Airtel Money',
-			uuid: '1',
+			providerId: '1',
 			tenantId: '-1',
-			shopUuid: '-1',
-			userUuid: '-1',
+			branchId: '-1',
+			userId: '-1',
 		},
 		{
 			name: 'TNM Mpamba',
-			uuid: '2',
+			providerId: '2',
 			tenantId: '-1',
-			shopUuid: '-1',
-			userUuid: '-1',
+			branchId: '-1',
+			userId: '-1',
 		},
 		{
 			name: 'National Bank',
-			uuid: '3',
+			providerId: '3',
 			tenantId: '-1',
-			shopUuid: '-1',
-			userUuid: '-1',
+			branchId: '-1',
+			userId: '-1',
 		},
 		{
 			name: 'FDH',
-			uuid: '4',
+			providerId: '4',
 			tenantId: '-1',
-			shopUuid: '-1',
-			userUuid: '-1',
+			branchId: '-1',
+			userId: '-1',
 		},
 		{
 			name: 'Standard Bank',
-			uuid: '5',
+			providerId: '5',
 			tenantId: '-1',
-			shopUuid: '-1',
-			userUuid: '-1',
+			branchId: '-1',
+			userId: '-1',
 		},
 	];
 
@@ -579,7 +564,6 @@ const seedDatabase = async () => {
 		checkOrCreateDefaultPaymentMethods();
 		checkOrCreateDefaultPaymentServiceProviders();
 		checkOrCreateDefaultSettings();
-		// checkOrCreateSetupStatus();
 
 		console.log('Seed migrated successfully');
 		return true;

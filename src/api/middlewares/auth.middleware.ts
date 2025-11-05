@@ -92,8 +92,8 @@ export class AuthMiddleware {
 		const user = this.extractUserFromToken(req)
 
 		const userId = req.params.userId;
-		const requestingUserId = user?.uuid;
-		const userRole = user?.roleUuid;
+		const requestingUserId = user?.userId;
+		const userRole = user?.roleId;
 
 		if (!requestingUserId) {
 			res.status(401).json({
@@ -116,7 +116,7 @@ export class AuthMiddleware {
 
 	requireAdmin = (req: Request, res: Response, next: NextFunction): void => {
 		const user = this.extractUserFromToken(req)
-		const userRole = user?.roleUuid;
+		const userRole = user?.roleId;
 
 		if (userRole === 'admin' || userRole === 'super-admin') {
 			next();
