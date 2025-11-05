@@ -72,7 +72,7 @@ const Dashboard: FunctionComponent = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const userId = user.uuid;
+                const userId = user.userId;
                 const monthYear = dayjs(currentMonthYear).format("YYYY-MM");
 
                 const [counts, topProducts, myTransactions, monthlySales] = await Promise.all([
@@ -103,7 +103,7 @@ const Dashboard: FunctionComponent = () => {
         if (currentMonthYear && user) {
             (async () => {
                 const monthYear = dayjs(currentMonthYear).format("YYYY-MM");
-                const monthlySales = await dashboardService.monthlySales(user.uuid, monthYear);
+                const monthlySales = await dashboardService.monthlySales(user.userId, monthYear);
                 setMonthlySalesData(monthlySales);
             })()
         }
@@ -135,7 +135,7 @@ const Dashboard: FunctionComponent = () => {
     useEffect(() => {
         if (currentPage && user) {
             (async () => {
-                const response = await dashboardService.transactions(user.uuid, pageSize, offset);
+                const response = await dashboardService.transactions(user.userId, pageSize, offset);
                 setTransactions(response.transactions);
                 setTotalRecords(response.total);
             })()
