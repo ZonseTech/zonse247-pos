@@ -3,34 +3,57 @@ import { validateBody, validateParams } from "../middlewares/validation.middlewa
 import { userValidationSchemas } from "../validations/user.schemas";
 import { TenantMiddleware } from "../middlewares/tenant.middleware";
 import { asyncHandler } from "../middlewares/error.middleware";
-import { UserController } from "../controllers/user.controller";
+import { AuthController } from "../controllers/auth.controller";
+import { createUserSpecificLimiter } from "../middlewares/rate-limit.middleware";
+import { AuthMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
 
 const tenantMiddleware = new TenantMiddleware()
+const authMiddleware = new AuthMiddleware();
 
 router.post(
     '/login',
     validateBody(userValidationSchemas.loginUser),
     tenantMiddleware.subscriptionStatus,
-    asyncHandler(UserController.login)
+    asyncHandler(AuthController.login)
 );
 
 router.post(
     '/refresh-token',
     validateBody(userValidationSchemas.refreshToken),
-    asyncHandler(UserController.refreshToken)
+    asyncHandler(AuthController.refreshToken)
 );
 
 router.post(
     '/verify-token',
-    asyncHandler(UserController.verifyToken)
+    asyncHandler(AuthController.verifyToken)
 );
 
 router.get(
     '/logout/:id',
     validateParams(userValidationSchemas.id),
-    asyncHandler(UserController.logout)
+    asyncHandler(AuthController.logout)
 )
+
+router.post(
+    '/reset-password/:id',
+    validateParams(userValidationSchemas.userId),
+    asyncHandler(AuthController.resetPassword)
+);
+
+
+router.put(
+    '/change-password/:id',
+    validateParams(userValidationSchemas.id),
+    validateBody(userValidationSchemas.changePassword),
+    authMiddleware.verifyOwnership,
+    createUserSpecificLimiter(
+        60 * 60 * 1000,
+        5,
+        'Too many password change attempts, please try again later'
+    ),
+    asyncHandler(AuthController.changePassword)
+);
 
 export default router;
