@@ -13,6 +13,8 @@
 
 # the onboarding
 
-- enter the verification token
-- select branch
-- select terminal
+- Verify
+- Select Branch
+- Select Terminal
+- Load Metadata
+- Done
