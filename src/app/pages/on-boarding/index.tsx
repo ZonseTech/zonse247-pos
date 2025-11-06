@@ -18,6 +18,7 @@ const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, er
     const registerProps: TerminalVerificationParams = {
         // verificationToken: 'dde554bc85d3a99315c40c41d475f4fb4dc0:e80add87ecffcfb859998f4ed92b8b81',
         verificationToken: '3f81127ca4ba63eb4902be2696970d568dea:b1c00587834336e5a45dd2758536449a',
+        // verificationToken: '',
         os: '',
         hostname: '',
         macAddress: ''

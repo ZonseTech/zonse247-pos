@@ -77,7 +77,7 @@ const config: Config = {
 		user: 'zonse247@gmail.com',
 		password: 'beyx utjh idqi bamr',
 		from: 'Zonse247 POS <zonse247@gmail.com>',
-		secure: true,
+		secure: false,
 	},
 	redis: {
 		host: 'localhost',

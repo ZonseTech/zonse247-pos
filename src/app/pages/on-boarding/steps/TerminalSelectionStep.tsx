@@ -50,9 +50,9 @@ const TerminalSelectionStep: FunctionComponent<{
                                     className={`p-4 border rounded-lg transition-colors ${isDisabled
                                         ? 'border-gray-200 bg-gray-100 cursor-not-allowed opacity-60'
                                         : isSelected
-                                            ? 'border-blue-500 bg-blue-50 cursor-pointer'
-                                            : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50 cursor-pointer'
-                                        }`}
+                                            ? 'border-blue-500 bg-blue-50'
+                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                        } cursor-pointer`}
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex-1">
