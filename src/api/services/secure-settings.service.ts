@@ -211,6 +211,7 @@ export class SecureSettingsService {
         try {
             const setup = await sealDBModel.findById(APP_SETUP_DB, { setupId: '-1' });
             return setup !== null;
+            // return false
         } catch (error) {
             return false;
         }

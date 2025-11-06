@@ -1,7 +1,8 @@
-import { Button, Input } from '../../../components';
+import { useState } from 'react';
 import type { FunctionComponent } from 'react';
-import { Fragment, useState } from 'react';
-import { X, Building2, CreditCard, AlertCircle, Banknote, Copy, Check, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Button, Input } from '../../../components';
+import { CopyButton } from '../../../components/buttons/CopyButton';
+import { X, CreditCard, AlertCircle, Banknote, Check, ChevronRight, ChevronLeft } from 'lucide-react';
 
 interface CheckoutModalProps {
     selectedPlan: PricingPlan;
@@ -24,30 +25,26 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     onSubmit,
     getPrice,
 }) => {
-    const isFreePlan = selectedPlan.id === 'free';
+    const isFreePlan = selectedPlan.name === 'BASIC';
     const [currentStep, setCurrentStep] = useState(1);
-    const [copiedText, setCopiedText] = useState('');
 
     const steps = isFreePlan
-        ? [
-            { number: 2, title: 'Review', icon: Check }
-        ]
+        ? [{ number: 2, title: 'Review', icon: Check }]
         : [
             { number: 1, title: 'Payment', icon: Banknote },
             { number: 2, title: 'Review', icon: Check }
         ];
 
-    const copyToClipboard = (text: string) => {
-        navigator.clipboard.writeText(text);
-        setCopiedText(text);
-        setTimeout(() => setCopiedText(''), 2000);
-    };
+    const paymentMethods = [
+        { name: 'Airtel Money', number: '265999883377' },
+        { name: 'MPamba (TNM)', number: '265882299339' },
+        { name: 'Bank Transfer', number: '1003356481' }
+    ];
 
     const canProceed = () => {
         if (currentStep === 1 && !isFreePlan) {
             return paymentInfo.referenceNumber;
         }
-
         return true;
     };
 
@@ -63,10 +60,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
     const handleFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (currentStep === steps.length)
-            onSubmit(e);
-        else handleNext();
+        currentStep === steps.length ? onSubmit(e) : handleNext();
     };
 
     return (
@@ -83,7 +77,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
                     <div className="mb-8">
                         <h2 className="text-3xl font-bold mb-2">
-                            {isFreePlan ? 'Get Started Free' : 'Subscribe to ' + selectedPlan.name}
+                            {isFreePlan ? 'Get Started Free' : `Subscribe to ${selectedPlan.name} Plan`}
                         </h2>
                         <p className="text-blue-100 text-lg">
                             {isFreePlan ? 'No credit card required' : `${getPrice(selectedPlan)}/${billingCycle === 'monthly' ? 'mo' : 'yr'}`}
@@ -92,13 +86,12 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 </div>
 
                 <form onSubmit={handleFormSubmit} className="p-8">
-
-                    {currentStep === 2 && <div className="flex items-center gap-3 mb-6">
-                        <div>
+                    {currentStep === 2 && (
+                        <div className="mb-6">
                             <h3 className="text-xl font-semibold text-gray-900">Review & Confirm</h3>
                             <p className="text-sm text-gray-500">Please review your information before submitting</p>
                         </div>
-                    </div>}
+                    )}
 
                     {currentStep === 1 && !isFreePlan && (
                         <div className="space-y-6 animate-fadeIn">
@@ -109,82 +102,25 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                                         <p className="font-semibold mb-2">Payment Instructions:</p>
                                         <ol className="list-decimal ml-4 space-y-2">
                                             <li>
-                                                <span className="font-medium">Choose your preferred payment method below:</span>
+                                                <span className="font-medium">Choose your preferred payment method:</span>
                                                 <ul className="list-disc ml-5 mt-1.5 space-y-1">
-                                                    <li className="flex items-center justify-between gap-2">
-                                                        <span>Airtel Money: <strong className="font-mono">265999883377</strong></span>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => copyToClipboard('265999883377')}
-                                                            className="flex items-center gap-1 px-2 py-0.5 bg-white hover:bg-amber-100 text-amber-700 text-xs rounded transition-all"
-                                                        >
-                                                            {copiedText === '265999883377' ? (
-                                                                <Fragment>
-                                                                    <Check className="w-3 h-3" />
-                                                                    Copied
-                                                                </Fragment>
-                                                            ) : (
-                                                                <Fragment>
-                                                                    <Copy className="w-3 h-3" />
-                                                                    Copy
-                                                                </Fragment>
-                                                            )}
-                                                        </button>
-                                                    </li>
-                                                    <li className="flex items-center justify-between gap-2">
-                                                        <span>MPamba (TNM): <strong className="font-mono">265882299339</strong></span>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => copyToClipboard('265882299339')}
-                                                            className="flex items-center gap-1 px-2 py-0.5 bg-white hover:bg-amber-100 text-amber-700 text-xs rounded transition-all"
-                                                        >
-                                                            {copiedText === '265882299339' ? (
-                                                                <>
-                                                                    <Check className="w-3 h-3" />
-                                                                    Copied
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <Copy className="w-3 h-3" />
-                                                                    Copy
-                                                                </>
-                                                            )}
-                                                        </button>
-                                                    </li>
-                                                    <li className="flex items-center justify-between gap-2">
-                                                        <span>Bank Transfer: <strong className="font-mono">1003356481</strong></span>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => copyToClipboard('1003356481')}
-                                                            className="flex items-center gap-1 px-2 py-0.5 bg-white hover:bg-amber-100 text-amber-700 text-xs rounded transition-all"
-                                                        >
-                                                            {copiedText === '1003356481' ? (
-                                                                <>
-                                                                    <Check className="w-3 h-3" />
-                                                                    Copied
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <Copy className="w-3 h-3" />
-                                                                    Copy
-                                                                </>
-                                                            )}
-                                                        </button>
-                                                    </li>
+                                                    {paymentMethods.map((method) => (
+                                                        <li key={method.name} className="flex items-center justify-between gap-2">
+                                                            <span>{method.name}: <strong className="font-mono">{method.number}</strong></span>
+                                                            <CopyButton text={method.number} />
+                                                        </li>
+                                                    ))}
                                                 </ul>
                                             </li>
                                             <li>Send payment of <strong>{getPrice(selectedPlan)}</strong> to the provided account</li>
                                             <li>Keep your transaction reference number</li>
-                                            <li>Enter the reference number in the field bottom</li>
+                                            <li>Enter the reference number below</li>
                                         </ol>
                                     </div>
                                 </div>
                             </div>
 
                             <div>
-                                <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                                    Enter Payment Reference
-                                </h4>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Payment Reference Number <span className="text-red-500">*</span>
                                 </label>
@@ -205,7 +141,6 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
                     {currentStep === steps.length && (
                         <div className="space-y-6 animate-fadeIn">
-
                             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
                                 <h4 className="font-semibold text-gray-900 mb-4">Subscription Details</h4>
                                 <div className="space-y-3">
@@ -244,7 +179,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                                     </div>
                                     <div className="flex justify-between items-start">
                                         <span className="text-gray-600">Phone:</span>
-                                        <span className="font-medium text-gray-900 text-right">{tenantInfo.phone}</span>
+                                        <span className="font-medium text-gray-900 text-right">{tenantInfo.phoneNumber}</span>
                                     </div>
                                     {tenantInfo.address && (
                                         <div className="flex justify-between items-start">
@@ -264,23 +199,6 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                                     </div>
                                 </div>
                             )}
-
-                            {/* <div className="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-4">
-                                <div className="flex items-start gap-3">
-                                    <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                                    <div className="text-sm text-blue-900">
-                                        <p className="font-semibold mb-1">
-                                            {isFreePlan ? 'Free Plan Terms' : 'Subscription Terms'}
-                                        </p>
-                                        <p>
-                                            {isFreePlan
-                                                ? 'The free plan includes basic features for local use. Cloud backup and sync require MK10,000/month hosting fee.'
-                                                : 'Your subscription will be activated once we verify your payment. This usually takes 1-2 business hours. You will receive a confirmation email shortly.'
-                                            }
-                                        </p>
-                                    </div>
-                                </div>
-                            </div> */}
                         </div>
                     )}
 

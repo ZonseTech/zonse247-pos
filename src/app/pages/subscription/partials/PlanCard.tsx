@@ -2,11 +2,10 @@ import { Button } from '../../../components';
 import type { FunctionComponent } from 'react';
 
 interface PlanCardProps {
-    plan: PricingPlan;
+    plan: SubscriptionPlan;
     billingCycle: 'monthly' | 'yearly';
-    onSelectPlan: (plan: PricingPlan) => void;
-    formatPrice: (price: number) => string;
-    getPrice: (plan: PricingPlan) => string;
+    onSelectPlan: (plan: SubscriptionPlan) => void;
+    getPrice: (plan: SubscriptionPlan) => string;
     isCurrentPlan?: boolean;
 }
 
@@ -14,7 +13,6 @@ const PlanCard: FunctionComponent<PlanCardProps> = ({
     plan,
     billingCycle,
     onSelectPlan,
-    formatPrice,
     getPrice,
     isCurrentPlan = false,
 }) => {
@@ -29,7 +27,7 @@ const PlanCard: FunctionComponent<PlanCardProps> = ({
                     Most Popular
                 </span>
             )}
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.displayName}</h3>
             <div className="flex items-baseline justify-center mb-2">
                 <span className="text-4xl font-bold text-gray-900">
                     {getPrice(plan)}
@@ -49,7 +47,7 @@ const PlanCard: FunctionComponent<PlanCardProps> = ({
                     ? 'bg-gray-400 text-white cursor-not-allowed'
                     : plan.popular
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : plan.id === 'free'
+                        : plan.planId === 'free'
                             ? 'bg-gray-600 text-white hover:bg-gray-700'
                             : 'bg-gray-900 text-white hover:bg-gray-800'
                     }`}

@@ -11,9 +11,9 @@ export class RoleModel {
         }
     }
 
-    static async findById(id: string): Promise<Role | null> {
+    static async findById(roleId: string): Promise<Role | null> {
         try {
-            return await sealDBModel.findById<Role>(ROLES_DB, { roleId: id });
+            return await sealDBModel.findById<Role>(ROLES_DB, { roleId });
         } catch (error) {
             throw new Error(`Error finding role by ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }

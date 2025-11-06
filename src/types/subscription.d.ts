@@ -4,33 +4,23 @@ interface SubscriptionResponse {
 	success: boolean;
 }
 
-interface SubscriptionPlan {
-	planId: string;
-	name: string;
-	description?: string;
-	price: number;
-	maxBranches: number;
-	billingCycle: 'monthly' | 'yearly' | 'lifetime';
-	features?: string[];
-	isActive: boolean;
-	createdAt: string;
-	updatedAt: string;
-}
-
 interface TenantSubscription {
 	subscriptionId: string;
 	tenantId: string;
 	tenantDetails?: {
-		clientCode: string;
+		tenantCode: string;
 		companyName: string;
 		ownerName: string;
 	};
 	planId: string;
+	planName: string;
+	billingCycle: string;
+	referenceNumber: string;
 	status: 'active' | 'cancelled' | 'expired' | 'past_due';
 	startsAt: string;
 	endsAt?: string;
-	autoRenew: boolean;
-	maxShops: number;
+	autoRenew?: boolean;
+	maxBranches: number;
 	paymentMethod?: string;
 	lastPaymentDate?: string;
 	nextPaymentDate?: string;
@@ -42,9 +32,44 @@ interface TenantSubscription {
 interface CreateSubscriptionRequest {
 	tenantId: string;
 	planId: string;
-	paymentMethod?: string;
+	planName: string;
+	referenceNumber: string;
 	autoRenew?: boolean;
-	startsAt?: string;
+	billingCycle: 'monthly' | 'yearly'
+}
+
+interface SubscriptionPlan {
+	planId: string;
+	name: string;
+	displayName: string;
+	description: string;
+	monthlyPrice: number;
+	yearlyPrice: number;
+	maxBranches: number;
+	color: 'blue' | 'green' | 'purple' | 'gray';
+	popular?: boolean;
+	features: PlanFeature[];
+	limits: PlanLimits;
+	notes?: string;
+	isActive: boolean;
+	createdAt?: string;
+	updatedAt?: string;
+}
+
+type TenantInfo = Pick<Tenant, 'tenantId' | 'businessName' | 'email' | 'phoneNumber' | 'address' | 'subscriptionPlan'>
+
+interface PaymentInfo {
+	referenceNumber: string;
+	paymentMethodId: string;
+}
+
+interface CreateSubscriptionPlanRequest {
+	name: string;
+	description?: string;
+	price: number;
+	billingCycle: 'monthly' | 'yearly' | 'lifetime';
+	features: PlanFeature[];
+	isActive?: boolean;
 }
 
 interface UpdateSubscriptionRequest {
@@ -89,26 +114,3 @@ interface PlanLimits {
 	storage: string;
 }
 
-interface PricingPlan {
-	id: string;
-	name: string;
-	description: string;
-	monthlyPrice: number;
-	yearlyPrice: number;
-	color: 'blue' | 'green' | 'purple' | 'gray';
-	popular?: boolean;
-	features: PlanFeature[];
-	limits: PlanLimits;
-	notes?: string;
-}
-
-interface TenantInfo {
-	businessName: string;
-	email: string;
-	phone: string;
-	address: string;
-}
-
-interface PaymentInfo {
-	referenceNumber?: string;
-}

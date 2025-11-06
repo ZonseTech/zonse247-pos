@@ -1,22 +1,17 @@
 import { Confirm } from 'notiflix';
 import { CreditCard } from 'lucide-react';
-import { useNavigate } from 'react-router';
-import { ROUTES } from '../../utils/constants';
-import { HiOutlinePlus } from 'react-icons/hi2';
 import AppLayout from '../../layouts/AppLayout';
 import DataTable from 'react-data-table-component';
 import { getTableStyles } from '../../utils/table-styles';
 import PageHeader from '../../components/page/PageHeader';
 import { SearchBar } from '../../components/page/SearchBar';
-import { Button, ZonseThemeContext } from '../../components';
+import { ZonseThemeContext } from '../../components';
 import { useSubscriptions } from '../../hooks/useSubscriptions';
-import { FunctionComponent, useContext, useState } from 'react';
+import { FunctionComponent, useContext, } from 'react';
 import { getSubscriptionColumns } from './partials/SubscriptionTableColumns';
 
 const SubscriptionManagement: FunctionComponent = () => {
-    const navigate = useNavigate();
     const { mode } = useContext(ZonseThemeContext);
-    const [editingSubscription, setEditingSubscription] = useState<TenantSubscription | null>(null);
 
     const {
         isLoading,
@@ -29,10 +24,6 @@ const SubscriptionManagement: FunctionComponent = () => {
         deleteSubscription,
         updateSubscriptionStatus
     } = useSubscriptions();
-
-    const handleEdit = (subscription: TenantSubscription) => {
-        setEditingSubscription(subscription);
-    };
 
     const handleDelete = (subscriptionId: string) => {
         Confirm.show(
@@ -75,7 +66,7 @@ const SubscriptionManagement: FunctionComponent = () => {
         );
     };
 
-    const columns = getSubscriptionColumns(handleEdit, handleStatusToggle, handleDelete);
+    const columns = getSubscriptionColumns(handleStatusToggle);
 
     return (
         <AppLayout>

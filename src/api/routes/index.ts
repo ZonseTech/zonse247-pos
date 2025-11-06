@@ -14,6 +14,7 @@ import TransactionsRoutes from './transaction.routes'
 import UsersRoutes from './users.routes'
 import TenantsRoutes from './tenant.routes'
 import SubscriptionsRoutes from './subscription.routes'
+import SubscriptionPlanRoutes from './subscription-plan.routes'
 import BranchesRoutes from './branch.routes'
 import WorkStationRoutes from './terminal.routes'
 import RoleRoutes from './role.routes'
@@ -65,6 +66,7 @@ router.use('/migration', MigrationRoutes);
 router.use('/transactions', TransactionsRoutes);
 router.use('/hold-orders', HoldOrdersRoutes);
 router.use('/subscriptions', SubscriptionsRoutes);
+router.use('/subscription-plans', SubscriptionPlanRoutes);
 router.use('/workstations', WorkStationRoutes);
 router.use('/roles', RoleRoutes);
 router.use('/permissions', PermissionRoutes);

@@ -1,73 +1,129 @@
+import { toast } from 'react-toastify';
 import PlanCard from './partials/PlanCard';
+import { featureCategories } from './data';
 import { formatCurrency } from '../../utils';
 import AppLayout from '../../layouts/AppLayout';
-import { plans, featureCategories } from './data';
-import { FunctionComponent, useEffect, useState } from 'react';
 import CheckoutModal from './partials/CheckoutModal';
 import BillingToggle from './partials/BillingToggle';
 import { useAuth } from '../../context/AuthProvider';
+import tenantsService from '../../services/tenant.service';
 import FeatureComparison from './partials/FeatureComparison';
+import { FormEvent, FunctionComponent, useEffect, useState } from 'react';
+import subscriptionsService from '../../services/subscriptions.service';
+import subscriptionPlanService from '../../services/subscription-plan.service';
+import PlanCardSkeleton from '../../components/loader/PlanCardSkeleton';
+import FeatureRowSkeleton from '../../components/loader/FeatureRowSkeleton';
+import MobilePlanSkeleton from '../../components/loader/MobilePlanSkeleton';
 
 const SubscriptionBilling: FunctionComponent = () => {
 	const { user } = useAuth()
+	const [loading, setLoading] = useState(true);
 	const [showCheckout, setShowCheckout] = useState(false);
-	const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null);
+	const [plans, setPlans] = useState<Array<SubscriptionPlan>>([]);
+	const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
 	const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
-	const [tenantInfo, setTenantInfo] = useState<TenantInfo>({
-		businessName: '',
-		email: '',
-		phone: '',
-		address: '',
-	});
+	const [tenantInfo, setTenantInfo] = useState<TenantInfo>({} as TenantInfo);
 	const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>({
 		referenceNumber: '',
+		paymentMethodId: ''
 	});
 
 	useEffect(() => {
-		console.log('====================================');
-		console.log(user.tenantId);
-		console.log('====================================');
-	}, [user.tenantId])
+		const loadPlans = async () => {
+			setLoading(true);
+			try {
+				const data = await subscriptionPlanService.getActive()
+				setPlans(data)
+			} catch (error) {
+				console.error('Failed to load plans:', error);
+				toast.error('Failed to load subscription plans');
+			} finally {
+				setLoading(false);
+			}
+		}
 
-	const getPrice = (plan: PricingPlan) => {
+		loadPlans()
+	}, [])
+
+	useEffect(() => {
+		const loadTenantData = async () => {
+			if (!user.tenantId) return;
+
+			try {
+				const data = await tenantsService.show(user.tenantId);
+
+				setTenantInfo({
+					tenantId: data.tenantId,
+					businessName: data.businessName,
+					email: data.email,
+					phoneNumber: data.phoneNumber,
+					address: data.address,
+					subscriptionPlan: data.subscriptionPlan,
+				});
+			} catch (error) {
+				console.error('Failed to load tenant data:', error);
+				setTenantInfo(null);
+			}
+		};
+
+		loadTenantData();
+	}, [user.tenantId]);
+
+	const getPrice = (plan: SubscriptionPlan) => {
 		return formatCurrency(billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice);
 	};
 
-	const handleSelectPlan = (plan: PricingPlan) => {
+	const isFeatureIncluded = (plan: SubscriptionPlan, featureName: string) => {
+		return plan.features.some(feature =>
+			feature.name.toLowerCase().includes(featureName.toLowerCase()) && feature.included
+		);
+	};
+
+	const handleSelectPlan = (plan: SubscriptionPlan) => {
 		setSelectedPlan(plan);
 		setShowCheckout(true);
 	};
 
-	const handleSubmitSubscription = (e: React.FormEvent) => {
+	const handleSubmitSubscription = async (e: FormEvent) => {
 		e.preventDefault();
 
-		if (!tenantInfo.businessName || !tenantInfo.email || !paymentInfo.referenceNumber || !selectedPlan) {
+		const isFreePlan = selectedPlan.name === 'BASIC';
+
+		if (!paymentInfo.referenceNumber && !selectedPlan && !isFreePlan) {
 			alert('Please fill in all required fields');
 			return;
 		}
 
 		const price = getPrice(selectedPlan);
-		const isFreePlan = selectedPlan.id === 'free';
 
-		alert(
-			`Subscription ${isFreePlan ? 'Started' : 'Confirmed'}!\n\n` +
-			`Plan: ${selectedPlan.name}\n` +
-			`Business: ${tenantInfo.businessName}\n` +
-			`${!isFreePlan ? `Billing: ${billingCycle === 'monthly' ? 'Monthly' : 'Yearly'}\n` : ''}` +
-			`${!isFreePlan ? `Amount: $${price}${billingCycle === 'monthly' ? '/mo' : '/yr'}\n` : ''}` +
-			`\nYou will receive a confirmation email shortly.`
-		);
+		try {
+			await subscriptionsService.store({
+				tenantId: tenantInfo.tenantId,
+				planId: selectedPlan.planId,
+				planName: selectedPlan.name,
+				referenceNumber: paymentInfo.referenceNumber,
+				billingCycle,
+			})
 
-		setShowCheckout(false);
-		setSelectedPlan(null);
-		setTenantInfo({ businessName: '', email: '', phone: '', address: '' });
-		setPaymentInfo({ referenceNumber: '' });
-	};
+			alert(
+				`Subscription ${isFreePlan ? 'Started' : 'Confirmed'}!\n\n` +
+				`Plan: ${selectedPlan.name}\n` +
+				`Business: ${tenantInfo.businessName}\n` +
+				`${!isFreePlan ? `Billing: ${billingCycle === 'monthly' ? 'Monthly' : 'Yearly'}\n` : ''}` +
+				`${!isFreePlan ? `Amount: ${price}${billingCycle === 'monthly' ? '/mo' : '/yr'}\n` : ''}` +
+				`\nYou will receive a confirmation email shortly.`
+			);
 
-	const isFeatureIncluded = (plan: PricingPlan, featureName: string) => {
-		return plan.features.some(feature =>
-			feature.name.toLowerCase().includes(featureName.toLowerCase()) && feature.included
-		);
+			setShowCheckout(false);
+			setTenantInfo(prev => ({ ...prev, subscriptionPlan: selectedPlan.name }));
+			setPaymentInfo({ referenceNumber: '', paymentMethodId: 'free' });
+		} catch (error) {
+			if (error?.error?.response) {
+				const { data } = error.error.response;
+
+				toast.error(data.message)
+			}
+		}
 	};
 
 	return (
@@ -90,42 +146,66 @@ const SubscriptionBilling: FunctionComponent = () => {
 			</div>
 
 			<div className="max-w-7xl mx-auto p-6 pt-8">
-				<div className="hidden md:block">
-					<div className="grid grid-cols-1 md:grid-cols-4 border-b border-gray-200">
-						<div className="hidden md:block p-8 border-r border-gray-200" />
-						{plans.map((plan, index) => (
-							<PlanCard
-								key={plan.id}
-								plan={plan}
-								billingCycle={billingCycle}
-								onSelectPlan={handleSelectPlan}
-								formatPrice={formatCurrency}
-								getPrice={getPrice}
-								isCurrentPlan={plan.id === 'free'}
-							/>
-						))}
-					</div>
-					<FeatureComparison
-						plans={plans}
-						featureCategories={featureCategories}
-						isFeatureIncluded={isFeatureIncluded}
-					/>
-				</div>
-
-				<div className="md:hidden space-y-6 mt-8">
-					{plans.map((plan) => (
-						<div key={plan.id} className="bg-white rounded-2xl shadow-lg overflow-hidden">
-							<PlanCard
-								plan={plan}
-								billingCycle={billingCycle}
-								onSelectPlan={handleSelectPlan}
-								formatPrice={formatCurrency}
-								getPrice={getPrice}
-								isCurrentPlan={plan.id === 'free'}
-							/>
+				{loading ? (
+					<>
+						<div className="hidden md:block">
+							<div className="grid grid-cols-1 md:grid-cols-4 border-b border-gray-200">
+								<div className="hidden md:block p-8 border-r border-gray-200" />
+								<PlanCardSkeleton />
+								<PlanCardSkeleton />
+								<PlanCardSkeleton />
+							</div>
+							<div className="space-y-0">
+								{[1, 2, 3, 4, 5].map((i) => (
+									<FeatureRowSkeleton key={i} />
+								))}
+							</div>
 						</div>
-					))}
-				</div>
+
+						<div className="md:hidden space-y-6 mt-8">
+							<MobilePlanSkeleton />
+							<MobilePlanSkeleton />
+							<MobilePlanSkeleton />
+						</div>
+					</>
+				) : (
+					<>
+						<div className="hidden md:block">
+							<div className="grid grid-cols-1 md:grid-cols-4 border-b border-gray-200">
+								<div className="hidden md:block p-8 border-r border-gray-200" />
+								{plans.length > 0 && plans.map((plan, index) => (
+									<PlanCard
+										key={plan.planId}
+										plan={plan}
+										billingCycle={billingCycle}
+										onSelectPlan={handleSelectPlan}
+										getPrice={getPrice}
+										isCurrentPlan={plan.name === tenantInfo.subscriptionPlan}
+									/>
+								))}
+							</div>
+							{plans.length > 0 && <FeatureComparison
+								plans={plans}
+								featureCategories={featureCategories}
+								isFeatureIncluded={isFeatureIncluded}
+							/>}
+						</div>
+
+						<div className="md:hidden space-y-6 mt-8">
+							{plans.length > 0 && plans.map((plan) => (
+								<div key={plan.planId} className="bg-white rounded-2xl shadow-lg overflow-hidden">
+									<PlanCard
+										plan={plan}
+										billingCycle={billingCycle}
+										onSelectPlan={handleSelectPlan}
+										getPrice={getPrice}
+										isCurrentPlan={plan.name === tenantInfo.subscriptionPlan}
+									/>
+								</div>
+							))}
+						</div>
+					</>
+				)}
 			</div>
 
 			{showCheckout && selectedPlan && (

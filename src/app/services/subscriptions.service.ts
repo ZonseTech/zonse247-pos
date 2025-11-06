@@ -1,6 +1,6 @@
 import api from './http.service';
 
-class SubscriptionsService {
+class SubscriptionService {
 	private readonly endpoint = '/subscriptions';
 
 	async list(): Promise<SubscriptionResponse> {
@@ -26,11 +26,8 @@ class SubscriptionsService {
 	}
 
 	async store(
-		subscriptionData: Omit<
-			TenantSubscription,
-			'id' | 'created_at' | 'updated_at'
-		>
-	): Promise<TenantSubscription> {
+		subscriptionData: CreateSubscriptionRequest
+	): Promise<Omit<TenantSubscription, 'id' | 'created_at' | 'updated_at'>> {
 		try {
 			const response = await api.post(this.endpoint, subscriptionData);
 			return response.data;
@@ -70,7 +67,7 @@ class SubscriptionsService {
 	): Promise<TenantSubscription[]> {
 		try {
 			const response = await api.get<Array<TenantSubscription>>(
-				`${this.endpoint}?status=${status}`
+				`${this.endpoint}/status/${status}`
 			);
 			return response.data;
 		} catch (error) {
@@ -82,7 +79,7 @@ class SubscriptionsService {
 	async getByClientUuid(clientUuid: string): Promise<TenantSubscription[]> {
 		try {
 			const response = await api.get<Array<TenantSubscription>>(
-				`${this.endpoint}?clientUuid=${clientUuid}`
+				`${this.endpoint}/client/${clientUuid}`
 			);
 			return response.data;
 		} catch (error) {
@@ -94,7 +91,7 @@ class SubscriptionsService {
 	async getByPlanId(planId: string): Promise<TenantSubscription[]> {
 		try {
 			const response = await api.get<Array<TenantSubscription>>(
-				`${this.endpoint}?plan_id=${planId}`
+				`${this.endpoint}/plan/${planId}`
 			);
 			return response.data;
 		} catch (error) {
@@ -105,9 +102,8 @@ class SubscriptionsService {
 
 	async cancel(id: string): Promise<TenantSubscription> {
 		try {
-			const response = await api.put<TenantSubscription>(
-				`${this.endpoint}/${id}/cancel`,
-				{} as TenantSubscription
+			const response = await api.get<TenantSubscription>(
+				`${this.endpoint}/${id}/cancel`
 			);
 			return response.data;
 		} catch (error) {
@@ -118,9 +114,8 @@ class SubscriptionsService {
 
 	async reactivate(id: string): Promise<TenantSubscription> {
 		try {
-			const response = await api.put(
-				`${this.endpoint}/${id}/reactivate`,
-				{} as TenantSubscription
+			const response = await api.get<TenantSubscription>(
+				`${this.endpoint}/${id}/reactivate`
 			);
 			return response.data;
 		} catch (error) {
@@ -131,12 +126,12 @@ class SubscriptionsService {
 
 	async processPayment(
 		id: string,
-		paymentData: { amount: number; payment_method: string }
+		paymentData: { amount: number; paymentMethod: string }
 	): Promise<TenantSubscription> {
 		try {
-			const response = await api.post<TenantSubscription>(
-				`${this.endpoint}/${id}/payment`,
-				paymentData as any
+			const response = await api.post<any>(
+				`${this.endpoint}/${id}/process-payment`,
+				paymentData
 			);
 			return response.data;
 		} catch (error) {
@@ -157,30 +152,14 @@ class SubscriptionsService {
 		}
 	}
 
-	async bulkUpdate(
-		ids: string[],
-		updateData: Partial<TenantSubscription>
-	): Promise<TenantSubscription[]> {
-		try {
-			const response = await api.patch<any>(`${this.endpoint}/bulk-update`, {
-				ids,
-				data: updateData,
-			});
-			return response.data;
-		} catch (error) {
-			console.error('Error bulk updating subscriptions:', error);
-			throw error;
-		}
-	}
-
 	async getStats(): Promise<{
 		total: number;
 		active: number;
 		cancelled: number;
 		expired: number;
-		past_due: number;
-		monthly_revenue: number;
-		annual_revenue: number;
+		pastDue: number;
+		monthlyRevenue: number;
+		annualRevenue: number;
 	}> {
 		try {
 			const response = await api.get<any>(`${this.endpoint}/stats`);
@@ -192,5 +171,5 @@ class SubscriptionsService {
 	}
 }
 
-const subscriptionsService = new SubscriptionsService();
-export default subscriptionsService;
+const subscriptionService = new SubscriptionService();
+export default subscriptionService;
