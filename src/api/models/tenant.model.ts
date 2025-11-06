@@ -8,7 +8,7 @@ export class TenantModel {
         return 'TNT-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
     }
 
-    static generateVerificationToken(): string {
+    static async generateVerificationToken(tenantId: string): Promise<string> {
         return crypto.randomBytes(32).toString('hex');
     }
 
@@ -70,28 +70,30 @@ export class TenantModel {
     }
 
     static async create(data: TenantFormValues): Promise<Tenant> {
-        const tenantData = this.buildTenantData(data);
+        const tenantData = await this.buildTenantData(data);
 
-        return sealDBModel.insert(TENANT_TABLE, {
+        return await sealDBModel.insert(TENANT_TABLE, {
             uuid: uuidv4(),
             ...tenantData
         });
     }
 
     static async update(tenantId: string, updateData: Partial<Tenant>): Promise<number> {
-        return sealDBModel.update(TENANT_TABLE, tenantId, updateData);
+        return sealDBModel.update(TENANT_TABLE, { tenantId }, updateData);
     }
 
     static async delete(tenantId: string): Promise<number> {
-        return sealDBModel.delete(TENANT_TABLE, tenantId);
+        return sealDBModel.delete(TENANT_TABLE, { tenantId });
     }
 
-    static buildTenantData(data: TenantFormValues): Omit<Tenant, 'createdAt' | 'updatedAt'> {
+    static async buildTenantData(data: TenantFormValues): Promise<Omit<Tenant, 'createdAt' | 'updatedAt'>> {
+        const tenantId = uuidv4()
         const trialEndDate = new Date();
-        trialEndDate.setDate(trialEndDate.getDate() + 14);
+        trialEndDate.setDate(trialEndDate.getDate() + 30);
+        const verificationToken = await this.generateVerificationToken(tenantId)
 
         return {
-            tenantId: uuidv4(),
+            tenantId,
             tenantCode: this.generateTenantCode(),
             businessName: data.businessName,
             tradingName: data.tradingName || null,
@@ -109,7 +111,7 @@ export class TenantModel {
             address: data.address || null,
             country: data.country || null,
             trialEndsAt: trialEndDate,
-            verificationToken: this.generateVerificationToken(),
+            verificationToken,
             status: data.status || 'pending',
             registeredAt: new Date(),
             activatedAt: null,
