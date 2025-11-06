@@ -1,19 +1,3 @@
-interface SubscriptionPlan {
-    uuid: string;
-    name: string;
-    description?: string;
-    price: number;
-    billingCycle: 'monthly' | 'yearly' | 'lifetime';
-    maxShops: number;
-    maxUsersPerShop: number;
-    maxProducts: number;
-    maxTransactionsPerMonth: number;
-    features?: Record<string, any>;
-    isActive: boolean;
-    createdAt?: string;
-    updatedAt?: string;
-}
-
 interface TerminalVerificationParams {
     verificationToken: string;
     os: string;
