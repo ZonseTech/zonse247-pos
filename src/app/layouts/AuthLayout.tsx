@@ -124,7 +124,7 @@ const AuthLayout: FunctionComponent<PropsWithChildren<AuthLayoutProps>> = ({
                 animate="visible"
             >
                 <motion.div
-                    className={`w-full max-w-md ${className}`}
+                    className={`w-full max-w-xl ${className}`}
                     variants={itemVariants}
                 >
                     <motion.div variants={itemVariants}>

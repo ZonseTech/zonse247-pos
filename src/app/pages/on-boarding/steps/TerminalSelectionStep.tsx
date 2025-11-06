@@ -1,5 +1,4 @@
 import { FunctionComponent } from "react";
-import { Button } from "../../../components";
 import { AlertCircle, Ban } from "lucide-react";
 import StatusBadge from "../partials/StatusBadge";
 
@@ -7,16 +6,12 @@ const TerminalSelectionStep: FunctionComponent<{
     terminals: Array<Terminal>,
     selectedTerminal: Terminal,
     selectedBranch: Branch,
-    onTerminalSelect,
-    onSubmit,
-    loading
+    onTerminalSelect: (terminal: Terminal) => void,
 }> = ({
     terminals,
     selectedTerminal,
     selectedBranch,
     onTerminalSelect,
-    onSubmit,
-    loading
 }) => {
         const isTerminalDisabled = (terminal: Terminal) => {
             return terminal.activationStatus === 'ACTIVATED' || terminal.activationStatus === 'SUSPENDED';
@@ -50,9 +45,9 @@ const TerminalSelectionStep: FunctionComponent<{
                                     className={`p-4 border rounded-lg transition-colors ${isDisabled
                                         ? 'border-gray-200 bg-gray-100 cursor-not-allowed opacity-60'
                                         : isSelected
-                                            ? 'border-blue-500 bg-blue-50'
-                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                                        } cursor-pointer`}
+                                            ? 'border-blue-500 bg-blue-50 cursor-pointer'
+                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 cursor-pointer'
+                                        }`}
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex-1">
@@ -99,18 +94,6 @@ const TerminalSelectionStep: FunctionComponent<{
                         </div>
                     )}
                 </div>
-
-                {terminals && terminals.length > 0 && (
-                    <Button
-                        onClick={onSubmit}
-                        disabled={!selectedTerminal}
-                        loading={loading}
-                        block
-                        theme="success"
-                    >
-                        {loading ? 'Configuring...' : 'Configure Machine'}
-                    </Button>
-                )}
             </div>
         );
     };

@@ -9,10 +9,11 @@ interface StepIndicatorProps {
 
 const StepIndicator: FunctionComponent<PropsWithChildren<StepIndicatorProps>> = ({
     currentStep,
+    totalSteps,
     children,
     onBack
 }) => (
-    <div className="flex flex-col items-center w-full">
+    <div className="">
         <div className="flex items-center justify-between w-full mb-6">
             {onBack ? (
                 <button
@@ -23,20 +24,16 @@ const StepIndicator: FunctionComponent<PropsWithChildren<StepIndicatorProps>> = 
                     <span className="text-sm font-medium">Back</span>
                 </button>
             ) : <div className="w-20" />}
-
             <div className="flex-1 flex justify-center">
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100">
                     <span className="text-blue-600 font-semibold">{currentStep}</span>
                 </div>
             </div>
-
             <div className="w-20" />
         </div>
-
         {children}
-
         <div className="flex justify-center space-x-2 mt-6">
-            {[1, 2, 3].map((s) => (
+            {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
                 <div
                     key={s}
                     className={`w-2 h-2 rounded-full ${s <= currentStep ? 'bg-blue-600' : 'bg-gray-300'

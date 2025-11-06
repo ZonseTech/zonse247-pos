@@ -8,6 +8,7 @@ import onboardingService from '../../services/on-boarding.service';
 import TerminalSelectionStep from './steps/TerminalSelectionStep';
 import TenantVerificationStep from './steps/TenantVerificationStep';
 import { toast } from 'react-toastify';
+import SetupTerminal from './steps/SetupTerminal';
 
 interface OnboardingFlowProps {
     onComplete: (setupData: any) => void;
@@ -16,9 +17,7 @@ interface OnboardingFlowProps {
 
 const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, error: parentError }) => {
     const registerProps: TerminalVerificationParams = {
-        // verificationToken: 'dde554bc85d3a99315c40c41d475f4fb4dc0:e80add87ecffcfb859998f4ed92b8b81',
         verificationToken: '3f81127ca4ba63eb4902be2696970d568dea:b1c00587834336e5a45dd2758536449a',
-        // verificationToken: '',
         os: '',
         hostname: '',
         macAddress: ''
@@ -91,9 +90,10 @@ const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, er
     const handleTerminalSelect = (terminal: Terminal) => {
         setSelectedTerminal(terminal);
         setLocalError('');
+        setCurrentStep(4);
     };
 
-    const handleSubmitConfiguration = async () => {
+    const handleSetupComplete = async () => {
         if (!selectedTerminal) {
             setLocalError('Please select a terminal');
             return;
@@ -129,51 +129,55 @@ const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, er
         } else if (currentStep === 3) {
             setCurrentStep(2);
             setSelectedTerminal(null);
+        } else if (currentStep === 4) {
+            setCurrentStep(3);
         }
     };
 
-    const canGoBack = currentStep > 1 && currentStep < 4;
+    const canGoBack = currentStep > 1 && currentStep <= 4;
 
     return (
-        <AuthLayout className="max-w-7xl w-full mx-auto">
-            <div className="p-6">
-                <StepIndicator
-                    currentStep={currentStep}
-                    totalSteps={3}
-                    onBack={canGoBack ? handleBackToPreviousStep : null}
-                >
-                    {displayError && <ErrorAlert message={displayError} />}
+        <AuthLayout className="">
+            <StepIndicator
+                currentStep={currentStep}
+                totalSteps={4}
+                onBack={canGoBack ? handleBackToPreviousStep : null}
+            >
+                {displayError && <ErrorAlert message={displayError} />}
 
-                    {currentStep === 1 && (
-                        <TenantVerificationStep
-                            credentials={registerProps}
-                            credentialsValidationSchema={registerValidationSchema}
-                            onSubmit={handleVerifyClient}
-                        />
-                    )}
+                {currentStep === 1 && (
+                    <TenantVerificationStep
+                        credentials={registerProps}
+                        credentialsValidationSchema={registerValidationSchema}
+                        onSubmit={handleVerifyClient}
+                    />
+                )}
 
-                    {currentStep === 2 && (
-                        <BranchSelectionStep
-                            branches={branches}
-                            onBranchSelect={handleBranchSelect}
-                        />
-                    )}
+                {currentStep === 2 && (
+                    <BranchSelectionStep
+                        branches={branches}
+                        onBranchSelect={handleBranchSelect}
+                    />
+                )}
 
-                    {currentStep === 3 && (
-                        <TerminalSelectionStep
-                            terminals={terminals}
-                            selectedTerminal={selectedTerminal}
-                            selectedBranch={selectedBranch}
-                            onTerminalSelect={handleTerminalSelect}
-                            onSubmit={handleSubmitConfiguration}
-                            loading={loading}
-                        />
-                    )}
-                </StepIndicator>
-            </div>
+                {currentStep === 3 && (
+                    <TerminalSelectionStep
+                        terminals={terminals}
+                        selectedTerminal={selectedTerminal}
+                        selectedBranch={selectedBranch}
+                        onTerminalSelect={handleTerminalSelect}
+                    />
+                )}
+
+                {currentStep === 4 && (
+                    <SetupTerminal
+                        loading={loading}
+                        onComplete={handleSetupComplete}
+                    />
+                )}
+            </StepIndicator>
         </AuthLayout>
     );
 };
-
 
 export default OnboardingFlow;
