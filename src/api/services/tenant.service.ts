@@ -3,6 +3,10 @@ import { BranchModel } from "../models/branch.model";
 import { TenantModel } from "../models/tenant.model";
 import { SubscriptionModel } from "../models/subscription.model";
 import { TerminalModel } from "../models/terminal.model";
+import { BranchService } from "./branch.service";
+import { TerminalService } from "./terminal.service";
+import { SecureSettingsService } from "./secure-settings.service";
+import { v4 as uuidv4 } from 'uuid';
 
 export class TenantService {
     static validateEmail(email: string): boolean {
@@ -56,15 +60,26 @@ export class TenantService {
         }
 
         const tenant = await TenantModel.create(data);
+        const verificationToken = await SecureSettingsService.encryptTenantId(tenant.tenantId)
 
-        if (tenant) {
+        const defaultBranch = await BranchService.createDefault({
+            tenantId: tenant.tenantId,
+            branchId: uuidv4()
+        })
+        const defaultTerminal = await TerminalService.createDefault({
+            tenantId: tenant.tenantId,
+            branchId: defaultBranch.branchId,
+            terminalId: uuidv4(),
+        })
+
+        if (defaultTerminal) {
             try {
                 await EmailService.sendWelcomeEmail({
                     businessName: tenant.businessName,
                     ownerName: tenant.ownerName,
                     email: tenant.email,
                     tenantCode: tenant.tenantCode,
-                    verificationToken: tenant.verificationToken,
+                    verificationToken,
                 });
 
                 console.log(`Welcome email sent successfully to ${tenant.email} for business: ${tenant.businessName}`);

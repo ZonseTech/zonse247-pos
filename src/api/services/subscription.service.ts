@@ -1,9 +1,11 @@
 import { TenantService } from './tenant.service';
 import { TenantModel } from '../models/tenant.model';
 import { SubscriptionModel } from '../models/subscription.model';
+import { SubscriptionPlanService } from './subscription-plan.service';
 
 export class SubscriptionService {
-	static async getAll(): Promise<TenantSubscription[]> {
+
+	static async getAll(): Promise<Array<TenantSubscription>> {
 		const subscriptions = await SubscriptionModel.findAll();
 
 		const enhancedSubscriptions = await Promise.all(
@@ -12,7 +14,7 @@ export class SubscriptionService {
 
 				return {
 					...subscription,
-					clientDetails: {
+					tenantDetails: {
 						tenantCode: tenant?.tenantCode,
 						companyName: tenant?.businessName,
 						ownerName: tenant?.ownerName,
@@ -29,40 +31,47 @@ export class SubscriptionService {
 	}
 
 	static async create(
-		data: Omit<TenantSubscription, 'uuid' | 'createdAt' | 'updatedAt'>
+		data: CreateSubscriptionRequest
 	): Promise<TenantSubscription> {
 		const validationError = TenantService.validateRequired(data, [
-			'clientUuid',
+			'tenantId',
 			'planId',
 		]);
 		if (validationError) {
 			throw new Error(validationError);
 		}
 
-		const client = await TenantModel.findById(data.tenantId);
-		if (!client) {
-			throw new Error('Client not found');
+		const tenant = await TenantModel.findById(data.tenantId);
+		if (!tenant) {
+			throw new Error('Tenant not found');
 		}
 
-		const existingSubscriptions =
-			await SubscriptionModel.findActiveByTenantId(data.tenantId);
-		if (existingSubscriptions) {
-			throw new Error('Client already has an active subscription');
+		const plan = await SubscriptionPlanService.getById(data.planId);
+		if (!plan || !plan.isActive) {
+			throw new Error('Subscription plan not found or inactive');
 		}
 
-		const subscriptionData = {
-			...data,
-			status: data.status || 'active',
-			startsAt: data.startsAt || new Date().toISOString(),
-			autoRenew: data.autoRenew !== undefined ? data.autoRenew : true,
-		};
+		if (tenant.subscriptionPlan === data.planName) {
+			throw new Error('Tenant already subscribe to this plan.');
+		}
 
+		const existingSubscription = await SubscriptionModel.findActiveByTenantId(data.tenantId);
+
+		if (existingSubscription.subscriptionId) {
+			await SubscriptionModel.update(existingSubscription.subscriptionId, {
+				status: 'cancelled',
+			})
+		}
+
+		const subscriptionData = SubscriptionModel.buildSubscriptionData(data);
 		const newSubscription = await SubscriptionModel.create(subscriptionData);
 
+		const now = new Date();
 		await TenantModel.update(data.tenantId, {
+			subscriptionPlan: plan.name,
 			subscriptionStatus: 'ACTIVE',
 			status: 'active',
-			activatedAt: new Date(),
+			activatedAt: now,
 		});
 
 		return newSubscription;
@@ -132,7 +141,7 @@ export class SubscriptionService {
 			return null;
 		}
 
-		const plan = await SubscriptionModel.findById(subscription.planId);
+		const plan = await SubscriptionPlanService.getById(subscription.planId);
 		if (!plan) {
 			throw new Error('Subscription plan not found');
 		}
@@ -140,19 +149,15 @@ export class SubscriptionService {
 		const now = new Date();
 		let endDate: Date | null = null;
 
-		switch (plan.billingCycle) {
-			case 'monthly':
-				endDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-				break;
-			case 'yearly':
-				endDate = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
-				break;
-			case 'lifetime':
-				endDate = null;
-				break;
-			default:
-				endDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+		if (plan.monthlyPrice) {
+			endDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 		}
+
+		if (plan.yearlyPrice) {
+
+			endDate = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+		}
+
 
 		const reactivateData = {
 			status: 'active',
@@ -188,24 +193,20 @@ export class SubscriptionService {
 			status: 'active',
 		};
 
-		const plan = await SubscriptionModel.findById(subscription.planId);
+		const plan = await SubscriptionPlanService.getById(subscription.planId);
 		if (plan) {
 			let nextPaymentDate: Date | null = null;
-			switch (plan.billingCycle) {
-				case 'monthly':
-					nextPaymentDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-					break;
-				case 'yearly':
-					nextPaymentDate = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
-					break;
-				case 'lifetime':
-					nextPaymentDate = null;
-					break;
+			if (plan.monthlyPrice) {
+				nextPaymentDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+			}
+
+			if (plan.yearlyPrice) {
+
+				nextPaymentDate = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
 			}
 
 			if (nextPaymentDate) {
-				(paymentProcessData as any).next_payment_date =
-					nextPaymentDate.toISOString();
+				(paymentProcessData as any).next_payment_date = nextPaymentDate.toISOString();
 				(paymentProcessData as any).ends_at = nextPaymentDate.toISOString();
 			}
 		}
@@ -249,56 +250,5 @@ export class SubscriptionService {
 		annualRevenue: number;
 	}> {
 		return SubscriptionModel.getStats();
-	}
-
-	static async getActivePlans(): Promise<SubscriptionPlan[]> {
-		return SubscriptionModel.findActivePlans();
-	}
-
-	static async createSubscription(
-		data: CreateSubscriptionRequest
-	): Promise<TenantSubscription> {
-		const validationError = TenantService.validateRequired(data, [
-			'tenantId',
-			'planId',
-		]);
-		if (validationError) {
-			throw new Error(validationError);
-		}
-
-		const client = await TenantModel.findById(data.tenantId);
-		if (!client) {
-			throw new Error('Client not found');
-		}
-
-		const plan = await SubscriptionModel.findById(data.planId);
-		if (!plan || !plan.isActive) {
-			throw new Error('Subscription plan not found or inactive');
-		}
-
-		const existingSubscriptions =
-			await SubscriptionModel.findActiveByTenantId(data.tenantId);
-		if (existingSubscriptions) {
-			throw new Error('Client already has an active subscription');
-		}
-
-		const subscriptionData = SubscriptionModel.buildSubscriptionData(
-			data.tenantId,
-			data.planId,
-			plan,
-			data.paymentMethod,
-			data.autoRenew
-		);
-
-		const newSubscription = await SubscriptionModel.create(subscriptionData);
-
-		const now = new Date();
-		await TenantModel.update(data.tenantId, {
-			subscriptionStatus: 'ACTIVE',
-			status: 'active',
-			activatedAt: now,
-		});
-
-		return newSubscription;
 	}
 }

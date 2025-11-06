@@ -158,4 +158,45 @@ export class TerminalService {
             throw error;
         }
     }
+
+    static async createDefault(params: {
+        terminalId: string,
+        tenantId: string,
+        branchId: string,
+    }): Promise<Terminal> {
+        const data = {
+            mraTerminalId: null,
+            terminalCode: 'TERM001',
+            terminalLabel: 'Main Terminal',
+            terminalPosition: 1,
+            deviceId: 'DEFAULT_DEVICE',
+            osName: 'Linux',
+            osVersion: '1.0',
+            osBuild: 'build-001',
+            macAddress: '00:00:00:00:00:00',
+            posProductId: 'POS001',
+            posProductVersion: '1.0.0',
+            terminalConfigVersion: 1,
+            offlineMaxTransactionAgeHours: 24,
+            offlineMaxCumulativeAmount: 100000,
+            activationCode: 'DEFAULT',
+            activationStatus: 'ACTIVATED',
+            activationDate: new Date(),
+            isPrimary: true,
+            isBlocked: false,
+            blockingReason: null,
+            blockedAt: null,
+            mraApplicationStatus: 'APPROVED',
+            mraApprovalDate: new Date(),
+            lastActivity: new Date(),
+            lastSync: new Date(),
+            lastSyncTimestamp: new Date(),
+            synced: 0,
+            registeredAt: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        };
+
+        return TerminalModel.create({ ...data, ...params });
+    }
 }
