@@ -3,6 +3,18 @@ import { BaseController } from "./base.controller";
 import { SubscriptionPlanService } from "../services/subscription-plan.service";
 
 export class SubscriptionPlanController extends BaseController {
+
+    static async selectAll(req: Request, res: Response): Promise<void> {
+        try {
+            const params = req.body;
+            const plans = await SubscriptionPlanService.selectAll(params);
+            BaseController.sendResponse(res, 200, true, 'Subscription plans retrieved successfully', plans);
+        } catch (error: any) {
+            console.error('Error fetching roles:', error);
+            BaseController.sendResponse(res, 500, false, error.message, undefined, error.message);
+        }
+    }
+
     static async list(req: Request, res: Response): Promise<void> {
         try {
             const { billingCycle, isActive } = req.query;

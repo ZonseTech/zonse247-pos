@@ -2,10 +2,24 @@ import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 import { sealDBModel } from '../databases/local';
 import { USERS_DB } from '../databases/local/tables';
+import { mysqlPool } from '../config/db';
 
 const saltRounds = 10;
 
 export class UserModel {
+
+    static async findAllByRDBMS(conditions: any = {}): Promise<Array<User>> {
+        try {
+            const connection = await mysqlPool.getConnection();
+            const [rows] = await connection.execute(`SELECT * FROM ${USERS_DB}`);
+            const records = rows as any[];
+
+            return records
+        } catch (error) {
+            throw new Error(`Error finding roles: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+    }
+
     static async findAll(conditions: any = {}): Promise<User[]> {
         try {
             return await sealDBModel.find(USERS_DB, conditions);

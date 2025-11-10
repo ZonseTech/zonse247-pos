@@ -5,6 +5,10 @@ import { RolePermissionModel } from "../models/role-permission.model";
 
 export class RolePermissionService {
 
+    static async selectAll(params): Promise<Array<RolePermission>> {
+        return await RolePermissionModel.findAllByRDBMS(params);
+    }
+
     static async getAllRolePermissions(query: any = {}): Promise<RolePermission[]> {
         try {
             const conditions: any = {};

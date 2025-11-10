@@ -2,6 +2,10 @@ import { SubscriptionPlanModel } from '../models/subscription-plan.model';
 
 export class SubscriptionPlanService {
 
+    static async selectAll(params): Promise<Array<Role>> {
+        return await SubscriptionPlanModel.findAllByRDBMS(params);
+    }
+
     static async getAll(): Promise<SubscriptionPlan[]> {
         return SubscriptionPlanModel.findAll();
     }

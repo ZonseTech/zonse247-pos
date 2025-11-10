@@ -1,24 +1,38 @@
 import { v4 as uuidv4 } from 'uuid';
 import { sealDBModel } from '../databases/local';
-import { TABLE_NAMES } from '../databases/local/tables';
+import { SUBSCRIPTION_PLANS_TABLE } from '../databases/local/tables';
+import { mysqlPool } from '../config/db';
 
 export class SubscriptionPlanModel {
+
+	static async findAllByRDBMS(conditions: any = {}): Promise<Role[]> {
+		try {
+			const connection = await mysqlPool.getConnection();
+			const [rows] = await connection.execute(`SELECT * FROM ${SUBSCRIPTION_PLANS_TABLE}`);
+			const records = rows as any[];
+
+			return records
+		} catch (error) {
+			throw new Error(`Error finding roles: ${error instanceof Error ? error.message : 'Unknown error'}`);
+		}
+	}
+
 	static async findAll(): Promise<SubscriptionPlan[]> {
-		return sealDBModel.findAll(TABLE_NAMES.SUBSCRIPTION_PLANS);
+		return sealDBModel.findAll(SUBSCRIPTION_PLANS_TABLE);
 	}
 
 	static async findById(id: string): Promise<SubscriptionPlan | null> {
-		return sealDBModel.findById(TABLE_NAMES.SUBSCRIPTION_PLANS, { planId: id });
+		return sealDBModel.findById(SUBSCRIPTION_PLANS_TABLE, { planId: id });
 	}
 
 	static async findActivePlans(): Promise<SubscriptionPlan[]> {
-		return sealDBModel.find(TABLE_NAMES.SUBSCRIPTION_PLANS, {
+		return sealDBModel.find(SUBSCRIPTION_PLANS_TABLE, {
 			isActive: true,
 		});
 	}
 
 	static async findByBillingCycle(billingCycle: string): Promise<SubscriptionPlan[]> {
-		return sealDBModel.find(TABLE_NAMES.SUBSCRIPTION_PLANS, { billingCycle });
+		return sealDBModel.find(SUBSCRIPTION_PLANS_TABLE, { billingCycle });
 	}
 
 	static async create(planData: Partial<SubscriptionPlan>): Promise<SubscriptionPlan> {
@@ -29,7 +43,7 @@ export class SubscriptionPlanModel {
 			updatedAt: new Date(),
 		};
 
-		return sealDBModel.insert(TABLE_NAMES.SUBSCRIPTION_PLANS, planWithId);
+		return sealDBModel.insert(SUBSCRIPTION_PLANS_TABLE, planWithId);
 	}
 
 	static async update(id: string, data: Partial<SubscriptionPlan>): Promise<number> {
@@ -38,11 +52,11 @@ export class SubscriptionPlanModel {
 			updatedAt: new Date(),
 		};
 
-		return sealDBModel.update(TABLE_NAMES.SUBSCRIPTION_PLANS, { planId: id }, updateData);
+		return sealDBModel.update(SUBSCRIPTION_PLANS_TABLE, { planId: id }, updateData);
 	}
 
 	static async delete(id: string): Promise<number> {
-		return sealDBModel.delete(TABLE_NAMES.SUBSCRIPTION_PLANS, { planId: id });
+		return sealDBModel.delete(SUBSCRIPTION_PLANS_TABLE, { planId: id });
 	}
 
 	static async toggleStatus(id: string): Promise<number> {

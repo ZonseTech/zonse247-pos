@@ -2,8 +2,21 @@ import { v4 as uuidv4 } from 'uuid';
 import { sealDBModel } from '../databases/local';
 import { SubscriptionPlanModel } from './subscription-plan.model';
 import { TENANT_SUBSCRIPTIONS_TABLE } from '../databases/local/tables';
+import { mysqlPool } from '../config/db';
 
 export class SubscriptionModel {
+	static async findAllByRDBMS(conditions: any = {}): Promise<Role[]> {
+		try {
+			const connection = await mysqlPool.getConnection();
+			const [rows] = await connection.execute(`SELECT * FROM ${TENANT_SUBSCRIPTIONS_TABLE}`);
+			const records = rows as any[];
+
+			return records
+		} catch (error) {
+			throw new Error(`Error finding roles: ${error instanceof Error ? error.message : 'Unknown error'}`);
+		}
+	}
+
 	static async findAll(): Promise<TenantSubscription[]> {
 		return sealDBModel.findAll(TENANT_SUBSCRIPTIONS_TABLE);
 	}
@@ -53,6 +66,15 @@ export class SubscriptionModel {
 
 	static async delete(uuid: string): Promise<number> {
 		return sealDBModel.delete(TENANT_SUBSCRIPTIONS_TABLE, uuid);
+	}
+
+	static async count(conditions: any = {}): Promise<number> {
+		try {
+			return await sealDBModel.count(TENANT_SUBSCRIPTIONS_TABLE, conditions);
+		} catch (error) {
+			console.error('Error counting payment methods:', error);
+			throw error;
+		}
 	}
 
 	static async findExpiring(days: number): Promise<TenantSubscription[]> {

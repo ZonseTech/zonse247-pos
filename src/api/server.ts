@@ -24,6 +24,7 @@ import {
 } from './middlewares/security.middleware';
 import ApiRoutes from './routes';
 import { initializeEmailService } from './config/email.config';
+import { isElectron } from './utils';
 
 class Server {
 	private server: HttpServer;
@@ -153,7 +154,7 @@ class Server {
 			}
 		}
 
-		if (config.database.seed) {
+		if (config.database.seed && isElectron()) {
 			try {
 				await seedDatabase();
 				console.log('✅ Database seeding completed successfully');

@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { sealDBModel } from '../databases/local';
 import { PERMISSIONS_DB } from '../databases/local/tables';
+import { mysqlPool } from '../config/db';
 
 export enum PermissionScope {
     SYSTEM = 'system',
@@ -9,6 +10,24 @@ export enum PermissionScope {
 }
 
 export class PermissionModel {
+
+    static async findAllByRDBMS(conditions: any = {}): Promise<Array<Permission>> {
+        try {
+
+            console.log('====================================');
+            console.log('findAllByRDBMS: ', conditions);
+            console.log('====================================');
+
+            const connection = await mysqlPool.getConnection();
+            const [rows] = await connection.execute(`SELECT * FROM ${PERMISSIONS_DB}`);
+            const records = rows as any[];
+
+            return records
+        } catch (error) {
+            throw new Error(`Error finding permissions: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+    }
+
     static async findAll(conditions: any = {}): Promise<Permission[]> {
         try {
             return await sealDBModel.find(PERMISSIONS_DB, conditions);

@@ -7,6 +7,17 @@ export class UserController extends BaseController {
 		super();
 	}
 
+	static async selectAll(req: Request, res: Response): Promise<void> {
+		try {
+			const params = req.body;
+			const users = await UserService.selectAll(params);
+			BaseController.sendResponse(res, 200, true, 'Users retrieved successfully', users);
+		} catch (error: any) {
+			console.error('Error fetching roles:', error);
+			BaseController.sendResponse(res, 500, false, error.message, undefined, error.message);
+		}
+	}
+
 	static async healthCheck(req: Request, res: Response): Promise<void> {
 		BaseController.sendResponse(res, 200, true, 'Users API is running');
 	}

@@ -13,7 +13,7 @@ interface Product {
     promoPrice?: string;
     customPrice?: string;
     discount?: number;
-    categoryUuid?: string;
+    categoryId?: string;
     quantity?: string | number;
     orderItems?: number;
     originalQuantity?: number;

@@ -5,6 +5,13 @@ interface TerminalVerificationParams {
     macAddress: string;
 }
 
+type ValidationParams = {
+    tenantId: string;
+    branchId: string;
+    terminalId: string;
+    verificationKey: string;
+}
+
 interface OnboardingStatus {
     tenant: Omit<Tenant, 'verificationToken'>;
     subscription: any;
