@@ -22,7 +22,7 @@ const config: Config = {
 	},
 	database: {
 		host: '127.0.0.1',
-		database: 'zonse247_pos',
+		database: 'zonse247_pos_dev',
 		user: 'root',
 		password: 'Ccera-2017',
 		// host: '139.59.103.109',

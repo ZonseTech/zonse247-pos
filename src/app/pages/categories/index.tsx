@@ -78,7 +78,7 @@ const CategoriesManager: FunctionComponent = () => {
         try {
             if (editingCategory) {
                 const updatedCategories = categories.map((cat) =>
-                    cat.uuid === newCategory.uuid ? newCategory : cat
+                    cat.categoryId === newCategory.categoryId ? newCategory : cat
                 );
                 // setCategories(updatedCategories);
             } else {

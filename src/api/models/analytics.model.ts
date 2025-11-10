@@ -160,7 +160,7 @@ export class AnalyticsModel {
 
             if (product) {
                 if (product.uuid) {
-                    const categoryKey = product.categoryUuid.toString();
+                    const categoryKey = product.categoryId.toString();
                     if (categoryMap.has(categoryKey)) {
                         product.categoryDetails = categoryMap.get(categoryKey);
                     }
@@ -269,7 +269,7 @@ export class AnalyticsModel {
 
         const categoryMap = new Map<string, Category>();
         categories.forEach((category: Category) => {
-            categoryMap.set(category.uuid.toString(), category);
+            categoryMap.set(category.categoryId.toString(), category);
         });
 
         const detailedOrderItems = await Promise.all(

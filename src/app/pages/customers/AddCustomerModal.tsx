@@ -17,7 +17,7 @@ const AddCustomerModal: FunctionComponent<PropsWithChildren<Props>> = ({ handleS
     const [isOpenForm, setIsOpenForm] = useState(false);
 
     const initialCustomerValues: Customer = {
-        uuid: '',
+        customerId: '',
         name: '',
         phone: '',
         email: '',
