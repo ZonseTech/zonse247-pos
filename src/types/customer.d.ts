@@ -15,6 +15,9 @@ interface CreateCustomerData {
     email?: string;
     phone?: string;
     address?: string;
+    tenantId: string;
+    branchId: string;
+    userId: string;
 }
 
 interface UpdateCustomerData {

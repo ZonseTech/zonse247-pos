@@ -59,9 +59,3 @@ interface UserFormModalProps {
     onClose?: () => void;
     onUserSaved?: () => void;
 }
-
-interface AuthenticatedUser {
-    userId: string;
-    tenantId: string;
-    branchId: string;
-}
