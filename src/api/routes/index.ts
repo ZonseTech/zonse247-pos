@@ -27,6 +27,9 @@ import { AuthMiddleware } from '../middlewares/auth.middleware'
 import { preventSQLInjection, preventXSS, sanitizeInput } from '../middlewares/security.middleware'
 import { authLimiter } from '../middlewares/rate-limit.middleware'
 import PaymentServiceProviderRoutes from './payment-service-provider.routes'
+import MetadataRoutes from './metadata.routes'
+import AccountSeedsRoutes from './account-seeds.routes'
+import { MetadataMiddleware } from '../middlewares/metadata.middleware'
 
 const router = Router();
 const authMiddleware = new AuthMiddleware();
@@ -40,6 +43,8 @@ router.use((req, res, next) => {
 });
 
 router.use('/on-boarding', OnboardingRoutes);
+router.use('/account-seeds', AccountSeedsRoutes)
+router.use('/metadata', MetadataMiddleware.validateKey, MetadataRoutes);
 
 router.use(authMiddleware.verifyRequestHeaders)
 
