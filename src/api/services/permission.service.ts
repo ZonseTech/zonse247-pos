@@ -4,6 +4,10 @@ import { PermissionModel, PermissionScope } from "../models/permission.model";
 
 export class PermissionService {
 
+    static async selectAll(params): Promise<Array<Permission>> {
+        return await PermissionModel.findAllByRDBMS(params);
+    }
+
     static async getAllPermissions(query: any = {}): Promise<Permission[]> {
         try {
             const conditions: any = {};
@@ -131,7 +135,7 @@ export class PermissionService {
             throw new Error('System permissions cannot be deleted');
         }
 
-        await RolePermissionModel.deleteByPermissionUuid(existingPermission.uuid);
+        await RolePermissionModel.deleteByPermissionId(existingPermission.permissionId);
 
         const numDeleted = await PermissionModel.delete(id);
         if (numDeleted === 0) {
@@ -221,7 +225,7 @@ export class PermissionService {
         const permissionsWithCount = [];
 
         for (const permission of permissions) {
-            const rolePermissions = await RolePermissionModel.findByPermissionUuid(permission.uuid);
+            const rolePermissions = await RolePermissionModel.findByPermissionId(permission.permissionId);
             permissionsWithCount.push({
                 ...permission,
                 role_count: rolePermissions.length

@@ -5,6 +5,11 @@ import { RolePermissionModel } from '../models/role-permission.model';
 import { PermissionModel } from '../models/permission.model';
 
 export class UserService {
+
+	static async selectAll(params): Promise<Array<User>> {
+		return await UserModel.findAllByRDBMS(params);
+	}
+
 	static async getUserById(userId: string): Promise<any> {
 		if (!userId) {
 			throw new Error('ID field is required.');

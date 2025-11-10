@@ -5,6 +5,10 @@ import { SubscriptionPlanService } from './subscription-plan.service';
 
 export class SubscriptionService {
 
+	static async selectAll(params): Promise<Array<Role>> {
+		return await SubscriptionModel.findAllByRDBMS(params);
+	}
+
 	static async getAll(): Promise<Array<TenantSubscription>> {
 		const subscriptions = await SubscriptionModel.findAll();
 
@@ -27,7 +31,7 @@ export class SubscriptionService {
 	}
 
 	static async getById(id: string): Promise<TenantSubscription | null> {
-		return SubscriptionModel.findByUuid(id);
+		return SubscriptionModel.findById(id);
 	}
 
 	static async create(
@@ -81,7 +85,7 @@ export class SubscriptionService {
 		id: string,
 		data: Partial<TenantSubscription>
 	): Promise<TenantSubscription | null> {
-		const existingSubscription = await SubscriptionModel.findByUuid(id);
+		const existingSubscription = await SubscriptionModel.findById(id);
 		if (!existingSubscription) {
 			return null;
 		}
@@ -91,7 +95,7 @@ export class SubscriptionService {
 			return null;
 		}
 
-		return SubscriptionModel.findByUuid(id);
+		return SubscriptionModel.findById(id);
 	}
 
 	static async delete(id: string): Promise<boolean> {
@@ -114,7 +118,7 @@ export class SubscriptionService {
 	}
 
 	static async cancel(id: string): Promise<TenantSubscription | null> {
-		const subscription = await SubscriptionModel.findByUuid(id);
+		const subscription = await SubscriptionModel.findById(id);
 		if (!subscription) {
 			return null;
 		}
@@ -132,11 +136,11 @@ export class SubscriptionService {
 			subscriptionStatus: 'CANCELLED',
 		});
 
-		return SubscriptionModel.findByUuid(id);
+		return SubscriptionModel.findById(id);
 	}
 
 	static async reactivate(id: string): Promise<TenantSubscription | null> {
-		const subscription = await SubscriptionModel.findByUuid(id);
+		const subscription = await SubscriptionModel.findById(id);
 		if (!subscription) {
 			return null;
 		}
@@ -174,14 +178,14 @@ export class SubscriptionService {
 			status: 'active',
 		});
 
-		return SubscriptionModel.findByUuid(id);
+		return SubscriptionModel.findById(id);
 	}
 
 	static async processPayment(
 		id: string,
 		paymentData: { amount: number; paymentMethod: string }
 	): Promise<TenantSubscription | null> {
-		const subscription = await SubscriptionModel.findByUuid(id);
+		const subscription = await SubscriptionModel.findById(id);
 		if (!subscription) {
 			return null;
 		}
@@ -212,7 +216,7 @@ export class SubscriptionService {
 		}
 
 		await SubscriptionModel.update(id, paymentProcessData as any);
-		return SubscriptionModel.findByUuid(id);
+		return SubscriptionModel.findById(id);
 	}
 
 	static async getExpiring(days: number = 30): Promise<TenantSubscription[]> {
@@ -228,7 +232,7 @@ export class SubscriptionService {
 		for (const id of ids) {
 			try {
 				await SubscriptionModel.update(id, updateData);
-				const updated = await SubscriptionModel.findByUuid(id);
+				const updated = await SubscriptionModel.findById(id);
 				if (updated) {
 					updatedSubscriptions.push(updated);
 				}
