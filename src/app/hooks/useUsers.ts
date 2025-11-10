@@ -45,7 +45,7 @@ export const useUsers = () => {
         }
 
         if (roleFilter !== 'all') {
-            filtered = filtered.filter(user => user.roleUuid === roleFilter);
+            filtered = filtered.filter(user => user.roleId === roleFilter);
         }
 
         return filtered;

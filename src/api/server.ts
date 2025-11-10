@@ -147,7 +147,7 @@ class Server {
 
 		if (config.database.migrate) {
 			try {
-				// await initDatabase();
+				await initDatabase();
 				console.log('✅ Database migrations completed successfully');
 			} catch (err) {
 				console.error('❌ Error running migrations:', err);
