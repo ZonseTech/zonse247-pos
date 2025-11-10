@@ -1,8 +1,21 @@
 import { v4 as uuidv4 } from 'uuid';
 import { sealDBModel } from "../databases/local";
 import { ROLE_PERMISSIONS_DB } from "../databases/local/tables";
+import { mysqlPool } from '../config/db';
 
 export class RolePermissionModel {
+    static async findAllByRDBMS(conditions: any = {}): Promise<Array<RolePermission>> {
+        try {
+            const connection = await mysqlPool.getConnection();
+            const [rows] = await connection.execute(`SELECT * FROM ${ROLE_PERMISSIONS_DB}`);
+            const records = rows as any[];
+
+            return records
+        } catch (error) {
+            throw new Error(`Error finding roles: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+    }
+
     static async findAll(conditions: any = {}): Promise<RolePermission[]> {
         try {
             return await sealDBModel.find(ROLE_PERMISSIONS_DB, conditions);
