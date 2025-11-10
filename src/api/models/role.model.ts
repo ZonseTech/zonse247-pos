@@ -4,10 +4,10 @@ import { ROLES_DB } from '../databases/local/tables';
 import { mysqlPool } from '../config/db';
 
 export class RoleModel {
-    static async findAllByRDBMS(conditions: any = {}): Promise<Role[]> {
+    static async findAllByRDBMS(conditions: ValidationParams): Promise<Role[]> {
         try {
             const connection = await mysqlPool.getConnection();
-            const [rows] = await connection.execute(`SELECT * FROM ${ROLES_DB}`);
+            const [rows] = await connection.execute(`SELECT * FROM ${ROLES_DB} WHERE tenant_id=${conditions.tenantId}`);
             const records = rows as any[];
 
             return records

@@ -9,7 +9,8 @@ export class MetadataController extends BaseController {
      */
     static async syncRoles(req: Request, res: Response): Promise<void> {
         try {
-            const result = await MetadataService.syncRoles();
+            const params = req.body;
+            const result = await MetadataService.syncRoles(params);
             BaseController.sendResponse(res, 200, true, 'Roles metadata synced successfully', result);
         } catch (error: any) {
             console.error('Error syncing roles metadata:', error);
@@ -22,7 +23,8 @@ export class MetadataController extends BaseController {
      */
     static async syncPermissions(req: Request, res: Response): Promise<void> {
         try {
-            const result = await MetadataService.syncPermissions();
+            const params = req.body;
+            const result = await MetadataService.syncPermissions(params);
             BaseController.sendResponse(res, 200, true, 'Permissions metadata synced successfully', result);
         } catch (error: any) {
             console.error('Error syncing permissions metadata:', error);
@@ -35,7 +37,8 @@ export class MetadataController extends BaseController {
      */
     static async syncRolePermissions(req: Request, res: Response): Promise<void> {
         try {
-            const result = await MetadataService.syncRolePermissions();
+            const params = req.body;
+            const result = await MetadataService.syncRolePermissions(params);
             BaseController.sendResponse(res, 200, true, 'Role-permissions metadata synced successfully', result);
         } catch (error: any) {
             console.error('Error syncing role-permissions metadata:', error);
@@ -48,7 +51,8 @@ export class MetadataController extends BaseController {
      */
     static async syncDefaultUser(req: Request, res: Response): Promise<void> {
         try {
-            const result = await MetadataService.syncDefaultUser();
+            const params = req.body;
+            const result = await MetadataService.syncDefaultUser(params);
             BaseController.sendResponse(res, 200, true, 'Default user metadata synced successfully', result);
         } catch (error: any) {
             console.error('Error syncing default user metadata:', error);
@@ -61,7 +65,8 @@ export class MetadataController extends BaseController {
      */
     static async syncCustomer(req: Request, res: Response): Promise<void> {
         try {
-            const result = await MetadataService.syncCustomer();
+            const params = req.body;
+            const result = await MetadataService.syncCustomer(params);
             BaseController.sendResponse(res, 200, true, 'Customer metadata synced successfully', result);
         } catch (error: any) {
             console.error('Error syncing customer metadata:', error);
@@ -74,7 +79,8 @@ export class MetadataController extends BaseController {
      */
     static async syncCategory(req: Request, res: Response): Promise<void> {
         try {
-            const result = await MetadataService.syncCategory();
+            const params = req.body;
+            const result = await MetadataService.syncCategory(params);
             BaseController.sendResponse(res, 200, true, 'Category metadata synced successfully', result);
         } catch (error: any) {
             console.error('Error syncing category metadata:', error);
@@ -87,7 +93,8 @@ export class MetadataController extends BaseController {
      */
     static async syncSubscriptionPlans(req: Request, res: Response): Promise<void> {
         try {
-            const result = await MetadataService.syncSubscriptionPlans();
+            const params = req.body;
+            const result = await MetadataService.syncSubscriptionPlans(params);
             BaseController.sendResponse(res, 200, true, 'Subscription plans metadata synced successfully', result);
         } catch (error: any) {
             console.error('Error syncing subscription plans metadata:', error);
@@ -100,7 +107,8 @@ export class MetadataController extends BaseController {
      */
     static async syncTenantSubscription(req: Request, res: Response): Promise<void> {
         try {
-            const result = await MetadataService.syncTenantSubscription();
+            const params = req.body;
+            const result = await MetadataService.syncTenantSubscription(params);
             BaseController.sendResponse(res, 200, true, 'Tenant subscription metadata synced successfully', result);
         } catch (error: any) {
             console.error('Error syncing tenant subscription metadata:', error);
@@ -113,7 +121,8 @@ export class MetadataController extends BaseController {
      */
     static async syncPaymentMethods(req: Request, res: Response): Promise<void> {
         try {
-            const result = await MetadataService.syncPaymentMethods();
+            const params = req.body;
+            const result = await MetadataService.syncPaymentMethods(params);
             BaseController.sendResponse(res, 200, true, 'Payment methods metadata synced successfully', result);
         } catch (error: any) {
             console.error('Error syncing payment methods metadata:', error);
@@ -126,7 +135,8 @@ export class MetadataController extends BaseController {
      */
     static async syncPaymentServiceProvider(req: Request, res: Response): Promise<void> {
         try {
-            const result = await MetadataService.syncPaymentServiceProvider();
+            const params = req.body;
+            const result = await MetadataService.syncPaymentServiceProvider(params);
             BaseController.sendResponse(res, 200, true, 'Payment service provider metadata synced successfully', result);
         } catch (error: any) {
             console.error('Error syncing payment service provider metadata:', error);
@@ -139,7 +149,8 @@ export class MetadataController extends BaseController {
      */
     static async syncAll(req: Request, res: Response): Promise<void> {
         try {
-            const result = await MetadataService.syncAllMetadata();
+            const params = req.body;
+            const result = await MetadataService.syncAllMetadata(params);
             BaseController.sendResponse(res, 200, true, 'All metadata synced successfully', result);
         } catch (error: any) {
             console.error('Error syncing all metadata:', error);
@@ -152,7 +163,8 @@ export class MetadataController extends BaseController {
      */
     static async getStatus(req: Request, res: Response): Promise<void> {
         try {
-            const status = await MetadataService.getSyncStatus();
+            const params = req.body;
+            const status = await MetadataService.getSyncStatus(params);
             BaseController.sendResponse(res, 200, true, 'Metadata sync status retrieved successfully', status);
         } catch (error: any) {
             console.error('Error getting metadata sync status:', error);

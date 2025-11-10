@@ -4,7 +4,7 @@ import { InventoryModel } from "../models/inventory.model";
 export class CategoryService {
 
     static async selectAll(params): Promise<Array<Category>> {
-        return await CategoryModel.findAllByRDBMS(params);
+        return await CategoryModel.findAllByRDBMS(params)
     }
 
     static async getAllCategories(filters: CategoryFilters): Promise<Category[]> {

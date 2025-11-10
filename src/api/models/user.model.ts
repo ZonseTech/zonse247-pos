@@ -8,10 +8,10 @@ const saltRounds = 10;
 
 export class UserModel {
 
-    static async findAllByRDBMS(conditions: any = {}): Promise<Array<User>> {
+    static async findAllByRDBMS(conditions: ValidationParams): Promise<Array<User>> {
         try {
             const connection = await mysqlPool.getConnection();
-            const [rows] = await connection.execute(`SELECT * FROM ${USERS_DB}`);
+            const [rows] = await connection.execute(`SELECT * FROM ${USERS_DB} WHERE tenant_id=${conditions.tenantId}`);
             const records = rows as any[];
 
             return records

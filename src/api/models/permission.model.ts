@@ -11,15 +11,10 @@ export enum PermissionScope {
 
 export class PermissionModel {
 
-    static async findAllByRDBMS(conditions: any = {}): Promise<Array<Permission>> {
+    static async findAllByRDBMS(conditions: ValidationParams): Promise<Array<Permission>> {
         try {
-
-            console.log('====================================');
-            console.log('findAllByRDBMS: ', conditions);
-            console.log('====================================');
-
             const connection = await mysqlPool.getConnection();
-            const [rows] = await connection.execute(`SELECT * FROM ${PERMISSIONS_DB}`);
+            const [rows] = await connection.execute(`SELECT * FROM ${PERMISSIONS_DB} WHERE tenant_id=${conditions.tenantId}`);
             const records = rows as any[];
 
             return records

@@ -17,16 +17,16 @@ router.get('/', function (req: Request, res: Response): void {
     res.send('Account seeds api');
 });
 
-router.get('/roles', RoleController.selectAll)
-router.get('/permissions', PermissionController.selectAll)
-router.get('/role-permissions', RolePermissionController.selectAll)
-router.get('/default-user', UserController.selectAll)
-router.get('/customer', CustomerController.selectAll)
-router.get('/category', CategoryController.selectAll)
-router.get('/subscription-plans', SubscriptionPlanController.selectAll)
-router.get('/tenant-subscription', SubscriptionController.selectAll)
-router.get('/payment-methods', PaymentMethodController.selectAll)
-router.get('/payment-service-provider', PaymentServiceProviderController.selectAll)
-router.get('/sync-all', MetadataController.syncAll)
+router.post('/roles', RoleController.selectAll)
+router.post('/permissions', PermissionController.selectAll)
+router.post('/role-permissions', RolePermissionController.selectAll)
+router.post('/default-user', UserController.selectAll)
+router.post('/customer', CustomerController.selectAll)
+router.post('/category', CategoryController.selectAll)
+router.post('/subscription-plans', SubscriptionPlanController.selectAll)
+router.post('/tenant-subscription', SubscriptionController.selectAll)
+router.post('/payment-methods', PaymentMethodController.selectAll)
+router.post('/payment-service-provider', PaymentServiceProviderController.selectAll)
+router.post('/sync-all', MetadataController.syncAll)
 
 export default router;

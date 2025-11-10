@@ -5,10 +5,10 @@ import { TENANT_SUBSCRIPTIONS_TABLE } from '../databases/local/tables';
 import { mysqlPool } from '../config/db';
 
 export class SubscriptionModel {
-	static async findAllByRDBMS(conditions: any = {}): Promise<Role[]> {
+	static async findAllByRDBMS(conditions: ValidationParams): Promise<Role[]> {
 		try {
 			const connection = await mysqlPool.getConnection();
-			const [rows] = await connection.execute(`SELECT * FROM ${TENANT_SUBSCRIPTIONS_TABLE}`);
+			const [rows] = await connection.execute(`SELECT * FROM ${TENANT_SUBSCRIPTIONS_TABLE} WHERE tenant_id=${conditions.tenantId}`);
 			const records = rows as any[];
 
 			return records

@@ -5,7 +5,7 @@ import { mysqlPool } from '../config/db';
 
 export class SubscriptionPlanModel {
 
-	static async findAllByRDBMS(conditions: any = {}): Promise<Role[]> {
+	static async findAllByRDBMS(conditions: ValidationParams): Promise<Role[]> {
 		try {
 			const connection = await mysqlPool.getConnection();
 			const [rows] = await connection.execute(`SELECT * FROM ${SUBSCRIPTION_PLANS_TABLE}`);

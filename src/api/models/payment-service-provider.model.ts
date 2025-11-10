@@ -5,10 +5,10 @@ import { mysqlPool } from '../config/db';
 
 export class PaymentServiceProviderModel {
 
-    static async findAllByRDBMS(conditions: any = {}): Promise<Array<PaymentServiceProvider>> {
+    static async findAllByRDBMS(conditions: ValidationParams): Promise<Array<PaymentServiceProvider>> {
         try {
             const connection = await mysqlPool.getConnection();
-            const [rows] = await connection.execute(`SELECT * FROM ${PAYMENT_SERVICE_PROVIDERS_DB}`);
+            const [rows] = await connection.execute(`SELECT * FROM ${PAYMENT_SERVICE_PROVIDERS_DB} WHERE tenant_id=${conditions.tenantId}`);
             const records = rows as any[];
 
             return records
