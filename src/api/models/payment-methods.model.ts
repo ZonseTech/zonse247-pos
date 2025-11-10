@@ -5,10 +5,10 @@ import { PAYMENT_METHODS_DB } from '../databases/local/tables';
 export class PaymentMethodModel {
     private static tableName = PAYMENT_METHODS_DB;
 
-    static async findAllByRDBMS(conditions: any = {}): Promise<Array<PaymentMethod>> {
+    static async findAllByRDBMS(conditions: ValidationParams): Promise<Array<PaymentMethod>> {
         try {
             const connection = await mysqlPool.getConnection();
-            const [rows] = await connection.execute(`SELECT * FROM ${this.tableName}`);
+            const [rows] = await connection.execute(`SELECT * FROM ${this.tableName} WHERE tenant_id=${conditions.tenantId}`);
             const records = rows as any[];
 
             return records

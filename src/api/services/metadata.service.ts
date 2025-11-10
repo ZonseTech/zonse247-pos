@@ -9,7 +9,6 @@ import { SubscriptionModel } from '../models/subscription.model';
 import config from '../config';
 
 const API_TIMEOUT = 30000;
-const EXTERNAL_API_URL = 'http://127.0.0.1:3000/api/v1';
 
 interface SyncResult {
     type: string;
@@ -21,18 +20,26 @@ interface SyncResult {
 }
 
 export class MetadataService {
+    private static params;
+
+    constructor(req: Request) {
+        MetadataService.params = req.body
+    }
 
     /**
      * Fetch data from external API
      */
-    private static async fetchFromExternalAPI(endpoint: string): Promise<any> {
+    private static async fetchFromExternalAPI(endpoint: string, params: ValidationParams): Promise<any> {
         try {
-            const response = await axios.get(`${config.client.apiUrl}${endpoint}`, {
-                timeout: API_TIMEOUT,
-                headers: {
-                    'Content-Type': 'application/json',
+            const response = await axios.post(`${config.client.apiUrl}${endpoint}`,
+                params,
+                {
+                    timeout: API_TIMEOUT,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                 }
-            });
+            );
 
             if (response.status !== 200) {
                 throw new Error(`API returned status ${response.status}`);
@@ -53,7 +60,7 @@ export class MetadataService {
     /**
      * Sync roles from external API
      */
-    static async syncRoles(): Promise<SyncResult> {
+    static async syncRoles(params: ValidationParams): Promise<SyncResult> {
         const result: SyncResult = {
             type: 'roles',
             success: false,
@@ -64,7 +71,7 @@ export class MetadataService {
         };
 
         try {
-            const response = await this.fetchFromExternalAPI('/account-seeds/roles');
+            const response = await this.fetchFromExternalAPI('/account-seeds/roles', params);
             const roles = response.data || response;
 
             if (!Array.isArray(roles)) {
@@ -108,7 +115,7 @@ export class MetadataService {
     /**
      * Sync permissions from external API
      */
-    static async syncPermissions(): Promise<SyncResult> {
+    static async syncPermissions(params: ValidationParams): Promise<SyncResult> {
         const result: SyncResult = {
             type: 'permissions',
             success: false,
@@ -119,7 +126,7 @@ export class MetadataService {
         };
 
         try {
-            const response = await this.fetchFromExternalAPI('/account-seeds/permissions');
+            const response = await this.fetchFromExternalAPI('/account-seeds/permissions', params);
             const permissions = response.data || response;
 
             if (!Array.isArray(permissions)) {
@@ -163,7 +170,7 @@ export class MetadataService {
     /**
      * Sync role-permissions from external API
      */
-    static async syncRolePermissions(): Promise<SyncResult> {
+    static async syncRolePermissions(params: ValidationParams): Promise<SyncResult> {
         const result: SyncResult = {
             type: 'role-permissions',
             success: false,
@@ -174,7 +181,7 @@ export class MetadataService {
         };
 
         try {
-            const response = await this.fetchFromExternalAPI('/account-seeds/role-permissions');
+            const response = await this.fetchFromExternalAPI('/account-seeds/role-permissions', params);
             const rolePermissions = response.data || response;
 
             if (!Array.isArray(rolePermissions)) {
@@ -213,7 +220,7 @@ export class MetadataService {
     /**
      * Sync default user from external API
      */
-    static async syncDefaultUser(): Promise<SyncResult> {
+    static async syncDefaultUser(params: ValidationParams): Promise<SyncResult> {
         const result: SyncResult = {
             type: 'default-user',
             success: false,
@@ -224,7 +231,7 @@ export class MetadataService {
         };
 
         try {
-            const response = await this.fetchFromExternalAPI('/account-seeds/default-user');
+            const response = await this.fetchFromExternalAPI('/account-seeds/default-user', params);
             const userData = response.data || response;
 
             // Implement user sync logic here
@@ -242,7 +249,7 @@ export class MetadataService {
     /**
      * Sync customer from external API
      */
-    static async syncCustomer(): Promise<SyncResult> {
+    static async syncCustomer(params: ValidationParams): Promise<SyncResult> {
         const result: SyncResult = {
             type: 'customer',
             success: false,
@@ -253,7 +260,7 @@ export class MetadataService {
         };
 
         try {
-            const response = await this.fetchFromExternalAPI('/account-seeds/customer');
+            const response = await this.fetchFromExternalAPI('/account-seeds/customer', params);
             const customerData = response.data || response;
 
             // Implement customer sync logic here
@@ -270,7 +277,7 @@ export class MetadataService {
     /**
      * Sync category from external API
      */
-    static async syncCategory(): Promise<SyncResult> {
+    static async syncCategory(params: ValidationParams): Promise<SyncResult> {
         const result: SyncResult = {
             type: 'category',
             success: false,
@@ -281,7 +288,7 @@ export class MetadataService {
         };
 
         try {
-            const response = await this.fetchFromExternalAPI('/account-seeds/category');
+            const response = await this.fetchFromExternalAPI('/account-seeds/category', params);
             const categoryData = response.data || response;
 
             // Implement category sync logic here
@@ -298,7 +305,7 @@ export class MetadataService {
     /**
      * Sync subscription plans from external API
      */
-    static async syncSubscriptionPlans(): Promise<SyncResult> {
+    static async syncSubscriptionPlans(params: ValidationParams): Promise<SyncResult> {
         const result: SyncResult = {
             type: 'subscription-plans',
             success: false,
@@ -309,7 +316,7 @@ export class MetadataService {
         };
 
         try {
-            const response = await this.fetchFromExternalAPI('/account-seeds/subscription-plans');
+            const response = await this.fetchFromExternalAPI('/account-seeds/subscription-plans', params);
             const subscriptionPlans = response.data || response;
 
             if (!Array.isArray(subscriptionPlans)) {
@@ -353,7 +360,7 @@ export class MetadataService {
     /**
      * Sync tenant subscription from external API
      */
-    static async syncTenantSubscription(): Promise<SyncResult> {
+    static async syncTenantSubscription(params: ValidationParams): Promise<SyncResult> {
         const result: SyncResult = {
             type: 'tenant-subscription',
             success: false,
@@ -364,7 +371,7 @@ export class MetadataService {
         };
 
         try {
-            const response = await this.fetchFromExternalAPI('/account-seeds/tenant-subscription');
+            const response = await this.fetchFromExternalAPI('/account-seeds/tenant-subscription', params);
             const tenantSubscriptions = response.data || response;
 
             if (!Array.isArray(tenantSubscriptions)) {
@@ -408,7 +415,7 @@ export class MetadataService {
     /**
      * Sync payment methods from external API
      */
-    static async syncPaymentMethods(): Promise<SyncResult> {
+    static async syncPaymentMethods(params: ValidationParams): Promise<SyncResult> {
         const result: SyncResult = {
             type: 'payment-methods',
             success: false,
@@ -419,7 +426,7 @@ export class MetadataService {
         };
 
         try {
-            const response = await this.fetchFromExternalAPI('/account-seeds/payment-methods');
+            const response = await this.fetchFromExternalAPI('/account-seeds/payment-methods', params);
             const paymentMethods = response.data || response;
 
             if (!Array.isArray(paymentMethods)) {
@@ -463,7 +470,7 @@ export class MetadataService {
     /**
      * Sync payment service provider from external API
      */
-    static async syncPaymentServiceProvider(): Promise<SyncResult> {
+    static async syncPaymentServiceProvider(params: ValidationParams): Promise<SyncResult> {
         const result: SyncResult = {
             type: 'payment-service-provider',
             success: false,
@@ -474,7 +481,7 @@ export class MetadataService {
         };
 
         try {
-            const response = await this.fetchFromExternalAPI('/account-seeds/payment-service-provider');
+            const response = await this.fetchFromExternalAPI('/account-seeds/payment-service-provider', params);
             const providers = response.data || response;
 
             if (!Array.isArray(providers)) {
@@ -518,7 +525,7 @@ export class MetadataService {
     /**
      * Sync all metadata
      */
-    static async syncAllMetadata(): Promise<{
+    static async syncAllMetadata(params: ValidationParams): Promise<{
         results: SyncResult[];
         overallSuccess: boolean;
         totalProcessed: number;
@@ -529,16 +536,16 @@ export class MetadataService {
 
         try {
             // Sync in order of dependencies
-            results.push(await this.syncRoles());
-            results.push(await this.syncPermissions());
-            results.push(await this.syncRolePermissions());
-            results.push(await this.syncDefaultUser());
-            results.push(await this.syncCustomer());
-            results.push(await this.syncCategory());
-            results.push(await this.syncSubscriptionPlans());
-            results.push(await this.syncTenantSubscription());
-            results.push(await this.syncPaymentMethods());
-            results.push(await this.syncPaymentServiceProvider());
+            results.push(await this.syncRoles(params));
+            results.push(await this.syncPermissions(params));
+            results.push(await this.syncRolePermissions(params));
+            results.push(await this.syncDefaultUser(params));
+            results.push(await this.syncCustomer(params));
+            results.push(await this.syncCategory(params));
+            results.push(await this.syncSubscriptionPlans(params));
+            results.push(await this.syncTenantSubscription(params));
+            results.push(await this.syncPaymentMethods(params));
+            results.push(await this.syncPaymentServiceProvider(params));
 
             const overallSuccess = results.every(r => r.success);
             const totalProcessed = results.reduce((sum, r) => sum + r.recordsProcessed, 0);
@@ -561,7 +568,7 @@ export class MetadataService {
     /**
      * Get sync status
      */
-    static async getSyncStatus(): Promise<any> {
+    static async getSyncStatus(params: ValidationParams): Promise<any> {
         try {
             const rolesCount = await RoleModel.count();
             const permissionsCount = await PermissionModel.count();
@@ -577,7 +584,7 @@ export class MetadataService {
                 tenantSubscriptions: tenantSubscriptionsCount,
                 paymentMethods: paymentMethodsCount,
                 paymentServiceProviders: paymentProvidersCount,
-                lastSyncedAt: new Date(), // Store this in a metadata table
+                lastSyncedAt: new Date(),
                 status: 'ready'
             };
         } catch (error: any) {
