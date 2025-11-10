@@ -4,11 +4,12 @@ import { CheckCircle, Loader, AlertCircle } from 'lucide-react';
 import MetadataService from '../../../services/metadata.service';
 
 interface SetupTerminalProps {
+    params: ValidationParams;
     loading?: boolean;
     onComplete: () => void;
 }
 
-const SetupTerminal: FunctionComponent<SetupTerminalProps> = ({ onComplete }) => {
+const SetupTerminal: FunctionComponent<SetupTerminalProps> = ({ onComplete, params }) => {
     const [metadata, setMetadata] = useState<Array<MetadataItem>>([
         { key: 'roles', label: 'Roles', loaded: false, loading: false, error: null },
         { key: 'permissions', label: 'Permissions', loaded: false, loading: false, error: null },
@@ -35,7 +36,7 @@ const SetupTerminal: FunctionComponent<SetupTerminalProps> = ({ onComplete }) =>
         ));
 
         try {
-            await MetadataService.loadMetadata(key);
+            await MetadataService.loadMetadata(key, params);
             setMetadata(prev => prev.map(item =>
                 item.key === key ? { ...item, loading: false, loaded: true } : item
             ));
@@ -60,7 +61,7 @@ const SetupTerminal: FunctionComponent<SetupTerminalProps> = ({ onComplete }) =>
 
         for (const item of metadata) {
             try {
-                await MetadataService.loadMetadata(item.key);
+                await MetadataService.loadMetadata(item.key, params);
                 setMetadata(prev => prev.map(m =>
                     m.key === item.key ? { ...m, loading: false, loaded: true } : m
                 ));

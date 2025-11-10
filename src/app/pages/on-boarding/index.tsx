@@ -171,6 +171,12 @@ const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, er
 
                 {currentStep === 4 && (
                     <SetupTerminal
+                        params={{
+                            verificationKey: registerProps.verificationToken,
+                            tenantId: verifiedTenant.tenantId,
+                            branchId: selectedBranch.branchId,
+                            terminalId: selectedTerminal.tenantId,
+                        }}
                         loading={loading}
                         onComplete={handleSetupComplete}
                     />

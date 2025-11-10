@@ -7,11 +7,11 @@ class MetadataService {
     /**
      * Load specific metadata type from external API and sync to local SQLite
      */
-    async loadMetadata(type: MetadataType): Promise<MetadataResponse> {
+    async loadMetadata(type: MetadataType, params: ValidationParams): Promise<MetadataResponse> {
         try {
             const response: AxiosResponse<MetadataResponse> = await api.post(
                 `${this.baseEndpoint}/${type}`,
-                {}
+                params,
             );
 
             if (!response.data.success) {
@@ -28,12 +28,12 @@ class MetadataService {
     /**
      * Load all metadata types
      */
-    async loadAllMetadata(types: MetadataType[]): Promise<Record<MetadataType, MetadataResponse>> {
+    async loadAllMetadata(types: Array<MetadataType>, params: ValidationParams): Promise<Record<MetadataType, MetadataResponse>> {
         const results: Record<string, MetadataResponse> = {};
 
         for (const type of types) {
             try {
-                results[type] = await this.loadMetadata(type);
+                results[type] = await this.loadMetadata(type, params);
             } catch (error) {
                 results[type] = {
                     success: false,
