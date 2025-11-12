@@ -2,9 +2,9 @@ import { Check, X } from 'lucide-react';
 import type { FunctionComponent } from 'react';
 
 interface FeatureComparisonProps {
-    plans: PricingPlan[];
+    plans: Array<SubscriptionPlan>;
     featureCategories: Array<{ title: string; features: string[] }>;
-    isFeatureIncluded: (plan: PricingPlan, featureName: string) => boolean;
+    isFeatureIncluded: (plan: SubscriptionPlan, featureName: string) => boolean;
 }
 
 const FeatureComparison: FunctionComponent<FeatureComparisonProps> = ({

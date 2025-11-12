@@ -130,7 +130,7 @@ export default function RolePermissionAdmin() {
     }
 
     try {
-      await roleService.assignPermissions(selectedRole.uuid, permissionUuids);
+      await roleService.assignPermissions(selectedRole.roleId, permissionUuids);
       // await loadData();
     } catch (err) {
       console.error('Failed to assign permissions:', err);

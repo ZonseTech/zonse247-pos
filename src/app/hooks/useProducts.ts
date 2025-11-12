@@ -76,21 +76,21 @@ export const useProducts = () => {
         }
 
         const quantity = parseInt(product?.orderItems?.toString() || '0') || 1
-        const existingItem = cart.find(item => item.productUuid === product.uuid)
+        const existingItem = cart.find(item => item.productId === product.productId)
 
         dispatch(addToCart(product))
 
         if (!existingItem) {
-            const isConsumableProduct = product.categoryUuid.toString() === DEFAULT_SEED_KEY
+            const isConsumableProduct = product.categoryId.toString() === DEFAULT_SEED_KEY
             if (!isConsumableProduct) {
                 dispatch(updateProductStock({
-                    id: product.uuid.toString(),
+                    id: product.productId.toString(),
                     newStock: parseInt((product.quantity || 0).toString()) - quantity
                 }))
             }
         } else {
             dispatch(updateProductStock({
-                id: product.uuid.toString(),
+                id: product.productId.toString(),
                 newStock: parseInt((product.quantity || 0).toString()) - quantity
             }))
         }
@@ -99,11 +99,11 @@ export const useProducts = () => {
     const handleRemoveFromCart = (id: string) => {
         if (!isAuthenticated) return
 
-        const itemToRemove = cart.find(item => item.productUuid === id)
+        const itemToRemove = cart.find(item => item.productId === id)
         dispatch(removeFromCart(id))
 
         if (itemToRemove) {
-            const product = products.find(p => p.uuid === id)
+            const product = products.find(p => p.productId === id)
             if (product) {
                 dispatch(updateProductStock({
                     id,
@@ -116,12 +116,12 @@ export const useProducts = () => {
     const handleUpdateQuantity = (id: string, quantity: number) => {
         if (!isAuthenticated) return
 
-        const prevItem = cart.find(item => item.productUuid === id)
+        const prevItem = cart.find(item => item.productId === id)
         dispatch(updateQuantity({ id, quantity }))
 
         if (prevItem) {
             const difference = prevItem.quantity - quantity
-            const product = products.find(p => p.uuid === id)
+            const product = products.find(p => p.productId === id)
             if (product) {
                 dispatch(updateProductStock({
                     id,
@@ -135,10 +135,10 @@ export const useProducts = () => {
         if (!isAuthenticated) return
 
         cart.forEach(item => {
-            const product = products.find(p => p.uuid === item.productUuid)
+            const product = products.find(p => p.productId === item.productId)
             if (product) {
                 dispatch(updateProductStock({
-                    id: item.productUuid,
+                    id: item.productId,
                     newStock: parseInt((product.quantity || 0).toString()) + item.quantity
                 }))
             }

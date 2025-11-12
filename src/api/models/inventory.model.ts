@@ -3,23 +3,23 @@ import { ProductModel } from './product.model';
 import { INVENTORY_DB } from '../databases/local/tables';
 
 export class InventoryModel {
-    static async findById(productUuid: string, auth: AuthenticatedUser): Promise<Product | null> {
+    static async findById(productId: string, auth: AuthenticatedUser): Promise<Product | null> {
         return await sealDBModel.findById(INVENTORY_DB, {
-            uuid: productUuid,
-            clientUuid: auth.clientUuid,
-            shopUuid: auth.shopUuid
+            productId,
+            tenantId: auth.tenantId,
+            branchId: auth.branchId
         });
     }
 
-    static async findByUuid(productUuid: string): Promise<Product | null> {
-        return await sealDBModel.findById(INVENTORY_DB, productUuid);
+    static async findByUuid(productId: string): Promise<Product | null> {
+        return await sealDBModel.findById(INVENTORY_DB, productId);
     }
 
     static async find(criteria: Record<string, any>, auth: AuthenticatedUser): Promise<Product[]> {
         const baseCriteria = {
             ...criteria,
-            clientUuid: auth.clientUuid,
-            shopUuid: auth.shopUuid
+            tenantId: auth.tenantId,
+            branchId: auth.branchId
         };
 
         return await sealDBModel.find(INVENTORY_DB, baseCriteria);
@@ -28,8 +28,8 @@ export class InventoryModel {
     static async findActive(auth: AuthenticatedUser): Promise<Product[]> {
         return await sealDBModel.find(INVENTORY_DB, {
             status: { $ne: 'void' },
-            clientUuid: auth.clientUuid,
-            shopUuid: auth.shopUuid
+            tenantId: auth.tenantId,
+            branchId: auth.branchId
         });
     }
 
@@ -42,8 +42,8 @@ export class InventoryModel {
         categoryId?: number
     ): Promise<Product[]> {
         const query: any = {
-            clientUuid: auth.clientUuid,
-            shopUuid: auth.shopUuid
+            tenantId: auth.tenantId,
+            branchId: auth.branchId
         };
 
         if (filter === 'all') {
@@ -88,8 +88,8 @@ export class InventoryModel {
         categoryId?: number
     ): Promise<number> {
         const query: any = {
-            clientUuid: auth.clientUuid,
-            shopUuid: auth.shopUuid
+            tenantId: auth.tenantId,
+            branchId: auth.branchId
         };
 
         if (categoryId) {
@@ -131,8 +131,8 @@ export class InventoryModel {
     static async findBySku(sku: string, auth: AuthenticatedUser): Promise<Product | null> {
         const products = await sealDBModel.find(INVENTORY_DB, {
             barcode: parseInt(sku),
-            clientUuid: auth.clientUuid,
-            shopUuid: auth.shopUuid
+            tenantId: auth.tenantId,
+            branchId: auth.branchId
         });
 
         return products.length > 0 ? products[0] : null;
@@ -149,7 +149,7 @@ export class InventoryModel {
     static async updateWithUser(productId: string, updateData: Record<string, any>, auth: AuthenticatedUser): Promise<number> {
         const dataWithUser = {
             ...updateData,
-            userUuid: auth.userUuid
+            userId: auth.userId
         };
 
         return await sealDBModel.update(INVENTORY_DB, productId, dataWithUser);
@@ -158,7 +158,7 @@ export class InventoryModel {
     static async void(productId: string, auth: AuthenticatedUser): Promise<number> {
         return await sealDBModel.update(INVENTORY_DB, productId, {
             status: 'void',
-            userUuid: auth.userUuid
+            userId: auth.userId
         });
     }
 
@@ -169,7 +169,7 @@ export class InventoryModel {
     static async updateQuantity(productId: string, quantity: number, auth: AuthenticatedUser): Promise<number> {
         return await sealDBModel.update(INVENTORY_DB, productId, {
             quantity: quantity,
-            userUuid: auth.userUuid
+            userId: auth.userId
         });
     }
 
@@ -179,17 +179,17 @@ export class InventoryModel {
     ): Promise<void> {
         try {
             const inventoryUpdates = products.map(item => ({
-                productUuid: item.productUuid,
+                productId: item.productId,
                 quantityToDecrement: item.quantity,
-                userId: auth.userUuid
+                userId: auth.userId
             }));
 
             const result = await sealDBModel.bulkInventoryUpdate(
                 INVENTORY_DB,
                 inventoryUpdates,
                 {
-                    clientUuid: auth.clientUuid,
-                    shopUuid: auth.shopUuid
+                    tenantId: auth.tenantId,
+                    branchId: auth.branchId
                 }
             );
 
@@ -215,21 +215,21 @@ export class InventoryModel {
         auth: AuthenticatedUser
     ): Promise<{
         successful: number;
-        failed: Array<{ productUuid: string; error: string }>;
-        skipped: Array<{ productUuid: string; reason: string }>;
+        failed: Array<{ productId: string; error: string }>;
+        skipped: Array<{ productId: string; reason: string }>;
     }> {
         const inventoryUpdates = products.map(item => ({
-            productUuid: item.productUuid,
+            productId: item.productId,
             quantityToDecrement: item.quantity,
-            userId: auth.userUuid
+            userId: auth.userId
         }));
 
         return await sealDBModel.bulkInventoryUpdate(
             INVENTORY_DB,
             inventoryUpdates,
             {
-                clientUuid: auth.clientUuid,
-                shopUuid: auth.shopUuid
+                tenantId: auth.tenantId,
+                branchId: auth.branchId
             }
         );
     }
@@ -244,19 +244,19 @@ export class InventoryModel {
         await this.insert(productModel.toJSON());
     }
 
-    static async updateWithValidation(productUuid: string, productData: Record<string, any>, auth: AuthenticatedUser): Promise<number> {
+    static async updateWithValidation(productId: string, productData: Record<string, any>, auth: AuthenticatedUser): Promise<number> {
         const productModel = ProductModel.fromParams(productData, auth);
 
         if (!productModel.validate()) {
             throw new Error('Product validation failed');
         }
 
-        const existingProduct = await this.findById(productUuid, auth);
+        const existingProduct = await this.findById(productId, auth);
         if (!existingProduct) {
             throw new Error('Product not found or access denied');
         }
 
-        return await this.update(productUuid, productModel.toJSON());
+        return await this.update(productId, productModel.toJSON());
     }
 
     static async voidWithCheck(productId: string, auth: AuthenticatedUser): Promise<number> {
@@ -293,8 +293,8 @@ export class InventoryModel {
      */
     static async getCount(auth: AuthenticatedUser, includeVoided: boolean = false): Promise<number> {
         const criteria: Record<string, any> = {
-            clientUuid: auth.clientUuid,
-            shopUuid: auth.shopUuid
+            tenantId: auth.tenantId,
+            branchId: auth.branchId
         };
 
         if (!includeVoided) {

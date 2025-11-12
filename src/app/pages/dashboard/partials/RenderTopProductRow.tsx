@@ -9,7 +9,7 @@ const RenderTopProductRow: FunctionComponent<Props> = ({ product }) => {
 	return (
 		<Fragment>
 			<tr
-				key={product.uuid}
+				key={product.productId}
 				className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-200"
 			>
 				<td className="px-6 py-4 whitespace-nowrap">

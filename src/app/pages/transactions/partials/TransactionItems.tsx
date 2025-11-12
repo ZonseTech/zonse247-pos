@@ -26,7 +26,7 @@ const TransactionItems: FunctionComponent<{
 
                 <div className="space-y-3">
                     {items.map((item, index) => (
-                        <ItemRow key={`${item.productUuid}-${index}`} item={item} />
+                        <ItemRow key={`${item.productId}-${index}`} item={item} />
                     ))}
                 </div>
             </div>

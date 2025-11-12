@@ -5,6 +5,7 @@ import { getRoleColor, getStatusColor, getStatusIcon, getStatusActionText, getSt
 import { ZonseThemeContext } from '../../../components';
 import { UserStatus } from '../../../utils/constants';
 import { getTableStyles } from '../../../utils/table-styles';
+import { DEFAULT_SEED_KEY } from '../../../constants';
 
 interface UsersTableProps {
     data: User[];
@@ -81,7 +82,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
             name: 'Role',
             cell: (row) => (
                 <Fragment>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(row?.roleUuid)}`}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(row?.roleId)}`}>
                         <Shield className="w-3 h-3 mr-1" />
                         {(row?.roleName || 'Unknown')}
                     </span>
@@ -126,8 +127,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
                     <div className="flex items-center space-x-2 flex-wrap gap-1">
                         <button
                             onClick={() => onView(row)}
-                            disabled={row?.uuid === '-1'}
-                            className={`p-1 rounded transition-colors ${row?.uuid === '-1'
+                            disabled={row?.userId === DEFAULT_SEED_KEY}
+                            className={`p-1 rounded transition-colors ${row?.userId === DEFAULT_SEED_KEY
                                 ? 'text-gray-500 dark:text-gray-600'
                                 : 'text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20'
                                 }`}
@@ -138,8 +139,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
 
                         <button
                             onClick={() => onEdit(row)}
-                            disabled={row?.uuid === '-1'}
-                            className={`p-1 rounded transition-colors ${row?.uuid === '-1'
+                            disabled={row?.userId === DEFAULT_SEED_KEY}
+                            className={`p-1 rounded transition-colors ${row?.userId === DEFAULT_SEED_KEY
                                 ? 'text-gray-500 dark:text-gray-600'
                                 : 'text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20'
                                 }`}
@@ -150,8 +151,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
 
                         <button
                             onClick={() => onResetPassword(row)}
-                            disabled={row?.uuid === '-1'}
-                            className={`p-1 rounded transition-colors ${row?.uuid === '-1'
+                            disabled={row?.userId === DEFAULT_SEED_KEY}
+                            className={`p-1 rounded transition-colors ${row?.userId === DEFAULT_SEED_KEY
                                 ? 'text-gray-500 dark:text-gray-600'
                                 : 'text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/20'
                                 }`}
@@ -162,8 +163,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
 
                         <button
                             onClick={() => onToggleStatus(row)}
-                            disabled={row?.uuid === '-1'}
-                            className={`text-xs px-2 py-1 rounded transition-colors ${row?.uuid === '-1'
+                            disabled={row?.userId === DEFAULT_SEED_KEY}
+                            className={`text-xs px-2 py-1 rounded transition-colors ${row?.userId === DEFAULT_SEED_KEY
                                 ? 'text-gray-500 dark:text-gray-600 bg-gray-100 dark:bg-gray-800'
                                 : row?.status === UserStatus.ACTIVE
                                     ? 'text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 border dark:border-red-800/50'
@@ -175,9 +176,9 @@ const UsersTable: React.FC<UsersTableProps> = ({
                         </button>
 
                         <button
-                            onClick={() => onDelete(row?.uuid, row?.username)}
-                            disabled={row?.uuid === '-1'}
-                            className={`p-1 rounded transition-colors ${row?.uuid === '-1'
+                            onClick={() => onDelete(row?.userId, row?.username)}
+                            disabled={row?.userId === DEFAULT_SEED_KEY}
+                            className={`p-1 rounded transition-colors ${row?.userId === DEFAULT_SEED_KEY
                                 ? 'text-gray-500 dark:text-gray-600'
                                 : 'text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20'
                                 }`}

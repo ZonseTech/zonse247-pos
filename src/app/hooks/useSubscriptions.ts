@@ -23,8 +23,8 @@ export const useSubscriptions = () => {
 		} else {
 			const filtered = subscriptions.filter(
 				(subscription) =>
-					subscription.uuid.toLowerCase().includes(searchTerm.toLowerCase()) ||
-					subscription.clientUuid
+					subscription.subscriptionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+					subscription.tenantId
 						.toLowerCase()
 						.includes(searchTerm.toLowerCase()) ||
 					subscription.planId
@@ -66,7 +66,7 @@ export const useSubscriptions = () => {
 			await subscriptionsService.delete(subscriptionId);
 
 			const updatedSubscriptions = subscriptions.filter(
-				(sub) => sub.uuid !== subscriptionId
+				(sub) => sub.subscriptionId !== subscriptionId
 			);
 			setSubscriptions(updatedSubscriptions);
 			setFilteredSubscriptions(updatedSubscriptions);
@@ -84,7 +84,7 @@ export const useSubscriptions = () => {
 		newStatus: string
 	) => {
 		try {
-			const subscription = subscriptions.find((s) => s.uuid === subscriptionId);
+			const subscription = subscriptions.find((s) => s.subscriptionId === subscriptionId);
 			const updatedSubscriptionData = {
 				...subscription,
 				status: newStatus,
@@ -96,7 +96,7 @@ export const useSubscriptions = () => {
 			);
 
 			const updatedSubscriptions = subscriptions.map((sub) =>
-				sub.uuid === subscriptionId
+				sub.subscriptionId === subscriptionId
 					? { ...sub, status: newStatus as TenantSubscription['status'] }
 					: sub
 			);

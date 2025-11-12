@@ -30,10 +30,10 @@ const HoldOrdersModal: FunctionComponent<ItemLookupModalProps> = ({
         try {
             let orders: Array<HoldOrder> = []
 
-            if (user?.uuid) {
-                orders = await holdOrderService.byUser(user.uuid.toString())
-            } else if (till?.uuid) {
-                orders = await holdOrderService.byTill(till.uuid.toString())
+            if (user?.userId) {
+                orders = await holdOrderService.byUser(user.userId.toString())
+            } else if (till?.userId) {
+                orders = await holdOrderService.byTill(till.userId.toString())
             } else {
                 orders = await holdOrderService.list()
             }
@@ -74,7 +74,7 @@ const HoldOrdersModal: FunctionComponent<ItemLookupModalProps> = ({
 
                         const cartItems = orderData.items.map(order => products.find(product => {
                             product.orderItems = order.quantity
-                            return product.uuid === order.productUuid
+                            return product.productId === order.productId
                         }))
 
                         cartItems.map(product => addToCart(product as Product))
@@ -82,7 +82,7 @@ const HoldOrdersModal: FunctionComponent<ItemLookupModalProps> = ({
                         setTotal(orderData.total);
                         await holdOrderService.delete(orderId);
 
-                        const updatedOrders = holdOrders.filter(order => order.uuid !== orderId);
+                        const updatedOrders = holdOrders.filter(order => order.itemId !== orderId);
                         setHoldOrders(updatedOrders);
 
                         Report.success(
@@ -128,7 +128,7 @@ const HoldOrdersModal: FunctionComponent<ItemLookupModalProps> = ({
             setIsLoading(true)
 
             await holdOrderService.delete(orderId)
-            const updatedOrders = holdOrders.filter(order => order.uuid !== orderId)
+            const updatedOrders = holdOrders.filter(order => order.itemId !== orderId)
             setHoldOrders(updatedOrders)
 
             Report.success("Success", "Order deleted successfully", "Ok")
@@ -188,7 +188,7 @@ const HoldOrdersModal: FunctionComponent<ItemLookupModalProps> = ({
                                 </thead>
                                 <tbody>
                                     {holdOrders.map((order) => (
-                                        <tr key={order.uuid} className="border-b hover:bg-gray-50">
+                                        <tr key={order.itemId} className="border-b hover:bg-gray-50">
                                             <td className="py-3 px-4">{order.reference}</td>
                                             <td className="py-3 px-4">
                                                 {new Date(order.date).toLocaleDateString()}
@@ -200,13 +200,13 @@ const HoldOrdersModal: FunctionComponent<ItemLookupModalProps> = ({
                                             <td className="py-3 px-4">
                                                 <div className="flex justify-center gap-2">
                                                     <Button
-                                                        onClick={() => handleLoadOrder(order.uuid)}
+                                                        onClick={() => handleLoadOrder(order.itemId)}
                                                         className="bg-green-500 hover:bg-green-600 text-white dark:text-gray-100 py-1 px-3 rounded text-sm"
                                                     >
                                                         Load
                                                     </Button>
                                                     <Button
-                                                        onClick={() => handleDeleteOrder(order.uuid)}
+                                                        onClick={() => handleDeleteOrder(order.itemId)}
                                                         className="bg-red-500 hover:bg-red-600 text-white dark:text-gray-100 py-1 px-3 rounded text-sm"
                                                     >
                                                         Delete

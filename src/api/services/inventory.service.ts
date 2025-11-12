@@ -59,8 +59,8 @@ export class InventoryService {
 
         const categoryMap = new Map<string, Category>();
         categories.forEach((category) => {
-            if (category.uuid) {
-                categoryMap.set(category.uuid, category);
+            if (category.categoryId) {
+                categoryMap.set(category.categoryId, category);
             }
         });
 
@@ -78,7 +78,7 @@ export class InventoryService {
         const totalProducts = await InventoryModel.getFilteredCount(auth, search, filter, categoryId);
         const totalPages = Math.ceil(totalProducts / perPage); const enhancedProducts = products.map((product) => ({
             ...product,
-            categoryDetails: product.categoryUuid ? categoryMap.get(product.categoryUuid) : undefined
+            categoryDetails: product.categoryId ? categoryMap.get(product.categoryId) : undefined
         }));
 
         return {
@@ -91,9 +91,9 @@ export class InventoryService {
     static async createProduct(productData: Record<string, any>, auth: AuthenticatedUser): Promise<void> {
         await InventoryModel.create(productData, auth);
 
-        if (productData.categoryUuid) {
+        if (productData.categoryId) {
             try {
-                await CategoryService.syncCategoryItemCounts([productData.categoryUuid], auth);
+                await CategoryService.syncCategoryItemCounts([productData.categoryId], auth);
             } catch (error) {
                 console.warn('Failed to sync category item counts after product creation:', error);
             }
@@ -107,12 +107,12 @@ export class InventoryService {
 
         const categoriesToSync = new Set<string>();
 
-        if (currentProduct?.categoryUuid) {
-            categoriesToSync.add(currentProduct.categoryUuid);
+        if (currentProduct?.categoryId) {
+            categoriesToSync.add(currentProduct.categoryId);
         }
 
-        if (productData.categoryUuid && productData.categoryUuid !== currentProduct?.categoryUuid) {
-            categoriesToSync.add(productData.categoryUuid);
+        if (productData.categoryId && productData.categoryId !== currentProduct?.categoryId) {
+            categoriesToSync.add(productData.categoryId);
         }
 
         if (categoriesToSync.size > 0) {
@@ -131,9 +131,9 @@ export class InventoryService {
 
         const result = await InventoryModel.voidWithCheck(productUuid, auth);
 
-        if (product?.categoryUuid) {
+        if (product?.categoryId) {
             try {
-                await CategoryService.syncCategoryItemCounts([product.categoryUuid], auth);
+                await CategoryService.syncCategoryItemCounts([product.categoryId], auth);
             } catch (error) {
                 console.warn('Failed to sync category item counts after product void:', error);
             }
@@ -147,9 +147,9 @@ export class InventoryService {
 
         const result = await InventoryModel.deleteWithCheck(productUuid, auth);
 
-        if (product?.categoryUuid) {
+        if (product?.categoryId) {
             try {
-                await CategoryService.syncCategoryItemCounts([product.categoryUuid], auth);
+                await CategoryService.syncCategoryItemCounts([product.categoryId], auth);
             } catch (error) {
                 console.warn('Failed to sync category item counts after product deletion:', error);
             }
@@ -214,12 +214,12 @@ export class InventoryService {
         for (const { productUuid, data } of updates) {
             const currentProduct = await InventoryModel.findById(productUuid, auth);
 
-            if (currentProduct?.categoryUuid) {
-                categoriesToSync.add(currentProduct.categoryUuid);
+            if (currentProduct?.categoryId) {
+                categoriesToSync.add(currentProduct.categoryId);
             }
 
-            if (data.categoryUuid && data.categoryUuid !== currentProduct?.categoryUuid) {
-                categoriesToSync.add(data.categoryUuid);
+            if (data.categoryId && data.categoryId !== currentProduct?.categoryId) {
+                categoriesToSync.add(data.categoryId);
             }
         }
 
@@ -267,10 +267,10 @@ export class InventoryService {
     static async syncAllCategoryItemCounts(auth: AuthenticatedUser): Promise<void> {
         try {
             const categories = await CategoryService.getAllCategories(auth);
-            const categoryUuids = categories.map(category => category.uuid);
+            const categoryIds = categories.map(category => category.categoryId);
 
-            if (categoryUuids.length > 0) {
-                await CategoryService.syncCategoryItemCounts(categoryUuids, auth);
+            if (categoryIds.length > 0) {
+                await CategoryService.syncCategoryItemCounts(categoryIds, auth);
             }
         } catch (error) {
             console.error('Error syncing all category item counts:', error);
@@ -281,22 +281,22 @@ export class InventoryService {
 
     static async moveProductsToCategory(
         productUuids: string[],
-        newCategoryUuid: string,
+        newcategoryId: string,
         auth: AuthenticatedUser
     ): Promise<void> {
         const categoriesToSync = new Set<string>();
-        categoriesToSync.add(newCategoryUuid);
+        categoriesToSync.add(newcategoryId);
 
         for (const productUuid of productUuids) {
             const product = await InventoryModel.findById(productUuid, auth);
-            if (product?.categoryUuid) {
-                categoriesToSync.add(product.categoryUuid);
+            if (product?.categoryId) {
+                categoriesToSync.add(product.categoryId);
             }
         }
 
         const updates = productUuids.map(productUuid => ({
             productUuid,
-            data: { categoryUuid: newCategoryUuid }
+            data: { categoryId: newcategoryId }
         }));
 
         await this.bulkUpdateProducts(updates, auth);

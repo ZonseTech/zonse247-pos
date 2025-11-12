@@ -5,14 +5,14 @@ import { CopyButton } from '../../../components/buttons/CopyButton';
 import { X, CreditCard, AlertCircle, Banknote, Check, ChevronRight, ChevronLeft } from 'lucide-react';
 
 interface CheckoutModalProps {
-    selectedPlan: PricingPlan;
+    selectedPlan: SubscriptionPlan;
     billingCycle: 'monthly' | 'yearly';
     tenantInfo: TenantInfo;
     paymentInfo: PaymentInfo;
     onClose: () => void;
     onPaymentInfoChange: (info: PaymentInfo) => void;
     onSubmit: (e: React.FormEvent) => void;
-    getPrice: (plan: PricingPlan) => string;
+    getPrice: (plan: SubscriptionPlan) => string;
 }
 
 const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({

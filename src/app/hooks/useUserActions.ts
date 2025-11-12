@@ -12,7 +12,7 @@ export const useUserActions = (saveUsers: (users: User[]) => void, users: User[]
             async () => {
                 try {
                     await usersService.delete(userId);
-                    const updatedUsers = users.filter(user => user.uuid !== userId);
+                    const updatedUsers = users.filter(user => user.userId !== userId);
                     saveUsers(updatedUsers);
                     Notify.success('User deleted successfully');
                 } catch (error) {
@@ -36,13 +36,13 @@ export const useUserActions = (saveUsers: (users: User[]) => void, users: User[]
             'Cancel',
             async () => {
                 try {
-                    await usersService.update(user.uuid, {
+                    await usersService.update(user.userId, {
                         forcePasswordChange: true,
                         password_changed_at: new Date()
                     });
 
                     const updatedUsers = users.map(u =>
-                        u.uuid === user.uuid
+                        u.userId === user.userId
                             ? { ...u, forcePasswordChange: true, password_changed_at: new Date() }
                             : u
                     );
@@ -91,9 +91,9 @@ export const useUserActions = (saveUsers: (users: User[]) => void, users: User[]
             'Cancel',
             async () => {
                 try {
-                    await usersService.update(user.uuid, { status: newStatus });
+                    await usersService.update(user.userId, { status: newStatus });
                     const updatedUsers = users.map(u =>
-                        u.uuid === user.uuid ? { ...u, status: newStatus } : u
+                        u.userId === user.userId ? { ...u, status: newStatus } : u
                     );
                     saveUsers(updatedUsers);
                     Notify.success(`User ${action}d successfully`);

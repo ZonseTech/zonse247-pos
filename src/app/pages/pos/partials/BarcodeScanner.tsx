@@ -273,7 +273,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                     >
                         {filteredProduct.map(product => (
                             <div
-                                key={product.uuid}
+                                key={product.productId}
                                 className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer flex justify-between items-center border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors"
                                 onClick={() => {
                                     addToCart(product);

@@ -24,7 +24,7 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
     const isVirtualKeyboardActive = useRef(false);
 
     useEffect(() => {
-        onValueChange('paymentServiceProviderUuid', 'nb-bank')
+        onValueChange('paymentServiceProviderId', 'nb-bank')
     }, [])
 
     useEffect(() => {
@@ -155,9 +155,9 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
                         </label>
                         <select
                             className="w-full p-4 border border-gray-300 rounded-none text-black text-xl"
-                            onChange={(e) => onValueChange('paymentServiceProviderUuid', e.target.value)}
-                            value={values.paymentServiceProviderUuid}
-                            name='paymentServiceProviderUuid'
+                            onChange={(e) => onValueChange('paymentServiceProviderId', e.target.value)}
+                            value={values.paymentServiceProviderId}
+                            name='paymentServiceProviderId'
                         >
                             <option value="">Select Bank</option>
                             <option value="nb-bank">NB Bank</option>

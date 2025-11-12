@@ -19,13 +19,13 @@ const printerService = {
 	async print(data: {
 		transaction: Transaction;
 		options: PrinterInfo;
-		settings: WorkstatSettings;
+		settings: TerminalSettings;
 	}): Promise<any> {
 		return api
 			.post<{
 				transaction: Transaction;
 				options: PrinterInfo;
-				settings: WorkstatSettings;
+				settings: TerminalSettings;
 			}>(endpoints.print, data)
 			.then((res) => res.data)
 			.catch((err) => {

@@ -10,6 +10,7 @@ import productsService from '../../services/products.service';
 import FormSelectBox from '../../components/FormSelectBox';
 import IconButton from '../../components/IconButton';
 import { useProducts } from '../../hooks/useProducts';
+import { useProductManagement } from '../../hooks/useProductManagement';
 
 type Props = {
 	product?: Product;
@@ -19,11 +20,12 @@ type Props = {
 }
 
 const CreateProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product, onProductAdded }) => {
-	const { categories, reloadProducts } = useProducts()
+	const { reloadProducts } = useProducts()
+	const { categories } = useProductManagement()
 	const [isOpenForm, setIsOpenForm] = useState(false);
 
 	const [productValues, setProductValues] = useState<Product>({
-		uuid: "",
+		productId: "",
 		barcode: "",
 		expirationDate: '',
 		sellPrice: '0.00',
@@ -103,14 +105,14 @@ const CreateProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ produ
 				...values,
 				costPrice: values.costPrice.toString(),
 				sellPrice: values.sellPrice.toString(),
-				promoPrice: product?.uuid ? values.promoPrice.toString() : "0.00",
+				promoPrice: product?.productId ? values.promoPrice.toString() : "0.00",
 				stock: values.stock,
 				minStock: values.minStock.toString(),
 				quantity: values.quantity,
 			}
 
-			if (productValues?.uuid) {
-				await productsService.update(productValues?.uuid?.toString(), data);
+			if (productValues?.productId) {
+				await productsService.update(productValues?.productId?.toString(), data);
 			} else {
 				await productsService.store(data);
 			}
@@ -140,12 +142,12 @@ const CreateProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ produ
 			const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
 			Notify.failure('Error saving product:' + errorMessage);
 		} finally {
-			values.uuid = ''
+			values.productId = ''
 			values.name = ''
 			values.stock = 1
 			values.quantity = 0
 			values.barcode = ''
-			values.categoryUuid = ''
+			values.categoryId = ''
 			values.minStock = '1'
 			values.sellPrice = '0.00'
 			values.costPrice = '0.00'
@@ -181,7 +183,7 @@ const CreateProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ produ
 									name="categoryUuid"
 									required
 									options={categories.map((category: Category) => ({
-										value: category.uuid.toString(),
+										value: category.categoryId.toString(),
 										label: category.name as string
 									}))}
 								/>
@@ -228,7 +230,7 @@ const CreateProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ produ
 										name="sellPrice"
 										type="number"
 										required
-										readOnly={values?.categoryUuid === "-1"}
+										readOnly={values?.categoryId === "-1"}
 										placeholder="Selling Price"
 										className="mt-1"
 									/>

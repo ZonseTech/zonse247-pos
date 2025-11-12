@@ -6,24 +6,24 @@ import { useRef, useEffect } from 'react';
 
 interface PriceControlProps {
     sellPrice: number;
-    categoryUuid: string;
-    productUuid: string;
+    categoryId: string;
+    productId: string;
     customPriceInput: string;
-    onPriceChange: (productUuid: string, value: string) => void;
+    onPriceChange: (productId: string, value: string) => void;
     focusManager: ReturnType<typeof useFocusManager>;
 }
 
 const PriceControl: FunctionComponent<PriceControlProps> = ({
     sellPrice,
-    categoryUuid,
-    productUuid,
+    categoryId,
+    productId,
     customPriceInput,
     onPriceChange,
     focusManager
 }) => {
     const inputRef = useRef<HTMLInputElement>(null);
-    const isCustomItem = categoryUuid === DEFAULT_SEED_KEY;
-    const isActive = focusManager.isActive('price', productUuid);
+    const isCustomItem = categoryId === DEFAULT_SEED_KEY;
+    const isActive = focusManager.isActive('price', productId);
 
     useEffect(() => {
         if (isActive && inputRef.current) {
@@ -37,7 +37,7 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
         e.stopPropagation();
 
         if (isCustomItem) {
-            focusManager.setActiveComponent('price', productUuid);
+            focusManager.setActiveComponent('price', productId);
         }
 
         if (inputRef.current) {
@@ -47,7 +47,7 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
 
     const handleFocus = () => {
         if (isCustomItem) {
-            focusManager.setActiveComponent('price', productUuid);
+            focusManager.setActiveComponent('price', productId);
         }
     };
 
@@ -55,7 +55,7 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
         const value = e.target.value;
 
         if (value === '' || /^\d*\.?\d*$/.test(value)) {
-            onPriceChange(productUuid, value);
+            onPriceChange(productId, value);
         }
     };
 
@@ -63,10 +63,10 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
         const value = e.target.value;
 
         if (value === '' || isNaN(parseFloat(value)) || parseFloat(value) < 0) {
-            onPriceChange(productUuid, '0.00');
+            onPriceChange(productId, '0.00');
         } else {
             const numericValue = parseFloat(value);
-            onPriceChange(productUuid, numericValue.toFixed(2));
+            onPriceChange(productId, numericValue.toFixed(2));
         }
 
         focusManager.clearFocus();
@@ -81,12 +81,12 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
             e.preventDefault();
             const currentValue = parseFloat(customPriceInput) || 0;
             const newValue = Math.min(999999.99, currentValue + 1);
-            onPriceChange(productUuid, newValue.toFixed(2));
+            onPriceChange(productId, newValue.toFixed(2));
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
             const currentValue = parseFloat(customPriceInput) || 0;
             const newValue = Math.max(0, currentValue - 1);
-            onPriceChange(productUuid, newValue.toFixed(2));
+            onPriceChange(productId, newValue.toFixed(2));
         }
     };
 

@@ -21,8 +21,8 @@ export const CategoriesGrid: FunctionComponent<CategoriesGridProps> = ({
     }>
         {categories.map((category) => (
             viewMode === 'grid'
-                ? <CategoryCard key={category.uuid} category={category} onEdit={onEdit} onDelete={onDelete} />
-                : <CategoryListItem key={category.uuid} category={category} onEdit={onEdit} onDelete={onDelete} />
+                ? <CategoryCard key={category.categoryId} category={category} onEdit={onEdit} onDelete={onDelete} />
+                : <CategoryListItem key={category.categoryId} category={category} onEdit={onEdit} onDelete={onDelete} />
         ))}
     </div>
 );

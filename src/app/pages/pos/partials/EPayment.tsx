@@ -32,7 +32,7 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
     const isVirtualKeyboardActive = useRef(false);
 
     useEffect(() => {
-        if (selectedSubMethod) onValueChange('paymentServiceProviderUuid', selectedSubMethod)
+        if (selectedSubMethod) onValueChange('paymentServiceProviderId', selectedSubMethod)
     }, [])
 
     useEffect(() => {
@@ -43,7 +43,7 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
 
     const handleOnMethodSelect = (methodId: string) => {
         setSelectedSubMethod(methodId);
-        onValueChange('paymentServiceProviderUuid', methodId);
+        onValueChange('paymentServiceProviderId', methodId);
 
         setTimeout(() => {
             phoneInputRef.current?.focus();

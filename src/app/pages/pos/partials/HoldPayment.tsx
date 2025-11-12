@@ -34,15 +34,15 @@ const HoldPayment: FunctionComponent = () => {
             setIsSubmitting(true)
 
             const holdOrderData = {
-                uuid: '',
+                itemId: '',
                 reference: reference,
                 items: cart,
                 total: total,
                 date: new Date(),
                 status: "on-hold",
-                userId: (user?.uuid || 1).toString(),
+                userId: (user?.userId || 1).toString(),
                 totalItems: cart.length,
-                till: (till?.uuid || 1).toString()
+                till: (till?.userId || 1).toString()
             }
 
             await holdOrderService.store(holdOrderData)

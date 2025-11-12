@@ -18,6 +18,9 @@ const AddCustomerModal: FunctionComponent<PropsWithChildren<Props>> = ({ handleS
 
     const initialCustomerValues: Customer = {
         customerId: '',
+        tenantId: '',
+        branchId: '',
+        userId: '',
         name: '',
         phone: '',
         email: '',

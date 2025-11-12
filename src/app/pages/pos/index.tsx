@@ -28,7 +28,7 @@ const POSSystem: FunctionComponent = () => {
     const [isLookupModalOpen, setIsLookupModalOpen] = useState(false);
     const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
     const [isHoldOrdersModalOpen, setIsHoldOrdersModalOpen] = useState(false);
-    const [paymentMethodUuid, setPaymentMethodUuid] = useState<PaymentMethod>(CHECKOUT.CASH);
+    const [paymentMethodId, setPaymentMethodId] = useState<PaymentMethod>(CHECKOUT.CASH);
     const [customPriceInputs, setCustomPriceInputs] = useState<Record<string, string>>({});
 
     useEffect(() => {
@@ -99,7 +99,7 @@ const POSSystem: FunctionComponent = () => {
     };
 
     const handleQuantityNumpadInput = (itemId: string, value: string) => {
-        const cartItem = cart.find(item => item.productUuid === itemId);
+        const cartItem = cart.find(item => item.productId === itemId);
         if (!cartItem) return;
 
         if (value === 'Del') {
@@ -145,7 +145,7 @@ const POSSystem: FunctionComponent = () => {
             return;
         }
 
-        setPaymentMethodUuid(paymentMethod);
+        setPaymentMethodId(paymentMethod);
         setIsCheckoutModalOpen(true);
     };
 
@@ -278,7 +278,7 @@ const POSSystem: FunctionComponent = () => {
 
             <CheckoutModal
                 focusManager={focusManager}
-                paymentMethodUuid={paymentMethodUuid}
+                paymentMethodId={paymentMethodId}
                 isOpen={isCheckoutModalOpen}
                 onClose={() => setIsCheckoutModalOpen(false)}
             />

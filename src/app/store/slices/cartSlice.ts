@@ -24,44 +24,44 @@ const cartSlice = createSlice({
         addToCart: (state, action: PayloadAction<Product>) => {
             const product = action.payload
             const quantity = parseInt(product?.orderItems?.toString() || '0') || 1
-            const existingItem = state.items.find(item => item.productUuid === product.uuid)
+            const existingItem = state.items.find(item => item.productId === product.productId)
 
             if (existingItem) {
                 existingItem.quantity += quantity
             } else {
-                const isConsumableProduct = product.categoryUuid.toString() === DEFAULT_SEED_KEY
+                const isConsumableProduct = product.categoryId.toString() === DEFAULT_SEED_KEY
                 const price = isConsumableProduct
                     ? parseFloat(product.customPrice || product.sellPrice as string)
                     : parseFloat(product.sellPrice || '0')
 
                 state.items.push({
                     barcode: product.barcode,
-                    productUuid: product.uuid.toString(),
+                    productId: product.productId.toString(),
                     name: product.name,
                     purchasePrice: parseFloat(product.costPrice || '0'),
                     sellPrice: price,
                     discount: product.discount ?? 0,
                     quantity: isConsumableProduct ? 0 : quantity,
-                    categoryUuid: product.categoryUuid.toString(),
+                    categoryId: product.categoryId.toString(),
                 })
             }
         },
         removeFromCart: (state, action: PayloadAction<string>) => {
-            state.items = state.items.filter(item => item.productUuid !== action.payload)
+            state.items = state.items.filter(item => item.productId !== action.payload)
         },
         updateQuantity: (state, action: PayloadAction<{ id: string; quantity: number }>) => {
             const { id, quantity } = action.payload
-            const item = state.items.find(item => item.productUuid === id)
+            const item = state.items.find(item => item.productId === id)
 
             if (item) {
-                const isConsumable = item.categoryUuid === DEFAULT_SEED_KEY
+                const isConsumable = item.categoryId === DEFAULT_SEED_KEY
                 if (!isConsumable && quantity < 1) return
                 item.quantity = quantity
             }
         },
         updateCustomPrice: (state, action: PayloadAction<{ productId: string; newPrice: number }>) => {
             const { productId, newPrice } = action.payload
-            const item = state.items.find(item => item.productUuid === productId)
+            const item = state.items.find(item => item.productId === productId)
             if (item) {
                 item.sellPrice = newPrice
             }

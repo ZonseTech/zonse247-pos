@@ -27,7 +27,7 @@ const NavBar: FunctionComponent = () => {
                             <div key={index} className="flex items-center">
                                 {item.type === 'button' && (
                                     <button
-                                        onClick={typeof item.onClick === 'function' ? item.onClick : undefined}
+                                        onClick={(typeof item.onClick === 'function' ? item.onClick : undefined) as any}
                                         className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded transition-colors duration-150 whitespace-nowrap font-normal ${isActive
                                             ? 'border px-3 py-2 border-gray-700 dark:border-gray-500 text-gray-900 dark:text-gray-100 font-semibold'
                                             : 'border border-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'

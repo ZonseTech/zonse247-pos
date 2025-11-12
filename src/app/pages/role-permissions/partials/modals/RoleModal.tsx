@@ -19,8 +19,8 @@ const RoleModal: FunctionComponent<Props> = ({ role, isOpen, onSave, onClose }) 
         name: role?.name || '',
         displayName: role?.displayName || '',
         description: role?.description || '',
-        clientUuid: role?.clientUuid || '',
-        shopUuid: role?.shopUuid || '',
+        tenantId: role?.tenantId || '',
+        branchId: role?.branchId || '',
         isActive: role?.isActive !== undefined ? role.isActive : true,
         isSystemRole: role?.isSystemRole || false,
     };
@@ -37,9 +37,9 @@ const RoleModal: FunctionComponent<Props> = ({ role, isOpen, onSave, onClose }) 
         description: Yup.string()
             .max(500, 'Description cannot exceed 500 characters'),
 
-        clientUuid: Yup.string(),
+        tenantId: Yup.string(),
 
-        shopUuid: Yup.string(),
+        branchId: Yup.string(),
 
         isActive: Yup.boolean(),
 
@@ -103,8 +103,8 @@ const RoleModal: FunctionComponent<Props> = ({ role, isOpen, onSave, onClose }) 
                             <div className='flex gap-2'>
                                 <FormInput
                                     label="Client ID"
-                                    id="clientUuid"
-                                    name="clientUuid"
+                                    id="tenantId"
+                                    name="tenantId"
                                     type="text"
                                     placeholder="Enter client ID"
                                     className="mt-1"
@@ -112,8 +112,8 @@ const RoleModal: FunctionComponent<Props> = ({ role, isOpen, onSave, onClose }) 
 
                                 <FormInput
                                     label="Shop ID"
-                                    id="shopUuid"
-                                    name="shopUuid"
+                                    id="branchId"
+                                    name="branchId"
                                     type="text"
                                     placeholder="Enter shop ID"
                                     className="mt-1"
