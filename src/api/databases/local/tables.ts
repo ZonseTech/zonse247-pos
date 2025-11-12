@@ -19,6 +19,7 @@ export const PAYMENT_METHODS_DB = 'payment_methods';
 export const PAYMENT_SERVICE_PROVIDERS_DB = 'service_provider';
 export const SHOP_SETTINGS_DB = 'shop_settings';
 export const TERMINAL_SETTINGS_DB = 'terminal_settings';
+export const BRANCH_SETTINGS_TABLE = 'branch_settings';
 export const APP_SETUP_DB = 'app_setup';
 export const SUBSCRIPTION_PLANS_TABLE = 'subscription_plans';
 export const PLAN_FEATURES = 'plan_features';

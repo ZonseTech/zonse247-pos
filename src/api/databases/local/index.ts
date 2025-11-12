@@ -535,8 +535,8 @@ export class SealDBModel {
 
 	public async findProductsByUuids<T = any>(
 		table: string,
-		productUuids: string[],
-		auth: { clientUuid: string; shopUuid: string }
+		productIds: string[],
+		auth: { tenantId: string; branchId: string }
 	): Promise<Array<T | null>> {
 		return new Promise((resolve, reject) => {
 			try {
@@ -544,9 +544,9 @@ export class SealDBModel {
 
 				db.find(
 					{
-						uuid: { $in: productUuids },
-						clientUuid: auth.clientUuid,
-						shopUuid: auth.shopUuid,
+						uuid: { $in: productIds },
+						tenantId: auth.tenantId,
+						branchId: auth.branchId,
 					},
 					(err: Error | null, docs: any[]) => {
 						if (err) {
@@ -559,7 +559,7 @@ export class SealDBModel {
 							productMap.set(doc.uuid, doc);
 						});
 
-						const results = productUuids.map(
+						const results = productIds.map(
 							(uuid) => productMap.get(uuid) || null
 						);
 						resolve(results);
@@ -574,26 +574,26 @@ export class SealDBModel {
 	public async bulkInventoryUpdate(
 		table: string,
 		inventoryUpdates: Array<{
-			productUuid: string;
+			productId: string;
 			quantityToDecrement: number;
 			userId: string;
 		}>,
-		auth: { clientUuid: string; shopUuid: string }
+		auth: { tenantId: string; branchId: string }
 	): Promise<{
 		successful: number;
-		failed: Array<{ productUuid: string; error: string }>;
-		skipped: Array<{ productUuid: string; reason: string }>;
+		failed: Array<{ productId: string; error: string }>;
+		skipped: Array<{ productId: string; reason: string }>;
 	}> {
 		try {
-			const productUuids = inventoryUpdates.map((update) => update.productUuid);
+			const productIds = inventoryUpdates.map((update) => update.productId);
 			const products = await this.findProductsByUuids(
 				table,
-				productUuids,
+				productIds,
 				auth
 			);
 
 			const validUpdates: Array<{ uuid: string; data: any }> = [];
-			const skipped: Array<{ productUuid: string; reason: string }> = [];
+			const skipped: Array<{ productId: string; reason: string }> = [];
 
 			for (let i = 0; i < inventoryUpdates.length; i++) {
 				const update = inventoryUpdates[i];
@@ -601,7 +601,7 @@ export class SealDBModel {
 
 				if (!product) {
 					skipped.push({
-						productUuid: update.productUuid,
+						productId: update.productId,
 						reason: 'Product not found',
 					});
 					continue;
@@ -609,7 +609,7 @@ export class SealDBModel {
 
 				if (!product.quantity) {
 					skipped.push({
-						productUuid: update.productUuid,
+						productId: update.productId,
 						reason: 'No quantity available',
 					});
 					continue;
@@ -633,7 +633,7 @@ export class SealDBModel {
 			return {
 				successful: bulkResult.successful,
 				failed: bulkResult.failed.map((f) => ({
-					productUuid: f.uuid,
+					productId: f.uuid,
 					error: f.error.message,
 				})),
 				skipped,

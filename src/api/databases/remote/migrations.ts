@@ -11,7 +11,6 @@ import {
     TRANSACTIONS_DB,
     ORDERS_DB,
     PAYMENT_METHODS_DB,
-    SHOP_SETTINGS_DB,
     SUBSCRIPTION_PLANS_TABLE,
     TENANT_SUBSCRIPTIONS_TABLE,
     AUDIT_LOGS_DB,
@@ -21,7 +20,8 @@ import {
     USER_PERMISSIONS_DB,
     PAYMENT_SERVICE_PROVIDERS_DB,
     MRA_API_CONFIG_TABLE,
-    PLAN_FEATURES
+    PLAN_FEATURES,
+    BRANCH_SETTINGS_TABLE
 } from '../local/tables';
 
 const testConnection = async () => {
@@ -295,8 +295,8 @@ const initDatabase = async () => {
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
                 
-                FOREIGN KEY (role_id) REFERENCES ${ROLES_DB}(role_permission_id) ON DELETE CASCADE,
-                FOREIGN KEY (permission_id) REFERENCES ${PERMISSIONS_DB}(role_permission_id) ON DELETE CASCADE,
+                FOREIGN KEY (role_id) REFERENCES ${ROLES_DB}(role_id) ON DELETE CASCADE,
+                FOREIGN KEY (permission_id) REFERENCES ${PERMISSIONS_DB}(permission_id) ON DELETE CASCADE,
                 
                 UNIQUE KEY unique_role_permission (role_id, permission_id),
                 INDEX idx_role_id (role_id),
@@ -333,7 +333,7 @@ const initDatabase = async () => {
 
                 FOREIGN KEY (tenant_id) REFERENCES ${TENANT_TABLE}(tenant_id) ON DELETE CASCADE,
                 FOREIGN KEY (branch_id) REFERENCES ${BRANCHES_TABLE}(branch_id) ON DELETE CASCADE,
-                FOREIGN KEY (role_id) REFERENCES ${ROLES_DB}(user_id) ON DELETE RESTRICT,
+                FOREIGN KEY (role_id) REFERENCES ${ROLES_DB}(role_id) ON DELETE RESTRICT,
                 FOREIGN KEY (current_branch_id) REFERENCES ${BRANCHES_TABLE}(branch_id) ON DELETE SET NULL,
                 UNIQUE KEY unique_tenant_username (tenant_id, username),
                 INDEX idx_tenant_id (tenant_id),
@@ -354,10 +354,10 @@ const initDatabase = async () => {
                 created_by VARCHAR(100),
                 synced TINYINT DEFAULT 0,
                 
-                FOREIGN KEY (user_id) REFERENCES ${USERS_DB}(user_permission_id) ON DELETE CASCADE,
-                FOREIGN KEY (permission_id) REFERENCES ${PERMISSIONS_DB}(user_permission_id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES ${USERS_DB}(user_id) ON DELETE CASCADE,
+                FOREIGN KEY (permission_id) REFERENCES ${PERMISSIONS_DB}(permission_id) ON DELETE CASCADE,
                 FOREIGN KEY (branch_id) REFERENCES ${BRANCHES_TABLE}(branch_id) ON DELETE CASCADE,
-                FOREIGN KEY (created_by) REFERENCES ${USERS_DB}(user_permission_id) ON DELETE SET NULL,
+                FOREIGN KEY (created_by) REFERENCES ${USERS_DB}(user_id) ON DELETE SET NULL,
                 UNIQUE KEY unique_user_permission_branch (user_id, permission_id, branch_id),
                 INDEX idx_user_id (user_id),
                 INDEX idx_permission_id (permission_id),
@@ -382,7 +382,7 @@ const initDatabase = async () => {
                 created_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
                 
-                FOREIGN KEY (user_id) REFERENCES ${USERS_DB}(user_session_id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES ${USERS_DB}(user_id) ON DELETE CASCADE,
                 FOREIGN KEY (terminal_id) REFERENCES ${TERMINALS_TABLE}(terminal_id) ON DELETE CASCADE,
                 INDEX idx_user_id (user_id),
                 INDEX idx_session_token (session_token),
@@ -469,7 +469,7 @@ const initDatabase = async () => {
                 
                 FOREIGN KEY (branch_id) REFERENCES ${BRANCHES_TABLE}(branch_id) ON DELETE CASCADE,
                 FOREIGN KEY (tenant_id) REFERENCES ${TENANT_TABLE}(tenant_id) ON DELETE CASCADE,
-                FOREIGN KEY (user_id) REFERENCES ${USERS_DB}(method_id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES ${USERS_DB}(user_id) ON DELETE CASCADE,
                 UNIQUE KEY unique_branch_payment_method (branch_id, name),
                 UNIQUE KEY unique_user_payment_method (user_id, name),
                 UNIQUE KEY unique_tenant_payment_method (tenant_id, name),
@@ -525,9 +525,9 @@ const initDatabase = async () => {
                 updated_at TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
                 
                 FOREIGN KEY (branch_id) REFERENCES ${BRANCHES_TABLE}(branch_id) ON DELETE CASCADE,
-                FOREIGN KEY (category_id) REFERENCES ${CATEGORIES_DB}(product_id) ON DELETE SET NULL,
-                FOREIGN KEY (created_by) REFERENCES ${USERS_DB}(product_id) ON DELETE SET NULL,
-                FOREIGN KEY (last_updated_by) REFERENCES ${USERS_DB}(product_id) ON DELETE SET NULL,
+                FOREIGN KEY (category_id) REFERENCES ${CATEGORIES_DB}(category_id) ON DELETE SET NULL,
+                FOREIGN KEY (created_by) REFERENCES ${USERS_DB}(user_id) ON DELETE SET NULL,
+                FOREIGN KEY (last_updated_by) REFERENCES ${USERS_DB}(user_id) ON DELETE SET NULL,
                 INDEX idx_branch_id (branch_id),
                 INDEX idx_category_id (category_id),
                 INDEX idx_barcode (barcode),
@@ -547,13 +547,12 @@ const initDatabase = async () => {
                 tax DECIMAL(10, 2) DEFAULT 0.00,
                 date TIMESTAMP(3) NULL,
                 payment_method_id VARCHAR(100),
-                transaction_id VARCHAR(100),
                 phone_number VARCHAR(20),
                 payment_service_provider_id VARCHAR(100),
                 total DECIMAL(10, 2) DEFAULT 0.00,
                 paid DECIMAL(10, 2) DEFAULT 0.00,
                 change_amount DECIMAL(10, 2) DEFAULT 0.00,
-                till_id VARCHAR(100),
+                terminal_id VARCHAR(100),
                 user_id VARCHAR(100),
                 tenant_id VARCHAR(100) NOT NULL,
                 branch_id VARCHAR(100) NOT NULL,
@@ -586,7 +585,7 @@ const initDatabase = async () => {
         `);
 
         await connection.query(`
-            CREATE TABLE IF NOT EXISTS ${SHOP_SETTINGS_DB} (
+            CREATE TABLE IF NOT EXISTS ${BRANCH_SETTINGS_TABLE} (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 branch_setting_id VARCHAR(100) NOT NULL UNIQUE,
                 tenant_id VARCHAR(100) NOT NULL,
@@ -639,12 +638,12 @@ const initDatabase = async () => {
                 
                 FOREIGN KEY (tenant_id) REFERENCES ${TENANT_TABLE}(tenant_id) ON DELETE SET NULL,
                 FOREIGN KEY (branch_id) REFERENCES ${BRANCHES_TABLE}(branch_id) ON DELETE SET NULL,
-                FOREIGN KEY (user_id) REFERENCES ${USERS_DB}(log_id) ON DELETE SET NULL,
+                FOREIGN KEY (user_id) REFERENCES ${USERS_DB}(user_id) ON DELETE SET NULL,
                 FOREIGN KEY (terminal_id) REFERENCES ${TERMINALS_TABLE}(terminal_id) ON DELETE SET NULL,
                 INDEX idx_tenant_id (tenant_id),
                 INDEX idx_branch_id (branch_id),
                 INDEX idx_tenant_branch (tenant_id, branch_id),
-                INDEX idx_activation_status (activation_status)
+                INDEX idx_action_type (action_type)
             );
         `);
 
