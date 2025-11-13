@@ -130,3 +130,5 @@ out/
 exports
 .env.production
 .env.local
+
+*.keystore
