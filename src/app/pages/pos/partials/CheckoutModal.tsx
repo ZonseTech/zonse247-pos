@@ -16,7 +16,7 @@ interface CheckoutModalProps {
     isOpen: boolean;
     onClose: () => void;
     focusManager: ReturnType<typeof useFocusManager>;
-    paymentMethodUuid: typeof CHECKOUT[keyof typeof CHECKOUT];
+    paymentMethodId: typeof CHECKOUT[keyof typeof CHECKOUT];
 }
 
 export const CHECKOUT = {
@@ -32,7 +32,7 @@ export type ActiveInputType = 'phoneNumber' | 'referenceNo' | 'account' | null;
 const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     isOpen,
     onClose,
-    paymentMethodUuid,
+    paymentMethodId,
     focusManager
 }) => {
     const {
@@ -47,8 +47,8 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     } = useProducts();
 
     const transactionValues: TransactionValues = {
-        paymentMethodUuid,
-        paymentServiceProviderUuid: '',
+        paymentMethodId,
+        paymentServiceProviderId: '',
         transactionId: '',
         phoneNumber: '',
         cashTendered: '',
@@ -61,22 +61,22 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     const [activeInput, setActiveInput] = useState<ActiveInputType>(null);
 
     const newTransactionValidationSchema = Yup.object({
-        paymentMethodUuid: Yup.string().required('Payment method is required'),
-        paymentServiceProviderUuid: Yup.string().when('paymentMethodUuid', {
+        paymentMethodId: Yup.string().required('Payment method is required'),
+        paymentServiceProviderId: Yup.string().when('paymentMethodId', {
             is: (value: string) => value !== CHECKOUT.CASH,
             then: () => Yup.string()
                 .required('Service provider is required')
                 .min(1, 'Please select a service provider'),
             otherwise: () => Yup.string().nullable(),
         }),
-        transactionId: Yup.string().when('paymentMethodUuid', {
+        transactionId: Yup.string().when('paymentMethodId', {
             is: (value: string) => value !== CHECKOUT.CASH,
             then: () => Yup.string()
                 .required('Reference number is required')
                 .min(5, 'Reference number must be at least 5 characters'),
             otherwise: () => Yup.string().nullable(),
         }),
-        phoneNumber: Yup.string().when('paymentMethodUuid', {
+        phoneNumber: Yup.string().when('paymentMethodId', {
             is: (value: string) => value === CHECKOUT.E_PAYMENT,
             then: () => Yup.string()
                 .required('Phone number is required')
@@ -108,7 +108,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isOpen, paymentMethodUuid, total, processing,]);
+    }, [isOpen, paymentMethodId, total, processing,]);
 
     const handleCompleteTransaction = async (values: TransactionValues) => {
         if (processing) return;
@@ -117,7 +117,6 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
             const refNumber = generateReferenceNumber()
 
             const data: Transaction = {
-                uuid: '',
                 refNumber,
                 discount,
                 subtotal,
@@ -125,12 +124,12 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 date: new Date().toJSON(),
                 phoneNumber: values.phoneNumber,
 
-                userUuid: user.uuid,
-                tillUuid: settings?.uuid,
-                transactionId: values?.transactionId,
-                customerUuid: selectedCustomer.uuid,
-                paymentMethodUuid: values.paymentMethodUuid,
-                paymentServiceProviderUuid: values.paymentServiceProviderUuid,
+                userId: user.userId,
+                terminalId: settings?.settingId,
+                transactionId: values?.transactionId || '',
+                customerId: selectedCustomer.customerId,
+                paymentMethodId: values.paymentMethodId,
+                paymentServiceProviderId: values.paymentServiceProviderId,
 
                 total,
                 paid: values.cashTendered ? parseFloat(values.cashTendered) : total,
@@ -152,10 +151,10 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
             reloadProducts()
 
             values.phoneNumber = ''
-            values.paymentMethodUuid = ""
+            values.paymentMethodId = ""
             values.cashTendered = ''
             values.transactionId = ''
-            values.paymentServiceProviderUuid = ''
+            values.paymentServiceProviderId = ''
 
             onClose();
         } catch (error) {
@@ -169,7 +168,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     const canProceed = (values: TransactionValues) => {
         if (processing) return false;
 
-        switch (paymentMethodUuid) {
+        switch (paymentMethodId) {
             case CHECKOUT.CASH:
                 return parseFloat(values.cashTendered || '0') >= total;
             case CHECKOUT.E_PAYMENT:
@@ -182,7 +181,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     };
 
     const getPaymentTitle = () => {
-        switch (paymentMethodUuid) {
+        switch (paymentMethodId) {
             case CHECKOUT.CASH:
                 return 'CASH PAYMENT';
             case CHECKOUT.BANK_TRANSFER:
@@ -195,7 +194,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     };
 
     const getPaymentIcon = () => {
-        switch (paymentMethodUuid) {
+        switch (paymentMethodId) {
             case CHECKOUT.CASH:
                 return '💵';
             case CHECKOUT.BANK_TRANSFER:
@@ -230,7 +229,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                     {({ isSubmitting, values, setFieldValue, errors, touched }) => (
                         <Form className="flex flex-col flex-1 min-h-0">
                             <div className="flex-1 p-6 overflow-y-auto">
-                                {paymentMethodUuid === CHECKOUT.CASH && (
+                                {paymentMethodId === CHECKOUT.CASH && (
                                     <CashPayment
                                         total={total}
                                         values={values}
@@ -239,7 +238,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                                     />
                                 )}
 
-                                {paymentMethodUuid === CHECKOUT.E_PAYMENT && (
+                                {paymentMethodId === CHECKOUT.E_PAYMENT && (
                                     <EPayment
                                         total={total}
                                         values={values}
@@ -249,7 +248,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                                     />
                                 )}
 
-                                {paymentMethodUuid === CHECKOUT.BANK_TRANSFER && (
+                                {paymentMethodId === CHECKOUT.BANK_TRANSFER && (
                                     <BankTransfer
                                         total={total}
                                         values={values}

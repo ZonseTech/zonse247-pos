@@ -25,7 +25,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
     const [roles, setRoles] = useState<Role[]>([]);
     const [isOpenForm, setIsOpenForm] = useState(false);
     const [shops, setShops] = useState<ShopOptions[]>([]);
-    const [clients, setClients] = useState<Client[]>([]);
+    const [clients, setClients] = useState<Array<Tenant>>([]);
     const [loadingRoles, setLoadingRoles] = useState(true);
     const [loadingClients, setLoadingClients] = useState(true);
     const [loadingShops, setLoadingShops] = useState(true);
@@ -72,8 +72,8 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
     const loadClients = async () => {
         try {
             setLoadingClients(true);
-            const clientsData = await clientsService.list();
-            setClients(clientsData);
+            const tenantData = await clientsService.list();
+            setClients(tenantData);
         } catch (error) {
             console.error('Error loading shops:', error);
             Notify.failure('Failed to load shops');
@@ -110,7 +110,7 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
 
     const roleOptions = roles.map(role => ({
         label: role.name,
-        value: role.uuid
+        value: role.roleId
     }));
 
     const shopOptions = shops.map(shop => ({
@@ -118,9 +118,9 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
         value: shop.uuid
     }));
 
-    const clientOptions = clients.map(client => ({
-        label: client.companyName,
-        value: client.uuid
+    const clientOptions = clients.map(tenant => ({
+        label: tenant.businessName,
+        value: tenant.tenantId
     }));
 
     const initialUserValues = user ? {
@@ -183,9 +183,9 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
 
     const handleSubmit = async (values: User, { resetForm, setErrors, setStatus }) => {
         try {
-            const submitValues = { ...values, userId: auth.user.uuid };
+            const submitValues = { ...values, userId: auth.user.userId };
 
-            if (user && user.uuid && !submitValues.password) {
+            if (user && user.userId && !submitValues.password) {
                 delete submitValues.password;
             }
 
@@ -196,8 +196,8 @@ const UserFormModal: FunctionComponent<UserFormModalProps> = ({
                 submitValues.allowedWorkstations = (submitValues.allowedWorkstations as string).split(',').filter(s => s.trim());
             }
 
-            if (user && user.uuid) {
-                await usersService.update(user.uuid, submitValues);
+            if (user && user.userId) {
+                await usersService.update(user.userId, submitValues);
                 Report.success("Updated!", "User details updated successfully!", "Ok");
             } else {
                 await usersService.store(submitValues);

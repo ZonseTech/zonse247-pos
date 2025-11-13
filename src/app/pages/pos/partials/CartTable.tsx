@@ -11,7 +11,7 @@ import { DEFAULT_SEED_KEY } from '../../../constants';
 interface CartTableProps {
     focusManager: ReturnType<typeof useFocusManager>;
     customPriceInputs: Record<string, string>;
-    onPriceChange: (productUuid: string, value: string) => void;
+    onPriceChange: (productId: string, value: string) => void;
 }
 
 const CartTable: FunctionComponent<CartTableProps> = ({
@@ -95,7 +95,7 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                         ) : (
                             cart.map((item, index) => (
                                 <tr
-                                    key={item.productUuid}
+                                    key={item.productId}
                                     className={`hover:bg-gray-50 text-xl dark:hover:bg-gray-700/30 transition-all duration-200 group
                                               border-b border-gray-200 dark:border-gray-700
                                               ${index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-25 dark:bg-gray-850'}`}
@@ -104,7 +104,7 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                                         <div className="font-semibold text-gray-900 dark:text-gray-100">
                                             {item.name}
                                         </div>
-                                        {item.categoryUuid === DEFAULT_SEED_KEY && (
+                                        {item.categoryId === DEFAULT_SEED_KEY && (
                                             <div className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-1">
                                                 Custom Item
                                             </div>
@@ -113,19 +113,19 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                                     <td className="p-2.5 border-r border-gray-200 dark:border-gray-700">
                                         <QuantityControl
                                             quantity={item.quantity}
-                                            onIncrease={() => updateQuantity(item.productUuid, item.quantity + 1)}
-                                            onDecrease={() => updateQuantity(item.productUuid, item.quantity - 1)}
-                                            onInputChange={(value) => updateQuantity(item.productUuid, value)}
-                                            itemId={item.productUuid}
+                                            onIncrease={() => updateQuantity(item.productId, item.quantity + 1)}
+                                            onDecrease={() => updateQuantity(item.productId, item.quantity - 1)}
+                                            onInputChange={(value) => updateQuantity(item.productId, value)}
+                                            itemId={item.productId}
                                             focusManager={focusManager}
                                         />
                                     </td>
                                     <td className="p-2.5 border-r border-gray-200 dark:border-gray-700">
                                         <PriceControl
                                             sellPrice={item.sellPrice}
-                                            categoryUuid={item.categoryUuid}
-                                            productUuid={item.productUuid}
-                                            customPriceInput={customPriceInputs[item.productUuid] || ''}
+                                            categoryId={item.categoryId}
+                                            productId={item.productId}
+                                            customPriceInput={customPriceInputs[item.productId] || ''}
                                             onPriceChange={onPriceChange}
                                             focusManager={focusManager}
                                         />
@@ -151,7 +151,7 @@ const CartTable: FunctionComponent<CartTableProps> = ({
 
                                     <td className="p-2.5 text-center">
                                         <button
-                                            onClick={() => removeFromCart(item.productUuid)}
+                                            onClick={() => removeFromCart(item.productId)}
                                             className="px-3 py-1 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 
                                                          hover:bg-red-50 dark:hover:bg-red-900/20 rounded-none transition-all duration-200
                                                          opacity-70 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-500/20

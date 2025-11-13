@@ -121,7 +121,7 @@ const productsSlice = createSlice({
         },
         updateProductStock: (state, action: PayloadAction<{ id: string; newStock: number }>) => {
             const { id, newStock } = action.payload
-            const product = state.products.find(p => p.uuid === id)
+            const product = state.products.find(p => p.productId === id)
             if (product) {
                 product.quantity = newStock
             }

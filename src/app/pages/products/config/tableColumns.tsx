@@ -66,7 +66,7 @@ export const getProductColumns = (
                         icon={
                             <HiOutlineTrash
                                 className='w-5 h-5 text-red-600'
-                                onClick={() => handleVoidProduct((row.uuid.toString()))}
+                                onClick={() => handleVoidProduct((row.productId.toString()))}
                             />} />
                 </Fragment>
             ),

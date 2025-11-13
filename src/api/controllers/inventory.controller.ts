@@ -5,9 +5,9 @@ import { InventoryService } from '../services/inventory.service';
 export class InventoryController extends BaseController {
     private static getAuthContext(req: Request) {
         return {
-            clientUuid: req.auth?.clientUuid || '',
-            shopUuid: req.auth?.shopUuid || '',
-            userUuid: req.auth?.uuid || ''
+            tenantId: req.auth?.tenantId || '',
+            branchId: req.auth?.branchId || '',
+            userId: req.auth?.userId || ''
         };
     }
 

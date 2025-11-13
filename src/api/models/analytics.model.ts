@@ -80,14 +80,14 @@ export class AnalyticsModel {
             processedTransactions = await Promise.all(
                 sortedTransactions.map(async (transaction) => {
                     const orderItems = await sealDBModel.find(ORDERS_DB, {
-                        transactionUuid: transaction.uuid,
+                        transactionUuid: transaction.transactionId,
                     });
 
                     const itemsWithProductDetails = await Promise.all(
                         orderItems.map(async (item) => {
                             const product = await sealDBModel.findById(
                                 INVENTORY_DB,
-                                item.productUuid
+                                item.productId
                             );
                             return {
                                 ...item,
@@ -140,13 +140,13 @@ export class AnalyticsModel {
         >();
 
         orders.forEach((order) => {
-            const productUuid = order.productUuid;
-            const existing = productSummary.get(productUuid) || {
+            const productId = order.productId;
+            const existing = productSummary.get(productId) || {
                 quantity: 0,
                 summedSellPrice: 0,
             };
 
-            productSummary.set(productUuid, {
+            productSummary.set(productId, {
                 quantity: parseInt(existing.quantity?.toString()) + parseInt(order.quantity),
                 summedSellPrice:
                     existing.summedSellPrice + order.sellPrice * order.quantity,
@@ -155,11 +155,11 @@ export class AnalyticsModel {
 
         const topProducts = [] as Array<TopProduct>;
 
-        productSummary.forEach((summary, productUuid: string) => {
-            const product = productMap.get(productUuid);
+        productSummary.forEach((summary, productId: string) => {
+            const product = productMap.get(productId);
 
             if (product) {
-                if (product.uuid) {
+                if (product.productId) {
                     const categoryKey = product.categoryId.toString();
                     if (categoryMap.has(categoryKey)) {
                         product.categoryDetails = categoryMap.get(categoryKey);
@@ -167,7 +167,7 @@ export class AnalyticsModel {
                 }
 
                 topProducts.push({
-                    uuid: product.uuid || productUuid,
+                    productId: product.productId || productId,
                     name: product.name || 'Unknown Product',
                     quantity: summary.quantity,
                     summedSellPrice: Math.round(summary.summedSellPrice * 100) / 100,
@@ -237,7 +237,7 @@ export class AnalyticsModel {
             orderItems.map(async (item) => {
                 const product = await sealDBModel.findById(
                     INVENTORY_DB,
-                    item.productUuid
+                    item.productId
                 );
                 return {
                     ...item,
@@ -276,7 +276,7 @@ export class AnalyticsModel {
             orderItems.map(async (item) => {
                 const product = await sealDBModel.findById(
                     INVENTORY_DB,
-                    item.productUuid
+                    item.productId
                 );
 
                 let categoryDetails = null;

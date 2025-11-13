@@ -78,7 +78,7 @@ const UserManagement: FunctionComponent = () => {
         setRoleFilter(event.target.value);
     };
 
-    const uniqueRoles = [...new Set(users.map(user => user.roleUuid))];
+    const uniqueRoles = [...new Set(users.map(user => user.roleId))];
 
     return (
         <AppLayout>

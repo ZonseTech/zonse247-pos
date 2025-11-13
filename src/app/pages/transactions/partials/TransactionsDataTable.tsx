@@ -163,8 +163,8 @@ const TransactionsDataTable: FunctionComponent<Props> = ({
         transactions.forEach(transaction => {
             if (transaction?.items && Array.isArray(transaction.items)) {
                 transaction.items.forEach(item => {
-                    if (item && item.productUuid) {
-                        const { productDetails, quantity, productUuid, barcode, sellPrice, purchasePrice, name } = item;
+                    if (item && item.productId) {
+                        const { productDetails, quantity, productId, barcode, sellPrice, purchasePrice, name } = item;
 
                         const product = {
                             barcode: productDetails?.barcode || '',
@@ -175,12 +175,12 @@ const TransactionsDataTable: FunctionComponent<Props> = ({
                             quantity: Number(quantity) || 0,
                         };
 
-                        if (productMap.has(productUuid)) {
-                            const existingProduct = productMap.get(productUuid);
+                        if (productMap.has(productId)) {
+                            const existingProduct = productMap.get(productId);
                             existingProduct.quantity += product.quantity;
-                            productMap.set(productUuid, existingProduct);
+                            productMap.set(productId, existingProduct);
                         } else {
-                            productMap.set(productUuid, product);
+                            productMap.set(productId, product);
                         }
                     }
                 });
@@ -209,8 +209,8 @@ const TransactionsDataTable: FunctionComponent<Props> = ({
         data.forEach(transaction => {
             if (transaction?.items && Array.isArray(transaction.items)) {
                 transaction.items.forEach(item => {
-                    if (item?.productUuid) {
-                        uniqueProductIds.add(item.productUuid);
+                    if (item?.productId) {
+                        uniqueProductIds.add(item.productId);
                     }
                 });
             }

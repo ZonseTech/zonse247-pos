@@ -10,24 +10,24 @@ const CustomerFilter: FunctionComponent = () => {
     const { customers, fetchCustomers, setSelectedCustomer } = useProducts();
 
     useEffect(() => {
-        const arr = customers.filter((c) => c.uuid === customer.toString())
+        const arr = customers.filter((c) => c.customerId === customer.toString())
         if (arr.length > 0) setSelectedCustomer(arr[0]);
     }, [customer]);
 
     useEffect(() => {
-        if (customers.length) setCustomer(customers[0].uuid)
+        if (customers.length) setCustomer(customers[0].customerId)
     }, [customers])
 
     const handleSelectedCustomer = async (cus: Customer) => {
         await fetchCustomers();
         setTimeout(() => {
-            setCustomer(cus.uuid);
+            setCustomer(cus.customerId);
         }, 200);
     }
 
     const options = [
         ...customers.map((c) => ({
-            value: c.uuid,
+            value: c.customerId,
             label: c.name
         }))
     ];

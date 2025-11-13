@@ -48,17 +48,17 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
     const loadCurrentPermissions = async () => {
         setLoading(true);
         try {
-            const result = await rolePermissionService.getByRoleUuid(role.uuid);
+            const result = await rolePermissionService.getByRoleUuid(role.roleId);
             const rolePermissions = result?.data || [];
 
             const permissionIds: string[] = [];
             const mappings = new Map<string, string>();
 
             rolePermissions.forEach(rp => {
-                const permissionUuid = rp.permissionUuid;
-                if (permissionUuid) {
-                    permissionIds.push(permissionUuid);
-                    mappings.set(permissionUuid, rp.uuid);
+                const permissionId = rp.permissionId;
+                if (permissionId) {
+                    permissionIds.push(permissionId);
+                    mappings.set(permissionId, rp.rolePermissionId);
                 }
             });
 
@@ -74,7 +74,7 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
 
     const handlePermissionToggle = async (permissionId: string, values: FormValues, setFieldValue: any) => {
         const isCurrentlySelected = values.selectedPermissions.includes(permissionId);
-        const permission = permissions.find(p => p.uuid === permissionId);
+        const permission = permissions.find(p => p.permissionId === permissionId);
 
         if (!permission) {
             Notify.failure('Permission not found');
@@ -103,8 +103,8 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
                 Notify.success(`Permission "${permission.name}" removed from role "${role.name}"`);
             } else {
                 const response = await rolePermissionService.create({
-                    roleUuid: role.uuid,
-                    permissionUuid: permissionId
+                    roleUuid: role.roleId,
+                    permissionId: permissionId
                 });
 
                 const newSelected = [...values.selectedPermissions, permissionId];
@@ -133,7 +133,7 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
     };
 
     const handleSelectAll = async (setFieldValue: any, currentSelected: string[]) => {
-        const allPermissionIds = permissions.map(p => p.uuid);
+        const allPermissionIds = permissions.map(p => p.permissionId);
         const permissionsToAdd = allPermissionIds.filter(id => !currentSelected.includes(id));
 
         if (permissionsToAdd.length === 0) {
@@ -142,9 +142,9 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
         }
 
         try {
-            const assignments = permissionsToAdd.map(permissionUuid => ({
-                roleUuid: role.uuid,
-                permissionUuid
+            const assignments = permissionsToAdd.map(permissionId => ({
+                roleUuid: role.roleId,
+                permissionId
             }));
 
             await rolePermissionService.bulkAssign({ assignments });
@@ -170,7 +170,7 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
 
         try {
             const rolePermissionIds = currentSelected
-                .map(permissionUuid => rolePermissionMappings.get(permissionUuid))
+                .map(permissionId => rolePermissionMappings.get(permissionId))
                 .filter(id => id !== undefined);
 
             if (rolePermissionIds.length !== currentSelected.length) {
@@ -282,18 +282,18 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
                                                     {category}
                                                 </span>
                                                 <span className="text-sm font-normal text-gray-500">
-                                                    ({categoryPermissions.filter(p => values.selectedPermissions.includes(p.uuid)).length}/{categoryPermissions.length} assigned)
+                                                    ({categoryPermissions.filter(p => values.selectedPermissions.includes(p.permissionId)).length}/{categoryPermissions.length} assigned)
                                                 </span>
                                             </h4>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                                 {categoryPermissions.map(permission => {
-                                                    const isBeingSaved = savingPermissions.has(permission.uuid);
-                                                    const isAssigned = values.selectedPermissions.includes(permission.uuid);
+                                                    const isBeingSaved = savingPermissions.has(permission.permissionId);
+                                                    const isAssigned = values.selectedPermissions.includes(permission.permissionId);
 
                                                     return (
                                                         <label
-                                                            key={permission.uuid}
+                                                            key={permission.permissionId}
                                                             className={`flex items-start space-x-3 p-3 border rounded-lg cursor-pointer transition-colors ${isBeingSaved
                                                                 ? 'bg-gray-100 opacity-75'
                                                                 : isAssigned
@@ -305,7 +305,7 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
                                                                 <input
                                                                     type="checkbox"
                                                                     checked={isAssigned}
-                                                                    onChange={() => handlePermissionToggle(permission.uuid, values, setFieldValue)}
+                                                                    onChange={() => handlePermissionToggle(permission.permissionId, values, setFieldValue)}
                                                                     disabled={isBeingSaved}
                                                                     className="mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500 disabled:opacity-50"
                                                                 />

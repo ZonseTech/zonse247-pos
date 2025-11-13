@@ -1,6 +1,7 @@
 import dayjs from 'dayjs'
 import { formatCurrency } from '../../../utils'
-import { Fragment, type Dispatch, type FunctionComponent, type ReactElement, type SetStateAction } from 'react'
+import type { Dispatch, FunctionComponent, ReactElement, SetStateAction } from 'react'
+import { DEFAULT_SEED_KEY } from '../../../constants';
 
 type Props = {
 	trans: Transaction;
@@ -34,7 +35,7 @@ const RenderTransactionRow: FunctionComponent<Props> = ({ trans, setIsOpenDetail
 			</td>
 			<td className="px-6 py-4 whitespace-nowrap">
 				<span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-sm transition-colors duration-200
-					${trans?.paymentMethod?.uuid === '1'
+					${trans?.paymentMethod?.methodId === DEFAULT_SEED_KEY
 						? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 dark:ring-1 dark:ring-blue-500/30'
 						: 'bg-green-100 text-yellow-800 dark:bg-green-900/30 dark:text-green-300 dark:ring-1 dark:ring-green-500/30'
 					}`}>

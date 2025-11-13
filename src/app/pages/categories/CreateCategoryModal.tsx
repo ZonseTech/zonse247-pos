@@ -27,7 +27,7 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
 }) => {
     const [isOpenForm, setIsOpenForm] = useState(isOpen);
     const [categoryValues, setCategoryValues] = useState<Partial<Category>>({
-        uuid: '',
+        categoryId: '',
         name: '',
         description: '',
         color: '#3B82F6'
@@ -61,14 +61,14 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
         if (category) {
             setIsOpenForm(true);
             setCategoryValues({
-                uuid: category.uuid || '',
+                categoryId: category.categoryId || '',
                 name: category.name || '',
                 description: category.description || '',
                 color: category.color || '#3B82F6'
             });
         } else {
             setCategoryValues({
-                uuid: '',
+                categoryId: '',
                 name: '',
                 description: '',
                 color: '#3B82F6'
@@ -84,10 +84,10 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
         try {
             setSubmitting(true);
 
-            if (categoryValues.uuid && category) {
-                await categoriesService.update(category.uuid.toString(), values);
+            if (categoryValues.categoryId && category) {
+                await categoriesService.update(category.categoryId.toString(), values);
                 Notify.success('Category updated successfully!');
-                setCategoryValues({ uuid: '', name: '', description: '', color: '#3B82F6' });
+                setCategoryValues({ categoryId: '', name: '', description: '', color: '#3B82F6' });
 
                 if (onSuccess) {
                     onSuccess?.();
@@ -115,7 +115,7 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
                     diagOptions.cancelButtonText,
                     () => {
                         resetForm();
-                        setCategoryValues({ uuid: '', name: '', description: '', color: '#3B82F6' });
+                        setCategoryValues({ categoryId: '', name: '', description: '', color: '#3B82F6' });
                     },
                     () => {
                         setIsOpenForm(false);
@@ -179,7 +179,7 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
                         validationSchema={newCategoryValidationSchema}
                         onSubmit={handleSubmit}
                         enableReinitialize={true}
-                        key={category?.uuid || 'new'}
+                        key={category?.categoryId || 'new'}
                     >
                         {({ isSubmitting, values, setFieldValue, errors, touched }) => (
                             <Form className="space-y-6">

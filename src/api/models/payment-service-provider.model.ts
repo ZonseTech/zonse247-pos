@@ -25,9 +25,9 @@ export class PaymentServiceProviderModel {
         }
     }
 
-    static async findById(id: string): Promise<PaymentServiceProvider | null> {
+    static async findById(providerId: string): Promise<PaymentServiceProvider | null> {
         try {
-            return await sealDBModel.findById<PaymentServiceProvider>(PAYMENT_SERVICE_PROVIDERS_DB, id);
+            return await sealDBModel.findById<PaymentServiceProvider>(PAYMENT_SERVICE_PROVIDERS_DB, { providerId });
         } catch (error) {
             throw new Error(`Error finding payment service provider by ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }

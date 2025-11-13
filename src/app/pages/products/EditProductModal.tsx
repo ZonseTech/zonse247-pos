@@ -8,6 +8,8 @@ import { Button, ModalFooter, Modal } from '../../components'
 import productsService from '../../services/products.service';
 import FormSelectBox from '../../components/FormSelectBox';
 import { useProducts } from '../../hooks/useProducts';
+import { DEFAULT_SEED_KEY } from '../../constants';
+import { useProductManagement } from '../../hooks/useProductManagement';
 
 type Props = {
 	product: Product;
@@ -17,16 +19,17 @@ type Props = {
 }
 
 const EditProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product, onProductUpdate }) => {
-	const { categories, reloadProducts } = useProducts()
+	const { reloadProducts } = useProducts()
+	const { categories } = useProductManagement()
 	const [isOpenForm, setIsOpenForm] = useState(false);
 
 	const [productValues, setProductValues] = useState<Product>({
-		uuid: "",
+		productId: "",
 		barcode: "",
 		expirationDate: '',
 		sellPrice: '0.00',
 		costPrice: '0.00',
-		categoryUuid: '',
+		categoryId: '',
 		quantity: 0,
 		name: '',
 		minStock: '1',
@@ -37,7 +40,7 @@ const EditProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product
 	} as Product);
 
 	const updateProductValidationSchema = Yup.object({
-		categoryUuid: Yup.string()
+		categoryId: Yup.string()
 			.required('Please select a category'),
 
 		name: Yup.string()
@@ -53,8 +56,8 @@ const EditProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product
 
 		sellPrice: Yup.number()
 			.required('Price is required')
-			.when('categoryUuid', {
-				is: (categoryUuid: string) => (categoryUuid) === "-1",
+			.when('categoryId', {
+				is: (categoryId: string) => (categoryId) === DEFAULT_SEED_KEY,
 				then: (schema) => schema.min(0, 'Price must be at least MK0'),
 				otherwise: (schema) => schema.positive('Price must be greater than MK0')
 			}),
@@ -99,17 +102,17 @@ const EditProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product
 		try {
 			const data = {
 				...values,
-				uuid: values.uuid?.toString(),
+				productId: values.productId?.toString(),
 				barcode: values.barcode.toString(),
 				costPrice: values.costPrice.toString(),
 				sellPrice: values.sellPrice.toString(),
-				promoPrice: product?.uuid ? values.promoPrice.toString() : "0.00",
+				promoPrice: product?.productId ? values.promoPrice.toString() : "0.00",
 				stock: values.stock,
 				minStock: values.minStock.toString(),
 				quantity: values.quantity,
 			}
 
-			await productsService.update(productValues?.uuid?.toString(), data);
+			await productsService.update(productValues?.productId?.toString(), data);
 
 			reloadProducts()
 			onProductUpdate && onProductUpdate();
@@ -136,7 +139,7 @@ const EditProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product
 			const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
 			Notify.failure('Error saving product:' + errorMessage);
 		} finally {
-			values.uuid = ''
+			values.productId = ''
 		}
 	}
 
@@ -158,10 +161,10 @@ const EditProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product
 							<FormWrapper>
 								<FormSelectBox
 									label="Category"
-									name="categoryUuid"
+									name="categoryId"
 									required
 									options={categories.map((category: Category) => ({
-										value: category.uuid.toString(),
+										value: category.categoryId.toString(),
 										label: category.name as string
 									}))}
 								/>
@@ -208,7 +211,7 @@ const EditProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product
 										name="sellPrice"
 										type="number"
 										required
-										readOnly={values?.categoryUuid === "-1"}
+										readOnly={values?.categoryId === DEFAULT_SEED_KEY}
 										placeholder="Selling Price"
 										className="mt-1"
 									/>
@@ -232,7 +235,7 @@ const EditProductModal: FunctionComponent<PropsWithChildren<Props>> = ({ product
 										required
 										placeholder="Minimum Stock"
 										className="mt-1"
-										min="-1"
+										min={DEFAULT_SEED_KEY}
 									/>
 								</div>
 

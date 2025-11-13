@@ -18,8 +18,8 @@ export const AssignmentsTab: FC<AssignmentTabProps> = ({
 
         try {
             const rolePermissionData = await rolePermissionService.getByRoleUuid(roleUuid);
-            const permissionUuids = rolePermissionData?.data?.map(rp => rp.permissionUuid);
-            const assignedPermissions = permissions.filter(p => permissionUuids.includes(p.uuid));
+            const permissionUuids = rolePermissionData?.data?.map(rp => rp.permissionId);
+            const assignedPermissions = permissions.filter(p => permissionUuids.includes(p.permissionId));
             setRolePermissions(assignedPermissions);
         } catch (err) {
             console.error('Failed to load role permissions:', err);
@@ -48,7 +48,7 @@ export const AssignmentsTab: FC<AssignmentTabProps> = ({
                 >
                     <option value="">Choose a role...</option>
                     {roles.map(role => (
-                        <option key={role.uuid} value={role.uuid}>{role.name}</option>
+                        <option key={role.roleId} value={role.roleId}>{role.name}</option>
                     ))}
                 </select>
             </div>
@@ -64,7 +64,7 @@ export const AssignmentsTab: FC<AssignmentTabProps> = ({
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {rolePermissions.map(permission => (
-                                    <div key={permission.uuid} className="border rounded-sm p-4">
+                                    <div key={permission.permissionId} className="border rounded-sm p-4">
                                         <div className="flex items-center justify-between mb-2">
                                             <h4 className="font-medium text-gray-900">{permission.name}</h4>
                                             <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">

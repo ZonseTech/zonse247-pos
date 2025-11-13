@@ -77,8 +77,8 @@ const Products: FunctionComponent = () => {
                                 </option>
                                 {categories.map((category: Category) => (
                                     <option
-                                        key={category.uuid}
-                                        value={category.uuid}
+                                        key={category.categoryId}
+                                        value={category.categoryId}
                                         className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                                     >
                                         {category.name as string}

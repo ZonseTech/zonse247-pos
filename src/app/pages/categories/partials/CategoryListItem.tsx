@@ -34,7 +34,7 @@ export const CategoryListItem: FunctionComponent<CategoryListItemProps> = ({ cat
                         <Edit2 size={14} />
                     </button>
                     <button
-                        onClick={() => onDelete(category.uuid)}
+                        onClick={() => onDelete(category.categoryId)}
                         className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors"
                     >
                         <Trash2 size={14} />

@@ -14,7 +14,7 @@ type Props = {
 }
 
 type UserValues = {
-    uuid: string,
+    userId: string,
     fullname: string,
     username: string,
     email: string,
@@ -31,7 +31,7 @@ const UserDetailsPage: FunctionComponent<Props> = ({ user }) => {
     const initialUserValues = {
         password: '',
         repeatPassword: '',
-        uuid: user?.uuid || '',
+        userId: user?.userId || '',
         fullname: user?.fullname || '',
         username: user?.username || '',
         email: user?.email || '',
@@ -73,7 +73,7 @@ const UserDetailsPage: FunctionComponent<Props> = ({ user }) => {
 
     const handleOnSubmit = async (values: UserValues) => {
         try {
-            await usersService.update(values.uuid.toString(), values);
+            await usersService.update(values.userId.toString(), values);
             Report.success("Success!", "Profile updated successfully", "Ok");
         } catch (error) {
             Notify.failure('An error occurred while saving the user');
@@ -104,7 +104,7 @@ const UserDetailsPage: FunctionComponent<Props> = ({ user }) => {
                             </div>
 
                             <FormWrapper>
-                                <input type='hidden' name='uuid' />
+                                <input type='hidden' name='userId' />
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <FormInput

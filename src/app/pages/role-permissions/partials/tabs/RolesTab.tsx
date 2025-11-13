@@ -48,7 +48,7 @@ export const RolesTab: React.FC<RoleTabProps> = ({
                     </thead>
                     <tbody className="bg-white dark:bg-gray-700 divide-y divide-gray-200">
                         {roles.map((role) => (
-                            <tr key={role.uuid} className="hover:bg-gray-50">
+                            <tr key={role.roleId} className="hover:bg-gray-50">
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="text-sm font-medium text-gray-900">{role.name}</div>
                                 </td>
@@ -94,7 +94,7 @@ export const RolesTab: React.FC<RoleTabProps> = ({
                                     </button>
 
                                     <button
-                                        onClick={() => onDeleteRole(role.uuid)}
+                                        onClick={() => onDeleteRole(role.roleId)}
                                         disabled={role.isSystemRole}
                                         className={`${role.isSystemRole ? 'text-gray-400' : 'text-red-600 hover:text-red-900'}`}
                                         title="Delete Role"

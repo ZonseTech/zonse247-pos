@@ -153,7 +153,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
 
                                 return (
                                     <div
-                                        key={product.uuid}
+                                        key={product.productId}
                                         onClick={() => handleAddToCart(product)}
                                         className="grid grid-cols-12 gap-4 px-6 py-4 cursor-pointer bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:shadow-sm transition-all duration-150 group"
                                     >

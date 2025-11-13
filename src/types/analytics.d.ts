@@ -4,7 +4,7 @@ interface MonthlySales {
 }
 
 interface TopProduct {
-    uuid: string;
+    productId: string;
     name: string;
     quantity: number;
     summedSellPrice: number;
