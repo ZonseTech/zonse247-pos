@@ -22,7 +22,11 @@
     "preview": "vite preview",
     "lint": "eslint",
     "ionic:build": "npm run build",
-    "ionic:serve": "npm run dev -- --open"
+    "ionic:serve": "npm run dev -- --open",
+    "build:api": "tsc",
+    "start:api": "node dist/src/api/index.js",
+    "dev:api": "nodemon --exec ts-node --transpile-only src/api/index.ts",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@capacitor/android": "7.3.0",
@@ -60,6 +64,7 @@
     "multer": "^2.0.1",
     "mysql2": "^3.14.1",
     "mysql2-promise": "^0.1.4",
+    "nodemon": "^3.1.11",
     "notiflix": "^3.2.8",
     "nprogress": "^0.2.0",
     "papaparse": "^5.5.3",
@@ -82,6 +87,7 @@
     "recharts": "^2.15.3",
     "redux-persist": "^6.0.0",
     "sanitize-filename": "^1.6.3",
+    "ts-node-dev": "^2.0.0",
     "tsx": "^4.19.4",
     "typescript-nedb-orm": "^1.7.0",
     "uuid": "^11.1.0",
@@ -110,6 +116,7 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/morgan": "^1.9.10",
     "@types/multer": "^1.4.12",
+    "@types/node": "^24.10.1",
     "@types/nodemailer": "^6.4.17",
     "@types/nprogress": "^0.2.3",
     "@types/papaparse": "^5.3.16",
