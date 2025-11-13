@@ -4,7 +4,7 @@ import fs from 'fs/promises';
 import { sealDBModel } from '../databases/local';
 import { APP_SETUP_DB } from '../databases/local/tables';
 import { SyncService } from './sync.service';
-import { ElectronStorageAdapter, NodeStorageAdapter } from '../lib/storage-adapter.lib';
+import { ElectronStorageAdapter, NodeStorageAdapter } from '../lib/security-adapter.lib';
 import { isElectron } from '../utils';
 
 export class SecureSettingsService {
