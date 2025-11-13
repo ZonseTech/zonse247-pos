@@ -34,3 +34,8 @@ interface EncryptedSetupParams {
     createdAt: Date;
     updatedAt: Date;
 }
+
+interface StorageAdapter {
+    getUserDataPath(): string;
+    isElectron(): boolean;
+}

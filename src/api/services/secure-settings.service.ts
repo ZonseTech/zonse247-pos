@@ -1,10 +1,11 @@
 import crypto from 'crypto';
-import { app } from 'electron';
 import path from 'path';
 import fs from 'fs/promises';
 import { sealDBModel } from '../databases/local';
 import { APP_SETUP_DB } from '../databases/local/tables';
 import { SyncService } from './sync.service';
+import { ElectronStorageAdapter, NodeStorageAdapter } from '../lib/storage-adapter.lib';
+import { isElectron } from '../utils';
 
 export class SecureSettingsService {
     private static initialized = false;
@@ -13,6 +14,7 @@ export class SecureSettingsService {
     private static readonly AUTH_TAG_LENGTH = 16;
     private static readonly ALGORITHM = 'aes-256-gcm';
     private static encryptionKey: Buffer | null = null;
+    private static storageAdapter: StorageAdapter;
 
     static async initialize(): Promise<void> {
         if (this.initialized) {
@@ -20,7 +22,17 @@ export class SecureSettingsService {
         }
 
         try {
-            const keyPath = path.join(app.getPath('userData'), '.keystore');
+
+            if (isElectron()) {
+                this.storageAdapter = new ElectronStorageAdapter();
+            } else {
+                this.storageAdapter = new NodeStorageAdapter(path.join(__dirname, '../.secure-data'));
+            }
+
+            const dataPath = this.storageAdapter.getUserDataPath();
+            await fs.mkdir(dataPath, { recursive: true });
+
+            const keyPath = path.join(dataPath, '.keystore');
 
             try {
                 const existingKey = await fs.readFile(keyPath);
