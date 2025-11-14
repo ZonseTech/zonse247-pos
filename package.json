@@ -23,7 +23,7 @@
     "lint": "eslint",
     "ionic:build": "npm run build",
     "ionic:serve": "npm run dev -- --open",
-    "build:api": "tsc",
+    "build:api": "tsc src/api/index.ts --outDir dist/api",
     "start:api": "node dist/src/api/index.js",
     "dev:api": "nodemon --exec ts-node --transpile-only src/api/index.ts",
     "clean": "rm -rf dist"
