@@ -6,8 +6,9 @@ import type {
 	InternalAxiosRequestConfig,
 } from 'axios';
 import { isElectron } from '../../helpers/index.helper';
+import config from '../../api/config';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = config.client.apiUrl;
 
 NProgress.configure({
 	showSpinner: false,

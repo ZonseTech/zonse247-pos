@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
+    "target": "ESNext",
+    "module": "commonjs",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -11,7 +11,12 @@
     "outDir": "dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "typeRoots": ["./node_modules/@types", "src/types"],
+    "types": ["vite/client"],
     "jsx": "react-jsx"
+  },
+  "ts-node": {
+    "files": true
   },
   "exclude": ["node_modules", "dist", ".vite"]
 }

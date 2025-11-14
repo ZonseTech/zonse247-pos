@@ -34,3 +34,17 @@ interface EncryptedSetupParams {
     createdAt: Date;
     updatedAt: Date;
 }
+
+interface StorageAdapter {
+    getUserDataPath(): string;
+    isElectron(): boolean;
+}
+
+interface DataStoreAdapter {
+    hasSetup: () => Promise<ApiResponse<boolean>>;
+    getSetup: () => Promise<ApiResponse<SetupData>>;
+    saveSetup: (data: SetupData) => Promise<{ success: boolean; error?: string }>;
+    updateSetup: (updates: Partial<SetupData>) => Promise<{ success: boolean; error?: string }>;
+    clearSetup: () => Promise<{ success: boolean; error?: string }>;
+    getSignature: () => Promise<ApiResponse<string>>;
+}
