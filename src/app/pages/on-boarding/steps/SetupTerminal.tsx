@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import { FunctionComponent, useState } from 'react';
 import { Button } from '../../../components';
 import { CheckCircle, Loader, AlertCircle } from 'lucide-react';
 import MetadataService from '../../../services/metadata.service';
@@ -14,7 +14,7 @@ const SetupTerminal: FunctionComponent<SetupTerminalProps> = ({ onComplete, para
         { key: 'roles', label: 'Roles', loaded: false, loading: false, error: null },
         { key: 'permissions', label: 'Permissions', loaded: false, loading: false, error: null },
         { key: 'role-permissions', label: 'Role permissions', loaded: false, loading: false, error: null },
-        { key: 'subscription-plans', label: 'Subscription slans', loaded: false, loading: false, error: null },
+        { key: 'subscription-plans', label: 'Subscription plans', loaded: false, loading: false, error: null },
         { key: 'tenant-subscription', label: 'Tenant subscription', loaded: false, loading: false, error: null },
         { key: 'default-user', label: 'Users', loaded: false, loading: false, error: null },
         { key: 'customer', label: 'Customer', loaded: false, loading: false, error: null },
@@ -59,7 +59,7 @@ const SetupTerminal: FunctionComponent<SetupTerminalProps> = ({ onComplete, para
             loaded: false
         })));
 
-        for (const item of metadata) {
+        for await (const item of metadata) {
             try {
                 await MetadataService.loadMetadata(item.key, params);
                 setMetadata(prev => prev.map(m =>
@@ -82,59 +82,45 @@ const SetupTerminal: FunctionComponent<SetupTerminalProps> = ({ onComplete, para
 
     return (
         <div className="space-y-6 mb-4">
-            <div className="text-center">
+            <div className="text-left">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Setup Terminal</h2>
                 <p className="text-gray-600">
                     Load metadata to complete terminal configuration
                 </p>
             </div>
 
-            <div className="rounded-sm border border-gray-200 p-6">
-                <div className="flex justify-between items-center border-b border-gray-200 pb-2 mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Metadata</h3>
-                    <Button
-                        onClick={handleLoadAll}
-                        disabled={anyLoading || allLoaded}
-                        loading={loadingAll}
-                        theme="primary"
+            <div className="space-y-2">
+                {metadata.map((item) => (
+                    <div
+                        key={item.key}
+                        onClick={() => handleLoadSingle(item.key)}
+                        className={`flex items-center justify-between transition-colors border-b border-gray-200 pb-3 mb-4 ${item.loaded || item.loading || loadingAll
+                            ? 'cursor-not-allowed opacity-60'
+                            : 'cursor-pointer hover:bg-gray-50 hover:border-gray-300'
+                            }`}
                     >
-                        Load All
-                    </Button>
-                </div>
-
-                <div className="space-y-3">
-                    {metadata.map((item) => (
-                        <div
-                            key={item.key}
-                            onClick={() => handleLoadSingle(item.key)}
-                            className={`flex items-center justify-between transition-colors ${item.loaded || item.loading || loadingAll
-                                ? 'cursor-not-allowed opacity-60'
-                                : 'cursor-pointer hover:bg-gray-50 hover:border-gray-300'
-                                }`}
-                        >
-                            <div className="flex items-center space-x-3">
-                                {item.loaded ? (
-                                    <CheckCircle className="h-5 w-5 text-green-500" />
-                                ) : item.loading ? (
-                                    <Loader className="h-5 w-5 text-blue-500 animate-spin" />
-                                ) : item.error ? (
-                                    <AlertCircle className="h-5 w-5 text-red-500" />
-                                ) : (
-                                    <div className="h-5 w-5 rounded-full border-2 border-gray-300" />
+                        <div className="flex items-center space-x-3">
+                            {item.loaded ? (
+                                <CheckCircle className="h-5 w-5 text-green-500" />
+                            ) : item.loading ? (
+                                <Loader className="h-5 w-5 text-blue-500 animate-spin" />
+                            ) : item.error ? (
+                                <AlertCircle className="h-5 w-5 text-red-500" />
+                            ) : (
+                                <div className="h-5 w-5 rounded-full border-2 border-gray-300" />
+                            )}
+                            <div>
+                                <p className="font-medium text-gray-900">{item.label}</p>
+                                {item.error && (
+                                    <p className="text-xs text-red-500 mt-1">{item.error}</p>
                                 )}
-                                <div>
-                                    <p className="font-medium text-gray-900">{item.label}</p>
-                                    {item.error && (
-                                        <p className="text-xs text-red-500 mt-1">{item.error}</p>
-                                    )}
-                                </div>
-                            </div>
-                            <div className="text-sm font-medium text-gray-500">
-                                {item.loaded ? 'Loaded' : item.loading ? 'Loading...' : 'Click to load'}
                             </div>
                         </div>
-                    ))}
-                </div>
+                        <div className="text-sm font-medium text-gray-500">
+                            {item.loaded ? 'Loaded' : item.loading ? 'Loading...' : 'Click to load'}
+                        </div>
+                    </div>
+                ))}
             </div>
 
             <div className="flex justify-center">
