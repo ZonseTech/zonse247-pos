@@ -1,5 +1,5 @@
 import { ipcMain } from "electron";
-import { SecureSettingsService } from "../api/services/secure-settings.service";
+import { SecureSettingsService } from "zonse247-pos-api";
 
 export function setupIPC() {
 
