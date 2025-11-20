@@ -6,7 +6,6 @@ import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from "../../utils/constants";
-import { version } from '../../../../package.json'
 import AuthLayout from "../../layouts/AuthLayout";
 import FormInput from "../../components/FormInput";
 import { useAuth } from "../../context/AuthProvider";

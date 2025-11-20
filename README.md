@@ -18,3 +18,5 @@
 - Select Terminal
 - Load Metadata
 - Done
+
+[TODO] develop drugs - pills counting device

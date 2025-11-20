@@ -1,18 +1,17 @@
 import path from 'node:path';
-import startServer from './api/server';
 import MenuBuilder from './partials/menu';
 import { setupIPC } from './ipc/setup.ipc';
 import started from 'electron-squirrel-startup';
 import { isElectron } from './helpers/index.helper';
 import { app, BrowserWindow, screen, shell } from 'electron';
-import { SecureSettingsService } from './api/services/secure-settings.service';
 import { setupMenuIPC } from './ipc/menu.ipc';
-
-let server = null;
+import Zonse247PosApi, { SecureSettingsService } from 'zonse247-pos-api'
 
 if (started) {
 	app.quit();
 }
+
+const server = new Zonse247PosApi(app)
 
 const createWindow = async (skipOnboarding: boolean = false) => {
 	const primaryDisplay = screen.getPrimaryDisplay();
@@ -40,7 +39,6 @@ const createWindow = async (skipOnboarding: boolean = false) => {
 
 	if (isElectron()) {
 		try {
-			server = startServer;
 			await server.start();
 			console.log('Server started successfully');
 		} catch (error) {
