@@ -7,7 +7,7 @@ import type {
 } from 'axios';
 import { isElectron } from '../../helpers/index.helper';
 
-const API_BASE_URL = `http://127.0.0.1:${new Date().getDate()}/api/v1`;
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 NProgress.configure({
 	showSpinner: false,
