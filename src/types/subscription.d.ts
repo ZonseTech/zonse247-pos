@@ -5,7 +5,8 @@ interface SubscriptionResponse {
 }
 
 interface TenantSubscription {
-	subscriptionId: string;
+	subscriptionPlanId: string;
+	tenantSubscriptionId: string;
 	tenantId: string;
 	tenantDetails?: {
 		tenantCode: string;
@@ -31,7 +32,8 @@ interface TenantSubscription {
 
 interface CreateSubscriptionRequest {
 	tenantId: string;
-	planId: string;
+	tenantSubscriptionId: string;
+	subscriptionPlanId: string;
 	planName: string;
 	referenceNumber: string;
 	autoRenew?: boolean;
@@ -39,7 +41,7 @@ interface CreateSubscriptionRequest {
 }
 
 interface SubscriptionPlan {
-	planId: string;
+	subscriptionPlanId: string;
 	name: string;
 	displayName: string;
 	description: string;
@@ -47,7 +49,7 @@ interface SubscriptionPlan {
 	yearlyPrice: number;
 	maxBranches: number;
 	color: 'blue' | 'green' | 'purple' | 'gray';
-	popular?: boolean;
+	isPopular?: boolean;
 	features: PlanFeature[];
 	limits: PlanLimits;
 	notes?: string;
@@ -112,5 +114,40 @@ interface PlanLimits {
 	users: number;
 	products: number;
 	storage: string;
+}
+
+interface FeatureCategory {
+	featureCategoryId?: number;
+	title: string;
+	features: string[];
+	displayOrder?: number;
+	createdAt?: Date;
+	updatedAt?: Date;
+}
+
+interface Feature {
+	featureId: string;
+	name: string;
+	displayName: string;
+	description?: string;
+	isActive: boolean;
+}
+
+interface CreateFeatureCategoryRequest {
+	name: string;
+	displayName: string;
+	description?: string;
+	features: Omit<Feature, 'featureId'>[];
+	isActive?: boolean;
+	order?: number;
+}
+
+interface UpdateFeatureCategoryRequest {
+	name?: string;
+	displayName?: string;
+	description?: string;
+	features?: Omit<Feature, 'featureId'>[];
+	isActive?: boolean;
+	order?: number;
 }
 

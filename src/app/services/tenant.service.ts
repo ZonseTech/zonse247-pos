@@ -41,7 +41,6 @@ const tenantsService = {
             const response = await api.post<ApiResponse<Tenant>>(endpoints.store, data as any);
             return response.data.data!;
         } catch (err) {
-            console.error('Error creating tenant:', err);
             throw err;
         }
     },

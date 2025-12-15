@@ -4,7 +4,10 @@ import { defineConfig } from 'vite';
 export default defineConfig({
 	build: {
 		rollupOptions: {
-			// external: ['api/server'],
+			external: [
+				'better-sqlite3',
+				'node:sqlite'
+			],
 		},
 	},
 });

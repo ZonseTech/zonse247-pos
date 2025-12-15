@@ -104,8 +104,7 @@ const TenantFormModal: FunctionComponent = () => {
                 });
             }
         } catch (error: any) {
-            console.error('Error saving tenant:', error);
-            const errorMessage = error?.response?.data?.message || 'An error occurred while saving the tenant';
+            const errorMessage = error?.error?.response?.data?.message || 'An error occurred while saving the tenant';
             Notify.failure(errorMessage);
         }
     };

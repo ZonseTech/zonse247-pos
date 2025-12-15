@@ -27,7 +27,7 @@ const FeatureComparison: FunctionComponent<FeatureComparisonProps> = ({
                     {plans.map((plan, planIndex) => (
                         <div
                             key={`${category.title}-${plan.name}`}
-                            className={`p-6 ${plan.popular ? 'bg-blue-50' : 'bg-white'} ${planIndex > 0 ? 'border-l border-gray-200' : ''
+                            className={`p-6 ${plan.isPopular ? 'bg-blue-50' : 'bg-white'} ${planIndex > 0 ? 'border-l border-gray-200' : ''
                                 }`}
                         >
                             <div className="space-y-3">

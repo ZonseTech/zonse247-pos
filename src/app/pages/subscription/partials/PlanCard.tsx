@@ -17,12 +17,12 @@ const PlanCard: FunctionComponent<PlanCardProps> = ({
     isCurrentPlan = false,
 }) => {
     return (
-        <div className={`p-8 text-center ${plan.popular
+        <div className={`p-8 text-center ${plan.isPopular
             ? 'bg-blue-50 border-l border-r border-blue-200'
             : 'bg-white'
             }`}
         >
-            {plan.popular && (
+            {plan.isPopular && (
                 <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold mb-4 inline-block">
                     Most Popular
                 </span>
@@ -45,9 +45,9 @@ const PlanCard: FunctionComponent<PlanCardProps> = ({
                 disabled={isCurrentPlan}
                 className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${isCurrentPlan
                     ? 'bg-gray-400 text-white cursor-not-allowed'
-                    : plan.popular
+                    : plan.isPopular
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : plan.planId === 'free'
+                        : plan.subscriptionPlanId === 'free'
                             ? 'bg-gray-600 text-white hover:bg-gray-700'
                             : 'bg-gray-900 text-white hover:bg-gray-800'
                     }`}

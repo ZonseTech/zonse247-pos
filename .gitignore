@@ -132,3 +132,5 @@ exports
 .env.local
 
 *.keystore
+*.db
+prisma.config.ts
