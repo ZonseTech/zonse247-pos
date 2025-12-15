@@ -38,7 +38,7 @@ interface Setting {
     terminalId: string;
     key: string;
     value: string | number | boolean;
-    category: 'system' | 'user' | 'shop' | 'workstation';
+    category: 'system' | 'user' | 'workstation';
     description?: string;
     isActive: "active" | "inactive" | "suspended";
     createdAt?: Date;
