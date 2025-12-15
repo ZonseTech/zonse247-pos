@@ -19,14 +19,15 @@ const SyncData = lazy(() => import('../pages/sync-data'))
 const Dashboard = lazy(() => import('../pages/dashboard'))
 const LandingPage = lazy(() => import('../pages/landing'))
 const BranchManagement = lazy(() => import('../pages/branch'))
-const BranchForm = lazy(() => import('../pages/branch/create'))
+const BranchForm = lazy(() => import('../pages/branch/create'));
+const TerminalForm = lazy(() => import('../pages/terminal/create'));
 const Migrations = lazy(() => import('../pages/migrations'))
 const TenantForm = lazy(() => import('../pages/tenants/create'))
 const TenantsManagement = lazy(() => import('../pages/tenants'))
 const Transactions = lazy(() => import('../pages/transactions'))
 const DatabaseExporter = lazy(() => import('../pages/export-db'))
 const AccountDetails = lazy(() => import('../pages/auth/MyProfile'))
-const WorkStationManagement = lazy(() => import('../pages/workstation'))
+const TerminalManagement = lazy(() => import('../pages/terminal'))
 const SubscriptionManagement = lazy(() => import('../pages/subscription'))
 const RolesAndPermissions = lazy(() => import('../pages/role-permissions'))
 const SubscriptionBilling = lazy(() => import('../pages/subscription/SubscriptionBilling'))
@@ -60,7 +61,8 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 				<Route path={ROUTES.TENANT_FORM} element={<TenantForm />} />
 				<Route path={ROUTES.TRANSACTIONS} element={<Transactions />} />
 				<Route path={ROUTES.EXPORT_DB} element={<DatabaseExporter />} />
-				<Route path={ROUTES.TERMINALS} element={<WorkStationManagement />} />
+				<Route path={ROUTES.TERMINALS} element={<TerminalManagement />} />
+				<Route path={ROUTES.TERMINAL_FORM} element={<TerminalForm />} />
 				<Route path={ROUTES.SUBSCRIPTIONS} element={<SubscriptionManagement />} />
 				<Route path={ROUTES.ROLES_PERMISSIONS} element={<RolesAndPermissions />} />
 				<Route path={ROUTES.SUBSCRIPTION_BILLING} element={<SubscriptionBilling />} />
