@@ -18,7 +18,8 @@ const NotFound = lazy(() => import('../pages/errors/NotFound'))
 const SyncData = lazy(() => import('../pages/sync-data'))
 const Dashboard = lazy(() => import('../pages/dashboard'))
 const LandingPage = lazy(() => import('../pages/landing'))
-const ShopManagement = lazy(() => import('../pages/shop'))
+const BranchManagement = lazy(() => import('../pages/branch'))
+const BranchForm = lazy(() => import('../pages/branch/create'))
 const Migrations = lazy(() => import('../pages/migrations'))
 const TenantForm = lazy(() => import('../pages/tenants/create'))
 const TenantsManagement = lazy(() => import('../pages/tenants'))
@@ -52,7 +53,8 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 				<Route path={ROUTES.CATEGORIES} element={<Categories />} />
 				<Route path={ROUTES.SYNC_DATA} element={<SyncData />} />
 				<Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
-				<Route path={ROUTES.BRANCHES} element={<ShopManagement />} />
+				<Route path={ROUTES.BRANCHES} element={<BranchManagement />} />
+				<Route path={ROUTES.BRANCH_FORM} element={<BranchForm />} />
 				<Route path={ROUTES.MIGRATIONS} element={<Migrations />} />
 				<Route path={ROUTES.TENANTS} element={<TenantsManagement />} />
 				<Route path={ROUTES.TENANT_FORM} element={<TenantForm />} />

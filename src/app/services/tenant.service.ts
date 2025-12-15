@@ -23,9 +23,9 @@ const tenantsService = {
         }
     },
 
-    async listPaginated(query: ClientQueryParams = {}): Promise<PaginatedResponse<Client>> {
+    async listPaginated(query: ClientQueryParams = {}): Promise<PaginatedResponse<Tenant>> {
         try {
-            const response = await api.get<PaginatedResponse<Client>>(endpoints.all, {
+            const response = await api.get<PaginatedResponse<Tenant>>(endpoints.all, {
                 ...query,
                 paginated: true
             });
@@ -75,9 +75,9 @@ const tenantsService = {
         }
     },
 
-    async register(data: RegisterClientRequest): Promise<Client> {
+    async register(data: RegisterClientRequest): Promise<Tenant> {
         try {
-            const response = await api.post<ApiResponse<Client>>(endpoints.register, data as any);
+            const response = await api.post<ApiResponse<Tenant>>(endpoints.register, data as any);
             return response.data.data!;
         } catch (err) {
             console.error('Error registering client:', err);
@@ -85,9 +85,9 @@ const tenantsService = {
         }
     },
 
-    async updateClient(clientUuid: string, data: Partial<RegisterClientRequest>): Promise<Client> {
+    async updateClient(clientUuid: string, data: Partial<RegisterClientRequest>): Promise<Tenant> {
         try {
-            const response = await api.put<ApiResponse<Client>>(`${endpoints.updateClient}/${clientUuid}`, data as any);
+            const response = await api.put<ApiResponse<Tenant>>(`${endpoints.updateClient}/${clientUuid}`, data as any);
             return response.data.data!;
         } catch (err) {
             console.error('Error updating client:', err);
@@ -105,22 +105,22 @@ const tenantsService = {
         }
     },
 
-    async search(searchTerm: string, filters: Omit<ClientQueryParams, 'search'> = {}): Promise<Client[]> {
+    async search(searchTerm: string, filters: Omit<ClientQueryParams, 'search'> = {}): Promise<Tenant[]> {
         return this.list({
             ...filters,
             search: searchTerm
         });
     },
 
-    async getByStatus(status: string): Promise<Client[]> {
+    async getByStatus(status: string): Promise<Tenant[]> {
         return this.list({ status });
     },
 
-    async getBySubscriptionStatus(subscriptionStatus: string): Promise<Client[]> {
+    async getBySubscriptionStatus(subscriptionStatus: string): Promise<Tenant[]> {
         return this.list({ subscriptionStatus });
     },
 
-    async getByCountry(country: string): Promise<Client[]> {
+    async getByCountry(country: string): Promise<Tenant[]> {
         return this.list({ country });
     },
 
@@ -233,7 +233,7 @@ const tenantsService = {
         }
     },
 
-    convertToCSV(clients: Client[]): string {
+    convertToCSV(clients: Tenant[]): string {
         if (clients.length === 0) return '';
 
         const headers = Object.keys(clients[0]).filter(key => key !== '_id');

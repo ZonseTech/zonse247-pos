@@ -17,6 +17,8 @@ export enum ROUTES {
 	TENANT_FORM = '/tenants/form',
 
 	BRANCHES = '/branches',
+	BRANCH_FORM = '/branches/form',
+
 	SYNC_DATA = '/sync-data',
 	EXPORT_DB = '/export-db',
 	MIGRATIONS = '/migrations',
