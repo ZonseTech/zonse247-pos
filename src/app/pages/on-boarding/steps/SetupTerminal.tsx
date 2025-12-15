@@ -16,7 +16,7 @@ const SetupTerminal: FunctionComponent<SetupTerminalProps> = ({ onComplete, para
         { key: 'role-permissions', label: 'Role permissions', loaded: false, loading: false, error: null },
         { key: 'subscription-plans', label: 'Subscription plans', loaded: false, loading: false, error: null },
         { key: 'tenant-subscription', label: 'Tenant subscription', loaded: false, loading: false, error: null },
-        { key: 'default-user', label: 'Users', loaded: false, loading: false, error: null },
+        // { key: 'default-user', label: 'Users', loaded: false, loading: false, error: null },
         { key: 'customer', label: 'Customer', loaded: false, loading: false, error: null },
         { key: 'category', label: 'Category', loaded: false, loading: false, error: null },
         { key: 'payment-methods', label: 'payment methods', loaded: false, loading: false, error: null },
