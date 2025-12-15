@@ -8,6 +8,7 @@ export enum ROUTES {
 	CATEGORIES = '/categories',
 	PRODUCTS = '/products',
 	TERMINALS = '/terminals',
+	TERMINAL_FORM = '/terminals/form',
 
 	SUBSCRIPTIONS = '/subscriptions',
 	SUBSCRIPTION_BILLING = '/subscriptions/billing',
