@@ -1,6 +1,5 @@
 import { toast } from 'react-toastify';
 import PlanCard from './partials/PlanCard';
-import { featureCategories } from './data';
 import { formatCurrency } from '../../utils';
 import AppLayout from '../../layouts/AppLayout';
 import CheckoutModal from './partials/CheckoutModal';
@@ -11,6 +10,7 @@ import FeatureComparison from './partials/FeatureComparison';
 import { FormEvent, FunctionComponent, useEffect, useState } from 'react';
 import subscriptionsService from '../../services/subscriptions.service';
 import subscriptionPlanService from '../../services/subscription-plan.service';
+import planFeaturesService from '../../services/plan-features.service';
 import PlanCardSkeleton from '../../components/loader/PlanCardSkeleton';
 import FeatureRowSkeleton from '../../components/loader/FeatureRowSkeleton';
 import MobilePlanSkeleton from '../../components/loader/MobilePlanSkeleton';
@@ -20,9 +20,11 @@ const SubscriptionBilling: FunctionComponent = () => {
 	const [loading, setLoading] = useState(true);
 	const [showCheckout, setShowCheckout] = useState(false);
 	const [plans, setPlans] = useState<Array<SubscriptionPlan>>([]);
+	const [featureCategories, setFeatureCategories] = useState<Array<FeatureCategory>>([]);
 	const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
 	const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
 	const [tenantInfo, setTenantInfo] = useState<TenantInfo>({} as TenantInfo);
+	const [currentSubscription, setCurrentSubscription] = useState<TenantSubscription | null>(null);
 	const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>({
 		referenceNumber: '',
 		paymentMethodId: ''
@@ -35,7 +37,6 @@ const SubscriptionBilling: FunctionComponent = () => {
 				const data = await subscriptionPlanService.getActive()
 				setPlans(data)
 			} catch (error) {
-				console.error('Failed to load plans:', error);
 				toast.error('Failed to load subscription plans');
 			} finally {
 				setLoading(false);
@@ -44,6 +45,19 @@ const SubscriptionBilling: FunctionComponent = () => {
 
 		loadPlans()
 	}, [])
+
+	useEffect(() => {
+		const loadFeatureCategories = async () => {
+			try {
+				const categories = await planFeaturesService.list();
+				setFeatureCategories(categories);
+			} catch (error) {
+				toast.error('Failed to load feature categories');
+			}
+		};
+
+		loadFeatureCategories();
+	}, []);
 
 	useEffect(() => {
 		const loadTenantData = async () => {
@@ -58,8 +72,17 @@ const SubscriptionBilling: FunctionComponent = () => {
 					email: data.email,
 					phoneNumber: data.phoneNumber,
 					address: data.address,
-					subscriptionPlan: data.subscriptionPlan,
 				});
+
+				const activeSubscription = await subscriptionsService.getActiveSubscriptionByTenantId(user.tenantId);
+
+				if (activeSubscription) {
+					setCurrentSubscription(activeSubscription);
+					setTenantInfo(prev => ({
+						...prev,
+						subscriptionPlan: activeSubscription.subscriptionPlanId
+					}));
+				}
 			} catch (error) {
 				console.error('Failed to load tenant data:', error);
 				setTenantInfo(null);
@@ -87,7 +110,7 @@ const SubscriptionBilling: FunctionComponent = () => {
 	const handleSubmitSubscription = async (e: FormEvent) => {
 		e.preventDefault();
 
-		const isFreePlan = selectedPlan.name === 'BASIC';
+		const isFreePlan = selectedPlan.name === 'offline';
 
 		if (!paymentInfo.referenceNumber && !selectedPlan && !isFreePlan) {
 			alert('Please fill in all required fields');
@@ -99,10 +122,11 @@ const SubscriptionBilling: FunctionComponent = () => {
 		try {
 			await subscriptionsService.store({
 				tenantId: tenantInfo.tenantId,
-				planId: selectedPlan.planId,
+				subscriptionPlanId: selectedPlan.subscriptionPlanId,
 				planName: selectedPlan.name,
 				referenceNumber: paymentInfo.referenceNumber,
 				billingCycle,
+				tenantSubscriptionId: currentSubscription?.tenantSubscriptionId,
 			})
 
 			alert(
@@ -175,12 +199,12 @@ const SubscriptionBilling: FunctionComponent = () => {
 								<div className="hidden md:block p-8 border-r border-gray-200" />
 								{plans.length > 0 && plans.map((plan, index) => (
 									<PlanCard
-										key={plan.planId}
+										key={plan.subscriptionPlanId}
 										plan={plan}
 										billingCycle={billingCycle}
 										onSelectPlan={handleSelectPlan}
 										getPrice={getPrice}
-										isCurrentPlan={plan.name === tenantInfo.subscriptionPlan}
+										isCurrentPlan={currentSubscription?.status === 'active' && plan.subscriptionPlanId === tenantInfo.subscriptionPlan}
 									/>
 								))}
 							</div>
@@ -193,7 +217,7 @@ const SubscriptionBilling: FunctionComponent = () => {
 
 						<div className="md:hidden space-y-6 mt-8">
 							{plans.length > 0 && plans.map((plan) => (
-								<div key={plan.planId} className="bg-white rounded-2xl shadow-lg overflow-hidden">
+								<div key={plan.subscriptionPlanId} className="bg-white rounded-2xl shadow-lg overflow-hidden">
 									<PlanCard
 										plan={plan}
 										billingCycle={billingCycle}

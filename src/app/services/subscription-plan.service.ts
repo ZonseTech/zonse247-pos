@@ -5,8 +5,8 @@ class SubscriptionPlanService {
 
 	async list(): Promise<SubscriptionPlan[]> {
 		try {
-			const response = await api.get<SubscriptionPlan[]>(this.endpoint);
-			return response.data;
+			const response = await api.get<ApiResponse<SubscriptionPlan[]>>(this.endpoint);
+			return response.data.data || [];
 		} catch (error) {
 			console.error('Error fetching subscription plans:', error);
 			throw error;
@@ -15,10 +15,10 @@ class SubscriptionPlanService {
 
 	async show(id: string): Promise<SubscriptionPlan> {
 		try {
-			const response = await api.get<SubscriptionPlan>(
+			const response = await api.get<ApiResponse<SubscriptionPlan>>(
 				`${this.endpoint}/${id}`
 			);
-			return response.data;
+			return response.data.data;
 		} catch (error) {
 			console.error('Error fetching subscription plan:', error);
 			throw error;
@@ -27,8 +27,11 @@ class SubscriptionPlanService {
 
 	async store(planData: CreateSubscriptionPlanRequest): Promise<SubscriptionPlan> {
 		try {
-			const response = await api.post<Partial<SubscriptionPlan>>(this.endpoint, planData);
-			return response.data;
+			const response = await api.post<ApiResponse<SubscriptionPlan>>(
+				this.endpoint,
+				planData as any
+			);
+			return response.data.data;
 		} catch (error) {
 			console.error('Error creating subscription plan:', error);
 			throw error;

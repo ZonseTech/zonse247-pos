@@ -76,14 +76,14 @@ class SubscriptionService {
 		}
 	}
 
-	async getByClientUuid(clientUuid: string): Promise<TenantSubscription[]> {
+	async getActiveSubscriptionByTenantId(tenantId: string): Promise<TenantSubscription> {
 		try {
-			const response = await api.get<Array<TenantSubscription>>(
-				`${this.endpoint}/client/${clientUuid}`
+			const response = await api.get<TenantSubscription>(
+				`${this.endpoint}/tenant/${tenantId}`
 			);
-			return response.data;
+
+			return response.data?.data;
 		} catch (error) {
-			console.error('Error fetching subscriptions by client:', error);
 			throw error;
 		}
 	}
