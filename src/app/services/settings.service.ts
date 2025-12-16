@@ -5,23 +5,25 @@ const endpoints = {
 	setup: 'setup',
 	all: 'settings',
 	store: 'settings/configure',
+	update: 'settings',
+	reset: 'settings/reset',
 };
 
 const settingsService = {
 	endpoints,
 
-	async list(query = {}): Promise<TerminalSettings> {
+	async list(query = {}) {
 		return api
-			.get<ApiResponse<TerminalSettings>>(endpoints.all, query)
+			.get(endpoints.all, query)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
 			});
 	},
 
-	async load(): Promise<TerminalSettings> {
+	async load() {
 		return api
-			.get<ApiResponse<TerminalSettings>>(endpoints.all)
+			.get(endpoints.all)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -73,11 +75,40 @@ const settingsService = {
 		}
 	},
 
-	async update(params: any) {
-
+	async update(params: Partial<AppSettings>) {
+		return api
+			.put(endpoints.update, params)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				throw err;
+			});
 	},
-	async reset() {
 
+	async reset() {
+		return api
+			.post(endpoints.reset)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+
+	async updateSetting(key: string, value: any) {
+		return api
+			.patch(`${endpoints.update}/${key}`, { value })
+			.then((res) => res.data.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+
+	async getSettingByKey(key: string): Promise<Setting> {
+		return api
+			.get<ApiResponse<Setting>>(`${endpoints.all}/${key}`)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				throw err;
+			});
 	}
 };
 
