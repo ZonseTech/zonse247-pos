@@ -149,6 +149,7 @@ type AppSettings = {
     cardReaderType: 'stripe' | 'chip' | 'contactless' | 'all';
 
     // Integration & API Settings
+    apiBaseUrl: string;
     mraApiTimeoutSeconds: number;
     mraRetryAttempts: number;
     webhookEnabled: boolean;

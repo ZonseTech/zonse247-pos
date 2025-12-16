@@ -199,6 +199,7 @@ const Index = () => {
         cardReaderType: 'all',
 
         // Integration & API
+        apiBaseUrl: import.meta.env.VITE_API_URL || 'https://api.example.com',
         mraApiTimeoutSeconds: 10,
         mraRetryAttempts: 3,
         webhookEnabled: false,

@@ -1,6 +1,7 @@
 import { useAuth } from './AuthProvider';
 import printerService from '../services/printer.service';
 import settingsService from '../services/settings.service';
+import { apiUtils } from '../services/http.service';
 import type { ReactNode, FunctionComponent, } from 'react';
 import { createContext, useContext, useState, useEffect } from 'react';
 
@@ -34,6 +35,10 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
             if (data) {
                 setSettings(data);
 
+                if (data.apiBaseUrl) {
+                    apiUtils.updateBaseUrl(data.apiBaseUrl);
+                }
+
                 const savedPrinter = localStorage.getItem('printerOptions');
                 if (savedPrinter) {
                     setPrinterOptions(JSON.parse(savedPrinter));
@@ -50,7 +55,16 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
     };
 
     const updateSettings = (newSettings: Partial<AppSettings>) => {
-        setSettings(prev => prev ? { ...prev, ...newSettings } as any : null);
+        setSettings(prev => {
+            const updated = prev ? { ...prev, ...newSettings } as any : null;
+
+            // Update API base URL if it changed
+            if (newSettings.apiBaseUrl && newSettings.apiBaseUrl !== prev?.apiBaseUrl) {
+                apiUtils.updateBaseUrl(newSettings.apiBaseUrl);
+            }
+
+            return updated;
+        });
     };
 
     const updatePrinterOptions = (options: PrinterInfo) => {

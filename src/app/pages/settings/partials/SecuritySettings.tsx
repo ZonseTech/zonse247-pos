@@ -206,6 +206,15 @@ const SecuritySettings = () => {
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
                         API & Integration
                     </h3>
+                    <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <FormInput
+                            type="url"
+                            name="apiBaseUrl"
+                            label="API Base URL"
+                            placeholder="https://api.yourdomain.com"
+                            required
+                        />
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                             <div>
