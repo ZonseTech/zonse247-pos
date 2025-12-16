@@ -237,6 +237,7 @@ const Index = () => {
         // Display & UI
         theme: 'light',
         fontSize: 'medium',
+        navigationMenuType: 'desktop',
         enableAnimations: true,
         enableNotifications: true,
         enableVirtualKeyboard: true,

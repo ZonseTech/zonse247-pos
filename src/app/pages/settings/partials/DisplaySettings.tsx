@@ -18,6 +18,11 @@ const DisplaySettings: FunctionComponent = () => {
         { label: 'Large', value: 'large' }
     ];
 
+    const navigationMenuOptions = [
+        { label: 'Desktop Menu', value: 'desktop' },
+        { label: 'Web Navigation Bar', value: 'web' }
+    ];
+
     const timeFormatOptions = [
         { label: '12 Hour (AM/PM)', value: '12h' },
         { label: '24 Hour', value: '24h' }
@@ -71,6 +76,12 @@ const DisplaySettings: FunctionComponent = () => {
                             name="fontSize"
                             options={fontSizeOptions}
                             required
+                        />
+
+                        <FormSelectBox
+                            label="Navigation Menu Type"
+                            name="navigationMenuType"
+                            options={navigationMenuOptions}
                         />
 
                         <FormInput

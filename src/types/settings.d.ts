@@ -187,6 +187,7 @@ type AppSettings = {
     // Display & UI
     theme: 'light' | 'dark' | 'auto';
     fontSize: 'small' | 'medium' | 'large';
+    navigationMenuType: 'desktop' | 'web';
     showProductImages: boolean;
     enableAnimations: boolean;
     enableNotifications: boolean;
