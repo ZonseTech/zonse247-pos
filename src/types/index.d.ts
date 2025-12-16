@@ -29,16 +29,6 @@ interface TextInputProps {
 
 type DataTypes = string | number | undefined | null | boolean;
 
-interface AppSettings {
-	theme: 'light' | 'dark';
-	apiUrl: string;
-	features: {
-		enableFeatureA: boolean;
-		enableFeatureB: boolean;
-	};
-	version: string;
-}
-
 interface Printer {
 	name: string;
 	status: string;
