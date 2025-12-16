@@ -135,9 +135,9 @@ export const getSubscriptionColumns = (
 			cell: (row) => (
 				<div className="flex items-center gap-2">
 					<button
-						onClick={() => handleStatusToggle(row?.subscriptionId, row?.status)}
-						disabled={row.subscriptionId === '-1'}
-						className={`rounded-lg px-4 py-2 text-xs font-semibold transition-all duration-200 shadow-sm hover:shadow ${row.subscriptionId === '-1'
+						onClick={() => handleStatusToggle(row?.subscriptionPlanId, row?.status)}
+						disabled={row.subscriptionPlanId === '-1'}
+						className={`rounded-lg px-4 py-2 text-xs font-semibold transition-all duration-200 shadow-sm hover:shadow ${row.subscriptionPlanId === '-1'
 							? 'cursor-not-allowed bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600'
 							: row?.status === 'active'
 								? 'bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 border border-red-200 dark:border-red-800'

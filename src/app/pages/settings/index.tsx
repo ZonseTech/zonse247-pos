@@ -239,6 +239,11 @@ const Index = () => {
         fontSize: 'medium',
         enableAnimations: true,
         enableNotifications: true,
+        enableVirtualKeyboard: true,
+        virtualKeyboardLayout: 'qwerty',
+        virtualKeyboardTheme: 'default',
+        virtualKeyboardSound: false,
+        virtualKeyboardHaptic: false,
 
         // Taxes & Fees
         taxInclusive: true,

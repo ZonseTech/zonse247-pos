@@ -34,6 +34,18 @@ const DisplaySettings: FunctionComponent = () => {
         { label: 'After (100$)', value: 'after' }
     ];
 
+    const virtualKeyboardLayoutOptions = [
+        { label: 'QWERTY', value: 'qwerty' },
+        { label: 'Numeric', value: 'numeric' },
+        { label: 'Alphanumeric', value: 'alphanumeric' }
+    ];
+
+    const virtualKeyboardThemeOptions = [
+        { label: 'Default', value: 'default' },
+        { label: 'Dark', value: 'dark' },
+        { label: 'Light', value: 'light' }
+    ];
+
     return (
         <div className="rounded-none">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
@@ -101,6 +113,62 @@ const DisplaySettings: FunctionComponent = () => {
                                 </p>
                             </div>
                             <Field type="checkbox" name="enableNotifications" className="w-5 h-5 rounded" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Virtual Keyboard */}
+                <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                        Virtual Keyboard
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Enable Virtual Keyboard
+                                </label>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    Show on-screen keyboard for touch input
+                                </p>
+                            </div>
+                            <Field type="checkbox" name="enableVirtualKeyboard" className="w-5 h-5 rounded" />
+                        </div>
+
+                        <FormSelectBox
+                            label="Keyboard Layout"
+                            name="virtualKeyboardLayout"
+                            options={virtualKeyboardLayoutOptions}
+                        />
+
+                        <FormSelectBox
+                            label="Keyboard Theme"
+                            name="virtualKeyboardTheme"
+                            options={virtualKeyboardThemeOptions}
+                        />
+
+                        <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Keyboard Sound
+                                </label>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    Play sound when keys are pressed
+                                </p>
+                            </div>
+                            <Field type="checkbox" name="virtualKeyboardSound" className="w-5 h-5 rounded" />
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Haptic Feedback
+                                </label>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    Vibrate when keys are pressed (mobile only)
+                                </p>
+                            </div>
+                            <Field type="checkbox" name="virtualKeyboardHaptic" className="w-5 h-5 rounded" />
                         </div>
                     </div>
                 </div>

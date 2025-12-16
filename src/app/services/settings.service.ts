@@ -43,9 +43,9 @@ const settingsService = {
 		tenantId: string,
 		branchId: string,
 		terminalId: string
-	}): Promise<Setting> {
+	}) {
 		return api
-			.post<ApiResponse<Setting>>(endpoints.store, params as any)
+			.post(endpoints.store, params as any)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -102,9 +102,9 @@ const settingsService = {
 			});
 	},
 
-	async getSettingByKey(key: string): Promise<Setting> {
+	async getSettingByKey(key: string) {
 		return api
-			.get<ApiResponse<Setting>>(`${endpoints.all}/${key}`)
+			.get(`${endpoints.all}/${key}`)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
