@@ -8,7 +8,7 @@ interface Tab {
 
 interface SettingsTabsProps {
     tabs: Tab[];
-    activeTab: 'general' | 'sales' | 'security' | 'backup';
+    activeTab: "display" | "security" | "terminal" | "general" | "sales" | "backup" | "hardware"
     setActiveTab: (tab: 'general' | 'sales' | 'security' | 'backup') => void;
 }
 
