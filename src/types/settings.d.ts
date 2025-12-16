@@ -1,3 +1,23 @@
+type SettingsValues = {
+    storeName: string;
+    storeAddress: string;
+    storePhone: string;
+    storeEmail: string;
+    currency: string;
+    taxRate: number;
+    receiptFooter: string;
+    autoLogoutMinutes: number;
+    enableReceiptPrinting: boolean;
+    enableNotifications: boolean;
+    enableDiscounts: boolean;
+    maxDiscountPercentage: number;
+    businessLicense: string;
+    businessTaxId: string;
+    serverUrl: string;
+    backupEnabled: boolean;
+    backupFrequency: 'daily' | 'weekly' | 'monthly';
+}
+
 interface TerminalSettings {
     settingId: string;
     app: string;
