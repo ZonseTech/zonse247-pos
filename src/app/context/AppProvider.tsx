@@ -5,7 +5,7 @@ import type { ReactNode, FunctionComponent, } from 'react';
 import { createContext, useContext, useState, useEffect } from 'react';
 
 interface AppContextType {
-    settings: TerminalSettings | null;
+    settings: any;
     printerOptions: PrinterInfo | null;
     isLoading: boolean;
     error: Error | null;
@@ -23,7 +23,7 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
     const { auth } = useAuth()
     const [error, setError] = useState<Error | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [settings, setSettings] = useState<TerminalSettings | null>(null);
+    const [settings, setSettings] = useState(null);
     const [printerOptions, setPrinterOptions] = useState<PrinterInfo | null>(null);
 
     const fetchSettings = async () => {
