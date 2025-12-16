@@ -1,39 +1,79 @@
+type UserStatus = 'active' | 'inactive' | 'suspended';
+
 interface User {
+    id?: number;
     userId: string;
     tenantId: string;
     branchId: string;
     username: string;
-    password: string;
+    password?: string;
     fullname: string;
     email?: string | null;
-    departmentId?: string | null;
-    departmentName?: string | null;
     phone?: string | null;
     roleId: string;
     roleName?: string | null;
     permissions?: string[] | null;
     status?: UserStatus;
-    accessibleShops?: string[] | null;
-    allowedWorkstations?: string[] | null;
-    maxDiscountPercent?: number;
+    accessibleBranches?: string[] | null;
+    allowedTerminals?: string[] | null;
+    maxDiscountPercent?: string | number;
     canOverridePrices?: boolean;
     pinCode?: string | null;
     currentBranchId?: string | null;
-    lastLogin?: Date | null;
-    lastLogout?: Date | null;
-    passwordChangedAt?: Date;
+    lastLogin?: string | Date | null;
+    lastLogout?: string | Date | null;
+    passwordChangedAt?: string | Date;
     forcePasswordChange?: boolean;
-    roles?: Array<string>;
-    permissions?: Array<string>;
-    synced?: 0 | 1,
-    createdAt?: Date;
-    updatedAt?: Date;
+    synced?: number;
+    createdAt?: string | Date;
+    updatedAt?: string | Date;
 }
 
-type UserStatus = 'active' | 'inactive' | 'suspended';
+interface UserQueryParams {
+    search?: string;
+    tenantId?: string;
+    branchId?: string;
+    roleId?: string;
+    status?: UserStatus;
+    paginated?: boolean;
+    page?: number;
+    perPage?: number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+}
 
-interface CreateUserRequest extends Omit<User, 'uuid' | 'id' | 'createdAt' | 'updatedAt' | 'lastLogin' | 'lastLogout' | 'roleName' | 'permissions'> {
+interface CreateUserRequest {
+    tenantId: string;
+    branchId: string;
+    username: string;
+    password: string;
+    fullname: string;
+    email?: string;
+    phone?: string;
+    roleId: string;
+    status?: UserStatus;
+    accessibleBranches?: string[];
+    allowedTerminals?: string[];
+    maxDiscountPercent?: string | number;
+    canOverridePrices?: boolean;
+    pinCode?: string;
+    forcePasswordChange?: boolean;
+}
 
+interface UpdateUserRequest {
+    username?: string;
+    fullname?: string;
+    email?: string;
+    phone?: string;
+    roleId?: string;
+    status?: UserStatus;
+    accessibleBranches?: string[];
+    allowedTerminals?: string[];
+    maxDiscountPercent?: string | number;
+    canOverridePrices?: boolean;
+    pinCode?: string;
+    currentBranchId?: string;
+    forcePasswordChange?: boolean;
 }
 
 interface PublicUser extends Omit<User, 'password'> {
@@ -41,21 +81,21 @@ interface PublicUser extends Omit<User, 'password'> {
     permissions?: string[];
 }
 
-interface UserDetailsModalProps {
-    user?: User | null;
-    isOpen?: boolean;
-    onClose?: () => void;
+interface UserStats {
+    total: number;
+    active: number;
+    inactive: number;
+    suspended: number;
+    byRole: Record<string, number>;
 }
 
-interface UserDetailsModalProps {
-    user?: User | null;
-    isOpen?: boolean;
-    onClose?: () => void;
+interface ChangePasswordRequest {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
 }
 
-interface UserFormModalProps {
-    user?: User;
-    isOpen?: boolean;
-    onClose?: () => void;
-    onUserSaved?: () => void;
+interface ResetPasswordRequest {
+    newPassword: string;
+    forcePasswordChange?: boolean;
 }
