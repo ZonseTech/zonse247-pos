@@ -8,7 +8,7 @@ import InitApp from '../pages/landing/InitApp'
 import { useMenuHandler } from '../hooks/useMenuHandler'
 import { useModalManager } from '../hooks/useModalManager'
 
-const Users = lazy(() => import('../pages/users'))
+const Users = lazy(() => import('../pages/users/index'))
 const PointOfSale = lazy(() => import('../pages/pos'))
 const Login = lazy(() => import('../pages/auth/Login'))
 const Products = lazy(() => import('../pages/products'))
@@ -21,6 +21,7 @@ const LandingPage = lazy(() => import('../pages/landing'))
 const BranchManagement = lazy(() => import('../pages/branch'))
 const BranchForm = lazy(() => import('../pages/branch/create'));
 const TerminalForm = lazy(() => import('../pages/terminal/create'));
+const UserForm = lazy(() => import('../pages/users/create'));
 const Migrations = lazy(() => import('../pages/migrations'))
 const TenantForm = lazy(() => import('../pages/tenants/create'))
 const TenantsManagement = lazy(() => import('../pages/tenants'))
@@ -48,6 +49,7 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 			<Route path="/" element={<ProtectedLayoutWithAuth />}>
 				<Route path={ROUTES.POS} element={<PointOfSale />} />
 				<Route path={ROUTES.USERS} element={<Users />} />
+				<Route path={ROUTES.USER_FORM} element={<UserForm />} />
 				<Route path={ROUTES.MY_PROFILE} element={<AccountDetails />} />
 				<Route path={ROUTES.SETTINGS} element={<Settings />} />
 				<Route path={ROUTES.PRODUCTS} element={<Products />} />
