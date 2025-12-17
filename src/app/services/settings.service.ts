@@ -132,7 +132,7 @@ const settingsService = {
 	 * @param settings - The settings object for that group
 	 */
 	async updateSettingsGroup<K extends keyof TerminalSettingsApiResponse>(
-		groupName: K, 
+		groupName: K,
 		settings: TerminalSettingsApiResponse[K]
 	): Promise<TerminalSettingsApiResponse> {
 		const payload = { [groupName]: settings };
