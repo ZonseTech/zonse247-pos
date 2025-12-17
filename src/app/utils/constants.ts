@@ -7,7 +7,7 @@ export enum ROUTES {
 	DASHBOARD = '/dashboard',
 	TRANSACTIONS = '/transactions',
 	CATEGORIES = '/categories',
-	PRODUCTS = '/products',
+	INVENTORY = '/inventory',
 	TERMINALS = '/terminals',
 	TERMINAL_FORM = '/terminals/form',
 

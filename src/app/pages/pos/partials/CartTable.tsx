@@ -3,7 +3,7 @@ import PriceControl from './PriceControl';
 import { formatCurrency } from '../../../utils';
 import { Fragment } from 'react';
 import type { FunctionComponent } from 'react'
-import { useProducts } from '../../../hooks/useProducts';
+import { useInventory } from '../../../hooks/useInventory';
 import { HiOutlineShoppingCart } from 'react-icons/hi';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { DEFAULT_SEED_KEY } from '../../../constants';
@@ -23,7 +23,7 @@ const CartTable: FunctionComponent<CartTableProps> = ({
         cart,
         removeFromCart,
         updateQuantity,
-    } = useProducts();
+    } = useInventory();
 
     return (
         <Fragment>

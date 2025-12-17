@@ -171,13 +171,13 @@ const Dashboard: FunctionComponent = () => {
                             <div className="mb-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-sm p-4 shadow-sm">
                                 <div className="flex items-center">
                                     <div className="text-amber-700 dark:text-amber-300 font-medium">
-                                        {expiredProductsCount} product(s) have expired.
+                                        {expiredProductsCount} item(s) have expired.
                                     </div>
                                     <Link
-                                        to={ROUTES.PRODUCTS}
+                                        to={ROUTES.INVENTORY}
                                         className="ml-4 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 font-medium text-sm transition-colors duration-200"
                                     >
-                                        Go to Products Page →
+                                        Go to Inventory Page →
                                     </Link>
                                 </div>
                             </div>

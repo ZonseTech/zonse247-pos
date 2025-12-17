@@ -21,28 +21,30 @@ const cartSlice = createSlice({
     name: 'cart',
     initialState,
     reducers: {
-        addToCart: (state, action: PayloadAction<Product>) => {
-            const product = action.payload
-            const quantity = parseInt(product?.orderItems?.toString() || '0') || 1
-            const existingItem = state.items.find(item => item.productId === product.productId)
+        addToCart: (state, action: PayloadAction<InventoryItem>) => {
+            const item = action.payload
+            const quantity = parseInt(item?.orderItems?.toString() || '0') || 1
+            const existingItem = state.items.find(cartItem => cartItem.productId === item.productId)
 
             if (existingItem) {
                 existingItem.quantity += quantity
             } else {
-                const isConsumableProduct = product.categoryId.toString() === DEFAULT_SEED_KEY
-                const price = isConsumableProduct
-                    ? parseFloat(product.customPrice || product.sellPrice as string)
-                    : parseFloat(product.sellPrice || '0')
+                const isConsumableItem = item.categoryId?.toString() === DEFAULT_SEED_KEY
+                const sellPriceNum = parseFloat(item.sellPrice?.toString() || '0')
+                const customPriceNum = parseFloat(item.customPrice?.toString() || '0')
+                const price = isConsumableItem && customPriceNum > 0
+                    ? customPriceNum
+                    : sellPriceNum
 
                 state.items.push({
-                    barcode: product.barcode,
-                    productId: product.productId.toString(),
-                    name: product.name,
-                    purchasePrice: parseFloat(product.costPrice || '0'),
+                    barcode: item.barcode,
+                    productId: item.productId.toString(),
+                    name: item.name,
+                    purchasePrice: parseFloat(item.costPrice?.toString() || '0'),
                     sellPrice: price,
-                    discount: product.discount ?? 0,
-                    quantity: isConsumableProduct ? 0 : quantity,
-                    categoryId: product.categoryId.toString(),
+                    discount: item.discount ?? 0,
+                    quantity: isConsumableItem ? 0 : quantity,
+                    categoryId: item.categoryId?.toString() || '',
                 })
             }
         },

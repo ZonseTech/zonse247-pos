@@ -11,7 +11,7 @@ import { useModalManager } from '../hooks/useModalManager'
 const Users = lazy(() => import('../pages/users/index'))
 const PointOfSale = lazy(() => import('../pages/pos'))
 const Login = lazy(() => import('../pages/auth/Login'))
-const Products = lazy(() => import('../pages/products'))
+const Inventory = lazy(() => import('../pages/inventory'))
 const Categories = lazy(() => import('../pages/categories'))
 const Settings = lazy(() => import('../pages/settings'))
 const NotFound = lazy(() => import('../pages/errors/NotFound'))
@@ -52,7 +52,7 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 				<Route path={ROUTES.USER_FORM} element={<UserForm />} />
 				<Route path={ROUTES.MY_PROFILE} element={<AccountDetails />} />
 				<Route path={ROUTES.SETTINGS} element={<Settings />} />
-				<Route path={ROUTES.PRODUCTS} element={<Products />} />
+				<Route path={ROUTES.INVENTORY} element={<Inventory />} />
 				<Route path={ROUTES.CATEGORIES} element={<Categories />} />
 				<Route path={ROUTES.SYNC_DATA} element={<SyncData />} />
 				<Route path={ROUTES.DASHBOARD} element={<Dashboard />} />

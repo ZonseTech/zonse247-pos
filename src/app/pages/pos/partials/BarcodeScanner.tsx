@@ -1,4 +1,4 @@
-import { useProducts } from '../../../hooks/useProducts';
+import { useInventory } from '../../../hooks/useInventory';
 import { FunctionComponent, useState, useEffect, Fragment, useRef } from 'react';
 import { Confirm } from 'notiflix';
 import { createPortal } from 'react-dom';
@@ -18,9 +18,9 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     barcodeScannerInputRef
 }) => {
     const [barcode, setBarcode] = useState('');
-    const { products, addToCart } = useProducts();
+    const { inventory, addToCart } = useInventory();
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const [filteredProduct, setFilteredProduct] = useState(products);
+    const [filteredItems, setFilteredItems] = useState(inventory);
 
     const barcodeBuffer = useRef('');
     const barcodeTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -54,7 +54,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     const checkImmediateMatch = (code: string): boolean => {
         const cleanedCode = cleanBarcode(code);
         if (cleanedCode.length >= MIN_BARCODE_LENGTH) {
-            const exactMatch = products.find(p => p.barcode.toString() === cleanedCode);
+            const exactMatch = inventory.find(p => p.barcode.toString() === cleanedCode);
             if (exactMatch) {
                 addToCart(exactMatch);
                 showSuccessFeedback(exactMatch.name);
@@ -96,12 +96,12 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
         const cleanedBarcode = cleanBarcode(scannedBarcode);
         if (cleanedBarcode === '') return;
 
-        const product = products.find(p => p.barcode.toString() === cleanedBarcode);
+        const item = inventory.find(p => p.barcode.toString() === cleanedBarcode);
 
-        if (product) {
-            addToCart(product);
+        if (item) {
+            addToCart(item);
             setBarcode('');
-            showSuccessFeedback(product.name);
+            showSuccessFeedback(item.name);
 
             if (barcodeScannerInputRef.current) {
                 barcodeScannerInputRef.current.focus();
@@ -162,14 +162,14 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
         document.addEventListener('keydown', handleKeyPress);
 
         if (barcode.trim() === '') {
-            setFilteredProduct(products);
+            setFilteredItems(inventory);
         } else {
             const cleanedInput = cleanBarcode(barcode);
-            const filtered = products.filter(product =>
-                product.barcode.toString().includes(cleanedInput) ||
-                product.name.toLowerCase().includes(cleanedInput.toLowerCase())
+            const filtered = inventory.filter(item =>
+                item.barcode.toString().includes(cleanedInput) ||
+                item.name.toLowerCase().includes(cleanedInput.toLowerCase())
             );
-            setFilteredProduct(filtered);
+            setFilteredItems(filtered);
         }
 
         return () => {
@@ -178,7 +178,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                 clearTimeout(barcodeTimeout.current);
             }
         };
-    }, [barcode, products, addToCart, isActive]);
+    }, [barcode, inventory, addToCart, isActive]);
 
     useEffect(() => {
         if (isActive && barcodeScannerInputRef.current) {
@@ -191,7 +191,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     }, [])
 
     useEffect(() => {
-        if (barcode.trim() !== '' && filteredProduct.length > 0 && barcodeScannerInputRef.current && dropdownRef.current) {
+        if (barcode.trim() !== '' && filteredItems.length > 0 && barcodeScannerInputRef.current && dropdownRef.current) {
             const inputRect = barcodeScannerInputRef.current.getBoundingClientRect();
             const dropdown = dropdownRef.current;
 
@@ -206,7 +206,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                 zIndex: '9999',
             });
         }
-    }, [barcode, filteredProduct]);
+    }, [barcode, filteredItems]);
 
     const handleManualEntry = () => {
         handleBarcodeEntry(barcode);
@@ -264,20 +264,20 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                 />
             </div>
 
-            {barcode.trim() !== '' && filteredProduct.length > 0 &&
+            {barcode.trim() !== '' && filteredItems.length > 0 &&
                 createPortal(
                     <div
                         ref={dropdownRef}
                         className="border border-gray-200 dark:border-gray-700 rounded-none max-h-60 overflow-y-auto bg-white dark:bg-gray-900 shadow-sm dark:shadow-lg"
                         data-dropdown="true"
                     >
-                        {filteredProduct.map(product => (
+                        {filteredItems.map(item => (
                             <div
-                                key={product.productId}
+                                key={item.productId}
                                 className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer flex justify-between items-center border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors"
                                 onClick={() => {
-                                    addToCart(product);
-                                    showSuccessFeedback(product.name);
+                                    addToCart(item);
+                                    showSuccessFeedback(item.name);
                                     setBarcode('');
                                     if (barcodeScannerInputRef.current) {
                                         barcodeScannerInputRef.current.focus();
@@ -285,10 +285,10 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                                 }}
                             >
                                 <span className="font-medium text-gray-900 dark:text-gray-100 truncate pr-4">
-                                    {product.name}
+                                    {item.name}
                                 </span>
                                 <span className="text-gray-500 dark:text-gray-400 font-mono text-sm flex-shrink-0">
-                                    {product.barcode}
+                                    {item.barcode}
                                 </span>
                             </div>
                         ))}

@@ -1,7 +1,7 @@
 import { FunctionComponent, useEffect } from "react"
 import { useAppDispatch } from "../hooks/redux"
 import { useAuth } from "../context/AuthProvider"
-import { clearProducts, fetchAllProductData } from "../store/slices/productsSlice"
+import { clearInventory, fetchInventory } from "../store/slices/inventorySlice"
 import { clearCustomers, fetchCustomers } from "../store/slices/customerSlice"
 import { clearUserData, setLoading, setTill, setUser } from "../store/slices/uiSlice"
 import { clearCart } from "../store/slices/cartSlice"
@@ -12,7 +12,7 @@ export const DataManager: FunctionComponent = () => {
 
     useEffect(() => {
         if (!isAuthenticated) {
-            dispatch(clearProducts())
+            dispatch(clearInventory())
             dispatch(clearCustomers())
             dispatch(clearUserData())
             dispatch(clearCart())
@@ -23,7 +23,7 @@ export const DataManager: FunctionComponent = () => {
             dispatch(setLoading(true))
             try {
                 await Promise.all([
-                    dispatch(fetchAllProductData()),
+                    dispatch(fetchInventory()),
                     dispatch(fetchCustomers()),
                 ])
 

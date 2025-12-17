@@ -171,8 +171,8 @@ export default class MenuBuilder {
 				viewSubmenu.push({ type: 'separator' });
 			}
 			viewSubmenu.push({
-				label: 'Products',
-				click: () => this.navigateTo(ROUTES.PRODUCTS),
+				label: 'Inventory',
+				click: () => this.navigateTo(ROUTES.INVENTORY),
 			});
 			viewSubmenu.push({
 				label: 'Categories',

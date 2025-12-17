@@ -71,9 +71,9 @@ const navItems = (): NavItem[] => {
             type: 'button',
             color: 'bg-blue-600 hover:bg-blue-700',
             iconColor: 'bg-blue-700',
-            text: 'Products',
+            text: 'Inventory',
             icon: icons.products,
-            onClick: () => navigate(ROUTES.PRODUCTS),
+            onClick: () => navigate(ROUTES.INVENTORY),
         });
 
         if (hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {

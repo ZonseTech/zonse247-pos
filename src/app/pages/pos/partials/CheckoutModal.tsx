@@ -5,7 +5,7 @@ import CashPayment from './CashPayment';
 import BankTransfer from './BankTransfer';
 import { FunctionComponent, useState, useEffect } from 'react';
 import { useFocusManager } from '../../../hooks/useFocusManager';
-import { useProducts } from '../../../hooks/useProducts';
+import { useInventory } from '../../../hooks/useInventory';
 import { useAuth } from '../../../context/AuthProvider';
 import { useApp } from '../../../context/AppProvider';
 import transactionService from '../../../services/transactions.service';
@@ -42,9 +42,9 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
         subtotal,
         cart,
         clearCart,
-        reloadProducts,
+        reloadInventory,
         selectedCustomer,
-    } = useProducts();
+    } = useInventory();
 
     const transactionValues: TransactionValues = {
         paymentMethodId,
@@ -148,7 +148,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
             // });
 
             clearCart()
-            reloadProducts()
+            reloadInventory()
 
             values.phoneNumber = ''
             values.paymentMethodId = ""
