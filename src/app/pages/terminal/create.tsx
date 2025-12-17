@@ -153,13 +153,11 @@ const TerminalForm: FunctionComponent = () => {
         <Fragment>
             <AppLayout>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-                    <div className='sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-300 dark:border-gray-600'>
-                        <div className='flex justify-between items-center'>
-                            <PageHeader
-                                title={terminal ? 'Edit Terminal' : 'Add Terminal'}
-                                description='Required fields are marked with an asterisk (*)'
-                            />
-
+                    <div className='sticky top-0 z-10 bg-white dark:bg-gray-800'>
+                        <PageHeader
+                            title={terminal ? 'Edit Terminal' : 'Add Terminal'}
+                            description='Required fields are marked with an asterisk (*)'
+                        >
                             <Button
                                 type="button"
                                 theme='danger'
@@ -167,7 +165,7 @@ const TerminalForm: FunctionComponent = () => {
                             >
                                 Cancel
                             </Button>
-                        </div>
+                        </PageHeader>
                     </div>
 
                     <Formik
