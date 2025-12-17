@@ -178,6 +178,10 @@ export default class MenuBuilder {
 				label: 'Categories',
 				click: () => this.navigateTo(ROUTES.CATEGORIES),
 			});
+			viewSubmenu.push({
+				label: 'Customers',
+				click: () => this.navigateTo(ROUTES.CUSTOMERS),
+			});
 		}
 
 		if (

@@ -14,6 +14,7 @@ const Login = lazy(() => import('../pages/auth/Login'))
 const Inventory = lazy(() => import('../pages/inventory'))
 const InventoryForm = lazy(() => import('../pages/inventory/create'))
 const Categories = lazy(() => import('../pages/categories'))
+const Customers = lazy(() => import('../pages/customers'))
 const Settings = lazy(() => import('../pages/settings'))
 const NotFound = lazy(() => import('../pages/errors/NotFound'))
 const SyncData = lazy(() => import('../pages/sync-data'))
@@ -56,6 +57,7 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 				<Route path={ROUTES.INVENTORY} element={<Inventory />} />
 				<Route path={ROUTES.INVENTORY_FORM} element={<InventoryForm />} />
 				<Route path={ROUTES.CATEGORIES} element={<Categories />} />
+				<Route path={ROUTES.CUSTOMERS} element={<Customers />} />
 				<Route path={ROUTES.SYNC_DATA} element={<SyncData />} />
 				<Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
 				<Route path={ROUTES.BRANCHES} element={<BranchManagement />} />

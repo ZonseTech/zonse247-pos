@@ -10,6 +10,7 @@ import {
     HiOutlinePresentationChartBar,
     HiOutlinePrinter,
     HiOutlineFolderDownload,
+    HiOutlineUserGroup,
 } from 'react-icons/hi';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
@@ -36,6 +37,7 @@ const navItems = (): NavItem[] => {
         dashboard: <HiOutlinePresentationChartBar className="h-6 w-6 mr-1" />,
         products: <HiOutlineQrcode className="h-5 w-5" />,
         categories: <HiOutlineViewList className="h-5 w-5" />,
+        customers: <HiOutlineUserGroup className="h-5 w-5" />,
         tabs: <HiOutlineViewGrid className="h-5 w-5" />,
         orders: <HiOutlineShoppingCart className="h-5 w-5" />,
         printer: <HiOutlinePrinter className="h-5 w-5" />,
@@ -86,6 +88,15 @@ const navItems = (): NavItem[] => {
                 onClick: () => navigate(ROUTES.CATEGORIES),
             });
         }
+
+        items.push({
+            type: 'button',
+            color: 'bg-teal-500 hover:bg-teal-600',
+            iconColor: 'bg-teal-600',
+            text: 'Customers',
+            icon: icons.customers,
+            onClick: () => navigate(ROUTES.CUSTOMERS),
+        });
     }
 
     if (hasAnyPermission(user, ['reports.sales.daily', 'reports.sales.detailed', 'payments.view'])) {
