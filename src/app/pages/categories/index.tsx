@@ -1,7 +1,7 @@
 import { Confirm } from 'notiflix';
 import { FolderOpen } from 'lucide-react';
 import AppLayout from '../../layouts/AppLayout';
-import { HiOutlinePlus } from 'react-icons/hi2';
+import { HiOutlinePlus, HiOutlineFolderOpen } from 'react-icons/hi2';
 import { SearchBar } from './partials/SearchBar';
 import DataTable from 'react-data-table-component';
 import { useCategories } from '../../hooks/useCategories';
@@ -71,6 +71,7 @@ const CategoriesManager: FunctionComponent = () => {
                 <PageHeader
                     title="Categories"
                     description="Manage your product categories"
+                    icon={<HiOutlineFolderOpen className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
                 >
                     <div className="flex items-center space-x-4">
                         <SearchBar

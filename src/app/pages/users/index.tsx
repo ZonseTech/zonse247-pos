@@ -5,7 +5,7 @@ import { Users } from 'lucide-react';
 import DataTable from 'react-data-table-component';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
-import { HiOutlinePlus } from 'react-icons/hi2';
+import { HiOutlinePlus, HiOutlineUsers } from 'react-icons/hi2';
 import { getTableStyles } from '../../utils/table-styles';
 import { Button, ZonseThemeContext } from '../../components';
 import { useUsers } from '../../hooks/useUsers';
@@ -100,6 +100,7 @@ const UserManagement: FunctionComponent = () => {
                 <PageHeader
                     title='Users'
                     description='Manage user accounts, roles, and permissions'
+                    icon={<HiOutlineUsers className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
                 >
                     <div className="flex items-center space-x-4">
                         <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />

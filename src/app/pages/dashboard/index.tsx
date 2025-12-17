@@ -6,6 +6,7 @@ import PageLoader from '../../components/PageLoader';
 import { useAuth } from '../../context/AuthProvider';
 import { RiMedicineBottleFill } from 'react-icons/ri';
 import StatCard from '../../components/card/StatCard';
+import PageHeader from '../../components/page/PageHeader';
 import MonthlySalesChart from './partials/MonthlySalesChart';
 import dashboardService from '../../services/dashboard.service';
 import RenderTopProductRow from './partials/RenderTopProductRow';
@@ -13,7 +14,7 @@ import RenderTransactionRow from './partials/RenderTransactionRow';
 import { hasAnyPermission, isCurrentMonth, isFutureMonth } from '../../utils';
 import { useState, useEffect, Fragment, type FunctionComponent } from 'react';
 import TransactionDetailsModal from '../transactions/partials/TransactionDetailsModal';
-import { HiChevronLeft, HiChevronRight, HiOutlineBanknotes, HiOutlineBuildingStorefront, HiOutlineCurrencyDollar, HiOutlineShieldCheck, HiOutlineUserGroup } from 'react-icons/hi2';
+import { HiChevronLeft, HiChevronRight, HiOutlineHome, HiOutlineBanknotes, HiOutlineBuildingStorefront, HiOutlineCurrencyDollar, HiOutlineShieldCheck, HiOutlineUserGroup } from 'react-icons/hi2';
 import dayjs from 'dayjs';
 
 const topProductsHeaders: TableHeader[] = [
@@ -162,6 +163,11 @@ const Dashboard: FunctionComponent = () => {
 
     return (
         <AppLayout>
+            <PageHeader
+                title="Dashboard"
+                description="Overview of your business performance and key metrics"
+                icon={<HiOutlineHome className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
+            />
             <div className="pb-8 pt-0 space-y-4">
                 {isLoading ? (
                     <PageLoader />

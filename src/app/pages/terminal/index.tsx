@@ -1,7 +1,7 @@
 import { Confirm } from 'notiflix';
 import { Monitor } from 'lucide-react';
 import AppLayout from '../../layouts/AppLayout';
-import { HiOutlinePlus } from 'react-icons/hi2';
+import { HiOutlinePlus, HiOutlineComputerDesktop } from 'react-icons/hi2';
 import { SearchBar } from './partials/SearchBar';
 import DataTable from 'react-data-table-component';
 import { useTerminals } from '../../hooks/useTerminals';
@@ -127,6 +127,7 @@ const TerminalManagement: FunctionComponent = () => {
                 <PageHeader
                     title='Terminals'
                     description='Manage your terminal devices and settings'
+                    icon={<HiOutlineComputerDesktop className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
                 >
                     <div className="flex items-center space-x-4">
                         <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
