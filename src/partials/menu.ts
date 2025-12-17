@@ -196,11 +196,6 @@ export default class MenuBuilder {
 		}
 
 		viewSubmenu.push({ type: 'separator' });
-		viewSubmenu.push({
-			label: 'Refresh',
-			role: 'reload',
-			accelerator: 'CommandOrControl+R',
-		});
 
 		if (!app.isPackaged) {
 			viewSubmenu.push({
@@ -209,14 +204,57 @@ export default class MenuBuilder {
 			});
 		}
 
-		viewSubmenu.push({ role: 'togglefullscreen', accelerator: 'F11' });
-
 		if (viewSubmenu.length > 0) {
 			template.push({
 				label: 'View',
 				submenu: viewSubmenu,
 			});
 		}
+
+		const windowSubmenu: Array<MenuItemConstructorOptions> = [
+			{
+				label: 'Toggle Menu Bar',
+				accelerator: 'Alt+M',
+				click: () => {
+					const isVisible = this.mainWindow.isMenuBarVisible();
+					this.mainWindow.setMenuBarVisibility(!isVisible);
+					this.mainWindow.setAutoHideMenuBar(isVisible);
+				},
+			},
+			{ type: 'separator' },
+			{
+				label: 'Full Screen',
+				accelerator: 'F11',
+				click: () => {
+					this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
+				},
+			},
+			{
+				label: 'Minimize',
+				accelerator: 'CommandOrControl+M',
+				role: 'minimize',
+			},
+			{ type: 'separator' },
+			{
+				label: 'Reload',
+				accelerator: 'CommandOrControl+R',
+				click: () => {
+					this.mainWindow.webContents.reload();
+				},
+			},
+			{
+				label: 'Force Reload',
+				accelerator: 'CommandOrControl+Shift+R',
+				click: () => {
+					this.mainWindow.webContents.reloadIgnoringCache();
+				},
+			},
+		];
+
+		template.push({
+			label: 'Window',
+			submenu: windowSubmenu,
+		});
 
 		const managementSubmenu: Array<MenuItemConstructorOptions> = [];
 
