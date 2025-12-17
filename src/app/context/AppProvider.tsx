@@ -6,7 +6,7 @@ import type { ReactNode, FunctionComponent, } from 'react';
 import { createContext, useContext, useState, useEffect } from 'react';
 
 interface AppContextType {
-    settings: any;
+    settings: AppSettings | null;
     printerOptions: PrinterInfo | null;
     isLoading: boolean;
     error: Error | null;
@@ -24,17 +24,19 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
     const { auth } = useAuth()
     const [error, setError] = useState<Error | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [settings, setSettings] = useState(null);
+    const [settings, setSettings] = useState<AppSettings | null>(null);
     const [printerOptions, setPrinterOptions] = useState<PrinterInfo | null>(null);
 
     const fetchSettings = async () => {
         try {
             setIsLoading(true);
-            const data = await settingsService.list();
+            // load() returns flattened AppSettings (hierarchical JSON already mapped)
+            const data = await settingsService.load();
 
             if (data) {
                 setSettings(data);
 
+                // apiBaseUrl is now available directly on the flattened settings
                 if (data.apiBaseUrl) {
                     apiUtils.updateBaseUrl(data.apiBaseUrl);
                 }
@@ -56,7 +58,7 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
 
     const updateSettings = (newSettings: Partial<AppSettings>) => {
         setSettings(prev => {
-            const updated = prev ? { ...prev, ...newSettings } as any : null;
+            const updated = prev ? { ...prev, ...newSettings } : null;
 
             // Update API base URL if it changed
             if (newSettings.apiBaseUrl && newSettings.apiBaseUrl !== prev?.apiBaseUrl) {

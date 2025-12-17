@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Notify, Report } from 'notiflix';
 import settingsService from '../../../services/settings.service';
-import { getDefaultSettings, mapApiResponseToSettings } from '../constants/defaultValues';
+import { getDefaultSettings } from '../constants/defaultValues';
 import type { SettingsTabId } from '../constants/config';
 
 interface UseSettingsReturn {
@@ -24,16 +24,14 @@ export const useSettings = (): UseSettingsReturn => {
 
     /**
      * Load settings from API with error handling and defaults
+     * The service now handles the mapping from hierarchical JSON + selective columns to flat AppSettings
      */
     const loadSettings = useCallback(async () => {
         try {
             setLoading(true);
-            const apiResponse = await settingsService.load();
-
-            const mappedSettings = mapApiResponseToSettings(apiResponse);
-            const finalSettings = getDefaultSettings(mappedSettings);
-
-            setSettings(finalSettings);
+            // settingsService.load() now returns AppSettings directly (already mapped and with defaults applied)
+            const appSettings = await settingsService.load();
+            setSettings(appSettings);
         } catch (error) {
             console.error('Error loading settings:', error);
             Notify.warning('Using default settings');
