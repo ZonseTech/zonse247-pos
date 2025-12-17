@@ -118,7 +118,7 @@ const TenantsManagement: FunctionComponent = () => {
                         <div className="text-center py-8">
                             <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                             <p className="text-gray-500">
-                                {searchTerm ? 'No tenant(s) found matching your search.' : 'No clients found.'}
+                                {searchTerm ? 'No tenant(s) found matching your search.' : 'No tenants found.'}
                             </p>
                         </div>
                     }

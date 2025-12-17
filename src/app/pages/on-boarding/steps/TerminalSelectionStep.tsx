@@ -89,7 +89,7 @@ const TerminalSelectionStep: FunctionComponent<{
                                 No terminals are available for <strong>{selectedBranch?.branchName}</strong> at this time.
                             </p>
                             <p className="text-sm text-gray-400">
-                                Please contact your administrator to set up terminals for this shop.
+                                Please contact your administrator to set up terminals for this branch.
                             </p>
                         </div>
                     )}

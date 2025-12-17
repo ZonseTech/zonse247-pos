@@ -121,7 +121,7 @@ export const getSubscriptionColumns = (
 			)
 		},
 		{
-			name: 'Max Shops',
+			name: 'Max Branches',
 			minWidth: "100px",
 			cell: (row) => (
 				<div className="inline-flex items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1.5 text-sm font-semibold text-indigo-700 dark:text-indigo-400">

@@ -19,7 +19,7 @@ const TenantVerificationStep = ({
                     <Form className="max-w-7xl">
                         <div className="mb-3 text-center">
                             <h1 className="text-gray-700 dark:text-gray-400 font-semibold text-xl">
-                                Client Verification
+                                Tenant Verification
                             </h1>
                             <p className="text-gray-500 text-sm leading mt-2">
                                 Enter your Verification Key to verify your account

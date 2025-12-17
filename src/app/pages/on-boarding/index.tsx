@@ -45,7 +45,7 @@ const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, er
 
     const displayError = parentError || localError;
 
-    const handleVerifyClient = async (credentials: TerminalVerificationParams) => {
+    const handleVerifyTenant = async (credentials: TerminalVerificationParams) => {
         setLocalError('');
 
         try {
@@ -150,7 +150,7 @@ const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, er
                     <TenantVerificationStep
                         credentials={registerProps}
                         credentialsValidationSchema={registerValidationSchema}
-                        onSubmit={handleVerifyClient}
+                        onSubmit={handleVerifyTenant}
                     />
                 )}
 

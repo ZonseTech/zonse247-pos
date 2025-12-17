@@ -1,5 +1,5 @@
 
-interface ClientQueryParams {
+interface TenantQueryParams {
     status?: string;
     subscriptionStatus?: string;
     country?: string;
@@ -10,7 +10,7 @@ interface ClientQueryParams {
     order?: 'asc' | 'desc';
 }
 
-interface RegisterClientRequest {
+interface RegisterTenantRequest {
     companyName: string;
     ownerName: string;
     email: string;
@@ -21,20 +21,19 @@ interface RegisterClientRequest {
 }
 
 interface AuthenticatedRequest extends Request {
-    client?: Client;
     tenant?: Tenant;
-    clientUuid?: string;
+    tenantUuid?: string;
     tenantId?: string;
 }
 
-interface ClientProps extends Omit<Client, 'verificationToken'> {
+interface TenantProps extends Omit<Tenant, 'verificationToken'> {
 
 }
 
 
-interface Client {
+interface Tenant {
     uuid: string;
-    clientCode: string;
+    tenantCode: string;
     companyName: string;
     ownerName: string;
     email: string;
@@ -75,15 +74,5 @@ interface ApiResponse<T = any> {
     message: string;
     data?: T;
     error?: string;
-}
-
-interface RegisterClientRequest {
-    companyName: string;
-    ownerName: string;
-    email: string;
-    phone: string;
-    address?: string;
-    country?: string;
-    timezone?: string;
 }
 

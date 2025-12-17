@@ -293,7 +293,7 @@ export default class MenuBuilder {
 			});
 		}
 
-		if (hasPermission(this.user, 'settings.shop.manage')) {
+		if (hasPermission(this.user, 'settings.branch.manage')) {
 			if (managementSubmenu.length > 0) {
 				managementSubmenu.push({ type: 'separator' });
 			}

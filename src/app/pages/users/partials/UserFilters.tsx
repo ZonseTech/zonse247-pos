@@ -31,7 +31,7 @@ const UserFilters: React.FC<UserFiltersProps> = ({
         <div className="flex items-center justify-between border-b border-gray-300 dark:border-gray-600">
             <PageHeader
                 title="User Management"
-                description="Manage workstation users, roles, and permissions"
+                description="Manage terminal users, roles, and permissions"
             />
 
             <div className="flex flex-wrap gap-4 items-center">

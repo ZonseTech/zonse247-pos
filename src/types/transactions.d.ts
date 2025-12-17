@@ -23,7 +23,7 @@ type Transaction = {
     updatedAt?: Date;
 
     customer?: Customer;
-    workstation?: Workstation;
+    terminal?: Terminal;
     paymentMethod?: PaymentMethod;
     paymentServiceProvider?: PaymentServiceProvider;
     items?: CartItem[];

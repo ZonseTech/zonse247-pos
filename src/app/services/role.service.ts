@@ -6,8 +6,8 @@ const roleEndpoints: Record<string, string> = {
     update: 'roles/update',
     getById: 'roles/role',
     delete: 'roles/role',
-    client: 'roles/client',
-    shop: 'roles/shop',
+    tenant: 'roles/tenant',
+    branch: 'roles/branch',
     system: 'roles/system',
     active: 'roles/active',
     activate: 'roles/activate',
@@ -63,18 +63,18 @@ const roleService = {
             });
     },
 
-    async getByClientUuid(clientUuid: string): Promise<Array<Role>> {
+    async getByTenantUuid(tenantUuid: string): Promise<Array<Role>> {
         return api
-            .get<Role[]>(`${roleEndpoints.client}/${clientUuid}`)
+            .get<Role[]>(`${roleEndpoints.tenant}/${tenantUuid}`)
             .then((res) => res.data)
             .catch((err) => {
                 throw err;
             });
     },
 
-    async getByShopUuid(shopUuid: string): Promise<Array<Role>> {
+    async getByBranchUuid(branchUuid: string): Promise<Array<Role>> {
         return api
-            .get<Role[]>(`${roleEndpoints.shop}/${shopUuid}`)
+            .get<Role[]>(`${roleEndpoints.branch}/${branchUuid}`)
             .then((res) => res.data)
             .catch((err) => {
                 throw err;

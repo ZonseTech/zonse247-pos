@@ -35,9 +35,9 @@ export enum ROUTES {
 export enum PermissionScope {
 	USER = 'user',
 	GLOBAL = 'global',
-	CLIENT = 'client',
-	SHOP = 'shop',
-	WORKSTATION = 'workstation',
+	TENANT = 'tenant',
+	BRANCH = 'branch',
+	TERMINAL = 'terminal',
 	SELF = 'self',
 }
 

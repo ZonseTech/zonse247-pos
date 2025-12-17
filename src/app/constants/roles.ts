@@ -150,7 +150,7 @@ export const ROLE_DISPLAY_INFO: Record<string, { displayName: string; descriptio
     },
     [ROLE_IDS.MANAGER]: {
         displayName: 'Manager',
-        description: 'Shop manager with operational management access',
+        description: 'Branch manager with operational management access',
         level: 'Branch',
     },
     [ROLE_IDS.SHIFT_SUPERVISOR]: {

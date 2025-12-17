@@ -181,7 +181,7 @@ const PrinterPreviewModal: FunctionComponent<Props> = ({
                             )}
                             <div className="flex justify-between items-center py-2">
                                 <span className="text-gray-600 dark:text-gray-400 font-medium">Till</span>
-                                <span className="text-gray-900 dark:text-white font-semibold">{transaction.workstation.tillName}</span>
+                                <span className="text-gray-900 dark:text-white font-semibold">{transaction.terminal.tillName}</span>
                             </div>
                         </div>
                     </div>

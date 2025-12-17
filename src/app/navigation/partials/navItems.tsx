@@ -41,10 +41,10 @@ const navItems = (): NavItem[] => {
         tabs: <HiOutlineViewGrid className="h-5 w-5" />,
         orders: <HiOutlineShoppingCart className="h-5 w-5" />,
         printer: <HiOutlinePrinter className="h-5 w-5" />,
-        workstations: <HiOutlineBuildingOffice2 className="h-5 w-5" />,
+        terminals: <HiOutlineBuildingOffice2 className="h-5 w-5" />,
         subscription: <LucideSubscript className="h-5 w-5" />,
         tenants: <RiGroup3Line className="h-5 w-5" />,
-        shop: <HiOutlineBuildingStorefront className="h-5 w-5" />,
+        branch: <HiOutlineBuildingStorefront className="h-5 w-5" />,
         migrations: <HiOutlineServerStack className="h-5 w-5" />,
         export_db: <HiOutlineFolderDownload className="h-5 w-5" />,
         transactions: <HiOutlinePresentationChartBar className="h-5 w-5" />,
@@ -141,13 +141,13 @@ const navItems = (): NavItem[] => {
         });
     }
 
-    if (hasAnyPermission(user, ['settings.shop.manage'])) {
+    if (hasAnyPermission(user, ['settings.branch.manage'])) {
         items.push({
             type: 'button',
             color: 'bg-cyan-500 hover:bg-cyan-600',
             iconColor: 'bg-cyan-600',
             text: "Branches",
-            icon: icons.shop,
+            icon: icons.branch,
             onClick: () => navigate(ROUTES.BRANCHES),
         });
 
@@ -156,7 +156,7 @@ const navItems = (): NavItem[] => {
             color: 'bg-cyan-600 hover:bg-cyan-700',
             iconColor: 'bg-cyan-700',
             text: "Terminals",
-            icon: icons.workstations,
+            icon: icons.terminals,
             onClick: () => navigate(ROUTES.TERMINALS),
         });
 
