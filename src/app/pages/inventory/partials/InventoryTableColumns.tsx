@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit2, Trash2, Eye, AlertTriangle, Package } from 'lucide-react';
+import { Edit2, Trash2, Eye, AlertTriangle, Package, PackagePlus } from 'lucide-react';
 import { TableColumn } from 'react-data-table-component';
 import { formatCurrency } from '../../../utils';
 import dayjs from 'dayjs';
@@ -8,6 +8,7 @@ interface InventoryTableColumnsProps {
     onEdit: (item: InventoryItem) => void;
     onDelete: (productId: string) => void;
     onView?: (item: InventoryItem) => void;
+    onAdjustQuantity?: (item: InventoryItem) => void;
 }
 
 const getStockStatusColor = (quantity: number, minStock: number) => {
@@ -38,6 +39,7 @@ export const getInventoryTableColumns = ({
     onEdit,
     onDelete,
     onView,
+    onAdjustQuantity,
 }: InventoryTableColumnsProps): TableColumn<InventoryItem>[] => [
         {
             name: 'Barcode',
@@ -198,6 +200,15 @@ export const getInventoryTableColumns = ({
                                 <Eye className="w-4 h-4" />
                             </button>
                         )}
+                        {onAdjustQuantity && (
+                            <button
+                                onClick={() => onAdjustQuantity(row)}
+                                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                                title="Adjust Quantity"
+                            >
+                                <PackagePlus className="w-4 h-4" />
+                            </button>
+                        )}
                         <button
                             onClick={() => onEdit(row)}
                             className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
@@ -215,7 +226,7 @@ export const getInventoryTableColumns = ({
                     </div>
                 );
             },
-            width: '140px',
+            width: '160px',
             right: true,
         },
     ];

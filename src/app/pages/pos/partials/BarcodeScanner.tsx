@@ -3,6 +3,7 @@ import { FunctionComponent, useState, useEffect, Fragment, useRef } from 'react'
 import { Confirm } from 'notiflix';
 import { createPortal } from 'react-dom';
 import { useFocusManager } from '../../../hooks/useFocusManager';
+import inventoryService from '../../../services/inventory.service';
 
 interface BarcodeScannerProps {
     externalInput?: string;
@@ -21,6 +22,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     const { inventory, addToCart } = useInventory();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [filteredItems, setFilteredItems] = useState(inventory);
+    const [isSearching, setIsSearching] = useState(false);
 
     const barcodeBuffer = useRef('');
     const barcodeTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -49,6 +51,22 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                 }
             }, 300);
         }, 2000);
+    };
+
+    /**
+     * Search for item by barcode using API if not found locally
+     */
+    const searchByBarcodeAPI = async (barcodeValue: string): Promise<InventoryItem | null> => {
+        try {
+            setIsSearching(true);
+            const item = await inventoryService.findByBarcode(barcodeValue);
+            return item;
+        } catch (error) {
+            console.error('Error searching by barcode:', error);
+            return null;
+        } finally {
+            setIsSearching(false);
+        }
     };
 
     const checkImmediateMatch = (code: string): boolean => {
@@ -92,11 +110,17 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
         }
     }, [externalInput, isActive]);
 
-    const handleBarcodeEntry = (scannedBarcode: string) => {
+    const handleBarcodeEntry = async (scannedBarcode: string) => {
         const cleanedBarcode = cleanBarcode(scannedBarcode);
         if (cleanedBarcode === '') return;
 
-        const item = inventory.find(p => p.barcode.toString() === cleanedBarcode);
+        // First check local inventory
+        let item = inventory.find(p => p.barcode.toString() === cleanedBarcode);
+
+        // If not found locally, try API lookup
+        if (!item) {
+            item = await searchByBarcodeAPI(cleanedBarcode);
+        }
 
         if (item) {
             addToCart(item);

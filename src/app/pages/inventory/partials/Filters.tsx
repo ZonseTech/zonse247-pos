@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, PackageCheck, PackageX, Clock } from 'lucide-react';
+import { Package, PackageCheck, PackageX, Clock, TrendingDown } from 'lucide-react';
 
 interface SummaryCard {
     title: string;
@@ -24,6 +24,8 @@ const getFilterIcon = (title: string) => {
             return Clock;
         case 'expired':
             return PackageX;
+        case 'low stock':
+            return TrendingDown;
         default:
             return Package;
     }

@@ -17,13 +17,18 @@ export const useInventorySummary = (
     const [summaryData, setSummaryData] = useState<SummaryCard[]>([
         { title: 'Total Stock', value: 0, bgColor: 'bg-green-400', onClick: () => ({}) },
         { title: 'New Stock', value: 0, bgColor: 'bg-green-400', onClick: () => ({}) },
+        { title: 'Low Stock', value: 0, bgColor: 'bg-amber-400', onClick: () => ({}) },
         { title: 'Expiring Soon', value: 0, bgColor: 'bg-yellow-400', onClick: () => ({}) },
         { title: 'Expired', value: 0, bgColor: 'bg-red-500', onClick: () => ({}) },
     ]);
 
     const loadSummary = async () => {
         try {
-            const summary = await inventoryService.getSummary();
+            const [summary, count] = await Promise.all([
+                inventoryService.getSummary(),
+                inventoryService.getCount().catch(() => ({ lowStock: 0 } as any))
+            ]);
+
             const newSummaryData = [
                 {
                     title: 'Total Stock',
@@ -41,6 +46,15 @@ export const useInventorySummary = (
                     onClick: () => {
                         setActiveFilter('new');
                         applyFilters({ filter: 'new' });
+                    }
+                },
+                {
+                    title: 'Low Stock',
+                    value: count?.lowStock ?? 0,
+                    bgColor: 'bg-amber-400',
+                    onClick: () => {
+                        setActiveFilter('low-stock');
+                        applyFilters({ filter: 'low-stock' });
                     }
                 },
                 {

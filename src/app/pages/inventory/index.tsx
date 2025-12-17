@@ -1,7 +1,7 @@
-import { FunctionComponent, useCallback, useContext, useEffect } from 'react';
+import { FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Confirm, Notify } from 'notiflix';
-import { Package } from 'lucide-react';
+import { Package, Settings2 } from 'lucide-react';
 import DataTable, { type Themes } from 'react-data-table-component';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
@@ -11,6 +11,8 @@ import { Button, Select, ZonseThemeContext } from '../../components';
 import { SearchBar } from './partials/SearchBar';
 import { getInventoryTableColumns } from './partials/InventoryTableColumns';
 import Filters from './partials/Filters';
+import BulkActionsModal from './partials/BulkActionsModal';
+import AdjustQuantityModal from './partials/AdjustQuantityModal';
 import { useInventoryManagement } from '../../hooks/useInventoryManagement';
 import { useInventorySummary } from '../../hooks/useInventorySummary';
 import { ROUTES } from '../../utils/constants';
@@ -18,6 +20,15 @@ import { ROUTES } from '../../utils/constants';
 const InventoryManagement: FunctionComponent = () => {
     const navigate = useNavigate();
     const { mode } = useContext(ZonseThemeContext);
+
+    // Bulk actions state
+    const [selectedRows, setSelectedRows] = useState<InventoryItem[]>([]);
+    const [toggleCleared, setToggleCleared] = useState(false);
+    const [isBulkActionsOpen, setIsBulkActionsOpen] = useState(false);
+
+    // Adjust quantity state
+    const [isAdjustQuantityOpen, setIsAdjustQuantityOpen] = useState(false);
+    const [selectedItemForAdjust, setSelectedItemForAdjust] = useState<InventoryItem | null>(null);
 
     const {
         isLoading,
@@ -80,9 +91,35 @@ const InventoryManagement: FunctionComponent = () => {
         applyFilters({ filter: 'all', search: '', categoryId: undefined });
     }, [setActiveFilter, applyFilters]);
 
+    // Handle row selection change
+    const handleRowSelected = useCallback((state: { selectedRows: InventoryItem[] }) => {
+        setSelectedRows(state.selectedRows);
+    }, []);
+
+    // Handle adjust quantity for single item
+    const handleAdjustQuantity = useCallback((item: InventoryItem) => {
+        setSelectedItemForAdjust(item);
+        setIsAdjustQuantityOpen(true);
+    }, []);
+
+    // Handle bulk actions success
+    const handleBulkSuccess = useCallback(() => {
+        setToggleCleared(!toggleCleared);
+        setSelectedRows([]);
+        loadInventory();
+        loadSummary();
+    }, [toggleCleared, loadInventory, loadSummary]);
+
+    // Handle adjust quantity success
+    const handleAdjustSuccess = useCallback(() => {
+        loadInventory();
+        loadSummary();
+    }, [loadInventory, loadSummary]);
+
     const columns = getInventoryTableColumns({
         onEdit: handleEdit,
         onDelete: handleDelete,
+        onAdjustQuantity: handleAdjustQuantity,
     });
 
     return (
@@ -134,6 +171,19 @@ const InventoryManagement: FunctionComponent = () => {
                                     placeholder="Search by name, barcode, or SKU..."
                                     className="w-full sm:w-64"
                                 />
+
+                                {/* Bulk Actions Button */}
+                                {selectedRows.length > 0 && (
+                                    <Button
+                                        onClick={() => setIsBulkActionsOpen(true)}
+                                        theme="neutral"
+                                        layout="outline"
+                                        className="flex items-center gap-2"
+                                    >
+                                        <Settings2 className="w-4 h-4" />
+                                        Bulk Actions ({selectedRows.length})
+                                    </Button>
+                                )}
                             </div>
 
                             <div className="w-full lg:w-auto">
@@ -161,6 +211,10 @@ const InventoryManagement: FunctionComponent = () => {
                         onChangeRowsPerPage={handlePerRowsChange}
                         onChangePage={handlePageChange}
                         fixedHeader
+                        selectableRows
+                        selectableRowsHighlight
+                        onSelectedRowsChange={handleRowSelected}
+                        clearSelectedRows={toggleCleared}
                         fixedHeaderScrollHeight="calc(100vh - 380px)"
                         customStyles={getTableStyles(mode)}
                         noDataComponent={
@@ -192,6 +246,26 @@ const InventoryManagement: FunctionComponent = () => {
                     />
                 </div>
             </div>
+
+            {/* Bulk Actions Modal */}
+            <BulkActionsModal
+                isOpen={isBulkActionsOpen}
+                onClose={() => setIsBulkActionsOpen(false)}
+                selectedItems={selectedRows}
+                categories={categories}
+                onSuccess={handleBulkSuccess}
+            />
+
+            {/* Adjust Quantity Modal */}
+            <AdjustQuantityModal
+                isOpen={isAdjustQuantityOpen}
+                onClose={() => {
+                    setIsAdjustQuantityOpen(false);
+                    setSelectedItemForAdjust(null);
+                }}
+                item={selectedItemForAdjust}
+                onSuccess={handleAdjustSuccess}
+            />
         </AppLayout>
     );
 };
