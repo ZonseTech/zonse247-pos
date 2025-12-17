@@ -185,6 +185,16 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
 
         document.addEventListener('keydown', handleKeyPress);
 
+        return () => {
+            document.removeEventListener('keydown', handleKeyPress);
+            if (barcodeTimeout.current) {
+                clearTimeout(barcodeTimeout.current);
+            }
+        };
+    }, [barcode, isActive]);
+
+    // Separate useEffect for filtering to avoid infinite loop
+    useEffect(() => {
         if (barcode.trim() === '') {
             setFilteredItems(inventory);
         } else {
@@ -195,14 +205,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
             );
             setFilteredItems(filtered);
         }
-
-        return () => {
-            document.removeEventListener('keydown', handleKeyPress);
-            if (barcodeTimeout.current) {
-                clearTimeout(barcodeTimeout.current);
-            }
-        };
-    }, [barcode, inventory, addToCart, isActive]);
+    }, [barcode, inventory]);
 
     useEffect(() => {
         if (isActive && barcodeScannerInputRef.current) {
