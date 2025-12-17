@@ -30,6 +30,15 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
     const fetchSettings = async () => {
         try {
             setIsLoading(true);
+
+            // Check if terminal is configured before loading
+            const terminalId = await settingsService.getTerminalId();
+            if (!terminalId) {
+                console.warn('Terminal not configured, skipping settings load');
+                setIsLoading(false);
+                return;
+            }
+
             // load() returns flattened AppSettings (hierarchical JSON already mapped)
             const data = await settingsService.load();
 
