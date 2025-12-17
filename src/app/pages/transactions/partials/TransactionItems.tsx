@@ -4,7 +4,7 @@ import { formatCurrency } from "../../../utils";
 const TransactionItems: FunctionComponent<{
     items: CartItem[];
     hasItems: boolean;
-}> = ({ items, hasItems }) => (
+}> = ({ items = [], hasItems }) => (
     <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
         <div className="flex items-center justify-between mb-6">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">

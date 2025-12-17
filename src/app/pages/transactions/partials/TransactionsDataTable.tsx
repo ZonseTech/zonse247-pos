@@ -101,10 +101,10 @@ const TransactionsDataTable: FunctionComponent<Props> = ({
         },
         {
             name: "Till",
-            selector: (row) => row.terminal?.tillName || '-',
+            selector: (row) => row.user?.fullname || '-',
             cell: (row) => (
                 <span className="text-gray-600 dark:text-gray-400 text-sm">
-                    {row.terminal?.tillName || '-'}
+                    {row.user?.fullname || '-'}
                 </span>
             ),
         },
@@ -258,7 +258,7 @@ const TransactionsDataTable: FunctionComponent<Props> = ({
                 (tx.transactionId?.toLowerCase().includes(searchTerm.toLowerCase())) ||
                 (tx.user?.fullname?.toLowerCase().includes(searchTerm.toLowerCase())) ||
                 (tx.paymentMethod?.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (tx.terminal.tillName?.toLowerCase().includes(searchTerm.toLowerCase()))
+                (tx?.user?.fullname?.toLowerCase().includes(searchTerm.toLowerCase()))
             );
         }
 
