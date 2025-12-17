@@ -1,7 +1,7 @@
 import { X, Package } from 'lucide-react';
 import { formatCurrency } from '../../../utils';
 import { useState, useEffect, FunctionComponent, useRef } from 'react';
-import VirtualKeyboard from '../../../components/VirtualKeyboard';
+import InputKeyboard from '../../../components/InputKeyboard';
 
 interface ItemLookupModalProps {
     isOpen: boolean;
@@ -196,7 +196,8 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                 </div>
 
                 <div className="border-t border-gray-200 dark:border-gray-700">
-                    <VirtualKeyboard
+                    <InputKeyboard
+                        variant="full"
                         onKeyPress={handleKeyPress}
                         onBackspace={handleBackspace}
                         onSpace={handleSpace}

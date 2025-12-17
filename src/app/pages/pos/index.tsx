@@ -1,6 +1,6 @@
 import Panel from '../../components/Panel';
 import CartTable from './partials/CartTable';
-import Numpad from '../../components/Numpad';
+import InputKeyboard from '../../components/InputKeyboard';
 import Footer from '../../components/Footer';
 import BarcodeScanner from './partials/BarcodeScanner';
 import FunctionButtons from './partials/FunctionButtons';
@@ -209,7 +209,8 @@ const POSSystem: FunctionComponent = () => {
                     </Panel>
 
                     <Panel size='1/4'>
-                        <Numpad
+                        <InputKeyboard
+                            variant="numpad"
                             onButtonClick={handleNumpadClick}
                             focusManager={focusManager}
                         />
