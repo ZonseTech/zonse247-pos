@@ -1,131 +1,147 @@
-import UsersTable from './partials/UsersTable';
+import { FunctionComponent, useCallback, useContext } from 'react';
+import { useNavigate } from 'react-router';
+import { Confirm, Notify } from 'notiflix';
+import { Users } from 'lucide-react';
+import DataTable from 'react-data-table-component';
 import AppLayout from '../../layouts/AppLayout';
+import PageHeader from '../../components/page/PageHeader';
+import { HiOutlinePlus } from 'react-icons/hi2';
+import { getTableStyles } from '../../utils/table-styles';
+import { Button, ZonseThemeContext } from '../../components';
 import { useUsers } from '../../hooks/useUsers';
-import UserFilters from './partials/UserFilters';
-import UserFormModal from './partials/UserFormModal';
-import UserDetailsModal from './partials/UserDetailsModal';
-import { useUserActions } from '../../hooks/useUserActions';
-import { useState, ChangeEvent, FunctionComponent } from 'react';
+import { SearchBar } from './partials/SearchBar';
+import { getUserTableColumns } from './partials/UserTableColumns';
+import { ROUTES } from '../../utils/constants';
 
 const UserManagement: FunctionComponent = () => {
-    const [showForm, setShowForm] = useState(false);
-    const [showDetails, setShowDetails] = useState(false);
-    const [editingUser, setEditingUser] = useState<User | null>(null);
-    const [viewingUser, setViewingUser] = useState<User | null>(null);
+    const navigate = useNavigate();
+    const { mode } = useContext(ZonseThemeContext);
 
     const {
-        users,
         isLoading,
-        totalRows,
-        page,
-        perPage,
         searchTerm,
-        statusFilter,
-        roleFilter,
         setSearchTerm,
-        setStatusFilter,
-        setRoleFilter,
+        page,
+        setPage,
+        perPage,
+        setPerPage,
+        totalRows,
+        deleteUser,
+        updateUserStatus,
+        resetPassword,
         getPaginatedData,
-        handlePageChange,
-        handlePerRowsChange,
-        loadUsers,
-        saveUsers,
-        getFilteredUsers
     } = useUsers();
 
-    const { handleDelete, handleResetPassword, toggleUserStatus } = useUserActions(saveUsers, users);
+    const handleAddUser = useCallback(() => {
+        navigate(ROUTES.USER_FORM);
+    }, [navigate]);
 
-    const handleView = (user: User) => {
-        setViewingUser(user);
-        setShowDetails(true);
-    };
+    const handleEdit = useCallback((user: User) => {
+        navigate(ROUTES.USER_FORM, { state: { userId: user.id || user.userId } });
+    }, [navigate]);
 
-    const handleEdit = (user: User) => {
-        setEditingUser(user);
-        setShowForm(true);
-    };
+    const handleDelete = useCallback((userId: string) => {
+        Confirm.show(
+            'Delete User',
+            'Are you sure you want to delete this user? This action cannot be undone.',
+            'Yes, Delete',
+            'Cancel',
+            () => {
+                deleteUser(userId);
+            },
+            undefined,
+            {
+                okButtonBackground: '#ef4444',
+            }
+        );
+    }, [deleteUser]);
 
-    const handleUserSaved = () => {
-        loadUsers();
-        setShowForm(false);
-        setEditingUser(null);
-    };
+    const handleResetPassword = useCallback((userId: string) => {
+        Confirm.show(
+            'Reset Password',
+            'Enter new password for this user:',
+            'Reset',
+            'Cancel',
+            () => {
+                // In a real implementation, you'd show a modal to get the new password
+                const newPassword = prompt('Enter new password (min 8 characters):');
+                if (newPassword && newPassword.length >= 8) {
+                    resetPassword(userId, newPassword, true);
+                } else if (newPassword) {
+                    Notify.failure('Password must be at least 8 characters');
+                }
+            }
+        );
+    }, [resetPassword]);
 
-    const handleCloseForm = () => {
-        setShowForm(false);
-        setEditingUser(null);
-    };
+    const handleToggleStatus = useCallback((userId: string, newStatus: UserStatus) => {
+        const action = newStatus === 'active' ? 'activate' : 'deactivate';
+        Confirm.show(
+            `${action.charAt(0).toUpperCase() + action.slice(1)} User`,
+            `Are you sure you want to ${action} this user?`,
+            'Yes',
+            'Cancel',
+            () => {
+                updateUserStatus(userId, newStatus);
+            }
+        );
+    }, [updateUserStatus]);
 
-    const handleCloseDetails = () => {
-        setShowDetails(false);
-        setViewingUser(null);
-    };
-
-    const handleAddUserClicked = () => {
-        setEditingUser(null);
-        setShowForm(true);
-    };
-
-    const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(event.target.value);
-    };
-
-    const handleStatusFilter = (event: ChangeEvent<HTMLSelectElement>) => {
-        setStatusFilter(event.target.value);
-    };
-
-    const handleRoleFilter = (event: ChangeEvent<HTMLSelectElement>) => {
-        setRoleFilter(event.target.value);
-    };
-
-    const uniqueRoles = [...new Set(users.map(user => user.roleId))];
+    const columns = getUserTableColumns({
+        onEdit: handleEdit,
+        onDelete: handleDelete,
+        onResetPassword: handleResetPassword,
+        onToggleStatus: handleToggleStatus,
+    });
 
     return (
         <AppLayout>
-            <div className="">
-                <div className="overflow-hidden shadow-sm dark:shadow-gray-900/20">
-                    <UserFilters
-                        searchTerm={searchTerm}
-                        statusFilter={statusFilter}
-                        roleFilter={roleFilter}
-                        uniqueRoles={uniqueRoles}
-                        totalUsers={users.length}
-                        filteredCount={getFilteredUsers().length}
-                        onSearchChange={handleSearch}
-                        onStatusFilterChange={handleStatusFilter}
-                        onRoleFilterChange={handleRoleFilter}
-                        onAddUser={handleAddUserClicked}
-                    />
+            <div className="max-w-full">
+                <PageHeader
+                    title='Users'
+                    description='Manage user accounts, roles, and permissions'
+                >
+                    <div className="flex items-center space-x-4">
+                        <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
 
-                    <div className="overflow-x-auto bg-white dark:bg-gray-800">
-                        <UsersTable
-                            data={getPaginatedData()}
-                            isLoading={isLoading}
-                            totalRows={totalRows}
-                            page={page}
-                            perPage={perPage}
-                            onPageChange={handlePageChange}
-                            onPerRowsChange={handlePerRowsChange}
-                            onView={handleView}
-                            onEdit={handleEdit}
-                            onResetPassword={handleResetPassword}
-                            onToggleStatus={toggleUserStatus}
-                            onDelete={handleDelete}
-                        />
+                        <div className="flex items-center space-x-3">
+                            <Button
+                                onClick={handleAddUser}
+                                theme='primary'
+                            >
+                                <HiOutlinePlus className="w-4 h-4 mr-2" />
+                                {'Add User'}
+                            </Button>
+                        </div>
                     </div>
-                </div>
-
-                <UserFormModal
-                    user={editingUser}
-                    isOpen={showForm}
-                    onClose={handleCloseForm}
-                    onUserSaved={handleUserSaved}
-                />
-
-                <UserDetailsModal
-                    user={viewingUser}
-                    isOpen={showDetails}
-                    onClose={handleCloseDetails}
+                </PageHeader>
+                <DataTable
+                    columns={columns}
+                    data={getPaginatedData()}
+                    theme={mode as string}
+                    progressPending={isLoading}
+                    highlightOnHover
+                    striped
+                    responsive
+                    pagination
+                    paginationServer
+                    paginationTotalRows={totalRows}
+                    onChangeRowsPerPage={(newPerPage, page) => {
+                        setPage(page);
+                        setPerPage(newPerPage);
+                    }}
+                    onChangePage={setPage}
+                    fixedHeader
+                    fixedHeaderScrollHeight="calc(100vh - 350px)"
+                    customStyles={getTableStyles(mode)}
+                    noDataComponent={
+                        <div className="text-center py-8">
+                            <Users className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                            <p className="text-gray-500 dark:text-gray-400">
+                                {searchTerm ? 'No user(s) found matching your search.' : 'No users found.'}
+                            </p>
+                        </div>
+                    }
                 />
             </div>
         </AppLayout>

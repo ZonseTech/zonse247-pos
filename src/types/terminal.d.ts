@@ -1,11 +1,3 @@
-interface TerminalVerificationParams {
-    tenantCode: string;
-    verificationToken: string;
-    os: string;
-    hostname: string;
-    macAddress: string;
-}
-
 type TerminalActivationStatus = 'PENDING' | 'ACTIVATED' | 'DEACTIVATED' | 'SUSPENDED' | 'BLOCKED';
 type TerminalMraStatus = 'APPLIED' | 'APPROVED' | 'REJECTED';
 

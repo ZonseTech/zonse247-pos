@@ -1,95 +1,140 @@
+import { useState, useEffect, useCallback } from 'react';
 import { Notify } from 'notiflix';
-import { useState, useEffect } from 'react';
 import usersService from '../services/users.service';
 
-export const useUsers = () => {
-    const [page, setPage] = useState(1);
-    const [perPage, setPerPage] = useState(13);
+interface UseUsersReturn {
+    users: User[];
+    filteredUsers: User[];
+    isLoading: boolean;
+    searchTerm: string;
+    setSearchTerm: (term: string) => void;
+    page: number;
+    setPage: (page: number) => void;
+    perPage: number;
+    setPerPage: (perPage: number) => void;
+    totalRows: number;
+    deleteUser: (userId: string) => Promise<void>;
+    updateUserStatus: (userId: string, status: UserStatus) => Promise<void>;
+    resetPassword: (userId: string, newPassword: string, forceChange?: boolean) => Promise<void>;
+    refreshUsers: () => Promise<void>;
+    filterUsers: (term: string) => User[];
+    getPaginatedData: () => User[];
+}
+
+export const useUsers = (): UseUsersReturn => {
     const [users, setUsers] = useState<User[]>([]);
+    const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [roleFilter, setRoleFilter] = useState<string>('all');
-    const [statusFilter, setStatusFilter] = useState<string>('all');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [page, setPage] = useState(1);
+    const [perPage, setPerPage] = useState(10);
+    const [totalRows, setTotalRows] = useState(0);
 
-    useEffect(() => {
-        loadUsers();
-    }, []);
-
-    const loadUsers = async () => {
+    const loadUsers = useCallback(async () => {
+        setIsLoading(true);
         try {
-            setIsLoading(true);
-            const data: Array<User> = await usersService.list();
+            const data = await usersService.list();
             setUsers(data);
-        } catch (error) {
+            setFilteredUsers(data);
+            setTotalRows(data.length);
+        } catch (error: any) {
             console.error('Error loading users:', error);
-            Notify.failure('Failed to load users');
+            const errorMessage = error?.response?.data?.message || 'Failed to load users';
+            Notify.failure(errorMessage);
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
 
-    const getFilteredUsers = () => {
-        let filtered = users;
+    useEffect(() => {
+        loadUsers();
+    }, [loadUsers]);
 
-        if (searchTerm.trim() !== "") {
-            filtered = filtered.filter(user =>
-                user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.phone?.toLowerCase().includes(searchTerm.toLowerCase())
-            );
+    const filterUsers = useCallback((term: string): User[] => {
+        if (!term.trim()) {
+            return users;
         }
 
-        if (statusFilter !== 'all') {
-            filtered = filtered.filter(user => user.status === statusFilter);
-        }
+        const lowerTerm = term.toLowerCase();
+        return users.filter((user) =>
+            user.username?.toLowerCase().includes(lowerTerm) ||
+            user.fullname?.toLowerCase().includes(lowerTerm) ||
+            user.email?.toLowerCase().includes(lowerTerm) ||
+            user.phone?.toLowerCase().includes(lowerTerm) ||
+            user.roleId?.toLowerCase().includes(lowerTerm) ||
+            user.roleName?.toLowerCase().includes(lowerTerm)
+        );
+    }, [users]);
 
-        if (roleFilter !== 'all') {
-            filtered = filtered.filter(user => user.roleId === roleFilter);
-        }
+    useEffect(() => {
+        const filtered = filterUsers(searchTerm);
+        setFilteredUsers(filtered);
+        setTotalRows(filtered.length);
+        setPage(1);
+    }, [searchTerm, filterUsers]);
 
-        return filtered;
-    };
-
-    const getPaginatedData = () => {
-        const filtered = getFilteredUsers();
+    const getPaginatedData = useCallback((): User[] => {
         const startIndex = (page - 1) * perPage;
         const endIndex = startIndex + perPage;
-        return filtered.slice(startIndex, endIndex);
-    };
+        return filteredUsers.slice(startIndex, endIndex);
+    }, [page, perPage, filteredUsers]);
 
-    const handlePageChange = (newPage: number) => {
-        setPage(newPage);
-    };
+    const deleteUser = useCallback(async (userId: string) => {
+        try {
+            await usersService.delete(userId);
+            Notify.success('User deleted successfully');
+            await loadUsers();
+        } catch (error: any) {
+            console.error('Error deleting user:', error);
+            const errorMessage = error?.response?.data?.message || 'Failed to delete user';
+            Notify.failure(errorMessage);
+        }
+    }, [loadUsers]);
 
-    const handlePerRowsChange = (newPerPage: number, page: number) => {
-        setPage(page);
-        setPerPage(newPerPage);
-    };
+    const updateUserStatus = useCallback(async (userId: string, status: UserStatus) => {
+        try {
+            await usersService.toggleStatus(userId, status);
+            Notify.success(`User ${status} successfully`);
+            await loadUsers();
+        } catch (error: any) {
+            console.error('Error updating user status:', error);
+            const errorMessage = error?.response?.data?.message || 'Failed to update user status';
+            Notify.failure(errorMessage);
+        }
+    }, [loadUsers]);
 
-    const saveUsers = (updatedUsers: User[]) => {
-        setUsers(updatedUsers);
-        setPage(1);
-    };
+    const resetPassword = useCallback(async (userId: string, newPassword: string, forceChange: boolean = true) => {
+        try {
+            await usersService.resetPassword(userId, { newPassword, forcePasswordChange: forceChange });
+            Notify.success('Password reset successfully');
+            await loadUsers();
+        } catch (error: any) {
+            console.error('Error resetting password:', error);
+            const errorMessage = error?.response?.data?.message || 'Failed to reset password';
+            Notify.failure(errorMessage);
+        }
+    }, [loadUsers]);
+
+    const refreshUsers = useCallback(async () => {
+        await loadUsers();
+    }, [loadUsers]);
 
     return {
         users,
+        filteredUsers,
         isLoading,
-        page,
-        perPage,
         searchTerm,
-        statusFilter,
-        roleFilter,
         setSearchTerm,
-        setStatusFilter,
-        setRoleFilter,
+        page,
+        setPage,
+        perPage,
+        setPerPage,
+        totalRows,
+        deleteUser,
+        updateUserStatus,
+        resetPassword,
+        refreshUsers,
+        filterUsers,
         getPaginatedData,
-        handlePageChange,
-        handlePerRowsChange,
-        loadUsers,
-        saveUsers,
-        getFilteredUsers,
-        totalRows: getFilteredUsers().length,
-        filteredUsers: getFilteredUsers()
     };
 };

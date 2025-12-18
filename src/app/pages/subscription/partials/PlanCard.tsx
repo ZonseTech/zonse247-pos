@@ -27,7 +27,7 @@ const PlanCard: FunctionComponent<PlanCardProps> = ({
                     Most Popular
                 </span>
             )}
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.displayName}</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
             <div className="flex items-baseline justify-center mb-2">
                 <span className="text-4xl font-bold text-gray-900">
                     {getPrice(plan)}
