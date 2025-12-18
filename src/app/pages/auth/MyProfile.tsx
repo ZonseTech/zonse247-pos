@@ -36,7 +36,6 @@ const UserDetailsPage: FunctionComponent<Props> = ({ user }) => {
         username: user?.username || '',
         email: user?.email || '',
         phone: user?.phone || '',
-        departmentId: user?.departmentId || '',
         roleName: user?.roleName || 'user',
     }
 

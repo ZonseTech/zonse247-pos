@@ -1,5 +1,5 @@
 import { FunctionComponent, useState, useEffect, useRef } from 'react';
-import Numpad from '../../../components/Numpad';
+import InputKeyboard from '../../../components/InputKeyboard';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { FormikErrors } from 'formik';
 
@@ -105,11 +105,12 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
     return (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
             <div>
-                <Numpad
+                <InputKeyboard
+                    variant="numpad"
                     onButtonClick={handleNumpadClick}
                     focusManager={focusManager}
                     className='h-fit'
-                    type='basic'
+                    numpadType='basic'
                     title="Enter Cash Amount"
                 />
             </div>

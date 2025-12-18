@@ -2,12 +2,12 @@ import Select from 'react-select'
 import AddCustomerModal from './AddCustomerModal';
 import { Fragment, FunctionComponent, useContext, useEffect, useState } from 'react'
 import { ZonseThemeContext } from '../../components';
-import { useProducts } from '../../hooks/useProducts';
+import { useInventory } from '../../hooks/useInventory';
 
 const CustomerFilter: FunctionComponent = () => {
     const { mode } = useContext(ZonseThemeContext);
     const [customer, setCustomer] = useState<string>("");
-    const { customers, fetchCustomers, setSelectedCustomer } = useProducts();
+    const { customers, fetchCustomers, setSelectedCustomer } = useInventory();
 
     useEffect(() => {
         const arr = customers.filter((c) => c.customerId === customer.toString())

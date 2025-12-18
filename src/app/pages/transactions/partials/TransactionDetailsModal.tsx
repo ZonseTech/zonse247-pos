@@ -46,7 +46,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 			cashierName: transaction.user?.fullname || transaction.user?.username || 'Administrator',
 			formattedDate: formatDate(transaction.date),
 			phoneNumber: transaction.phoneNumber?.trim() || null,
-			tillName: transaction.workstation?.tillName || 'Main Till',
+			tillName: transaction?.user?.fullname || 'Main Till',
 			paymentMethodName: transaction.paymentMethod?.name || 'Cash',
 			hasItems: Array.isArray(transaction.items) && transaction.items.length > 0,
 			hasTax: transaction.tax > 0,

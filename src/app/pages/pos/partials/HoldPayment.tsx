@@ -1,7 +1,7 @@
 import { Report } from "notiflix"
 import { HiOutlineHand, HiOutlineShoppingCart, HiOutlineCurrencyDollar } from "react-icons/hi"
 import { Fragment, useState, type ChangeEvent, type FunctionComponent } from "react"
-import { useProducts } from '../../../hooks/useProducts';
+import { useInventory } from '../../../hooks/useInventory';
 import { Modal, Input } from "../../../components"
 import holdOrderService from "../../../services/hold-orders.service"
 import { formatCurrency } from "../../../utils"
@@ -10,7 +10,7 @@ const HoldPayment: FunctionComponent = () => {
     const [reference, setReference] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isOpenHoldModal, setOpenHoldModal] = useState(false)
-    const { cart, total, clearCart, user, till } = useProducts()
+    const { cart, total, clearCart, user, till } = useInventory()
 
     const handleOnHold = () => {
         if (cart.length > 0) {

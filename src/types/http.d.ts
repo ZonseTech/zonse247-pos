@@ -21,7 +21,7 @@ type APIProps = {
     ) => Promise<AxiosResponse<T, any>>;
     post: <T>(
         url: string,
-        body: T,
+        body?: T,
         headers?: Record<string, any>,
         options?: APIMethodOptions
     ) => Promise<AxiosResponse<T, any>>;

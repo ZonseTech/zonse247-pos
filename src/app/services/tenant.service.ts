@@ -7,13 +7,13 @@ const endpoints: Record<string, string> = {
     show: 'tenants',
     delete: 'tenants/tenant',
     register: 'tenants/register-tenant',
-    updateClient: 'tenants/update-tenant',
+    updateTenant: 'tenants/update-tenant',
     onboarding: 'tenants/onboarding-status'
 };
 
 const tenantsService = {
     endpoints,
-    async list(query: ClientQueryParams = {}): Promise<Array<Tenant>> {
+    async list(query: TenantQueryParams = {}): Promise<Array<Tenant>> {
         try {
             const response = await api.get<ApiResponse<Array<Tenant>>>(endpoints.all, query);
             return response.data.data || [];
@@ -23,7 +23,7 @@ const tenantsService = {
         }
     },
 
-    async listPaginated(query: ClientQueryParams = {}): Promise<PaginatedResponse<Tenant>> {
+    async listPaginated(query: TenantQueryParams = {}): Promise<PaginatedResponse<Tenant>> {
         try {
             const response = await api.get<PaginatedResponse<Tenant>>(endpoints.all, {
                 ...query,
@@ -31,7 +31,7 @@ const tenantsService = {
             });
             return response.data;
         } catch (err) {
-            console.error('Error fetching paginated clients:', err);
+            console.error('Error fetching paginated tenants:', err);
             throw err;
         }
     },
@@ -70,34 +70,34 @@ const tenantsService = {
             const response = await api.delete<ApiResponse<{ status: boolean }>>(`${endpoints.delete}/${id}`);
             return response.data.data || { status: true };
         } catch (err) {
-            console.error('Error deleting client:', err);
+            console.error('Error deleting tenant:', err);
             throw err;
         }
     },
 
-    async register(data: RegisterClientRequest): Promise<Tenant> {
+    async register(data: RegisterTenantRequest): Promise<Tenant> {
         try {
             const response = await api.post<ApiResponse<Tenant>>(endpoints.register, data as any);
             return response.data.data!;
         } catch (err) {
-            console.error('Error registering client:', err);
+            console.error('Error registering tenant:', err);
             throw err;
         }
     },
 
-    async updateClient(clientUuid: string, data: Partial<RegisterClientRequest>): Promise<Tenant> {
+    async updateTenant(tenantUuid: string, data: Partial<RegisterTenantRequest>): Promise<Tenant> {
         try {
-            const response = await api.put<ApiResponse<Tenant>>(`${endpoints.updateClient}/${clientUuid}`, data as any);
+            const response = await api.put<ApiResponse<Tenant>>(`${endpoints.updateTenant}/${tenantUuid}`, data as any);
             return response.data.data!;
         } catch (err) {
-            console.error('Error updating client:', err);
+            console.error('Error updating tenant:', err);
             throw err;
         }
     },
 
-    async getOnboardingStatus(clientUuid: string): Promise<OnboardingStatus> {
+    async getOnboardingStatus(tenantUuid: string): Promise<OnboardingStatus> {
         try {
-            const response = await api.get<ApiResponse<OnboardingStatus>>(`${endpoints.onboarding}/${clientUuid}`);
+            const response = await api.get<ApiResponse<OnboardingStatus>>(`${endpoints.onboarding}/${tenantUuid}`);
             return response.data.data!;
         } catch (err) {
             console.error('Error fetching onboarding status:', err);
@@ -105,7 +105,7 @@ const tenantsService = {
         }
     },
 
-    async search(searchTerm: string, filters: Omit<ClientQueryParams, 'search'> = {}): Promise<Tenant[]> {
+    async search(searchTerm: string, filters: Omit<TenantQueryParams, 'search'> = {}): Promise<Tenant[]> {
         return this.list({
             ...filters,
             search: searchTerm
@@ -126,15 +126,15 @@ const tenantsService = {
 
     async checkEmailExists(email: string): Promise<boolean> {
         try {
-            const clients = await this.search(email);
-            return clients.some(client => client.email.toLowerCase() === email.toLowerCase());
+            const tenants = await this.search(email);
+            return tenants.some(tenant => tenant.email.toLowerCase() === email.toLowerCase());
         } catch (err) {
             console.error('Error checking email existence:', err);
             return false;
         }
     },
 
-    validateClientData(data: Partial<RegisterClientRequest>): { isValid: boolean; errors: string[] } {
+    validateTenantData(data: Partial<RegisterTenantRequest>): { isValid: boolean; errors: string[] } {
         const errors: string[] = [];
 
         if (!data.companyName?.trim()) {
@@ -166,23 +166,23 @@ const tenantsService = {
         return emailRegex.test(email);
     },
 
-    formatClientForDisplay(client: Client): Record<string, any> {
+    formatTenantForDisplay(tenant: Tenant): Record<string, any> {
         return {
-            id: client.uuid,
-            clientCode: client.clientCode,
-            companyName: client.companyName,
-            ownerName: client.ownerName,
-            email: client.email,
-            phone: client.phone,
-            address: client.address,
-            country: client.country,
-            timezone: client.timezone,
-            subscriptionStatus: client.subscriptionStatus,
-            status: client.status,
-            trialEndsAt: client.trialEndsAt ? new Date(client.trialEndsAt) : null,
-            registeredAt: new Date(client.registeredAt),
-            createdAt: client.createdAt ? new Date(client.createdAt) : null,
-            updatedAt: client.updatedAt ? new Date(client.updatedAt) : null
+            id: tenant.uuid,
+            tenantCode: tenant.tenantCode,
+            companyName: tenant.companyName,
+            ownerName: tenant.ownerName,
+            email: tenant.email,
+            phone: tenant.phone,
+            address: tenant.address,
+            country: tenant.country,
+            timezone: tenant.timezone,
+            subscriptionStatus: tenant.subscriptionStatus,
+            status: tenant.status,
+            trialEndsAt: tenant.trialEndsAt ? new Date(tenant.trialEndsAt) : null,
+            registeredAt: new Date(tenant.registeredAt),
+            createdAt: tenant.createdAt ? new Date(tenant.createdAt) : null,
+            updatedAt: tenant.updatedAt ? new Date(tenant.updatedAt) : null
         };
     },
 
@@ -195,14 +195,14 @@ const tenantsService = {
                 results.success.push(id);
             } catch (err) {
                 results.failed.push(id);
-                console.error(`Failed to delete client ${id}:`, err);
+                console.error(`Failed to delete tenant ${id}:`, err);
             }
         }
 
         return results;
     },
 
-    async bulkUpdate(updates: Array<{ id: string; data: Partial<RegisterClientRequest> }>): Promise<{ success: string[]; failed: string[] }> {
+    async bulkUpdate(updates: Array<{ id: string; data: Partial<RegisterTenantRequest> }>): Promise<{ success: string[]; failed: string[] }> {
         const results = { success: [], failed: [] };
 
         for (const update of updates) {
@@ -211,37 +211,37 @@ const tenantsService = {
                 results.success.push(update.id);
             } catch (err) {
                 results.failed.push(update.id);
-                console.error(`Failed to update client ${update.id}:`, err);
+                console.error(`Failed to update tenant ${update.id}:`, err);
             }
         }
 
         return results;
     },
 
-    async exportClients(format: 'json' | 'csv' = 'json', filters: ClientQueryParams = {}): Promise<string> {
+    async exportTenants(format: 'json' | 'csv' = 'json', filters: TenantQueryParams = {}): Promise<string> {
         try {
-            const clients = await this.list(filters);
+            const tenants = await this.list(filters);
 
             if (format === 'json') {
-                return JSON.stringify(clients, null, 2);
+                return JSON.stringify(tenants, null, 2);
             } else {
-                return this.convertToCSV(clients);
+                return this.convertToCSV(tenants);
             }
         } catch (err) {
-            console.error('Error exporting clients:', err);
+            console.error('Error exporting tenants:', err);
             throw err;
         }
     },
 
-    convertToCSV(clients: Tenant[]): string {
-        if (clients.length === 0) return '';
+    convertToCSV(tenants: Tenant[]): string {
+        if (tenants.length === 0) return '';
 
-        const headers = Object.keys(clients[0]).filter(key => key !== '_id');
+        const headers = Object.keys(tenants[0]).filter(key => key !== '_id');
         const csvContent = [
             headers.join(','),
-            ...clients.map(client =>
+            ...tenants.map(tenant =>
                 headers.map(header => {
-                    const value = (client as any)[header];
+                    const value = (tenant as any)[header];
                     return typeof value === 'string' && value.includes(',')
                         ? `"${value}"`
                         : value;
@@ -252,7 +252,7 @@ const tenantsService = {
         return csvContent;
     },
 
-    async getClientStats(): Promise<{
+    async getTenantStats(): Promise<{
         total: number;
         byStatus: Record<string, number>;
         bySubscriptionStatus: Record<string, number>;
@@ -260,21 +260,21 @@ const tenantsService = {
         recentRegistrations: number;
     }> {
         try {
-            const allClients = await this.list();
+            const allTenants = await this.list();
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
             return {
-                total: allClients.length,
-                byStatus: this.groupBy(allClients, 'status'),
-                bySubscriptionStatus: this.groupBy(allClients, 'subscriptionStatus'),
-                byCountry: this.groupBy(allClients, 'country'),
-                recentRegistrations: allClients.filter(client =>
-                    new Date(client.registeredAt) >= thirtyDaysAgo
+                total: allTenants.length,
+                byStatus: this.groupBy(allTenants, 'status'),
+                bySubscriptionStatus: this.groupBy(allTenants, 'subscriptionStatus'),
+                byCountry: this.groupBy(allTenants, 'country'),
+                recentRegistrations: allTenants.filter(tenant =>
+                    new Date(tenant.registeredAt) >= thirtyDaysAgo
                 ).length
             };
         } catch (err) {
-            console.error('Error fetching client stats:', err);
+            console.error('Error fetching tenant stats:', err);
             throw err;
         }
     },

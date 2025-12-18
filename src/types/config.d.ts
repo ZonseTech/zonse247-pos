@@ -84,7 +84,7 @@ interface Config {
 		port: number;
 		password?: string;
 	};
-	client: {
+	tenant: {
 		apiUrl: string;
 		appTitle: string;
 		debugMode: boolean;

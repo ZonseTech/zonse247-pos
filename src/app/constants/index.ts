@@ -5,3 +5,6 @@ export const INIT_CONFIG = {
 	TIMEOUT_DURATION: 10000,
 }
 export const DEFAULT_COUNTRY_CODE = 'MW';
+
+// Re-export role constants
+export * from './roles';

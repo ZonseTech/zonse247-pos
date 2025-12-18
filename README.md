@@ -4,19 +4,16 @@
 - https://www.trifecta.xyz
 - https://bncpackaging.com/
 
-# the tenant, branch and terminal creating process
+# Settings Key Features:
 
-- register tenant
-  - send verification token
-- create tenant branch(s)
-  - attach terminals to each branch
-
-# the onboarding
-
-- Verify
-- Select Branch
-- Select Terminal
-- Load Metadata
-- Done
+- 200+ Configurable Settings organized into 7 logical tabs
+- MRA Compliance Settings - Z-Report auto-generation, VAT display, API timeouts
+- Offline Mode Control - Data retention, sync settings, WiFi-only sync
+- Hardware Management - Complete printer, scanner, cash drawer, card reader configuration
+- Security Controls - PIN requirements, session timeouts, audit logging, API access
+- Payment Processing - Split payments, change calculation, multiple payment methods
+- Receipt Customization - QR codes, logos, formatting, kitchen/bar printing
+- Customer Management - Loyalty programs, data collection preferences
+- Performance Tuning - Cache settings, image compression, data cleanup
 
 [TODO] develop drugs - pills counting device

@@ -21,7 +21,7 @@ const NotFound: FunctionComponent = () => {
 
     const quickLinks = [
         { label: 'Dashboard', route: ROUTES.DASHBOARD, icon: LayoutDashboard },
-        { label: 'Products', route: ROUTES.PRODUCTS, icon: Boxes },
+        { label: 'Inventory', route: ROUTES.INVENTORY, icon: Boxes },
         { label: 'Sync Data', route: ROUTES.SYNC_DATA, icon: DownloadCloudIcon },
         { label: 'My Profile', route: ROUTES.MY_PROFILE, icon: User },
     ]

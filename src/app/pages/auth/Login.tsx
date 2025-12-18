@@ -10,7 +10,7 @@ import AuthLayout from "../../layouts/AuthLayout";
 import FormInput from "../../components/FormInput";
 import { useAuth } from "../../context/AuthProvider";
 import FormWrapper from "../../components/FormWrapper";
-import VirtualKeyboard from "../../components/VirtualKeyboard";
+import InputKeyboard from "../../components/InputKeyboard";
 import type { Dispatch, FunctionComponent, SetStateAction } from "react";
 
 interface AuthProps {
@@ -100,7 +100,8 @@ const Login: FunctionComponent = () => {
             className='max-w-md'
             showKeyboard={true}
             keyboard={
-                <VirtualKeyboard
+                <InputKeyboard
+                    variant="full"
                     onKeyPress={handleKeyPress}
                     onBackspace={handleBackspace}
                     onEnter={handleEnter}

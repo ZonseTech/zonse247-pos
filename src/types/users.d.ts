@@ -73,6 +73,7 @@ interface UpdateUserRequest {
     canOverridePrices?: boolean;
     pinCode?: string;
     currentBranchId?: string;
+    passwordChangedAt?: string | Date;
     forcePasswordChange?: boolean;
 }
 

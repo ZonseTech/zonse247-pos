@@ -1,6 +1,7 @@
 import { Confirm } from 'notiflix';
 import { CreditCard } from 'lucide-react';
 import AppLayout from '../../layouts/AppLayout';
+import { HiOutlineCreditCard } from 'react-icons/hi2';
 import DataTable from 'react-data-table-component';
 import { getTableStyles } from '../../utils/table-styles';
 import PageHeader from '../../components/page/PageHeader';
@@ -74,6 +75,7 @@ const SubscriptionManagement: FunctionComponent = () => {
                 <PageHeader
                     title='Subscriptions'
                     description='Manage tenants subscriptions and billing'
+                    icon={<HiOutlineCreditCard className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
                 >
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                         <SearchBar

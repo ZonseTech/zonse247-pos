@@ -102,20 +102,20 @@ const RoleModal: FunctionComponent<Props> = ({ role, isOpen, onSave, onClose }) 
 
                             <div className='flex gap-2'>
                                 <FormInput
-                                    label="Client ID"
+                                    label="Tenant ID"
                                     id="tenantId"
                                     name="tenantId"
                                     type="text"
-                                    placeholder="Enter client ID"
+                                    placeholder="Enter tenant ID"
                                     className="mt-1"
                                 />
 
                                 <FormInput
-                                    label="Shop ID"
+                                    label="Branch ID"
                                     id="branchId"
                                     name="branchId"
                                     type="text"
-                                    placeholder="Enter shop ID"
+                                    placeholder="Enter branch ID"
                                     className="mt-1"
                                 />
                             </div>

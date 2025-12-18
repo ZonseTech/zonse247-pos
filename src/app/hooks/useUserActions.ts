@@ -38,12 +38,12 @@ export const useUserActions = (saveUsers: (users: User[]) => void, users: User[]
                 try {
                     await usersService.update(user.userId, {
                         forcePasswordChange: true,
-                        password_changed_at: new Date()
+                        passwordChangedAt: new Date()
                     });
 
                     const updatedUsers = users.map(u =>
                         u.userId === user.userId
-                            ? { ...u, forcePasswordChange: true, password_changed_at: new Date() }
+                            ? { ...u, forcePasswordChange: true, passwordChangedAt: new Date() }
                             : u
                     );
                     saveUsers(updatedUsers);

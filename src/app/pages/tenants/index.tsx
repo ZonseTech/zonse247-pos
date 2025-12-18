@@ -2,7 +2,7 @@ import { Confirm } from 'notiflix';
 import { Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
-import { HiOutlinePlus } from 'react-icons/hi2';
+import { HiOutlinePlus, HiOutlineBuildingOffice2 } from 'react-icons/hi2';
 import AppLayout from '../../layouts/AppLayout';
 import { SearchBar } from './partials/SearchBar';
 import DataTable from 'react-data-table-component';
@@ -79,6 +79,7 @@ const TenantsManagement: FunctionComponent = () => {
                 <PageHeader
                     title='Tenants'
                     description='Manage tenants accounts and subscriptions'
+                    icon={<HiOutlineBuildingOffice2 className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
                 >
                     <div className="flex items-center space-x-4">
                         <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
@@ -117,7 +118,7 @@ const TenantsManagement: FunctionComponent = () => {
                         <div className="text-center py-8">
                             <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                             <p className="text-gray-500">
-                                {searchTerm ? 'No tenant(s) found matching your search.' : 'No clients found.'}
+                                {searchTerm ? 'No tenant(s) found matching your search.' : 'No tenants found.'}
                             </p>
                         </div>
                     }

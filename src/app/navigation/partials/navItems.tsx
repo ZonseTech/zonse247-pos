@@ -10,6 +10,7 @@ import {
     HiOutlinePresentationChartBar,
     HiOutlinePrinter,
     HiOutlineFolderDownload,
+    HiOutlineUserGroup,
 } from 'react-icons/hi';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
@@ -36,13 +37,14 @@ const navItems = (): NavItem[] => {
         dashboard: <HiOutlinePresentationChartBar className="h-6 w-6 mr-1" />,
         products: <HiOutlineQrcode className="h-5 w-5" />,
         categories: <HiOutlineViewList className="h-5 w-5" />,
+        customers: <HiOutlineUserGroup className="h-5 w-5" />,
         tabs: <HiOutlineViewGrid className="h-5 w-5" />,
         orders: <HiOutlineShoppingCart className="h-5 w-5" />,
         printer: <HiOutlinePrinter className="h-5 w-5" />,
-        workstations: <HiOutlineBuildingOffice2 className="h-5 w-5" />,
+        terminals: <HiOutlineBuildingOffice2 className="h-5 w-5" />,
         subscription: <LucideSubscript className="h-5 w-5" />,
         tenants: <RiGroup3Line className="h-5 w-5" />,
-        shop: <HiOutlineBuildingStorefront className="h-5 w-5" />,
+        branch: <HiOutlineBuildingStorefront className="h-5 w-5" />,
         migrations: <HiOutlineServerStack className="h-5 w-5" />,
         export_db: <HiOutlineFolderDownload className="h-5 w-5" />,
         transactions: <HiOutlinePresentationChartBar className="h-5 w-5" />,
@@ -71,9 +73,9 @@ const navItems = (): NavItem[] => {
             type: 'button',
             color: 'bg-blue-600 hover:bg-blue-700',
             iconColor: 'bg-blue-700',
-            text: 'Products',
+            text: 'Inventory',
             icon: icons.products,
-            onClick: () => navigate(ROUTES.PRODUCTS),
+            onClick: () => navigate(ROUTES.INVENTORY),
         });
 
         if (hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {
@@ -86,6 +88,15 @@ const navItems = (): NavItem[] => {
                 onClick: () => navigate(ROUTES.CATEGORIES),
             });
         }
+
+        items.push({
+            type: 'button',
+            color: 'bg-teal-500 hover:bg-teal-600',
+            iconColor: 'bg-teal-600',
+            text: 'Customers',
+            icon: icons.customers,
+            onClick: () => navigate(ROUTES.CUSTOMERS),
+        });
     }
 
     if (hasAnyPermission(user, ['reports.sales.daily', 'reports.sales.detailed', 'payments.view'])) {
@@ -130,13 +141,13 @@ const navItems = (): NavItem[] => {
         });
     }
 
-    if (hasAnyPermission(user, ['settings.shop.manage'])) {
+    if (hasAnyPermission(user, ['settings.branch.manage'])) {
         items.push({
             type: 'button',
             color: 'bg-cyan-500 hover:bg-cyan-600',
             iconColor: 'bg-cyan-600',
             text: "Branches",
-            icon: icons.shop,
+            icon: icons.branch,
             onClick: () => navigate(ROUTES.BRANCHES),
         });
 
@@ -145,7 +156,7 @@ const navItems = (): NavItem[] => {
             color: 'bg-cyan-600 hover:bg-cyan-700',
             iconColor: 'bg-cyan-700',
             text: "Terminals",
-            icon: icons.workstations,
+            icon: icons.terminals,
             onClick: () => navigate(ROUTES.TERMINALS),
         });
 

@@ -1,6 +1,6 @@
 import Panel from '../../components/Panel';
 import CartTable from './partials/CartTable';
-import Numpad from '../../components/Numpad';
+import InputKeyboard from '../../components/InputKeyboard';
 import Footer from '../../components/Footer';
 import BarcodeScanner from './partials/BarcodeScanner';
 import FunctionButtons from './partials/FunctionButtons';
@@ -8,7 +8,7 @@ import ItemLookupModal from './partials/ItemLookupModal';
 import { useFocusManager } from '../../hooks/useFocusManager';
 import { FunctionComponent, useState, useEffect, useRef } from 'react';
 import CheckoutModal, { CHECKOUT, PaymentMethod } from './partials/CheckoutModal';
-import { useProducts } from '../../hooks/useProducts';
+import { useInventory } from '../../hooks/useInventory';
 import HoldOrdersModal from './partials/HoldOrdersModal';
 
 const POSSystem: FunctionComponent = () => {
@@ -18,9 +18,9 @@ const POSSystem: FunctionComponent = () => {
         updateCustomPrice,
         total,
         clearCart,
-        products,
+        inventory,
         addToCart
-    } = useProducts();
+    } = useInventory();
 
     const focusManager = useFocusManager();
     const barcodeScannerInputRef = useRef<HTMLInputElement>(null);
@@ -181,8 +181,8 @@ const POSSystem: FunctionComponent = () => {
         console.log('Applying discount...');
     };
 
-    const handleAddToCartFromLookup = (product: Product) => {
-        addToCart(product);
+    const handleAddToCartFromLookup = (item: InventoryItem) => {
+        addToCart(item);
     };
 
     return (
@@ -209,7 +209,8 @@ const POSSystem: FunctionComponent = () => {
                     </Panel>
 
                     <Panel size='1/4'>
-                        <Numpad
+                        <InputKeyboard
+                            variant="numpad"
                             onButtonClick={handleNumpadClick}
                             focusManager={focusManager}
                         />
@@ -271,7 +272,7 @@ const POSSystem: FunctionComponent = () => {
             <ItemLookupModal
                 isOpen={isLookupModalOpen}
                 onClose={() => setIsLookupModalOpen(false)}
-                products={products}
+                inventory={inventory}
                 onAddToCart={handleAddToCartFromLookup}
                 barcodeScannerInputRef={barcodeScannerInputRef}
             />

@@ -7,7 +7,9 @@ export enum ROUTES {
 	DASHBOARD = '/dashboard',
 	TRANSACTIONS = '/transactions',
 	CATEGORIES = '/categories',
-	PRODUCTS = '/products',
+	CUSTOMERS = '/customers',
+	INVENTORY = '/inventory',
+	INVENTORY_FORM = '/inventory/form',
 	TERMINALS = '/terminals',
 	TERMINAL_FORM = '/terminals/form',
 
@@ -33,9 +35,9 @@ export enum ROUTES {
 export enum PermissionScope {
 	USER = 'user',
 	GLOBAL = 'global',
-	CLIENT = 'client',
-	SHOP = 'shop',
-	WORKSTATION = 'workstation',
+	TENANT = 'tenant',
+	BRANCH = 'branch',
+	TERMINAL = 'terminal',
 	SELF = 'self',
 }
 

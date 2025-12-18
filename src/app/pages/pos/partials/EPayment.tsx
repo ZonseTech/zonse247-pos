@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useRef, useState, useEffect } from 'react';
 import { ActiveInputType } from './CheckoutModal';
-import VirtualKeyboard from '../../../components/VirtualKeyboard';
+import InputKeyboard from '../../../components/InputKeyboard';
 import { Phone } from 'lucide-react';
 import { FormikErrors } from 'formik';
 import FormInput from '../../../components/FormInput';
@@ -259,7 +259,8 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                 onMouseDown={handleVirtualKeyboardMouseDown}
                 onMouseUp={handleVirtualKeyboardMouseUp}
             >
-                <VirtualKeyboard
+                <InputKeyboard
+                    variant="full"
                     onKeyPress={handleVirtualKeyPress}
                     onBackspace={handleVirtualBackspace}
                     onEnter={handleVirtualEnter}

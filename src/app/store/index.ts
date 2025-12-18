@@ -1,12 +1,12 @@
 import uiReducer from './slices/uiSlice'
 import cartReducer from './slices/cartSlice'
 import { configureStore } from '@reduxjs/toolkit'
-import productsReducer from './slices/productsSlice'
+import inventoryReducer from './slices/inventorySlice'
 import customersReducer from './slices/customerSlice'
 
 export const store = configureStore({
     reducer: {
-        products: productsReducer,
+        inventory: inventoryReducer,
         cart: cartReducer,
         customers: customersReducer,
         ui: uiReducer,

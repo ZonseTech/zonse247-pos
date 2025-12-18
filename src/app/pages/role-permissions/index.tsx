@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { Users, Shield, Settings, X } from 'lucide-react';
+import { HiOutlineShieldCheck } from 'react-icons/hi2';
 import roleService from '../../services/role.service';
 import permissionService from '../../services/permission.service';
 import { RolesTab } from './partials/tabs/RolesTab';
@@ -172,6 +173,7 @@ export default function RolePermissionAdmin() {
         <PageHeader
           title="Role & Permission"
           description="Manage system roles and permissions"
+          icon={<HiOutlineShieldCheck className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
         />
 
         {error && (

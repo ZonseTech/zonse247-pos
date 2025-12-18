@@ -1,7 +1,7 @@
 import { Confirm } from 'notiflix';
 import { Store } from 'lucide-react';
 import AppLayout from '../../layouts/AppLayout';
-import { HiOutlinePlus } from 'react-icons/hi2';
+import { HiOutlinePlus, HiOutlineBuildingStorefront } from 'react-icons/hi2';
 import { SearchBar } from './partials/SearchBar';
 import DataTable from 'react-data-table-component';
 import { useBranches } from '../../hooks/useBranches';
@@ -82,6 +82,7 @@ const BranchManagement: FunctionComponent = () => {
                 <PageHeader
                     title='Branches'
                     description='Manage your branch locations and settings'
+                    icon={<HiOutlineBuildingStorefront className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
                 >
                     <div className="flex items-center space-x-4">
                         <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />

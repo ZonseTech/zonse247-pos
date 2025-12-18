@@ -3,7 +3,7 @@ import { formatCurrency } from "../../../utils"
 import { Button, Modal } from "../../../components"
 import { HiOutlineClipboardList } from "react-icons/hi"
 import { useState, type FunctionComponent, Fragment } from "react"
-import { useProducts } from '../../../hooks/useProducts';
+import { useInventory } from '../../../hooks/useInventory';
 import IconLabelButton from "../../../components/IconLabelButton"
 import holdOrderService from "../../../services/hold-orders.service"
 
@@ -21,7 +21,7 @@ const HoldOrdersModal: FunctionComponent<ItemLookupModalProps> = ({
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [holdOrders, setHoldOrders] = useState<Array<HoldOrder>>([])
-    const { addToCart, setTotal, user, till, products } = useProducts()
+    const { addToCart, setTotal, user, till, inventory } = useInventory()
 
     const fetchHoldOrders = async () => {
         setIsLoading(true)
@@ -72,12 +72,12 @@ const HoldOrdersModal: FunctionComponent<ItemLookupModalProps> = ({
                     try {
                         const orderData = await holdOrderService.show(orderId);
 
-                        const cartItems = orderData.items.map(order => products.find(product => {
-                            product.orderItems = order.quantity
-                            return product.productId === order.productId
+                        const cartItems = orderData.items.map(order => inventory.find(item => {
+                            item.orderItems = order.quantity
+                            return item.productId === order.productId
                         }))
 
-                        cartItems.map(product => addToCart(product as Product))
+                        cartItems.map(item => addToCart(item as InventoryItem))
 
                         setTotal(orderData.total);
                         await holdOrderService.delete(orderId);

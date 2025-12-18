@@ -217,6 +217,11 @@ export const apiUtils = {
 		NProgress.done();
 	},
 	getActiveRequestCount: () => activeRequests,
+	updateBaseUrl: (newBaseUrl: string) => {
+		httpInstance.defaults.baseURL = newBaseUrl;
+		console.log(`API Base URL updated to: ${newBaseUrl}`);
+	},
+	getCurrentBaseUrl: () => httpInstance.defaults.baseURL,
 };
 
 export default api;

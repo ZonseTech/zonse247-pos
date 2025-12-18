@@ -26,7 +26,7 @@ export const TenantActions: React.FC<TenantActionsProps> = ({
                 ? 'text-gray-500'
                 : 'text-blue-600 hover:text-blue-800'
                 }`}
-            title="Edit client"
+            title="Edit tenant"
         >
             <Edit2 className="w-4 h-4" />
         </button>
@@ -40,7 +40,7 @@ export const TenantActions: React.FC<TenantActionsProps> = ({
                     ? 'text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100'
                     : 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100'
                 }`}
-            title={tenant.status === 'active' ? 'Suspend client' : 'Activate client'}
+            title={tenant.status === 'active' ? 'Suspend tenant' : 'Activate tenant'}
         >
             {tenant.status === 'active' ? 'Suspend' : 'Activate'}
         </button>
@@ -130,7 +130,7 @@ export const getTenantColumns = (
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSubscriptionStatusColor(row?.subscriptionStatus)}`}>
                             {row?.subscriptionStatus?.charAt(0)?.toUpperCase() + row?.subscriptionStatus?.slice(1)}
                         </span>
-                        {row?.subscriptionStatus === 'TRIAL' && row?.trialEndsAt && (
+                        {row?.subscriptionStatus === 'trial' && row?.trialEndsAt && (
                             <div className="text-xs text-gray-500 mt-1">
                                 Ends: {new Date(row.trialEndsAt).toLocaleDateString()}
                             </div>

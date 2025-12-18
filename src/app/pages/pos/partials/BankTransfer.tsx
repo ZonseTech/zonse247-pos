@@ -1,6 +1,6 @@
 import { FunctionComponent, useEffect, useRef } from 'react';
 import { ActiveInputType } from './CheckoutModal';
-import VirtualKeyboard from '../../../components/VirtualKeyboard';
+import InputKeyboard from '../../../components/InputKeyboard';
 import { FormikErrors } from 'formik';
 import FormInput from '../../../components/FormInput';
 
@@ -208,7 +208,8 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
                 onMouseDown={handleVirtualKeyboardMouseDown}
                 onMouseUp={handleVirtualKeyboardMouseUp}
             >
-                <VirtualKeyboard
+                <InputKeyboard
+                    variant="full"
                     onKeyPress={handleVirtualKeyPress}
                     onBackspace={handleVirtualBackspace}
                     onEnter={handleVirtualEnter}

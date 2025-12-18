@@ -1,72 +1,56 @@
-import { useState, useEffect, FunctionComponent, Fragment } from 'react';
-import categoriesService from '../../services/category.service';
-import { ErrorAlert } from './partials/ErrorAlert';
-import { SearchAndFilters } from './partials/SearchAndFilters';
-import { LoadingState } from './partials/LoadingState';
-import { CategoriesGrid } from './partials/CategoriesGrid';
-import { StatisticsPanel } from './partials/StatisticsPanel';
-import { EmptyState } from './partials/EmptyState';
-import CreateCategoryModal from './CreateCategoryModal';
-import { useProductManagement } from '../../hooks/useProductManagement';
-import { Button } from '../../components';
-import { HiOutlinePlus } from 'react-icons/hi';
+import { Confirm } from 'notiflix';
+import { FolderOpen } from 'lucide-react';
+import AppLayout from '../../layouts/AppLayout';
+import { HiOutlinePlus, HiOutlineFolderOpen } from 'react-icons/hi2';
+import { SearchBar } from './partials/SearchBar';
+import DataTable from 'react-data-table-component';
+import { useCategories } from '../../hooks/useCategories';
+import { FunctionComponent, useContext, useState } from 'react';
+import { getTableStyles } from '../../utils/table-styles';
 import PageHeader from '../../components/page/PageHeader';
+import { Button, ZonseThemeContext } from '../../components';
+import { getCategoryColumns } from './partials/CategoryTableColumns';
+import CreateCategoryModal from './CreateCategoryModal';
 
 const CategoriesManager: FunctionComponent = () => {
-    const { categories, isLoading } = useProductManagement();
-    const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const { mode } = useContext(ZonseThemeContext);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-    const [sortBy, setSortBy] = useState<'name' | 'date' | 'count'>('name');
-    const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        setFilteredCategories([]);
+    const {
+        isLoading,
+        searchTerm,
+        setSearchTerm,
+        totalRows,
+        setPage,
+        setPerPage,
+        getPaginatedData,
+        deleteCategory,
+        loadCategories,
+    } = useCategories();
 
-        let filtered = categories.filter(
-            (category) =>
-                category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (category.description &&
-                    category.description.toLowerCase().includes(searchTerm.toLowerCase()))
-        );
-
-        filtered.sort((a, b) => {
-            switch (sortBy) {
-                case 'name':
-                    return a.name.localeCompare(b.name);
-                case 'date':
-                    return new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime();
-                case 'count':
-                    return (b.itemCount || 0) - (a.itemCount || 0);
-                default:
-                    return 0;
-            }
-        });
-
-        setFilteredCategories(filtered);
-    }, [searchTerm, categories, sortBy]);
-
-    const handleDeleteCategory = async (categoryUuid: string) => {
-        if (window.confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
-            try {
-                await categoriesService.delete(categoryUuid);
-                // await reloadProducts();
-            } catch (err) {
-                console.error('Error deleting category:', err);
-                setError('Failed to delete category. Please try again.');
-                setTimeout(() => setError(null), 5000);
-            }
-        }
-    };
-
-    const handleEditCategory = (category: Category) => {
+    const handleEdit = (category: Category) => {
         setEditingCategory(category);
+        setShowCreateModal(true);
     };
 
-    const handleCreateCategory = () => {
-        setShowCreateModal(true);
+    const handleDelete = (categoryId: string, categoryName: string) => {
+        Confirm.show(
+            'Delete Category',
+            `Are you sure you want to delete the category "${categoryName}"? This action cannot be undone.`,
+            'Yes, Delete',
+            'Cancel',
+            async () => {
+                await deleteCategory(categoryId);
+            },
+            () => {
+                // do nothing
+            },
+            {
+                titleColor: '#ef4444',
+                okButtonBackground: '#ef4444',
+            }
+        );
     };
 
     const handleModalClose = () => {
@@ -74,85 +58,76 @@ const CategoriesManager: FunctionComponent = () => {
         setEditingCategory(null);
     };
 
-    const handleModalSuccess = async (newCategory: Category) => {
-        try {
-            if (editingCategory) {
-                const updatedCategories = categories.map((cat) =>
-                    cat.categoryId === newCategory.categoryId ? newCategory : cat
-                );
-                // setCategories(updatedCategories);
-            } else {
-                // setCategories([...categories, newCategory]);
-            }
-            setShowCreateModal(false);
-            setEditingCategory(null);
-            // await reloadProducts();
-        } catch (err) {
-            console.error('Error updating categories:', err);
-            setError('Failed to update categories. Please try again.');
-            setTimeout(() => setError(null), 5000);
-        }
+    const handleModalSuccess = async () => {
+        await loadCategories();
+        handleModalClose();
     };
 
-    const handleErrorClose = () => {
-        setError(null);
-    };
+    const columns = getCategoryColumns(handleEdit, handleDelete);
 
     return (
-        <div className="min-h-screen max-w-full">
-            <div className="flex items-center justify-between">
+        <AppLayout>
+            <div className="max-w-full">
                 <PageHeader
                     title="Categories"
                     description="Manage your product categories"
+                    icon={<HiOutlineFolderOpen className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
+                >
+                    <div className="flex items-center space-x-4">
+                        <SearchBar
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+
+                        <div className="flex items-center space-x-3">
+                            <Button onClick={() => setShowCreateModal(true)} theme="primary">
+                                <HiOutlinePlus className="w-4 h-4 mr-2" />
+                                Add Category
+                            </Button>
+                        </div>
+                    </div>
+                </PageHeader>
+
+                <DataTable
+                    columns={columns}
+                    data={getPaginatedData()}
+                    theme={mode as string}
+                    progressPending={isLoading}
+                    highlightOnHover
+                    striped
+                    responsive
+                    pagination
+                    paginationServer
+                    paginationTotalRows={totalRows}
+                    onChangeRowsPerPage={(newPerPage, page) => {
+                        setPage(page);
+                        setPerPage(newPerPage);
+                    }}
+                    onChangePage={setPage}
+                    fixedHeader
+                    fixedHeaderScrollHeight="calc(100vh - 350px)"
+                    customStyles={getTableStyles(mode)}
+                    noDataComponent={
+                        <div className="text-center py-8">
+                            <FolderOpen className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                            <p className="text-gray-500 dark:text-gray-400">
+                                {searchTerm
+                                    ? 'No categories found matching your search.'
+                                    : 'No categories found.'}
+                            </p>
+                        </div>
+                    }
                 />
 
-                <div className="flex items-center space-x-4">
-                    <SearchAndFilters
-                        searchTerm={searchTerm}
-                        onSearchChange={setSearchTerm}
-                        sortBy={sortBy}
-                        onSortChange={setSortBy}
-                        viewMode={viewMode}
-                        onViewModeChange={setViewMode}
-                    />
-
-                    <Button
-                        onClick={handleCreateCategory}
-                        theme='success'
-                    >
-                        <HiOutlinePlus size={20} />
-                        <span>Add Category</span>
-                    </Button>
-                </div>
+                <CreateCategoryModal
+                    category={editingCategory || undefined}
+                    isOpen={showCreateModal || !!editingCategory}
+                    onClose={handleModalClose}
+                    onSuccess={handleModalSuccess}
+                    showAddButton={false}
+                />
             </div>
-
-            {error && <ErrorAlert error={error} onClose={handleErrorClose} />}
-
-
-            {isLoading ? (
-                <LoadingState />
-            ) : filteredCategories.length > 0 ? (
-                <Fragment>
-                    <CategoriesGrid
-                        categories={filteredCategories}
-                        viewMode={viewMode}
-                        onEdit={handleEditCategory}
-                        onDelete={handleDeleteCategory}
-                    />
-                    <StatisticsPanel categories={categories} />
-                </Fragment>
-            ) : (
-                <EmptyState searchTerm={searchTerm} onCreateCategory={handleCreateCategory} />
-            )}
-
-            <CreateCategoryModal
-                category={editingCategory}
-                isOpen={showCreateModal || !!editingCategory}
-                onClose={handleModalClose}
-                onSuccess={handleModalSuccess}
-                showAddButton={false}
-            />
-        </div>
+        </AppLayout>
     );
 };
 
