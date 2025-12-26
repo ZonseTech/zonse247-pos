@@ -125,7 +125,6 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
                             setAuth(null);
                             sessionStorage.removeItem('user');
                             sessionStorage.removeItem('token');
-                            sessionStorage.removeItem('tenantSignature');
 
                             if (callback) {
                                 callback();
