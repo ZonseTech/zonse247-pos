@@ -72,6 +72,15 @@ const getTenantSignature = async (): Promise<string | undefined> => {
 			console.warn('Error getting tenantId from Electron:', error);
 		}
 	}
+
+	try {
+		const signature = sessionStorage?.getItem('tenantSignature');
+		if (signature) {
+			return signature;
+		}
+	} catch (error) {
+		console.warn('Error getting tenantSignature from sessionStorage:', error);
+	}
 };
 
 httpInstance.interceptors.request.use(
@@ -89,6 +98,8 @@ httpInstance.interceptors.request.use(
 			if (tenantSignature) {
 				config.headers['X-Tenant-Signature'] = tenantSignature;
 			}
+
+			config.headers['X-Client-Type'] = import.meta.env.VITE_APP_CLIENT_TYPE || 'desktop';
 
 			return config;
 		} catch (error) {
