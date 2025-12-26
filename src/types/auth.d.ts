@@ -20,6 +20,7 @@ interface LoginResponse {
 	token: string;
 	message?: string;
 	user: User;
+	tenantSignature?: string;
 }
 
 type TAuthTokenProps = {
