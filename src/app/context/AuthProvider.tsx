@@ -65,6 +65,10 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
                 sessionStorage.setItem('user', JSON.stringify(result?.data.user));
                 sessionStorage.setItem('token', JSON.stringify(result?.data.token));
 
+                if (result?.data?.user?.tenantId) {
+                    sessionStorage.setItem('tenantId', result?.data.user.tenantId);
+                }
+
                 return result.data;
             } else {
                 throw (result.message || 'Invalid credentials');
@@ -121,6 +125,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
                             setAuth(null);
                             sessionStorage.removeItem('user');
                             sessionStorage.removeItem('token');
+                            sessionStorage.removeItem('tenantSignature');
 
                             if (callback) {
                                 callback();
