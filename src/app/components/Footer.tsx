@@ -12,9 +12,7 @@ const Footer: FunctionComponent = () => {
         const updateTime = () => {
             setCurrentTime(new Date())
         }
-
         const timer = setInterval(updateTime, 1000)
-
         return () => clearInterval(timer)
     }, [])
 
@@ -28,14 +26,12 @@ const Footer: FunctionComponent = () => {
     }
 
     return (
-        <div className="flex justify-between items-center text-md font-medium text-gray-600 mb-3 pt-3 px-4">
+        <div className="hidden md:flex justify-between items-center text-md font-medium text-gray-600 mb-3 pt-3 px-4">
             <div className="flex items-center gap-2">
                 <Clock className="w-6 h-6" />
                 <span>{formatTime(currentTime)}</span>
             </div>
-
             <span>Zonse247 Pos @ {currentTime.getFullYear()}</span>
-
             {user && <Link to={ROUTES.MY_PROFILE} className="flex items-center gap-2">
                 <User className="w-6 h-6" />
                 <span className='capitalize'>{user?.fullname}</span>
