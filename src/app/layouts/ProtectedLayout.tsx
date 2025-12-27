@@ -4,16 +4,18 @@ import Footer from "../components/Footer"
 import { type FunctionComponent } from "react"
 import { isElectron } from "../../helpers/index.helper"
 import { useApp } from "../context/AppProvider"
+import { useIsMobile } from "../hooks/useMediaQuery"
 
 const ProtectedLayout: FunctionComponent = () => {
 	const { settings } = useApp();
 	const isNotDesktopEnv = !isElectron()
 	const showWebNav = isNotDesktopEnv || settings?.navigationMenuType === 'web'
+	const isMobile = useIsMobile();
 
 	return (
 		<div className="flex flex-col h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
-			{showWebNav && (
-				<header className="hidden md:flex flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+			{showWebNav && !isMobile && (
+				<header className="relative flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
 					<NavBar />
 				</header>
 			)}
