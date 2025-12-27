@@ -127,7 +127,7 @@ const InventoryManagement: FunctionComponent = () => {
             <div className="max-w-full">
                 <PageHeader
                     icon={<Package className="w-8 h-8 text-blue-600" />}
-                    title="Inventory Management"
+                    title="Inventory"
                     description="Manage your inventory items, track stock levels, and monitor expiration dates."
                     action={
                         <Button
@@ -142,10 +142,17 @@ const InventoryManagement: FunctionComponent = () => {
                 />
 
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-                    {/* Filters Section */}
                     <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                             <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                                <SearchBar
+                                    value={searchTerm}
+                                    onChange={handleSearch}
+                                    onClear={() => applyFilters()}
+                                    placeholder="Search by name, barcode, or SKU..."
+                                    className="w-full sm:w-64"
+                                />
+
                                 <Select
                                     onChange={(e) => handleFilterByCategory(parseInt(e.target.value))}
                                     className="h-9 px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors w-full sm:w-48"
@@ -164,15 +171,6 @@ const InventoryManagement: FunctionComponent = () => {
                                     ))}
                                 </Select>
 
-                                <SearchBar
-                                    value={searchTerm}
-                                    onChange={handleSearch}
-                                    onClear={() => applyFilters()}
-                                    placeholder="Search by name, barcode, or SKU..."
-                                    className="w-full sm:w-64"
-                                />
-
-                                {/* Bulk Actions Button */}
                                 {selectedRows.length > 0 && (
                                     <Button
                                         onClick={() => setIsBulkActionsOpen(true)}
@@ -196,7 +194,6 @@ const InventoryManagement: FunctionComponent = () => {
                         </div>
                     </div>
 
-                    {/* Data Table */}
                     <DataTable
                         columns={columns}
                         data={data}
