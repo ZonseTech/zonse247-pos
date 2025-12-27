@@ -78,7 +78,7 @@ export const useInventorySummary = (
             ];
             setSummaryData(newSummaryData);
         } catch (error: any) {
-            toast.error("Error loading summary: " + error.message);
+            toast.error("Error loading summary: " + error?.error?.response?.data?.message);
         }
     };
 
