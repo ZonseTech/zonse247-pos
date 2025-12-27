@@ -10,7 +10,7 @@ interface PriceControlProps {
     productId: string;
     customPriceInput: string;
     onPriceChange: (productId: string, value: string) => void;
-    focusManager: ReturnType<typeof useFocusManager>;
+    focusManager?: ReturnType<typeof useFocusManager>;
 }
 
 const PriceControl: FunctionComponent<PriceControlProps> = ({
@@ -23,7 +23,7 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
 }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const isCustomItem = categoryId === DEFAULT_SEED_KEY;
-    const isActive = focusManager.isActive('price', productId);
+    const isActive = focusManager?.isActive('price', productId) ?? false;
 
     useEffect(() => {
         if (isActive && inputRef.current) {
@@ -36,7 +36,7 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
         e.preventDefault();
         e.stopPropagation();
 
-        if (isCustomItem) {
+        if (isCustomItem && focusManager) {
             focusManager.setActiveComponent('price', productId);
         }
 
@@ -46,7 +46,7 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
     };
 
     const handleFocus = () => {
-        if (isCustomItem) {
+        if (isCustomItem && focusManager) {
             focusManager.setActiveComponent('price', productId);
         }
     };
@@ -69,13 +69,13 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
             onPriceChange(productId, numericValue.toFixed(2));
         }
 
-        focusManager.clearFocus();
+        focusManager?.clearFocus();
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' || e.key === 'Escape') {
             e.preventDefault();
-            focusManager.clearFocus();
+            focusManager?.clearFocus();
             inputRef.current?.blur();
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
@@ -114,7 +114,7 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
                             : 'border-gray-300 dark:border-gray-600 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent'
                         }`}
                     min="0"
-                    max="999999.99"
+                    max="9999999.99"
                     step="0.01"
                     placeholder="0.00"
                 />
