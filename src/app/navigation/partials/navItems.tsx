@@ -28,7 +28,7 @@ import { LucideSubscript } from 'lucide-react';
 import { RiGroup3Line } from 'react-icons/ri';
 import { NavItem } from './RenderNavItem';
 
-const navItems = (): NavItem[] => {
+const useNavItems = (): Array<NavItem> => {
     const navigate = useNavigate();
     const { user, signout } = useAuth();
 
@@ -234,4 +234,4 @@ const navItems = (): NavItem[] => {
 };
 
 
-export default navItems
+export default useNavItems
