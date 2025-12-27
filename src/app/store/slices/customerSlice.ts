@@ -23,7 +23,7 @@ export const fetchCustomers = createAsyncThunk(
             const response = await customerService.list()
             return response
         } catch (error) {
-            const message = 'Error fetching customers: ' + error
+            const message = 'Error fetching customers: ' + error?.error?.response?.data?.message
             Notify.failure(message)
             return rejectWithValue(message)
         }

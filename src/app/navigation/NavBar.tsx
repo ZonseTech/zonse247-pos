@@ -1,4 +1,4 @@
-import navItems from './partials/navItems';
+import useNavItems from './partials/navItems';
 import { PropsWithChildren, useState, type FunctionComponent } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ROUTES } from '../utils/constants';
@@ -7,6 +7,7 @@ import { Menu, X } from 'lucide-react';
 const NavBar: FunctionComponent = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const location = useLocation();
+    const navItems = useNavItems();
 
     const getRoutePath = (onClick: any): string => {
         for (const [key, value] of Object.entries(ROUTES)) {
@@ -32,7 +33,7 @@ const NavBar: FunctionComponent = () => {
         <nav className="py-2 bg-white dark:bg-gray-900 md:border-b border-gray-200 dark:border-gray-800 transition-colors duration-200">
             <div className="hidden md:block overflow-x-auto overflow-y-hidden">
                 <div className="flex gap-0.5 mx-2 items-center min-w-max">
-                    {navItems().map((item, index) => {
+                    {navItems.map((item, index) => {
                         const routePath = getRoutePath(item.onClick);
                         const isActive = location.pathname === routePath;
                         return (
@@ -49,7 +50,7 @@ const NavBar: FunctionComponent = () => {
                                         <span className="text-sm font-semibold">{item.text}</span>
                                     </button>
                                 )}
-                                {index < navItems().length - 1 && (
+                                {index < navItems.length - 1 && (
                                     <span className="text-gray-300 dark:text-gray-700 text-xs mx-0.5 select-none">|</span>
                                 )}
                             </div>
@@ -70,7 +71,7 @@ const NavBar: FunctionComponent = () => {
                 {isMenuOpen && (
                     <div className="absolute top-full left-0 right-0 bg-white dark:bg-gray-900 shadow-lg z-50">
                         <div className="flex flex-col py-2">
-                            {navItems().map((item, index) => {
+                            {navItems.map((item, index) => {
                                 const routePath = getRoutePath(item.onClick);
                                 const isActive = location.pathname === routePath;
                                 return (

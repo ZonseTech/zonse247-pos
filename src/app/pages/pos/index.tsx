@@ -1,15 +1,22 @@
 import Panel from '../../components/Panel';
 import CartTable from './partials/CartTable';
+import CartItemCard from './partials/CartItemCard';
 import InputKeyboard from '../../components/InputKeyboard';
 import Footer from '../../components/Footer';
 import BarcodeScanner from './partials/BarcodeScanner';
 import FunctionButtons from './partials/FunctionButtons';
 import ItemLookupModal from './partials/ItemLookupModal';
+import PageHeader from '../../components/page/PageHeader';
 import { useFocusManager } from '../../hooks/useFocusManager';
 import { FunctionComponent, useState, useEffect, useRef } from 'react';
 import CheckoutModal, { CHECKOUT, PaymentMethod } from './partials/CheckoutModal';
 import { useInventory } from '../../hooks/useInventory';
 import HoldOrdersModal from './partials/HoldOrdersModal';
+import { HiOutlineShoppingCart } from 'react-icons/hi';
+import { useIsMobile } from '../../hooks/useMediaQuery';
+import { SearchIcon, UserCircle2Icon } from 'lucide-react';
+import { Link } from 'react-router';
+import { ROUTES } from '../../utils/constants';
 
 const POSSystem: FunctionComponent = () => {
     const {
@@ -21,7 +28,7 @@ const POSSystem: FunctionComponent = () => {
         inventory,
         addToCart
     } = useInventory();
-
+    const isMobile = useIsMobile();
     const focusManager = useFocusManager();
     const barcodeScannerInputRef = useRef<HTMLInputElement>(null);
     const [numpadInput, setNumpadInput] = useState('');
@@ -185,10 +192,24 @@ const POSSystem: FunctionComponent = () => {
         addToCart(item);
     };
 
+
     return (
         <div className="flex flex-col h-full">
+            <PageHeader
+                title="Point of Sale"
+                className='md:hidden'
+                icon={<HiOutlineShoppingCart className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
+                action={
+                    <div className="flex gap-3">
+                        <SearchIcon className="w-5 h-5 cursor-pointer" onClick={handleItemLookup} />
+                        <Link to={ROUTES.MY_PROFILE} className='cursor-pointer'>
+                            <UserCircle2Icon className="w-5 h-5" />
+                        </Link>
+                    </div>
+                }
+            />
             <div className="flex-1 overflow-auto pb-32">
-                <div className="mb-3">
+                <div className="mb-3 hidden md:block">
                     <div className="flex items-center justify-between">
                         <Panel size='1/2'>
                             <h1 className="text-7xl uppercase tracking-wider font-bold text-black dark:text-gray-400">BALANCE DUE</h1>
@@ -199,16 +220,23 @@ const POSSystem: FunctionComponent = () => {
                     </div>
                 </div>
 
-                <div className="flex gap-x-4 mb-4">
-                    <Panel size='3/4'>
-                        <CartTable
-                            focusManager={focusManager}
+                <div className="md:flex md:gap-x-4 md:mb-4">
+                    {isMobile ? (
+                        <CartItemCard
                             customPriceInputs={customPriceInputs}
                             onPriceChange={handlePriceInputChange}
                         />
-                    </Panel>
+                    ) : (
+                        <Panel size='3/4' className='w-full'>
+                            <CartTable
+                                focusManager={focusManager}
+                                customPriceInputs={customPriceInputs}
+                                onPriceChange={handlePriceInputChange}
+                            />
+                        </Panel>
+                    )}
 
-                    <Panel size='1/4'>
+                    <Panel size='1/4' className='hidden md:flex'>
                         <InputKeyboard
                             variant="numpad"
                             onButtonClick={handleNumpadClick}
@@ -218,11 +246,11 @@ const POSSystem: FunctionComponent = () => {
                 </div>
             </div>
 
-            <div className="fixed bottom-0 left-0 right-0 z-50 px-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg">
+            <div className="fixed md:px-4 bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg">
                 <div>
                     <div className="flex gap-x-4 my-3">
-                        <Panel size='3/4'>
-                            <label className="block text-lg font-bold text-black dark:text-gray-400 mb-1">
+                        <Panel size='3/4' className='w-full mx-4 md:mx-0'>
+                            <label className="hidden md:block text-lg font-bold text-black dark:text-gray-400 mb-1">
                                 SCAN/ENTER PRODUCT CODE
                             </label>
                             <BarcodeScanner
@@ -233,7 +261,7 @@ const POSSystem: FunctionComponent = () => {
                             />
                         </Panel>
 
-                        <Panel size='1/4'>
+                        <Panel size='1/4' className='hidden md:flex'>
                             <label className="block text-lg font-bold text-black dark:text-gray-400 mb-1">
                                 TOTAL NUMBER OF ITEMS
                             </label>
@@ -244,7 +272,7 @@ const POSSystem: FunctionComponent = () => {
                     </div>
 
                     <Panel size='full' className="border-0 shadow-none">
-                        <div className="mb-4">
+                        <div className="hidden md:block mb-4">
                             <FunctionButtons
                                 onVoidSale={handleVoidSale}
                                 onParkSale={handleParkSale}
@@ -258,9 +286,25 @@ const POSSystem: FunctionComponent = () => {
                                 onPayCash={() => handleCompleteTransaction(CHECKOUT.CASH)}
                             />
                         </div>
+
+                        <div className="md:hidden bg-sky-600 text-white flex">
+                            <div className="flex-1 px-4 py-2.5 flex items-center">
+                                <div className="flex flex-col">
+                                    <span className="text-xl font-semibold">
+                                        MK {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </span>
+                                    <span>
+                                        Total items: {cart.length}
+                                    </span>
+                                </div>
+                            </div>
+                            <button className="bg-sky-700 px-8 py-4 text-lg font-semibold hover:bg-sky-800 active:bg-sky-900">
+                                Next
+                            </button>
+                        </div>
                     </Panel>
                 </div>
-                <div className="border-t border-gray-200 dark:border-gray-700">
+                <div className="hidden border-t border-gray-200 dark:border-gray-700">
                     <Footer />
                 </div>
             </div>

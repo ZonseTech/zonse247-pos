@@ -34,7 +34,8 @@ export const fetchInventory = createAsyncThunk(
             const data = await inventoryService.index()
             return data
         } catch (error) {
-            const message = 'Error fetching inventory: ' + error
+            const message = 'Error fetching inventory: ' + error?.error?.response?.data?.message
+
             Notify.failure(message)
             return rejectWithValue(message)
         }
@@ -48,7 +49,7 @@ export const fetchCategories = createAsyncThunk(
             const data = await categoriesService.list()
             return data
         } catch (error) {
-            const message = 'Error fetching categories: ' + error
+            const message = 'Error fetching categories: ' + error?.error?.response?.data?.message
             Notify.failure(message)
             return rejectWithValue(message)
         }
@@ -62,7 +63,7 @@ export const fetchPaymentMethods = createAsyncThunk(
             const data = await paymentMethodService.list()
             return data
         } catch (error) {
-            const message = 'Error fetching payment methods: ' + error
+            const message = 'Error fetching payment methods: ' + error?.error?.response?.data?.message
             Notify.failure(message)
             return rejectWithValue(message)
         }
@@ -76,7 +77,7 @@ export const fetchPaymentServiceProvider = createAsyncThunk(
             const data = await paymentServiceProviderService.list()
             return data
         } catch (error) {
-            const message = 'Error fetching payment service providers: ' + error
+            const message = 'Error fetching payment service providers: ' + error?.error?.response?.data?.message
             Notify.failure(message)
             return rejectWithValue(message)
         }

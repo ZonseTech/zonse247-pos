@@ -43,7 +43,7 @@ export const useInventoryManagement = () => {
                 setData([]);
             }
         } catch (error: any) {
-            toast.error("Error loading inventory: " + error.message);
+            toast.error("Error loading inventory: " + error?.error?.response?.data?.message);
             setInventory([]);
             setData([]);
         } finally {
@@ -72,7 +72,7 @@ export const useInventoryManagement = () => {
                 setData([]);
             }
         } catch (error: any) {
-            toast.error("Error applying filters: " + error.message);
+            toast.error("Error applying filters: " + error?.error?.response?.data?.message);
             setInventory([]);
             setData([]);
         } finally {
@@ -96,7 +96,7 @@ export const useInventoryManagement = () => {
                         loadInventory();
                     })
                     .catch((error) => {
-                        Notify.failure(`Failed to void item: ${error.message}`);
+                        Notify.failure(`Failed to void item: ${error?.error?.response?.data?.message}`);
                     })
                     .finally(() => {
                         setIsLoading(false);

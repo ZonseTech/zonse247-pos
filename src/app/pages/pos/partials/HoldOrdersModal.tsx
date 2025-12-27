@@ -141,96 +141,85 @@ const HoldOrdersModal: FunctionComponent<ItemLookupModalProps> = ({
     }
 
     return (
-        <Fragment>
-            <IconLabelButton
-                key={Math.random().toString()}
-                color="bg-green-400"
-                iconColor="bg-green-500"
-                text="Held Orders"
-                icon={<HiOutlineClipboardList className="w-5 h-5" />}
-                onClick={handleOpenModal}
-            />
-
-            <Modal
-                title="On-Hold Orders"
-                isOpen={isOpen}
-                onClose={handleCloseModal}
-                className="max-w-2xl bg-white dark:bg-gray-700 text-gray-700 rounded shadow-lg"
-            >
-                <div className="flex flex-col gap-4">
-                    {isLoading ? (
-                        <div className="text-center py-8">Loading...</div>
-                    ) : error ? (
-                        <div className="text-center py-8 text-red-500">
-                            {error}
-                            <div className="mt-4">
-                                <Button
-                                    onClick={fetchHoldOrders}
-                                    className="bg-blue-500 hover:bg-blue-600 text-white dark:text-gray-100 py-1 px-3 rounded"
-                                >
-                                    Retry
-                                </Button>
-                            </div>
+        <Modal
+            title="On-Hold Orders"
+            isOpen={isOpen}
+            onClose={handleCloseModal}
+            className="max-w-2xl bg-white dark:bg-gray-700 text-gray-700 rounded shadow-lg"
+        >
+            <div className="flex flex-col gap-4">
+                {isLoading ? (
+                    <div className="text-center py-8">Loading...</div>
+                ) : error ? (
+                    <div className="text-center py-8 text-red-500">
+                        {error}
+                        <div className="mt-4">
+                            <Button
+                                onClick={fetchHoldOrders}
+                                className="bg-blue-500 hover:bg-blue-600 text-white dark:text-gray-100 py-1 px-3 rounded"
+                            >
+                                Retry
+                            </Button>
                         </div>
-                    ) : holdOrders.length === 0 ? (
-                        <div className="text-center py-8 text-gray-500">No held orders found</div>
-                    ) : (
-                        <div className="max-h-96 overflow-y-auto">
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="bg-gray-100">
-                                        <th className="py-2 px-4 text-left">Reference</th>
-                                        <th className="py-2 px-4 text-left">Date</th>
-                                        <th className="py-2 px-4 text-right">Items</th>
-                                        <th className="py-2 px-4 text-right">Total</th>
-                                        <th className="py-2 px-4 text-center">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {holdOrders.map((order) => (
-                                        <tr key={order.itemId} className="border-b hover:bg-gray-50">
-                                            <td className="py-3 px-4">{order.reference}</td>
-                                            <td className="py-3 px-4">
-                                                {new Date(order.date).toLocaleDateString()}
-                                            </td>
-                                            <td className="py-3 px-4 text-right">{order.totalItems}</td>
-                                            <td className="py-3 px-4 text-right">
-                                                {formatCurrency(order.total)}
-                                            </td>
-                                            <td className="py-3 px-4">
-                                                <div className="flex justify-center gap-2">
-                                                    <Button
-                                                        onClick={() => handleLoadOrder(order.itemId)}
-                                                        className="bg-green-500 hover:bg-green-600 text-white dark:text-gray-100 py-1 px-3 rounded text-sm"
-                                                    >
-                                                        Load
-                                                    </Button>
-                                                    <Button
-                                                        onClick={() => handleDeleteOrder(order.itemId)}
-                                                        className="bg-red-500 hover:bg-red-600 text-white dark:text-gray-100 py-1 px-3 rounded text-sm"
-                                                    >
-                                                        Delete
-                                                    </Button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-
-                    <div className="flex justify-end mt-4">
-                        <Button
-                            onClick={handleCloseModal}
-                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 dark:text-gray-400 py-2 px-4 rounded"
-                        >
-                            Close
-                        </Button>
                     </div>
+                ) : holdOrders.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">No held orders found</div>
+                ) : (
+                    <div className="max-h-96 overflow-y-auto">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="bg-gray-100">
+                                    <th className="py-2 px-4 text-left">Reference</th>
+                                    <th className="py-2 px-4 text-left">Date</th>
+                                    <th className="py-2 px-4 text-right">Items</th>
+                                    <th className="py-2 px-4 text-right">Total</th>
+                                    <th className="py-2 px-4 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {holdOrders.map((order) => (
+                                    <tr key={order.itemId} className="border-b hover:bg-gray-50">
+                                        <td className="py-3 px-4">{order.reference}</td>
+                                        <td className="py-3 px-4">
+                                            {new Date(order.date).toLocaleDateString()}
+                                        </td>
+                                        <td className="py-3 px-4 text-right">{order.totalItems}</td>
+                                        <td className="py-3 px-4 text-right">
+                                            {formatCurrency(order.total)}
+                                        </td>
+                                        <td className="py-3 px-4">
+                                            <div className="flex justify-center gap-2">
+                                                <Button
+                                                    onClick={() => handleLoadOrder(order.itemId)}
+                                                    className="bg-green-500 hover:bg-green-600 text-white dark:text-gray-100 py-1 px-3 rounded text-sm"
+                                                >
+                                                    Load
+                                                </Button>
+                                                <Button
+                                                    onClick={() => handleDeleteOrder(order.itemId)}
+                                                    className="bg-red-500 hover:bg-red-600 text-white dark:text-gray-100 py-1 px-3 rounded text-sm"
+                                                >
+                                                    Delete
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
+                <div className="flex justify-end mt-4">
+                    <Button
+                        onClick={handleCloseModal}
+                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 dark:text-gray-400 py-2 px-4 rounded"
+                    >
+                        Close
+                    </Button>
                 </div>
-            </Modal>
-        </Fragment>
+            </div>
+        </Modal>
     )
 }
 
