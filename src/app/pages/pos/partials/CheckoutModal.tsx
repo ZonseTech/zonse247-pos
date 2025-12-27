@@ -125,7 +125,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 phoneNumber: values.phoneNumber,
 
                 userId: user.userId,
-                terminalId: settings?.settingId,
+                terminalId: (settings as any)?.terminalId || 'default',
                 transactionId: values?.transactionId || '',
                 customerId: selectedCustomer.customerId,
                 paymentMethodId: values.paymentMethodId,

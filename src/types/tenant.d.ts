@@ -36,7 +36,7 @@ interface Tenant extends BaseTimestamps {
 
 type TenantFormValues = Omit<
     Tenant,
-    'id' | 'createdAt' | 'updatedAt' | 'activatedAt' | 'trialEndsAt' | 'registeredAt' | 'synced'
+    'tenantId' | 'createdAt' | 'updatedAt' | 'activatedAt' | 'trialEndsAt' | 'registeredAt' | 'synced'
 > & {
     trialEndsAt?: string;
     registeredAt?: string;

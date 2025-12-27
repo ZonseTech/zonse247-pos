@@ -18,7 +18,7 @@ import { useLocation } from 'react-router';
 import { DEFAULT_COUNTRY_CODE } from '../../constants';
 import { tenantValidationSchema } from '../../schemas/tenant.schema';
 import { getInitialFormValues } from '../../utils/mergeDeep';
-import { capitalizeEachWord, formatDateForInput } from '../../utils';
+import { capitalizeEachWord } from '../../utils';
 import {
     businessTypes,
     msonkhoStatuses,
@@ -57,7 +57,7 @@ const TenantFormModal: FunctionComponent = () => {
         fetchTenant();
     }, [tenantId, navigate]);
 
-    const defaultTenantValues: TenantFormValues = {
+    const defaultTenantValues: any = {
         tenantCode: '',
         businessName: '',
         tradingName: '',
@@ -72,7 +72,7 @@ const TenantFormModal: FunctionComponent = () => {
         msonkhoOnlineStatus: 'PENDING',
         subscriptionPlan: 'BASIC',
         registeredAt: '',
-        subscriptionStatus: 'TRIAL',
+        subscriptionStatus: 'trial',
         trialEndsAt: '',
         verificationToken: '',
         status: 'pending'
@@ -81,11 +81,11 @@ const TenantFormModal: FunctionComponent = () => {
     const initialTenantValues = getInitialFormValues(defaultTenantValues, {
         ...tenant as unknown as TenantFormValues,
         country: tenant?.country?.replace('Malawi', 'MW') ?? 'MW',
-        registeredAt: formatDateForInput(tenant?.registeredAt) ?? '',
-        trialEndsAt: formatDateForInput(tenant?.trialEndsAt) ?? '',
+        registeredAt: (tenant?.registeredAt) ?? '',
+        trialEndsAt: (tenant?.trialEndsAt) ?? '',
         businessType: tenant?.businessType ?? 'PRODUCT_BASED',
         msonkhoOnlineStatus: tenant?.msonkhoOnlineStatus ?? 'PENDING',
-        subscriptionStatus: tenant?.subscriptionStatus ?? 'TRIAL',
+        subscriptionStatus: tenant?.subscriptionStatus ?? 'trial',
         status: tenant?.status ?? 'pending',
     }, 'tenantId');
 
@@ -337,7 +337,7 @@ const TenantFormModal: FunctionComponent = () => {
                                                     options={subscriptionStatuses}
                                                 />
 
-                                                {values.subscriptionStatus === 'TRIAL' && (
+                                                {values.subscriptionStatus === 'trial' && (
                                                     <FormInput
                                                         type="date"
                                                         name="trialEndsAt"
