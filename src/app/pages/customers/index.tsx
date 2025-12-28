@@ -8,11 +8,14 @@ import { HiOutlinePlus, HiOutlineUserGroup } from 'react-icons/hi2';
 import { getTableStyles } from '../../utils/table-styles';
 import { Button, ZonseThemeContext } from '../../components';
 import { useCustomers } from '../../hooks/useCustomers';
-import { SearchBar } from './partials/SearchBar';
 import { getCustomerColumns } from './partials/CustomerTableColumns';
 import CustomerModal from './partials/CustomerModal';
+import { useIsMobile } from '../../hooks/useMediaQuery';
+import { SearchBar } from '../../components/SearchBar';
 
 const CustomerManagement: FunctionComponent = () => {
+    const isMobile = useIsMobile();
+
     const { mode } = useContext(ZonseThemeContext);
     const [showModal, setShowModal] = useState(false);
     const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
@@ -77,20 +80,39 @@ const CustomerManagement: FunctionComponent = () => {
                     title='Customers'
                     description='Manage your customer database'
                     icon={<HiOutlineUserGroup className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
-                >
-                    <div className="flex items-center space-x-4">
-                        <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                    action={
+                        <div className='flex items-center justify-between gap-2'>
+                            {
+                                !isMobile && (
+                                    <SearchBar
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                )}
 
-                        <div className="flex items-center space-x-3">
                             <Button
                                 onClick={handleAddCustomer}
+                                icon={HiOutlinePlus}
+                                layout={isMobile ? 'outline' : 'primary'}
                                 theme='primary'
                             >
-                                <HiOutlinePlus className="w-4 h-4 mr-2" />
-                                {'Add Customer'}
+                                {!isMobile && <span className='hidden md:block'>
+                                    Add Customer
+                                </span>}
                             </Button>
                         </div>
-                    </div>
+                    }
+                >
+                    {
+                        isMobile && (
+                            <div className='m-4 mt-0'>
+                                <SearchBar
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        )
+                    }
                 </PageHeader>
                 <DataTable
                     columns={columns}

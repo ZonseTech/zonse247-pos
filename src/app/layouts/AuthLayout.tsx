@@ -146,7 +146,7 @@ const AuthLayout: FunctionComponent<PropsWithChildren<AuthLayoutProps>> = ({
                 transition={{ duration: 0.6, ease: "easeOut" }}
             >
                 <div className="max-w-7xl mx-auto px-3 text-center">
-                    <Footer />
+                    <Footer className='flex' />
                 </div>
             </motion.footer>
 

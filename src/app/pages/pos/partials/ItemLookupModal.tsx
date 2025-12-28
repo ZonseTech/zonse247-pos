@@ -1,7 +1,8 @@
 import { X, Package } from 'lucide-react';
 import { formatCurrency } from '../../../utils';
-import { useState, useEffect, FunctionComponent, useRef } from 'react';
+import { useIsMobile } from '../../../hooks/useMediaQuery';
 import InputKeyboard from '../../../components/InputKeyboard';
+import { useState, useEffect, FunctionComponent, useRef } from 'react';
 
 interface ItemLookupModalProps {
     isOpen: boolean;
@@ -18,6 +19,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
     onAddToCart,
     barcodeScannerInputRef
 }) => {
+    const isMobile = useIsMobile()
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredItems, setFilteredItems] = useState<InventoryItem[]>([]);
     const [showVirtualKeyboard, setShowVirtualKeyboard] = useState(false);
@@ -136,7 +138,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                     />
                 </div>
 
-                <div className="grid grid-cols-12 bg-slate-100 dark:bg-gray-800 gap-4 px-6 py-4 font-semibold text-sm uppercase tracking-wide text-slate-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600">
+                <div className="hidden md:grid grid-cols-12 bg-slate-100 dark:bg-gray-800 gap-4 px-6 py-4 font-semibold text-sm uppercase tracking-wide text-slate-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600">
                     <div className="col-span-3">Code</div>
                     <div className="col-span-6">Item Name</div>
                     <div className="col-span-3 text-right">Price</div>
@@ -148,44 +150,64 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                             {filteredItems.map((item) => {
                                 const quantity = parseFloat((item.quantity || 0).toString());
                                 const isOutOfStock = quantity <= 0;
-
                                 if (isOutOfStock) return null;
 
                                 return (
                                     <div
                                         key={item.productId}
                                         onClick={() => handleAddToCart(item)}
-                                        className="grid grid-cols-12 gap-4 px-6 py-4 cursor-pointer bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:shadow-sm transition-all duration-150 group"
+                                        className="cursor-pointer bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:shadow-sm transition-all duration-150 group"
                                     >
-                                        <div className="col-span-3 font-mono text-sm text-slate-600 dark:text-gray-400 flex items-center group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                                            {item.barcode}
-                                        </div>
-
-                                        <div className="col-span-6 flex flex-col justify-center">
-                                            <div className="font-medium text-slate-800 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                                                {item.name}
-                                            </div>
-                                            {item.categoryDetails?.name && (
-                                                <div className="text-sm text-slate-500 dark:text-gray-400 mt-1">
-                                                    {item.categoryDetails.name}
+                                        <div className="md:hidden px-4 py-3 space-y-2">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="font-medium text-slate-800 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate">
+                                                        {item.name}
+                                                    </div>
+                                                    {item.categoryDetails?.name && (
+                                                        <div className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">
+                                                            {item.categoryDetails.name}
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
+                                                <div className="font-bold text-lg text-slate-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 whitespace-nowrap">
+                                                    {formatCurrency(parseFloat((item.sellPrice || 0).toString()))}
+                                                </div>
+                                            </div>
+                                            <div className="font-mono text-xs text-slate-500 dark:text-gray-400 group-hover:text-blue-500 dark:group-hover:text-blue-400">
+                                                Code: {item.barcode}
+                                            </div>
                                         </div>
 
-                                        <div className="col-span-3 text-right font-bold text-lg flex items-center justify-end text-slate-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                                            {formatCurrency(parseFloat((item.sellPrice || 0).toString()))}
+                                        <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4">
+                                            <div className="col-span-3 font-mono text-sm text-slate-600 dark:text-gray-400 flex items-center group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                                                {item.barcode}
+                                            </div>
+                                            <div className="col-span-6 flex flex-col justify-center">
+                                                <div className="font-medium text-slate-800 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                                                    {item.name}
+                                                </div>
+                                                {item.categoryDetails?.name && (
+                                                    <div className="text-sm text-slate-500 dark:text-gray-400 mt-1">
+                                                        {item.categoryDetails.name}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="col-span-3 text-right font-bold text-lg flex items-center justify-end text-slate-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                                                {formatCurrency(parseFloat((item.sellPrice || 0).toString()))}
+                                            </div>
                                         </div>
                                     </div>
                                 );
                             })}
                         </div>
                     ) : (
-                        <div className="flex flex-1 flex-col items-center justify-center text-slate-500 dark:text-gray-400 py-16">
-                            <Package className="w-20 h-20 mb-6 text-slate-300 dark:text-gray-600" />
-                            <h3 className="text-xl font-medium mb-3 text-slate-600 dark:text-gray-300">
+                        <div className="flex flex-1 flex-col items-center justify-center text-slate-500 dark:text-gray-400 py-16 px-4">
+                            <Package className="w-16 h-16 md:w-20 md:h-20 mb-4 md:mb-6 text-slate-300 dark:text-gray-600" />
+                            <h3 className="text-lg md:text-xl font-medium mb-2 md:mb-3 text-slate-600 dark:text-gray-300 text-center">
                                 No items found
                             </h3>
-                            <p className="text-base max-w-md text-center text-slate-500 dark:text-gray-400 leading-relaxed">
+                            <p className="text-sm md:text-base max-w-md text-center text-slate-500 dark:text-gray-400 leading-relaxed">
                                 {searchTerm
                                     ? 'No items match your search criteria. Try a different search term.'
                                     : 'Start typing to search for items by name or barcode.'
@@ -195,7 +217,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                     )}
                 </div>
 
-                <div className="border-t border-gray-200 dark:border-gray-700">
+                {!isMobile && (<div className="border-t border-gray-200 dark:border-gray-700">
                     <InputKeyboard
                         variant="full"
                         onKeyPress={handleKeyPress}
@@ -203,7 +225,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                         onSpace={handleSpace}
                         onEnter={handleEnter}
                     />
-                </div>
+                </div>)}
             </div>
         </div>
     );

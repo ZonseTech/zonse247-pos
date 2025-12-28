@@ -13,6 +13,7 @@ import PageHeader from '../../components/page/PageHeader';
 import { useNavigate, useLocation } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { Zap, FileText } from 'lucide-react';
+import { HiOutlineDocumentPlus } from 'react-icons/hi2';
 
 type FormMode = 'quick' | 'full';
 
@@ -235,17 +236,21 @@ const InventoryForm: FunctionComponent = () => {
     }
 
     return (
-        <Fragment>
-            <AppLayout>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-                    <div className='sticky top-0 z-10 bg-white dark:bg-gray-800'>
-                        <PageHeader
-                            title={productId ? 'Edit Inventory Item' : 'Add Inventory Item'}
-                            description='Required fields are marked with an asterisk (*)'
-                        >
+        <AppLayout>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+                <div className='sticky top-0 z-10 bg-white dark:bg-gray-800'>
+                    <PageHeader
+                        title={productId ? 'Edit Inventory Item' : 'Add Inventory Item'}
+                        description='Required fields are marked with an asterisk (*)'
+                        icon={<HiOutlineDocumentPlus className="w-8 h-8 text-blue-600" />}
+                        action={
+                            <></>
+                        }
+                    >
+                        {!productId && (
+                            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                                <div className="flex items-center w-full lg:w-auto gap-3">
 
-                            <div className="flex items-center gap-3">
-                                {!productId && (
                                     <div className="flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
                                         <button
                                             type="button"
@@ -270,401 +275,395 @@ const InventoryForm: FunctionComponent = () => {
                                             Full Form
                                         </button>
                                     </div>
-                                )}
-                                <Button
-                                    type="button"
-                                    theme='danger'
-                                    onClick={() => navigate(ROUTES.INVENTORY)}
-                                >
-                                    Cancel
-                                </Button>
+                                </div>
                             </div>
-                        </PageHeader>
-                    </div>
+                        )}
 
-                    <Formik
-                        onSubmit={handleSubmit}
-                        enableReinitialize={true}
-                        initialValues={initialItemValues}
-                        validationSchema={formMode === 'quick' ? quickValidationSchema : fullValidationSchema}
-                    >
-                        {({ isSubmitting, values, setFieldValue, errors, touched }) => (
-                            <Form>
-                                <FormWrapper>
-                                    <div className="py-6 relative">
-                                        <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                    </PageHeader>
+                </div>
 
-                                        <div className="flex items-center gap-3 mb-6 relative">
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                                1
-                                            </div>
-                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                                Basic Information
-                                            </h3>
+                <Formik
+                    onSubmit={handleSubmit}
+                    enableReinitialize={true}
+                    initialValues={initialItemValues}
+                    validationSchema={formMode === 'quick' ? quickValidationSchema : fullValidationSchema}
+                >
+                    {({ isSubmitting, values, setFieldValue, errors, touched }) => (
+                        <Form>
+                            <FormWrapper>
+                                <div className="py-6 relative">
+                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
+
+                                    <div className="flex items-center gap-3 mb-6 relative">
+                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
+                                            1
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
-                                            <div className="md:col-span-2">
-                                                <CategorySearch
-                                                    value={values.categoryId || ''}
-                                                    onChange={(categoryId) => setFieldValue('categoryId', categoryId)}
-                                                    error={errors.categoryId as string}
-                                                    touched={touched.categoryId as boolean}
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                            Basic Information
+                                        </h3>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
+                                        <div className="md:col-span-2">
+                                            <CategorySearch
+                                                value={values.categoryId || ''}
+                                                onChange={(categoryId) => setFieldValue('categoryId', categoryId)}
+                                                error={errors.categoryId as string}
+                                                touched={touched.categoryId as boolean}
+                                            />
+                                        </div>
+
+                                        <FormInput
+                                            label="Item Name"
+                                            name="name"
+                                            placeholder="Enter item name"
+                                            required
+                                        />
+
+                                        <FormInput
+                                            label="Barcode"
+                                            name="barcode"
+                                            placeholder="Scan or enter barcode"
+                                            required
+                                            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                                handleBarcodeChange(e.target.value, setFieldValue);
+                                            }}
+                                        />
+
+                                        {formMode === 'full' && (
+                                            <>
+                                                <FormInput
+                                                    label="SKU"
+                                                    name="sku"
+                                                    placeholder="Stock Keeping Unit"
                                                 />
-                                            </div>
 
-                                            <FormInput
-                                                label="Item Name"
-                                                name="name"
-                                                placeholder="Enter item name"
-                                                required
-                                            />
+                                                <FormInput
+                                                    label="Brand"
+                                                    name="brand"
+                                                    placeholder="Enter brand name"
+                                                />
 
-                                            <FormInput
-                                                label="Barcode"
-                                                name="barcode"
-                                                placeholder="Scan or enter barcode"
-                                                required
-                                                onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                                                    handleBarcodeChange(e.target.value, setFieldValue);
-                                                }}
-                                            />
-
-                                            {formMode === 'full' && (
-                                                <>
+                                                <div className="md:col-span-2">
                                                     <FormInput
-                                                        label="SKU"
-                                                        name="sku"
-                                                        placeholder="Stock Keeping Unit"
+                                                        label="Description"
+                                                        name="description"
+                                                        placeholder="Enter item description"
                                                     />
-
-                                                    <FormInput
-                                                        label="Brand"
-                                                        name="brand"
-                                                        placeholder="Enter brand name"
-                                                    />
-
-                                                    <div className="md:col-span-2">
-                                                        <FormInput
-                                                            label="Description"
-                                                            name="description"
-                                                            placeholder="Enter item description"
-                                                        />
-                                                    </div>
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="pb-8 relative">
-                                        <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
-
-                                        <div className="flex items-center gap-3 mb-6 relative">
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                                2
-                                            </div>
-                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                                Pricing
-                                            </h3>
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
-                                            <FormInput
-                                                label="Cost Price"
-                                                name="costPrice"
-                                                type="number"
-                                                placeholder="0.00"
-                                                required
-                                                min="0"
-                                                step="0.01"
-                                            />
-
-                                            <FormInput
-                                                label="Sell Price"
-                                                name="sellPrice"
-                                                type="number"
-                                                placeholder="0.00"
-                                                required
-                                                min="0"
-                                                step="0.01"
-                                            />
-
-                                            {formMode === 'full' && (
-                                                <>
-                                                    <FormInput
-                                                        label="Promo Price"
-                                                        name="promoPrice"
-                                                        type="number"
-                                                        placeholder="0.00"
-                                                        min="0"
-                                                        step="0.01"
-                                                    />
-
-                                                    <div></div>
-
-                                                    <FormInput
-                                                        label="Promo Start Date"
-                                                        name="promoStart"
-                                                        type="date"
-                                                    />
-
-                                                    <FormInput
-                                                        label="Promo End Date"
-                                                        name="promoEnd"
-                                                        type="date"
-                                                    />
-
-                                                    <div className="flex items-end">
-                                                        <label className="flex items-center space-x-2">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={values.isTaxable}
-                                                                onChange={(e) => setFieldValue('isTaxable', e.target.checked)}
-                                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                                            />
-                                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                                Taxable Item
-                                                            </span>
-                                                        </label>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="pb-8 relative">
-                                        <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
-
-                                        <div className="flex items-center gap-3 mb-6 relative">
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                                3
-                                            </div>
-                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                                Stock & Inventory
-                                            </h3>
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
-                                            <FormInput
-                                                label="Quantity"
-                                                name="quantity"
-                                                type="number"
-                                                placeholder="0"
-                                                required
-                                                min="0"
-                                            />
-
-                                            <FormInput
-                                                label="Minimum Stock Level"
-                                                name="minStock"
-                                                type="number"
-                                                placeholder="1"
-                                                required
-                                                min="0"
-                                            />
-
-                                            {formMode === 'full' && (
-                                                <>
-                                                    <FormInput
-                                                        label="Maximum Stock Level"
-                                                        name="maxStock"
-                                                        type="number"
-                                                        placeholder="1000"
-                                                        min="0"
-                                                    />
-
-                                                    <FormInput
-                                                        label="Reorder Level"
-                                                        name="reorderLevel"
-                                                        type="number"
-                                                        placeholder="5"
-                                                        min="0"
-                                                    />
-
-                                                    <FormInput
-                                                        label="Reserved Quantity"
-                                                        name="reservedQuantity"
-                                                        type="number"
-                                                        placeholder="0"
-                                                        min="0"
-                                                    />
-
-                                                    <FormSelectBox
-                                                        label="Unit"
-                                                        name="unit"
-                                                        options={unitOptions}
-                                                        required
-                                                    />
-
-                                                    <div className="flex items-end">
-                                                        <label className="flex items-center space-x-2">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={values.trackInventory}
-                                                                onChange={(e) => setFieldValue('trackInventory', e.target.checked)}
-                                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                                            />
-                                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                                Track Inventory
-                                                            </span>
-                                                        </label>
-                                                    </div>
-
-                                                    <div className="flex items-end">
-                                                        <label className="flex items-center space-x-2">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={values.allowNegativeStock}
-                                                                onChange={(e) => setFieldValue('allowNegativeStock', e.target.checked)}
-                                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                                            />
-                                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                                Allow Negative Stock
-                                                            </span>
-                                                        </label>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="pb-8 relative">
-                                        <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
-
-                                        <div className="flex items-center gap-3 mb-6 relative">
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                                4
-                                            </div>
-                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                                Dates & Tracking
-                                            </h3>
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
-                                            <FormInput
-                                                label="Expiration Date"
-                                                name="expirationDate"
-                                                type="date"
-                                                required
-                                            />
-
-                                            {formMode === 'full' && (
-                                                <>
-                                                    <FormInput
-                                                        label="Manufacture Date"
-                                                        name="manufactureDate"
-                                                        type="date"
-                                                    />
-
-                                                    <FormSelectBox
-                                                        label="Status"
-                                                        name="status"
-                                                        options={statusOptions}
-                                                    />
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {formMode === 'full' && (
-                                        <div className="pb-8 relative">
-                                            <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
-
-                                            <div className="flex items-center gap-3 mb-6 relative">
-                                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                                    5
                                                 </div>
-                                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                                    Product Attributes
-                                                </h3>
-                                            </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
-                                                <FormInput
-                                                    label="Color"
-                                                    name="color"
-                                                    placeholder="Enter color"
-                                                />
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
 
-                                                <FormInput
-                                                    label="Size"
-                                                    name="size"
-                                                    placeholder="Enter size"
-                                                />
+                                <div className="pb-8 relative">
+                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
 
-                                                <FormInput
-                                                    label="Dimensions"
-                                                    name="dimensions"
-                                                    placeholder="e.g., 10x20x5 cm"
-                                                />
+                                    <div className="flex items-center gap-3 mb-6 relative">
+                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
+                                            2
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                            Pricing
+                                        </h3>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
+                                        <FormInput
+                                            label="Cost Price"
+                                            name="costPrice"
+                                            type="number"
+                                            placeholder="0.00"
+                                            required
+                                            min="0"
+                                            step="0.01"
+                                        />
 
+                                        <FormInput
+                                            label="Sell Price"
+                                            name="sellPrice"
+                                            type="number"
+                                            placeholder="0.00"
+                                            required
+                                            min="0"
+                                            step="0.01"
+                                        />
+
+                                        {formMode === 'full' && (
+                                            <>
                                                 <FormInput
-                                                    label="Weight"
-                                                    name="weight"
+                                                    label="Promo Price"
+                                                    name="promoPrice"
                                                     type="number"
                                                     placeholder="0.00"
                                                     min="0"
                                                     step="0.01"
                                                 />
-                                            </div>
-                                        </div>
-                                    )}
 
-                                    {formMode === 'full' && (
-                                        <div className="pb-8 relative">
-                                            <div className="flex items-center gap-3 mb-6 relative">
-                                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                                    6
+                                                <div></div>
+
+                                                <FormInput
+                                                    label="Promo Start Date"
+                                                    name="promoStart"
+                                                    type="date"
+                                                />
+
+                                                <FormInput
+                                                    label="Promo End Date"
+                                                    name="promoEnd"
+                                                    type="date"
+                                                />
+
+                                                <div className="flex items-end">
+                                                    <label className="flex items-center space-x-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={values.isTaxable}
+                                                            onChange={(e) => setFieldValue('isTaxable', e.target.checked)}
+                                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                        />
+                                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                            Taxable Item
+                                                        </span>
+                                                    </label>
                                                 </div>
-                                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                                    Supplier Information
-                                                </h3>
-                                            </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
-                                                <FormInput
-                                                    label="Supplier Name"
-                                                    name="supplierName"
-                                                    placeholder="Enter supplier name"
-                                                />
-
-                                                <FormInput
-                                                    label="Supplier Code"
-                                                    name="supplierCode"
-                                                    placeholder="Enter supplier code"
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div className="flex justify-end gap-3 pt-6 border-t border-gray-300 dark:border-gray-600">
-                                        <Button
-                                            type="button"
-                                            theme="neutral"
-                                            onClick={() => navigate(ROUTES.INVENTORY)}
-                                            disabled={isSubmitting}
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            type="submit"
-                                            theme="primary"
-                                            disabled={isSubmitting || loading}
-                                        >
-                                            {isSubmitting || loading ? (
-                                                <>
-                                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                    </svg>
-                                                    Saving...
-                                                </>
-                                            ) : (
-                                                productId ? 'Update Item' : 'Create Item'
-                                            )}
-                                        </Button>
+                                            </>
+                                        )}
                                     </div>
-                                </FormWrapper>
-                            </Form>
-                        )}
-                    </Formik>
-                </div>
-            </AppLayout>
-        </Fragment>
+                                </div>
+
+                                <div className="pb-8 relative">
+                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
+
+                                    <div className="flex items-center gap-3 mb-6 relative">
+                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
+                                            3
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                            Stock & Inventory
+                                        </h3>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
+                                        <FormInput
+                                            label="Quantity"
+                                            name="quantity"
+                                            type="number"
+                                            placeholder="0"
+                                            required
+                                            min="0"
+                                        />
+
+                                        <FormInput
+                                            label="Minimum Stock Level"
+                                            name="minStock"
+                                            type="number"
+                                            placeholder="1"
+                                            required
+                                            min="0"
+                                        />
+
+                                        {formMode === 'full' && (
+                                            <>
+                                                <FormInput
+                                                    label="Maximum Stock Level"
+                                                    name="maxStock"
+                                                    type="number"
+                                                    placeholder="1000"
+                                                    min="0"
+                                                />
+
+                                                <FormInput
+                                                    label="Reorder Level"
+                                                    name="reorderLevel"
+                                                    type="number"
+                                                    placeholder="5"
+                                                    min="0"
+                                                />
+
+                                                <FormInput
+                                                    label="Reserved Quantity"
+                                                    name="reservedQuantity"
+                                                    type="number"
+                                                    placeholder="0"
+                                                    min="0"
+                                                />
+
+                                                <FormSelectBox
+                                                    label="Unit"
+                                                    name="unit"
+                                                    options={unitOptions}
+                                                    required
+                                                />
+
+                                                <div className="flex items-end">
+                                                    <label className="flex items-center space-x-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={values.trackInventory}
+                                                            onChange={(e) => setFieldValue('trackInventory', e.target.checked)}
+                                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                        />
+                                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                            Track Inventory
+                                                        </span>
+                                                    </label>
+                                                </div>
+
+                                                <div className="flex items-end">
+                                                    <label className="flex items-center space-x-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={values.allowNegativeStock}
+                                                            onChange={(e) => setFieldValue('allowNegativeStock', e.target.checked)}
+                                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                        />
+                                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                            Allow Negative Stock
+                                                        </span>
+                                                    </label>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="pb-8 relative">
+                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
+
+                                    <div className="flex items-center gap-3 mb-6 relative">
+                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
+                                            4
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                            Dates & Tracking
+                                        </h3>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
+                                        <FormInput
+                                            label="Expiration Date"
+                                            name="expirationDate"
+                                            type="date"
+                                            required
+                                        />
+
+                                        {formMode === 'full' && (
+                                            <>
+                                                <FormInput
+                                                    label="Manufacture Date"
+                                                    name="manufactureDate"
+                                                    type="date"
+                                                />
+
+                                                <FormSelectBox
+                                                    label="Status"
+                                                    name="status"
+                                                    options={statusOptions}
+                                                />
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {formMode === 'full' && (
+                                    <div className="pb-8 relative">
+                                        <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
+
+                                        <div className="flex items-center gap-3 mb-6 relative">
+                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
+                                                5
+                                            </div>
+                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                Product Attributes
+                                            </h3>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
+                                            <FormInput
+                                                label="Color"
+                                                name="color"
+                                                placeholder="Enter color"
+                                            />
+
+                                            <FormInput
+                                                label="Size"
+                                                name="size"
+                                                placeholder="Enter size"
+                                            />
+
+                                            <FormInput
+                                                label="Dimensions"
+                                                name="dimensions"
+                                                placeholder="e.g., 10x20x5 cm"
+                                            />
+
+                                            <FormInput
+                                                label="Weight"
+                                                name="weight"
+                                                type="number"
+                                                placeholder="0.00"
+                                                min="0"
+                                                step="0.01"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {formMode === 'full' && (
+                                    <div className="pb-8 relative">
+                                        <div className="flex items-center gap-3 mb-6 relative">
+                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
+                                                6
+                                            </div>
+                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                Supplier Information
+                                            </h3>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
+                                            <FormInput
+                                                label="Supplier Name"
+                                                name="supplierName"
+                                                placeholder="Enter supplier name"
+                                            />
+
+                                            <FormInput
+                                                label="Supplier Code"
+                                                name="supplierCode"
+                                                placeholder="Enter supplier code"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-end gap-3 pt-6 border-t border-gray-300 dark:border-gray-600">
+                                    <Button
+                                        type="button"
+                                        theme="neutral"
+                                        onClick={() => navigate(ROUTES.INVENTORY)}
+                                        disabled={isSubmitting}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        theme="primary"
+                                        disabled={isSubmitting || loading}
+                                    >
+                                        {isSubmitting || loading ? (
+                                            <>
+                                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                Saving...
+                                            </>
+                                        ) : (
+                                            productId ? 'Update Item' : 'Create Item'
+                                        )}
+                                    </Button>
+                                </div>
+                            </FormWrapper>
+                        </Form>
+                    )}
+                </Formik>
+            </div>
+        </AppLayout>
     );
 };
 

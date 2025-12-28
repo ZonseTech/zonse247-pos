@@ -8,9 +8,9 @@ import { useIsMobile } from "../hooks/useMediaQuery"
 
 const ProtectedLayout: FunctionComponent = () => {
 	const { settings } = useApp();
+	const isMobile = useIsMobile();
 	const isNotDesktopEnv = !isElectron()
 	const showWebNav = isNotDesktopEnv || settings?.navigationMenuType === 'web'
-	const isMobile = useIsMobile();
 
 	return (
 		<div className="flex flex-col h-screen bg-white dark:bg-gray-900 transition-colors duration-300">

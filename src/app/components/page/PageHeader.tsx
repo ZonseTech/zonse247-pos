@@ -56,7 +56,7 @@ const PageHeader: React.FC<PropsWithChildren<PageHeaderProps>> = ({
             </div>
 
             {children && (
-                <div className="md:mt-2">
+                <div className="py-4 md:pt-4 md:pb-0 md:px-0 border-t border-gray-200 dark:border-gray-700">
                     {children}
                 </div>
             )}

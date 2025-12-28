@@ -3,6 +3,7 @@ import { ActiveInputType } from './CheckoutModal';
 import InputKeyboard from '../../../components/InputKeyboard';
 import { FormikErrors } from 'formik';
 import FormInput from '../../../components/FormInput';
+import { useIsMobile } from '../../../hooks/useMediaQuery';
 
 interface BankTransferProps {
     total: number;
@@ -19,6 +20,7 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
     onValueChange,
     onActiveInputChange,
 }) => {
+    const isMobile = useIsMobile();
     const accountInputRef = useRef<HTMLInputElement>(null);
     const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const isVirtualKeyboardActive = useRef(false);
@@ -146,15 +148,15 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
 
     return (
         <div className="flex flex-col">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
                 <div>
-                    <h3 className="text-3xl font-bold text-black dark:text-gray-400 mb-4">ACCOUNT DETAILS</h3>
-                    <div className="mb-6">
-                        <label className="block text-lg font-semibold text-black dark:text-gray-400 mb-2">
+                    <h3 className="text-lg md:text-3xl font-bold text-black dark:text-gray-400 mb-3 md:mb-4">ACCOUNT DETAILS</h3>
+                    <div className="mb-4 md:mb-6">
+                        <label className="block text-sm md:text-lg font-semibold text-black dark:text-gray-400 mb-2">
                             BANK
                         </label>
                         <select
-                            className="w-full p-4 border border-gray-300 rounded-none text-black text-xl"
+                            className="w-full p-3 md:p-4 border border-gray-300 rounded-none text-black text-base md:text-xl"
                             onChange={(e) => onValueChange('paymentServiceProviderId', e.target.value)}
                             value={values.paymentServiceProviderId}
                             name='paymentServiceProviderId'
@@ -168,8 +170,8 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
                         </select>
                     </div>
 
-                    <div className="mb-6">
-                        <label className="block text-lg font-semibold text-black dark:text-gray-400 mb-2">
+                    <div className="mb-4 md:mb-6">
+                        <label className="block text-sm md:text-lg font-semibold text-black dark:text-gray-400 mb-2">
                             REFERENCE NUMBER (Optional)
                         </label>
                         <FormInput
@@ -182,29 +184,29 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
                             onBlur={handleInputBlur}
                             placeholder="Transfer reference number"
                             maxLength={50}
-                            className={`w-full p-4 border border-gray-300 rounded-none text-black text-xl font-mono ${activeInput === 'referenceNo' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                            className={`w-full p-3 md:p-4 border border-gray-300 rounded-none text-black text-base md:text-xl font-mono ${activeInput === 'referenceNo' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
                                 }`}
                         />
                     </div>
                 </div>
 
-                <div className="space-y-8">
+                <div className="space-y-4 md:space-y-8">
                     <div>
-                        <h3 className="text-5xl font-bold text-black dark:text-gray-400 mb-2">BALANCE DUE</h3>
-                        <div className="bg-gray-800 text-green-400 text-center p-6 text-5xl font-bold rounded-none">
+                        <h3 className="text-xl md:text-5xl font-bold text-black dark:text-gray-400 mb-2">BALANCE DUE</h3>
+                        <div className="bg-gray-800 text-green-400 text-center p-4 md:p-6 text-2xl md:text-5xl font-bold rounded-none">
                             MK {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                     </div>
                     <div>
-                        <h3 className="text-5xl font-bold text-black dark:text-gray-400 mb-2">PAYMENT AMOUNT</h3>
-                        <div className="bg-gray-800 text-white text-center p-6 text-5xl font-bold rounded-none">
+                        <h3 className="text-xl md:text-5xl font-bold text-black dark:text-gray-400 mb-2">PAYMENT AMOUNT</h3>
+                        <div className="bg-gray-800 text-white text-center p-4 md:p-6 text-2xl md:text-5xl font-bold rounded-none">
                             MK {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div
+            {!isMobile && <div
                 onMouseDown={handleVirtualKeyboardMouseDown}
                 onMouseUp={handleVirtualKeyboardMouseUp}
             >
@@ -216,7 +218,7 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
                     onSpace={handleVirtualSpace}
                     className="w-full mt-4"
                 />
-            </div>
+            </div>}
         </div>
     );
 };

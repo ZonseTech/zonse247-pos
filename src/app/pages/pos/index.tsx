@@ -17,6 +17,7 @@ import { useIsMobile } from '../../hooks/useMediaQuery';
 import { SearchIcon, UserCircle2Icon } from 'lucide-react';
 import { Link } from 'react-router';
 import { ROUTES } from '../../utils/constants';
+import { Button, BottomSheet } from '../../components';
 
 const POSSystem: FunctionComponent = () => {
     const {
@@ -35,6 +36,7 @@ const POSSystem: FunctionComponent = () => {
     const [isLookupModalOpen, setIsLookupModalOpen] = useState(false);
     const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
     const [isHoldOrdersModalOpen, setIsHoldOrdersModalOpen] = useState(false);
+    const [isFunctionSheetOpen, setIsFunctionSheetOpen] = useState(false);
     const [paymentMethodId, setPaymentMethodId] = useState<PaymentMethod>(CHECKOUT.CASH);
     const [customPriceInputs, setCustomPriceInputs] = useState<Record<string, string>>({});
 
@@ -298,16 +300,84 @@ const POSSystem: FunctionComponent = () => {
                                     </span>
                                 </div>
                             </div>
-                            <button className="bg-sky-700 px-8 py-4 text-lg font-semibold hover:bg-sky-800 active:bg-sky-900">
+                            <Button
+                                className="bg-sky-700 px-8 py-4 text-lg font-semibold hover:bg-sky-800 active:bg-sky-900"
+                                onClick={() => setIsFunctionSheetOpen(true)}
+                                disabled={cart.length === 0}
+                            >
                                 Next
-                            </button>
+                            </Button>
                         </div>
                     </Panel>
                 </div>
-                <div className="hidden border-t border-gray-200 dark:border-gray-700">
+                <div className="hidden md:block border-t border-gray-200 dark:border-gray-700">
                     <Footer />
                 </div>
             </div>
+
+            <BottomSheet
+                isOpen={isFunctionSheetOpen}
+                onClose={() => setIsFunctionSheetOpen(false)}
+                title="Actions"
+            >
+                <div className="grid grid-cols-2 gap-3">
+                    <Button
+                        theme='danger'
+                        onClick={() => { handleVoidSale(); setIsFunctionSheetOpen(false); }}
+                    >
+                        Void Sale
+                    </Button>
+                    <Button
+                        theme='danger'
+                        onClick={() => { handleParkSale(); setIsFunctionSheetOpen(false); }}
+                    >
+                        Park Sale
+                    </Button>
+                    <Button
+                        theme='danger'
+                        onClick={() => { handleParkedSales(); setIsFunctionSheetOpen(false); }}
+                    >
+                        Parked Sales
+                    </Button>
+                    <Button
+                        theme='primary'
+                        onClick={() => { handleItemLookup(); setIsFunctionSheetOpen(false); }}
+                    >
+                        Item Lookup
+                    </Button>
+                    <Button
+                        theme='primary'
+                        onClick={() => { handleReprint(); setIsFunctionSheetOpen(false); }}
+                    >
+                        Reprint
+                    </Button>
+                    <Button
+                        theme='primary'
+                        onClick={() => { handleDiscount(); setIsFunctionSheetOpen(false); }}
+                    >
+                        Discount
+                    </Button>
+                    <Button
+                        theme='success'
+                        onClick={() => { handleCompleteTransaction(CHECKOUT.BANK_TRANSFER); setIsFunctionSheetOpen(false); }}
+                    >
+                        Bank Transfer
+                    </Button>
+                    <Button
+                        theme='success'
+                        onClick={() => { handleCompleteTransaction(CHECKOUT.E_PAYMENT); setIsFunctionSheetOpen(false); }}
+                    >
+                        E-Payment
+                    </Button>
+                    <Button
+                        theme='success'
+                        className="col-span-2"
+                        onClick={() => { handleCompleteTransaction(CHECKOUT.CASH); setIsFunctionSheetOpen(false); }}
+                    >
+                        Pay Cash
+                    </Button>
+                </div>
+            </BottomSheet>
 
             <HoldOrdersModal
                 isOpen={isHoldOrdersModalOpen}

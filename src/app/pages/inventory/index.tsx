@@ -16,17 +16,17 @@ import AdjustQuantityModal from './partials/AdjustQuantityModal';
 import { useInventoryManagement } from '../../hooks/useInventoryManagement';
 import { useInventorySummary } from '../../hooks/useInventorySummary';
 import { ROUTES } from '../../utils/constants';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 const InventoryManagement: FunctionComponent = () => {
+    const isMobile = useIsMobile();
     const navigate = useNavigate();
     const { mode } = useContext(ZonseThemeContext);
 
-    // Bulk actions state
     const [selectedRows, setSelectedRows] = useState<InventoryItem[]>([]);
     const [toggleCleared, setToggleCleared] = useState(false);
     const [isBulkActionsOpen, setIsBulkActionsOpen] = useState(false);
 
-    // Adjust quantity state
     const [isAdjustQuantityOpen, setIsAdjustQuantityOpen] = useState(false);
     const [selectedItemForAdjust, setSelectedItemForAdjust] = useState<InventoryItem | null>(null);
 
@@ -91,18 +91,15 @@ const InventoryManagement: FunctionComponent = () => {
         applyFilters({ filter: 'all', search: '', categoryId: undefined });
     }, [setActiveFilter, applyFilters]);
 
-    // Handle row selection change
     const handleRowSelected = useCallback((state: { selectedRows: InventoryItem[] }) => {
         setSelectedRows(state.selectedRows);
     }, []);
 
-    // Handle adjust quantity for single item
     const handleAdjustQuantity = useCallback((item: InventoryItem) => {
         setSelectedItemForAdjust(item);
         setIsAdjustQuantityOpen(true);
     }, []);
 
-    // Handle bulk actions success
     const handleBulkSuccess = useCallback(() => {
         setToggleCleared(!toggleCleared);
         setSelectedRows([]);
@@ -110,7 +107,6 @@ const InventoryManagement: FunctionComponent = () => {
         loadSummary();
     }, [toggleCleared, loadInventory, loadSummary]);
 
-    // Handle adjust quantity success
     const handleAdjustSuccess = useCallback(() => {
         loadInventory();
         loadSummary();
@@ -131,69 +127,66 @@ const InventoryManagement: FunctionComponent = () => {
                     description="Manage your inventory items, track stock levels, and monitor expiration dates."
                     action={
                         <Button
+                            icon={HiOutlinePlus}
+                            layout={isMobile ? 'outline' : 'primary'}
                             onClick={handleAddItem}
-                            theme="primary"
-                            className="flex items-center gap-2"
-                        >
-                            <HiOutlinePlus className="w-5 h-5" />
-                            Add Item
+                            theme="primary">
+                            {!isMobile && <span className='hidden md:block'>
+                                Add Item
+                            </span>}
                         </Button>
                     }
-                />
+                >
+                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 px-4">
+                        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                            <SearchBar
+                                value={searchTerm}
+                                onChange={handleSearch}
+                                onClear={() => applyFilters()}
+                                placeholder="Search by name, barcode, or SKU..."
+                                className="w-full sm:w-64"
+                            />
+
+                            <Select
+                                onChange={(e) => handleFilterByCategory(parseInt(e.target.value))}
+                                className="h-9 px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors w-full sm:w-48"
+                            >
+                                <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                    All Categories
+                                </option>
+                                {categories.map((category: Category) => (
+                                    <option
+                                        key={category.categoryId}
+                                        value={category.categoryId}
+                                        className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                    >
+                                        {category.name as string}
+                                    </option>
+                                ))}
+                            </Select>
+
+                            {selectedRows.length > 0 && (
+                                <Button
+                                    onClick={() => setIsBulkActionsOpen(true)}
+                                    theme="neutral"
+                                    layout="outline"
+                                    className="flex items-center gap-2"
+                                >
+                                    <Settings2 className="w-4 h-4" />
+                                    Bulk Actions ({selectedRows.length})
+                                </Button>
+                            )}
+                        </div>
+
+                        <Filters
+                            summaryData={summaryData}
+                            activeFilter={activeFilter}
+                            onClear={handleClearFilters}
+                        />
+                    </div>
+                </PageHeader>
 
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-                    <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                            <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                                <SearchBar
-                                    value={searchTerm}
-                                    onChange={handleSearch}
-                                    onClear={() => applyFilters()}
-                                    placeholder="Search by name, barcode, or SKU..."
-                                    className="w-full sm:w-64"
-                                />
-
-                                <Select
-                                    onChange={(e) => handleFilterByCategory(parseInt(e.target.value))}
-                                    className="h-9 px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors w-full sm:w-48"
-                                >
-                                    <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                        All Categories
-                                    </option>
-                                    {categories.map((category: Category) => (
-                                        <option
-                                            key={category.categoryId}
-                                            value={category.categoryId}
-                                            className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                                        >
-                                            {category.name as string}
-                                        </option>
-                                    ))}
-                                </Select>
-
-                                {selectedRows.length > 0 && (
-                                    <Button
-                                        onClick={() => setIsBulkActionsOpen(true)}
-                                        theme="neutral"
-                                        layout="outline"
-                                        className="flex items-center gap-2"
-                                    >
-                                        <Settings2 className="w-4 h-4" />
-                                        Bulk Actions ({selectedRows.length})
-                                    </Button>
-                                )}
-                            </div>
-
-                            <div className="w-full lg:w-auto">
-                                <Filters
-                                    summaryData={summaryData}
-                                    activeFilter={activeFilter}
-                                    onClear={handleClearFilters}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
                     <DataTable
                         columns={columns}
                         data={data}
@@ -244,7 +237,6 @@ const InventoryManagement: FunctionComponent = () => {
                 </div>
             </div>
 
-            {/* Bulk Actions Modal */}
             <BulkActionsModal
                 isOpen={isBulkActionsOpen}
                 onClose={() => setIsBulkActionsOpen(false)}
@@ -253,7 +245,6 @@ const InventoryManagement: FunctionComponent = () => {
                 onSuccess={handleBulkSuccess}
             />
 
-            {/* Adjust Quantity Modal */}
             <AdjustQuantityModal
                 isOpen={isAdjustQuantityOpen}
                 onClose={() => {

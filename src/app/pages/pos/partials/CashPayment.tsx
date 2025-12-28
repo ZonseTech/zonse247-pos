@@ -2,6 +2,7 @@ import { FunctionComponent, useState, useEffect, useRef } from 'react';
 import InputKeyboard from '../../../components/InputKeyboard';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { FormikErrors } from 'formik';
+import { useIsMobile } from '../../../hooks/useMediaQuery';
 
 interface CashPaymentProps {
     total: number;
@@ -16,6 +17,7 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
     onValueChange,
     focusManager,
 }) => {
+    const isMobile = useIsMobile();
     const [change, setChange] = useState<number>(0);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -103,8 +105,8 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
     };
 
     return (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-            <div>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+            {!isMobile && <div>
                 <InputKeyboard
                     variant="numpad"
                     onButtonClick={handleNumpadClick}
@@ -113,19 +115,19 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
                     numpadType='basic'
                     title="Enter Cash Amount"
                 />
-            </div>
-            <div className='space-y-8'>
+            </div>}
+            <div className='space-y-4 md:space-y-8'>
                 <div>
-                    <h3 className="text-5xl font-bold text-black dark:text-gray-400 mb-2">BALANCE DUE</h3>
+                    <h3 className="text-xl md:text-5xl font-bold text-black dark:text-gray-400 mb-2">BALANCE DUE</h3>
                     <input
                         type="text"
                         value={`MK ${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                         readOnly
-                        className="bg-gray-800 text-green-400 text-center p-6 text-5xl font-bold rounded-none w-full"
+                        className="bg-gray-800 text-green-400 text-center p-4 md:p-6 text-2xl md:text-5xl font-bold rounded-none w-full"
                     />
                 </div>
                 <div>
-                    <h3 className="text-5xl font-bold text-black dark:text-gray-400 mb-2">CASH TENDERED</h3>
+                    <h3 className="text-xl md:text-5xl font-bold text-black dark:text-gray-400 mb-2">CASH TENDERED</h3>
                     <input
                         type="text"
                         value={formatDisplayValue(values.cashTendered || '')}
@@ -134,16 +136,16 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
                         onFocus={handleFocus}
                         onBlur={handleBlur}
                         ref={inputRef}
-                        className={`bg-gray-800 text-white text-center p-6 text-5xl font-bold rounded-none w-full`}
+                        className={`bg-gray-800 text-white text-center p-4 md:p-6 text-2xl md:text-5xl font-bold rounded-none w-full`}
                     />
                 </div>
                 <div>
-                    <h3 className="text-5xl font-bold text-black dark:text-gray-400 mb-2">CHANGE</h3>
+                    <h3 className="text-xl md:text-5xl font-bold text-black dark:text-gray-400 mb-2">CHANGE</h3>
                     <input
                         type="text"
                         value={`MK ${change.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                         readOnly
-                        className="bg-gray-800 text-yellow-400 text-center p-6 text-5xl font-bold rounded-none w-full"
+                        className="bg-gray-800 text-yellow-400 text-center p-4 md:p-6 text-2xl md:text-5xl font-bold rounded-none w-full"
                     />
                 </div>
             </div>

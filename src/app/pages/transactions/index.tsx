@@ -3,6 +3,11 @@ import TransactionsDataTable from "./partials/TransactionsDataTable";
 import ProductsTable from "./partials/ProductsTable";
 import AppLayout from "../../layouts/AppLayout";
 import StatCard from "../../components/card/StatCard";
+import PageHeader from "../../components/page/PageHeader";
+import { ReceiptEuroIcon } from "lucide-react";
+import { Link } from "react-router";
+import { ROUTES } from "../../utils/constants";
+import { HiOutlinePlus } from "react-icons/hi";
 
 const TransactionsPage: FC = () => {
     const [showProducts, setShowProducts] = useState(false);
@@ -27,6 +32,18 @@ const TransactionsPage: FC = () => {
     return (
         <AppLayout>
             <div className="min-h-screen space-y-4">
+
+                <PageHeader
+                    title="Transactions"
+                    description="Manage and view all transactions"
+                    icon={<ReceiptEuroIcon className="w-8 h-8 text-blue-600" />}
+                    action={
+                        <Link to={ROUTES.POS}>
+                            <HiOutlinePlus className="w-5 h-5" />
+                        </Link>
+                    }
+                />
+
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
                     {summaryData.map((card, index) => (
                         <StatCard
