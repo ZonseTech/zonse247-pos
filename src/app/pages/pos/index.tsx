@@ -17,6 +17,7 @@ import { useIsMobile } from '../../hooks/useMediaQuery';
 import { SearchIcon, UserCircle2Icon } from 'lucide-react';
 import { Link } from 'react-router';
 import { ROUTES } from '../../utils/constants';
+import { Button } from '../../components';
 
 const POSSystem: FunctionComponent = () => {
     const {
@@ -298,13 +299,13 @@ const POSSystem: FunctionComponent = () => {
                                     </span>
                                 </div>
                             </div>
-                            <button className="bg-sky-700 px-8 py-4 text-lg font-semibold hover:bg-sky-800 active:bg-sky-900">
+                            <Button className="bg-sky-700 px-8 py-4 text-lg font-semibold hover:bg-sky-800 active:bg-sky-900">
                                 Next
-                            </button>
+                            </Button>
                         </div>
                     </Panel>
                 </div>
-                <div className="hidden border-t border-gray-200 dark:border-gray-700">
+                <div className="hidden md:block border-t border-gray-200 dark:border-gray-700">
                     <Footer />
                 </div>
             </div>
