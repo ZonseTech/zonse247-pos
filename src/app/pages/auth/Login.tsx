@@ -91,7 +91,7 @@ const Login: FunctionComponent = () => {
             const user = await auth.signin(values)
             toast.success('Welcome back! ' + user.user.fullname)
             navigate(ROUTES.POS);
-            location.reload()
+            // location.reload()
         } catch (error: any) {
             setAuthError(error.message || 'Login failed. Please try again.');
         }
