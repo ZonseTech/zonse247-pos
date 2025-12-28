@@ -51,11 +51,6 @@ const CashierDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
         { key: 'todayTransactions', title: 'Today\'s Count', value: 0, icon: <Clock size={20} />, bgColor: 'bg-orange-500 dark:bg-orange-600' },
     ]);
 
-    // Quick action for cashier - mainly just POS
-    const quickActions: QuickAction[] = [
-        { label: 'Start New Sale', icon: <ShoppingCart size={18} />, onClick: () => navigate(ROUTES.POS), color: 'bg-green-600 hover:bg-green-700' },
-    ];
-
     useEffect(() => {
         if (dashboardCounts) {
             const avgValue = dashboardCounts.myTotalTransactions > 0
@@ -257,15 +252,6 @@ const CashierDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
                             </li>
                         </ul>
                     </div>
-
-                    {/* Quick Action */}
-                    <button
-                        onClick={() => navigate(ROUTES.POS)}
-                        className="w-full py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 shadow-md transition-all"
-                    >
-                        <ShoppingCart size={20} />
-                        New Sale
-                    </button>
                 </div>
             </div>
 
