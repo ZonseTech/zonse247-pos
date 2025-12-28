@@ -3,8 +3,9 @@ import { useAuth } from '../context/AuthProvider';
 import { Clock, User } from 'lucide-react';
 import { Link } from 'react-router';
 import { ROUTES } from '../utils/constants';
+import classNames from 'classnames';
 
-const Footer: FunctionComponent = () => {
+const Footer: FunctionComponent<{ className?: string }> = ({ className }) => {
     const { user } = useAuth();
     const [currentTime, setCurrentTime] = useState(new Date())
 
@@ -26,7 +27,10 @@ const Footer: FunctionComponent = () => {
     }
 
     return (
-        <div className="hidden md:flex justify-between items-center text-md font-medium text-gray-600 mb-3 pt-3 px-4">
+        <div className={classNames(
+            className || 'hidden md:flex',
+            'justify-between items-center text-md font-medium text-gray-600 mb-3 pt-3 px-4'
+        )}>
             <div className="flex items-center gap-2">
                 <Clock className="w-6 h-6" />
                 <span>{formatTime(currentTime)}</span>

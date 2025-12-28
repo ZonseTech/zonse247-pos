@@ -10,16 +10,18 @@ import AuthLayout from "../../layouts/AuthLayout";
 import FormInput from "../../components/FormInput";
 import { useAuth } from "../../context/AuthProvider";
 import FormWrapper from "../../components/FormWrapper";
+import { useIsMobile } from '../../hooks/useMediaQuery';
 import InputKeyboard from "../../components/InputKeyboard";
 import type { Dispatch, FunctionComponent, SetStateAction } from "react";
 
 interface AuthProps {
-    username: string;
     password: string;
+    username: string;
 }
 
 const Login: FunctionComponent = () => {
     const auth = useAuth()
+    const isMobile = useIsMobile();
     const navigate = useNavigate();
     const [authError, setAuthError]: [string, Dispatch<SetStateAction<string>>] = useState('')
     const [activeField, setActiveField] = useState<'username' | 'password' | null>('username')
@@ -91,14 +93,14 @@ const Login: FunctionComponent = () => {
             navigate(ROUTES.POS);
             location.reload()
         } catch (error: any) {
-            setAuthError(error.message);
+            setAuthError(error.message || 'Login failed. Please try again.');
         }
     }
 
     return (
         <AuthLayout
             className='max-w-md'
-            showKeyboard={true}
+            showKeyboard={!isMobile}
             keyboard={
                 <InputKeyboard
                     variant="full"
