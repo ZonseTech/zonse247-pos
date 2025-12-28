@@ -19,6 +19,7 @@ import {
     HiOutlineArrowPath,
     HiOutlineBuildingOffice2,
     HiOutlineBuildingStorefront,
+    HiOutlineHomeModern,
     HiOutlineKey,
     HiOutlineServerStack,
     HiOutlineWrenchScrewdriver
@@ -33,8 +34,8 @@ const useNavItems = (): Array<NavItem> => {
     const { user, signout } = useAuth();
 
     const icons = {
-        pos: <HiOutlineShoppingCart className="h-6 w-6 mr-1" />,
-        dashboard: <HiOutlinePresentationChartBar className="h-6 w-6 mr-1" />,
+        pos: <HiOutlineShoppingCart className="h-5 w-5" />,
+        dashboard: <HiOutlineHomeModern className="h-5 w-5" />,
         products: <HiOutlineQrcode className="h-5 w-5" />,
         categories: <HiOutlineViewList className="h-5 w-5" />,
         customers: <HiOutlineUserGroup className="h-5 w-5" />,

@@ -247,10 +247,10 @@ const InventoryForm: FunctionComponent = () => {
                             <></>
                         }
                     >
-                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                        {!productId && (
+                            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                                <div className="flex items-center w-full lg:w-auto gap-3">
 
-                            <div className="flex items-center w-full lg:w-auto gap-3">
-                                {!productId && (
                                     <div className="flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
                                         <button
                                             type="button"
@@ -275,16 +275,9 @@ const InventoryForm: FunctionComponent = () => {
                                             Full Form
                                         </button>
                                     </div>
-                                )}
-                                <Button
-                                    type="button"
-                                    theme='danger'
-                                    onClick={() => navigate(ROUTES.INVENTORY)}
-                                >
-                                    Cancel
-                                </Button>
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                     </PageHeader>
                 </div>
