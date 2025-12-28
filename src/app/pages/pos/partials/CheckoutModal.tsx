@@ -11,6 +11,7 @@ import { useApp } from '../../../context/AppProvider';
 import transactionService from '../../../services/transactions.service';
 import { generateReferenceNumber } from '../../../utils';
 import printerService from '../../../services/printer.service';
+import { Button } from '../../../components';
 
 interface CheckoutModalProps {
     isOpen: boolean;
@@ -209,14 +210,14 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-900 w-full max-w-6xl max-h-[90vh] flex flex-col">
-                <div className="text-black p-4 border-b flex items-center justify-between flex-shrink-0">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
+            <div className="bg-white dark:bg-gray-900 w-full max-w-6xl max-h-[95vh] md:max-h-[90vh] flex flex-col rounded-lg md:rounded-none overflow-hidden">
+                <div className="text-black p-3 md:p-4 border-b flex items-center justify-between flex-shrink-0">
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded flex items-center justify-center">
-                            <span className="text-black dark:text-gray-200 font-bold">{getPaymentIcon()}</span>
+                        <div className="w-6 h-6 md:w-8 md:h-8 rounded flex items-center justify-center">
+                            <span className="text-lg md:text-2xl">{getPaymentIcon()}</span>
                         </div>
-                        <span className="text-black dark:text-gray-200 text-xl font-bold">{getPaymentTitle()}</span>
+                        <span className="text-black dark:text-gray-200 text-base md:text-xl font-bold">{getPaymentTitle()}</span>
                     </div>
                 </div>
 
@@ -228,7 +229,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 >
                     {({ isSubmitting, values, setFieldValue, errors, touched }) => (
                         <Form className="flex flex-col flex-1 min-h-0">
-                            <div className="flex-1 p-6 overflow-y-auto">
+                            <div className="flex-1 p-3 md:p-6 overflow-y-auto">
                                 {paymentMethodId === CHECKOUT.CASH && (
                                     <CashPayment
                                         total={total}
@@ -260,19 +261,19 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                             </div>
 
                             {processing && (
-                                <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded">
+                                <div className="bg-blue-100 border border-blue-400 text-blue-700 px-3 md:px-4 py-2 md:py-3 rounded mx-3 md:mx-6 mb-3 md:mb-0">
                                     <div className="flex items-center gap-2">
                                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700"></div>
-                                        <span className="font-bold">Processing cash payment...</span>
+                                        <span className="font-bold text-sm md:text-base">Processing cash payment...</span>
                                     </div>
                                 </div>
                             )}
 
-                            <div className="flex space-x-4 justify-center items-center border-t p-6 flex-shrink-0">
+                            <div className="flex flex-row space-x-3 md:space-x-4 justify-center items-center border-t p-3 md:p-6 flex-shrink-0">
                                 <button
                                     type="submit"
                                     disabled={isSubmitting || !canProceed(values)}
-                                    className={`px-32 py-6 text-lg font-bold transition-colors rounded-none ${canProceed(values)
+                                    className={`px-6 md:px-32 py-4 md:py-6 text-base md:text-lg font-bold transition-colors rounded-none ${canProceed(values)
                                         ? 'bg-cyan-500 hover:bg-cyan-600 text-white'
                                         : 'bg-gray-400 text-gray-700 cursor-not-allowed'
                                         }`}
@@ -283,7 +284,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                                     type="button"
                                     onClick={onClose}
                                     disabled={isSubmitting}
-                                    className="bg-red-500 text-white px-32 py-6 text-lg font-bold rounded-none hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="bg-red-500 text-white px-6 md:px-32 py-4 md:py-6 text-base md:text-lg font-bold rounded-none hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     CANCEL
                                 </button>

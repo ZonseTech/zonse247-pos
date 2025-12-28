@@ -4,6 +4,7 @@ import InputKeyboard from '../../../components/InputKeyboard';
 import { Phone } from 'lucide-react';
 import { FormikErrors } from 'formik';
 import FormInput from '../../../components/FormInput';
+import { useIsMobile } from '../../../hooks/useMediaQuery';
 
 interface EPaymentProps {
     total: number;
@@ -25,6 +26,7 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
     onValueChange,
     onActiveInputChange,
 }) => {
+    const isMobile = useIsMobile();
     const phoneInputRef = useRef<HTMLInputElement>(null);
     const referenceNumberInputRef = useRef<HTMLInputElement>(null);
     const [selectedSubMethod, setSelectedSubMethod] = useState('airtel-money');
@@ -173,10 +175,10 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
 
     return (
         <div className="flex flex-col">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
                 <div>
-                    <div className="mb-2">
-                        <div className="grid grid-cols-2 gap-4">
+                    <div className="mb-3 md:mb-4">
+                        <div className="grid grid-cols-2 gap-2 md:gap-4">
                             {E_PAYMENT_METHODS.map((method) => {
                                 const IconComponent = method.icon;
                                 return (
@@ -187,13 +189,13 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                                             e.preventDefault();
                                             handleOnMethodSelect(method.id)
                                         }}
-                                        className={`p-6 rounded-none flex flex-col items-center gap-3 transition-colors ${selectedSubMethod === method.id
+                                        className={`p-3 md:p-6 rounded-none flex flex-col items-center gap-2 md:gap-3 transition-colors ${selectedSubMethod === method.id
                                             ? method.color + ' text-white'
                                             : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
                                             }`}
                                     >
-                                        <IconComponent size={32} />
-                                        <span className="text-sm font-bold text-center">{method.name}</span>
+                                        <IconComponent className="w-6 h-6 md:w-8 md:h-8" />
+                                        <span className="text-xs md:text-sm font-bold text-center">{method.name}</span>
                                     </button>
                                 );
                             })}
@@ -201,8 +203,8 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                     </div>
 
                     {(selectedSubMethod === 'airtel-money' || selectedSubMethod === 'tnm-mpamba') && (
-                        <div className="mb-6">
-                            <h3 className="text-xl font-bold text-black dark:text-gray-400 mb-3">PHONE NUMBER</h3>
+                        <div className="mb-4 md:mb-6">
+                            <h3 className="text-sm md:text-xl font-bold text-black dark:text-gray-400 mb-2 md:mb-3">PHONE NUMBER</h3>
                             <FormInput
                                 ref={phoneInputRef}
                                 type="tel"
@@ -213,14 +215,14 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                                 placeholder="e.g., 0881234567"
                                 name='phoneNumber'
                                 maxLength={10}
-                                className={`w-full p-4 border border-gray-300 rounded-none text-black text-xl font-mono ${activeInput === 'phoneNumber' ? 'border-blue-500 bg-blue-50' : ''
+                                className={`w-full p-3 md:p-4 border border-gray-300 rounded-none text-black text-base md:text-xl font-mono ${activeInput === 'phoneNumber' ? 'border-blue-500 bg-blue-50' : ''
                                     }`}
                             />
                         </div>
                     )}
 
-                    <div className="">
-                        <h3 className="text-xl font-bold text-black dark:text-gray-400 mb-3">
+                    <div className="mb-4 md:mb-0">
+                        <h3 className="text-sm md:text-xl font-bold text-black dark:text-gray-400 mb-2 md:mb-3">
                             REFERENCE NUMBER
                         </h3>
                         <FormInput
@@ -233,29 +235,29 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                             placeholder="REF.GGJH878.292..."
                             name='transactionId'
                             maxLength={50}
-                            className={`w-full p-4 border border-gray-300 rounded-none text-black text-xl font-mono ${activeInput === 'referenceNo' ? 'border-blue-500 bg-blue-50' : ''
+                            className={`w-full p-3 md:p-4 border border-gray-300 rounded-none text-black text-base md:text-xl font-mono ${activeInput === 'referenceNo' ? 'border-blue-500 bg-blue-50' : ''
                                 }`}
                         />
                     </div>
                 </div>
 
-                <div className="space-y-8">
+                <div className="space-y-4 md:space-y-8">
                     <div>
-                        <h3 className="text-5xl font-bold text-black dark:text-gray-400 mb-2">BALANCE DUE</h3>
-                        <div className="bg-gray-800 text-green-400 text-center p-6 text-5xl font-bold rounded-none">
+                        <h3 className="text-xl md:text-5xl font-bold text-black dark:text-gray-400 mb-2">BALANCE DUE</h3>
+                        <div className="bg-gray-800 text-green-400 text-center p-4 md:p-6 text-2xl md:text-5xl font-bold rounded-none">
                             MK {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                     </div>
                     <div>
-                        <h3 className="text-5xl font-bold text-black dark:text-gray-400 mb-2">PAYMENT AMOUNT</h3>
-                        <div className="bg-gray-800 text-white text-center p-6 text-5xl font-bold rounded-none">
+                        <h3 className="text-xl md:text-5xl font-bold text-black dark:text-gray-400 mb-2">PAYMENT AMOUNT</h3>
+                        <div className="bg-gray-800 text-white text-center p-4 md:p-6 text-2xl md:text-5xl font-bold rounded-none">
                             MK {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div
+            {!isMobile && <div
                 onMouseDown={handleVirtualKeyboardMouseDown}
                 onMouseUp={handleVirtualKeyboardMouseUp}
             >
@@ -267,7 +269,7 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                     onSpace={handleVirtualSpace}
                     className="virtual-keyboard w-full mt-4"
                 />
-            </div>
+            </div>}
         </div>
     );
 };
