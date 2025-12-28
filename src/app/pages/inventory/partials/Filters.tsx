@@ -1,5 +1,6 @@
 import React from 'react';
-import { Package, PackageCheck, PackageX, Clock, TrendingDown } from 'lucide-react';
+import { Package, PackageCheck, PackageX, Clock, TrendingDown, Filter } from 'lucide-react';
+import { useIsMobile } from '../../../hooks/useMediaQuery';
 
 interface SummaryCard {
     title: string;
@@ -31,25 +32,79 @@ const getFilterIcon = (title: string) => {
     }
 };
 
+const getFilterKey = (title: string, idx: number): string => {
+    return idx === 0 ? 'all' : title.toLowerCase().replace(/\s+/g, '-');
+};
+
 const Filters: React.FC<FiltersProps> = ({ summaryData, activeFilter, onClear }) => {
+    const isMobile = useIsMobile();
+
+    const handleFilterChange = (filterKey: string) => {
+        if (filterKey === 'all') {
+            onClear();
+        } else {
+            const filter = summaryData.find((f, idx) => getFilterKey(f.title, idx) === filterKey);
+            if (filter) {
+                filter.onClick();
+            }
+        }
+    };
+
+    if (isMobile) {
+        const activeFilterData = summaryData.find((f, idx) => getFilterKey(f.title, idx) === activeFilter);
+        const ActiveIcon = activeFilterData ? getFilterIcon(activeFilterData.title) : Filter;
+
+        return (
+            <div className="relative w-full">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <ActiveIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                </div>
+                <select
+                    value={activeFilter}
+                    onChange={(e) => handleFilterChange(e.target.value)}
+                    className="w-full h-10 pl-10 pr-4 
+                        appearance-none cursor-pointer
+                        rounded-md text-sm font-medium
+                        bg-white dark:bg-gray-800 
+                        text-gray-700 dark:text-gray-200
+                        border border-gray-300 dark:border-gray-600
+                        focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                        focus:border-blue-500 dark:focus:border-blue-400
+                        transition-colors"
+                >
+                    {summaryData.map((filter, idx) => {
+                        const filterKey = getFilterKey(filter.title, idx);
+                        return (
+                            <option
+                                key={idx}
+                                value={filterKey}
+                                className="bg-white dark:bg-gray-800"
+                            >
+                                {filter.title} ({filter.value})
+                            </option>
+                        );
+                    })}
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-wrap items-center gap-2">
             {summaryData.map((filter, idx) => {
-                const isTotal = idx === 0;
-                const filterKey = filter.title.toLowerCase().replace(/\s+/g, '-');
-                const isActive = activeFilter === (isTotal ? 'all' : filterKey);
+                const filterKey = getFilterKey(filter.title, idx);
+                const isActive = activeFilter === filterKey;
                 const Icon = getFilterIcon(filter.title);
 
                 return (
                     <button
                         key={idx}
-                        onClick={() => {
-                            if (isTotal) {
-                                onClear();
-                            } else {
-                                filter.onClick();
-                            }
-                        }}
+                        onClick={() => handleFilterChange(filterKey)}
                         className={`
                             inline-flex items-center gap-1.5 px-2.5 h-9
                             rounded-md text-sm font-medium whitespace-nowrap

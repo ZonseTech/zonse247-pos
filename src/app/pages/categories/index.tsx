@@ -11,8 +11,10 @@ import PageHeader from '../../components/page/PageHeader';
 import { Button, ZonseThemeContext } from '../../components';
 import { getCategoryColumns } from './partials/CategoryTableColumns';
 import CreateCategoryModal from './CreateCategoryModal';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 const CategoriesManager: FunctionComponent = () => {
+    const isMobile = useIsMobile();
     const { mode } = useContext(ZonseThemeContext);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -72,20 +74,39 @@ const CategoriesManager: FunctionComponent = () => {
                     title="Categories"
                     description="Manage your product categories"
                     icon={<HiOutlineFolderOpen className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
-                >
-                    <div className="flex items-center space-x-4">
-                        <SearchBar
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+                    action={
+                        <div className='flex items-center justify-between gap-2'>
+                            {
+                                !isMobile && (
+                                    <SearchBar
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                )
+                            }
 
-                        <div className="flex items-center space-x-3">
-                            <Button onClick={() => setShowCreateModal(true)} theme="primary">
-                                <HiOutlinePlus className="w-4 h-4 mr-2" />
-                                Add Category
+                            <Button
+                                icon={HiOutlinePlus}
+                                layout={isMobile ? 'outline' : 'primary'}
+                                onClick={() => setShowCreateModal(true)}
+                                theme="primary">
+                                {!isMobile && <span className='hidden md:block'>
+                                    Add Category
+                                </span>}
                             </Button>
                         </div>
-                    </div>
+                    }
+                >
+                    {
+                        isMobile && (
+                            <div className='m-4 mt-0'>
+                                <SearchBar
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        )
+                    }
                 </PageHeader>
 
                 <DataTable
