@@ -2,7 +2,7 @@ import { Confirm } from 'notiflix';
 import { FolderOpen } from 'lucide-react';
 import AppLayout from '../../layouts/AppLayout';
 import { HiOutlinePlus, HiOutlineFolderOpen } from 'react-icons/hi2';
-import { SearchBar } from './partials/SearchBar';
+import { SearchBar } from '../../components/SearchBar';
 import DataTable from 'react-data-table-component';
 import { useCategories } from '../../hooks/useCategories';
 import { FunctionComponent, useContext, useState } from 'react';
