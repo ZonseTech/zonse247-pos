@@ -40,7 +40,7 @@ const CartItemCard: FunctionComponent<CartItemProps> = ({ customPriceInputs,
                                         </h3>
                                         <div className="flex items-center gap-2">
                                             <span className="text-gray-900 dark:text-gray-100 font-semibold">
-                                                {formatCurrency(item.sellPrice)}
+                                                {formatCurrency(item.sellPrice * item.quantity)}
                                             </span>
                                             {item.discount > 0 && (
                                                 <span className="text-green-600 dark:text-green-400 text-xs">
