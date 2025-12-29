@@ -176,7 +176,7 @@ const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, er
                             verificationKey: registerProps.verificationToken,
                             tenantId: verifiedTenant.tenantId,
                             branchId: selectedBranch.branchId,
-                            terminalId: selectedTerminal.tenantId,
+                            terminalId: selectedTerminal.terminalId,
                         }}
                         loading={loading}
                         onComplete={handleSetupComplete}
