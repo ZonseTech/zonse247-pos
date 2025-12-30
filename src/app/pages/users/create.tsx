@@ -94,8 +94,8 @@ const UserForm: FunctionComponent = () => {
             .required('Password is required')
             .min(8, 'Password must be at least 8 characters')
             .matches(
-                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-                'Password must contain uppercase, lowercase, number, and special character'
+                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]/,
+                'Password must contain uppercase, lowercase, and number'
             ) : Yup.string().notRequired(),
         fullname: Yup.string()
             .required('Full name is required')
@@ -105,8 +105,13 @@ const UserForm: FunctionComponent = () => {
             .email('Invalid email address')
             .max(100, 'Email is too long'),
         phone: Yup.string()
-            .matches(/^[0-9+\-\s()]*$/, 'Invalid phone number format')
-            .max(20, 'Phone number is too long'),
+            .matches(
+                /^(\+265|265|0[89])\d{7,9}$/,
+                'Phone number must start with +265, 265, 09, or 08 (e.g., +265123456789, 0912345678)'
+            )
+            .max(20, 'Phone number is too long')
+            .nullable()
+            .notRequired(),
         tenantId: Yup.string().required('Tenant is required'),
         branchId: Yup.string().required('Branch is required'),
         roleId: Yup.string().required('Role is required'),
