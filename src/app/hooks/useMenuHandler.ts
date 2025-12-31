@@ -34,10 +34,6 @@ export function useMenuHandler() {
             signout(() => navigate('/login'));
         });
 
-        // const cleanupRestore = window.electronAPI.menu.onRestoreDatabase(async (filePath: string) => {
-        //     console.log('Menu restore database from:', filePath);
-        // });
-
         const cleanupUpdates = window.electronAPI.menu.onCheckUpdates(async () => {
             console.log('Menu check for updates triggered');
         });

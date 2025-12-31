@@ -85,7 +85,6 @@ const SubscriptionBilling: FunctionComponent = () => {
 				}
 			} catch (error) {
 				console.error('Failed to load tenant data:', error);
-				setTenantInfo(null);
 			}
 		};
 

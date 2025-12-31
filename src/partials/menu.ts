@@ -340,6 +340,13 @@ export default class MenuBuilder {
 				},
 			];
 
+			if (hasPermission(this.user, 'system.backup')) {
+				adminSubmenu.push({
+					label: 'Export DB',
+					click: () => this.navigateTo(ROUTES.EXPORT_DB),
+				});
+			}
+
 			template.push({
 				label: 'Admin',
 				submenu: adminSubmenu,

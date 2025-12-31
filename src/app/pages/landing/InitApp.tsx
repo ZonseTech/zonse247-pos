@@ -8,6 +8,9 @@ import {
     isRetryableError,
 } from '../../utils/retry.util'
 
+const CLIENT_TYPE = import.meta.env.VITE_APP_CLIENT_TYPE || 'desktop'
+const isWebOrMobile = CLIENT_TYPE === 'web' || CLIENT_TYPE === 'mobile'
+
 const InitApp: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings }) => {
     const navigate = useNavigate()
     const isMountedRef = useRef(true)
@@ -44,11 +47,6 @@ const InitApp: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings })
 
                 return { success: true, verified: isVerified }
             } catch (error) {
-                console.error(
-                    `App initialization attempt ${attemptNumber} failed:`,
-                    error
-                )
-
                 if (
                     attemptNumber < INIT_CONFIG.MAX_RETRY_ATTEMPTS &&
                     isRetryableError(error)
@@ -104,10 +102,14 @@ const InitApp: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings })
 
     useEffect(() => {
         if (!initialization.isLoading && !initialization.error) {
-            if (initialization.isAccountVerified) {
+            if (isWebOrMobile) {
                 navigate(ROUTES.LOGIN)
             } else {
-                navigate(ROUTES.LANDING_PAGE)
+                if (initialization.isAccountVerified) {
+                    navigate(ROUTES.LOGIN)
+                } else {
+                    navigate(ROUTES.LANDING_PAGE)
+                }
             }
         }
     }, [initialization.isLoading, initialization.error, initialization.isAccountVerified, navigate])

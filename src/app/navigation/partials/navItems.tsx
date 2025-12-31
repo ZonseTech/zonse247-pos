@@ -11,6 +11,7 @@ import {
     HiOutlinePrinter,
     HiOutlineFolderDownload,
     HiOutlineUserGroup,
+    HiOutlineCreditCard,
 } from 'react-icons/hi';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
@@ -44,6 +45,7 @@ const useNavItems = (): Array<NavItem> => {
         printer: <HiOutlinePrinter className="h-5 w-5" />,
         terminals: <HiOutlineBuildingOffice2 className="h-5 w-5" />,
         subscription: <LucideSubscript className="h-5 w-5" />,
+        billing: <HiOutlineCreditCard className="h-5 w-5" />,
         tenants: <RiGroup3Line className="h-5 w-5" />,
         branch: <HiOutlineBuildingStorefront className="h-5 w-5" />,
         migrations: <HiOutlineServerStack className="h-5 w-5" />,
@@ -121,6 +123,15 @@ const useNavItems = (): Array<NavItem> => {
     });
 
     if (hasAnyPermission(user, ['users.view', 'users.create', 'users.edit', 'users.delete'])) {
+        items.push({
+            type: 'button',
+            color: 'bg-orange-700 hover:bg-orange-800',
+            iconColor: 'bg-orange-800',
+            text: 'Billing',
+            icon: icons.billing,
+            onClick: () => navigate(ROUTES.SUBSCRIPTION_BILLING),
+        });
+
         items.push({
             type: 'button',
             color: 'bg-orange-600 hover:bg-orange-700',

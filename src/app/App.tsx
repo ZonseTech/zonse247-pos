@@ -16,6 +16,9 @@ import ZonseUIKitContext from './components/ZonseUIKitContext'
 import { NavigationProgress } from './components/loader/NavigationProgress'
 import { EnhancedPageLoader } from './components/loader/EnhancedPageLoader'
 
+const CLIENT_TYPE = import.meta.env.VITE_APP_CLIENT_TYPE || 'desktop'
+const isWebOrMobile = CLIENT_TYPE === 'web' || CLIENT_TYPE === 'mobile'
+
 Modal.setAppElement('#root')
 const App: FunctionComponent = () => {
     const { setup, loading, hasSetup, saveSetup } = useSettings();
@@ -23,6 +26,11 @@ const App: FunctionComponent = () => {
     const [saveError, setSaveError] = useState<string | null>(null);
 
     useEffect(() => {
+        if (isWebOrMobile) {
+            setShowOnboarding(false);
+            return;
+        }
+
         if (!loading && !hasSetup) {
             setShowOnboarding(true);
         } else if (!loading && hasSetup) {
