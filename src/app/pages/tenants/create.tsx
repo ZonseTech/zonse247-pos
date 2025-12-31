@@ -4,7 +4,9 @@ import { Button } from '../../components';
 import FormInput from '../../components/FormInput';
 import FormWrapper from '../../components/FormWrapper';
 import FormSelectBox from '../../components/FormSelectBox';
+import { Dropdown, DropdownOption } from '../../components/Dropdown';
 import { Fragment, useState, useEffect } from 'react';
+import subscriptionPlanService from '../../services/subscription-plan.service';
 import type { ChangeEvent, FunctionComponent } from 'react';
 import tenantService from '../../services/tenant.service';
 import CountryPicker from '../../components/CountryPicker';
@@ -23,7 +25,6 @@ import {
     businessTypes,
     msonkhoStatuses,
     statuses,
-    subscriptionPlans,
     subscriptionStatuses
 } from '../../utils/tenant-status';
 
@@ -33,8 +34,33 @@ const TenantFormModal: FunctionComponent = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [tenant, setTenant] = useState<Tenant | null>(null);
+    const [subscriptionPlans, setSubscriptionPlans] = useState<DropdownOption<SubscriptionPlan>[]>([]);
+    const [loadingPlans, setLoadingPlans] = useState(false);
 
     const { tenantId } = location.state || {};
+
+    useEffect(() => {
+        const fetchSubscriptionPlans = async () => {
+            setLoadingPlans(true);
+            try {
+                const plans = await subscriptionPlanService.list();
+                const formattedPlans: DropdownOption<SubscriptionPlan>[] = plans.map((plan) => ({
+                    value: plan.name,
+                    label: plan.displayName || plan.name,
+                    description: plan.description,
+                    data: plan,
+                }));
+                setSubscriptionPlans(formattedPlans);
+            } catch (error: any) {
+                console.error('Error fetching subscription plans:', error);
+                Notify.failure('Failed to load subscription plans');
+            } finally {
+                setLoadingPlans(false);
+            }
+        };
+
+        fetchSubscriptionPlans();
+    }, []);
 
     useEffect(() => {
         const fetchTenant = async () => {
@@ -324,11 +350,23 @@ const TenantFormModal: FunctionComponent = () => {
 
                                         <div className="ml-11">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                                <FormSelectBox
-                                                    label="Subscription Plan"
-                                                    name="subscriptionPlan"
-                                                    options={subscriptionPlans}
-                                                />
+                                                <div className="flex flex-col">
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                        Subscription Plan
+                                                    </label>
+                                                    <Dropdown
+                                                        options={subscriptionPlans}
+                                                        selectedValue={values.subscriptionPlan}
+                                                        onSelect={(option) => setFieldValue('subscriptionPlan', option?.value || '')}
+                                                        placeholder="Select subscription plan..."
+                                                        isLoading={loadingPlans}
+                                                        loadingMessage="Loading plans..."
+                                                        emptyStateMessage="No subscription plans available"
+                                                        searchable={true}
+                                                        searchPlaceholder="Search plans..."
+                                                        allowClear={false}
+                                                    />
+                                                </div>
 
                                                 <FormSelectBox
                                                     label="Subscription Status"
