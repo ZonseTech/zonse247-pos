@@ -35,23 +35,6 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
         return code.replace(/[$']$/, '').trim();
     };
 
-    const showSuccessFeedback = (productName: string) => {
-        const successElement = document.createElement('div');
-        successElement.textContent = `✓ Added: ${productName}`;
-        successElement.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-[10000] transition-all duration-300 transform';
-        successElement.style.animation = 'slideInRight 0.3s ease-out';
-
-        document.body.appendChild(successElement);
-
-        setTimeout(() => {
-            successElement.style.animation = 'slideOutRight 0.3s ease-in';
-            setTimeout(() => {
-                if (document.body.contains(successElement)) {
-                    document.body.removeChild(successElement);
-                }
-            }, 300);
-        }, 2000);
-    };
 
     /**
      * Search for item by barcode using API if not found locally
@@ -75,7 +58,6 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
             const exactMatch = inventory.find(p => p.barcode.toString() === cleanedCode);
             if (exactMatch) {
                 addToCart(exactMatch);
-                showSuccessFeedback(exactMatch.name);
                 setBarcode('');
                 barcodeBuffer.current = '';
 
@@ -114,10 +96,8 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
         const cleanedBarcode = cleanBarcode(scannedBarcode);
         if (cleanedBarcode === '') return;
 
-        // First check local inventory
         let item = inventory.find(p => p.barcode.toString() === cleanedBarcode);
 
-        // If not found locally, try API lookup
         if (!item) {
             item = await searchByBarcodeAPI(cleanedBarcode);
         }
@@ -125,7 +105,6 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
         if (item) {
             addToCart(item);
             setBarcode('');
-            showSuccessFeedback(item.name);
 
             if (barcodeScannerInputRef.current) {
                 barcodeScannerInputRef.current.focus();
@@ -193,7 +172,6 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
         };
     }, [barcode, isActive]);
 
-    // Separate useEffect for filtering to avoid infinite loop
     useEffect(() => {
         if (barcode.trim() === '') {
             setFilteredItems(inventory);
@@ -304,7 +282,6 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                                 className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer flex justify-between items-center border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors"
                                 onClick={() => {
                                     addToCart(item);
-                                    showSuccessFeedback(item.name);
                                     setBarcode('');
                                     if (barcodeScannerInputRef.current) {
                                         barcodeScannerInputRef.current.focus();
