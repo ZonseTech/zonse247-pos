@@ -13,6 +13,7 @@ import {
     HiOutlineUserGroup,
     HiOutlineCreditCard,
 } from 'react-icons/hi';
+import { RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useAuth } from '../../context/AuthProvider';
@@ -51,6 +52,7 @@ const useNavItems = (): Array<NavItem> => {
         migrations: <HiOutlineServerStack className="h-5 w-5" />,
         export_db: <HiOutlineFolderDownload className="h-5 w-5" />,
         transactions: <HiOutlinePresentationChartBar className="h-5 w-5" />,
+        returns: <RotateCcw className="h-5 w-5" />,
         users: <HiOutlineUsers className="h-5 w-5" />,
         role_permissions: <HiOutlineKey className="h-5 w-5" />,
         admin: <HiOutlineUserCircle className="h-5 w-5" />,
@@ -110,6 +112,17 @@ const useNavItems = (): Array<NavItem> => {
             text: 'Transactions',
             icon: icons.transactions,
             onClick: () => navigate(ROUTES.TRANSACTIONS),
+        });
+    }
+
+    if (hasAnyPermission(user, ['refunds.process', 'refunds.view', 'returns.manage'])) {
+        items.push({
+            type: 'button',
+            color: 'bg-blue-600 hover:bg-blue-700',
+            iconColor: 'bg-blue-700',
+            text: 'Returns',
+            icon: icons.returns,
+            onClick: () => navigate(ROUTES.RETURNS),
         });
     }
 
