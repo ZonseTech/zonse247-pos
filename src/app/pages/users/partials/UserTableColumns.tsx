@@ -67,7 +67,8 @@ export const getUserTableColumns = ({
         {
             name: 'Actions',
             cell: (row: User) => {
-                const userId = String(row.id || row.userId);
+                const userId = String(row.userId);
+
                 return (
                     <div className="flex items-center space-x-1">
                         <button

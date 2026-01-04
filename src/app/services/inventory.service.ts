@@ -365,6 +365,34 @@ const inventoryService = {
 			});
 	},
 
+	/**
+	 * Increment inventory quantity (for returns/restocking)
+	 * @param productId Product ID to increment
+	 * @param quantity Quantity to add
+	 * @param reason Optional reason for increment
+	 */
+	async incrementInventory(productId: string, quantity: number, reason?: string): Promise<InventoryItem> {
+		return this.adjustInventory(productId, {
+			adjustment: quantity,
+			type: 'add',
+			reason: reason || 'Returned item',
+		});
+	},
+
+	/**
+	 * Decrement inventory quantity (for reversing returns)
+	 * @param productId Product ID to decrement
+	 * @param quantity Quantity to subtract
+	 * @param reason Optional reason for decrement
+	 */
+	async decrementInventory(productId: string, quantity: number, reason?: string): Promise<InventoryItem> {
+		return this.adjustInventory(productId, {
+			adjustment: quantity,
+			type: 'subtract',
+			reason: reason || 'Return cancelled',
+		});
+	},
+
 	// ==================== DELETE ENDPOINTS ====================
 
 	/**

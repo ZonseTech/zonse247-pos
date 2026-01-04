@@ -52,7 +52,6 @@ export const RoleSearch: FunctionComponent<RoleSearchProps> = ({
         }
     };
 
-    // Transform roles to dropdown options
     const options: DropdownOption<Role>[] = roles.map((role) => {
         const badges = [];
 
@@ -84,7 +83,6 @@ export const RoleSearch: FunctionComponent<RoleSearchProps> = ({
         onRoleSelect(option?.data || null);
     };
 
-    // Custom filter that searches across displayName, name, and description
     const filterOptions = (opts: DropdownOption<Role>[], searchTerm: string) => {
         const lowerValue = searchTerm.toLowerCase();
         return opts.filter((opt) => {
@@ -97,12 +95,10 @@ export const RoleSearch: FunctionComponent<RoleSearchProps> = ({
         });
     };
 
-    // Custom render for selected option
     const renderSelected = (option: DropdownOption<Role>) => {
         const role = option.data;
         return (
-            <div className="flex items-center space-x-2 flex-1">
-                <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+            <div className="flex items-start space-x-2 flex-1">
                 <div className="flex flex-col min-w-0">
                     <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                         {role.displayName}
@@ -116,40 +112,36 @@ export const RoleSearch: FunctionComponent<RoleSearchProps> = ({
         );
     };
 
-    // Custom render for dropdown options
     const renderOption = (option: DropdownOption<Role>) => {
         const role = option.data;
         return (
-            <>
-                <Shield className="h-5 w-5 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-150 flex-shrink-0" />
-                <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {role.displayName}
-                        </h4>
-                        {option.badges && option.badges.length > 0 && (
-                            <div className="flex gap-1">
-                                {option.badges.map((badge, idx) => (
-                                    <span
-                                        key={idx}
-                                        className={`px-2 py-0.5 text-xs rounded-full ${badge.color}`}
-                                    >
-                                        {badge.text}
-                                    </span>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                        {role.name}
-                    </p>
-                    {role.description && (
-                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                            {role.description}
-                        </p>
+            <div className="flex-1">
+                <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {role.displayName}
+                    </h4>
+                    {option.badges && option.badges.length > 0 && (
+                        <div className="flex gap-1">
+                            {option.badges.map((badge, idx) => (
+                                <span
+                                    key={idx}
+                                    className={`px-2 py-0.5 text-xs rounded-full ${badge.color}`}
+                                >
+                                    {badge.text}
+                                </span>
+                            ))}
+                        </div>
                     )}
                 </div>
-            </>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                    {role.name}
+                </p>
+                {role.description && (
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        {role.description}
+                    </p>
+                )}
+            </div>
         );
     };
 

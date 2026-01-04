@@ -21,9 +21,7 @@ const UserManagement: FunctionComponent = () => {
         isLoading,
         searchTerm,
         setSearchTerm,
-        page,
         setPage,
-        perPage,
         setPerPage,
         totalRows,
         deleteUser,
@@ -37,7 +35,7 @@ const UserManagement: FunctionComponent = () => {
     }, [navigate]);
 
     const handleEdit = useCallback((user: User) => {
-        navigate(ROUTES.USER_FORM, { state: { userId: user.id || user.userId } });
+        navigate(ROUTES.USER_FORM, { state: { userId: user.userId } });
     }, [navigate]);
 
     const handleDelete = useCallback((userId: string) => {
@@ -63,7 +61,6 @@ const UserManagement: FunctionComponent = () => {
             'Reset',
             'Cancel',
             () => {
-                // In a real implementation, you'd show a modal to get the new password
                 const newPassword = prompt('Enter new password (min 8 characters):');
                 if (newPassword && newPassword.length >= 8) {
                     resetPassword(userId, newPassword, true);

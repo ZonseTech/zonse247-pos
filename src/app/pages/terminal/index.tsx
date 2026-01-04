@@ -2,7 +2,7 @@ import { Confirm } from 'notiflix';
 import { Monitor } from 'lucide-react';
 import AppLayout from '../../layouts/AppLayout';
 import { HiOutlinePlus, HiOutlineComputerDesktop } from 'react-icons/hi2';
-import { SearchBar } from './partials/SearchBar';
+import { SearchBar } from '../../components/SearchBar';
 import DataTable from 'react-data-table-component';
 import { useTerminals } from '../../hooks/useTerminals';
 import { FunctionComponent, useContext } from 'react';
@@ -12,8 +12,10 @@ import { Button, ZonseThemeContext } from '../../components';
 import { getTerminalColumns } from './partials/TerminalTableColumns';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 const TerminalManagement: FunctionComponent = () => {
+    const isMobile = useIsMobile();
     const navigate = useNavigate();
     const { mode } = useContext(ZonseThemeContext);
 
@@ -128,20 +130,39 @@ const TerminalManagement: FunctionComponent = () => {
                     title='Terminals'
                     description='Manage your terminal devices and settings'
                     icon={<HiOutlineComputerDesktop className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
-                >
-                    <div className="flex items-center space-x-4">
-                        <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                    action={
+                        <div className='flex items-center justify-between gap-2'>
+                            {
+                                !isMobile && (
+                                    <SearchBar
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                )}
 
-                        <div className="flex items-center space-x-3">
                             <Button
                                 onClick={() => navigate(ROUTES.TERMINAL_FORM)}
+                                icon={HiOutlinePlus}
+                                layout={isMobile ? 'outline' : 'primary'}
                                 theme='primary'
                             >
-                                <HiOutlinePlus className="w-4 h-4 mr-2" />
-                                {'Add Terminal'}
+                                {!isMobile && <span className='hidden md:block'>
+                                    Add Terminal
+                                </span>}
                             </Button>
                         </div>
-                    </div>
+                    }
+                >
+                    {
+                        isMobile && (
+                            <div className='m-4 mt-0'>
+                                <SearchBar
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        )
+                    }
                 </PageHeader>
                 <DataTable
                     columns={columns}

@@ -22,6 +22,14 @@ type Transaction = {
     createdAt?: Date;
     updatedAt?: Date;
 
+    // Refund-related fields
+    isRefund?: boolean;
+    originalTransactionId?: string;
+    refundReason?: string;
+    refundedAmount?: number;
+    refundedAt?: string | Date;
+
+    // Relations
     customer?: Customer;
     terminal?: Terminal;
     paymentMethod?: PaymentMethod;
@@ -29,6 +37,11 @@ type Transaction = {
     items?: CartItem[];
     user?: User;
     synced?: 1 | 0;
+
+    // Refund tracking (for original transactions)
+    refunds?: Transaction[];
+    totalRefunded?: number;
+    originalTransaction?: Transaction;
 };
 
 type TransactionValues = {

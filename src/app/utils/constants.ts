@@ -6,6 +6,7 @@ export enum ROUTES {
 	ROLES_PERMISSIONS = '/roles-and-permissions',
 	DASHBOARD = '/dashboard',
 	TRANSACTIONS = '/transactions',
+	RETURNS = '/returns',
 	CATEGORIES = '/categories',
 	CUSTOMERS = '/customers',
 	INVENTORY = '/inventory',

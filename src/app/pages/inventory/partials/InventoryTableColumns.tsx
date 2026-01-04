@@ -112,6 +112,17 @@ export const getInventoryTableColumns = ({
             ),
         },
         {
+            name: 'Original Quantity',
+            selector: (row) => Number(row.originalQuantity) || 0,
+            sortable: true,
+            width: '120px',
+            cell: (row) => (
+                <span className="font-semibold text-gray-900 dark:text-gray-100">
+                    {Number(row.originalQuantity) || 0}
+                </span>
+            ),
+        },
+        {
             name: 'Quantity',
             selector: (row) => Number(row.quantity) || 0,
             sortable: true,

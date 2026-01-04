@@ -1,33 +1,57 @@
 import { FunctionComponent, ChangeEvent } from 'react';
-import { HiOutlineSearch } from 'react-icons/hi';
+import { HiOutlineSearch, HiX } from 'react-icons/hi';
+import Input from './Input';
 
 interface SearchBarProps {
     value: string;
-    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    onChange: (value: string) => void;
+    onClear?: () => void;
     placeholder?: string;
+    className?: string;
 }
 
 export const SearchBar: FunctionComponent<SearchBarProps> = ({
     value,
     onChange,
-    placeholder = 'Search categories...',
+    onClear,
+    placeholder = 'Search...',
+    className = ''
 }) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        onChange(e.target.value);
+    };
+
+    const handleClear = () => {
+        onChange('');
+        onClear?.();
+    };
+
     return (
-        <div className="relative flex-1 max-w-md">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <HiOutlineSearch className="w-5 h-5 text-gray-400" />
-            </div>
-            <input
+        <div className={`relative ${className}`}>
+            <Input
                 type="text"
-                value={value}
-                onChange={onChange}
                 placeholder={placeholder}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
-                         bg-white dark:bg-gray-800 text-gray-900 dark:text-white 
-                         placeholder-gray-500 dark:placeholder-gray-400
-                         focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                         transition-colors"
+                value={value}
+                onChange={handleChange}
+                className="rounded-md px-3 h-9 pr-10 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors w-full"
             />
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 gap-1">
+                {value && (
+                    <button
+                        type="button"
+                        onClick={handleClear}
+                        className="p-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                    >
+                        <HiX className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" />
+                    </button>
+                )}
+                <HiOutlineSearch
+                    className="h-5 w-5 text-gray-600 dark:text-gray-400 cursor-pointer hover:text-gray-800 dark:hover:text-gray-200 transition-colors p-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
+                    title="Search"
+                />
+            </div>
         </div>
     );
 };
+
+export default SearchBar;

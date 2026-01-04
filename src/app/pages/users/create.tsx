@@ -194,16 +194,16 @@ const UserForm: FunctionComponent = () => {
                         <PageHeader
                             title={userId ? 'Edit User' : 'Add User'}
                             description='Required fields are marked with an asterisk (*)'
-                        >
-
-                            <Button
-                                type="button"
-                                theme='danger'
-                                onClick={() => navigate(ROUTES.USERS)}
-                            >
-                                Cancel
-                            </Button>
-                        </PageHeader>
+                            action={
+                                <Button
+                                    type="button"
+                                    theme='danger'
+                                    onClick={() => navigate(ROUTES.USERS)}
+                                >
+                                    Cancel
+                                </Button>
+                            }
+                        />
                     </div>
 
                     <Formik
