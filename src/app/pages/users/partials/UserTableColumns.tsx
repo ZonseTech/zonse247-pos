@@ -20,31 +20,26 @@ export const getUserTableColumns = ({
             name: 'Username',
             selector: (row: User) => row.username || '-',
             sortable: true,
-            width: '150px',
         },
         {
             name: 'Full Name',
             selector: (row: User) => row.fullname || '-',
             sortable: true,
-            width: '180px',
         },
         {
             name: 'Email',
             selector: (row: User) => row.email || '-',
             sortable: true,
-            width: '200px',
         },
         {
             name: 'Phone',
             selector: (row: User) => row.phone || '-',
             sortable: true,
-            width: '140px',
         },
         {
             name: 'Role',
             selector: (row: User) => row.roleName || row.roleId || '-',
             sortable: true,
-            width: '140px',
         },
         {
             name: 'Status',

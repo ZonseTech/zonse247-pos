@@ -45,7 +45,6 @@ export const getInventoryTableColumns = ({
             name: 'Barcode',
             selector: (row) => row.barcode || '-',
             sortable: true,
-            width: '130px',
             cell: (row) => (
                 <span className="font-mono text-sm text-gray-600 dark:text-gray-400">
                     {row.barcode || '-'}
@@ -56,7 +55,6 @@ export const getInventoryTableColumns = ({
             name: 'Item Name',
             selector: (row) => row.name || '-',
             sortable: true,
-            width: '200px',
             cell: (row) => (
                 <div className="flex flex-col py-1">
                     <span className="font-medium text-gray-900 dark:text-gray-100">
@@ -74,7 +72,6 @@ export const getInventoryTableColumns = ({
             name: 'Category',
             selector: (row) => row.categoryDetails?.name || '-',
             sortable: true,
-            width: '140px',
             cell: (row) => (
                 <div className="flex items-center gap-2">
                     {row.categoryDetails?.color && (
@@ -93,7 +90,6 @@ export const getInventoryTableColumns = ({
             name: 'Cost Price',
             selector: (row) => Number(row.costPrice) || 0,
             sortable: true,
-            width: '120px',
             cell: (row) => (
                 <span className="text-gray-600 dark:text-gray-400">
                     {formatCurrency(Number(row.costPrice) || 0)}
@@ -104,7 +100,6 @@ export const getInventoryTableColumns = ({
             name: 'Sell Price',
             selector: (row) => Number(row.sellPrice) || 0,
             sortable: true,
-            width: '120px',
             cell: (row) => (
                 <span className="font-semibold text-gray-900 dark:text-gray-100">
                     {formatCurrency(Number(row.sellPrice) || 0)}
@@ -115,7 +110,6 @@ export const getInventoryTableColumns = ({
             name: 'Original Quantity',
             selector: (row) => Number(row.originalQuantity) || 0,
             sortable: true,
-            width: '120px',
             cell: (row) => (
                 <span className="font-semibold text-gray-900 dark:text-gray-100">
                     {Number(row.originalQuantity) || 0}
@@ -126,7 +120,6 @@ export const getInventoryTableColumns = ({
             name: 'Quantity',
             selector: (row) => Number(row.quantity) || 0,
             sortable: true,
-            width: '120px',
             cell: (row) => {
                 const qty = Number(row.quantity) || 0;
                 const minStock = Number(row.minStock) || 0;
@@ -148,7 +141,6 @@ export const getInventoryTableColumns = ({
             name: 'Min Stock',
             selector: (row) => Number(row.minStock) || 0,
             sortable: true,
-            width: '100px',
             cell: (row) => (
                 <span className="text-gray-500 dark:text-gray-400">
                     {row.minStock || 0}
@@ -159,7 +151,6 @@ export const getInventoryTableColumns = ({
             name: 'Expiry',
             selector: (row) => row.expirationDate ? new Date(row.expirationDate).getTime() : 0,
             sortable: true,
-            width: '130px',
             cell: (row) => {
                 const status = getExpirationStatus(row.expirationDate);
                 if (!status) return <span className="text-gray-400">-</span>;
@@ -180,7 +171,6 @@ export const getInventoryTableColumns = ({
             name: 'Status',
             selector: (row) => row.status || 'active',
             sortable: true,
-            width: '100px',
             cell: (row) => {
                 const status = row.status || 'active';
                 const colorClass = status === 'active'

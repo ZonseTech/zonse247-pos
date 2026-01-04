@@ -15,7 +15,6 @@ import { useIsMobile } from '../../hooks/useMediaQuery';
 import SearchBar from '../../components/SearchBar';
 
 const ReturnsPage: FC = () => {
-    const isMobile = useIsMobile();
     const { mode } = useContext(ZonseThemeContext);
     const {
         isLoading,
@@ -76,25 +75,26 @@ const ReturnsPage: FC = () => {
                     icon={<RotateCcw className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
                     title="Returns & Refunds"
                     description="Manage product returns, process refunds, and track restock status"
-                >
-                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 px-4">
-                        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                            <SearchBar
-                                value={searchTerm}
-                                onChange={handleSearch}
-                                onClear={() => handleSearch('')}
-                                placeholder="Search by return ID, transaction, or customer..."
-                                className="w-full sm:w-64"
+                    action={
+                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                            <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                                <SearchBar
+                                    value={searchTerm}
+                                    onChange={handleSearch}
+                                    onClear={() => handleSearch('')}
+                                    placeholder="Search by return ID, transaction, or customer..."
+                                    className="w-full sm:w-64"
+                                />
+                            </div>
+
+                            <Filters
+                                summaryData={summaryData}
+                                activeFilter={activeFilter}
+                                onClear={handleClearFilters}
                             />
                         </div>
-
-                        <Filters
-                            summaryData={summaryData}
-                            activeFilter={activeFilter}
-                            onClear={handleClearFilters}
-                        />
-                    </div>
-                </PageHeader>
+                    }
+                />
 
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                     <DataTable
