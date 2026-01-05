@@ -129,7 +129,7 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                 referenceNumberInputRef.current?.focus();
                 isVirtualKeyboardActive.current = false;
             }, 50);
-        } else if (activeInput === 'referenceNo' && values.transactionId.length >= 5) {
+        } else if (activeInput === 'referenceNo') {
             setTimeout(() => {
                 referenceNumberInputRef.current?.blur();
                 onActiveInputChange(null);

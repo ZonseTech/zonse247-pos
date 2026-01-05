@@ -53,6 +53,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
         transactionId: '',
         phoneNumber: '',
         cashTendered: '',
+        transferType: '',
     };
 
     const { user } = useAuth()
@@ -70,13 +71,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 .min(1, 'Please select a service provider'),
             otherwise: () => Yup.string().nullable(),
         }),
-        transactionId: Yup.string().when('paymentMethodId', {
-            is: (value: string) => value !== CHECKOUT.CASH,
-            then: () => Yup.string()
-                .required('Reference number is required')
-                .min(5, 'Reference number must be at least 5 characters'),
-            otherwise: () => Yup.string().nullable(),
-        }),
+        transactionId: Yup.string().nullable(),
         phoneNumber: Yup.string().when('paymentMethodId', {
             is: (value: string) => value === CHECKOUT.E_PAYMENT,
             then: () => Yup.string()
@@ -173,9 +168,9 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
             case CHECKOUT.CASH:
                 return parseFloat(values.cashTendered || '0') >= total;
             case CHECKOUT.E_PAYMENT:
-                return values.phoneNumber.length >= 9 && values.transactionId.length >= 5;
+                return values.phoneNumber.length >= 9;
             case CHECKOUT.BANK_TRANSFER:
-                return values.transactionId.length > 0;
+                return values.paymentServiceProviderId && values.paymentServiceProviderId.length > 0;
             default:
                 return false;
         }

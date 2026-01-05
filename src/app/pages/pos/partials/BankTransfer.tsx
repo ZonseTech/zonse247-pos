@@ -1,9 +1,10 @@
-import { FunctionComponent, useEffect, useRef } from 'react';
+import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import { ActiveInputType } from './CheckoutModal';
 import InputKeyboard from '../../../components/InputKeyboard';
 import { FormikErrors } from 'formik';
 import FormInput from '../../../components/FormInput';
 import { useIsMobile } from '../../../hooks/useMediaQuery';
+import { Smartphone, CreditCard } from 'lucide-react';
 
 interface BankTransferProps {
     total: number;
@@ -12,6 +13,11 @@ interface BankTransferProps {
     onValueChange: (field: keyof TransactionValues, value: any, shouldValidate?: boolean) => Promise<void | FormikErrors<TransactionValues>>
     onActiveInputChange: (input: ActiveInputType) => void;
 }
+
+export const TRANSFER_TYPES = [
+    { id: 'mobile-banking', name: 'Mobile Banking', icon: Smartphone, color: 'bg-blue-500' },
+    { id: 'pos-machine', name: 'POS Machine', icon: CreditCard, color: 'bg-purple-500' },
+];
 
 const BankTransfer: FunctionComponent<BankTransferProps> = ({
     total,
@@ -24,9 +30,11 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
     const accountInputRef = useRef<HTMLInputElement>(null);
     const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const isVirtualKeyboardActive = useRef(false);
+    const [selectedTransferType, setSelectedTransferType] = useState('mobile-banking');
 
     useEffect(() => {
-        onValueChange('paymentServiceProviderId', 'nb-bank')
+        onValueChange('paymentServiceProviderId', 'nb-bank');
+        onValueChange('transferType', 'mobile-banking');
     }, [])
 
     useEffect(() => {
@@ -34,6 +42,11 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
             accountInputRef.current.focus();
         }
     }, []);
+
+    const handleTransferTypeSelect = (typeId: string) => {
+        setSelectedTransferType(typeId);
+        onValueChange('transferType', typeId);
+    };
 
     useEffect(() => {
         return () => {
@@ -150,6 +163,32 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
         <div className="flex flex-col">
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
                 <div>
+                    <div className="mb-4 md:mb-6">
+                        <h3 className="text-lg md:text-2xl font-bold text-black dark:text-gray-400 mb-2 md:mb-3">TRANSFER TYPE</h3>
+                        <div className="grid grid-cols-2 gap-2 md:gap-4">
+                            {TRANSFER_TYPES.map((type) => {
+                                const IconComponent = type.icon;
+                                return (
+                                    <button
+                                        key={type.id}
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            handleTransferTypeSelect(type.id);
+                                        }}
+                                        className={`p-3 md:p-6 rounded-none flex flex-col items-center gap-2 md:gap-3 transition-colors ${
+                                            selectedTransferType === type.id
+                                                ? type.color + ' text-white'
+                                                : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                                        }`}
+                                    >
+                                        <IconComponent className="w-6 h-6 md:w-8 md:h-8" />
+                                        <span className="text-xs md:text-sm font-bold text-center">{type.name}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
                     <h3 className="text-lg md:text-3xl font-bold text-black dark:text-gray-400 mb-3 md:mb-4">ACCOUNT DETAILS</h3>
                     <div className="mb-4 md:mb-6">
                         <label className="block text-sm md:text-lg font-semibold text-black dark:text-gray-400 mb-2">
