@@ -96,7 +96,6 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 						statusColor={transactionData.statusColor}
 					/>
 
-					{/* Refund Information */}
 					{transactionData.refundSummary.hasRefunds && (
 						<div className="mx-6 mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
 							<div className="flex items-center justify-between">
@@ -149,9 +148,8 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 						hasDiscount={transactionData.hasDiscount}
 					/>
 
-					{/* Return Action Button */}
 					{transactionData.canReturn && !transactionData.refundSummary.isFullyRefunded && (
-						<div className="mx-6 mt-6">
+						<div className="mt-6">
 							<Button
 								onClick={handleInitiateReturn}
 								className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
