@@ -11,6 +11,7 @@ import { getTableStyles } from "../../utils/table-styles";
 import { useTransactions } from "../../hooks/useTransactions";
 import { getTransactionTableColumns } from "./partials/TransactionTableColumns";
 import { DateRangeFilter } from "./partials/DateRangeFilter";
+import { StatusFilter } from "./partials/StatusFilter";
 import TransactionDetailsModal from "./partials/TransactionDetailsModal";
 import InitiateReturnModal from "../returns/partials/InitiateReturnModal";
 import { useNavigate } from "react-router";
@@ -32,10 +33,13 @@ const TransactionsPage: FC = () => {
         searchTerm,
         startDate,
         endDate,
+        selectedStatus,
         perPage,
         getPaginatedData,
         handleSearch,
         handleDateChange,
+        handleStatusChange,
+        getTodayTransactions,
         clearFilters,
         handlePageChange,
         handlePerRowsChange,
@@ -79,40 +83,57 @@ const TransactionsPage: FC = () => {
 
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                     <div className="p-4 md:p-6 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
-                        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                            <div className="flex flex-wrap items-center gap-3">
-                                <DateRangeFilter
-                                    startDate={startDate}
-                                    endDate={endDate}
-                                    onChange={handleDateChange}
-                                />
+                        <div className="flex flex-col gap-4">
+                            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <DateRangeFilter
+                                        startDate={startDate}
+                                        endDate={endDate}
+                                        onChange={handleDateChange}
+                                    />
 
-                                {(searchTerm || startDate) && (
                                     <button
-                                        onClick={clearFilters}
-                                        className="flex items-center gap-1 px-3 py-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                                        onClick={getTodayTransactions}
+                                        className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-700 rounded-lg transition-colors duration-200"
                                     >
                                         <HiOutlineFilter className="w-4 h-4" />
-                                        Clear Filters
+                                        Today
                                     </button>
-                                )}
+
+                                    {(searchTerm || startDate || selectedStatus !== 'all') && (
+                                        <button
+                                            onClick={clearFilters}
+                                            className="flex items-center gap-1 px-3 py-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                                        >
+                                            <HiOutlineFilter className="w-4 h-4" />
+                                            Clear Filters
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                                    <SearchBar
+                                        placeholder="Search transactions..."
+                                        value={searchTerm}
+                                        onChange={handleSearch}
+                                        className="w-full sm:w-64"
+                                    />
+
+                                    <button
+                                        onClick={exportData}
+                                        className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors duration-200 text-sm font-medium text-gray-700 dark:text-gray-200"
+                                    >
+                                        <HiOutlineDownload className="w-4 h-4" />
+                                        Export
+                                    </button>
+                                </div>
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-                                <SearchBar
-                                    placeholder="Search transactions..."
-                                    value={searchTerm}
-                                    onChange={handleSearch}
-                                    className="w-full sm:w-64"
+                            <div className="mt-4">
+                                <StatusFilter
+                                    selectedStatus={selectedStatus}
+                                    onChange={handleStatusChange}
                                 />
-
-                                <button
-                                    onClick={exportData}
-                                    className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors duration-200 text-sm font-medium text-gray-700 dark:text-gray-200"
-                                >
-                                    <HiOutlineDownload className="w-4 h-4" />
-                                    Export
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -146,12 +167,12 @@ const TransactionsPage: FC = () => {
                                         No transactions found
                                     </h3>
                                     <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm">
-                                        {searchTerm || startDate
-                                            ? "Try adjusting your search or date filters to find transactions."
+                                        {searchTerm || startDate || selectedStatus !== 'all'
+                                            ? "Try adjusting your search, date, or status filters to find transactions."
                                             : "Transactions will appear here once they are created."
                                         }
                                     </p>
-                                    {(searchTerm || startDate) && (
+                                    {(searchTerm || startDate || selectedStatus !== 'all') && (
                                         <button
                                             onClick={clearFilters}
                                             className="mt-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"

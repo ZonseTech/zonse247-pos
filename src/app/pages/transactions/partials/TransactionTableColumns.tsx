@@ -80,11 +80,11 @@ export const getTransactionTableColumns = ({
             ),
         },
         {
-            name: "Till",
-            selector: (row) => row.user?.fullname || '-',
+            name: "Terminal",
+            selector: (row) => row.terminal?.terminalLabel || row.terminalId || '-',
             cell: (row) => (
                 <span className="text-gray-600 dark:text-gray-400 text-sm">
-                    {row.user?.fullname || '-'}
+                    {row.terminal?.terminalLabel || row.terminalId || '-'}
                 </span>
             ),
         },

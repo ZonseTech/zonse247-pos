@@ -14,9 +14,9 @@ const endpoints = {
 const transactionService = {
 	endpoints,
 
-	async list(query = {}): Promise<Transaction[]> {
+	async list(query = {}): Promise<{ data: Transaction[]; pagination: any }> {
 		return api
-			.get<ApiResponse<Transaction[]>>(endpoints.all, query)
+			.get<ApiResponse<{ data: Transaction[]; pagination: any }>>(endpoints.all, query)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;

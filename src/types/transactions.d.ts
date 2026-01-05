@@ -1,3 +1,5 @@
+type TransactionStatus = 'completed' | 'pending' | 'failed' | 'cancelled' | 'refunded';
+
 type Transaction = {
     refNumber?: string;
     discount: number;
@@ -18,7 +20,7 @@ type Transaction = {
     discount?: number;
     changeAmount: number;
 
-    status?: string;
+    status?: TransactionStatus;
     createdAt?: Date;
     updatedAt?: Date;
 
@@ -50,13 +52,24 @@ type TransactionValues = {
     phoneNumber: string;
     transactionId: string;
     cashTendered: string;
+    transferType?: string;
 };
 
 interface DateRangeFilters {
-    startDate: Date;
-    endDate: Date;
-    status?: number;
+    startDate?: Date | string;
+    endDate?: Date | string;
+    status?: TransactionStatus;
     user?: number;
-    till?: number;
-    includeItems: boolean;
+    terminal?: number;
+    includeItems?: boolean;
+}
+
+interface TransactionQueryParams {
+    includeItems?: boolean;
+    startDate?: string;
+    endDate?: string;
+    status?: TransactionStatus;
+    search?: string;
+    page?: number;
+    perPage?: number;
 }

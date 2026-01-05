@@ -4,70 +4,61 @@ import dayjs from 'dayjs';
 import transactionService from '../services/transactions.service';
 
 export const useTransactions = () => {
+    const today = new Date();
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
     const [totalRows, setTotalRows] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
+    const [startDate, setStartDate] = useState<Date | null>(today);
+    const [endDate, setEndDate] = useState<Date | null>(today);
+    const [selectedStatus, setSelectedStatus] = useState<TransactionStatus | 'all'>('all');
     const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
 
     const loadTransactions = useCallback(async () => {
         try {
             setIsLoading(true);
 
-            const data = await transactionService.list({
+            const queryParams: TransactionQueryParams = {
                 includeItems: true,
-            });
+                page,
+                perPage,
+            };
 
-            const transactionData = Array.isArray(data) ? data : [];
+            if (searchTerm) {
+                queryParams.search = searchTerm;
+            }
+
+            if (startDate) {
+                queryParams.startDate = dayjs(startDate).format('YYYY-MM-DD');
+                queryParams.endDate = endDate
+                    ? dayjs(endDate).format('YYYY-MM-DD')
+                    : dayjs(startDate).format('YYYY-MM-DD');
+            }
+
+            if (selectedStatus !== 'all') {
+                queryParams.status = selectedStatus;
+            }
+
+            const response = await transactionService.list(queryParams);
+
+            const transactionData = Array.isArray(response.data) ? response.data : [];
             setTransactions(transactionData);
-            applyFilters(transactionData);
+            setTotalRows(response.pagination?.total || transactionData.length);
 
         } catch (error) {
             console.error("Error loading transactions:", error);
             Notify.failure("Error loading transactions: " + (error instanceof Error ? error.message : String(error)));
             setTransactions([]);
-            setFilteredTransactions([]);
             setTotalRows(0);
         } finally {
             setIsLoading(false);
         }
-    }, []);
-
-    const applyFilters = useCallback((data: Transaction[]) => {
-        let filtered = [...data];
-
-        if (searchTerm) {
-            filtered = filtered.filter(tx =>
-                (tx.refNumber?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (tx.transactionId?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (tx.user?.fullname?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (tx.paymentMethod?.name?.toLowerCase().includes(searchTerm.toLowerCase()))
-            );
-        }
-
-        if (startDate) {
-            filtered = filtered.filter(tx => {
-                if (!tx.date) return false;
-                const txDate = dayjs(tx.date);
-                const start = dayjs(startDate).startOf('day');
-                const end = endDate ? dayjs(endDate).endOf('day') : dayjs(startDate).endOf('day');
-                return txDate.isAfter(start) && txDate.isBefore(end);
-            });
-        }
-
-        setFilteredTransactions(filtered);
-        setTotalRows(filtered.length);
-    }, [searchTerm, startDate, endDate]);
+    }, [searchTerm, startDate, endDate, selectedStatus, page, perPage]);
 
     const getPaginatedData = useCallback(() => {
-        const startIndex = (page - 1) * perPage;
-        const endIndex = startIndex + perPage;
-        return filteredTransactions.slice(startIndex, endIndex);
-    }, [page, perPage, filteredTransactions]);
+        return transactions;
+    }, [transactions]);
 
     const handleSearch = useCallback((value: string) => {
         setSearchTerm(value);
@@ -82,9 +73,23 @@ export const useTransactions = () => {
     }, []);
 
     const clearFilters = useCallback(() => {
+        const today = new Date();
         setSearchTerm("");
-        setStartDate(null);
-        setEndDate(null);
+        setStartDate(today);
+        setEndDate(today);
+        setSelectedStatus('all');
+        setPage(1);
+    }, []);
+
+    const handleStatusChange = useCallback((status: TransactionStatus | 'all') => {
+        setSelectedStatus(status);
+        setPage(1);
+    }, []);
+
+    const getTodayTransactions = useCallback(() => {
+        const today = new Date();
+        setStartDate(today);
+        setEndDate(today);
         setPage(1);
     }, []);
 
@@ -105,14 +110,7 @@ export const useTransactions = () => {
         loadTransactions();
     }, [loadTransactions]);
 
-    useEffect(() => {
-        if (transactions.length >= 0) {
-            applyFilters(transactions);
-        }
-    }, [searchTerm, startDate, endDate, transactions, applyFilters]);
-
     return {
-        // State
         page,
         perPage,
         totalRows,
@@ -120,14 +118,14 @@ export const useTransactions = () => {
         searchTerm,
         startDate,
         endDate,
+        selectedStatus,
         transactions,
-        filteredTransactions,
-
-        // Methods
         loadTransactions,
         getPaginatedData,
         handleSearch,
         handleDateChange,
+        handleStatusChange,
+        getTodayTransactions,
         clearFilters,
         handlePageChange,
         handlePerRowsChange,
