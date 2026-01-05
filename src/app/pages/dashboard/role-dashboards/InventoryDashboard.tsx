@@ -49,7 +49,7 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const counts = await dashboardService.counts(user.userId);
+                const counts = await dashboardService.counts();
                 setDashboardCounts(counts as unknown as InventoryDashboardCounts);
             } catch (error) {
                 console.error('Error fetching inventory dashboard data:', error);

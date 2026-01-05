@@ -73,10 +73,9 @@ const CashierDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const userId = user.userId;
                 const [counts, myTransactions] = await Promise.all([
-                    dashboardService.counts(userId),
-                    dashboardService.transactions(userId, pageSize, offset),
+                    dashboardService.counts(),
+                    dashboardService.transactions(pageSize, offset),
                 ]);
 
                 setDashboardCounts(counts as unknown as CashierDashboardCounts);
@@ -93,14 +92,14 @@ const CashierDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
     }, [user]);
 
     useEffect(() => {
-        if (currentPage && user) {
+        if (currentPage) {
             (async () => {
-                const response = await dashboardService.transactions(user.userId, pageSize, offset);
+                const response = await dashboardService.transactions(pageSize, offset);
                 setTransactions(response.transactions);
                 setTotalRecords(response.total);
             })();
         }
-    }, [currentPage, user, pageSize, offset]);
+    }, [currentPage, pageSize, offset]);
 
     const getNextLimitData = () => {
         const totalPages = Math.ceil(totalRecords / pageSize);

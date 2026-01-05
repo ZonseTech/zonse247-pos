@@ -91,14 +91,13 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const userId = user.userId;
                 const monthYear = dayjs(currentMonthYear).format('YYYY-MM');
 
                 const [counts, topProducts, myTransactions, monthlySales] = await Promise.all([
-                    dashboardService.counts(userId),
+                    dashboardService.counts(),
                     dashboardService.topProducts(),
-                    dashboardService.transactions(userId, pageSize, offset),
-                    dashboardService.monthlySales(userId, monthYear),
+                    dashboardService.transactions(pageSize, offset),
+                    dashboardService.monthlySales(monthYear),
                 ]);
 
                 setDashboardCounts(counts as ManagerDashboardCounts);
@@ -117,24 +116,24 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
     }, [user]);
 
     useEffect(() => {
-        if (currentMonthYear && user) {
+        if (currentMonthYear) {
             (async () => {
                 const monthYear = dayjs(currentMonthYear).format('YYYY-MM');
-                const monthlySales = await dashboardService.monthlySales(user.userId, monthYear);
+                const monthlySales = await dashboardService.monthlySales(monthYear);
                 setMonthlySalesData(monthlySales);
             })();
         }
-    }, [currentMonthYear, user]);
+    }, [currentMonthYear]);
 
     useEffect(() => {
-        if (currentPage && user) {
+        if (currentPage) {
             (async () => {
-                const response = await dashboardService.transactions(user.userId, pageSize, offset);
+                const response = await dashboardService.transactions(pageSize, offset);
                 setTransactions(response.transactions);
                 setTotalRecords(response.total);
             })();
         }
-    }, [currentPage, user, pageSize, offset]);
+    }, [currentPage, pageSize, offset]);
 
     const goToPreviousDate = () => {
         setCurrentMonthYear(prevDate => {

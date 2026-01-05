@@ -55,12 +55,11 @@ const AccountantDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLo
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const userId = user.userId;
                 const monthYear = dayjs(currentMonthYear).format('YYYY-MM');
 
                 const [counts, monthlySales] = await Promise.all([
-                    dashboardService.counts(userId),
-                    dashboardService.monthlySales(userId, monthYear),
+                    dashboardService.counts(),
+                    dashboardService.monthlySales(monthYear),
                 ]);
 
                 setDashboardCounts(counts as unknown as AccountantDashboardCounts);
@@ -76,14 +75,14 @@ const AccountantDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLo
     }, [user]);
 
     useEffect(() => {
-        if (currentMonthYear && user) {
+        if (currentMonthYear) {
             (async () => {
                 const monthYear = dayjs(currentMonthYear).format('YYYY-MM');
-                const monthlySales = await dashboardService.monthlySales(user.userId, monthYear);
+                const monthlySales = await dashboardService.monthlySales(monthYear);
                 setMonthlySalesData(monthlySales);
             })();
         }
-    }, [currentMonthYear, user]);
+    }, [currentMonthYear]);
 
     const goToPreviousDate = () => {
         setCurrentMonthYear(prevDate => {
