@@ -74,15 +74,16 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
     });
 
     const handleAddItem = (item: any) => {
-        const itemId = item.id?.toString() || item.productId;
-        const existingItem = selectedItems.find((i) => i.orderItemId === itemId);
+        // Use the orderId (UUID) as the unique identifier
+        const orderItemId = item.orderId;
+        const existingItem = selectedItems.find((i) => i.orderItemId === orderItemId);
         if (existingItem) {
             Notify.warning('Item already added to return list');
             return;
         }
 
         const newItem: ReturnItemForm = {
-            orderItemId: itemId,
+            orderItemId: orderItemId,
             productId: item.productId,
             productName: item.productDetails?.name || item.name || 'Unknown Product',
             returnQuantity: parseInt(item.quantity) || 1,
@@ -230,29 +231,32 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                             <div className="mb-6">
                                 <h3 className="font-semibold mb-3">Available Items</h3>
                                 <div className="space-y-2 max-h-48 overflow-y-auto">
-                                    {transaction.items?.map((item: any) => (
-                                        <div
-                                            key={item.id || item.productId}
-                                            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
-                                        >
-                                            <div className="flex-1">
-                                                <p className="font-medium">{item.productDetails?.name || item.name || 'Unknown Product'}</p>
-                                                <p className="text-sm text-gray-600 dark:text-gray-400">
-                                                    Qty: {item.quantity} × {formatCurrency(typeof item.sellPrice === 'string' ? parseFloat(item.sellPrice) : item.sellPrice)}
-                                                </p>
-                                            </div>
-                                            <Button
-                                                type="button"
-                                                size="small"
-                                                onClick={() => handleAddItem(item)}
-                                                disabled={selectedItems.some(
-                                                    (i) => i.orderItemId === (item.id?.toString() || item.productId)
-                                                )}
+                                    {transaction.items?.map((item: any) => {
+                                        const orderItemId = item.orderId;
+                                        const isAdded = selectedItems.some((i) => i.orderItemId === orderItemId);
+
+                                        return (
+                                            <div
+                                                key={orderItemId}
+                                                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
                                             >
-                                                Add to Return
-                                            </Button>
-                                        </div>
-                                    ))}
+                                                <div className="flex-1">
+                                                    <p className="font-medium">{item.productDetails?.name || item.name || 'Unknown Product'}</p>
+                                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                                        Qty: {item.quantity} × {formatCurrency(typeof item.sellPrice === 'string' ? parseFloat(item.sellPrice) : item.sellPrice)}
+                                                    </p>
+                                                </div>
+                                                <Button
+                                                    type="button"
+                                                    size="small"
+                                                    onClick={() => handleAddItem(item)}
+                                                    disabled={isAdded}
+                                                >
+                                                    {isAdded ? 'Added' : 'Add to Return'}
+                                                </Button>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
