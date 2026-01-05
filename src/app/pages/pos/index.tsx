@@ -7,6 +7,7 @@ import BarcodeScanner from './partials/BarcodeScanner';
 import FunctionButtons from './partials/FunctionButtons';
 import ItemLookupModal from './partials/ItemLookupModal';
 import PageHeader from '../../components/page/PageHeader';
+import CustomerSelector from './partials/CustomerSelector';
 import { useFocusManager } from '../../hooks/useFocusManager';
 import { FunctionComponent, useState, useEffect, useRef } from 'react';
 import CheckoutModal, { CHECKOUT, PaymentMethod } from './partials/CheckoutModal';
@@ -202,7 +203,8 @@ const POSSystem: FunctionComponent = () => {
                 className='md:hidden'
                 icon={<HiOutlineShoppingCart className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
                 action={
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 items-center">
+                        <CustomerSelector />
                         <SearchIcon className="w-5 h-5 cursor-pointer" onClick={handleItemLookup} />
                         <Link to={ROUTES.MY_PROFILE} className='cursor-pointer'>
                             <UserCircle2Icon className="w-5 h-5" />
@@ -252,9 +254,14 @@ const POSSystem: FunctionComponent = () => {
                 <div>
                     <div className="flex gap-x-4 my-3">
                         <Panel size='3/4' className='w-full mx-4 md:mx-0'>
-                            <label className="hidden md:block text-lg font-bold text-black dark:text-gray-400 mb-1">
-                                SCAN/ENTER PRODUCT CODE
-                            </label>
+                            <div className="flex items-center gap-2 mb-1">
+                                <label className="hidden md:block text-lg font-bold text-black dark:text-gray-400 flex-1">
+                                    SCAN/ENTER PRODUCT CODE
+                                </label>
+                                <div className="hidden md:block">
+                                    <CustomerSelector />
+                                </div>
+                            </div>
                             <BarcodeScanner
                                 externalInput={numpadInput}
                                 barcodeScannerInputRef={barcodeScannerInputRef}
