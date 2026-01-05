@@ -36,8 +36,14 @@ const TransactionsDataTable: FunctionComponent = () => {
         setIsOpenDetails(true);
     }, []);
 
+    const handleInitiateReturn = useCallback((transaction: Transaction) => {
+        // This component is deprecated, functionality moved to index.tsx
+        console.log('Return initiated for transaction:', transaction);
+    }, []);
+
     const columns = getTransactionTableColumns({
         onViewDetails: handleViewDetails,
+        onInitiateReturn: handleInitiateReturn,
     });
 
     return (

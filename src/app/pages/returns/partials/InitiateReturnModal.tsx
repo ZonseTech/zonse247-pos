@@ -4,7 +4,6 @@ import * as Yup from 'yup';
 import { Notify } from 'notiflix';
 import { Button, Modal, ModalFooter } from '../../../components';
 import FormWrapper from '../../../components/FormWrapper';
-import FormInput from '../../../components/FormInput';
 import FormSelectBox from '../../../components/FormSelectBox';
 import FormTextArea from '../../../components/FormTextArea';
 import returnsService from '../../../services/returns.service';
@@ -60,8 +59,6 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
     onSuccess,
 }) => {
     const [selectedItems, setSelectedItems] = useState<ReturnItemForm[]>([]);
-
-    // Check if transaction can be returned
     const canReturn = returnsService.canReturn(transaction);
     const remainingRefundable = returnsService.getRemainingRefundableAmount(transaction);
 
@@ -76,23 +73,24 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
         refundMethod: Yup.string().required('Refund method is required'),
     });
 
-    const handleAddItem = (item: CartItem) => {
-        const existingItem = selectedItems.find((i) => i.orderItemId === item.productId);
+    const handleAddItem = (item: any) => {
+        const itemId = item.id?.toString() || item.productId;
+        const existingItem = selectedItems.find((i) => i.orderItemId === itemId);
         if (existingItem) {
             Notify.warning('Item already added to return list');
             return;
         }
 
         const newItem: ReturnItemForm = {
-            orderItemId: item.productId,
+            orderItemId: itemId,
             productId: item.productId,
-            productName: item.name || 'Unknown Product',
-            returnQuantity: item.quantity,
-            maxQuantity: item.quantity,
+            productName: item.productDetails?.name || item.name || 'Unknown Product',
+            returnQuantity: parseInt(item.quantity) || 1,
+            maxQuantity: parseInt(item.quantity) || 1,
             returnReason: '',
             condition: 'good',
             notes: '',
-            price: item.sellPrice,
+            price: typeof item.sellPrice === 'string' ? parseFloat(item.sellPrice) : item.sellPrice,
         };
 
         setSelectedItems([...selectedItems, newItem]);
@@ -120,7 +118,6 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
             return;
         }
 
-        // Validate all items have required fields
         const invalidItems = selectedItems.filter(
             (item) => !item.returnReason || item.returnQuantity <= 0
         );
@@ -194,7 +191,6 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                 {({ isSubmitting }) => (
                     <Form>
                         <div className="p-6 max-h-[80vh] overflow-y-auto">
-                            {/* Transaction Info */}
                             <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 mb-6">
                                 <h3 className="font-semibold mb-2">Transaction Details</h3>
                                 <div className="grid grid-cols-2 gap-4 text-sm">
@@ -209,7 +205,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                             Original Amount:
                                         </span>
                                         <span className="ml-2 font-medium">
-                                            {formatCurrency(transaction.total)}
+                                            {formatCurrency(typeof transaction.total === 'string' ? parseFloat(transaction.total) : transaction.total)}
                                         </span>
                                     </div>
                                     <div>
@@ -217,7 +213,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                             Already Refunded:
                                         </span>
                                         <span className="ml-2 font-medium">
-                                            {formatCurrency(transaction.totalRefunded || 0)}
+                                            {formatCurrency(typeof transaction.refundedAmount === 'string' ? parseFloat(transaction.refundedAmount) : (transaction.refundedAmount || 0))}
                                         </span>
                                     </div>
                                     <div>
@@ -231,19 +227,18 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                 </div>
                             </div>
 
-                            {/* Available Items to Return */}
                             <div className="mb-6">
                                 <h3 className="font-semibold mb-3">Available Items</h3>
                                 <div className="space-y-2 max-h-48 overflow-y-auto">
-                                    {transaction.items?.map((item) => (
+                                    {transaction.items?.map((item: any) => (
                                         <div
-                                            key={item.productId}
+                                            key={item.id || item.productId}
                                             className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
                                         >
                                             <div className="flex-1">
-                                                <p className="font-medium">{item.name}</p>
+                                                <p className="font-medium">{item.productDetails?.name || item.name || 'Unknown Product'}</p>
                                                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                                                    Qty: {item.quantity} × {formatCurrency(item.sellPrice)}
+                                                    Qty: {item.quantity} × {formatCurrency(typeof item.sellPrice === 'string' ? parseFloat(item.sellPrice) : item.sellPrice)}
                                                 </p>
                                             </div>
                                             <Button
@@ -251,7 +246,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                                 size="small"
                                                 onClick={() => handleAddItem(item)}
                                                 disabled={selectedItems.some(
-                                                    (i) => i.orderItemId === item.productId
+                                                    (i) => i.orderItemId === (item.id?.toString() || item.productId)
                                                 )}
                                             >
                                                 Add to Return
@@ -261,7 +256,6 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                 </div>
                             </div>
 
-                            {/* Selected Items for Return */}
                             {selectedItems.length > 0 && (
                                 <div className="mb-6">
                                     <h3 className="font-semibold mb-3">Items to Return</h3>
@@ -380,7 +374,6 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                 </div>
                             )}
 
-                            {/* Refund Details */}
                             {selectedItems.length > 0 && (
                                 <div className="mb-6">
                                     <h3 className="font-semibold mb-3">Refund Details</h3>

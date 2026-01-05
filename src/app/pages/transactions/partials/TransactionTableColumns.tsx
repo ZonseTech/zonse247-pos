@@ -1,15 +1,19 @@
 import React from 'react';
 import { TableColumn } from 'react-data-table-component';
 import { HiOutlineEye, HiOutlineClock } from 'react-icons/hi2';
+import { RotateCcw } from 'lucide-react';
 import dayjs from 'dayjs';
 import { formatCurrency } from '../../../utils';
+import returnsService from '../../../services/returns.service';
 
 interface TransactionTableColumnsProps {
     onViewDetails: (transaction: Transaction) => void;
+    onInitiateReturn: (transaction: Transaction) => void;
 }
 
 export const getTransactionTableColumns = ({
     onViewDetails,
+    onInitiateReturn,
 }: TransactionTableColumnsProps): TableColumn<Transaction>[] => [
         {
             name: "Invoice",
@@ -101,19 +105,34 @@ export const getTransactionTableColumns = ({
             ),
         },
         {
-            width: "70px",
+            width: "120px",
             name: "Actions",
-            cell: (row) => (
-                <div className="flex gap-1">
-                    <button
-                        onClick={() => onViewDetails(row)}
-                        className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/50 rounded-md transition-colors duration-200"
-                        title="View Details"
-                    >
-                        <HiOutlineEye className='w-4 h-4' />
-                    </button>
-                </div>
-            ),
+            cell: (row) => {
+                const canReturn = returnsService.canReturn(row);
+                const refundSummary = returnsService.getRefundSummary(row);
+                const showReturnButton = canReturn && !refundSummary.isFullyRefunded;
+
+                return (
+                    <div className="flex gap-1">
+                        <button
+                            onClick={() => onViewDetails(row)}
+                            className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/50 rounded-md transition-colors duration-200"
+                            title="View Details"
+                        >
+                            <HiOutlineEye className='w-4 h-4' />
+                        </button>
+                        {showReturnButton && (
+                            <button
+                                onClick={() => onInitiateReturn(row)}
+                                className="p-1.5 text-orange-600 hover:text-orange-800 hover:bg-orange-50 dark:hover:bg-orange-900/50 rounded-md transition-colors duration-200"
+                                title="Initiate Return/Refund"
+                            >
+                                <RotateCcw className='w-4 h-4' />
+                            </button>
+                        )}
+                    </div>
+                );
+            },
             ignoreRowClick: true,
         },
     ];

@@ -162,7 +162,6 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 				</div>
 			</Modal>
 
-			{/* Return Modal */}
 			{transaction && (
 				<InitiateReturnModal
 					isOpen={isReturnModalOpen}
@@ -170,7 +169,6 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 					transaction={transaction}
 					onSuccess={() => {
 						setIsReturnModalOpen(false);
-						// Optionally refresh transaction data here
 					}}
 				/>
 			)}

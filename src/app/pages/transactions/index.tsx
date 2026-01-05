@@ -12,6 +12,7 @@ import { useTransactions } from "../../hooks/useTransactions";
 import { getTransactionTableColumns } from "./partials/TransactionTableColumns";
 import { DateRangeFilter } from "./partials/DateRangeFilter";
 import TransactionDetailsModal from "./partials/TransactionDetailsModal";
+import InitiateReturnModal from "../returns/partials/InitiateReturnModal";
 import { useNavigate } from "react-router";
 import { ROUTES } from "../../utils/constants";
 import { useIsMobile } from "../../hooks/useMediaQuery";
@@ -22,6 +23,8 @@ const TransactionsPage: FC = () => {
     const { mode } = useContext(ZonseThemeContext);
     const [isOpenDetails, setIsOpenDetails] = useState<boolean>(false);
     const [selectedTransaction, setSelectedTransaction] = useState<Transaction>({} as Transaction);
+    const [isReturnModalOpen, setIsReturnModalOpen] = useState<boolean>(false);
+    const [transactionForReturn, setTransactionForReturn] = useState<Transaction | null>(null);
 
     const {
         totalRows,
@@ -44,8 +47,14 @@ const TransactionsPage: FC = () => {
         setIsOpenDetails(true);
     }, []);
 
+    const handleInitiateReturn = useCallback((transaction: Transaction) => {
+        setTransactionForReturn(transaction);
+        setIsReturnModalOpen(true);
+    }, []);
+
     const columns = getTransactionTableColumns({
         onViewDetails: handleViewDetails,
+        onInitiateReturn: handleInitiateReturn,
     });
 
     return (
@@ -160,6 +169,21 @@ const TransactionsPage: FC = () => {
                         isOpenDetails={isOpenDetails}
                         setIsOpenDetails={setIsOpenDetails}
                     />
+
+                    {transactionForReturn && (
+                        <InitiateReturnModal
+                            isOpen={isReturnModalOpen}
+                            onClose={() => {
+                                setIsReturnModalOpen(false);
+                                setTransactionForReturn(null);
+                            }}
+                            transaction={transactionForReturn}
+                            onSuccess={() => {
+                                setIsReturnModalOpen(false);
+                                setTransactionForReturn(null);
+                            }}
+                        />
+                    )}
                 </div>
             </div>
         </AppLayout>
