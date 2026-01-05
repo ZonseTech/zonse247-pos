@@ -14,6 +14,17 @@ export enum ROUTES {
 	TERMINALS = '/terminals',
 	TERMINAL_FORM = '/terminals/form',
 
+	// Inventory Workflow Routes
+	PRODUCTS = '/products',
+	PRODUCT_FORM = '/products/form',
+	SUPPLIERS = '/suppliers',
+	SUPPLIER_FORM = '/suppliers/form',
+	PURCHASE_ORDERS = '/purchase-orders',
+	PURCHASE_ORDER_FORM = '/purchase-orders/form',
+	PURCHASE_ORDER_RECEIVE = '/purchase-orders/:id/receive',
+	STOCK_MOVEMENTS = '/stock-movements',
+	SALES_HISTORY = '/sales-history',
+
 	SUBSCRIPTIONS = '/subscriptions',
 	SUBSCRIPTION_BILLING = '/subscriptions/billing',
 	BILLING_CHECKOUT_FORM = '/subscriptions/billing/checkout-form',

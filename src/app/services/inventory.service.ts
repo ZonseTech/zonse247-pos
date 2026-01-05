@@ -406,6 +406,119 @@ const inventoryService = {
 				throw err;
 			});
 	},
+
+	// ==================== NEW WORKFLOW INTEGRATION ====================
+
+	/**
+	 * Check stock availability before sale
+	 * @param productId Product ID to check
+	 * @param requiredQuantity Quantity needed
+	 * @returns Available quantity and whether sufficient stock exists
+	 */
+	async checkStockAvailability(
+		productId: string,
+		requiredQuantity: number
+	): Promise<{ available: number; isSufficient: boolean; allowNegative: boolean }> {
+		const item = await this.show(productId);
+		const available = Number(item.quantity || 0);
+		const allowNegative = item.allowNegativeStock || false;
+
+		return {
+			available,
+			isSufficient: available >= requiredQuantity || allowNegative,
+			allowNegative,
+		};
+	},
+
+	/**
+	 * Get current inventory levels
+	 * @param productId Product ID
+	 * @returns Current inventory quantities
+	 */
+	async getInventoryLevels(productId: string): Promise<{
+		available: number;
+		reserved: number;
+		damaged: number;
+		total: number;
+		averageCost: number;
+		lastPurchaseCost: number;
+	}> {
+		const item = await this.show(productId);
+
+		return {
+			available: Number(item.quantity || 0),
+			reserved: Number(item.reservedQuantity || 0),
+			damaged: 0, // Will be tracked separately in new schema
+			total: Number(item.quantity || 0) + Number(item.reservedQuantity || 0),
+			averageCost: Number(item.costPrice || 0),
+			lastPurchaseCost: Number(item.costPrice || 0),
+		};
+	},
+
+	/**
+	 * Reserve inventory for an order
+	 * @param productId Product ID to reserve
+	 * @param quantity Quantity to reserve
+	 */
+	async reserveInventory(productId: string, quantity: number): Promise<InventoryItem> {
+		const item = await this.show(productId);
+		const currentReserved = Number(item.reservedQuantity || 0);
+
+		return this.update(productId, {
+			reservedQuantity: currentReserved + quantity,
+		});
+	},
+
+	/**
+	 * Release reserved inventory
+	 * @param productId Product ID
+	 * @param quantity Quantity to release
+	 */
+	async releaseReservedInventory(productId: string, quantity: number): Promise<InventoryItem> {
+		const item = await this.show(productId);
+		const currentReserved = Number(item.reservedQuantity || 0);
+
+		return this.update(productId, {
+			reservedQuantity: Math.max(0, currentReserved - quantity),
+		});
+	},
+
+	/**
+	 * Get products that need reordering
+	 * @param tenantId Tenant ID
+	 * @param branchId Branch ID
+	 */
+	async getReorderList(tenantId: string, branchId: string): Promise<InventoryItem[]> {
+		const lowStock = await this.getLowStock({ tenantId, branchId });
+		return lowStock.filter(item => {
+			const quantity = Number(item.quantity || 0);
+			const reorderLevel = Number(item.reorderLevel || 0);
+			return reorderLevel > 0 && quantity <= reorderLevel;
+		});
+	},
+
+	/**
+	 * Calculate weighted average cost after purchase
+	 * @param currentQuantity Current quantity in stock
+	 * @param currentCost Current average cost
+	 * @param newQuantity New quantity being added
+	 * @param newCost Cost of new items
+	 */
+	calculateWeightedAverageCost(
+		currentQuantity: number,
+		currentCost: number,
+		newQuantity: number,
+		newCost: number
+	): number {
+		if (currentQuantity + newQuantity === 0) return 0;
+
+		const currentValue = currentQuantity * currentCost;
+		const newValue = newQuantity * newCost;
+		const totalValue = currentValue + newValue;
+		const totalQuantity = currentQuantity + newQuantity;
+
+		return totalValue / totalQuantity;
+	},
 };
 
 export default inventoryService;

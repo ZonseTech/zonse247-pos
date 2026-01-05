@@ -86,7 +86,7 @@ const CustomerManagement: FunctionComponent = () => {
                                 !isMobile && (
                                     <SearchBar
                                         value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onChange={setSearchTerm}
                                     />
                                 )}
 
@@ -108,7 +108,7 @@ const CustomerManagement: FunctionComponent = () => {
                             <div className='m-4 mt-0'>
                                 <SearchBar
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={setSearchTerm}
                                 />
                             </div>
                         )

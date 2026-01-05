@@ -2,12 +2,11 @@ import { type FunctionComponent, useContext, useState, useCallback } from "react
 import DataTable, { type Themes } from "react-data-table-component";
 import { HiOutlineMenuAlt4, HiOutlineDownload, HiOutlineFilter } from "react-icons/hi";
 import Loader from "../../../components/Loader";
-import { ZonseThemeContext } from "../../../components";
+import { DateRangeFilter, ZonseThemeContext } from "../../../components";
 import { SearchBar } from "../../../components/SearchBar";
 import { getTableStyles } from "../../../utils/table-styles";
 import { useTransactions } from "../../../hooks/useTransactions";
 import { getTransactionTableColumns } from "./TransactionTableColumns";
-import { DateRangeFilter } from "./DateRangeFilter";
 import TransactionDetailsModal from "./TransactionDetailsModal";
 
 const TransactionsDataTable: FunctionComponent = () => {

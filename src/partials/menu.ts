@@ -171,9 +171,27 @@ export default class MenuBuilder {
 				viewSubmenu.push({ type: 'separator' });
 			}
 			viewSubmenu.push({
-				label: 'Inventory',
+				label: 'Old Inventory',
 				click: () => this.navigateTo(ROUTES.INVENTORY),
 			});
+			viewSubmenu.push({ type: 'separator' });
+			viewSubmenu.push({
+				label: 'Products',
+				click: () => this.navigateTo(ROUTES.PRODUCTS),
+			});
+			viewSubmenu.push({
+				label: 'Suppliers',
+				click: () => this.navigateTo(ROUTES.SUPPLIERS),
+			});
+			viewSubmenu.push({
+				label: 'Purchase Orders',
+				click: () => this.navigateTo(ROUTES.PURCHASE_ORDERS),
+			});
+			viewSubmenu.push({
+				label: 'Stock Movements',
+				click: () => this.navigateTo(ROUTES.STOCK_MOVEMENTS),
+			});
+			viewSubmenu.push({ type: 'separator' });
 			viewSubmenu.push({
 				label: 'Categories',
 				click: () => this.navigateTo(ROUTES.CATEGORIES),

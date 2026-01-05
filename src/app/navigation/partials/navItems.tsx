@@ -13,7 +13,7 @@ import {
     HiOutlineUserGroup,
     HiOutlineCreditCard,
 } from 'react-icons/hi';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, Package, Users as SuppliersIcon, ShoppingCart as POIcon, ArrowRightLeft } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useAuth } from '../../context/AuthProvider';
@@ -53,6 +53,10 @@ const useNavItems = (): Array<NavItem> => {
         export_db: <HiOutlineFolderDownload className="h-5 w-5" />,
         transactions: <HiOutlinePresentationChartBar className="h-5 w-5" />,
         returns: <RotateCcw className="h-5 w-5" />,
+        inventory_products: <Package className="h-5 w-5" />,
+        suppliers: <SuppliersIcon className="h-5 w-5" />,
+        purchase_orders: <POIcon className="h-5 w-5" />,
+        stock_movements: <ArrowRightLeft className="h-5 w-5" />,
         users: <HiOutlineUsers className="h-5 w-5" />,
         role_permissions: <HiOutlineKey className="h-5 w-5" />,
         admin: <HiOutlineUserCircle className="h-5 w-5" />,
@@ -78,12 +82,48 @@ const useNavItems = (): Array<NavItem> => {
             type: 'button',
             color: 'bg-blue-600 hover:bg-blue-700',
             iconColor: 'bg-blue-700',
-            text: 'Inventory',
+            text: 'Old Inventory',
             icon: icons.products,
             onClick: () => navigate(ROUTES.INVENTORY),
         });
 
         if (hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {
+            items.push({
+                type: 'button',
+                color: 'bg-indigo-600 hover:bg-indigo-700',
+                iconColor: 'bg-indigo-700',
+                text: 'Products',
+                icon: icons.inventory_products,
+                onClick: () => navigate(ROUTES.PRODUCTS),
+            });
+
+            items.push({
+                type: 'button',
+                color: 'bg-purple-600 hover:bg-purple-700',
+                iconColor: 'bg-purple-700',
+                text: 'Suppliers',
+                icon: icons.suppliers,
+                onClick: () => navigate(ROUTES.SUPPLIERS),
+            });
+
+            items.push({
+                type: 'button',
+                color: 'bg-violet-600 hover:bg-violet-700',
+                iconColor: 'bg-violet-700',
+                text: 'Purchase Orders',
+                icon: icons.purchase_orders,
+                onClick: () => navigate(ROUTES.PURCHASE_ORDERS),
+            });
+
+            items.push({
+                type: 'button',
+                color: 'bg-fuchsia-600 hover:bg-fuchsia-700',
+                iconColor: 'bg-fuchsia-700',
+                text: 'Stock Movements',
+                icon: icons.stock_movements,
+                onClick: () => navigate(ROUTES.STOCK_MOVEMENTS),
+            });
+
             items.push({
                 type: 'button',
                 color: 'bg-blue-500 hover:bg-blue-600',

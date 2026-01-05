@@ -1,4 +1,4 @@
-type TransactionStatus = 'completed' | 'pending' | 'failed' | 'cancelled' | 'refunded';
+type TransactionStatus = 'completed' | 'pending' | 'failed' | 'cancelled' | 'refunded' | 'void';
 
 type Transaction = {
     refNumber?: string;

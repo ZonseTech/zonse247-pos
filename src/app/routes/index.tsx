@@ -35,6 +35,15 @@ const SubscriptionManagement = lazy(() => import('../pages/subscription'))
 const RolesAndPermissions = lazy(() => import('../pages/role-permissions'))
 const SubscriptionBilling = lazy(() => import('../pages/subscription/SubscriptionBilling'))
 
+// Inventory Workflow Pages
+const Products = lazy(() => import('../pages/products'))
+const ProductForm = lazy(() => import('../pages/products/create'))
+const Suppliers = lazy(() => import('../pages/suppliers'))
+const SupplierForm = lazy(() => import('../pages/suppliers/create'))
+const PurchaseOrders = lazy(() => import('../pages/purchase-orders'))
+const PurchaseOrderForm = lazy(() => import('../pages/purchase-orders/create'))
+const StockMovements = lazy(() => import('../pages/stock-movements'))
+
 const ProtectedLayoutWithAuth = withProtectedRoute(ProtectedLayout)
 
 const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings }) => {
@@ -72,6 +81,15 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 				<Route path={ROUTES.SUBSCRIPTIONS} element={<SubscriptionManagement />} />
 				<Route path={ROUTES.ROLES_PERMISSIONS} element={<RolesAndPermissions />} />
 				<Route path={ROUTES.SUBSCRIPTION_BILLING} element={<SubscriptionBilling />} />
+
+				{/* Inventory Workflow Routes */}
+				<Route path={ROUTES.PRODUCTS} element={<Products />} />
+				<Route path={ROUTES.PRODUCT_FORM} element={<ProductForm />} />
+				<Route path={ROUTES.SUPPLIERS} element={<Suppliers />} />
+				<Route path={ROUTES.SUPPLIER_FORM} element={<SupplierForm />} />
+				<Route path={ROUTES.PURCHASE_ORDERS} element={<PurchaseOrders />} />
+				<Route path={ROUTES.PURCHASE_ORDER_FORM} element={<PurchaseOrderForm />} />
+				<Route path={ROUTES.STOCK_MOVEMENTS} element={<StockMovements />} />
 
 				<Route path="*" element={<Navigate to="/not-found" />} />
 			</Route>
