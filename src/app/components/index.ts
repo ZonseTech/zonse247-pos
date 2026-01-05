@@ -10,6 +10,7 @@ export { default as Breadcrumb } from './Breadcrumb';
 export { default as Card } from './card/Card';
 export { default as CardBody } from './card/CardBody';
 export { default as ComponentLoader } from './ComponentLoader';
+export { DateRangeFilter } from './DateRangeFilter';
 export { default as HelperText } from './HelperText';
 export { default as Input } from './Input';
 export { default as Label } from './Label';
