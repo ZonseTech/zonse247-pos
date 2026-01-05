@@ -173,6 +173,8 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     }, [barcode, isActive]);
 
     useEffect(() => {
+        // Frontend filtering is intentional for POS performance
+        // Real-time barcode scanning requires instant filtering without API delays
         if (barcode.trim() === '') {
             setFilteredItems(inventory);
         } else {

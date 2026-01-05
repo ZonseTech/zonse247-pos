@@ -37,7 +37,10 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
             return;
         }
 
+        // Frontend filtering is intentional for POS performance
+        // Inventory is already loaded in memory for quick access
         let filtered = inventory.filter(item => {
+            // Filter out expired items - these should never be sold
             if (item.expirationDate && new Date(item.expirationDate) < new Date()) {
                 return false;
             }
