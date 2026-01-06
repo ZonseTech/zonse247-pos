@@ -68,9 +68,21 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                             <Menu size={24} />
                         </button>
                         {isSidebarCollapsed && (
-                            <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100 hidden sm:block">
-                                Zonse247 POS
-                            </h1>
+                            <div className="hidden sm:flex items-center gap-2">
+                                {isPOSActive && onToggleCollapse && (
+                                    <button
+                                        onClick={onToggleCollapse}
+                                        className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
+                                        aria-label="Show sidebar"
+                                        title="Show sidebar"
+                                    >
+                                        <PanelLeft size={20} />
+                                    </button>
+                                )}
+                                <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                                    Zonse247 POS
+                                </h1>
+                            </div>
                         )}
                     </div>
 
