@@ -45,7 +45,7 @@ const TenantFormModal: FunctionComponent = () => {
             try {
                 const plans = await subscriptionPlanService.list();
                 const formattedPlans: DropdownOption<SubscriptionPlan>[] = plans.map((plan) => ({
-                    value: plan.name,
+                    value: plan.subscriptionPlanId,
                     label: plan.displayName || plan.name,
                     description: plan.description,
                     data: plan,
@@ -73,7 +73,6 @@ const TenantFormModal: FunctionComponent = () => {
                     console.error('Error fetching tenant:', error);
                     const errorMessage = error?.response?.data?.message || 'Failed to load tenant details';
                     Notify.failure(errorMessage);
-                    // navigate(ROUTES.TENANTS);
                 } finally {
                     setLoading(false);
                 }
@@ -96,7 +95,7 @@ const TenantFormModal: FunctionComponent = () => {
         country: 'MW',
         mraPortalUsername: '',
         msonkhoOnlineStatus: 'PENDING',
-        subscriptionPlan: 'BASIC',
+        subscriptionPlan: '',
         registeredAt: '',
         subscriptionStatus: 'trial',
         trialEndsAt: '',
