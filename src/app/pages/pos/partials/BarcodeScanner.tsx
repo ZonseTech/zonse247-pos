@@ -3,6 +3,7 @@ import { FunctionComponent, useState, useEffect, Fragment, useRef } from 'react'
 import { Confirm } from 'notiflix';
 import { createPortal } from 'react-dom';
 import { useFocusManager } from '../../../hooks/useFocusManager';
+import { useScannerSettings, useScannerFeedback } from '../../../hooks/useScannerSettings';
 import inventoryService from '../../../services/inventory.service';
 
 interface BarcodeScannerProps {
@@ -20,6 +21,8 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
 }) => {
     const [barcode, setBarcode] = useState('');
     const { inventory, addToCart } = useInventory();
+    const scannerSettings = useScannerSettings();
+    const { triggerFeedback } = useScannerFeedback();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [filteredItems, setFilteredItems] = useState(inventory);
     const [isSearching, setIsSearching] = useState(false);
@@ -32,7 +35,11 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     const isActive = focusManager.isActive('barcode');
 
     const cleanBarcode = (code: string): string => {
-        return code.replace(/[$']$/, '').trim();
+        let cleaned = code.replace(/[$']$/, '').trim();
+        if (scannerSettings.prefix && cleaned.startsWith(scannerSettings.prefix)) {
+            cleaned = cleaned.substring(scannerSettings.prefix.length);
+        }
+        return cleaned;
     };
 
 
@@ -53,10 +60,15 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     };
 
     const checkImmediateMatch = (code: string): boolean => {
+        if (!scannerSettings.enabled && scannerSettings.scanMode === 'AUTO') {
+            return false;
+        }
+
         const cleanedCode = cleanBarcode(code);
         if (cleanedCode.length >= MIN_BARCODE_LENGTH) {
             const exactMatch = inventory.find(p => p.barcode.toString() === cleanedCode);
             if (exactMatch) {
+                triggerFeedback();
                 addToCart(exactMatch);
                 setBarcode('');
                 barcodeBuffer.current = '';
@@ -103,6 +115,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
         }
 
         if (item) {
+            triggerFeedback();
             addToCart(item);
             setBarcode('');
 
@@ -121,6 +134,9 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     useEffect(() => {
         const handleKeyPress = (e: KeyboardEvent) => {
             if (!isActive) return;
+            if (!scannerSettings.enabled || scannerSettings.scanMode === 'MANUAL') {
+                return;
+            }
 
             if (e.key === 'Enter') {
                 if (barcodeTimeout.current) {
@@ -283,6 +299,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                                 key={item.productId}
                                 className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer flex justify-between items-center border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors"
                                 onClick={() => {
+                                    triggerFeedback();
                                     addToCart(item);
                                     setBarcode('');
                                     if (barcodeScannerInputRef.current) {
