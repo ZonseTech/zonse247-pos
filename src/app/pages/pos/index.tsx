@@ -7,7 +7,7 @@ import BarcodeScanner from './partials/BarcodeScanner';
 import FunctionButtons from './partials/FunctionButtons';
 import ItemLookupModal from './partials/ItemLookupModal';
 import PageHeader from '../../components/page/PageHeader';
-import CustomerSelector from './partials/CustomerSelector';
+import CustomerSelector from '../customers/partials/CustomerSelector';
 import { useFocusManager } from '../../hooks/useFocusManager';
 import { FunctionComponent, useState, useEffect, useRef } from 'react';
 import CheckoutModal, { CHECKOUT, PaymentMethod } from './partials/CheckoutModal';
