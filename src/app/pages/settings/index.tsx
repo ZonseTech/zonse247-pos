@@ -49,9 +49,8 @@ const Index = () => {
                         onSubmit={handleSubmit}
                         enableReinitialize
                     >
-                        {({ isSubmitting, values }) => (
+                        {({ isSubmitting }) => (
                             <Form>
-                                {JSON.stringify(values)}
                                 <TabContent activeTab={activeTab} />
 
                                 <SettingsActions
