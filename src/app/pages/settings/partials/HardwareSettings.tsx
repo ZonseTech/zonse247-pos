@@ -1,10 +1,44 @@
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useEffect, useState } from 'react';
 import FormWrapper from '../../../components/FormWrapper';
 import FormInput from '../../../components/FormInput';
 import FormSelectBox from '../../../components/FormSelectBox';
 import { Field } from 'formik';
+import printerService from '../../../services/printer.service';
+
+interface PrinterOption {
+    label: string;
+    value: string;
+}
 
 const HardwareSettings: FunctionComponent = () => {
+    const [printerOptions, setPrinterOptions] = useState<PrinterOption[]>([
+        { label: 'No Printer Selected', value: '' }
+    ]);
+    const [isLoadingPrinters, setIsLoadingPrinters] = useState(false);
+
+    useEffect(() => {
+        const loadPrinters = async () => {
+            try {
+                setIsLoadingPrinters(true);
+                const printers = await printerService.list();
+                const options: PrinterOption[] = [
+                    { label: 'No Printer Selected', value: '' },
+                    ...printers.map(printer => ({
+                        label: printer.displayName || printer.name,
+                        value: printer.name
+                    }))
+                ];
+                setPrinterOptions(options);
+            } catch (error) {
+                console.error('Failed to load printers:', error);
+            } finally {
+                setIsLoadingPrinters(false);
+            }
+        };
+
+        loadPrinters();
+    }, []);
+
     const printerTypeOptions = [
         { label: 'Thermal Printer', value: 'thermal' },
         { label: 'Inkjet Printer', value: 'inkjet' },
@@ -70,11 +104,11 @@ const HardwareSettings: FunctionComponent = () => {
                             required
                         />
 
-                        <FormInput
-                            type="text"
-                            name="printerName"
+                        <FormSelectBox
                             label="Printer Name"
-                            placeholder="Main Receipt Printer"
+                            name="printerName"
+                            options={printerOptions}
+                            disabled={isLoadingPrinters}
                         />
 
                         <FormSelectBox
@@ -170,18 +204,18 @@ const HardwareSettings: FunctionComponent = () => {
                             <Field type="checkbox" name="printOrderBar" className="w-5 h-5 rounded" />
                         </div>
 
-                        <FormInput
-                            type="text"
-                            name="kitchenPrinterName"
+                        <FormSelectBox
                             label="Kitchen Printer Name"
-                            placeholder="Kitchen Printer"
+                            name="kitchenPrinterName"
+                            options={printerOptions}
+                            disabled={isLoadingPrinters}
                         />
 
-                        <FormInput
-                            type="text"
-                            name="barPrinterName"
+                        <FormSelectBox
                             label="Bar Printer Name"
-                            placeholder="Bar Printer"
+                            name="barPrinterName"
+                            options={printerOptions}
+                            disabled={isLoadingPrinters}
                         />
                     </div>
                 </div>
