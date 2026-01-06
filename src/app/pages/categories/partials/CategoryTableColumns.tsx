@@ -35,7 +35,6 @@ export const getCategoryColumns = (
             selector: (row: Category) => row.itemCount || 0,
             sortable: true,
             center: true,
-            width: '150px',
             cell: (row: Category) => (
                 <div className="flex items-center justify-center">
                     <span className="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
@@ -48,7 +47,6 @@ export const getCategoryColumns = (
             name: 'Created',
             selector: (row: Category) => row.createdAt ? new Date(row.createdAt).getTime() : 0,
             sortable: true,
-            width: '180px',
             cell: (row: Category) => (
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                     {row.createdAt
@@ -61,7 +59,6 @@ export const getCategoryColumns = (
             name: 'Last Updated',
             selector: (row: Category) => row.updatedAt ? new Date(row.updatedAt).getTime() : 0,
             sortable: true,
-            width: '180px',
             cell: (row: Category) => (
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                     {row.updatedAt
@@ -73,7 +70,6 @@ export const getCategoryColumns = (
         {
             name: 'Actions',
             center: true,
-            width: '120px',
             cell: (row: Category) => (
                 <div className="flex items-center justify-center space-x-2">
                     <button

@@ -12,6 +12,7 @@ import transactionService from '../../../services/transactions.service';
 import { generateReferenceNumber } from '../../../utils';
 import printerService from '../../../services/printer.service';
 import { Button } from '../../../components';
+import { DEFAULT_SEED_KEY } from '../../../constants';
 
 interface CheckoutModalProps {
     isOpen: boolean;
@@ -214,6 +215,22 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                         </div>
                         <span className="text-black dark:text-gray-200 text-base md:text-xl font-bold">{getPaymentTitle()}</span>
                     </div>
+
+                    {selectedCustomer && (
+                        <div className="mb-4">
+                            <div className="flex items-center gap-2">
+                                <span className="text-xl">
+                                    {selectedCustomer.customerId === DEFAULT_SEED_KEY ? '👤' : '⭐'}
+                                </span>
+                                <span className={`font-semibold ${selectedCustomer.customerId === DEFAULT_SEED_KEY
+                                    ? 'text-blue-900 dark:text-blue-100'
+                                    : 'text-emerald-900 dark:text-emerald-100'
+                                    }`}>
+                                    {selectedCustomer.name}
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <Formik
@@ -222,46 +239,9 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                     validationSchema={newTransactionValidationSchema}
                     enableReinitialize={true}
                 >
-                    {({ isSubmitting, values, setFieldValue, errors, touched }) => (
+                    {({ isSubmitting, values, setFieldValue }) => (
                         <Form className="flex flex-col flex-1 min-h-0">
                             <div className="flex-1 p-3 md:p-6 overflow-y-auto">
-                                {/* Customer Information Display */}
-                                {selectedCustomer && (
-                                    <div className={`mb-4 p-4 rounded-lg border ${selectedCustomer.customerId === 'walk-in'
-                                        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
-                                        : 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
-                                        }`}>
-                                        <div className="flex items-center gap-3">
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${selectedCustomer.customerId === 'walk-in'
-                                                ? 'bg-blue-100 dark:bg-blue-800'
-                                                : 'bg-emerald-100 dark:bg-emerald-800'
-                                                }`}>
-                                                <span className="text-xl">
-                                                    {selectedCustomer.customerId === 'walk-in' ? '👤' : '⭐'}
-                                                </span>
-                                            </div>
-                                            <div className="flex-1">
-                                                <div className={`font-semibold ${selectedCustomer.customerId === 'walk-in'
-                                                    ? 'text-blue-900 dark:text-blue-100'
-                                                    : 'text-emerald-900 dark:text-emerald-100'
-                                                    }`}>
-                                                    {selectedCustomer.name}
-                                                </div>
-                                                {selectedCustomer.customerId !== 'walk-in' && (
-                                                    <div className={`text-sm ${selectedCustomer.customerId === 'walk-in'
-                                                        ? 'text-blue-700 dark:text-blue-300'
-                                                        : 'text-emerald-700 dark:text-emerald-300'
-                                                        }`}>
-                                                        {selectedCustomer.phone && <span>📱 {selectedCustomer.phone}</span>}
-                                                        {selectedCustomer.email && (
-                                                            <span className="ml-3">✉️ {selectedCustomer.email}</span>
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
 
                                 {paymentMethodId === CHECKOUT.CASH && (
                                     <CashPayment

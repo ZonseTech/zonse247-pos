@@ -36,7 +36,6 @@ export const getProductTableColumns = ({
             ),
             sortable: true,
             grow: 2,
-            minWidth: '250px',
         },
         {
             name: 'Category',
@@ -53,7 +52,6 @@ export const getProductTableColumns = ({
                 </div>
             ),
             sortable: true,
-            minWidth: '160px',
         },
         {
             name: 'Price & Unit',
@@ -72,44 +70,6 @@ export const getProductTableColumns = ({
             ),
             sortable: true,
             right: true,
-            minWidth: '140px',
-        },
-        {
-            name: 'Inventory',
-            cell: (row) => {
-                const stock = row.inventory?.availableQuantity || 0;
-                const reorderPoint = row.inventory?.reorderPoint || 0;
-                const isLowStock = reorderPoint > 0 && stock <= reorderPoint;
-                const isOutOfStock = stock === 0;
-
-                return (
-                    <div className="py-2">
-                        <div className={`flex items-center gap-1.5 font-medium ${isOutOfStock
-                                ? 'text-red-600 dark:text-red-400'
-                                : isLowStock
-                                    ? 'text-orange-600 dark:text-orange-400'
-                                    : 'text-green-600 dark:text-green-400'
-                            }`}>
-                            <Package className="w-4 h-4" />
-                            <span>{stock}</span>
-                        </div>
-                        {isLowStock && !isOutOfStock && (
-                            <div className="flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400 mt-0.5">
-                                <AlertTriangle className="w-3 h-3" />
-                                <span>Low stock</span>
-                            </div>
-                        )}
-                        {row.inventory?.reservedQuantity ? (
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                Reserved: {row.inventory.reservedQuantity}
-                            </div>
-                        ) : null}
-                    </div>
-                );
-            },
-            sortable: true,
-            right: true,
-            minWidth: '140px',
         },
         {
             name: 'Status',
@@ -147,7 +107,6 @@ export const getProductTableColumns = ({
                 );
             },
             sortable: true,
-            minWidth: '140px',
         },
         {
             name: 'Created',
@@ -162,7 +121,6 @@ export const getProductTableColumns = ({
                 </div>
             ),
             sortable: true,
-            width: '140px',
         },
         {
             name: 'Actions',
@@ -192,6 +150,5 @@ export const getProductTableColumns = ({
                 </div>
             ),
             right: true,
-            width: '140px',
         },
     ];

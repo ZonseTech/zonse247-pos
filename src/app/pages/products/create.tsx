@@ -41,6 +41,7 @@ const ProductForm: FunctionComponent = () => {
         setLoading(true);
         try {
             const productData = await getProduct(productId);
+
             if (productData) {
                 setProduct(productData);
                 if (productData.barcodes) {
@@ -136,9 +137,7 @@ const ProductForm: FunctionComponent = () => {
     const handleSubmit = async (values: typeof defaultProductValues, { resetForm }: any) => {
         setLoading(true);
         try {
-            const payload: CreateProductPayload | UpdateProductPayload = {
-                tenantId: setup.tenantId,
-                branchId: setup.branchId,
+            const payload: CreateProductPayload = {
                 name: values.name,
                 description: values.description || undefined,
                 categoryId: values.categoryId || undefined,
@@ -147,22 +146,18 @@ const ProductForm: FunctionComponent = () => {
                 unit: values.unit,
                 brand: values.brand || undefined,
                 weight: Number(values.weight) || undefined,
+                sku: values.sku,
+                primaryBarcode: values.primaryBarcode || undefined,
+                barcodes: barcodes.length > 0 ? barcodes : undefined,
+                trackInventory: values.trackInventory,
+                allowNegativeStock: values.allowNegativeStock,
+                minStock: Number(values.minStock) || undefined,
+                maxStock: Number(values.maxStock) || undefined,
+                reorderLevel: Number(values.reorderLevel) || undefined,
             };
 
             if (!isEditMode) {
-                const createPayload: CreateProductPayload = {
-                    ...payload,
-                    sku: values.sku,
-                    primaryBarcode: values.primaryBarcode || undefined,
-                    barcodes: barcodes.length > 0 ? barcodes : undefined,
-                    trackInventory: values.trackInventory,
-                    allowNegativeStock: values.allowNegativeStock,
-                    minStock: Number(values.minStock) || undefined,
-                    maxStock: Number(values.maxStock) || undefined,
-                    reorderLevel: Number(values.reorderLevel) || undefined,
-                } as CreateProductPayload;
-
-                await createProduct(createPayload);
+                await createProduct(payload);
 
                 Confirm.show(
                     'Product Saved',
@@ -323,7 +318,7 @@ const ProductForm: FunctionComponent = () => {
                                     </div>
                                 </div>
 
-                                {!isEditMode && (
+                                {(
                                     <>
                                         <div className="pb-8 relative">
                                             <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>

@@ -14,7 +14,6 @@ export enum ROUTES {
 	TERMINALS = '/terminals',
 	TERMINAL_FORM = '/terminals/form',
 
-	// Inventory Workflow Routes
 	PRODUCTS = '/products',
 	PRODUCT_FORM = '/products/form',
 	SUPPLIERS = '/suppliers',

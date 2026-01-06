@@ -17,8 +17,7 @@ interface OnboardingFlowProps {
 
 const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, error: parentError }) => {
     const registerProps: TerminalVerificationParams = {
-        verificationToken: '3f81127ca4ba63eb4902be2696970d568dea:b1c00587834336e5a45dd2758536449a',
-        // verificationToken: 'f83e22e3a723e7c02f257d71a554684bba68:2c8c7bd37cdaae6cd1fd70368804fc82',
+        verificationToken: '',
         os: '',
         hostname: '',
         macAddress: ''

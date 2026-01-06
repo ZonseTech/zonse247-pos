@@ -65,7 +65,7 @@ const ProductManagement: FunctionComponent = () => {
     }, [navigate]);
 
     const handleEdit = useCallback((product: Product) => {
-        navigate(ROUTES.PRODUCT_FORM, { state: { productId: product.productId } });
+        navigate(ROUTES.PRODUCT_FORM, { state: { productId: product.id } });
     }, [navigate]);
 
     const handleDelete = useCallback((productId: string) => {

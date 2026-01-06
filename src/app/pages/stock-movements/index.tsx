@@ -39,7 +39,9 @@ const StockMovements: FunctionComponent = () => {
                 icon={<Activity className="w-8 h-8 text-blue-600" />}
                 title="Stock Movements"
                 description={productId ? 'Product stock history' : 'All stock movements audit trail'}
-                action={
+
+            >
+                <div className='px-4 md:px-0'>
                     <Filters
                         movementTypeFilter={movementTypeFilter}
                         onMovementTypeChange={setMovementTypeFilter}
@@ -48,8 +50,8 @@ const StockMovements: FunctionComponent = () => {
                         endDate={endDate}
                         onEndDateChange={setEndDate}
                     />
-                }
-            />
+                </div>
+            </PageHeader>
 
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
                 <DataTable
