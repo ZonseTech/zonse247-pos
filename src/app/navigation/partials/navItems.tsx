@@ -82,7 +82,7 @@ const useNavItems = (): Array<NavItem> => {
             type: 'button',
             color: 'bg-blue-600 hover:bg-blue-700',
             iconColor: 'bg-blue-700',
-            text: 'Old Inventory',
+            text: 'Inventory',
             icon: icons.products,
             onClick: () => navigate(ROUTES.INVENTORY),
         });
