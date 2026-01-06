@@ -299,7 +299,7 @@ type TerminalSettingsApiResponse = {
     storePhone: string | null;
     storeEmail: string | null;
     currency: string;
-    taxRate: number;
+    taxRate: number | string; // API may return as string
     businessLicense: string | null;
     businessTaxId: string | null;
 

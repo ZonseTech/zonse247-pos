@@ -1,6 +1,12 @@
 import api from './http.service';
 import { version } from '../../../package.json';
-import { mapSettingsToApiPayload, mapApiResponseToSettings, getDefaultSettings } from '../pages/settings/constants/defaultValues';
+import { 
+    mapSettingsToApiPayload, 
+    mapApiResponseToSettings, 
+    getDefaultSettings,
+    decodeHtmlEntities,
+    toNumber 
+} from '../pages/settings/constants/defaultValues';
 import { isElectron } from '../../helpers/index.helper';
 
 /**
@@ -17,6 +23,7 @@ import { isElectron } from '../../helpers/index.helper';
  * - PATCH /:terminalId/group/:groupName - updateSettingsGroup
  * - PATCH /:terminalId/deactivate      - deactivateSettings
  * - DELETE /:terminalId                - deleteSettings
+ * - POST /:terminalId /reset           - resetSettings
  */
 const BASE_PATH = 'terminal-settings';
 
@@ -349,12 +356,14 @@ const settingsService = {
 	 * Reset settings to defaults
 	 * Creates new settings or resets existing ones for current terminal
 	 */
-	async reset(): Promise<TerminalSettingsApiResponse> {
+	async resetSettings(): Promise<TerminalSettingsApiResponse> {
 		const terminalId = await requireTerminalId();
-		return this.getOrCreateSettings({
-			terminalId,
-			defaults: {}
-		});
+		return await api
+			.post<ApiResponse<TerminalSettingsApiResponse>>(`${endpoints.base}/${terminalId}/reset`)
+			.then((res) => res.data.data!)
+			.catch((err) => {
+				throw err;
+			});
 	},
 
 	/**
@@ -366,5 +375,8 @@ const settingsService = {
 		return settings[key];
 	}
 };
+
+// Export helper utilities for use in other parts of the application
+export { decodeHtmlEntities, toNumber };
 
 export default settingsService;
