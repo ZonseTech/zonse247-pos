@@ -76,14 +76,15 @@ const SubscriptionManagement: FunctionComponent = () => {
                     title='Subscriptions'
                     description='Manage tenants subscriptions and billing'
                     icon={<HiOutlineCreditCard className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
-                >
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                        <SearchBar
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                </PageHeader>
+                    action={
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <SearchBar
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                    }
+                />
 
                 <DataTable
                     columns={columns}
