@@ -12,7 +12,6 @@ import { getPurchaseOrderTableColumns } from './partials/PurchaseOrderTableColum
 import { SearchBar } from './partials/SearchBar';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
-import StatsCards from './partials/StatsCards';
 import ReceiveModal from './partials/ReceiveModal';
 
 const PurchaseOrderManagement: FunctionComponent = () => {
@@ -106,10 +105,6 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                         </Button>
                     }
                 >
-                    <div className="px-4">
-                        <StatsCards />
-                    </div>
-
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 px-4">
                         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
                             <SearchBar
