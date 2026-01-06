@@ -1,6 +1,8 @@
 import api from '../services/http.service';
 import { Confirm, Notify } from 'notiflix';
 import React, { type PropsWithChildren, createContext, useContext, useEffect, useState } from 'react'
+import { isElectron } from '../utils';
+import settingsService from '../services/settings.service';
 
 type ContextProps = {
     user: User | null;
@@ -58,6 +60,9 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
                 .then((res) => res.data);
 
             if (result?.data.token) {
+                if (!isElectron()) {
+                    await settingsService.load();
+                }
 
                 setUser(result?.data.user);
                 setAuth({ auth: true });

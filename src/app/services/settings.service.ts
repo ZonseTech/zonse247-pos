@@ -33,7 +33,6 @@ const endpoints = {
  */
 const getTerminalId = async (): Promise<string | null> => {
 	try {
-		// Try electron storage first
 		if (isElectron() && window.electronAPI?.settings) {
 			const result = await window.electronAPI.settings.getSetup();
 			if (result.success && result.data?.terminalId) {
@@ -41,11 +40,32 @@ const getTerminalId = async (): Promise<string | null> => {
 			}
 		}
 
-		// Fallback to localStorage
-		const stored = localStorage.getItem('terminalSettings');
-		if (stored) {
-			const parsed = JSON.parse(stored);
-			return parsed.terminalId || null;
+		const user = sessionStorage.getItem('user');
+		if (user) {
+			const s = JSON.parse(user);
+			const tenantId = s.tenantId;
+			const branchId = s.branchId;
+
+			if (!tenantId || !branchId) {
+				return null;
+			}
+
+			const storageKey = `primaryTerminalId_${tenantId}_${branchId}`;
+
+			const cachedTerminalId = localStorage.getItem(storageKey);
+			if (cachedTerminalId) {
+				return cachedTerminalId;
+			}
+
+			const terminal = await api.get<string | null>(`branches/tenant-branch/primary-terminal-id`, {
+				tenantId,
+				branchId,
+			}).then(res => res.data?.data);
+
+			if (terminal?.primaryTerminalId) {
+				localStorage.setItem(storageKey, terminal.primaryTerminalId);
+				return terminal.primaryTerminalId;
+			}
 		}
 
 		return null;
@@ -225,10 +245,6 @@ const settingsService = {
 			});
 	},
 
-	// ============================================
-	// CONVENIENCE METHODS (mapped versions)
-	// ============================================
-
 	/**
 	 * Load settings and map to flat AppSettings format
 	 * Converts hierarchical JSON + selective columns to flat structure
@@ -335,10 +351,9 @@ const settingsService = {
 	 */
 	async reset(): Promise<TerminalSettingsApiResponse> {
 		const terminalId = await requireTerminalId();
-		// Get or create with empty defaults to reset
 		return this.getOrCreateSettings({
 			terminalId,
-			defaults: {} // Server should apply defaults
+			defaults: {}
 		});
 	},
 

@@ -31,21 +31,19 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
         try {
             setIsLoading(true);
 
-            // Check if terminal is configured before loading
             const terminalId = await settingsService.getTerminalId();
+
             if (!terminalId) {
                 console.warn('Terminal not configured, skipping settings load');
                 setIsLoading(false);
                 return;
             }
 
-            // load() returns flattened AppSettings (hierarchical JSON already mapped)
             const data = await settingsService.load();
 
             if (data) {
                 setSettings(data);
 
-                // apiBaseUrl is now available directly on the flattened settings
                 if (data.apiBaseUrl) {
                     apiUtils.updateBaseUrl(data.apiBaseUrl);
                 }
@@ -69,7 +67,6 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
         setSettings(prev => {
             const updated = prev ? { ...prev, ...newSettings } : null;
 
-            // Update API base URL if it changed
             if (newSettings.apiBaseUrl && newSettings.apiBaseUrl !== prev?.apiBaseUrl) {
                 apiUtils.updateBaseUrl(newSettings.apiBaseUrl);
             }
