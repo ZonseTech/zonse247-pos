@@ -12,6 +12,7 @@ import { useAuth } from "../../context/AuthProvider";
 import FormWrapper from "../../components/FormWrapper";
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import InputKeyboard from "../../components/InputKeyboard";
+import { useKeyboardSettings } from '../../hooks/useKeyboardSettings';
 import type { Dispatch, FunctionComponent, SetStateAction } from "react";
 
 interface AuthProps {
@@ -23,6 +24,7 @@ const Login: FunctionComponent = () => {
     const auth = useAuth()
     const isMobile = useIsMobile();
     const navigate = useNavigate();
+    const keyboardSettings = useKeyboardSettings();
     const [authError, setAuthError]: [string, Dispatch<SetStateAction<string>>] = useState('')
     const [activeField, setActiveField] = useState<'username' | 'password' | null>('username')
     const usernameInputRef = useRef<HTMLInputElement>(null)
@@ -99,7 +101,7 @@ const Login: FunctionComponent = () => {
     return (
         <AuthLayout
             className='max-w-md'
-            showKeyboard={!isMobile}
+            showKeyboard={!isMobile && keyboardSettings.enabled}
             keyboard={
                 <InputKeyboard
                     variant="full"
@@ -107,6 +109,11 @@ const Login: FunctionComponent = () => {
                     onBackspace={handleBackspace}
                     onEnter={handleEnter}
                     onSpace={handleSpace}
+                    settings={{
+                        theme: keyboardSettings.theme,
+                        enableSound: keyboardSettings.enableSound,
+                        enableHaptic: keyboardSettings.enableHaptic,
+                    }}
                 />
             }
         >

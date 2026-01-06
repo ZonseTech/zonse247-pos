@@ -19,6 +19,7 @@ import { SearchIcon, UserCircle2Icon } from 'lucide-react';
 import { Link } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { Button, BottomSheet } from '../../components';
+import { useKeyboardSettings } from '../../hooks/useKeyboardSettings';
 
 const POSSystem: FunctionComponent = () => {
     const {
@@ -32,6 +33,7 @@ const POSSystem: FunctionComponent = () => {
     } = useInventory();
     const isMobile = useIsMobile();
     const focusManager = useFocusManager();
+    const keyboardSettings = useKeyboardSettings();
     const barcodeScannerInputRef = useRef<HTMLInputElement>(null);
     const [numpadInput, setNumpadInput] = useState('');
     const [isLookupModalOpen, setIsLookupModalOpen] = useState(false);
@@ -240,13 +242,20 @@ const POSSystem: FunctionComponent = () => {
                         </Panel>
                     )}
 
-                    <Panel size='1/4' className='hidden md:flex'>
-                        <InputKeyboard
-                            variant="numpad"
-                            onButtonClick={handleNumpadClick}
-                            focusManager={focusManager}
-                        />
-                    </Panel>
+                    {keyboardSettings.enabled && (
+                        <Panel size='1/4' className='hidden md:flex'>
+                            <InputKeyboard
+                                variant="numpad"
+                                onButtonClick={handleNumpadClick}
+                                focusManager={focusManager}
+                                settings={{
+                                    theme: keyboardSettings.theme,
+                                    enableSound: keyboardSettings.enableSound,
+                                    enableHaptic: keyboardSettings.enableHaptic,
+                                }}
+                            />
+                        </Panel>
+                    )}
                 </div>
             </div>
 

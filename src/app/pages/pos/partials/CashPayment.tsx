@@ -1,6 +1,7 @@
 import { FunctionComponent, useState, useEffect, useRef } from 'react';
 import InputKeyboard from '../../../components/InputKeyboard';
 import { useFocusManager } from '../../../hooks/useFocusManager';
+import { useKeyboardSettings } from '../../../hooks/useKeyboardSettings';
 import { FormikErrors } from 'formik';
 import { useIsMobile } from '../../../hooks/useMediaQuery';
 
@@ -18,6 +19,7 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
     focusManager,
 }) => {
     const isMobile = useIsMobile();
+    const keyboardSettings = useKeyboardSettings();
     const [change, setChange] = useState<number>(0);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -106,7 +108,7 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
 
     return (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
-            {!isMobile && <div>
+            {!isMobile && keyboardSettings.enabled && <div>
                 <InputKeyboard
                     variant="numpad"
                     onButtonClick={handleNumpadClick}
@@ -114,6 +116,11 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
                     className='h-fit'
                     numpadType='basic'
                     title="Enter Cash Amount"
+                    settings={{
+                        theme: keyboardSettings.theme,
+                        enableSound: keyboardSettings.enableSound,
+                        enableHaptic: keyboardSettings.enableHaptic,
+                    }}
                 />
             </div>}
             <div className='space-y-4 md:space-y-8'>

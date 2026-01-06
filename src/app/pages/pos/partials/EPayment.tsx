@@ -1,6 +1,7 @@
 import React, { FunctionComponent, useRef, useState, useEffect } from 'react';
 import { ActiveInputType } from './CheckoutModal';
 import InputKeyboard from '../../../components/InputKeyboard';
+import { useKeyboardSettings } from '../../../hooks/useKeyboardSettings';
 import { Phone } from 'lucide-react';
 import { FormikErrors } from 'formik';
 import FormInput from '../../../components/FormInput';
@@ -27,6 +28,7 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
     onActiveInputChange,
 }) => {
     const isMobile = useIsMobile();
+    const keyboardSettings = useKeyboardSettings();
     const phoneInputRef = useRef<HTMLInputElement>(null);
     const referenceNumberInputRef = useRef<HTMLInputElement>(null);
     const [selectedSubMethod, setSelectedSubMethod] = useState('airtel-money');
@@ -257,7 +259,7 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                 </div>
             </div>
 
-            {!isMobile && <div
+            {!isMobile && keyboardSettings.enabled && <div
                 onMouseDown={handleVirtualKeyboardMouseDown}
                 onMouseUp={handleVirtualKeyboardMouseUp}
             >
@@ -268,6 +270,11 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                     onEnter={handleVirtualEnter}
                     onSpace={handleVirtualSpace}
                     className="virtual-keyboard w-full mt-4"
+                    settings={{
+                        theme: keyboardSettings.theme,
+                        enableSound: keyboardSettings.enableSound,
+                        enableHaptic: keyboardSettings.enableHaptic,
+                    }}
                 />
             </div>}
         </div>

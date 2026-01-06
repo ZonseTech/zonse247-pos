@@ -1,6 +1,7 @@
 import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import { ActiveInputType } from './CheckoutModal';
 import InputKeyboard from '../../../components/InputKeyboard';
+import { useKeyboardSettings } from '../../../hooks/useKeyboardSettings';
 import { FormikErrors } from 'formik';
 import FormInput from '../../../components/FormInput';
 import { useIsMobile } from '../../../hooks/useMediaQuery';
@@ -27,6 +28,7 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
     onActiveInputChange,
 }) => {
     const isMobile = useIsMobile();
+    const keyboardSettings = useKeyboardSettings();
     const accountInputRef = useRef<HTMLInputElement>(null);
     const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const isVirtualKeyboardActive = useRef(false);
@@ -176,11 +178,10 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
                                             e.preventDefault();
                                             handleTransferTypeSelect(type.id);
                                         }}
-                                        className={`p-3 md:p-6 rounded-none flex flex-col items-center gap-2 md:gap-3 transition-colors ${
-                                            selectedTransferType === type.id
-                                                ? type.color + ' text-white'
-                                                : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                                        }`}
+                                        className={`p-3 md:p-6 rounded-none flex flex-col items-center gap-2 md:gap-3 transition-colors ${selectedTransferType === type.id
+                                            ? type.color + ' text-white'
+                                            : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                                            }`}
                                     >
                                         <IconComponent className="w-6 h-6 md:w-8 md:h-8" />
                                         <span className="text-xs md:text-sm font-bold text-center">{type.name}</span>
@@ -245,7 +246,7 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
                 </div>
             </div>
 
-            {!isMobile && <div
+            {!isMobile && keyboardSettings.enabled && <div
                 onMouseDown={handleVirtualKeyboardMouseDown}
                 onMouseUp={handleVirtualKeyboardMouseUp}
             >
@@ -256,6 +257,11 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
                     onEnter={handleVirtualEnter}
                     onSpace={handleVirtualSpace}
                     className="w-full mt-4"
+                    settings={{
+                        theme: keyboardSettings.theme,
+                        enableSound: keyboardSettings.enableSound,
+                        enableHaptic: keyboardSettings.enableHaptic,
+                    }}
                 />
             </div>}
         </div>
