@@ -60,10 +60,6 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
                 .then((res) => res.data);
 
             if (result?.data.token) {
-                if (!isElectron()) {
-                    await settingsService.load();
-                }
-
                 setUser(result?.data.user);
                 setAuth({ auth: true });
 
@@ -72,6 +68,10 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
                 if (result?.data?.user?.tenantId) {
                     sessionStorage.setItem('tenantId', result?.data.user.tenantId);
+                }
+
+                if (!isElectron()) {
+                    await settingsService.load();
                 }
 
                 return result.data;

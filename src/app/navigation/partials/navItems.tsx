@@ -227,6 +227,15 @@ const useNavItems = (): Array<NavItem> => {
 
         items.push({
             type: 'button',
+            color: 'bg-emerald-500 hover:bg-emerald-600',
+            iconColor: 'bg-emerald-600',
+            text: "Printers",
+            icon: icons.printer,
+            onClick: () => navigate(ROUTES.PRINTERS),
+        });
+
+        items.push({
+            type: 'button',
             color: 'bg-green-500 hover:bg-green-600',
             iconColor: 'bg-green-600',
             text: "Settings",

@@ -34,6 +34,8 @@ const TerminalManagement = lazy(() => import('../pages/terminal'))
 const SubscriptionManagement = lazy(() => import('../pages/subscription'))
 const RolesAndPermissions = lazy(() => import('../pages/role-permissions'))
 const SubscriptionBilling = lazy(() => import('../pages/subscription/SubscriptionBilling'))
+const PrinterManagement = lazy(() => import('../pages/printer'))
+const PrinterForm = lazy(() => import('../pages/printer/create'))
 
 // Inventory Workflow Pages
 const Products = lazy(() => import('../pages/products'))
@@ -78,6 +80,8 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 				<Route path={ROUTES.EXPORT_DB} element={<DatabaseExporter />} />
 				<Route path={ROUTES.TERMINALS} element={<TerminalManagement />} />
 				<Route path={ROUTES.TERMINAL_FORM} element={<TerminalForm />} />
+				<Route path={ROUTES.PRINTERS} element={<PrinterManagement />} />
+				<Route path={ROUTES.PRINTER_FORM} element={<PrinterForm />} />
 				<Route path={ROUTES.SUBSCRIPTIONS} element={<SubscriptionManagement />} />
 				<Route path={ROUTES.ROLES_PERMISSIONS} element={<RolesAndPermissions />} />
 				<Route path={ROUTES.SUBSCRIPTION_BILLING} element={<SubscriptionBilling />} />

@@ -323,6 +323,10 @@ export default class MenuBuilder {
 				label: 'Terminals',
 				click: () => this.navigateTo(ROUTES.TERMINALS),
 			});
+			managementSubmenu.push({
+				label: 'Printers',
+				click: () => this.navigateTo(ROUTES.PRINTERS),
+			});
 			managementSubmenu.push({ type: 'separator' });
 			managementSubmenu.push({
 				label: 'Settings',

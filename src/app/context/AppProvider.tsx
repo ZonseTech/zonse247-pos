@@ -1,5 +1,4 @@
 import { useAuth } from './AuthProvider';
-import printerService from '../services/printer.service';
 import settingsService from '../services/settings.service';
 import { apiUtils } from '../services/http.service';
 import type { ReactNode, FunctionComponent, } from 'react';
@@ -11,7 +10,6 @@ interface AppContextType {
     isLoading: boolean;
     error: Error | null;
     updateSettings: (newSettings: Partial<AppSettings>) => void;
-    updatePrinterOptions: (options: PrinterInfo) => void;
 }
 
 interface AppProviderProps {
@@ -75,11 +73,6 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
         });
     };
 
-    const updatePrinterOptions = (options: PrinterInfo) => {
-        setPrinterOptions(options);
-        localStorage.setItem('printerOptions', JSON.stringify(options));
-        printerService.setDefault(options);
-    }
 
     useEffect(() => {
         if (auth) fetchSettings();
@@ -91,7 +84,6 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
         error,
         updateSettings,
         printerOptions,
-        updatePrinterOptions
     };
 
     return (
