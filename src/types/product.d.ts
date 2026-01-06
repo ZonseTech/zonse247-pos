@@ -76,6 +76,7 @@ interface Product {
 
     // Inventory link
     inventory?: ProductInventory;
+    categoryDetails?: Category;
 
     // Audit
     createdBy: string;
@@ -121,6 +122,9 @@ interface ProductInventory {
     lastSoldAt?: Date | string;
     lastStockTakeAt?: Date | string;
 
+    reorderPoint?: number;
+    reorderLevel?: number;
+
     // Audit
     createdAt: Date | string;
     updatedAt: Date | string;
@@ -130,8 +134,6 @@ interface ProductInventory {
  * Product creation payload
  */
 interface CreateProductPayload {
-    tenantId: string;
-    branchId: string;
     sku: string;
     name: string;
     description?: string;
@@ -158,20 +160,8 @@ interface CreateProductPayload {
 /**
  * Product update payload
  */
-interface UpdateProductPayload {
-    tenantId: string;
-    branchId: string;
-    name?: string;
-    description?: string;
-    sellingPrice?: number;
-    costPrice?: number;
-    categoryId?: string;
-    brand?: string;
+interface UpdateProductPayload extends Partial<CreateProductPayload> {
     status?: ProductStatus;
-    imageUrls?: string[];
-    weight?: number;
-    dimensions?: string;
-    properties?: Record<string, any>;
 }
 
 /**
@@ -187,8 +177,6 @@ interface ProductSearchResult {
  * Product list query parameters
  */
 interface ProductListQuery {
-    tenantId: string;
-    branchId: string;
     page?: number;
     limit?: number;
     search?: string;
