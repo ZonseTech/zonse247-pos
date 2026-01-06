@@ -21,6 +21,7 @@ const CustomerManagement: FunctionComponent = () => {
     const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
 
     const {
+        customers,
         isLoading,
         searchTerm,
         setSearchTerm,
@@ -149,6 +150,7 @@ const CustomerManagement: FunctionComponent = () => {
                 onClose={handleModalClose}
                 onSuccess={handleModalSuccess}
                 customer={editingCustomer}
+                customersCount={customers.length}
             />
         </AppLayout>
     );

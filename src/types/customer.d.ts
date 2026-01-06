@@ -7,6 +7,7 @@ interface Customer {
     phone?: string;
     email?: string;
     address?: string;
+    isDefault?: boolean;
     synced?: 0 | 1;
 }
 
@@ -15,6 +16,7 @@ interface CreateCustomerData {
     email?: string;
     phone?: string;
     address?: string;
+    isDefault?: boolean;
     tenantId: string;
     branchId: string;
     userId: string;
@@ -25,6 +27,7 @@ interface UpdateCustomerData {
     email?: string;
     phone?: string;
     address?: string;
+    isDefault?: boolean;
 }
 
 interface SearchConditions {
