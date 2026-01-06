@@ -18,13 +18,9 @@ export const useProducts = () => {
     const branchId = setup?.branchId || '';
 
     const loadProducts = useCallback(async () => {
-        if (!tenantId || !branchId) return;
-
         setIsLoading(true);
         try {
             const result = await productService.listProducts({
-                tenantId,
-                branchId,
                 page,
                 limit: perPage,
                 search: searchTerm || undefined,
@@ -48,15 +44,13 @@ export const useProducts = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [tenantId, branchId, page, perPage, searchTerm, categoryFilter, statusFilter]);
+    }, [page, perPage, searchTerm, categoryFilter, statusFilter]);
 
     useEffect(() => {
         loadProducts();
     }, [loadProducts]);
 
     const searchProduct = useCallback(async (term: string) => {
-        if (!tenantId || !branchId || !term) return null;
-
         try {
             const result = await productService.searchProduct(term, tenantId, branchId);
             return result;
@@ -64,7 +58,7 @@ export const useProducts = () => {
             Notify.failure(error?.response?.data?.message || 'Product not found');
             return null;
         }
-    }, [tenantId, branchId]);
+    }, []);
 
     const createProduct = useCallback(async (payload: CreateProductPayload) => {
         try {
@@ -101,18 +95,16 @@ export const useProducts = () => {
             Notify.failure(error?.response?.data?.message || 'Failed to delete product');
             throw error;
         }
-    }, [tenantId, branchId, loadProducts]);
+    }, [loadProducts]);
 
     const getProduct = useCallback(async (productId: string) => {
-        if (!tenantId || !branchId) return null;
-
         try {
             return await productService.getProduct(productId, tenantId, branchId);
         } catch (error: any) {
             Notify.failure(error?.response?.data?.message || 'Failed to load product');
             return null;
         }
-    }, [tenantId, branchId]);
+    }, []);
 
     return {
         products,
