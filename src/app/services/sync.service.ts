@@ -8,12 +8,12 @@ class SyncService {
 		this.baseURL = baseURL;
 	}
 
-	async getTables(): Promise<Table[]> {
+	// Get all sync tables
+	async getTables(): Promise<SyncTable[]> {
 		try {
-			const response: AxiosResponse<{ tables: Table[] }> = await api.get(
+			const response: AxiosResponse<{ tables: SyncTable[] }> = await api.get(
 				`${this.baseURL}/tables`
 			);
-
 			return response.data.tables || [];
 		} catch (error) {
 			console.error('Error fetching tables:', error);
@@ -21,42 +21,12 @@ class SyncService {
 		}
 	}
 
-	async pullData(tableId: string | number): Promise<SyncResponse> {
+	// Get sync status for a specific table
+	async getSyncStatus(tableName: string): Promise<SyncStatusResponse> {
 		try {
-			const response = await api.post<SyncResponse>(`${this.baseURL}/pull`, {
-				tableName: tableId,
-			} as any);
-
-			return response.data;
-		} catch (error) {
-			console.error('Error pulling data:', error);
-			throw new Error('Failed to pull data');
-		}
-	}
-
-	async pushData(tableId: string | number): Promise<SyncResponse> {
-		try {
-			const response = await api.post<SyncResponse>(`${this.baseURL}/push`, {
-				tableName: tableId,
-			} as any);
-
-			return response.data;
-		} catch (error) {
-			console.error('Error pushing data:', error);
-			throw new Error('Failed to push data');
-		}
-	}
-
-	async getSyncStatus(
-		tableId: string | number
-	): Promise<{ status: string; lastSync: string; syncedDocs: number }> {
-		try {
-			const response: AxiosResponse<{
-				status: string;
-				lastSync: string;
-				syncedDocs: number;
-			}> = await api.get(`${this.baseURL}/status/${tableId}`);
-
+			const response: AxiosResponse<SyncStatusResponse> = await api.get(
+				`${this.baseURL}/status/${tableName}`
+			);
 			return response.data;
 		} catch (error) {
 			console.error('Error fetching sync status:', error);
@@ -64,17 +34,153 @@ class SyncService {
 		}
 	}
 
-	async bulkSync(tableIds: (string | number)[], action: 'pull' | 'push') {
+	// Get statistics for a specific table
+	async getTableStats(tableName: string): Promise<TableStatsResponse> {
 		try {
-			const response = await api.post<Array<SyncResponse>>(
-				`${this.baseURL}/bulk`,
-				{ tableIds, action } as any
+			const response: AxiosResponse<TableStatsResponse> = await api.get(
+				`${this.baseURL}/stats/${tableName}`
 			);
+			return response.data;
+		} catch (error) {
+			console.error('Error fetching table stats:', error);
+			throw new Error('Failed to fetch table statistics');
+		}
+	}
 
+	// Get all records from a table
+	async getAllRecords<T = any>(
+		tableName: string,
+		page: number = 1,
+		pageSize: number = 100
+	): Promise<RecordsResponse<T>> {
+		try {
+			const response: AxiosResponse<RecordsResponse<T>> = await api.get(
+				`${this.baseURL}/records/${tableName}`,
+				{ params: { page, pageSize } }
+			);
+			return response.data;
+		} catch (error) {
+			console.error('Error fetching records:', error);
+			throw new Error('Failed to fetch records');
+		}
+	}
+
+	// Pull data from server
+	async pullData(tableName: string): Promise<SyncResponse> {
+		try {
+			const response: AxiosResponse<SyncResponse> = await api.post(
+				`${this.baseURL}/pull`,
+				{ tableName }
+			);
+			return response.data;
+		} catch (error) {
+			console.error('Error pulling data:', error);
+			throw new Error('Failed to pull data');
+		}
+	}
+
+	// Push data to server
+	async pushData(tableName: string): Promise<SyncResponse> {
+		try {
+			const response: AxiosResponse<SyncResponse> = await api.post(
+				`${this.baseURL}/push`,
+				{ tableName }
+			);
+			return response.data;
+		} catch (error) {
+			console.error('Error pushing data:', error);
+			throw new Error('Failed to push data');
+		}
+	}
+
+	// Bidirectional sync
+	async bidirectionalSync(tableName: string): Promise<SyncResponse> {
+		try {
+			const response: AxiosResponse<SyncResponse> = await api.post(
+				`${this.baseURL}/bidirectional`,
+				{ tableName }
+			);
+			return response.data;
+		} catch (error) {
+			console.error('Error in bidirectional sync:', error);
+			throw new Error('Failed to perform bidirectional sync');
+		}
+	}
+
+	// Bulk sync multiple tables
+	async bulkSync(
+		tableNames: string[],
+		action: SyncAction
+	): Promise<BulkSyncResponse> {
+		try {
+			const response: AxiosResponse<BulkSyncResponse> = await api.post(
+				`${this.baseURL}/bulk`,
+				{ tableNames, action }
+			);
 			return response.data;
 		} catch (error) {
 			console.error('Error in bulk sync:', error);
 			throw new Error('Failed to perform bulk sync');
+		}
+	}
+
+	// Configure sync settings for a table
+	async configureTable(
+		tableName: string,
+		config: Partial<TableConfig>
+	): Promise<ApiResponse<TableConfig>> {
+		try {
+			const response: AxiosResponse<ApiResponse<TableConfig>> = await api.put(
+				`${this.baseURL}/configure/${tableName}`,
+				config
+			);
+			return response.data;
+		} catch (error) {
+			console.error('Error configuring table:', error);
+			throw new Error('Failed to configure table');
+		}
+	}
+
+	// Start auto-sync
+	async startAutoSync(
+		tableNames?: string[],
+		interval?: number
+	): Promise<ApiResponse<AutoSyncStatus>> {
+		try {
+			const response: AxiosResponse<ApiResponse<AutoSyncStatus>> = await api.post(
+				`${this.baseURL}/auto-sync/start`,
+				{ tableNames, interval }
+			);
+			return response.data;
+		} catch (error) {
+			console.error('Error starting auto-sync:', error);
+			throw new Error('Failed to start auto-sync');
+		}
+	}
+
+	// Stop auto-sync
+	async stopAutoSync(): Promise<ApiResponse<{ stopped: boolean }>> {
+		try {
+			const response: AxiosResponse<ApiResponse<{ stopped: boolean }>> = await api.post(
+				`${this.baseURL}/auto-sync/stop`
+			);
+			return response.data;
+		} catch (error) {
+			console.error('Error stopping auto-sync:', error);
+			throw new Error('Failed to stop auto-sync');
+		}
+	}
+
+	// Helper method to get auto-sync status
+	async getAutoSyncStatus(): Promise<AutoSyncStatus | null> {
+		try {
+			const response: AxiosResponse<AutoSyncStatus> = await api.get(
+				`${this.baseURL}/auto-sync/status`
+			);
+			return response.data;
+		} catch {
+			// Return null when endpoint is unavailable (expected in desktop/offline mode)
+			return null;
 		}
 	}
 }
