@@ -1,6 +1,6 @@
 import { useState, useEffect, FunctionComponent } from 'react'
 import { useAuth } from '../context/AuthProvider';
-import { Clock, Wifi, WifiOff, Server, ServerOff, Loader2 } from 'lucide-react';
+import { Clock, Wifi, WifiOff, Server, ServerOff, Loader2, RefreshCw } from 'lucide-react';
 import classNames from 'classnames';
 import { useConnectivity } from '../hooks/useConnectivity';
 
@@ -8,6 +8,12 @@ const Footer: FunctionComponent<{ className?: string }> = ({ className }) => {
     const { user } = useAuth();
     const { isOnline, isServerConnected, serverChecking } = useConnectivity();
     const [currentTime, setCurrentTime] = useState(new Date())
+    const [isRefreshing, setIsRefreshing] = useState(false)
+
+    const handleRefresh = () => {
+        setIsRefreshing(true)
+        window.location.reload()
+    }
 
     useEffect(() => {
         const updateTime = () => {
@@ -77,6 +83,25 @@ const Footer: FunctionComponent<{ className?: string }> = ({ className }) => {
                             {serverChecking ? 'Checking...' : (isServerConnected ? 'Server' : 'No Server')}
                         </span>
                     </div>
+
+                    <button
+                        onClick={handleRefresh}
+                        disabled={isRefreshing}
+                        className={classNames(
+                            'flex items-center gap-1.5 p-1.5 rounded-lg transition-all duration-200',
+                            'hover:bg-gray-100 dark:hover:bg-gray-800',
+                            isRefreshing ? 'cursor-wait opacity-70' : 'cursor-pointer'
+                        )}
+                        title="Refresh page"
+                    >
+                        <RefreshCw className={classNames(
+                            'w-5 h-5 text-gray-500 dark:text-gray-400',
+                            isRefreshing && 'animate-spin'
+                        )} />
+                        <span className="text-xs hidden lg:inline text-gray-600 dark:text-gray-400">
+                            {isRefreshing ? 'Refreshing...' : 'Refresh'}
+                        </span>
+                    </button>
                 </div>
             </div>
         </div>

@@ -135,6 +135,22 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                                 </>
                             )}
                         </button>
+
+                        {isPOSActive && (
+                            <button
+                                onClick={() => navigate(ROUTES.MY_PROFILE)}
+                                className={classNames(
+                                    "p-2 rounded-lg transition-all duration-200",
+                                    location.pathname === ROUTES.MY_PROFILE
+                                        ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30"
+                                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                )}
+                                aria-label="User Profile"
+                                title="User Profile"
+                            >
+                                <User size={20} />
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -275,12 +291,19 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
             </div>
 
             <div className={classNames("py-4 border-t border-gray-200 dark:border-gray-800", isCollapsed ? "px-2" : "px-4")}>
-                <div className={classNames("flex items-center", isCollapsed ? "justify-center" : "gap-3 px-2")}>
+                <button
+                    onClick={() => navigate(ROUTES.MY_PROFILE)}
+                    className={classNames(
+                        "flex items-center w-full rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800",
+                        isCollapsed ? "justify-center p-2" : "gap-3 px-2 py-2"
+                    )}
+                    title="View Profile"
+                >
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
                         <User size={14} className="text-white" />
                     </div>
                     {!isCollapsed && (
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 text-left">
                             <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                                 {user?.fullname || user?.username || 'User'}
                             </p>
@@ -289,7 +312,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                             </p>
                         </div>
                     )}
-                </div>
+                </button>
             </div>
         </aside>
     );

@@ -25,6 +25,12 @@ const Index = () => {
     const handleSubmit = async (values: AppSettings) => {
         const sanitized = sanitizeSettings(values);
         await onSubmit(sanitized);
+
+        if (activeTab === 'terminal') {
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
     };
 
     if (loading || !settings) {
