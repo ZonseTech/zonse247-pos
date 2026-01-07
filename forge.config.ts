@@ -1,4 +1,5 @@
 import path from 'node:path';
+import fs from 'node:fs';
 import { MakerZIP } from '@electron-forge/maker-zip';
 import { MakerDeb } from '@electron-forge/maker-deb';
 import { MakerRpm } from '@electron-forge/maker-rpm';
@@ -10,11 +11,45 @@ import type { ForgeConfig } from '@electron-forge/shared-types';
 
 const version = process.env.npm_package_version;
 
+// Native modules that need to be copied to the packaged app
+const nativeModules = ['better-sqlite3', 'bindings', 'file-uri-to-path'];
+
+const copyNativeModules = (buildPath: string) => {
+	const nodeModulesPath = path.join(buildPath, 'node_modules');
+	if (!fs.existsSync(nodeModulesPath)) {
+		fs.mkdirSync(nodeModulesPath, { recursive: true });
+	}
+
+	for (const moduleName of nativeModules) {
+		const srcPath = path.join(__dirname, 'node_modules', moduleName);
+		const destPath = path.join(nodeModulesPath, moduleName);
+		if (fs.existsSync(srcPath) && !fs.existsSync(destPath)) {
+			fs.cpSync(srcPath, destPath, { recursive: true });
+		}
+	}
+};
+
 const config: ForgeConfig = {
 	packagerConfig: {
-		asar: true,
+		asar: false,
 	},
-	rebuildConfig: {},
+	rebuildConfig: {
+		force: true,
+	},
+	hooks: {
+		packageAfterPrune: async (_config, buildPath) => {
+			// Copy native modules first
+			copyNativeModules(buildPath);
+
+			// Then rebuild for Electron
+			const { rebuild } = await import('@electron/rebuild');
+			await rebuild({
+				buildPath,
+				electronVersion: process.env.npm_package_devDependencies_electron || '37.1.0',
+				force: true,
+			});
+		},
+	},
 	makers: [
 		new MakerDeb({}),
 		new MakerRpm({}),
@@ -55,8 +90,8 @@ const config: ForgeConfig = {
 			[FuseV1Options.EnableCookieEncryption]: true,
 			[FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
 			[FuseV1Options.EnableNodeCliInspectArguments]: false,
-			[FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
-			[FuseV1Options.OnlyLoadAppFromAsar]: true,
+			[FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: false,
+			[FuseV1Options.OnlyLoadAppFromAsar]: false,
 		}),
 	],
 };
