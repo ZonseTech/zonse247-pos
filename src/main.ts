@@ -1,93 +1,17 @@
 import path from 'node:path';
-import fs from 'node:fs';
 import MenuBuilder from './partials/menu';
 import { setupIPC } from './ipc/setup.ipc';
 import started from 'electron-squirrel-startup';
 import { isElectron } from './helpers/index.helper';
 import { app, BrowserWindow, screen, shell } from 'electron';
 import { setupMenuIPC } from './ipc/menu.ipc';
-
-// Types for dynamic imports
-type Zonse247PosApiType = typeof import('zonse247-pos-api').default;
-type SecureSettingsServiceType = typeof import('zonse247-pos-api').SecureSettingsService;
+import Zonse247PosApi, { SecureSettingsService } from 'zonse247-pos-api'
 
 if (started) {
 	app.quit();
 }
 
-let server: InstanceType<Zonse247PosApiType> | null = null;
-let SecureSettingsService: SecureSettingsServiceType;
-
-/**
- * Initialize database path and dynamically import the API module
- * Must be called after app is ready to ensure userData path is available
- * and BEFORE importing zonse247-pos-api to ensure DATABASE_URL is set
- */
-const initializeDatabase = async () => {
-	// Set DATABASE_URL to use Electron's userData directory for SQLite storage
-	// This ensures the database is created in a writable location on all platforms
-	const dbDirectory = path.join(app.getPath('userData'), 'database');
-	if (!fs.existsSync(dbDirectory)) {
-		fs.mkdirSync(dbDirectory, { recursive: true });
-	}
-	const dbPath = path.join(dbDirectory, 'local.db');
-
-	// Check if database needs to be initialized (empty or doesn't exist)
-	const dbExists = fs.existsSync(dbPath);
-	const dbSize = dbExists ? fs.statSync(dbPath).size : 0;
-
-	if (!dbExists || dbSize === 0) {
-		console.log('🗄️  Database not found or empty, initializing from seed...');
-
-		// Try to copy seed database from bundled resources
-		const seedPaths = [
-			// Production: bundled in resources
-			path.join(process.resourcesPath || '', 'seed.db'),
-			path.join(__dirname, '../seed.db'),
-			path.join(__dirname, '../../seed.db'),
-			// Development: project root
-			path.join(app.getAppPath(), 'seed.db'),
-			path.join(process.cwd(), 'seed.db'),
-			// Fallback: use local.db from project
-			path.join(process.cwd(), 'local.db'),
-		];
-
-		let seedCopied = false;
-		for (const seedPath of seedPaths) {
-			try {
-				if (fs.existsSync(seedPath) && fs.statSync(seedPath).size > 0) {
-					fs.copyFileSync(seedPath, dbPath);
-					console.log(`✓ Database initialized from: ${seedPath}`);
-					seedCopied = true;
-					break;
-				}
-			} catch (err) {
-				// Try next path
-			}
-		}
-
-		if (!seedCopied) {
-			console.warn('⚠️  No seed database found. Database will be empty until migrations run.');
-		}
-	}
-
-	process.env.DATABASE_URL = `file:${dbPath}`;
-	process.env.DATABASE_OFFLINE_MODE = 'true';
-
-	// Set server timeout to 60 seconds (60000ms) to prevent immediate request timeout
-	// The API uses 0 as default which causes instant timeout
-	process.env.SERVER_TIMEOUT = process.env.SERVER_TIMEOUT || '60000';
-
-	console.log(`Database path: ${dbPath}`);
-
-	// Dynamic import AFTER setting env vars - this is crucial!
-	// The module will now read the correct DATABASE_URL
-	const apiModule = await import('zonse247-pos-api');
-	SecureSettingsService = apiModule.SecureSettingsService;
-
-	// Initialize the API server after setting env vars
-	server = new apiModule.default(app);
-};
+const server = new Zonse247PosApi(app)
 
 const createWindow = async (skipOnboarding: boolean = false) => {
 	const primaryDisplay = screen.getPrimaryDisplay();
@@ -115,7 +39,7 @@ const createWindow = async (skipOnboarding: boolean = false) => {
 
 	if (isElectron()) {
 		try {
-			await server!.start();
+			await server.start();
 			console.log('Server started successfully');
 		} catch (error) {
 			console.error('Failed to start server:', error);
@@ -138,7 +62,6 @@ const createWindow = async (skipOnboarding: boolean = false) => {
 			mainWindow.webContents.send('onboarding-status', { skipOnboarding });
 		});
 
-
 		mainWindow.show();
 	} catch (error) {
 		console.error('Failed to load window content:', error);
@@ -147,10 +70,6 @@ const createWindow = async (skipOnboarding: boolean = false) => {
 };
 
 app.whenReady().then(async () => {
-	// Initialize database and API server first (must be after app ready)
-	// This uses dynamic import to ensure DATABASE_URL is set before the module loads
-	await initializeDatabase();
-
 	// Use Electron's user data path for secure storage (writable location)
 	const userDataPath = path.join(app.getPath('userData'), '.secure-data');
 	await SecureSettingsService.initialize(userDataPath);

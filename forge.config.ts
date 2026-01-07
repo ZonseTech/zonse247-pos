@@ -32,7 +32,6 @@ const copyNativeModules = (buildPath: string) => {
 const config: ForgeConfig = {
 	packagerConfig: {
 		asar: false,
-		extraResource: ['seed.db'], // Bundle seed database for first-run initialization
 	},
 	rebuildConfig: {
 		force: true,
