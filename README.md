@@ -26,3 +26,8 @@
 0|api  |   username: 'linneltd1',
 0|api  |   password: 'TNT-MK45279G-7KJUT'
 0|api  | }
+
+Error: Request timeout
+    at Timeout._onTimeout (C:\Users\mazoh\AppData\Local\zonse247_pos\app-1.3.0\resources\app\.vite\build\index-C7BsdEGT.js:2000:22517)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
