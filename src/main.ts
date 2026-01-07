@@ -31,14 +31,14 @@ const initializeDatabase = async () => {
 		fs.mkdirSync(dbDirectory, { recursive: true });
 	}
 	const dbPath = path.join(dbDirectory, 'local.db');
-	
+
 	// Check if database needs to be initialized (empty or doesn't exist)
 	const dbExists = fs.existsSync(dbPath);
 	const dbSize = dbExists ? fs.statSync(dbPath).size : 0;
-	
+
 	if (!dbExists || dbSize === 0) {
 		console.log('🗄️  Database not found or empty, initializing from seed...');
-		
+
 		// Try to copy seed database from bundled resources
 		const seedPaths = [
 			// Production: bundled in resources
@@ -51,7 +51,7 @@ const initializeDatabase = async () => {
 			// Fallback: use local.db from project
 			path.join(process.cwd(), 'local.db'),
 		];
-		
+
 		let seedCopied = false;
 		for (const seedPath of seedPaths) {
 			try {
@@ -65,12 +65,12 @@ const initializeDatabase = async () => {
 				// Try next path
 			}
 		}
-		
+
 		if (!seedCopied) {
 			console.warn('⚠️  No seed database found. Database will be empty until migrations run.');
 		}
 	}
-	
+
 	process.env.DATABASE_URL = `file:${dbPath}`;
 	process.env.DATABASE_OFFLINE_MODE = 'true';
 
