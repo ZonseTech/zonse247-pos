@@ -144,9 +144,6 @@ const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, er
                 totalSteps={4}
                 onBack={canGoBack ? handleBackToPreviousStep : null}
             >
-
-                {JSON.stringify(registerProps)}
-
                 {displayError && <ErrorAlert message={displayError} />}
 
                 {currentStep === 1 && (
