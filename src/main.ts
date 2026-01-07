@@ -70,7 +70,9 @@ const createWindow = async (skipOnboarding: boolean = false) => {
 };
 
 app.whenReady().then(async () => {
-	await SecureSettingsService.initialize();
+	// Use Electron's user data path for secure storage (writable location)
+	const userDataPath = path.join(app.getPath('userData'), '.secure-data');
+	await SecureSettingsService.initialize(userDataPath);
 
 	setupIPC();
 	setupMenuIPC();
