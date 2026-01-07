@@ -133,4 +133,4 @@ exports
 
 *.keystore
 *.db
-prisma.config.ts
+prisma.config.tsseed.db

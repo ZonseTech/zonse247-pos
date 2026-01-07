@@ -31,8 +31,52 @@ const initializeDatabase = async () => {
 		fs.mkdirSync(dbDirectory, { recursive: true });
 	}
 	const dbPath = path.join(dbDirectory, 'local.db');
+	
+	// Check if database needs to be initialized (empty or doesn't exist)
+	const dbExists = fs.existsSync(dbPath);
+	const dbSize = dbExists ? fs.statSync(dbPath).size : 0;
+	
+	if (!dbExists || dbSize === 0) {
+		console.log('🗄️  Database not found or empty, initializing from seed...');
+		
+		// Try to copy seed database from bundled resources
+		const seedPaths = [
+			// Production: bundled in resources
+			path.join(process.resourcesPath || '', 'seed.db'),
+			path.join(__dirname, '../seed.db'),
+			path.join(__dirname, '../../seed.db'),
+			// Development: project root
+			path.join(app.getAppPath(), 'seed.db'),
+			path.join(process.cwd(), 'seed.db'),
+			// Fallback: use local.db from project
+			path.join(process.cwd(), 'local.db'),
+		];
+		
+		let seedCopied = false;
+		for (const seedPath of seedPaths) {
+			try {
+				if (fs.existsSync(seedPath) && fs.statSync(seedPath).size > 0) {
+					fs.copyFileSync(seedPath, dbPath);
+					console.log(`✓ Database initialized from: ${seedPath}`);
+					seedCopied = true;
+					break;
+				}
+			} catch (err) {
+				// Try next path
+			}
+		}
+		
+		if (!seedCopied) {
+			console.warn('⚠️  No seed database found. Database will be empty until migrations run.');
+		}
+	}
+	
 	process.env.DATABASE_URL = `file:${dbPath}`;
 	process.env.DATABASE_OFFLINE_MODE = 'true';
+
+	// Set server timeout to 60 seconds (60000ms) to prevent immediate request timeout
+	// The API uses 0 as default which causes instant timeout
+	process.env.SERVER_TIMEOUT = process.env.SERVER_TIMEOUT || '60000';
 
 	console.log(`Database path: ${dbPath}`);
 
@@ -83,6 +127,7 @@ const createWindow = async (skipOnboarding: boolean = false) => {
 	try {
 		if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
 			await mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+			mainWindow.webContents.openDevTools();
 		} else {
 			await mainWindow.loadFile(
 				path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
@@ -93,7 +138,6 @@ const createWindow = async (skipOnboarding: boolean = false) => {
 			mainWindow.webContents.send('onboarding-status', { skipOnboarding });
 		});
 
-		mainWindow.webContents.openDevTools();
 
 		mainWindow.show();
 	} catch (error) {
