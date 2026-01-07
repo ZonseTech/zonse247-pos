@@ -10,6 +10,7 @@ export { default as Breadcrumb } from './Breadcrumb';
 export { default as Card } from './card/Card';
 export { default as CardBody } from './card/CardBody';
 export { default as ComponentLoader } from './ComponentLoader';
+export { DateRangeFilter } from './DateRangeFilter';
 export { default as HelperText } from './HelperText';
 export { default as Input } from './Input';
 export { default as Label } from './Label';
@@ -22,3 +23,9 @@ export { default as SectionTitle } from './typography/SectionTitle';
 export { default as Select } from './Select';
 export { default as Textarea } from './Textarea';
 export { default as ZonseUIKitContext } from './ZonseUIKitContext';
+export { default as FormSearchableSelect } from './FormSearchableSelect';
+
+// Form components
+export { default as FormInput } from './form/FormInput';
+export { default as FormSelect } from './form/FormSelect';
+export { default as FormTextArea } from './form/FormTextArea';

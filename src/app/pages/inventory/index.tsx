@@ -1,13 +1,13 @@
-import { FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
+import { FunctionComponent, useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { Confirm, Notify } from 'notiflix';
-import { Package, Settings2 } from 'lucide-react';
+import { Package, Settings2, X } from 'lucide-react';
 import DataTable, { type Themes } from 'react-data-table-component';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import { HiOutlinePlus } from 'react-icons/hi2';
 import { getTableStyles } from '../../utils/table-styles';
-import { Button, Select, ZonseThemeContext } from '../../components';
+import { Button, Select, ZonseThemeContext, DateRangeFilter } from '../../components';
 import { SearchBar } from './partials/SearchBar';
 import { getInventoryTableColumns } from './partials/InventoryTableColumns';
 import Filters from './partials/Filters';
@@ -36,6 +36,9 @@ const InventoryManagement: FunctionComponent = () => {
         totalRows,
         categories,
         searchTerm,
+        categoryId,
+        startDate,
+        endDate,
         loadInventory,
         loadCategories,
         handleSearch,
@@ -44,6 +47,9 @@ const InventoryManagement: FunctionComponent = () => {
         handlePageChange,
         handlePerRowsChange,
         setActiveFilter,
+        setCategoryId,
+        setStartDate,
+        setEndDate,
         activeFilter,
         applyFilters
     } = useInventoryManagement();
@@ -88,8 +94,15 @@ const InventoryManagement: FunctionComponent = () => {
 
     const handleClearFilters = useCallback(async () => {
         setActiveFilter('all');
-        applyFilters({ filter: 'all', search: '', categoryId: undefined });
-    }, [setActiveFilter, applyFilters]);
+        setCategoryId(undefined);
+        setStartDate('');
+        setEndDate('');
+        applyFilters({ filter: 'all', search: '', categoryId: undefined, startDate: '', endDate: '' });
+    }, [setActiveFilter, setCategoryId, setStartDate, setEndDate, applyFilters]);
+
+    const hasActiveFilters = useMemo(() => {
+        return activeFilter !== 'all' || !!categoryId || !!startDate || !!endDate || !!searchTerm;
+    }, [activeFilter, categoryId, startDate, endDate, searchTerm]);
 
     const handleRowSelected = useCallback((state: { selectedRows: InventoryItem[] }) => {
         setSelectedRows(state.selectedRows);
@@ -148,7 +161,8 @@ const InventoryManagement: FunctionComponent = () => {
                             />
 
                             <Select
-                                onChange={(e) => handleFilterByCategory(parseInt(e.target.value))}
+                                value={categoryId || ''}
+                                onChange={(e) => handleFilterByCategory(e.target.value)}
                                 className="h-9 px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors w-full sm:w-48"
                             >
                                 <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
@@ -165,6 +179,16 @@ const InventoryManagement: FunctionComponent = () => {
                                 ))}
                             </Select>
 
+                            <DateRangeFilter
+                                startDate={startDate ? new Date(startDate) : null}
+                                endDate={endDate ? new Date(endDate) : null}
+                                onChange={(dates) => {
+                                    const [start, end] = dates;
+                                    setStartDate(start ? start.toISOString().split('T')[0] : '');
+                                    setEndDate(end ? end.toISOString().split('T')[0] : '');
+                                }}
+                            />
+
                             {selectedRows.length > 0 && (
                                 <Button
                                     onClick={() => setIsBulkActionsOpen(true)}
@@ -174,6 +198,18 @@ const InventoryManagement: FunctionComponent = () => {
                                 >
                                     <Settings2 className="w-4 h-4" />
                                     Bulk Actions ({selectedRows.length})
+                                </Button>
+                            )}
+
+                            {hasActiveFilters && (
+                                <Button
+                                    onClick={handleClearFilters}
+                                    theme="neutral"
+                                    layout="outline"
+                                    className="flex items-center gap-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-300 dark:border-red-700"
+                                >
+                                    <X className="w-4 h-4" />
+                                    Clear Filters
                                 </Button>
                             )}
                         </div>
@@ -221,16 +257,6 @@ const InventoryManagement: FunctionComponent = () => {
                                         : 'Get started by adding your first inventory item.'
                                     }
                                 </p>
-                                {!searchTerm && (
-                                    <Button
-                                        onClick={handleAddItem}
-                                        theme="primary"
-                                        className="mt-4 flex items-center gap-2"
-                                    >
-                                        <HiOutlinePlus className="w-5 h-5" />
-                                        Add First Item
-                                    </Button>
-                                )}
                             </div>
                         }
                     />

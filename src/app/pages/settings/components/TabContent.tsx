@@ -36,7 +36,6 @@ const TabContent = memo<TabContentProps>(({ activeTab }) => {
             return <GeneralSettings />;
     }
 }, (prevProps, nextProps) => {
-    // Only re-render if activeTab actually changed
     return prevProps.activeTab === nextProps.activeTab;
 });
 

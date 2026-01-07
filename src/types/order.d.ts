@@ -43,6 +43,7 @@ interface CartItem {
     purchasePrice: number;
     variancePrice?: number;
     quantity: number;
+    isDefault?: boolean;
     categoryDetails?: Category;
     productDetails?: Product;
 }

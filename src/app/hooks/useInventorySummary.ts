@@ -12,7 +12,7 @@ export interface SummaryCard {
 export const useInventorySummary = (
     setActiveFilter: (filter: string) => void,
     loadInventory: () => void,
-    applyFilters: (filters: { search?: string; categoryId?: number; filter?: string }) => void
+    applyFilters: (filters: { search?: string; categoryId?: string; filter?: string; startDate?: string; endDate?: string }) => void
 ) => {
     const [summaryData, setSummaryData] = useState<SummaryCard[]>([
         { title: 'Total Stock', value: 0, bgColor: 'bg-green-400', onClick: () => ({}) },
@@ -44,8 +44,8 @@ export const useInventorySummary = (
                     value: summary.newStock,
                     bgColor: 'bg-green-400',
                     onClick: () => {
-                        setActiveFilter('new');
-                        applyFilters({ filter: 'new' });
+                        setActiveFilter('new-stock');
+                        applyFilters({ filter: 'new-stock' });
                     }
                 },
                 {
@@ -62,8 +62,8 @@ export const useInventorySummary = (
                     value: summary.expiringSoon,
                     bgColor: 'bg-yellow-400',
                     onClick: () => {
-                        setActiveFilter('expiring');
-                        applyFilters({ filter: 'expiring' });
+                        setActiveFilter('expiring-soon');
+                        applyFilters({ filter: 'expiring-soon' });
                     }
                 },
                 {

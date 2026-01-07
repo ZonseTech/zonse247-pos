@@ -1,5 +1,4 @@
 import { useAuth } from './AuthProvider';
-import printerService from '../services/printer.service';
 import settingsService from '../services/settings.service';
 import { apiUtils } from '../services/http.service';
 import type { ReactNode, FunctionComponent, } from 'react';
@@ -11,7 +10,6 @@ interface AppContextType {
     isLoading: boolean;
     error: Error | null;
     updateSettings: (newSettings: Partial<AppSettings>) => void;
-    updatePrinterOptions: (options: PrinterInfo) => void;
 }
 
 interface AppProviderProps {
@@ -31,21 +29,19 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
         try {
             setIsLoading(true);
 
-            // Check if terminal is configured before loading
             const terminalId = await settingsService.getTerminalId();
+
             if (!terminalId) {
                 console.warn('Terminal not configured, skipping settings load');
                 setIsLoading(false);
                 return;
             }
 
-            // load() returns flattened AppSettings (hierarchical JSON already mapped)
             const data = await settingsService.load();
 
             if (data) {
                 setSettings(data);
 
-                // apiBaseUrl is now available directly on the flattened settings
                 if (data.apiBaseUrl) {
                     apiUtils.updateBaseUrl(data.apiBaseUrl);
                 }
@@ -69,7 +65,6 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
         setSettings(prev => {
             const updated = prev ? { ...prev, ...newSettings } : null;
 
-            // Update API base URL if it changed
             if (newSettings.apiBaseUrl && newSettings.apiBaseUrl !== prev?.apiBaseUrl) {
                 apiUtils.updateBaseUrl(newSettings.apiBaseUrl);
             }
@@ -78,11 +73,6 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
         });
     };
 
-    const updatePrinterOptions = (options: PrinterInfo) => {
-        setPrinterOptions(options);
-        localStorage.setItem('printerOptions', JSON.stringify(options));
-        printerService.setDefault(options);
-    }
 
     useEffect(() => {
         if (auth) fetchSettings();
@@ -94,7 +84,6 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
         error,
         updateSettings,
         printerOptions,
-        updatePrinterOptions
     };
 
     return (

@@ -1,4 +1,3 @@
-import NavBar from '../../navigation/NavBar';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import React, { PropsWithChildren, ReactNode } from 'react';
 
@@ -26,16 +25,9 @@ const PageHeader: React.FC<PropsWithChildren<PageHeaderProps>> = ({
                 <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
                     {icon && (
                         <div className='flex flex-col'>
-                            {isMobile && (
-                                <div className="relative flex-shrink-0 bg-white dark:bg-gray-800">
-                                    <NavBar />
-                                </div>
-                            )}
-                            {!isMobile && (
-                                <div className="flex-shrink-0 mt-1">
-                                    {icon}
-                                </div>
-                            )}
+                            <div className="flex-shrink-0 mt-1">
+                                {icon}
+                            </div>
                         </div>
                     )}
                     <div className="flex-1 min-w-0">

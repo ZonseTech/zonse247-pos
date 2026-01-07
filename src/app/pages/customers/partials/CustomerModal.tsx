@@ -12,6 +12,7 @@ interface CustomerModalProps {
     onClose: () => void;
     onSuccess: () => void;
     customer: Customer | null;
+    customersCount?: number;
 }
 
 const CustomerModal: FunctionComponent<CustomerModalProps> = ({
@@ -19,8 +20,10 @@ const CustomerModal: FunctionComponent<CustomerModalProps> = ({
     onClose,
     onSuccess,
     customer,
+    customersCount = 0,
 }) => {
     const isEditing = !!customer;
+    const showDefaultOption = !isEditing && customersCount === 0;
 
     const initialValues: Customer = {
         customerId: customer?.customerId || '',
@@ -31,6 +34,7 @@ const CustomerModal: FunctionComponent<CustomerModalProps> = ({
         phone: customer?.phone || '',
         email: customer?.email || '',
         address: customer?.address || '',
+        isDefault: showDefaultOption ? true : (customer?.isDefault || false),
     };
 
     const validationSchema = Yup.object().shape({
@@ -59,6 +63,7 @@ const CustomerModal: FunctionComponent<CustomerModalProps> = ({
                     phone: values.phone,
                     email: values.email,
                     address: values.address,
+                    isDefault: values.isDefault,
                 });
                 Notify.success('Customer updated successfully');
             } else {
@@ -84,7 +89,7 @@ const CustomerModal: FunctionComponent<CustomerModalProps> = ({
                 onSubmit={handleSubmit}
                 enableReinitialize
             >
-                {({ isSubmitting }) => (
+                {({ isSubmitting, values, setFieldValue }) => (
                     <Form>
                         <FormWrapper>
                             <FormInput
@@ -115,6 +120,25 @@ const CustomerModal: FunctionComponent<CustomerModalProps> = ({
                                 label="Address"
                                 placeholder="Enter address"
                             />
+
+                            {showDefaultOption && (
+                                <div className="flex items-center space-x-2 pt-2">
+                                    <label className="flex items-center space-x-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            name="isDefault"
+                                            readOnly={true}
+                                            disabled={true}
+                                            checked={values.isDefault}
+                                            onChange={(e) => setFieldValue('isDefault', e.target.checked)}
+                                            className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700"
+                                        />
+                                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                                            Set as Default Customer
+                                        </span>
+                                    </label>
+                                </div>
+                            )}
 
                             <div className="flex gap-3 pt-4">
                                 <Button

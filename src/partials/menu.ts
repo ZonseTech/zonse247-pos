@@ -174,6 +174,24 @@ export default class MenuBuilder {
 				label: 'Inventory',
 				click: () => this.navigateTo(ROUTES.INVENTORY),
 			});
+			viewSubmenu.push({ type: 'separator' });
+			viewSubmenu.push({
+				label: 'Products',
+				click: () => this.navigateTo(ROUTES.PRODUCTS),
+			});
+			viewSubmenu.push({
+				label: 'Suppliers',
+				click: () => this.navigateTo(ROUTES.SUPPLIERS),
+			});
+			viewSubmenu.push({
+				label: 'Purchase Orders',
+				click: () => this.navigateTo(ROUTES.PURCHASE_ORDERS),
+			});
+			viewSubmenu.push({
+				label: 'Stock Movements',
+				click: () => this.navigateTo(ROUTES.STOCK_MOVEMENTS),
+			});
+			viewSubmenu.push({ type: 'separator' });
 			viewSubmenu.push({
 				label: 'Categories',
 				click: () => this.navigateTo(ROUTES.CATEGORIES),
@@ -304,6 +322,10 @@ export default class MenuBuilder {
 			managementSubmenu.push({
 				label: 'Terminals',
 				click: () => this.navigateTo(ROUTES.TERMINALS),
+			});
+			managementSubmenu.push({
+				label: 'Printers',
+				click: () => this.navigateTo(ROUTES.PRINTERS),
 			});
 			managementSubmenu.push({ type: 'separator' });
 			managementSubmenu.push({

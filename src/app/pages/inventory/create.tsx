@@ -5,7 +5,7 @@ import { Button } from '../../components';
 import FormInput from '../../components/FormInput';
 import FormWrapper from '../../components/FormWrapper';
 import FormSelectBox from '../../components/FormSelectBox';
-import { CategorySearch } from './partials/CategorySearch';
+import { CategorySearch } from '../categories/partials/CategorySearch';
 import { Fragment, useState, useEffect, ChangeEvent, FunctionComponent } from 'react';
 import inventoryService from '../../services/inventory.service';
 import AppLayout from '../../layouts/AppLayout';

@@ -3,12 +3,12 @@ import api from './http.service';
 const endpoints: Record<string, string> = {
 	all: 'users/list',
 	store: 'users',
-	update: 'users/update',
+	update: 'users',
 	show: 'users',
 	delete: 'users',
 	changePassword: 'users/change-password',
 	resetPassword: 'users/reset-password',
-	toggleStatus: 'users/toggle-status',
+	toggleStatus: 'users/status',
 	stats: 'users/stats',
 };
 

@@ -1,6 +1,16 @@
 import FormWrapper from '../../../components/FormWrapper';
 import FormInput from '../../../components/FormInput';
-import { Select } from '../../../components';
+import FormSelectBox from '../../../components/FormSelectBox';
+import FormTextArea from '../../../components/FormTextArea';
+
+const currencyOptions = [
+    { label: 'USD - US Dollar', value: 'USD' },
+    { label: 'EUR - Euro', value: 'EUR' },
+    { label: 'GBP - British Pound', value: 'GBP' },
+    { label: 'ZWL - Zimbabwean Dollar', value: 'ZWL' },
+    { label: 'ZAR - South African Rand', value: 'ZAR' },
+    { label: 'MWK - Malawian Kwacha', value: 'MWK' }
+];
 
 const GeneralSettings = () => {
     return (
@@ -42,19 +52,12 @@ const GeneralSettings = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Currency
-                        </label>
-                        <Select name="currency">
-                            <option value="USD">USD - US Dollar</option>
-                            <option value="EUR">EUR - Euro</option>
-                            <option value="GBP">GBP - British Pound</option>
-                            <option value="ZWL">ZWL - Zimbabwean Dollar</option>
-                            <option value="ZAR">ZAR - South African Rand</option>
-                            <option value="MWK">MWK - Malawian Kwacha</option>
-                        </Select>
-                    </div>
+                    <FormSelectBox
+                        label="Currency"
+                        name="currency"
+                        options={currencyOptions}
+                        required
+                    />
                     <FormInput
                         type="number"
                         name="taxRate"
@@ -66,14 +69,12 @@ const GeneralSettings = () => {
                 </div>
 
                 <div className="mt-6">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Receipt Footer Text
-                    </label>
-                    <textarea
+                    <FormTextArea
+                        label="Receipt Footer Text"
                         name="receiptFooter"
                         placeholder="Enter text to display at the bottom of receipts"
                         maxLength={200}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                        rows={3}
                     />
                 </div>
             </FormWrapper>

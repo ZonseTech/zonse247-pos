@@ -7,16 +7,17 @@ const endpoints = {
 	update: 'transactions/update',
 	delete: 'transactions/transaction',
 	show: 'transactions/transaction',
-	summary: 'transactions/transaction',
+	summary: 'transactions/summaries',
+	transactionSummary: 'transactions/transaction',
 	root: 'transactions',
 };
 
 const transactionService = {
 	endpoints,
 
-	async list(query = {}): Promise<Transaction[]> {
+	async list(query = {}): Promise<{ data: Transaction[]; pagination: any }> {
 		return api
-			.get<ApiResponse<Transaction[]>>(endpoints.all, query)
+			.get<ApiResponse<{ data: Transaction[]; pagination: any }>>(endpoints.all, query)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -62,10 +63,19 @@ const transactionService = {
 			});
 	},
 
-	async getSummary(id: string): Promise<any> {
+	async getTransactionSummary(id: string): Promise<any> {
 		return api
-			.get(`${endpoints.summary}/${id}/summary`)
+			.get(`${endpoints.transactionSummary}/${id}/summary`)
 			.then((res) => res.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+
+	async getSummary(query: TransactionQueryParams = {}): Promise<TransactionSummaryResponse> {
+		return api
+			.get<ApiResponse<TransactionSummaryResponse>>(endpoints.summary, query)
+			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
 			});

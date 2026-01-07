@@ -3,7 +3,6 @@ import FormWrapper from '../../../components/FormWrapper';
 import FormInput from '../../../components/FormInput';
 import FormSelectBox from '../../../components/FormSelectBox';
 import { Field } from 'formik';
-import { Select } from '../../../components';
 
 const DisplaySettings: FunctionComponent = () => {
     const themeOptions = [
@@ -49,6 +48,33 @@ const DisplaySettings: FunctionComponent = () => {
         { label: 'Default', value: 'default' },
         { label: 'Dark', value: 'dark' },
         { label: 'Light', value: 'light' }
+    ];
+
+    const languageOptions = [
+        { label: 'English (US)', value: 'en_US' },
+        { label: 'English (UK)', value: 'en_GB' },
+        { label: 'English (Malawi)', value: 'en_MW' },
+        { label: 'Chichewa (Malawi)', value: 'ny_MW' },
+        { label: 'Portuguese', value: 'pt_PT' },
+        { label: 'French', value: 'fr_FR' },
+        { label: 'Spanish', value: 'es_ES' }
+    ];
+
+    const timezoneOptions = [
+        { label: 'Africa/Blantyre (CAT)', value: 'Africa/Blantyre' },
+        { label: 'Africa/Johannesburg (SAST)', value: 'Africa/Johannesburg' },
+        { label: 'Africa/Harare (CAT)', value: 'Africa/Harare' },
+        { label: 'Africa/Lusaka (CAT)', value: 'Africa/Lusaka' },
+        { label: 'Africa/Maputo (CAT)', value: 'Africa/Maputo' },
+        { label: 'UTC', value: 'UTC' }
+    ];
+
+    const dateFormatOptions = [
+        { label: 'DD/MM/YYYY (15/12/2025)', value: 'DD/MM/YYYY' },
+        { label: 'MM/DD/YYYY (12/15/2025)', value: 'MM/DD/YYYY' },
+        { label: 'YYYY-MM-DD (2025-12-15)', value: 'YYYY-MM-DD' },
+        { label: 'DD-MM-YYYY (15-12-2025)', value: 'DD-MM-YYYY' },
+        { label: 'DD.MM.YYYY (15.12.2025)', value: 'DD.MM.YYYY' }
     ];
 
     return (
@@ -190,47 +216,26 @@ const DisplaySettings: FunctionComponent = () => {
                         Localization
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Language
-                            </label>
-                            <Select name="language">
-                                <option value="en_US">English (US)</option>
-                                <option value="en_GB">English (UK)</option>
-                                <option value="en_MW">English (Malawi)</option>
-                                <option value="ny_MW">Chichewa (Malawi)</option>
-                                <option value="pt_PT">Portuguese</option>
-                                <option value="fr_FR">French</option>
-                                <option value="es_ES">Spanish</option>
-                            </Select>
-                        </div>
+                        <FormSelectBox
+                            label="Language"
+                            name="language"
+                            options={languageOptions}
+                            required
+                        />
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Timezone
-                            </label>
-                            <Select name="timezone">
-                                <option value="Africa/Blantyre">Africa/Blantyre (CAT)</option>
-                                <option value="Africa/Johannesburg">Africa/Johannesburg (SAST)</option>
-                                <option value="Africa/Harare">Africa/Harare (CAT)</option>
-                                <option value="Africa/Lusaka">Africa/Lusaka (CAT)</option>
-                                <option value="Africa/Maputo">Africa/Maputo (CAT)</option>
-                                <option value="UTC">UTC</option>
-                            </Select>
-                        </div>
+                        <FormSelectBox
+                            label="Timezone"
+                            name="timezone"
+                            options={timezoneOptions}
+                            required
+                        />
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Date Format
-                            </label>
-                            <Select name="dateFormat">
-                                <option value="DD/MM/YYYY">DD/MM/YYYY (15/12/2025)</option>
-                                <option value="MM/DD/YYYY">MM/DD/YYYY (12/15/2025)</option>
-                                <option value="YYYY-MM-DD">YYYY-MM-DD (2025-12-15)</option>
-                                <option value="DD-MM-YYYY">DD-MM-YYYY (15-12-2025)</option>
-                                <option value="DD.MM.YYYY">DD.MM.YYYY (15.12.2025)</option>
-                            </Select>
-                        </div>
+                        <FormSelectBox
+                            label="Date Format"
+                            name="dateFormat"
+                            options={dateFormatOptions}
+                            required
+                        />
 
                         <FormSelectBox
                             label="Time Format"

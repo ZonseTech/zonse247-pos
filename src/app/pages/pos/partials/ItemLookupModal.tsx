@@ -2,6 +2,7 @@ import { X, Package } from 'lucide-react';
 import { formatCurrency } from '../../../utils';
 import { useIsMobile } from '../../../hooks/useMediaQuery';
 import InputKeyboard from '../../../components/InputKeyboard';
+import { useKeyboardSettings } from '../../../hooks/useKeyboardSettings';
 import { useState, useEffect, FunctionComponent, useRef } from 'react';
 
 interface ItemLookupModalProps {
@@ -20,6 +21,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
     barcodeScannerInputRef
 }) => {
     const isMobile = useIsMobile()
+    const keyboardSettings = useKeyboardSettings();
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredItems, setFilteredItems] = useState<InventoryItem[]>([]);
     const [showVirtualKeyboard, setShowVirtualKeyboard] = useState(false);
@@ -37,7 +39,10 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
             return;
         }
 
+        // Frontend filtering is intentional for POS performance
+        // Inventory is already loaded in memory for quick access
         let filtered = inventory.filter(item => {
+            // Filter out expired items - these should never be sold
             if (item.expirationDate && new Date(item.expirationDate) < new Date()) {
                 return false;
             }
@@ -217,13 +222,18 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                     )}
                 </div>
 
-                {!isMobile && (<div className="border-t border-gray-200 dark:border-gray-700">
+                {!isMobile && keyboardSettings.enabled && (<div className="border-t border-gray-200 dark:border-gray-700">
                     <InputKeyboard
                         variant="full"
                         onKeyPress={handleKeyPress}
                         onBackspace={handleBackspace}
                         onSpace={handleSpace}
                         onEnter={handleEnter}
+                        settings={{
+                            theme: keyboardSettings.theme,
+                            enableSound: keyboardSettings.enableSound,
+                            enableHaptic: keyboardSettings.enableHaptic,
+                        }}
                     />
                 </div>)}
             </div>

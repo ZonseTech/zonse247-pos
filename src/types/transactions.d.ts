@@ -1,3 +1,5 @@
+type TransactionStatus = 'completed' | 'pending' | 'failed' | 'cancelled' | 'refunded' | 'void';
+
 type Transaction = {
     refNumber?: string;
     discount: number;
@@ -18,10 +20,18 @@ type Transaction = {
     discount?: number;
     changeAmount: number;
 
-    status?: string;
+    status?: TransactionStatus;
     createdAt?: Date;
     updatedAt?: Date;
 
+    // Refund-related fields
+    isRefund?: boolean;
+    originalTransactionId?: string;
+    refundReason?: string;
+    refundedAmount?: number;
+    refundedAt?: string | Date;
+
+    // Relations
     customer?: Customer;
     terminal?: Terminal;
     paymentMethod?: PaymentMethod;
@@ -29,6 +39,11 @@ type Transaction = {
     items?: CartItem[];
     user?: User;
     synced?: 1 | 0;
+
+    // Refund tracking (for original transactions)
+    refunds?: Transaction[];
+    totalRefunded?: number;
+    originalTransaction?: Transaction;
 };
 
 type TransactionValues = {
@@ -37,13 +52,33 @@ type TransactionValues = {
     phoneNumber: string;
     transactionId: string;
     cashTendered: string;
+    transferType?: string;
 };
 
 interface DateRangeFilters {
-    startDate: Date;
-    endDate: Date;
-    status?: number;
+    startDate?: Date | string;
+    endDate?: Date | string;
+    status?: TransactionStatus;
     user?: number;
-    till?: number;
-    includeItems: boolean;
+    terminal?: number;
+    includeItems?: boolean;
+}
+
+interface TransactionQueryParams {
+    includeItems?: boolean;
+    startDate?: string;
+    endDate?: string;
+    status?: TransactionStatus;
+    search?: string;
+    page?: number;
+    perPage?: number;
+}
+
+interface TransactionSummaryResponse {
+    totalSales: number;
+    totalReturns: number;
+    netSales: number;
+    totalTransactions: number;
+    salesCount: number;
+    returnsCount: number;
 }

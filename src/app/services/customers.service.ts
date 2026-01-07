@@ -1,10 +1,10 @@
 import api from './http.service';
 
 const endpoints: Record<string, string> = {
-	all: 'customers/all',
-	store: 'customers/customer',
-	update: 'customers/customer',
-	delete: 'customers/customer',
+	all: 'customers',
+	store: 'customers',
+	update: 'customers',
+	delete: 'customers',
 };
 
 const customerSerive = {

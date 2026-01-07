@@ -124,8 +124,7 @@ export const tenantValidationSchema = Yup.object().shape({
         .oneOf(['VERIFIED', 'PENDING', 'FAILED'], 'Invalid Msonkho online status'),
 
     subscriptionPlan: Yup.string()
-        .required('Subscription plan is required')
-        .oneOf(['BASIC', 'STANDARD', 'PREMIUM', 'ENTERPRISE'], 'Invalid subscription plan'),
+        .required('Subscription plan is required'),
 
     subscriptionStatus: Yup.string()
         .required('Subscription status is required')

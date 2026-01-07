@@ -7,7 +7,7 @@ import BillingToggle from './partials/BillingToggle';
 import { useAuth } from '../../context/AuthProvider';
 import tenantsService from '../../services/tenant.service';
 import FeatureComparison from './partials/FeatureComparison';
-import { FormEvent, FunctionComponent, useEffect, useState } from 'react';
+import { FormEvent, FunctionComponent, useEffect, useState, useCallback, useMemo } from 'react';
 import subscriptionsService from '../../services/subscriptions.service';
 import subscriptionPlanService from '../../services/subscription-plan.service';
 import planFeaturesService from '../../services/plan-features.service';
@@ -16,7 +16,7 @@ import FeatureRowSkeleton from '../../components/loader/FeatureRowSkeleton';
 import MobilePlanSkeleton from '../../components/loader/MobilePlanSkeleton';
 
 const SubscriptionBilling: FunctionComponent = () => {
-	const { user } = useAuth()
+	const { user } = useAuth();
 	const [loading, setLoading] = useState(true);
 	const [showCheckout, setShowCheckout] = useState(false);
 	const [plans, setPlans] = useState<Array<SubscriptionPlan>>([]);
@@ -31,32 +31,24 @@ const SubscriptionBilling: FunctionComponent = () => {
 	});
 
 	useEffect(() => {
-		const loadPlans = async () => {
+		const loadInitialData = async () => {
 			setLoading(true);
 			try {
-				const data = await subscriptionPlanService.getActive()
-				setPlans(data)
+				const [plansData, categoriesData] = await Promise.all([
+					subscriptionPlanService.getActive(),
+					planFeaturesService.list()
+				]);
+
+				setPlans(plansData);
+				setFeatureCategories(categoriesData);
 			} catch (error) {
-				toast.error('Failed to load subscription plans');
+				toast.error('Failed to load subscription data');
 			} finally {
 				setLoading(false);
 			}
-		}
-
-		loadPlans()
-	}, [])
-
-	useEffect(() => {
-		const loadFeatureCategories = async () => {
-			try {
-				const categories = await planFeaturesService.list();
-				setFeatureCategories(categories);
-			} catch (error) {
-				toast.error('Failed to load feature categories');
-			}
 		};
 
-		loadFeatureCategories();
+		loadInitialData();
 	}, []);
 
 	useEffect(() => {
@@ -64,25 +56,21 @@ const SubscriptionBilling: FunctionComponent = () => {
 			if (!user.tenantId) return;
 
 			try {
-				const data = await tenantsService.show(user.tenantId);
+				const [tenantData, activeSubscription] = await Promise.all([
+					tenantsService.show(user.tenantId),
+					subscriptionsService.getActiveSubscriptionByTenantId(user.tenantId)
+				]);
 
 				setTenantInfo({
-					tenantId: data.tenantId,
-					businessName: data.businessName,
-					email: data.email,
-					phoneNumber: data.phoneNumber,
-					address: data.address,
+					tenantId: tenantData.tenantId,
+					businessName: tenantData.businessName,
+					email: tenantData.email,
+					phoneNumber: tenantData.phoneNumber,
+					address: tenantData.address,
+					subscriptionPlan: activeSubscription?.subscriptionPlanId
 				});
 
-				const activeSubscription = await subscriptionsService.getActiveSubscriptionByTenantId(user.tenantId);
-
-				if (activeSubscription) {
-					setCurrentSubscription(activeSubscription);
-					setTenantInfo(prev => ({
-						...prev,
-						subscriptionPlan: activeSubscription.subscriptionPlanId
-					}));
-				}
+				setCurrentSubscription(activeSubscription);
 			} catch (error) {
 				console.error('Failed to load tenant data:', error);
 			}
@@ -91,28 +79,38 @@ const SubscriptionBilling: FunctionComponent = () => {
 		loadTenantData();
 	}, [user.tenantId]);
 
-	const getPrice = (plan: SubscriptionPlan) => {
+	const getPrice = useCallback((plan: SubscriptionPlan) => {
 		return formatCurrency(billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice);
-	};
+	}, [billingCycle]);
 
-	const isFeatureIncluded = (plan: SubscriptionPlan, featureName: string) => {
+	const isFeatureIncluded = useCallback((plan: SubscriptionPlan, featureName: string) => {
 		return plan.features.some(feature =>
 			feature.name.toLowerCase().includes(featureName.toLowerCase()) && feature.included
 		);
-	};
+	}, []);
 
-	const handleSelectPlan = (plan: SubscriptionPlan) => {
+	const isCurrentPlan = useCallback((planId: string) => {
+		return currentSubscription?.status === 'active' && planId === tenantInfo.subscriptionPlan;
+	}, [currentSubscription?.status, tenantInfo.subscriptionPlan]);
+
+	const handleSelectPlan = useCallback((plan: SubscriptionPlan) => {
 		setSelectedPlan(plan);
 		setShowCheckout(true);
-	};
+	}, []);
 
-	const handleSubmitSubscription = async (e: FormEvent) => {
+	const handleCloseCheckout = useCallback(() => {
+		setShowCheckout(false);
+	}, []);
+
+	const handleSubmitSubscription = useCallback(async (e: FormEvent) => {
 		e.preventDefault();
+
+		if (!selectedPlan) return;
 
 		const isFreePlan = selectedPlan.name === 'offline';
 
-		if (!paymentInfo.referenceNumber && !selectedPlan && !isFreePlan) {
-			alert('Please fill in all required fields');
+		if (!paymentInfo.referenceNumber && !isFreePlan) {
+			toast.error('Please fill in all required fields');
 			return;
 		}
 
@@ -126,9 +124,9 @@ const SubscriptionBilling: FunctionComponent = () => {
 				referenceNumber: paymentInfo.referenceNumber,
 				billingCycle,
 				tenantSubscriptionId: currentSubscription?.tenantSubscriptionId,
-			})
+			});
 
-			alert(
+			toast.success(
 				`Subscription ${isFreePlan ? 'Started' : 'Confirmed'}!\n\n` +
 				`Plan: ${selectedPlan.name}\n` +
 				`Business: ${tenantInfo.businessName}\n` +
@@ -138,16 +136,44 @@ const SubscriptionBilling: FunctionComponent = () => {
 			);
 
 			setShowCheckout(false);
-			setTenantInfo(prev => ({ ...prev, subscriptionPlan: selectedPlan.name }));
-			setPaymentInfo({ referenceNumber: '', paymentMethodId: 'free' });
+			setTenantInfo(prev => ({ ...prev, subscriptionPlan: selectedPlan.subscriptionPlanId }));
+			setCurrentSubscription(prev => prev ? { ...prev, subscriptionPlanId: selectedPlan.subscriptionPlanId } : null);
+			setPaymentInfo({ referenceNumber: '', paymentMethodId: '' });
 		} catch (error) {
 			if (error?.error?.response) {
 				const { data } = error.error.response;
-
-				toast.error(data.message)
+				toast.error(data.message);
+			} else {
+				toast.error('Failed to process subscription');
 			}
 		}
-	};
+	}, [selectedPlan, paymentInfo, billingCycle, tenantInfo, currentSubscription, getPrice]);
+
+	const skeletonLoader = useMemo(() => (
+		<>
+			<div className="hidden md:block">
+				<div className="grid grid-cols-1 md:grid-cols-4 border-b border-gray-200">
+					<div className="hidden md:block p-8 border-r border-gray-200" />
+					<PlanCardSkeleton />
+					<PlanCardSkeleton />
+					<PlanCardSkeleton />
+				</div>
+				<div className="space-y-0">
+					{[1, 2, 3, 4, 5].map((i) => (
+						<FeatureRowSkeleton key={i} />
+					))}
+				</div>
+			</div>
+
+			<div className="md:hidden space-y-6 mt-8">
+				<MobilePlanSkeleton />
+				<MobilePlanSkeleton />
+				<MobilePlanSkeleton />
+			</div>
+		</>
+	), []);
+
+	const hasPlans = plans.length > 0;
 
 	return (
 		<AppLayout>
@@ -169,60 +195,40 @@ const SubscriptionBilling: FunctionComponent = () => {
 			</div>
 
 			<div className="max-w-7xl mx-auto p-6 pt-8">
-				{loading ? (
+				{loading ? skeletonLoader : (
 					<>
 						<div className="hidden md:block">
 							<div className="grid grid-cols-1 md:grid-cols-4 border-b border-gray-200">
 								<div className="hidden md:block p-8 border-r border-gray-200" />
-								<PlanCardSkeleton />
-								<PlanCardSkeleton />
-								<PlanCardSkeleton />
-							</div>
-							<div className="space-y-0">
-								{[1, 2, 3, 4, 5].map((i) => (
-									<FeatureRowSkeleton key={i} />
-								))}
-							</div>
-						</div>
-
-						<div className="md:hidden space-y-6 mt-8">
-							<MobilePlanSkeleton />
-							<MobilePlanSkeleton />
-							<MobilePlanSkeleton />
-						</div>
-					</>
-				) : (
-					<>
-						<div className="hidden md:block">
-							<div className="grid grid-cols-1 md:grid-cols-4 border-b border-gray-200">
-								<div className="hidden md:block p-8 border-r border-gray-200" />
-								{plans.length > 0 && plans.map((plan, index) => (
+								{hasPlans && plans.map((plan) => (
 									<PlanCard
 										key={plan.subscriptionPlanId}
 										plan={plan}
 										billingCycle={billingCycle}
 										onSelectPlan={handleSelectPlan}
 										getPrice={getPrice}
-										isCurrentPlan={currentSubscription?.status === 'active' && plan.subscriptionPlanId === tenantInfo.subscriptionPlan}
+										isCurrentPlan={isCurrentPlan(plan.subscriptionPlanId)}
 									/>
 								))}
 							</div>
-							{plans.length > 0 && <FeatureComparison
-								plans={plans}
-								featureCategories={featureCategories}
-								isFeatureIncluded={isFeatureIncluded}
-							/>}
+							{hasPlans && (
+								<FeatureComparison
+									plans={plans}
+									featureCategories={featureCategories}
+									isFeatureIncluded={isFeatureIncluded}
+								/>
+							)}
 						</div>
 
 						<div className="md:hidden space-y-6 mt-8">
-							{plans.length > 0 && plans.map((plan) => (
+							{hasPlans && plans.map((plan) => (
 								<div key={plan.subscriptionPlanId} className="bg-white rounded-2xl shadow-lg overflow-hidden">
 									<PlanCard
 										plan={plan}
 										billingCycle={billingCycle}
 										onSelectPlan={handleSelectPlan}
 										getPrice={getPrice}
-										isCurrentPlan={plan.name === tenantInfo.subscriptionPlan}
+										isCurrentPlan={isCurrentPlan(plan.subscriptionPlanId)}
 									/>
 								</div>
 							))}
@@ -237,7 +243,7 @@ const SubscriptionBilling: FunctionComponent = () => {
 					billingCycle={billingCycle}
 					tenantInfo={tenantInfo}
 					paymentInfo={paymentInfo}
-					onClose={() => setShowCheckout(false)}
+					onClose={handleCloseCheckout}
 					onPaymentInfoChange={setPaymentInfo}
 					onSubmit={handleSubmitSubscription}
 					getPrice={getPrice}

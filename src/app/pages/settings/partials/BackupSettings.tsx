@@ -1,6 +1,14 @@
 import { HiOutlineCommandLine } from 'react-icons/hi2';
 import FormWrapper from '../../../components/FormWrapper';
 import FormInput from '../../../components/FormInput';
+import FormSelectBox from '../../../components/FormSelectBox';
+import { Field } from 'formik';
+
+const backupFrequencyOptions = [
+    { label: 'Daily', value: 'daily' },
+    { label: 'Weekly', value: 'weekly' },
+    { label: 'Monthly', value: 'monthly' }
+];
 
 const BackupSettings = () => {
     return (
@@ -20,26 +28,15 @@ const BackupSettings = () => {
                                 Automatically backup your data regularly
                             </p>
                         </div>
-                        <input
-                            type="checkbox"
-                            name="backupEnabled"
-                            className="w-5 h-5 rounded"
-                        />
+                        <Field type="checkbox" name="backupEnabled" className="w-5 h-5 rounded" />
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Backup Frequency
-                        </label>
-                        <select
-                            name="backupFrequency"
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
-                        </select>
-                    </div>
+                    <FormSelectBox
+                        label="Backup Frequency"
+                        name="backupFrequency"
+                        options={backupFrequencyOptions}
+                        required
+                    />
 
                     <FormInput
                         type="url"

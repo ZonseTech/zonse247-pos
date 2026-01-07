@@ -21,9 +21,7 @@ const UserManagement: FunctionComponent = () => {
         isLoading,
         searchTerm,
         setSearchTerm,
-        page,
         setPage,
-        perPage,
         setPerPage,
         totalRows,
         deleteUser,
@@ -37,7 +35,7 @@ const UserManagement: FunctionComponent = () => {
     }, [navigate]);
 
     const handleEdit = useCallback((user: User) => {
-        navigate(ROUTES.USER_FORM, { state: { userId: user.id || user.userId } });
+        navigate(ROUTES.USER_FORM, { state: { userId: user.userId } });
     }, [navigate]);
 
     const handleDelete = useCallback((userId: string) => {
@@ -63,7 +61,6 @@ const UserManagement: FunctionComponent = () => {
             'Reset',
             'Cancel',
             () => {
-                // In a real implementation, you'd show a modal to get the new password
                 const newPassword = prompt('Enter new password (min 8 characters):');
                 if (newPassword && newPassword.length >= 8) {
                     resetPassword(userId, newPassword, true);
@@ -101,21 +98,22 @@ const UserManagement: FunctionComponent = () => {
                     title='Users'
                     description='Manage user accounts, roles, and permissions'
                     icon={<HiOutlineUsers className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
-                >
-                    <div className="flex items-center space-x-4">
-                        <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                    action={
+                        <div className="flex items-center space-x-4">
+                            <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
 
-                        <div className="flex items-center space-x-3">
-                            <Button
-                                onClick={handleAddUser}
-                                theme='primary'
-                            >
-                                <HiOutlinePlus className="w-4 h-4 mr-2" />
-                                {'Add User'}
-                            </Button>
+                            <div className="flex items-center space-x-3">
+                                <Button
+                                    onClick={handleAddUser}
+                                    theme='primary'
+                                >
+                                    <HiOutlinePlus className="w-4 h-4 mr-2" />
+                                    {'Add User'}
+                                </Button>
+                            </div>
                         </div>
-                    </div>
-                </PageHeader>
+                    }
+                />
                 <DataTable
                     columns={columns}
                     data={getPaginatedData()}

@@ -3,7 +3,7 @@ import { Form, Formik, } from 'formik';
 import EPayment from './EPayment';
 import CashPayment from './CashPayment';
 import BankTransfer from './BankTransfer';
-import { FunctionComponent, useState, useEffect } from 'react';
+import { FunctionComponent, useState, useEffect, use } from 'react';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useInventory } from '../../../hooks/useInventory';
 import { useAuth } from '../../../context/AuthProvider';
@@ -12,6 +12,7 @@ import transactionService from '../../../services/transactions.service';
 import { generateReferenceNumber } from '../../../utils';
 import printerService from '../../../services/printer.service';
 import { Button } from '../../../components';
+import { DEFAULT_SEED_KEY } from '../../../constants';
 
 interface CheckoutModalProps {
     isOpen: boolean;
@@ -22,7 +23,7 @@ interface CheckoutModalProps {
 
 export const CHECKOUT = {
     BANK_TRANSFER: 'bank-transfer',
-    E_PAYMENT: 'e-payment',
+    E_PAYMENT: 'mobile-money',
     CASH: 'cash',
 } as const;
 
@@ -53,6 +54,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
         transactionId: '',
         phoneNumber: '',
         cashTendered: '',
+        transferType: '',
     };
 
     const { user } = useAuth()
@@ -70,13 +72,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 .min(1, 'Please select a service provider'),
             otherwise: () => Yup.string().nullable(),
         }),
-        transactionId: Yup.string().when('paymentMethodId', {
-            is: (value: string) => value !== CHECKOUT.CASH,
-            then: () => Yup.string()
-                .required('Reference number is required')
-                .min(5, 'Reference number must be at least 5 characters'),
-            otherwise: () => Yup.string().nullable(),
-        }),
+        transactionId: Yup.string().nullable(),
         phoneNumber: Yup.string().when('paymentMethodId', {
             is: (value: string) => value === CHECKOUT.E_PAYMENT,
             then: () => Yup.string()
@@ -128,7 +124,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 userId: user.userId,
                 terminalId: (settings as any)?.terminalId || 'default',
                 transactionId: values?.transactionId || '',
-                customerId: selectedCustomer.customerId,
+                customerId: selectedCustomer?.customerId !== 'walk-in' ? selectedCustomer?.customerId : undefined,
                 paymentMethodId: values.paymentMethodId,
                 paymentServiceProviderId: values.paymentServiceProviderId,
 
@@ -173,9 +169,9 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
             case CHECKOUT.CASH:
                 return parseFloat(values.cashTendered || '0') >= total;
             case CHECKOUT.E_PAYMENT:
-                return values.phoneNumber.length >= 9 && values.transactionId.length >= 5;
+                return values.phoneNumber.length >= 9;
             case CHECKOUT.BANK_TRANSFER:
-                return values.transactionId.length > 0;
+                return values.paymentServiceProviderId && values.paymentServiceProviderId.length > 0;
             default:
                 return false;
         }
@@ -211,7 +207,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
-            <div className="bg-white dark:bg-gray-900 w-full max-w-6xl max-h-[95vh] md:max-h-[90vh] flex flex-col rounded-lg md:rounded-none overflow-hidden">
+            <div className="bg-white dark:bg-gray-900 w-full max-w-4xl xl:max-w-6xl h-auto max-h-[95vh] md:max-h-[90vh] flex flex-col rounded-lg md:rounded-none overflow-hidden">
                 <div className="text-black p-3 md:p-4 border-b flex items-center justify-between flex-shrink-0">
                     <div className="flex items-center gap-2">
                         <div className="w-6 h-6 md:w-8 md:h-8 rounded flex items-center justify-center">
@@ -219,6 +215,22 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                         </div>
                         <span className="text-black dark:text-gray-200 text-base md:text-xl font-bold">{getPaymentTitle()}</span>
                     </div>
+
+                    {selectedCustomer && (
+                        <div className="mb-4">
+                            <div className="flex items-center gap-2">
+                                <span className="text-xl">
+                                    {selectedCustomer.customerId === DEFAULT_SEED_KEY ? '👤' : '⭐'}
+                                </span>
+                                <span className={`font-semibold ${selectedCustomer.customerId === DEFAULT_SEED_KEY
+                                    ? 'text-blue-900 dark:text-blue-100'
+                                    : 'text-emerald-900 dark:text-emerald-100'
+                                    }`}>
+                                    {selectedCustomer.name}
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <Formik
@@ -227,9 +239,10 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                     validationSchema={newTransactionValidationSchema}
                     enableReinitialize={true}
                 >
-                    {({ isSubmitting, values, setFieldValue, errors, touched }) => (
+                    {({ isSubmitting, values, setFieldValue }) => (
                         <Form className="flex flex-col flex-1 min-h-0">
                             <div className="flex-1 p-3 md:p-6 overflow-y-auto">
+
                                 {paymentMethodId === CHECKOUT.CASH && (
                                     <CashPayment
                                         total={total}

@@ -80,21 +80,22 @@ const TenantsManagement: FunctionComponent = () => {
                     title='Tenants'
                     description='Manage tenants accounts and subscriptions'
                     icon={<HiOutlineBuildingOffice2 className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
-                >
-                    <div className="flex items-center space-x-4">
-                        <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                    action={
+                        <div className="flex items-center space-x-4">
+                            <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
 
-                        <div className="flex items-center space-x-3">
-                            <Button
-                                onClick={() => navigate(ROUTES.TENANT_FORM)}
-                                theme='primary'
-                            >
-                                <HiOutlinePlus className="w-4 h-4 mr-2" />
-                                {'Add Tenant'}
-                            </Button>
+                            <div className="flex items-center space-x-3">
+                                <Button
+                                    onClick={() => navigate(ROUTES.TENANT_FORM)}
+                                    theme='primary'
+                                >
+                                    <HiOutlinePlus className="w-4 h-4 mr-2" />
+                                    {'Add Tenant'}
+                                </Button>
+                            </div>
                         </div>
-                    </div>
-                </PageHeader>
+                    }
+                />
                 <DataTable
                     columns={columns}
                     data={getPaginatedData()}

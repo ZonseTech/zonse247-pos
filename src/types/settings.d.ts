@@ -299,7 +299,7 @@ type TerminalSettingsApiResponse = {
     storePhone: string | null;
     storeEmail: string | null;
     currency: string;
-    taxRate: number;
+    taxRate: number | string; // API may return as string
     businessLicense: string | null;
     businessTaxId: string | null;
 
@@ -357,6 +357,8 @@ type TerminalSettingsApiResponse = {
  * All nested JSON settings are flattened for easy form binding
  */
 type AppSettings = {
+    terminalId: string;
+
     // General Information (Selective Columns)
     storeName: string;
     storeAddress: string;

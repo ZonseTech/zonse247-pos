@@ -21,6 +21,7 @@ const CustomerManagement: FunctionComponent = () => {
     const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
 
     const {
+        customers,
         isLoading,
         searchTerm,
         setSearchTerm,
@@ -86,7 +87,7 @@ const CustomerManagement: FunctionComponent = () => {
                                 !isMobile && (
                                     <SearchBar
                                         value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onChange={setSearchTerm}
                                     />
                                 )}
 
@@ -108,7 +109,7 @@ const CustomerManagement: FunctionComponent = () => {
                             <div className='m-4 mt-0'>
                                 <SearchBar
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={setSearchTerm}
                                 />
                             </div>
                         )
@@ -149,6 +150,7 @@ const CustomerManagement: FunctionComponent = () => {
                 onClose={handleModalClose}
                 onSuccess={handleModalSuccess}
                 customer={editingCustomer}
+                customersCount={customers.length}
             />
         </AppLayout>
     );

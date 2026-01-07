@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, FunctionComponent } from 'react';
-import { ChevronDown, Search, X, Tag } from 'lucide-react';
+import { ChevronDown, Search, X, Tag, Plus } from 'lucide-react';
 import categoriesService from '../../../services/category.service';
+import CreateCategoryModal from '../CreateCategoryModal';
 
 interface CategorySearchProps {
     value: string;
@@ -23,23 +24,24 @@ export const CategorySearch: FunctionComponent<CategorySearchProps> = ({
     const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
     const [loading, setLoading] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-        const fetchCategories = async () => {
-            setLoading(true);
-            try {
-                const data = await categoriesService.list();
-                setCategories(data);
-                setFilteredCategories(data);
-            } catch (error) {
-                console.error('Failed to fetch categories:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchCategories = async () => {
+        setLoading(true);
+        try {
+            const data = await categoriesService.list();
+            setCategories(data);
+            setFilteredCategories(data);
+        } catch (error) {
+            console.error('Failed to fetch categories:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchCategories();
     }, []);
 
@@ -95,6 +97,17 @@ export const CategorySearch: FunctionComponent<CategorySearchProps> = ({
         }
     };
 
+    const handleAddCategoryClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setIsOpen(false);
+        setShowCreateModal(true);
+    };
+
+    const handleCategoryCreated = async () => {
+        await fetchCategories();
+        setShowCreateModal(false);
+    };
+
     return (
         <div className="relative" ref={dropdownRef}>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -103,8 +116,8 @@ export const CategorySearch: FunctionComponent<CategorySearchProps> = ({
 
             <div
                 className={`flex items-center justify-between w-full px-4 py-2.5 border rounded-lg cursor-pointer transition-all ${disabled
-                        ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed'
-                        : 'bg-white dark:bg-gray-800 hover:border-blue-400'
+                    ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed'
+                    : 'bg-white dark:bg-gray-800 hover:border-blue-400'
                     } ${error && touched
                         ? 'border-red-500 focus:ring-red-500'
                         : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'
@@ -174,8 +187,8 @@ export const CategorySearch: FunctionComponent<CategorySearchProps> = ({
                                     key={category.categoryId}
                                     onClick={() => handleSelect(category)}
                                     className={`px-4 py-3 cursor-pointer transition-colors ${selectedCategory?.categoryId === category.categoryId
-                                            ? 'bg-blue-50 dark:bg-blue-900/30'
-                                            : 'hover:bg-gray-50 dark:hover:bg-gray-700'
+                                        ? 'bg-blue-50 dark:bg-blue-900/30'
+                                        : 'hover:bg-gray-50 dark:hover:bg-gray-700'
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
@@ -202,8 +215,27 @@ export const CategorySearch: FunctionComponent<CategorySearchProps> = ({
                             </div>
                         )}
                     </div>
+
+                    <div className="p-2 border-t border-gray-200 dark:border-gray-700">
+                        <button
+                            type="button"
+                            onClick={handleAddCategoryClick}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Add New Category
+                        </button>
+                    </div>
                 </div>
             )}
+
+            <CreateCategoryModal
+                isOpen={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+                onSuccess={handleCategoryCreated}
+                showAddButton={false}
+                categoriesCount={categories.length}
+            />
         </div>
     );
 };

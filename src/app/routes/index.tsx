@@ -27,12 +27,24 @@ const Migrations = lazy(() => import('../pages/migrations'))
 const TenantForm = lazy(() => import('../pages/tenants/create'))
 const TenantsManagement = lazy(() => import('../pages/tenants'))
 const Transactions = lazy(() => import('../pages/transactions'))
+const Returns = lazy(() => import('../pages/returns'))
 const DatabaseExporter = lazy(() => import('../pages/export-db'))
 const AccountDetails = lazy(() => import('../pages/auth/MyProfile'))
 const TerminalManagement = lazy(() => import('../pages/terminal'))
 const SubscriptionManagement = lazy(() => import('../pages/subscription'))
 const RolesAndPermissions = lazy(() => import('../pages/role-permissions'))
 const SubscriptionBilling = lazy(() => import('../pages/subscription/SubscriptionBilling'))
+const PrinterManagement = lazy(() => import('../pages/printer'))
+const PrinterForm = lazy(() => import('../pages/printer/create'))
+
+// Inventory Workflow Pages
+const Products = lazy(() => import('../pages/products'))
+const ProductForm = lazy(() => import('../pages/products/create'))
+const Suppliers = lazy(() => import('../pages/suppliers'))
+const SupplierForm = lazy(() => import('../pages/suppliers/create'))
+const PurchaseOrders = lazy(() => import('../pages/purchase-orders'))
+const PurchaseOrderForm = lazy(() => import('../pages/purchase-orders/create'))
+const StockMovements = lazy(() => import('../pages/stock-movements'))
 
 const ProtectedLayoutWithAuth = withProtectedRoute(ProtectedLayout)
 
@@ -64,12 +76,24 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 				<Route path={ROUTES.TENANTS} element={<TenantsManagement />} />
 				<Route path={ROUTES.TENANT_FORM} element={<TenantForm />} />
 				<Route path={ROUTES.TRANSACTIONS} element={<Transactions />} />
+				<Route path={ROUTES.RETURNS} element={<Returns />} />
 				<Route path={ROUTES.EXPORT_DB} element={<DatabaseExporter />} />
 				<Route path={ROUTES.TERMINALS} element={<TerminalManagement />} />
 				<Route path={ROUTES.TERMINAL_FORM} element={<TerminalForm />} />
+				<Route path={ROUTES.PRINTERS} element={<PrinterManagement />} />
+				<Route path={ROUTES.PRINTER_FORM} element={<PrinterForm />} />
 				<Route path={ROUTES.SUBSCRIPTIONS} element={<SubscriptionManagement />} />
 				<Route path={ROUTES.ROLES_PERMISSIONS} element={<RolesAndPermissions />} />
 				<Route path={ROUTES.SUBSCRIPTION_BILLING} element={<SubscriptionBilling />} />
+
+				{/* Inventory Workflow Routes */}
+				<Route path={ROUTES.PRODUCTS} element={<Products />} />
+				<Route path={ROUTES.PRODUCT_FORM} element={<ProductForm />} />
+				<Route path={ROUTES.SUPPLIERS} element={<Suppliers />} />
+				<Route path={ROUTES.SUPPLIER_FORM} element={<SupplierForm />} />
+				<Route path={ROUTES.PURCHASE_ORDERS} element={<PurchaseOrders />} />
+				<Route path={ROUTES.PURCHASE_ORDER_FORM} element={<PurchaseOrderForm />} />
+				<Route path={ROUTES.STOCK_MOVEMENTS} element={<StockMovements />} />
 
 				<Route path="*" element={<Navigate to="/not-found" />} />
 			</Route>

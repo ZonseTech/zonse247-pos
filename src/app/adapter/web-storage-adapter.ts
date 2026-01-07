@@ -1,10 +1,10 @@
 class WebStorageAdapter implements DataStoreAdapter {
-    private readonly SETUP_KEY = 'app_setup';
+    private readonly SETUP_KEY = 'user';
     private readonly SIGNATURE_KEY = 'app_signature';
 
     async hasSetup(): Promise<{ data: boolean; success: boolean }> {
         try {
-            const data = localStorage.getItem(this.SETUP_KEY);
+            const data = sessionStorage.getItem(this.SETUP_KEY);
             return { data: data !== null, success: true };
         } catch (error) {
             return { data: false, success: false };
@@ -13,7 +13,7 @@ class WebStorageAdapter implements DataStoreAdapter {
 
     async getSetup(): Promise<{ data: SetupData | null; success: boolean; error?: string }> {
         try {
-            const data = localStorage.getItem(this.SETUP_KEY);
+            const data = sessionStorage.getItem(this.SETUP_KEY);
             if (!data) {
                 return { data: null, success: true };
             }
@@ -25,7 +25,7 @@ class WebStorageAdapter implements DataStoreAdapter {
 
     async saveSetup(data: SetupData): Promise<{ success: boolean; error?: string }> {
         try {
-            localStorage.setItem(this.SETUP_KEY, JSON.stringify(data));
+            sessionStorage.setItem(this.SETUP_KEY, JSON.stringify(data));
             return { success: true };
         } catch (error) {
             return { success: false, error: String(error) };
@@ -47,8 +47,8 @@ class WebStorageAdapter implements DataStoreAdapter {
 
     async clearSetup(): Promise<{ success: boolean; error?: string }> {
         try {
-            localStorage.removeItem(this.SETUP_KEY);
-            localStorage.removeItem(this.SIGNATURE_KEY);
+            sessionStorage.removeItem(this.SETUP_KEY);
+            sessionStorage.removeItem(this.SIGNATURE_KEY);
             return { success: true };
         } catch (error) {
             return { success: false, error: String(error) };
@@ -57,7 +57,7 @@ class WebStorageAdapter implements DataStoreAdapter {
 
     async getSignature(): Promise<{ data: string | null; success: boolean; error?: string }> {
         try {
-            const data = localStorage.getItem(this.SIGNATURE_KEY);
+            const data = sessionStorage.getItem(this.SIGNATURE_KEY);
             return { data, success: true };
         } catch (error) {
             return { data: null, success: false, error: String(error) };

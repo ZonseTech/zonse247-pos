@@ -1,4 +1,45 @@
 // ==========================================
+// HELPER FUNCTIONS
+// ==========================================
+
+/**
+ * Decodes HTML entities in a string
+ * Handles multiple levels of encoding (e.g., &amp;amp;amp;#x2F; -> /)
+ */
+export const decodeHtmlEntities = (str: string | null | undefined): string => {
+    if (!str) return '';
+
+    let decoded = str;
+    let prevDecoded = '';
+
+    // Keep decoding until no more changes (handles multiple encoding levels)
+    while (decoded !== prevDecoded) {
+        prevDecoded = decoded;
+        decoded = decoded
+            .replace(/&amp;/g, '&')
+            .replace(/&#x2F;/g, '/')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'")
+            .replace(/&#x27;/g, "'")
+            .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+            .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)));
+    }
+
+    return decoded;
+};
+
+/**
+ * Safely converts a value to number, handling strings and null/undefined
+ */
+export const toNumber = (value: string | number | null | undefined, defaultValue: number = 0): number => {
+    if (value === null || value === undefined || value === '') return defaultValue;
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    return isNaN(num) ? defaultValue : num;
+};
+
+// ==========================================
 // DEFAULT VALUES FOR SELECTIVE COLUMNS
 // ==========================================
 
@@ -26,10 +67,6 @@ export const DEFAULT_SELECTIVE_SECURITY = {
     autoLogoutMinutes: 30,
     serverUrl: '',
 } as const;
-
-// ==========================================
-// DEFAULT VALUES FOR JSON COLUMNS
-// ==========================================
 
 export const DEFAULT_LOCALIZATION_SETTINGS: LocalizationSettings = {
     currencyDecimalPlaces: 2,
@@ -270,30 +307,32 @@ export const mapApiResponseToSettings = (apiResponse: TerminalSettingsApiRespons
     if (!apiResponse) return {};
 
     return {
+        terminalId: apiResponse.terminalId || '',
+
         // Selective Columns - General Information
-        storeName: apiResponse.storeName ?? DEFAULT_GENERAL_SETTINGS.storeName,
-        storeAddress: apiResponse.storeAddress ?? DEFAULT_GENERAL_SETTINGS.storeAddress,
-        storePhone: apiResponse.storePhone ?? DEFAULT_GENERAL_SETTINGS.storePhone,
-        storeEmail: apiResponse.storeEmail ?? DEFAULT_GENERAL_SETTINGS.storeEmail,
-        currency: apiResponse.currency ?? DEFAULT_GENERAL_SETTINGS.currency,
-        taxRate: Number(apiResponse.taxRate) ?? DEFAULT_GENERAL_SETTINGS.taxRate,
-        businessLicense: apiResponse.businessLicense ?? DEFAULT_GENERAL_SETTINGS.businessLicense,
-        businessTaxId: apiResponse.businessTaxId ?? DEFAULT_GENERAL_SETTINGS.businessTaxId,
+        storeName: decodeHtmlEntities(apiResponse.storeName) || DEFAULT_GENERAL_SETTINGS.storeName,
+        storeAddress: decodeHtmlEntities(apiResponse.storeAddress) || DEFAULT_GENERAL_SETTINGS.storeAddress,
+        storePhone: decodeHtmlEntities(apiResponse.storePhone) || DEFAULT_GENERAL_SETTINGS.storePhone,
+        storeEmail: decodeHtmlEntities(apiResponse.storeEmail) || DEFAULT_GENERAL_SETTINGS.storeEmail,
+        currency: decodeHtmlEntities(apiResponse.currency) || DEFAULT_GENERAL_SETTINGS.currency,
+        taxRate: toNumber(apiResponse.taxRate, DEFAULT_GENERAL_SETTINGS.taxRate),
+        businessLicense: decodeHtmlEntities(apiResponse.businessLicense) || DEFAULT_GENERAL_SETTINGS.businessLicense,
+        businessTaxId: decodeHtmlEntities(apiResponse.businessTaxId) || DEFAULT_GENERAL_SETTINGS.businessTaxId,
 
         // Selective Columns - Localization
-        language: apiResponse.language ?? DEFAULT_SELECTIVE_LOCALIZATION.language,
-        timezone: apiResponse.timezone ?? DEFAULT_SELECTIVE_LOCALIZATION.timezone,
-        dateFormat: apiResponse.dateFormat ?? DEFAULT_SELECTIVE_LOCALIZATION.dateFormat,
+        language: decodeHtmlEntities(apiResponse.language) || DEFAULT_SELECTIVE_LOCALIZATION.language,
+        timezone: decodeHtmlEntities(apiResponse.timezone) || DEFAULT_SELECTIVE_LOCALIZATION.timezone,
+        dateFormat: decodeHtmlEntities(apiResponse.dateFormat) || DEFAULT_SELECTIVE_LOCALIZATION.dateFormat,
         timeFormat: apiResponse.timeFormat ?? DEFAULT_SELECTIVE_LOCALIZATION.timeFormat,
 
         // Selective Columns - Security
-        pinLength: apiResponse.pinLength ?? DEFAULT_SELECTIVE_SECURITY.pinLength,
-        sessionTimeoutMinutes: apiResponse.sessionTimeoutMinutes ?? DEFAULT_SELECTIVE_SECURITY.sessionTimeoutMinutes,
-        autoLogoutMinutes: apiResponse.autoLogoutMinutes ?? DEFAULT_SELECTIVE_SECURITY.autoLogoutMinutes,
-        serverUrl: apiResponse.serverUrl ?? DEFAULT_SELECTIVE_SECURITY.serverUrl,
+        pinLength: toNumber(apiResponse.pinLength, DEFAULT_SELECTIVE_SECURITY.pinLength),
+        sessionTimeoutMinutes: toNumber(apiResponse.sessionTimeoutMinutes, DEFAULT_SELECTIVE_SECURITY.sessionTimeoutMinutes),
+        autoLogoutMinutes: toNumber(apiResponse.autoLogoutMinutes, DEFAULT_SELECTIVE_SECURITY.autoLogoutMinutes),
+        serverUrl: decodeHtmlEntities(apiResponse.serverUrl) || DEFAULT_SELECTIVE_SECURITY.serverUrl,
 
         // JSON Column - Localization Settings
-        currencyDecimalPlaces: apiResponse.localizationSettings?.currencyDecimalPlaces ?? DEFAULT_LOCALIZATION_SETTINGS.currencyDecimalPlaces,
+        currencyDecimalPlaces: toNumber(apiResponse.localizationSettings?.currencyDecimalPlaces, DEFAULT_LOCALIZATION_SETTINGS.currencyDecimalPlaces),
         numberSeparator: apiResponse.localizationSettings?.numberSeparator ?? DEFAULT_LOCALIZATION_SETTINGS.numberSeparator,
         showCurrencySymbol: apiResponse.localizationSettings?.showCurrencySymbol ?? DEFAULT_LOCALIZATION_SETTINGS.showCurrencySymbol,
         currencySymbolPosition: apiResponse.localizationSettings?.currencySymbolPosition ?? DEFAULT_LOCALIZATION_SETTINGS.currencySymbolPosition,
@@ -303,10 +342,10 @@ export const mapApiResponseToSettings = (apiResponse: TerminalSettingsApiRespons
         taxInclusivePricing: apiResponse.transactionSettings?.taxInclusivePricing ?? DEFAULT_TRANSACTION_SETTINGS.taxInclusivePricing,
         roundTaxAmount: apiResponse.transactionSettings?.roundTaxAmount ?? DEFAULT_TRANSACTION_SETTINGS.roundTaxAmount,
         roundTotalAmount: apiResponse.transactionSettings?.roundTotalAmount ?? DEFAULT_TRANSACTION_SETTINGS.roundTotalAmount,
-        roundToNearest: apiResponse.transactionSettings?.roundToNearest ?? DEFAULT_TRANSACTION_SETTINGS.roundToNearest,
-        minimumTransactionAmount: apiResponse.transactionSettings?.minimumTransactionAmount ?? DEFAULT_TRANSACTION_SETTINGS.minimumTransactionAmount,
-        maximumTransactionAmount: apiResponse.transactionSettings?.maximumTransactionAmount ?? DEFAULT_TRANSACTION_SETTINGS.maximumTransactionAmount,
-        holdTransactionMinutes: apiResponse.transactionSettings?.holdTransactionMinutes ?? DEFAULT_TRANSACTION_SETTINGS.holdTransactionMinutes,
+        roundToNearest: toNumber(apiResponse.transactionSettings?.roundToNearest, DEFAULT_TRANSACTION_SETTINGS.roundToNearest),
+        minimumTransactionAmount: toNumber(apiResponse.transactionSettings?.minimumTransactionAmount, DEFAULT_TRANSACTION_SETTINGS.minimumTransactionAmount),
+        maximumTransactionAmount: toNumber(apiResponse.transactionSettings?.maximumTransactionAmount, DEFAULT_TRANSACTION_SETTINGS.maximumTransactionAmount),
+        holdTransactionMinutes: toNumber(apiResponse.transactionSettings?.holdTransactionMinutes, DEFAULT_TRANSACTION_SETTINGS.holdTransactionMinutes),
         saveDraftTransactions: apiResponse.transactionSettings?.saveDraftTransactions ?? DEFAULT_TRANSACTION_SETTINGS.saveDraftTransactions,
 
         // JSON Column - Customer Settings
@@ -318,22 +357,22 @@ export const mapApiResponseToSettings = (apiResponse: TerminalSettingsApiRespons
         customerDisplayMode: apiResponse.customerSettings?.customerDisplayMode ?? DEFAULT_CUSTOMER_SETTINGS.customerDisplayMode,
 
         // JSON Column - Receipt Settings
-        receiptNumberPrefix: apiResponse.receiptSettings?.receiptNumberPrefix ?? DEFAULT_RECEIPT_SETTINGS.receiptNumberPrefix,
-        receiptNumberSuffix: apiResponse.receiptSettings?.receiptNumberSuffix ?? DEFAULT_RECEIPT_SETTINGS.receiptNumberSuffix,
-        receiptStartNumber: apiResponse.receiptSettings?.receiptStartNumber ?? DEFAULT_RECEIPT_SETTINGS.receiptStartNumber,
+        receiptNumberPrefix: decodeHtmlEntities(apiResponse.receiptSettings?.receiptNumberPrefix) || DEFAULT_RECEIPT_SETTINGS.receiptNumberPrefix,
+        receiptNumberSuffix: decodeHtmlEntities(apiResponse.receiptSettings?.receiptNumberSuffix) || DEFAULT_RECEIPT_SETTINGS.receiptNumberSuffix,
+        receiptStartNumber: toNumber(apiResponse.receiptSettings?.receiptStartNumber, DEFAULT_RECEIPT_SETTINGS.receiptStartNumber),
         receiptResetDaily: apiResponse.receiptSettings?.receiptResetDaily ?? DEFAULT_RECEIPT_SETTINGS.receiptResetDaily,
         printDuplicateReceipt: apiResponse.receiptSettings?.printDuplicateReceipt ?? DEFAULT_RECEIPT_SETTINGS.printDuplicateReceipt,
-        receiptCopies: apiResponse.receiptSettings?.receiptCopies ?? DEFAULT_RECEIPT_SETTINGS.receiptCopies,
+        receiptCopies: toNumber(apiResponse.receiptSettings?.receiptCopies, DEFAULT_RECEIPT_SETTINGS.receiptCopies),
         printOrderKitchen: apiResponse.receiptSettings?.printOrderKitchen ?? DEFAULT_RECEIPT_SETTINGS.printOrderKitchen,
         printOrderBar: apiResponse.receiptSettings?.printOrderBar ?? DEFAULT_RECEIPT_SETTINGS.printOrderBar,
-        kitchenPrinterName: apiResponse.receiptSettings?.kitchenPrinterName ?? DEFAULT_RECEIPT_SETTINGS.kitchenPrinterName,
-        barPrinterName: apiResponse.receiptSettings?.barPrinterName ?? DEFAULT_RECEIPT_SETTINGS.barPrinterName,
+        kitchenPrinterName: decodeHtmlEntities(apiResponse.receiptSettings?.kitchenPrinterName) || DEFAULT_RECEIPT_SETTINGS.kitchenPrinterName,
+        barPrinterName: decodeHtmlEntities(apiResponse.receiptSettings?.barPrinterName) || DEFAULT_RECEIPT_SETTINGS.barPrinterName,
         printItemizedReceipt: apiResponse.receiptSettings?.printItemizedReceipt ?? DEFAULT_RECEIPT_SETTINGS.printItemizedReceipt,
-        receiptFooter: apiResponse.receiptSettings?.receiptFooter ?? DEFAULT_RECEIPT_SETTINGS.receiptFooter,
-        receiptHeader: apiResponse.receiptSettings?.receiptHeader ?? DEFAULT_RECEIPT_SETTINGS.receiptHeader,
+        receiptFooter: decodeHtmlEntities(apiResponse.receiptSettings?.receiptFooter) || DEFAULT_RECEIPT_SETTINGS.receiptFooter,
+        receiptHeader: decodeHtmlEntities(apiResponse.receiptSettings?.receiptHeader) || DEFAULT_RECEIPT_SETTINGS.receiptHeader,
         showStoreLogo: apiResponse.receiptSettings?.showStoreLogo ?? DEFAULT_RECEIPT_SETTINGS.showStoreLogo,
-        logoUrl: apiResponse.receiptSettings?.logoUrl ?? DEFAULT_RECEIPT_SETTINGS.logoUrl,
-        receiptWidth: apiResponse.receiptSettings?.receiptWidth ?? DEFAULT_RECEIPT_SETTINGS.receiptWidth,
+        logoUrl: decodeHtmlEntities(apiResponse.receiptSettings?.logoUrl) || DEFAULT_RECEIPT_SETTINGS.logoUrl,
+        receiptWidth: toNumber(apiResponse.receiptSettings?.receiptWidth, DEFAULT_RECEIPT_SETTINGS.receiptWidth),
         showTaxBreakdown: apiResponse.receiptSettings?.showTaxBreakdown ?? DEFAULT_RECEIPT_SETTINGS.showTaxBreakdown,
         showItemCodes: apiResponse.receiptSettings?.showItemCodes ?? DEFAULT_RECEIPT_SETTINGS.showItemCodes,
         showCashierName: apiResponse.receiptSettings?.showCashierName ?? DEFAULT_RECEIPT_SETTINGS.showCashierName,
@@ -345,7 +384,7 @@ export const mapApiResponseToSettings = (apiResponse: TerminalSettingsApiRespons
         cashPaymentDefault: apiResponse.paymentSettings?.cashPaymentDefault ?? DEFAULT_PAYMENT_SETTINGS.cashPaymentDefault,
         cardPaymentDefault: apiResponse.paymentSettings?.cardPaymentDefault ?? DEFAULT_PAYMENT_SETTINGS.cardPaymentDefault,
         splitPaymentEnabled: apiResponse.paymentSettings?.splitPaymentEnabled ?? DEFAULT_PAYMENT_SETTINGS.splitPaymentEnabled,
-        maxSplitWays: apiResponse.paymentSettings?.maxSplitWays ?? DEFAULT_PAYMENT_SETTINGS.maxSplitWays,
+        maxSplitWays: toNumber(apiResponse.paymentSettings?.maxSplitWays, DEFAULT_PAYMENT_SETTINGS.maxSplitWays),
         changeCalculationMode: apiResponse.paymentSettings?.changeCalculationMode ?? DEFAULT_PAYMENT_SETTINGS.changeCalculationMode,
         suggestChangeAmounts: apiResponse.paymentSettings?.suggestChangeAmounts ?? DEFAULT_PAYMENT_SETTINGS.suggestChangeAmounts,
         giftCardEnabled: apiResponse.paymentSettings?.giftCardEnabled ?? DEFAULT_PAYMENT_SETTINGS.giftCardEnabled,
@@ -356,41 +395,41 @@ export const mapApiResponseToSettings = (apiResponse: TerminalSettingsApiRespons
         enableCredit: apiResponse.paymentSettings?.enableCredit ?? DEFAULT_PAYMENT_SETTINGS.enableCredit,
         enableGiftCard: apiResponse.paymentSettings?.enableGiftCard ?? DEFAULT_PAYMENT_SETTINGS.enableGiftCard,
         roundingEnabled: apiResponse.paymentSettings?.roundingEnabled ?? DEFAULT_PAYMENT_SETTINGS.roundingEnabled,
-        roundingAmount: apiResponse.paymentSettings?.roundingAmount ?? DEFAULT_PAYMENT_SETTINGS.roundingAmount,
+        roundingAmount: toNumber(apiResponse.paymentSettings?.roundingAmount, DEFAULT_PAYMENT_SETTINGS.roundingAmount),
 
         // JSON Column - MRA Compliance Settings
         mraComplianceMode: apiResponse.mraComplianceSettings?.mraComplianceMode ?? DEFAULT_MRA_COMPLIANCE_SETTINGS.mraComplianceMode,
         requireVatNumber: apiResponse.mraComplianceSettings?.requireVatNumber ?? DEFAULT_MRA_COMPLIANCE_SETTINGS.requireVatNumber,
         vatInclusiveDisplay: apiResponse.mraComplianceSettings?.vatInclusiveDisplay ?? DEFAULT_MRA_COMPLIANCE_SETTINGS.vatInclusiveDisplay,
         zReportAutoGenerate: apiResponse.mraComplianceSettings?.zReportAutoGenerate ?? DEFAULT_MRA_COMPLIANCE_SETTINGS.zReportAutoGenerate,
-        zReportTime: apiResponse.mraComplianceSettings?.zReportTime ?? DEFAULT_MRA_COMPLIANCE_SETTINGS.zReportTime,
-        dailySalesReportTime: apiResponse.mraComplianceSettings?.dailySalesReportTime ?? DEFAULT_MRA_COMPLIANCE_SETTINGS.dailySalesReportTime,
+        zReportTime: decodeHtmlEntities(apiResponse.mraComplianceSettings?.zReportTime) || DEFAULT_MRA_COMPLIANCE_SETTINGS.zReportTime,
+        dailySalesReportTime: decodeHtmlEntities(apiResponse.mraComplianceSettings?.dailySalesReportTime) || DEFAULT_MRA_COMPLIANCE_SETTINGS.dailySalesReportTime,
 
         // JSON Column - Inventory Settings
         showProductImages: apiResponse.inventorySettings?.showProductImages ?? DEFAULT_INVENTORY_SETTINGS.showProductImages,
         productDisplayMode: apiResponse.inventorySettings?.productDisplayMode ?? DEFAULT_INVENTORY_SETTINGS.productDisplayMode,
-        productsPerPage: apiResponse.inventorySettings?.productsPerPage ?? DEFAULT_INVENTORY_SETTINGS.productsPerPage,
+        productsPerPage: toNumber(apiResponse.inventorySettings?.productsPerPage, DEFAULT_INVENTORY_SETTINGS.productsPerPage),
         quickProductSearch: apiResponse.inventorySettings?.quickProductSearch ?? DEFAULT_INVENTORY_SETTINGS.quickProductSearch,
         barcodeScanMode: apiResponse.inventorySettings?.barcodeScanMode ?? DEFAULT_INVENTORY_SETTINGS.barcodeScanMode,
         scaleIntegrationMode: apiResponse.inventorySettings?.scaleIntegrationMode ?? DEFAULT_INVENTORY_SETTINGS.scaleIntegrationMode,
         allowNegativeStock: apiResponse.inventorySettings?.allowNegativeStock ?? DEFAULT_INVENTORY_SETTINGS.allowNegativeStock,
-        lowStockThreshold: apiResponse.inventorySettings?.lowStockThreshold ?? DEFAULT_INVENTORY_SETTINGS.lowStockThreshold,
+        lowStockThreshold: toNumber(apiResponse.inventorySettings?.lowStockThreshold, DEFAULT_INVENTORY_SETTINGS.lowStockThreshold),
         showStockLevels: apiResponse.inventorySettings?.showStockLevels ?? DEFAULT_INVENTORY_SETTINGS.showStockLevels,
         enableStockAlerts: apiResponse.inventorySettings?.enableStockAlerts ?? DEFAULT_INVENTORY_SETTINGS.enableStockAlerts,
         autoOrderEnabled: apiResponse.inventorySettings?.autoOrderEnabled ?? DEFAULT_INVENTORY_SETTINGS.autoOrderEnabled,
 
         // JSON Column - Sync Settings
         enableOfflineMode: apiResponse.syncSettings?.enableOfflineMode ?? DEFAULT_SYNC_SETTINGS.enableOfflineMode,
-        offlineDataRetentionDays: apiResponse.syncSettings?.offlineDataRetentionDays ?? DEFAULT_SYNC_SETTINGS.offlineDataRetentionDays,
+        offlineDataRetentionDays: toNumber(apiResponse.syncSettings?.offlineDataRetentionDays, DEFAULT_SYNC_SETTINGS.offlineDataRetentionDays),
         syncOnWifiOnly: apiResponse.syncSettings?.syncOnWifiOnly ?? DEFAULT_SYNC_SETTINGS.syncOnWifiOnly,
         autoSyncOnReconnect: apiResponse.syncSettings?.autoSyncOnReconnect ?? DEFAULT_SYNC_SETTINGS.autoSyncOnReconnect,
-        syncBatchSize: apiResponse.syncSettings?.syncBatchSize ?? DEFAULT_SYNC_SETTINGS.syncBatchSize,
-        syncTimeoutSeconds: apiResponse.syncSettings?.syncTimeoutSeconds ?? DEFAULT_SYNC_SETTINGS.syncTimeoutSeconds,
+        syncBatchSize: toNumber(apiResponse.syncSettings?.syncBatchSize, DEFAULT_SYNC_SETTINGS.syncBatchSize),
+        syncTimeoutSeconds: toNumber(apiResponse.syncSettings?.syncTimeoutSeconds, DEFAULT_SYNC_SETTINGS.syncTimeoutSeconds),
         enableCloudSync: apiResponse.syncSettings?.enableCloudSync ?? DEFAULT_SYNC_SETTINGS.enableCloudSync,
 
         // JSON Column - Security Settings (extended)
-        maxLoginAttempts: apiResponse.securitySettings?.maxLoginAttempts ?? DEFAULT_SECURITY_SETTINGS.maxLoginAttempts,
-        lockoutMinutes: apiResponse.securitySettings?.lockoutMinutes ?? DEFAULT_SECURITY_SETTINGS.lockoutMinutes,
+        maxLoginAttempts: toNumber(apiResponse.securitySettings?.maxLoginAttempts, DEFAULT_SECURITY_SETTINGS.maxLoginAttempts),
+        lockoutMinutes: toNumber(apiResponse.securitySettings?.lockoutMinutes, DEFAULT_SECURITY_SETTINGS.lockoutMinutes),
         requirePinForSettings: apiResponse.securitySettings?.requirePinForSettings ?? DEFAULT_SECURITY_SETTINGS.requirePinForSettings,
         requirePinForReports: apiResponse.securitySettings?.requirePinForReports ?? DEFAULT_SECURITY_SETTINGS.requirePinForReports,
         requirePinForVoid: apiResponse.securitySettings?.requirePinForVoid ?? DEFAULT_SECURITY_SETTINGS.requirePinForVoid,
@@ -399,66 +438,66 @@ export const mapApiResponseToSettings = (apiResponse: TerminalSettingsApiRespons
         auditLogEnabled: apiResponse.securitySettings?.auditLogEnabled ?? DEFAULT_SECURITY_SETTINGS.auditLogEnabled,
 
         // JSON Column - Performance Settings
-        cacheExpiryHours: apiResponse.performanceSettings?.cacheExpiryHours ?? DEFAULT_PERFORMANCE_SETTINGS.cacheExpiryHours,
-        maxCacheSizeMB: apiResponse.performanceSettings?.maxCacheSizeMB ?? DEFAULT_PERFORMANCE_SETTINGS.maxCacheSizeMB,
-        transactionHistoryDays: apiResponse.performanceSettings?.transactionHistoryDays ?? DEFAULT_PERFORMANCE_SETTINGS.transactionHistoryDays,
+        cacheExpiryHours: toNumber(apiResponse.performanceSettings?.cacheExpiryHours, DEFAULT_PERFORMANCE_SETTINGS.cacheExpiryHours),
+        maxCacheSizeMB: toNumber(apiResponse.performanceSettings?.maxCacheSizeMB, DEFAULT_PERFORMANCE_SETTINGS.maxCacheSizeMB),
+        transactionHistoryDays: toNumber(apiResponse.performanceSettings?.transactionHistoryDays, DEFAULT_PERFORMANCE_SETTINGS.transactionHistoryDays),
         autoCleanupOldData: apiResponse.performanceSettings?.autoCleanupOldData ?? DEFAULT_PERFORMANCE_SETTINGS.autoCleanupOldData,
-        imageCompressionQuality: apiResponse.performanceSettings?.imageCompressionQuality ?? DEFAULT_PERFORMANCE_SETTINGS.imageCompressionQuality,
+        imageCompressionQuality: toNumber(apiResponse.performanceSettings?.imageCompressionQuality, DEFAULT_PERFORMANCE_SETTINGS.imageCompressionQuality),
 
         // JSON Column - Hardware Settings
         printerConnectionType: apiResponse.hardwareSettings?.printerConnectionType ?? DEFAULT_HARDWARE_SETTINGS.printerConnectionType,
-        printerPaperWidth: apiResponse.hardwareSettings?.printerPaperWidth ?? DEFAULT_HARDWARE_SETTINGS.printerPaperWidth,
-        cashDrawerOpenCode: apiResponse.hardwareSettings?.cashDrawerOpenCode ?? DEFAULT_HARDWARE_SETTINGS.cashDrawerOpenCode,
+        printerPaperWidth: toNumber(apiResponse.hardwareSettings?.printerPaperWidth, DEFAULT_HARDWARE_SETTINGS.printerPaperWidth),
+        cashDrawerOpenCode: decodeHtmlEntities(apiResponse.hardwareSettings?.cashDrawerOpenCode) || DEFAULT_HARDWARE_SETTINGS.cashDrawerOpenCode,
         scannerBeepEnabled: apiResponse.hardwareSettings?.scannerBeepEnabled ?? DEFAULT_HARDWARE_SETTINGS.scannerBeepEnabled,
         scannerVibrationEnabled: apiResponse.hardwareSettings?.scannerVibrationEnabled ?? DEFAULT_HARDWARE_SETTINGS.scannerVibrationEnabled,
-        screenBrightness: apiResponse.hardwareSettings?.screenBrightness ?? DEFAULT_HARDWARE_SETTINGS.screenBrightness,
-        screenTimeoutSeconds: apiResponse.hardwareSettings?.screenTimeoutSeconds ?? DEFAULT_HARDWARE_SETTINGS.screenTimeoutSeconds,
+        screenBrightness: toNumber(apiResponse.hardwareSettings?.screenBrightness, DEFAULT_HARDWARE_SETTINGS.screenBrightness),
+        screenTimeoutSeconds: toNumber(apiResponse.hardwareSettings?.screenTimeoutSeconds, DEFAULT_HARDWARE_SETTINGS.screenTimeoutSeconds),
         printerType: apiResponse.hardwareSettings?.printerType ?? DEFAULT_HARDWARE_SETTINGS.printerType,
-        printerName: apiResponse.hardwareSettings?.printerName ?? DEFAULT_HARDWARE_SETTINGS.printerName,
+        printerName: decodeHtmlEntities(apiResponse.hardwareSettings?.printerName) || DEFAULT_HARDWARE_SETTINGS.printerName,
         autoPrintReceipt: apiResponse.hardwareSettings?.autoPrintReceipt ?? DEFAULT_HARDWARE_SETTINGS.autoPrintReceipt,
         paperSize: apiResponse.hardwareSettings?.paperSize ?? DEFAULT_HARDWARE_SETTINGS.paperSize,
         enableCashDrawer: apiResponse.hardwareSettings?.enableCashDrawer ?? DEFAULT_HARDWARE_SETTINGS.enableCashDrawer,
         cashDrawerOpenOn: apiResponse.hardwareSettings?.cashDrawerOpenOn ?? DEFAULT_HARDWARE_SETTINGS.cashDrawerOpenOn,
         enableBarcodeScanner: apiResponse.hardwareSettings?.enableBarcodeScanner ?? DEFAULT_HARDWARE_SETTINGS.enableBarcodeScanner,
-        barcodeScannerPrefix: apiResponse.hardwareSettings?.barcodeScannerPrefix ?? DEFAULT_HARDWARE_SETTINGS.barcodeScannerPrefix,
+        barcodeScannerPrefix: decodeHtmlEntities(apiResponse.hardwareSettings?.barcodeScannerPrefix) || DEFAULT_HARDWARE_SETTINGS.barcodeScannerPrefix,
         enableCardReader: apiResponse.hardwareSettings?.enableCardReader ?? DEFAULT_HARDWARE_SETTINGS.enableCardReader,
         cardReaderType: apiResponse.hardwareSettings?.cardReaderType ?? DEFAULT_HARDWARE_SETTINGS.cardReaderType,
 
         // JSON Column - Integration Settings
-        apiBaseUrl: apiResponse.integrationSettings?.apiBaseUrl ?? DEFAULT_INTEGRATION_SETTINGS.apiBaseUrl,
-        mraApiTimeoutSeconds: apiResponse.integrationSettings?.mraApiTimeoutSeconds ?? DEFAULT_INTEGRATION_SETTINGS.mraApiTimeoutSeconds,
-        mraRetryAttempts: apiResponse.integrationSettings?.mraRetryAttempts ?? DEFAULT_INTEGRATION_SETTINGS.mraRetryAttempts,
+        apiBaseUrl: decodeHtmlEntities(apiResponse.integrationSettings?.apiBaseUrl) || DEFAULT_INTEGRATION_SETTINGS.apiBaseUrl,
+        mraApiTimeoutSeconds: toNumber(apiResponse.integrationSettings?.mraApiTimeoutSeconds, DEFAULT_INTEGRATION_SETTINGS.mraApiTimeoutSeconds),
+        mraRetryAttempts: toNumber(apiResponse.integrationSettings?.mraRetryAttempts, DEFAULT_INTEGRATION_SETTINGS.mraRetryAttempts),
         webhookEnabled: apiResponse.integrationSettings?.webhookEnabled ?? DEFAULT_INTEGRATION_SETTINGS.webhookEnabled,
-        webhookUrl: apiResponse.integrationSettings?.webhookUrl ?? DEFAULT_INTEGRATION_SETTINGS.webhookUrl,
+        webhookUrl: decodeHtmlEntities(apiResponse.integrationSettings?.webhookUrl) || DEFAULT_INTEGRATION_SETTINGS.webhookUrl,
         webhookSecret: apiResponse.integrationSettings?.webhookSecret ?? DEFAULT_INTEGRATION_SETTINGS.webhookSecret,
-        apiKeyExpiryDays: apiResponse.integrationSettings?.apiKeyExpiryDays ?? DEFAULT_INTEGRATION_SETTINGS.apiKeyExpiryDays,
+        apiKeyExpiryDays: toNumber(apiResponse.integrationSettings?.apiKeyExpiryDays, DEFAULT_INTEGRATION_SETTINGS.apiKeyExpiryDays),
         enableApiAccess: apiResponse.integrationSettings?.enableApiAccess ?? DEFAULT_INTEGRATION_SETTINGS.enableApiAccess,
-        apiRateLimit: apiResponse.integrationSettings?.apiRateLimit ?? DEFAULT_INTEGRATION_SETTINGS.apiRateLimit,
+        apiRateLimit: toNumber(apiResponse.integrationSettings?.apiRateLimit, DEFAULT_INTEGRATION_SETTINGS.apiRateLimit),
 
         // JSON Column - Workflow Settings
         allowReturnWithoutReceipt: apiResponse.workflowSettings?.allowReturnWithoutReceipt ?? DEFAULT_WORKFLOW_SETTINGS.allowReturnWithoutReceipt,
-        returnPeriodDays: apiResponse.workflowSettings?.returnPeriodDays ?? DEFAULT_WORKFLOW_SETTINGS.returnPeriodDays,
+        returnPeriodDays: toNumber(apiResponse.workflowSettings?.returnPeriodDays, DEFAULT_WORKFLOW_SETTINGS.returnPeriodDays),
         requireManagerForVoid: apiResponse.workflowSettings?.requireManagerForVoid ?? DEFAULT_WORKFLOW_SETTINGS.requireManagerForVoid,
         managerOverridePin: apiResponse.workflowSettings?.managerOverridePin ?? DEFAULT_WORKFLOW_SETTINGS.managerOverridePin,
         autoCloseShift: apiResponse.workflowSettings?.autoCloseShift ?? DEFAULT_WORKFLOW_SETTINGS.autoCloseShift,
-        shiftCloseTime: apiResponse.workflowSettings?.shiftCloseTime ?? DEFAULT_WORKFLOW_SETTINGS.shiftCloseTime,
-        dailyOpeningTime: apiResponse.workflowSettings?.dailyOpeningTime ?? DEFAULT_WORKFLOW_SETTINGS.dailyOpeningTime,
+        shiftCloseTime: decodeHtmlEntities(apiResponse.workflowSettings?.shiftCloseTime) || DEFAULT_WORKFLOW_SETTINGS.shiftCloseTime,
+        dailyOpeningTime: decodeHtmlEntities(apiResponse.workflowSettings?.dailyOpeningTime) || DEFAULT_WORKFLOW_SETTINGS.dailyOpeningTime,
         enableCashManagement: apiResponse.workflowSettings?.enableCashManagement ?? DEFAULT_WORKFLOW_SETTINGS.enableCashManagement,
         requireOpeningFloat: apiResponse.workflowSettings?.requireOpeningFloat ?? DEFAULT_WORKFLOW_SETTINGS.requireOpeningFloat,
-        openingFloatAmount: apiResponse.workflowSettings?.openingFloatAmount ?? DEFAULT_WORKFLOW_SETTINGS.openingFloatAmount,
+        openingFloatAmount: toNumber(apiResponse.workflowSettings?.openingFloatAmount, DEFAULT_WORKFLOW_SETTINGS.openingFloatAmount),
         enableShiftManagement: apiResponse.workflowSettings?.enableShiftManagement ?? DEFAULT_WORKFLOW_SETTINGS.enableShiftManagement,
         enableMultipleUsers: apiResponse.workflowSettings?.enableMultipleUsers ?? DEFAULT_WORKFLOW_SETTINGS.enableMultipleUsers,
         enableReturns: apiResponse.workflowSettings?.enableReturns ?? DEFAULT_WORKFLOW_SETTINGS.enableReturns,
         enableLayaway: apiResponse.workflowSettings?.enableLayaway ?? DEFAULT_WORKFLOW_SETTINGS.enableLayaway,
         enableDiscounts: apiResponse.workflowSettings?.enableDiscounts ?? DEFAULT_WORKFLOW_SETTINGS.enableDiscounts,
-        maxDiscountPercentage: apiResponse.workflowSettings?.maxDiscountPercentage ?? DEFAULT_WORKFLOW_SETTINGS.maxDiscountPercentage,
+        maxDiscountPercentage: toNumber(apiResponse.workflowSettings?.maxDiscountPercentage, DEFAULT_WORKFLOW_SETTINGS.maxDiscountPercentage),
 
         // JSON Column - Backup Settings
         backupEnabled: apiResponse.backupSettings?.backupEnabled ?? DEFAULT_BACKUP_SETTINGS.backupEnabled,
         backupFrequency: apiResponse.backupSettings?.backupFrequency ?? DEFAULT_BACKUP_SETTINGS.backupFrequency,
         autoBackupEnabled: apiResponse.backupSettings?.autoBackupEnabled ?? DEFAULT_BACKUP_SETTINGS.autoBackupEnabled,
-        backupIntervalHours: apiResponse.backupSettings?.backupIntervalHours ?? DEFAULT_BACKUP_SETTINGS.backupIntervalHours,
-        maxBackupFiles: apiResponse.backupSettings?.maxBackupFiles ?? DEFAULT_BACKUP_SETTINGS.maxBackupFiles,
+        backupIntervalHours: toNumber(apiResponse.backupSettings?.backupIntervalHours, DEFAULT_BACKUP_SETTINGS.backupIntervalHours),
+        maxBackupFiles: toNumber(apiResponse.backupSettings?.maxBackupFiles, DEFAULT_BACKUP_SETTINGS.maxBackupFiles),
         backupLocation: apiResponse.backupSettings?.backupLocation ?? DEFAULT_BACKUP_SETTINGS.backupLocation,
 
         // JSON Column - Display Settings
@@ -478,20 +517,20 @@ export const mapApiResponseToSettings = (apiResponse: TerminalSettingsApiRespons
         showTaxOnReceipt: apiResponse.taxFeeSettings?.showTaxOnReceipt ?? DEFAULT_TAX_FEE_SETTINGS.showTaxOnReceipt,
         multiTaxEnabled: apiResponse.taxFeeSettings?.multiTaxEnabled ?? DEFAULT_TAX_FEE_SETTINGS.multiTaxEnabled,
         serviceFeeEnabled: apiResponse.taxFeeSettings?.serviceFeeEnabled ?? DEFAULT_TAX_FEE_SETTINGS.serviceFeeEnabled,
-        serviceFeePercentage: apiResponse.taxFeeSettings?.serviceFeePercentage ?? DEFAULT_TAX_FEE_SETTINGS.serviceFeePercentage,
+        serviceFeePercentage: toNumber(apiResponse.taxFeeSettings?.serviceFeePercentage, DEFAULT_TAX_FEE_SETTINGS.serviceFeePercentage),
 
         // JSON Column - Customer Management Settings
         enableLoyaltyProgram: apiResponse.customerManagementSettings?.enableLoyaltyProgram ?? DEFAULT_CUSTOMER_MANAGEMENT_SETTINGS.enableLoyaltyProgram,
-        loyaltyPointsPerDollar: apiResponse.customerManagementSettings?.loyaltyPointsPerDollar ?? DEFAULT_CUSTOMER_MANAGEMENT_SETTINGS.loyaltyPointsPerDollar,
+        loyaltyPointsPerDollar: toNumber(apiResponse.customerManagementSettings?.loyaltyPointsPerDollar, DEFAULT_CUSTOMER_MANAGEMENT_SETTINGS.loyaltyPointsPerDollar),
         enableCustomerAccounts: apiResponse.customerManagementSettings?.enableCustomerAccounts ?? DEFAULT_CUSTOMER_MANAGEMENT_SETTINGS.enableCustomerAccounts,
         enableCustomerCredit: apiResponse.customerManagementSettings?.enableCustomerCredit ?? DEFAULT_CUSTOMER_MANAGEMENT_SETTINGS.enableCustomerCredit,
-        maxCustomerCredit: apiResponse.customerManagementSettings?.maxCustomerCredit ?? DEFAULT_CUSTOMER_MANAGEMENT_SETTINGS.maxCustomerCredit,
+        maxCustomerCredit: toNumber(apiResponse.customerManagementSettings?.maxCustomerCredit, DEFAULT_CUSTOMER_MANAGEMENT_SETTINGS.maxCustomerCredit),
 
         // JSON Column - Reporting Settings
         eodReportEnabled: apiResponse.reportingSettings?.eodReportEnabled ?? DEFAULT_REPORTING_SETTINGS.eodReportEnabled,
-        eodReportTime: apiResponse.reportingSettings?.eodReportTime ?? DEFAULT_REPORTING_SETTINGS.eodReportTime,
+        eodReportTime: decodeHtmlEntities(apiResponse.reportingSettings?.eodReportTime) || DEFAULT_REPORTING_SETTINGS.eodReportTime,
         emailReports: apiResponse.reportingSettings?.emailReports ?? DEFAULT_REPORTING_SETTINGS.emailReports,
-        reportEmail: apiResponse.reportingSettings?.reportEmail ?? DEFAULT_REPORTING_SETTINGS.reportEmail,
+        reportEmail: decodeHtmlEntities(apiResponse.reportingSettings?.reportEmail) || DEFAULT_REPORTING_SETTINGS.reportEmail,
 
         // Audit & Metadata
         settingsVersion: apiResponse.settingsVersion ?? DEFAULT_AUDIT_METADATA.settingsVersion,
@@ -771,6 +810,7 @@ export const mapSettingsToApiPayload = (settings: AppSettings): Partial<Terminal
  * Get complete default settings
  */
 export const getDefaultSettings = (overrides?: Partial<AppSettings>): AppSettings => ({
+    terminalId: '',
     // Selective Columns
     ...DEFAULT_GENERAL_SETTINGS,
     ...DEFAULT_SELECTIVE_LOCALIZATION,

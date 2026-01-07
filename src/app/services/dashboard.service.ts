@@ -1,23 +1,20 @@
 import api from './http.service';
 
 const endpoints = {
-	monthlySales: 'dashboard/monthly-sales',
-	topProducts: 'dashboard/top-products',
-	counts: 'dashboard/counts',
-	transactions: 'dashboard/transactions',
+	monthlySales: 'analytics/monthly-sales',
+	topProducts: 'analytics/top-products',
+	counts: 'analytics/counts',
+	transactions: 'analytics/transactions',
+	transactionItems: 'analytics/transaction',
+	transactionDetails: 'analytics/transaction',
 };
 
 const dashboardService = {
 	endpoints,
 
-	async monthlySales(
-		userId: string,
-		monthYear: string
-	): Promise<MonthlySales[]> {
+	async monthlySales(monthYear: string): Promise<MonthlySales[]> {
 		return api
-			.get<MonthlySales[]>(
-				endpoints.monthlySales + '/' + userId + '/' + monthYear
-			)
+			.get<MonthlySales[]>(`${endpoints.monthlySales}/${monthYear}`)
 			.then((res) => res.data)
 			.catch((err) => {
 				throw err;
@@ -33,24 +30,44 @@ const dashboardService = {
 			});
 	},
 
-	async counts(userId: string): Promise<DashboardCounts> {
+	async counts(): Promise<DashboardCounts> {
 		return api
-			.get<DashboardCounts>(endpoints.counts + '/' + userId)
+			.get<DashboardCounts>(endpoints.counts)
 			.then((res) => res.data)
 			.catch((err) => {
 				throw err;
 			});
 	},
 
-	async transactions(userId: string, limit: number, offset = 0) {
+	async transactions(limit: number, offset = 0) {
 		return api
 			.get<{
 				total: number;
 				hasMore: boolean;
 				transactions: Array<Transaction>;
-			}>(`${endpoints.transactions}/${userId}/${limit}/${offset}`, {
-				includeItems: true,
-			})
+			}>(`${endpoints.transactions}/${limit}/${offset}`)
+			.then((res) => res.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+
+	async transactionItems(transactionId: string) {
+		return api
+			.get<Array<CartItem>>(
+				`${endpoints.transactionItems}/${transactionId}/items`
+			)
+			.then((res) => res.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+
+	async transactionDetails(transactionId: string) {
+		return api
+			.get<Transaction>(
+				`${endpoints.transactionDetails}/${transactionId}/details`
+			)
 			.then((res) => res.data)
 			.catch((err) => {
 				throw err;

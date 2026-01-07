@@ -122,7 +122,7 @@ export const useSettings = (): UseSettingsReturn => {
      */
     const handleResetSettings = useCallback(async () => {
         try {
-            await settingsService.reset();
+            await settingsService.resetSettings();
             Report.success('Success!', 'Settings reset to default', 'Ok');
             setShowResetConfirm(false);
             await loadSettings();

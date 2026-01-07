@@ -40,7 +40,7 @@ const TransactionItems: FunctionComponent<{
     </div>
 );
 
-const ItemRow: FunctionComponent<{ item: Partial<CartItem & { productDetails: InventoryItem }> }> = ({ item }) => {
+const ItemRow: FunctionComponent<{ item: CartItem }> = ({ item }) => {
     const itemTotal = item.quantity * item.sellPrice;
 
     return (

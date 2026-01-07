@@ -62,13 +62,12 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const userId = user.userId;
                 const monthYear = dayjs(currentMonthYear).format('YYYY-MM');
 
                 const [counts, topProducts, monthlySales] = await Promise.all([
-                    dashboardService.counts(userId),
+                    dashboardService.counts(),
                     dashboardService.topProducts(),
-                    dashboardService.monthlySales(userId, monthYear),
+                    dashboardService.monthlySales(monthYear),
                 ]);
 
                 setDashboardCounts(counts as unknown as ReadOnlyDashboardCounts);
@@ -85,14 +84,14 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
     }, [user]);
 
     useEffect(() => {
-        if (currentMonthYear && user) {
+        if (currentMonthYear) {
             (async () => {
                 const monthYear = dayjs(currentMonthYear).format('YYYY-MM');
-                const monthlySales = await dashboardService.monthlySales(user.userId, monthYear);
+                const monthlySales = await dashboardService.monthlySales(monthYear);
                 setMonthlySalesData(monthlySales);
             })();
         }
-    }, [currentMonthYear, user]);
+    }, [currentMonthYear]);
 
     const goToPreviousDate = () => {
         setCurrentMonthYear(prevDate => {

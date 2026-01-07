@@ -29,13 +29,8 @@ interface TextInputProps {
 
 type DataTypes = string | number | undefined | null | boolean;
 
-interface Printer {
-	name: string;
-	status: string;
-	isDefault: boolean;
-	location?: string;
-	model?: string;
-}
+// Note: Printer interface is now defined in printer.d.ts for API-managed printers
+// The old simple Printer interface has been replaced with a more comprehensive one
 
 type CartTableFooterProps = {
 	cart: Record[];

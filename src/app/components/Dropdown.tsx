@@ -170,7 +170,7 @@ export const Dropdown: FunctionComponent<DropdownOptionProps> = ({
 
     const defaultRenderOption = (option: DropdownOption) => (
         <div className="flex-1">
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between">
                 <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     {option.label}
                 </h4>
@@ -196,10 +196,10 @@ export const Dropdown: FunctionComponent<DropdownOptionProps> = ({
     );
 
     const defaultRenderSelected = (option: DropdownOption) => (
-        <div className="flex items-center space-x-2 flex-1">
-            <Check className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+        <div className="flex items-start space-x-2 flex-1">
+            <Check className="h-5 w-5 text-g-600 dark:text-g-400 flex-shrink-0" />
             <div className="flex flex-col min-w-0">
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate flex items-start">
                     {option.label}
                 </span>
                 {option.description && (
@@ -213,12 +213,10 @@ export const Dropdown: FunctionComponent<DropdownOptionProps> = ({
 
     const borderColor = error
         ? 'border-red-500 dark:border-red-400'
-        : selectedOption
-            ? 'border-blue-500 dark:border-blue-400'
-            : 'border-gray-300 dark:border-gray-600';
+        : 'border-gray-300 dark:border-gray-600';
 
     const bgColor = selectedOption
-        ? 'bg-blue-50 dark:bg-blue-900/20'
+        ? 'bg-gray-50 dark:bg-g-900/20'
         : disabled
             ? 'bg-gray-100 dark:bg-gray-800'
             : 'bg-white dark:bg-gray-700';
@@ -226,7 +224,6 @@ export const Dropdown: FunctionComponent<DropdownOptionProps> = ({
     return (
         <div className={`relative ${className}`} ref={dropdownRef}>
             <div className="relative">
-                {/* Trigger Button/Input */}
                 {searchable && !selectedOption ? (
                     <div className="relative">
                         {Icon && (
@@ -243,7 +240,7 @@ export const Dropdown: FunctionComponent<DropdownOptionProps> = ({
                             placeholder={disabled ? disabledPlaceholder : placeholder}
                             autoFocus={autoFocus}
                             className={`block w-full ${Icon ? 'pl-10' : 'pl-3'} pr-10 py-3 border-2 rounded-lg leading-5 transition-all duration-200 sm:text-sm
-                                ${disabled ? 'cursor-not-allowed' : 'focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800'}
+                                ${disabled ? 'cursor-not-allowed' : 'focus:border-g-500 dark:focus:border-g-400 focus:ring-2 focus:ring-g-200 dark:focus:ring-g-800'}
                                 ${borderColor} ${bgColor}
                                 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400`}
                         />
@@ -257,7 +254,7 @@ export const Dropdown: FunctionComponent<DropdownOptionProps> = ({
                         onClick={handleToggleDropdown}
                         disabled={disabled || isLoading}
                         className={`flex items-center justify-between w-full ${Icon ? 'pl-10' : 'pl-3'} pr-3 py-3 border-2 rounded-lg transition-all duration-200
-                            ${disabled ? 'cursor-not-allowed' : 'hover:border-blue-400 dark:hover:border-blue-500'}
+                            ${disabled ? 'cursor-not-allowed' : 'hover:border-g-400 dark:hover:border-g-500'}
                             ${borderColor} ${bgColor}`}
                     >
                         {Icon && (
@@ -272,7 +269,7 @@ export const Dropdown: FunctionComponent<DropdownOptionProps> = ({
                                     <button
                                         type="button"
                                         onClick={handleClear}
-                                        className="ml-2 p-1 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded transition-colors duration-200"
+                                        className="ml-2 p-1 hover:bg-g-100 dark:hover:bg-g-900/40 rounded transition-colors duration-200"
                                     >
                                         <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                     </button>
@@ -290,19 +287,17 @@ export const Dropdown: FunctionComponent<DropdownOptionProps> = ({
                 )}
             </div>
 
-            {/* Error Message */}
             {error && (
                 <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
             )}
 
-            {/* Dropdown Menu */}
             {isDropdownOpen && !disabled && (
                 <div
                     className={`absolute z-50 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border-2 border-gray-300 dark:border-gray-600 ${maxHeight} overflow-y-auto`}
                 >
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center py-8">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-g-600 dark:border-g-400"></div>
                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">{loadingMessage}</p>
                         </div>
                     ) : filteredOptions.length > 0 ? (
@@ -318,7 +313,7 @@ export const Dropdown: FunctionComponent<DropdownOptionProps> = ({
                                             ? 'opacity-50 cursor-not-allowed'
                                             : 'hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
                                         }
-                                        ${selectedOption?.value === option.value ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
+                                        ${selectedOption?.value === option.value ? 'bg-g-50 dark:bg-g-900/20' : ''}`}
                                 >
                                     {renderOption ? renderOption(option) : defaultRenderOption(option)}
                                 </button>

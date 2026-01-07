@@ -1,8 +1,15 @@
-import React, { useState, FunctionComponent } from 'react';
+import React, { useState, FunctionComponent, useCallback } from 'react';
 import { useFocusManager } from '../hooks/useFocusManager';
 
 type KeyboardVariant = 'numpad' | 'full';
 type NumpadType = 'standard' | 'simple' | 'basic';
+type KeyboardTheme = 'default' | 'dark' | 'light';
+
+interface KeyboardSettings {
+    theme?: KeyboardTheme;
+    enableSound?: boolean;
+    enableHaptic?: boolean;
+}
 
 interface InputKeyboardProps {
     variant: KeyboardVariant;
@@ -15,6 +22,7 @@ interface InputKeyboardProps {
     onBackspace?: () => void;
     onEnter?: () => void;
     onSpace?: () => void;
+    settings?: KeyboardSettings;
 }
 
 const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
@@ -28,9 +36,49 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
     onBackspace,
     onEnter,
     onSpace,
+    settings = {},
 }) => {
     const [isShiftPressed, setIsShiftPressed] = useState(false);
     const [capsLock, setCapsLock] = useState(false);
+
+    const { theme = 'default', enableSound = false, enableHaptic = false } = settings;
+
+    // Sound feedback
+    const playKeySound = useCallback(() => {
+        if (!enableSound) return;
+        try {
+            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.05);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.05);
+        } catch (e) {
+            // Silently fail if audio context is not supported
+        }
+    }, [enableSound]);
+
+    // Haptic feedback
+    const triggerHaptic = useCallback(() => {
+        if (!enableHaptic) return;
+        if (navigator.vibrate) {
+            navigator.vibrate(10);
+        }
+    }, [enableHaptic]);
+
+    // Combined feedback handler
+    const triggerFeedback = useCallback(() => {
+        playKeySound();
+        triggerHaptic();
+    }, [playKeySound, triggerHaptic]);
 
     const getNumpadButtons = (type: NumpadType): string[] => {
         switch (type) {
@@ -75,6 +123,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
     };
 
     const handleFullKeyPress = (key: string) => {
+        triggerFeedback();
         if (!onKeyPress) return;
 
         let finalKey = key;
@@ -104,10 +153,12 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
     };
 
     const handleShift = () => {
+        triggerFeedback();
         setIsShiftPressed(!isShiftPressed);
     };
 
     const handleCapsLock = () => {
+        triggerFeedback();
         setCapsLock(!capsLock);
         setIsShiftPressed(false);
     };
@@ -130,9 +181,54 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
         e.preventDefault();
     };
 
+    // Wrapper handlers with feedback
+    const handleBackspaceClick = () => {
+        triggerFeedback();
+        onBackspace?.();
+    };
+
+    const handleEnterClick = () => {
+        triggerFeedback();
+        onEnter?.();
+    };
+
+    const handleSpaceClick = () => {
+        triggerFeedback();
+        onSpace?.();
+    };
+
+    // Theme-based classes
+    const getThemeClasses = () => {
+        switch (theme) {
+            case 'dark':
+                return {
+                    container: 'bg-gray-900',
+                    title: 'text-gray-300',
+                    regularKey: 'bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 active:from-gray-500 active:to-gray-600 border border-gray-600 text-gray-200',
+                    specialKey: 'bg-gradient-to-b from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600 active:from-gray-400 active:to-gray-500 border border-gray-500 text-gray-200',
+                };
+            case 'light':
+                return {
+                    container: 'bg-gray-100',
+                    title: 'text-gray-800',
+                    regularKey: 'bg-gradient-to-b from-white to-gray-100 hover:from-gray-100 hover:to-gray-200 active:from-gray-200 active:to-gray-300 border border-gray-300 text-gray-800',
+                    specialKey: 'bg-gradient-to-b from-gray-200 to-gray-300 hover:from-gray-300 hover:to-gray-400 active:from-gray-400 active:to-gray-500 border border-gray-400 text-gray-800',
+                };
+            default:
+                return {
+                    container: 'bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900',
+                    title: 'text-black dark:text-gray-400',
+                    regularKey: 'bg-gradient-to-b from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 active:from-gray-300 active:to-gray-400 border border-gray-400 text-gray-800 dark:from-gray-700 dark:to-gray-800 dark:hover:from-gray-600 dark:hover:to-gray-700 dark:active:from-gray-500 dark:active:to-gray-600 dark:border-gray-600 dark:text-gray-200',
+                    specialKey: 'bg-gradient-to-b from-gray-300 to-gray-400 hover:from-gray-400 hover:to-gray-500 active:from-gray-500 active:to-gray-600 border border-gray-500 text-gray-800 dark:from-gray-600 dark:to-gray-700 dark:hover:from-gray-500 dark:hover:to-gray-600 dark:active:from-gray-400 dark:active:to-gray-500 dark:border-gray-500 dark:text-gray-200',
+                };
+        }
+    };
+
+    const themeClasses = getThemeClasses();
+
     const keyBaseClasses = "flex items-center justify-center text-xl font-semibold rounded-lg transition-all duration-150 select-none cursor-pointer active:scale-95 h-14 shadow-sm";
-    const regularKeyClasses = "bg-gradient-to-b from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 active:from-gray-300 active:to-gray-400 border border-gray-400 text-gray-800 dark:from-gray-700 dark:to-gray-800 dark:hover:from-gray-600 dark:hover:to-gray-700 dark:active:from-gray-500 dark:active:to-gray-600 dark:border-gray-600 dark:text-gray-200";
-    const specialKeyClasses = "bg-gradient-to-b from-gray-300 to-gray-400 hover:from-gray-400 hover:to-gray-500 active:from-gray-500 active:to-gray-600 border border-gray-500 text-gray-800 dark:from-gray-600 dark:to-gray-700 dark:hover:from-gray-500 dark:hover:to-gray-600 dark:active:from-gray-400 dark:active:to-gray-500 dark:border-gray-500 dark:text-gray-200";
+    const regularKeyClasses = themeClasses.regularKey;
+    const specialKeyClasses = themeClasses.specialKey;
     const activeSpecialClasses = "bg-gradient-to-b from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white border-blue-600 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-400 dark:hover:to-blue-500 dark:border-blue-500";
     const backKeyClasses = "bg-gradient-to-b from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 border border-yellow-600 text-gray-800 dark:from-yellow-500 dark:to-yellow-600 dark:hover:from-yellow-400 dark:hover:to-yellow-500 dark:border-yellow-500 dark:text-gray-900";
     const enterKeyClasses = "bg-gradient-to-b from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 border-green-600 text-white dark:from-green-500 dark:to-green-600 dark:hover:from-green-400 dark:hover:to-green-500 dark:border-green-500";
@@ -143,7 +239,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
 
         return (
             <div className="flex flex-col h-[calc(56vh)]">
-                {title && <h3 className="text-3xl font-bold text-black dark:text-gray-400 mb-4 uppercase">{title}</h3>}
+                {title && <h3 className={`text-3xl font-bold mb-4 uppercase ${themeClasses.title}`}>{title}</h3>}
                 <div className={`flex-1 ${className}`}>
                     <div className="grid grid-cols-3 gap-1 h-full" style={{ gridTemplateRows: 'repeat(5, 1fr)' }}>
                         {numpadButtons.map((btn, index) => (
@@ -153,6 +249,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                                     type="button"
                                     onMouseDown={(e) => {
                                         e.preventDefault();
+                                        triggerFeedback();
                                         onButtonClick?.(btn);
                                     }}
                                     className={getNumpadButtonClass(btn)}
@@ -172,8 +269,8 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
     }
 
     return (
-        <div className={`virtual-keyboard bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 p-3 border-none border-gray-300 dark:border-gray-600 rounded-none w-full min-w-0 ${className}`}>
-            {title && <h3 className="text-xl font-bold text-black dark:text-gray-400 mb-3 uppercase">{title}</h3>}
+        <div className={`virtual-keyboard ${themeClasses.container} p-3 border-none border-gray-300 dark:border-gray-600 rounded-none w-full min-w-0 ${className}`}>
+            {title && <h3 className={`text-xl font-bold mb-3 uppercase ${themeClasses.title}`}>{title}</h3>}
             <div className="flex-1 space-y-2">
                 <div className={rowGridClass}>
                     <button
@@ -210,7 +307,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                     <button
                         type="button"
                         onMouseDown={handleMouseDown}
-                        onClick={onBackspace}
+                        onClick={handleBackspaceClick}
                         className={`${keyBaseClasses} ${backKeyClasses}`}
                         style={{ gridColumn: 'span 2' }}
                         tabIndex={-1}
@@ -305,7 +402,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                     <button
                         type="button"
                         onMouseDown={handleMouseDown}
-                        onClick={onEnter}
+                        onClick={handleEnterClick}
                         className={`${keyBaseClasses} ${enterKeyClasses}`}
                         style={{ gridColumn: 'span 1.6' }}
                         tabIndex={-1}
@@ -384,7 +481,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                     <button
                         type="button"
                         onMouseDown={handleMouseDown}
-                        onClick={onSpace}
+                        onClick={handleSpaceClick}
                         className={`${keyBaseClasses} ${regularKeyClasses}`}
                         style={{ gridColumn: 'span 7.2' }}
                         tabIndex={-1}

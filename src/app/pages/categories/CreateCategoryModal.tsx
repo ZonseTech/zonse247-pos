@@ -16,6 +16,7 @@ type Props = {
     isOpen?: boolean;
     onClose?: () => void;
     onSuccess?: (...arg: any) => void;
+    categoriesCount?: number;
 }
 
 const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
@@ -23,14 +24,19 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
     showAddButton = true,
     isOpen = false,
     onClose,
-    onSuccess
+    onSuccess,
+    categoriesCount = 0,
 }) => {
     const [isOpenForm, setIsOpenForm] = useState(isOpen);
+    const isEditing = !!category;
+    const showDefaultOption = !isEditing && categoriesCount === 0;
+
     const [categoryValues, setCategoryValues] = useState<Partial<Category>>({
         categoryId: '',
         name: '',
         description: '',
-        color: '#3B82F6'
+        color: '#3B82F6',
+        isDefault: showDefaultOption,
     });
 
     const predefinedColors = [
@@ -64,17 +70,19 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
                 categoryId: category.categoryId || '',
                 name: category.name || '',
                 description: category.description || '',
-                color: category.color || '#3B82F6'
+                color: category.color || '#3B82F6',
+                isDefault: category.isDefault || false,
             });
         } else {
             setCategoryValues({
                 categoryId: '',
                 name: '',
                 description: '',
-                color: '#3B82F6'
+                color: '#3B82F6',
+                isDefault: showDefaultOption,
             });
         }
-    }, [category]);
+    }, [category, showDefaultOption]);
 
     useEffect(() => {
         setIsOpenForm(isOpen);
@@ -87,7 +95,7 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
             if (categoryValues.categoryId && category) {
                 await categoriesService.update(category.categoryId.toString(), values);
                 Notify.success('Category updated successfully!');
-                setCategoryValues({ categoryId: '', name: '', description: '', color: '#3B82F6' });
+                setCategoryValues({ categoryId: '', name: '', description: '', color: '#3B82F6', isDefault: false });
 
                 if (onSuccess) {
                     onSuccess?.();
@@ -115,7 +123,7 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
                     diagOptions.cancelButtonText,
                     () => {
                         resetForm();
-                        setCategoryValues({ categoryId: '', name: '', description: '', color: '#3B82F6' });
+                        setCategoryValues({ categoryId: '', name: '', description: '', color: '#3B82F6', isDefault: false });
                     },
                     () => {
                         setIsOpenForm(false);
@@ -135,8 +143,6 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
             setSubmitting(false);
         }
     }
-
-    const isEditing = !!category;
 
     return (
         <Fragment>
@@ -226,6 +232,24 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
                                     </div>
                                     {errors.color && touched.color && (
                                         <p className="mt-2 text-sm text-red-600 dark:text-red-400">{errors.color}</p>
+                                    )}
+
+                                    {showDefaultOption && (
+                                        <div className="flex items-center space-x-2 pt-2">
+                                            <label className="flex items-center space-x-2 cursor-not-allowed opacity-60">
+                                                <input
+                                                    type="checkbox"
+                                                    name="isDefault"
+                                                    checked={values.isDefault || false}
+                                                    readOnly
+                                                    disabled
+                                                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 cursor-not-allowed"
+                                                />
+                                                <span className="text-sm text-gray-700 dark:text-gray-300">
+                                                    Set as Default Category
+                                                </span>
+                                            </label>
+                                        </div>
                                     )}
                                 </FormWrapper>
 
