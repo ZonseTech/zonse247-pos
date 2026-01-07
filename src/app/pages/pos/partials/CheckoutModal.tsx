@@ -3,7 +3,7 @@ import { Form, Formik, } from 'formik';
 import EPayment from './EPayment';
 import CashPayment from './CashPayment';
 import BankTransfer from './BankTransfer';
-import { FunctionComponent, useState, useEffect } from 'react';
+import { FunctionComponent, useState, useEffect, use } from 'react';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useInventory } from '../../../hooks/useInventory';
 import { useAuth } from '../../../context/AuthProvider';
@@ -23,7 +23,7 @@ interface CheckoutModalProps {
 
 export const CHECKOUT = {
     BANK_TRANSFER: 'bank-transfer',
-    E_PAYMENT: 'e-payment',
+    E_PAYMENT: 'mobile-money',
     CASH: 'cash',
 } as const;
 
@@ -207,7 +207,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
-            <div className="bg-white dark:bg-gray-900 w-full max-w-6xl max-h-[95vh] md:max-h-[90vh] flex flex-col rounded-lg md:rounded-none overflow-hidden">
+            <div className="bg-white dark:bg-gray-900 w-full max-w-4xl xl:max-w-6xl h-auto max-h-[95vh] md:max-h-[90vh] flex flex-col rounded-lg md:rounded-none overflow-hidden">
                 <div className="text-black p-3 md:p-4 border-b flex items-center justify-between flex-shrink-0">
                     <div className="flex items-center gap-2">
                         <div className="w-6 h-6 md:w-8 md:h-8 rounded flex items-center justify-center">

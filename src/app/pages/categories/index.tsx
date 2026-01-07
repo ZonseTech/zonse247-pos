@@ -20,6 +20,7 @@ const CategoriesManager: FunctionComponent = () => {
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
     const {
+        categories,
         isLoading,
         searchTerm,
         setSearchTerm,
@@ -146,6 +147,7 @@ const CategoriesManager: FunctionComponent = () => {
                     onClose={handleModalClose}
                     onSuccess={handleModalSuccess}
                     showAddButton={false}
+                    categoriesCount={categories.length}
                 />
             </div>
         </AppLayout>

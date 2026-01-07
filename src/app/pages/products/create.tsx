@@ -14,7 +14,7 @@ import { useProducts } from '../../hooks/useProducts';
 import { useSettings } from '../../hooks/useSettings';
 import { ROUTES } from '../../utils/constants';
 import BarcodeManager from './partials/BarcodeManager';
-import { CategorySearch } from '../inventory/partials/CategorySearch';
+import { CategorySearch } from '../categories/partials/CategorySearch';
 
 const ProductForm: FunctionComponent = () => {
     const navigate = useNavigate();

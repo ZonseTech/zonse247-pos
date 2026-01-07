@@ -1,11 +1,11 @@
 import api from './http.service';
 import { version } from '../../../package.json';
-import { 
-    mapSettingsToApiPayload, 
-    mapApiResponseToSettings, 
-    getDefaultSettings,
-    decodeHtmlEntities,
-    toNumber 
+import {
+	mapSettingsToApiPayload,
+	mapApiResponseToSettings,
+	getDefaultSettings,
+	decodeHtmlEntities,
+	toNumber
 } from '../pages/settings/constants/defaultValues';
 import { isElectron } from '../../helpers/index.helper';
 
@@ -96,10 +96,6 @@ const requireTerminalId = async (): Promise<string> => {
 const settingsService = {
 	endpoints,
 	getTerminalId,
-
-	// ============================================
-	// API ENDPOINTS
-	// ============================================
 
 	/**
 	 * GET / - Get all terminal settings (for admin/listing purposes)
@@ -264,6 +260,7 @@ const settingsService = {
 			.then((res) => {
 				const apiResponse = res.data.data;
 				const mappedSettings = mapApiResponseToSettings(apiResponse ?? null);
+				mappedSettings.terminalId = terminalId;
 				return getDefaultSettings(mappedSettings);
 			})
 			.catch((err) => {
@@ -309,10 +306,6 @@ const settingsService = {
 				throw err;
 			});
 	},
-
-	// ============================================
-	// SETUP & CONFIGURATION
-	// ============================================
 
 	/**
 	 * Get setup parameters from server

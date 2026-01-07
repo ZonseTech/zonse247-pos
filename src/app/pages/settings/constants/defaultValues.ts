@@ -8,10 +8,10 @@
  */
 export const decodeHtmlEntities = (str: string | null | undefined): string => {
     if (!str) return '';
-    
+
     let decoded = str;
     let prevDecoded = '';
-    
+
     // Keep decoding until no more changes (handles multiple encoding levels)
     while (decoded !== prevDecoded) {
         prevDecoded = decoded;
@@ -26,7 +26,7 @@ export const decodeHtmlEntities = (str: string | null | undefined): string => {
             .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
             .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)));
     }
-    
+
     return decoded;
 };
 
@@ -307,6 +307,8 @@ export const mapApiResponseToSettings = (apiResponse: TerminalSettingsApiRespons
     if (!apiResponse) return {};
 
     return {
+        terminalId: apiResponse.terminalId || '',
+
         // Selective Columns - General Information
         storeName: decodeHtmlEntities(apiResponse.storeName) || DEFAULT_GENERAL_SETTINGS.storeName,
         storeAddress: decodeHtmlEntities(apiResponse.storeAddress) || DEFAULT_GENERAL_SETTINGS.storeAddress,
@@ -808,6 +810,7 @@ export const mapSettingsToApiPayload = (settings: AppSettings): Partial<Terminal
  * Get complete default settings
  */
 export const getDefaultSettings = (overrides?: Partial<AppSettings>): AppSettings => ({
+    terminalId: '',
     // Selective Columns
     ...DEFAULT_GENERAL_SETTINGS,
     ...DEFAULT_SELECTIVE_LOCALIZATION,

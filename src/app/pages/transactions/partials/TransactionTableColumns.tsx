@@ -110,7 +110,9 @@ export const getTransactionTableColumns = ({
             cell: (row) => {
                 const canReturn = returnsService.canReturn(row);
                 const refundSummary = returnsService.getRefundSummary(row);
-                const showReturnButton = canReturn && !refundSummary.isFullyRefunded;
+                const isRefunded = row.status === 'refunded';
+                const hasRefundInProgress = row.refunds?.some(r => r.status === 'pending');
+                const showReturnButton = canReturn && !refundSummary.isFullyRefunded && !isRefunded && !hasRefundInProgress;
 
                 return (
                     <div className="flex gap-1">

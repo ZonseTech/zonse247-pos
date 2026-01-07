@@ -10,6 +10,7 @@ import { Button } from '../../components';
 import FormInput from '../../components/FormInput';
 import FormWrapper from '../../components/FormWrapper';
 import FormSelectBox from '../../components/FormSelectBox';
+import FormSearchableSelect from '../../components/FormSearchableSelect';
 import { ROUTES } from '../../utils/constants';
 import { usePurchaseOrders } from '../../hooks/usePurchaseOrders';
 import { useSuppliers } from '../../hooks/useSuppliers';
@@ -246,10 +247,11 @@ const PurchaseOrderForm: FunctionComponent = () => {
                                                                 )}
                                                             </div>
                                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                                <FormSelectBox
+                                                                <FormSearchableSelect
                                                                     label="Product"
                                                                     name={`items.${index}.productId`}
                                                                     options={productOptions}
+                                                                    placeholder="Search for a product..."
                                                                     required
                                                                 />
                                                                 <FormInput

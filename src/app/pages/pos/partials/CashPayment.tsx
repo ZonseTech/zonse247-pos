@@ -106,9 +106,11 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
         return `MK ${numericValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     };
 
+    const showKeyboard = !isMobile && keyboardSettings.enabled;
+
     return (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
-            {!isMobile && keyboardSettings.enabled && <div>
+        <div className={`grid grid-cols-1 ${showKeyboard ? 'xl:grid-cols-2' : ''} gap-4 md:gap-6 mb-6 md:mb-8`}>
+            {showKeyboard && <div>
                 <InputKeyboard
                     variant="numpad"
                     onButtonClick={handleNumpadClick}
@@ -123,7 +125,7 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
                     }}
                 />
             </div>}
-            <div className='space-y-4 md:space-y-8'>
+            <div className={`space-y-4 md:space-y-8 ${!showKeyboard ? 'max-w-2xl mx-auto w-full' : ''}`}>
                 <div>
                     <h3 className="text-xl md:text-5xl font-bold text-black dark:text-gray-400 mb-2">BALANCE DUE</h3>
                     <input

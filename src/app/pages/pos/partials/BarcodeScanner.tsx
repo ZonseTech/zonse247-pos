@@ -66,7 +66,11 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
 
         const cleanedCode = cleanBarcode(code);
         if (cleanedCode.length >= MIN_BARCODE_LENGTH) {
-            const exactMatch = inventory.find(p => p.barcode.toString() === cleanedCode);
+            const exactMatch = inventory.find(p =>
+                p.barcode.toString() === cleanedCode &&
+                parseFloat(p.quantity) > 0 &&
+                (!p.status || p.status.toLowerCase() === 'active')
+            );
             if (exactMatch) {
                 triggerFeedback();
                 addToCart(exactMatch);
@@ -108,10 +112,23 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
         const cleanedBarcode = cleanBarcode(scannedBarcode);
         if (cleanedBarcode === '') return;
 
-        let item = inventory.find(p => p.barcode.toString() === cleanedBarcode);
+        let item = inventory.find(p =>
+            p.barcode.toString() === cleanedBarcode &&
+            parseFloat(p.quantity) > 0 &&
+            (!p.status || p.status.toLowerCase() === 'active')
+        );
 
         if (!item) {
             item = await searchByBarcodeAPI(cleanedBarcode);
+            // Check if the API result is available
+            if (item && (parseFloat(item.quantity) <= 0 || (item.status && item.status.toLowerCase() !== 'active'))) {
+                Confirm.show(
+                    'Product unavailable',
+                    `Product "${item.name}" is out of stock or inactive`,
+                    'OK'
+                );
+                return;
+            }
         }
 
         if (item) {
@@ -191,11 +208,17 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     useEffect(() => {
         // Frontend filtering is intentional for POS performance
         // Real-time barcode scanning requires instant filtering without API delays
+        // Only show available products (quantity > 0 and active status)
+        const availableInventory = inventory.filter(item =>
+            parseFloat(item.quantity) > 0 &&
+            (!item.status || item.status.toLowerCase() === 'active')
+        );
+
         if (barcode.trim() === '') {
-            setFilteredItems(inventory);
+            setFilteredItems(availableInventory);
         } else {
             const cleanedInput = cleanBarcode(barcode);
-            const filtered = inventory.filter(item =>
+            const filtered = availableInventory.filter(item =>
                 item.barcode.toString().includes(cleanedInput) ||
                 item.name.toLowerCase().includes(cleanedInput.toLowerCase())
             );

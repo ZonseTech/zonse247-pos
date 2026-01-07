@@ -38,7 +38,6 @@ export const getPurchaseOrderTableColumns = ({
             ),
             sortable: true,
             grow: 2,
-            minWidth: '200px',
         },
         {
             name: 'Items',

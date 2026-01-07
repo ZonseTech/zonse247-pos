@@ -23,6 +23,7 @@ export { default as SectionTitle } from './typography/SectionTitle';
 export { default as Select } from './Select';
 export { default as Textarea } from './Textarea';
 export { default as ZonseUIKitContext } from './ZonseUIKitContext';
+export { default as FormSearchableSelect } from './FormSearchableSelect';
 
 // Form components
 export { default as FormInput } from './form/FormInput';

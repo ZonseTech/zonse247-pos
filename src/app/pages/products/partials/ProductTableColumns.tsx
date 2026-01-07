@@ -74,30 +74,18 @@ export const getProductTableColumns = ({
         {
             name: 'Status',
             cell: (row) => {
-                const statusConfig = {
-                    ACTIVE: {
+                const isActive = row.isActive;
+                const config = isActive
+                    ? {
                         label: 'Active',
                         className: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
                         dotColor: 'bg-green-500',
-                    },
-                    INACTIVE: {
+                    }
+                    : {
                         label: 'Inactive',
                         className: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
                         dotColor: 'bg-gray-500',
-                    },
-                    DISCONTINUED: {
-                        label: 'Discontinued',
-                        className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-                        dotColor: 'bg-red-500',
-                    },
-                    OUT_OF_STOCK: {
-                        label: 'Out of Stock',
-                        className: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-                        dotColor: 'bg-orange-500',
-                    },
-                };
-
-                const config = statusConfig[row.status] || statusConfig.ACTIVE;
+                    };
 
                 return (
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${config.className}`}>

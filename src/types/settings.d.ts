@@ -357,6 +357,8 @@ type TerminalSettingsApiResponse = {
  * All nested JSON settings are flattened for easy form binding
  */
 type AppSettings = {
+    terminalId: string;
+
     // General Information (Selective Columns)
     storeName: string;
     storeAddress: string;
