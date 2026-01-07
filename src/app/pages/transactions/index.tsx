@@ -9,9 +9,11 @@ import { Button, ZonseThemeContext, DateRangeFilter } from "../../components";
 import { SearchBar } from "../../components/SearchBar";
 import { getTableStyles } from "../../utils/table-styles";
 import { useTransactions } from "../../hooks/useTransactions";
+import { useTransactionSummary } from "../../hooks/useTransactionSummary";
 import { getTransactionTableColumns } from "./partials/TransactionTableColumns";
 import { StatusFilter } from "./partials/StatusFilter";
 import TransactionDetailsModal from "./partials/TransactionDetailsModal";
+import TransactionSummaryCards from "./partials/TransactionSummaryCards";
 import InitiateReturnModal from "../returns/partials/InitiateReturnModal";
 import { useNavigate } from "react-router";
 import { ROUTES } from "../../utils/constants";
@@ -44,6 +46,13 @@ const TransactionsPage: FC = () => {
         handlePerRowsChange,
         exportData,
     } = useTransactions();
+
+    const { isLoadingSummary, getSummaryCards } = useTransactionSummary({
+        searchTerm,
+        startDate,
+        endDate,
+        selectedStatus,
+    });
 
     const handleViewDetails = useCallback((transaction: Transaction) => {
         setSelectedTransaction(transaction);
@@ -78,9 +87,7 @@ const TransactionsPage: FC = () => {
                             </span>}
                         </Button>
                     }
-                />
-
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                >
                     <div className="p-4 md:p-6 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
                         <div className="flex flex-col gap-4">
                             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
@@ -136,6 +143,14 @@ const TransactionsPage: FC = () => {
                             </div>
                         </div>
                     </div>
+                </PageHeader>
+
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+
+                    <TransactionSummaryCards
+                        cards={getSummaryCards()}
+                        isLoading={isLoadingSummary}
+                    />
 
                     <div className="overflow-hidden">
                         <DataTable

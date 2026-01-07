@@ -73,3 +73,12 @@ interface TransactionQueryParams {
     page?: number;
     perPage?: number;
 }
+
+interface TransactionSummaryResponse {
+    totalSales: number;
+    totalReturns: number;
+    netSales: number;
+    totalTransactions: number;
+    salesCount: number;
+    returnsCount: number;
+}
