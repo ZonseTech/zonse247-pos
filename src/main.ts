@@ -51,7 +51,6 @@ const createWindow = async (skipOnboarding: boolean = false) => {
 	try {
 		if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
 			await mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
-			mainWindow.webContents.openDevTools();
 		} else {
 			await mainWindow.loadFile(
 				path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
@@ -61,6 +60,8 @@ const createWindow = async (skipOnboarding: boolean = false) => {
 		mainWindow.webContents.on('did-finish-load', () => {
 			mainWindow.webContents.send('onboarding-status', { skipOnboarding });
 		});
+
+		mainWindow.webContents.openDevTools();
 
 		mainWindow.show();
 	} catch (error) {
