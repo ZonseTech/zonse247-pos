@@ -23,7 +23,10 @@
     "lint": "eslint",
     "ionic:build": "npm run build",
     "ionic:serve": "npm run dev -- --open",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "db:verify-template": "node -e \"const fs = require('fs'); const path = require('path'); const dbPath = path.join('node_modules', 'zonse247-pos-api', 'dist', 'databases', 'template.db'); if (fs.existsSync(dbPath)) { console.log('✓ Template database found:', dbPath); const stats = fs.statSync(dbPath); console.log('  Size:', stats.size, 'bytes'); } else { console.error('✗ Template database not found'); process.exit(1); }\"",
+    "db:status": "node -e \"const Database = require('better-sqlite3'); const path = require('path'); const dbPath = path.join('node_modules', 'zonse247-pos-api', 'dist', 'databases', 'template.db'); const db = new Database(dbPath, { readonly: true }); const meta = db.prepare('SELECT * FROM db_meta').all(); console.log('Database meta:', meta); db.close();\"",
+    "prebuild:electron": "npm run db:verify-template"
   },
   "dependencies": {
     "@capacitor/android": "7.3.0",
@@ -92,7 +95,7 @@
     "uuid": "^11.1.0",
     "validator": "^13.15.0",
     "yup": "^1.6.1",
-    "zonse247-pos-api": "file:libs/zonse247-pos-api-1.4.8.tgz",
+    "zonse247-pos-api": "file:../../NodeJs/zonse247-pos-api/zonse247-pos-api-1.4.9.tgz",
     "zustand": "^5.0.5"
   },
   "devDependencies": {

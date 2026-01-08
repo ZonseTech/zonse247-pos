@@ -31,6 +31,9 @@ const copyNativeModules = (buildPath: string) => {
 const config: ForgeConfig = {
 	packagerConfig: {
 		asar: false,
+		extraResource: [
+			path.join(__dirname, 'node_modules', 'zonse247-pos-api', 'dist', 'databases', 'template.db'),
+		],
 	},
 	rebuildConfig: {
 		force: true,

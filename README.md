@@ -17,17 +17,11 @@
 - Performance Tuning - Cache settings, image compression, data cleanup
 
 [TODO] develop drugs - pills counting device
-{
-0|api  |   businessName: 'Linne',
-0|api  |   ownerName: 'Timm',
-0|api  |   email: 'linneltd1@gmail.com',
-0|api  |   tenantCode: 'TNT-MK45279G-7KJUT',
-0|api  |   verificationToken: '4c058f6db6d3c06a20a322b2e1486b5ade7abd08e6015cd50c4f4214bf086c1322fc19687be4bcba476126db9f3a0835e4811080:8563119f74af139ca9b7ae67fcdaabe9',
-0|api  |   username: 'linneltd1',
-0|api  |   password: 'TNT-MK45279G-7KJUT'
-0|api  | }
 
-Error: Request timeout
-    at Timeout._onTimeout (C:\Users\mazoh\AppData\Local\zonse247_pos\app-1.3.0\resources\app\.vite\build\index-C7BsdEGT.js:2000:22517)
-    at listOnTimeout (node:internal/timers:588:17)
-    at process.processTimers (node:internal/timers:523:7)
+0|api | businessName: 'Linne',
+0|api | ownerName: 'Timm',
+0|api | email: 'linneltd1@gmail.com',
+0|api | tenantCode: 'TNT-MK45279G-7KJUT',
+0|api | verificationToken: '4c058f6db6d3c06a20a322b2e1486b5ade7abd08e6015cd50c4f4214bf086c1322fc19687be4bcba476126db9f3a0835e4811080:8563119f74af139ca9b7ae67fcdaabe9',
+0|api | username: 'linneltd1',
+0|api | password: 'TNT-MK45279G-7KJUT'
