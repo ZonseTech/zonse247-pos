@@ -10,6 +10,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
         clearSetup: () => ipcRenderer.invoke('settings:clear-setup'),
     },
 
+    database: {
+        getStatus: () => ipcRenderer.invoke('db:status'),
+        runMigrations: () => ipcRenderer.invoke('db:run-migrations'),
+    },
+
     menu: {
         rebuild: (user: User) =>
             ipcRenderer.invoke('menu:rebuild', user),

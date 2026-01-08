@@ -1,5 +1,5 @@
 import { ipcMain } from "electron";
-import { SecureSettingsService } from "zonse247-pos-api";
+import { DatabaseInitializer, SecureSettingsService } from "zonse247-pos-api";
 
 export function setupIPC() {
 
@@ -60,6 +60,24 @@ export function setupIPC() {
         } catch (error: any) {
             console.error('Failed to clear setup:', error);
             return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('db:status', async () => {
+        try {
+            return DatabaseInitializer.getStatus();
+        } catch (error) {
+            console.error('Failed to get database status:', error);
+            return null;
+        }
+    });
+
+    ipcMain.handle('db:run-migrations', async () => {
+        try {
+            return await DatabaseInitializer.runMigrations();
+        } catch (error) {
+            console.error('Failed to run migrations:', error);
+            return { success: false, error: String(error) };
         }
     });
 }

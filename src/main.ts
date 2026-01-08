@@ -1,19 +1,15 @@
 import path from 'node:path';
 import MenuBuilder from './partials/menu';
 import { setupIPC } from './ipc/setup.ipc';
+import { setupMenuIPC } from './ipc/menu.ipc';
 import started from 'electron-squirrel-startup';
 import { isElectron } from './helpers/index.helper';
 import { app, BrowserWindow, screen, shell } from 'electron';
-import { setupMenuIPC } from './ipc/menu.ipc';
-import Zonse247PosApi, { SecureSettingsService } from 'zonse247-pos-api'
+import Zonse247PosApi, { SecureSettingsService } from 'zonse247-pos-api';
 
 if (started) {
 	app.quit();
 }
-
-
-const server = new Zonse247PosApi(app)
-process.env.DATABASE_URL = `file:${path.join(app.getPath('userData'), 'local.db')}`;
 
 const createWindow = async (skipOnboarding: boolean = false) => {
 	const primaryDisplay = screen.getPrimaryDisplay();
@@ -39,17 +35,6 @@ const createWindow = async (skipOnboarding: boolean = false) => {
 		return { action: 'deny' };
 	});
 
-	if (isElectron()) {
-		try {
-			await server.start();
-			console.log('Server started successfully');
-		} catch (error) {
-			console.error('Failed to start server:', error);
-			app.quit();
-			return;
-		}
-	}
-
 	try {
 		if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
 			await mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
@@ -71,7 +56,21 @@ const createWindow = async (skipOnboarding: boolean = false) => {
 	}
 };
 
+let server: Zonse247PosApi | null = null;
 app.whenReady().then(async () => {
+	server = new Zonse247PosApi(app);
+
+	if (isElectron()) {
+		try {
+			await server.start();
+			console.log('✓ Server started successfully');
+		} catch (error) {
+			console.error('Failed to start server:', error);
+			app.quit();
+			return;
+		}
+	}
+
 	await SecureSettingsService.initialize(app.getPath('userData'));
 
 	setupIPC();

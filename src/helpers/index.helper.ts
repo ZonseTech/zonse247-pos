@@ -9,6 +9,21 @@ declare global {
                 saveSetup: (setupData: SetupData) => Promise<ApiResponse<void>>;
                 updateSetup: (updates: Partial<SetupData>) => Promise<ApiResponse<void>>;
             };
+            database: {
+                getStatus: () => Promise<{
+                    initialized: boolean;
+                    version: string | null;
+                    targetVersion: string;
+                    needsMigration: boolean;
+                    dbPath: string;
+                    backupsPath: string;
+                } | null>;
+                runMigrations: () => Promise<{
+                    success: boolean;
+                    migrationsApplied: string[];
+                    error?: string;
+                }>;
+            };
             menu: {
                 rebuild: (user: User) => void;
                 onLogout: (callback: () => void) => () => void;
