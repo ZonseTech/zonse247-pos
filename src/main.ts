@@ -11,7 +11,9 @@ if (started) {
 	app.quit();
 }
 
+
 const server = new Zonse247PosApi(app)
+process.env.DATABASE_URL = `file:${path.join(app.getPath('userData'), 'local.db')}`;
 
 const createWindow = async (skipOnboarding: boolean = false) => {
 	const primaryDisplay = screen.getPrimaryDisplay();
@@ -70,9 +72,7 @@ const createWindow = async (skipOnboarding: boolean = false) => {
 };
 
 app.whenReady().then(async () => {
-	// Use Electron's user data path for secure storage (writable location)
-	const userDataPath = path.join(app.getPath('userData'), '.secure-data');
-	await SecureSettingsService.initialize(userDataPath);
+	await SecureSettingsService.initialize(app.getPath('userData'));
 
 	setupIPC();
 	setupMenuIPC();

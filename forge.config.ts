@@ -11,7 +11,6 @@ import type { ForgeConfig } from '@electron-forge/shared-types';
 
 const version = process.env.npm_package_version;
 
-// Native modules that need to be copied to the packaged app
 const nativeModules = ['better-sqlite3', 'bindings', 'file-uri-to-path'];
 
 const copyNativeModules = (buildPath: string) => {
@@ -38,10 +37,7 @@ const config: ForgeConfig = {
 	},
 	hooks: {
 		packageAfterPrune: async (_config, buildPath) => {
-			// Copy native modules first
 			copyNativeModules(buildPath);
-
-			// Then rebuild for Electron
 			const { rebuild } = await import('@electron/rebuild');
 			await rebuild({
 				buildPath,
