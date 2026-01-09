@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Notify } from 'notiflix';
-import printerService from '../services/printer.service';
+import printAgentAdapter from '../adapter/print-agent-adapter';
 
 interface UsePrintAgentOptions {
     autoRefresh?: boolean;
@@ -14,11 +14,20 @@ interface UsePrintAgentReturn {
     isLoading: boolean;
     isStarting: boolean;
     isStopping: boolean;
+    isNative: boolean; // Whether using native Electron print agent
     startAgent: () => Promise<boolean>;
     stopAgent: () => Promise<boolean>;
     refreshStatus: () => Promise<void>;
     loadPermissions: () => Promise<void>;
     loadSetupInstructions: () => Promise<void>;
+    // Print operations
+    print: (content: string, options?: {
+        contentType?: 'html' | 'url' | 'raw';
+        printerName?: string;
+        copies?: number;
+        silent?: boolean;
+    }) => Promise<{ success: boolean; jobId?: string; error?: string }>;
+    printReceipt: (html: string, printerName?: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 export const usePrintAgent = (options: UsePrintAgentOptions = {}): UsePrintAgentReturn => {
@@ -31,9 +40,11 @@ export const usePrintAgent = (options: UsePrintAgentOptions = {}): UsePrintAgent
     const [isStarting, setIsStarting] = useState(false);
     const [isStopping, setIsStopping] = useState(false);
 
+    const isNative = printAgentAdapter.isNativeAvailable();
+
     const refreshStatus = useCallback(async () => {
         try {
-            const status = await printerService.getAgentStatus();
+            const status = await printAgentAdapter.getAgentStatus();
             setAgentStatus(status);
         } catch (error: any) {
             console.error('Error fetching agent status:', error);
@@ -43,22 +54,22 @@ export const usePrintAgent = (options: UsePrintAgentOptions = {}): UsePrintAgent
 
     const loadPermissions = useCallback(async () => {
         try {
-            const perms = await printerService.getAgentPermissions();
+            const perms = await printAgentAdapter.getAgentPermissions();
             setPermissions(perms);
         } catch (error: any) {
             console.error('Error fetching agent permissions:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to load permissions';
+            const errorMessage = error?.message || 'Failed to load permissions';
             Notify.failure(errorMessage);
         }
     }, []);
 
     const loadSetupInstructions = useCallback(async () => {
         try {
-            const instructions = await printerService.getAgentSetupInstructions();
+            const instructions = await printAgentAdapter.getSetupInstructions();
             setSetupInstructions(instructions);
         } catch (error: any) {
             console.error('Error fetching setup instructions:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to load setup instructions';
+            const errorMessage = error?.message || 'Failed to load setup instructions';
             Notify.failure(errorMessage);
         }
     }, []);
@@ -66,13 +77,13 @@ export const usePrintAgent = (options: UsePrintAgentOptions = {}): UsePrintAgent
     const startAgent = useCallback(async (): Promise<boolean> => {
         setIsStarting(true);
         try {
-            const status = await printerService.startAgent();
+            const status = await printAgentAdapter.startAgent();
             setAgentStatus(status);
             Notify.success('Print agent started successfully');
             return true;
         } catch (error: any) {
             console.error('Error starting print agent:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to start print agent';
+            const errorMessage = error?.message || 'Failed to start print agent';
             Notify.failure(errorMessage);
             return false;
         } finally {
@@ -83,18 +94,34 @@ export const usePrintAgent = (options: UsePrintAgentOptions = {}): UsePrintAgent
     const stopAgent = useCallback(async (): Promise<boolean> => {
         setIsStopping(true);
         try {
-            const status = await printerService.stopAgent();
+            const status = await printAgentAdapter.stopAgent();
             setAgentStatus(status);
             Notify.success('Print agent stopped');
             return true;
         } catch (error: any) {
             console.error('Error stopping print agent:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to stop print agent';
+            const errorMessage = error?.message || 'Failed to stop print agent';
             Notify.failure(errorMessage);
             return false;
         } finally {
             setIsStopping(false);
         }
+    }, []);
+
+    const print = useCallback(async (
+        content: string,
+        options?: {
+            contentType?: 'html' | 'url' | 'raw';
+            printerName?: string;
+            copies?: number;
+            silent?: boolean;
+        }
+    ) => {
+        return printAgentAdapter.print(content, options);
+    }, []);
+
+    const printReceipt = useCallback(async (html: string, printerName?: string) => {
+        return printAgentAdapter.printReceipt(html, printerName);
     }, []);
 
     // Initial load
@@ -131,11 +158,14 @@ export const usePrintAgent = (options: UsePrintAgentOptions = {}): UsePrintAgent
         isLoading,
         isStarting,
         isStopping,
+        isNative,
         startAgent,
         stopAgent,
         refreshStatus,
         loadPermissions,
         loadSetupInstructions,
+        print,
+        printReceipt,
     };
 };
 

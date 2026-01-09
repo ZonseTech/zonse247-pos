@@ -304,7 +304,7 @@ class PrintAgentService {
             // Use webContents.getPrinters() if available (Electron < 20)
             // For newer versions, we need to use a different approach
             const webContents = win.webContents as any;
-            
+
             if (typeof webContents.getPrinters === 'function') {
                 this.printers = webContents.getPrinters();
             } else {
@@ -572,7 +572,7 @@ class PrintAgentService {
             job.completedAt = new Date();
         } catch (error: any) {
             job.retryCount++;
-            
+
             if (job.retryCount >= this.maxRetries) {
                 job.status = 'failed';
                 job.error = error.message;

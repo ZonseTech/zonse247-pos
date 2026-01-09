@@ -992,9 +992,9 @@ const PrintJobsManagement: FunctionComponent = () => {
                                 <ul className="space-y-2">
                                     {setupInstructions.links.map((link, index) => (
                                         <li key={index}>
-                                            <a 
-                                                href={link.url} 
-                                                target="_blank" 
+                                            <a
+                                                href={link.url}
+                                                target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="text-primary-600 dark:text-primary-400 hover:underline 
                                                     flex items-center gap-2"
