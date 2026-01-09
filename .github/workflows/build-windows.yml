@@ -1,130 +1,130 @@
 name: Build Windows Installer
 
 on:
-    push:
-        branches:
-            - release/windows-build
-            - main
-        tags:
-            - "v*"
-    pull_request:
-        branches:
-            - main
-    workflow_dispatch:
-        inputs:
-            version:
-                description: "Version tag (e.g., v1.3.0)"
-                required: false
-                default: ""
+  push:
+    branches:
+      - release/windows-build
+      - main
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag (e.g., v1.3.0)"
+        required: false
+        default: ""
 
 jobs:
-    build-windows:
-        runs-on: windows-latest
+  build-windows:
+    runs-on: windows-latest
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "20"
-                  cache: "npm"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
 
-            - name: Clean npm cache
-              run: npm cache clean --force
+      - name: Clean npm cache
+        run: npm cache clean --force
 
-            - name: Install dependencies
-              run: npm install
+      - name: Install dependencies
+        run: npm install
 
-            - name: Create .env file
-              run: |
-                  @"
-                  NODE_ENV=production
-                  APPNAME=zonse247-pos
-                  AUTO_SYNC_ENABLED=false
-                  APPLICATION_ENVIRONMENT=desktop
-                  APPLICATION_OFFLINE_MODE=false
+      - name: Create .env file
+        run: |
+          @"
+          NODE_ENV=production
+          APPNAME=zonse247-pos
+          AUTO_SYNC_ENABLED=false
+          APPLICATION_ENVIRONMENT=desktop
+          APPLICATION_OFFLINE_MODE=true
 
-                  # client config
-                  VITE_API_URL=http://127.0.0.1:3000/api/v1
-                  VITE_APP_TITLE=Zonse247 POS
-                  VITE_DEBUG_MODE=false
-                  VITE_APP_CLIENT_TYPE=desktop
+          # client config
+          VITE_API_URL=http://127.0.0.1:3000/api/v1
+          VITE_APP_TITLE=Zonse247 POS
+          VITE_DEBUG_MODE=false
+          VITE_APP_CLIENT_TYPE=desktop
 
-                  # API Configuration
-                  API_VERSION=v1
-                  API_PREFIX=/api
-                  API_HOST=139.59.103.109
-                  API_PORT=2025
+          # API Configuration
+          API_VERSION=v1
+          API_PREFIX=/api
+          API_HOST=139.59.103.109
+          API_PORT=2025
 
-                  SERVER_PORT=3000
-                  SERVER_HOST=127.0.0.1
+          SERVER_PORT=3000
+          SERVER_HOST=127.0.0.1
 
-                  # Server Configuration
-                  TRUST_PROXY=true
-                  SERVER_TIMEOUT=30000
+          # Server Configuration
+          TRUST_PROXY=true
+          SERVER_TIMEOUT=30000
 
-                  # JWT Configuration
-                  JWT_SECRET=b206c54227610532d1ddb46c207c7fb9f5d181d662eec89fa228fa2ca20dd2a4
-                  JWT_EXPIRES_IN=24h
-                  JWT_REFRESH_SECRET=3f2cc4c572e436978a4de705f7ceb47f72685c49f7d52f1b533219a7c986f709
-                  JWT_REFRESH_EXPIRES_IN=7d
+          # JWT Configuration
+          JWT_SECRET=b206c54227610532d1ddb46c207c7fb9f5d181d662eec89fa228fa2ca20dd2a4
+          JWT_EXPIRES_IN=24h
+          JWT_REFRESH_SECRET=3f2cc4c572e436978a4de705f7ceb47f72685c49f7d52f1b533219a7c986f709
+          JWT_REFRESH_EXPIRES_IN=7d
 
-                  # Security Configuration
-                  BCRYPT_SALT_ROUNDS=10
-                  CORS_REQUEST_SIZE_LIMIT=10mb
-                  CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000,http://localhost:3001,http://pos.vitalitymw.com,http://127.0.0.1:3000
+          # Security Configuration
+          BCRYPT_SALT_ROUNDS=10
+          CORS_REQUEST_SIZE_LIMIT=10mb
+          CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000,http://localhost:3001,http://pos.vitalitymw.com,http://127.0.0.1:3000
 
-                  # Rate Limiting
-                  RATE_LIMIT_WINDOW_MS=900000
-                  RATE_LIMIT_MAX_REQUESTS=100
-                  AUTH_RATE_LIMIT_MAX=5
-                  ACCOUNT_CREATION_LIMIT=5
+          # Rate Limiting
+          RATE_LIMIT_WINDOW_MS=900000
+          RATE_LIMIT_MAX_REQUESTS=100
+          AUTH_RATE_LIMIT_MAX=5
+          ACCOUNT_CREATION_LIMIT=5
 
-                  # For local SQLite
-                  DATABASE_OFFLINE_MODE=true
-                  DATABASE_PROVIDER=sqlite
-                  DATABASE_URL=file:./local.db
-                  "@ | Out-File -FilePath .env -Encoding utf8
+          # For local SQLite
+          DATABASE_OFFLINE_MODE=true
+          DATABASE_PROVIDER=sqlite
+          DATABASE_URL=file:./local.db
+          "@ | Out-File -FilePath .env -Encoding utf8
 
-            - name: Build Windows Installer
-              run: npm run make -- --platform win32 --arch x64
-              env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Windows Installer
+        run: npm run make -- --platform win32 --arch x64
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Upload Windows Installer
-              uses: actions/upload-artifact@v4
-              with:
-                  name: windows-installer
-                  path: out/make/squirrel.windows/x64/*.exe
-                  retention-days: 30
+      - name: Upload Windows Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: out/make/squirrel.windows/x64/*.exe
+          retention-days: 30
 
-            - name: Upload Windows RELEASES file
-              uses: actions/upload-artifact@v4
-              with:
-                  name: windows-releases
-                  path: out/make/squirrel.windows/x64/RELEASES
-                  retention-days: 30
+      - name: Upload Windows RELEASES file
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-releases
+          path: out/make/squirrel.windows/x64/RELEASES
+          retention-days: 30
 
-    # Optional: Create a release when a tag is pushed
-    release:
-        needs: build-windows
-        runs-on: ubuntu-latest
-        if: startsWith(github.ref, 'refs/tags/v')
+  # Optional: Create a release when a tag is pushed
+  release:
+    needs: build-windows
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
 
-        steps:
-            - name: Download Windows artifacts
-              uses: actions/download-artifact@v4
-              with:
-                  name: windows-installer
-                  path: ./artifacts
+    steps:
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-installer
+          path: ./artifacts
 
-            - name: Create Release
-              uses: softprops/action-gh-release@v2
-              with:
-                  files: ./artifacts/*.exe
-                  draft: true
-                  generate_release_notes: true
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./artifacts/*.exe
+          draft: true
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
