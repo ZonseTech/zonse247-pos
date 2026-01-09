@@ -58,7 +58,9 @@ const createWindow = async (skipOnboarding: boolean = false) => {
 
 let server: Zonse247PosApi | null = null;
 app.whenReady().then(async () => {
-	server = new Zonse247PosApi(app);
+	server = new Zonse247PosApi(app, {
+
+	});
 
 	if (isElectron()) {
 		try {

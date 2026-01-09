@@ -51,7 +51,7 @@ const config: ForgeConfig = {
 	},
 	makers: [
 		new MakerDeb({}),
-		new MakerRpm({}),
+		// new MakerRpm({}),
 		new MakerSquirrel({
 			name: 'zonse247_pos',
 			authors: 'Zonse247 Devs',
@@ -60,7 +60,7 @@ const config: ForgeConfig = {
 			setupExe: 'zonse247_pos_setup_v' + version + '.exe',
 			title: `Zonse247 POS ${version}`,
 		}),
-		new MakerZIP({}, ['darwin', 'linux']),
+		// new MakerZIP({}, ['darwin', 'linux']),
 	],
 	plugins: [
 		new VitePlugin({
