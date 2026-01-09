@@ -15,8 +15,14 @@ import {
     ChefHat,
     FileBarChart,
     TestTube,
-    Calendar,
-    Filter
+    Filter,
+    Play,
+    Square,
+    RotateCcw,
+    Settings,
+    Zap,
+    Activity,
+    ExternalLink
 } from 'lucide-react';
 import AppLayout from '../../layouts/AppLayout';
 import { HiOutlineQueueList } from 'react-icons/hi2';
@@ -28,7 +34,9 @@ import PageHeader from '../../components/page/PageHeader';
 import { Button, ZonseThemeContext } from '../../components';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import printerService from '../../services/printer.service';
+import { usePrintAgent } from '../../hooks/usePrintAgent';
 import { formatDistanceToNow, format } from 'date-fns';
+import CustomModal from '../../components/Modal';
 
 type JobStatusFilter = 'ALL' | PrintJobStatus;
 type JobTypeFilter = 'ALL' | PrintJobType;
@@ -60,6 +68,7 @@ const PrintJobsManagement: FunctionComponent = () => {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [printJobs, setPrintJobs] = useState<PrintJob[]>([]);
     const [printers, setPrinters] = useState<Printer[]>([]);
+    const [queueStatus, setQueueStatus] = useState<PrintQueueStatus | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<JobStatusFilter>('ALL');
     const [typeFilter, setTypeFilter] = useState<JobTypeFilter>('ALL');
@@ -67,11 +76,25 @@ const PrintJobsManagement: FunctionComponent = () => {
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
     const [cleanupDays, setCleanupDays] = useState(30);
+    const [showSetupModal, setShowSetupModal] = useState(false);
+
+    // Print Agent hook
+    const {
+        agentStatus,
+        permissions,
+        setupInstructions,
+        isLoading: agentLoading,
+        isStarting,
+        isStopping,
+        startAgent,
+        stopAgent,
+        refreshStatus: refreshAgentStatus,
+        loadSetupInstructions,
+    } = usePrintAgent({ autoRefresh: true, refreshInterval: 5000 });
 
     const loadPrintJobs = useCallback(async () => {
         setIsLoading(true);
         try {
-            // Load pending jobs first
             const pendingJobs = await printerService.getPendingJobs();
             setPrintJobs(pendingJobs);
         } catch (error: any) {
@@ -80,6 +103,15 @@ const PrintJobsManagement: FunctionComponent = () => {
             Notify.failure(errorMessage);
         } finally {
             setIsLoading(false);
+        }
+    }, []);
+
+    const loadQueueStatus = useCallback(async () => {
+        try {
+            const status = await printerService.getQueueStatus();
+            setQueueStatus(status);
+        } catch (error: any) {
+            console.error('Error loading queue status:', error);
         }
     }, []);
 
@@ -114,7 +146,8 @@ const PrintJobsManagement: FunctionComponent = () => {
     useEffect(() => {
         loadPrintJobs();
         loadPrinters();
-    }, [loadPrintJobs, loadPrinters]);
+        loadQueueStatus();
+    }, [loadPrintJobs, loadPrinters, loadQueueStatus]);
 
     const handleRefresh = async () => {
         setIsRefreshing(true);
@@ -124,6 +157,8 @@ const PrintJobsManagement: FunctionComponent = () => {
             } else {
                 await loadJobsForPrinter(selectedPrinterId);
             }
+            await loadQueueStatus();
+            await refreshAgentStatus();
             Notify.success('Print jobs refreshed');
         } finally {
             setIsRefreshing(false);
@@ -159,6 +194,79 @@ const PrintJobsManagement: FunctionComponent = () => {
                 okButtonBackground: '#ef4444',
             }
         );
+    };
+
+    const handleRetryJob = async (jobId: string, jobTitle: string) => {
+        try {
+            await printerService.retryJob(jobId);
+            Notify.success(`Retrying "${jobTitle}"`);
+            await handleRefresh();
+        } catch (error: any) {
+            console.error('Error retrying print job:', error);
+            const errorMessage = error?.response?.data?.message || 'Failed to retry print job';
+            Notify.failure(errorMessage);
+        }
+    };
+
+    const handleRetryAllFailed = () => {
+        const failedJobsCount = queueStatus?.failedJobs || failedCount;
+        if (failedJobsCount === 0) {
+            Notify.info('No failed jobs to retry');
+            return;
+        }
+
+        Confirm.show(
+            'Retry All Failed Jobs',
+            `Are you sure you want to retry all ${failedJobsCount} failed job(s)?`,
+            'Yes, Retry All',
+            'Cancel',
+            async () => {
+                try {
+                    const result = await printerService.retryAllFailedJobs();
+                    Notify.success(result.message || `Retrying ${result.affected} job(s)`);
+                    await handleRefresh();
+                } catch (error: any) {
+                    console.error('Error retrying all failed jobs:', error);
+                    const errorMessage = error?.response?.data?.message || 'Failed to retry jobs';
+                    Notify.failure(errorMessage);
+                }
+            },
+            () => { },
+            {
+                titleColor: '#f59e0b',
+                okButtonBackground: '#f59e0b',
+            }
+        );
+    };
+
+    const handleClearQueue = () => {
+        Confirm.show(
+            'Clear Print Queue',
+            'This will cancel all pending and failed jobs in the queue. Are you sure?',
+            'Yes, Clear Queue',
+            'Cancel',
+            async () => {
+                try {
+                    const result = await printerService.clearQueue();
+                    Notify.success(result.message || `Cleared ${result.affected} job(s)`);
+                    await handleRefresh();
+                } catch (error: any) {
+                    console.error('Error clearing queue:', error);
+                    const errorMessage = error?.response?.data?.message || 'Failed to clear queue';
+                    Notify.failure(errorMessage);
+                }
+            },
+            () => { },
+            {
+                titleColor: '#ef4444',
+                okButtonBackground: '#ef4444',
+            }
+        );
+    };
+
+    const handleShowSetup = async () => {
+        await loadSetupInstructions();
+        setShowSetupModal(true);
     };
 
     const handleCleanupJobs = () => {
@@ -402,18 +510,29 @@ const PrintJobsManagement: FunctionComponent = () => {
                             <X className="w-4 h-4" />
                         </button>
                     )}
-                    {row.status === 'FAILED' && row.errorMessage && (
-                        <button
-                            onClick={() => Notify.info(row.errorMessage || 'Unknown error')}
-                            className="p-1.5 rounded-lg text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
-                            title="View Error"
-                        >
-                            <AlertCircle className="w-4 h-4" />
-                        </button>
+                    {row.status === 'FAILED' && (
+                        <>
+                            <button
+                                onClick={() => handleRetryJob(row.printJobId, row.jobTitle)}
+                                className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                                title="Retry Job"
+                            >
+                                <RotateCcw className="w-4 h-4" />
+                            </button>
+                            {row.errorMessage && (
+                                <button
+                                    onClick={() => Notify.info(row.errorMessage || 'Unknown error')}
+                                    className="p-1.5 rounded-lg text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+                                    title="View Error"
+                                >
+                                    <AlertCircle className="w-4 h-4" />
+                                </button>
+                            )}
+                        </>
                     )}
                 </div>
             ),
-            width: '100px',
+            width: '120px',
             right: true,
         },
     ];
@@ -421,6 +540,25 @@ const PrintJobsManagement: FunctionComponent = () => {
     const pendingCount = printJobs.filter(j => j.status === 'PENDING').length;
     const printingCount = printJobs.filter(j => j.status === 'PRINTING').length;
     const failedCount = printJobs.filter(j => j.status === 'FAILED').length;
+
+    const getAgentStatusColor = () => {
+        if (!agentStatus) return { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-600 dark:text-gray-400' };
+        switch (agentStatus.status) {
+            case 'RUNNING':
+                return { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-600 dark:text-green-400' };
+            case 'STOPPED':
+                return { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-600 dark:text-gray-400' };
+            case 'ERROR':
+                return { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-600 dark:text-red-400' };
+            case 'STARTING':
+            case 'STOPPING':
+                return { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-600 dark:text-yellow-400' };
+            default:
+                return { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-600 dark:text-gray-400' };
+        }
+    };
+
+    const agentColors = getAgentStatusColor();
 
     return (
         <AppLayout>
@@ -460,6 +598,95 @@ const PrintJobsManagement: FunctionComponent = () => {
                         </div>
                     )}
                 </PageHeader>
+
+                {/* Print Agent Status Card */}
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-4 mx-4 md:mx-0">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className={`p-3 rounded-lg ${agentColors.bg}`}>
+                                <Activity className={`w-6 h-6 ${agentColors.text}`} />
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-gray-900 dark:text-gray-100">Print Agent</h3>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${agentColors.bg} ${agentColors.text}`}>
+                                        {agentStatus?.status || 'UNKNOWN'}
+                                    </span>
+                                    {agentStatus?.isRunning && (
+                                        <>
+                                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                • {agentStatus.connectedPrinters} printer(s) connected
+                                            </span>
+                                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                • {agentStatus.processedJobs} processed
+                                            </span>
+                                        </>
+                                    )}
+                                    {agentStatus?.lastError && (
+                                        <span className="text-xs text-red-500" title={agentStatus.lastError}>
+                                            • Error occurred
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            {!agentStatus?.isRunning ? (
+                                <Button
+                                    onClick={startAgent}
+                                    icon={Play}
+                                    theme="success"
+                                    size="small"
+                                    disabled={isStarting || agentLoading}
+                                >
+                                    {isStarting ? 'Starting...' : 'Start Agent'}
+                                </Button>
+                            ) : (
+                                <Button
+                                    onClick={stopAgent}
+                                    icon={Square}
+                                    theme="danger"
+                                    layout="outline"
+                                    size="small"
+                                    disabled={isStopping || agentLoading}
+                                >
+                                    {isStopping ? 'Stopping...' : 'Stop Agent'}
+                                </Button>
+                            )}
+                            <Button
+                                onClick={handleShowSetup}
+                                icon={Settings}
+                                layout="outline"
+                                theme="neutral"
+                                size="small"
+                            >
+                                {!isMobile && 'Setup'}
+                            </Button>
+                        </div>
+                    </div>
+
+                    {/* Permissions Warning */}
+                    {permissions && permissions.missingPermissions.length > 0 && (
+                        <div className="mt-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                            <div className="flex items-start gap-2">
+                                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                                        Missing Permissions
+                                    </p>
+                                    <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                                        {permissions.missingPermissions.join(', ')}
+                                    </p>
+                                    {permissions.instructions && (
+                                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                                            {permissions.instructions}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
 
                 {/* Stats Summary */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 px-4 md:px-0">
@@ -595,33 +822,61 @@ const PrintJobsManagement: FunctionComponent = () => {
                     </div>
 
                     {/* Cleanup Section */}
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                        <div className="flex items-center gap-2">
-                            <Trash2 className="w-4 h-4 text-gray-500" />
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                                Cleanup jobs older than
-                            </span>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <div className="flex items-center gap-2">
+                                <Trash2 className="w-4 h-4 text-gray-500" />
+                                <span className="text-sm text-gray-600 dark:text-gray-400">
+                                    Cleanup jobs older than
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="365"
+                                    value={cleanupDays}
+                                    onChange={(e) => setCleanupDays(parseInt(e.target.value) || 30)}
+                                    className="w-20 px-2 py-1 rounded border border-gray-300 dark:border-gray-600 
+                                        bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
+                                />
+                                <span className="text-sm text-gray-600 dark:text-gray-400">days</span>
+                                <Button
+                                    onClick={handleCleanupJobs}
+                                    layout="outline"
+                                    theme="warning"
+                                    size="small"
+                                    icon={Trash2}
+                                >
+                                    Cleanup
+                                </Button>
+                            </div>
                         </div>
+
+                        {/* Queue Actions */}
                         <div className="flex items-center gap-2">
-                            <input
-                                type="number"
-                                min="1"
-                                max="365"
-                                value={cleanupDays}
-                                onChange={(e) => setCleanupDays(parseInt(e.target.value) || 30)}
-                                className="w-20 px-2 py-1 rounded border border-gray-300 dark:border-gray-600 
-                                    bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
-                            />
-                            <span className="text-sm text-gray-600 dark:text-gray-400">days</span>
-                            <Button
-                                onClick={handleCleanupJobs}
-                                layout="outline"
-                                theme="warning"
-                                size="small"
-                                icon={Trash2}
-                            >
-                                Cleanup
-                            </Button>
+                            {failedCount > 0 && (
+                                <Button
+                                    onClick={handleRetryAllFailed}
+                                    layout="outline"
+                                    theme="primary"
+                                    size="small"
+                                    icon={RotateCcw}
+                                >
+                                    Retry Failed ({failedCount})
+                                </Button>
+                            )}
+                            {(pendingCount > 0 || failedCount > 0) && (
+                                <Button
+                                    onClick={handleClearQueue}
+                                    layout="outline"
+                                    theme="danger"
+                                    size="small"
+                                    icon={Trash2}
+                                >
+                                    Clear Queue
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -665,6 +920,114 @@ const PrintJobsManagement: FunctionComponent = () => {
                     }
                 />
             </div>
+
+            {/* Setup Instructions Modal */}
+            <CustomModal
+                isOpen={showSetupModal}
+                onClose={() => setShowSetupModal(false)}
+                title="Print Agent Setup Instructions"
+            >
+                {setupInstructions ? (
+                    <div className="space-y-6">
+                        {/* Platform Info */}
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">
+                                Platform Information
+                            </h4>
+                            <div className="text-sm">
+                                <span className="text-gray-500 dark:text-gray-400">Operating System:</span>
+                                <span className="ml-2 text-gray-900 dark:text-gray-100 capitalize">
+                                    {setupInstructions.os}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Setup Instructions */}
+                        {setupInstructions.instructions && setupInstructions.instructions.length > 0 && (
+                            <div>
+                                <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">
+                                    Setup Steps
+                                </h4>
+                                <ol className="space-y-3">
+                                    {setupInstructions.instructions.map((step, index) => (
+                                        <li key={index} className="flex gap-3">
+                                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900 
+                                                text-primary-600 dark:text-primary-400 text-sm font-medium 
+                                                flex items-center justify-center">
+                                                {index + 1}
+                                            </span>
+                                            <span className="text-gray-700 dark:text-gray-300">
+                                                {step}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ol>
+                            </div>
+                        )}
+
+                        {/* Commands */}
+                        {setupInstructions.commands && setupInstructions.commands.length > 0 && (
+                            <div>
+                                <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">
+                                    Commands
+                                </h4>
+                                <div className="space-y-2">
+                                    {setupInstructions.commands.map((command, index) => (
+                                        <div key={index} className="p-3 bg-gray-800 dark:bg-gray-900 rounded-lg">
+                                            <code className="text-sm text-green-400 font-mono break-all">
+                                                {command}
+                                            </code>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Links */}
+                        {setupInstructions.links && setupInstructions.links.length > 0 && (
+                            <div>
+                                <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">
+                                    Helpful Links
+                                </h4>
+                                <ul className="space-y-2">
+                                    {setupInstructions.links.map((link, index) => (
+                                        <li key={index}>
+                                            <a 
+                                                href={link.url} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="text-primary-600 dark:text-primary-400 hover:underline 
+                                                    flex items-center gap-2"
+                                            >
+                                                <ExternalLink className="w-4 h-4" />
+                                                {link.label}
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
+                        {/* Close Button */}
+                        <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-600">
+                            <Button
+                                onClick={() => setShowSetupModal(false)}
+                                layout="outline"
+                            >
+                                Close
+                            </Button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="text-center py-8">
+                        <div className="animate-spin w-8 h-8 border-4 border-primary-500 border-t-transparent 
+                            rounded-full mx-auto mb-4"></div>
+                        <p className="text-gray-500 dark:text-gray-400">
+                            Loading setup instructions...
+                        </p>
+                    </div>
+                )}
+            </CustomModal>
         </AppLayout>
     );
 };

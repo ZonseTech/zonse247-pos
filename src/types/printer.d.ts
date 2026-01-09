@@ -399,3 +399,91 @@ interface CleanupJobsResponse {
         deletedCount: number;
     };
 }
+
+// ============================================
+// PRINT AGENT TYPES
+// ============================================
+
+type PrintAgentStatus = 'RUNNING' | 'STOPPED' | 'ERROR' | 'STARTING' | 'STOPPING';
+
+interface PrintAgentState {
+    status: PrintAgentStatus;
+    isRunning: boolean;
+    startedAt?: string | null;
+    stoppedAt?: string | null;
+    lastError?: string | null;
+    processedJobs: number;
+    failedJobs: number;
+    connectedPrinters: number;
+    queueSize: number;
+}
+
+interface PrintAgentPermissions {
+    hasSerialAccess: boolean;
+    hasUsbAccess: boolean;
+    serialPorts: string[];
+    usbDevices: string[];
+    missingPermissions: string[];
+    instructions?: string;
+}
+
+interface PrintAgentSetupInstructions {
+    os: string;
+    instructions: string[];
+    commands?: string[];
+    links?: { label: string; url: string }[];
+}
+
+interface PrintQueueStatus {
+    queueSize: number;
+    pendingJobs: number;
+    processingJobs: number;
+    failedJobs: number;
+    completedToday: number;
+    failedJobsList: PrintJob[];
+}
+
+interface RegisterPrinterRequest {
+    discoveredPrinter: DiscoveredPrinter;
+    printerName?: string;
+    isDefault?: boolean;
+    isReceiptPrinter?: boolean;
+    isLabelPrinter?: boolean;
+    isKitchenPrinter?: boolean;
+    isReportPrinter?: boolean;
+    configuration?: PrinterConfiguration;
+}
+
+// Print Agent Response Types
+interface PrintAgentStatusResponse {
+    success: boolean;
+    message?: string;
+    data: PrintAgentState;
+}
+
+interface PrintAgentPermissionsResponse {
+    success: boolean;
+    message?: string;
+    data: PrintAgentPermissions;
+}
+
+interface PrintAgentSetupResponse {
+    success: boolean;
+    message?: string;
+    data: PrintAgentSetupInstructions;
+}
+
+interface PrintQueueStatusResponse {
+    success: boolean;
+    message?: string;
+    data: PrintQueueStatus;
+}
+
+interface PrintQueueActionResponse {
+    success: boolean;
+    message?: string;
+    data: {
+        affected: number;
+        message: string;
+    };
+}

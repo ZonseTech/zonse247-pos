@@ -13,6 +13,7 @@ const endpoints = {
 	all: 'printers/all',
 	default: 'printers/default',
 	discover: 'printers/discover',
+	discoverRegister: 'printers/discover/register',
 	scanNetwork: 'printers/discover/scan-network',
 	serialPorts: 'printers/discover/serial-ports',
 	commonPorts: 'printers/discover/common-ports',
@@ -40,7 +41,20 @@ const endpoints = {
 	pendingJobs: 'printers/jobs/pending',
 	jobHistory: 'printers/jobs',
 	cancelJob: 'printers/jobs',
+	retryJob: 'printers/jobs',
 	cleanupJobs: 'printers/jobs/cleanup',
+
+	// Print Agent
+	agentStart: 'printers/agent/start',
+	agentStop: 'printers/agent/stop',
+	agentStatus: 'printers/agent/status',
+	agentPermissions: 'printers/agent/permissions',
+	agentSetupInstructions: 'printers/agent/setup-instructions',
+
+	// Print Queue
+	queueStatus: 'printers/queue/status',
+	queueRetryAll: 'printers/queue/retry-all',
+	queueClear: 'printers/queue/clear',
 };
 
 const printerService = {
@@ -423,6 +437,19 @@ const printerService = {
 	},
 
 	/**
+	 * POST /printers/jobs/:jobId/retry - Retry a failed print job
+	 */
+	async retryJob(jobId: string): Promise<PrintJob> {
+		return api
+			.post<PrintJobResponse>(`${endpoints.retryJob}/${jobId}/retry`, {} as any)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				console.error('Error retrying print job:', err);
+				throw err;
+			});
+	},
+
+	/**
 	 * DELETE /printers/jobs/cleanup - Clean up old print jobs
 	 * @param daysOld - Number of days old jobs to delete (default: 30)
 	 */
@@ -432,6 +459,135 @@ const printerService = {
 			.then((res) => res.data.data || { deletedCount: 0 })
 			.catch((err) => {
 				console.error('Error cleaning up print jobs:', err);
+				throw err;
+			});
+	},
+
+	// ============================================
+	// PRINT AGENT
+	// ============================================
+
+	/**
+	 * POST /printers/agent/start - Start the print agent
+	 */
+	async startAgent(): Promise<PrintAgentState> {
+		return api
+			.post<PrintAgentStatusResponse>(endpoints.agentStart, {} as any)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				console.error('Error starting print agent:', err);
+				throw err;
+			});
+	},
+
+	/**
+	 * POST /printers/agent/stop - Stop the print agent
+	 */
+	async stopAgent(): Promise<PrintAgentState> {
+		return api
+			.post<PrintAgentStatusResponse>(endpoints.agentStop, {} as any)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				console.error('Error stopping print agent:', err);
+				throw err;
+			});
+	},
+
+	/**
+	 * GET /printers/agent/status - Get print agent status
+	 */
+	async getAgentStatus(): Promise<PrintAgentState> {
+		return api
+			.get<PrintAgentStatusResponse>(endpoints.agentStatus)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				console.error('Error fetching print agent status:', err);
+				throw err;
+			});
+	},
+
+	/**
+	 * GET /printers/agent/permissions - Check serial/USB permissions
+	 */
+	async getAgentPermissions(): Promise<PrintAgentPermissions> {
+		return api
+			.get<PrintAgentPermissionsResponse>(endpoints.agentPermissions)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				console.error('Error fetching agent permissions:', err);
+				throw err;
+			});
+	},
+
+	/**
+	 * GET /printers/agent/setup-instructions - Get OS-specific setup instructions
+	 */
+	async getAgentSetupInstructions(): Promise<PrintAgentSetupInstructions> {
+		return api
+			.get<PrintAgentSetupResponse>(endpoints.agentSetupInstructions)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				console.error('Error fetching setup instructions:', err);
+				throw err;
+			});
+	},
+
+	// ============================================
+	// PRINT QUEUE
+	// ============================================
+
+	/**
+	 * GET /printers/queue/status - Get queue status & failed jobs
+	 */
+	async getQueueStatus(): Promise<PrintQueueStatus> {
+		return api
+			.get<PrintQueueStatusResponse>(endpoints.queueStatus)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				console.error('Error fetching queue status:', err);
+				throw err;
+			});
+	},
+
+	/**
+	 * POST /printers/queue/retry-all - Retry all failed jobs
+	 */
+	async retryAllFailedJobs(): Promise<{ affected: number; message: string }> {
+		return api
+			.post<PrintQueueActionResponse>(endpoints.queueRetryAll, {} as any)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				console.error('Error retrying all failed jobs:', err);
+				throw err;
+			});
+	},
+
+	/**
+	 * POST /printers/queue/clear - Clear entire queue
+	 */
+	async clearQueue(): Promise<{ affected: number; message: string }> {
+		return api
+			.post<PrintQueueActionResponse>(endpoints.queueClear, {} as any)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				console.error('Error clearing queue:', err);
+				throw err;
+			});
+	},
+
+	// ============================================
+	// PRINTER DISCOVERY & REGISTRATION
+	// ============================================
+
+	/**
+	 * POST /printers/discover/register - Register a discovered printer
+	 */
+	async registerDiscoveredPrinter(data: RegisterPrinterRequest): Promise<Printer> {
+		return api
+			.post<PrinterResponse>(endpoints.discoverRegister, data as any)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				console.error('Error registering discovered printer:', err);
 				throw err;
 			});
 	},

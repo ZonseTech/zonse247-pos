@@ -9,6 +9,7 @@ interface UsePrintJobsOptions {
 
 interface UsePrintJobsReturn {
     printJobs: PrintJob[];
+    queueStatus: PrintQueueStatus | null;
     isLoading: boolean;
     isRefreshing: boolean;
     totalJobs: number;
@@ -19,7 +20,11 @@ interface UsePrintJobsReturn {
     cancelledCount: number;
     loadPendingJobs: () => Promise<void>;
     loadJobHistory: (printerId: string) => Promise<void>;
+    loadQueueStatus: () => Promise<void>;
     cancelJob: (jobId: string) => Promise<boolean>;
+    retryJob: (jobId: string) => Promise<boolean>;
+    retryAllFailedJobs: () => Promise<number>;
+    clearQueue: () => Promise<number>;
     cleanupJobs: (daysOld?: number) => Promise<number>;
     refreshJobs: () => Promise<void>;
 }
@@ -28,6 +33,7 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
     const { autoRefresh = false, refreshInterval = 30000 } = options;
 
     const [printJobs, setPrintJobs] = useState<PrintJob[]>([]);
+    const [queueStatus, setQueueStatus] = useState<PrintQueueStatus | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [currentPrinterId, setCurrentPrinterId] = useState<string | null>(null);
@@ -44,6 +50,15 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
             Notify.failure(errorMessage);
         } finally {
             setIsLoading(false);
+        }
+    }, []);
+
+    const loadQueueStatus = useCallback(async () => {
+        try {
+            const status = await printerService.getQueueStatus();
+            setQueueStatus(status);
+        } catch (error: any) {
+            console.error('Error loading queue status:', error);
         }
     }, []);
 
@@ -72,6 +87,7 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
             } else {
                 await loadPendingJobs();
             }
+            await loadQueueStatus();
             return true;
         } catch (error: any) {
             console.error('Error cancelling print job:', error);
@@ -79,7 +95,67 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
             Notify.failure(errorMessage);
             return false;
         }
-    }, [currentPrinterId, loadJobHistory, loadPendingJobs]);
+    }, [currentPrinterId, loadJobHistory, loadPendingJobs, loadQueueStatus]);
+
+    const retryJob = useCallback(async (jobId: string): Promise<boolean> => {
+        try {
+            await printerService.retryJob(jobId);
+            Notify.success('Print job queued for retry');
+            // Refresh the current view
+            if (currentPrinterId) {
+                await loadJobHistory(currentPrinterId);
+            } else {
+                await loadPendingJobs();
+            }
+            await loadQueueStatus();
+            return true;
+        } catch (error: any) {
+            console.error('Error retrying print job:', error);
+            const errorMessage = error?.response?.data?.message || 'Failed to retry print job';
+            Notify.failure(errorMessage);
+            return false;
+        }
+    }, [currentPrinterId, loadJobHistory, loadPendingJobs, loadQueueStatus]);
+
+    const retryAllFailedJobs = useCallback(async (): Promise<number> => {
+        try {
+            const result = await printerService.retryAllFailedJobs();
+            Notify.success(result.message || `Retrying ${result.affected} failed job(s)`);
+            // Refresh current view
+            if (currentPrinterId) {
+                await loadJobHistory(currentPrinterId);
+            } else {
+                await loadPendingJobs();
+            }
+            await loadQueueStatus();
+            return result.affected;
+        } catch (error: any) {
+            console.error('Error retrying all failed jobs:', error);
+            const errorMessage = error?.response?.data?.message || 'Failed to retry jobs';
+            Notify.failure(errorMessage);
+            return 0;
+        }
+    }, [currentPrinterId, loadJobHistory, loadPendingJobs, loadQueueStatus]);
+
+    const clearQueue = useCallback(async (): Promise<number> => {
+        try {
+            const result = await printerService.clearQueue();
+            Notify.success(result.message || `Cleared ${result.affected} job(s) from queue`);
+            // Refresh current view
+            if (currentPrinterId) {
+                await loadJobHistory(currentPrinterId);
+            } else {
+                await loadPendingJobs();
+            }
+            await loadQueueStatus();
+            return result.affected;
+        } catch (error: any) {
+            console.error('Error clearing queue:', error);
+            const errorMessage = error?.response?.data?.message || 'Failed to clear queue';
+            Notify.failure(errorMessage);
+            return 0;
+        }
+    }, [currentPrinterId, loadJobHistory, loadPendingJobs, loadQueueStatus]);
 
     const cleanupJobs = useCallback(async (daysOld: number = 30): Promise<number> => {
         try {
@@ -91,6 +167,7 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
             } else {
                 await loadPendingJobs();
             }
+            await loadQueueStatus();
             return result.deletedCount;
         } catch (error: any) {
             console.error('Error cleaning up print jobs:', error);
@@ -98,7 +175,7 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
             Notify.failure(errorMessage);
             return 0;
         }
-    }, [currentPrinterId, loadJobHistory, loadPendingJobs]);
+    }, [currentPrinterId, loadJobHistory, loadPendingJobs, loadQueueStatus]);
 
     const refreshJobs = useCallback(async () => {
         setIsRefreshing(true);
@@ -108,15 +185,17 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
             } else {
                 await loadPendingJobs();
             }
+            await loadQueueStatus();
         } finally {
             setIsRefreshing(false);
         }
-    }, [currentPrinterId, loadJobHistory, loadPendingJobs]);
+    }, [currentPrinterId, loadJobHistory, loadPendingJobs, loadQueueStatus]);
 
     // Initial load
     useEffect(() => {
         loadPendingJobs();
-    }, [loadPendingJobs]);
+        loadQueueStatus();
+    }, [loadPendingJobs, loadQueueStatus]);
 
     // Auto-refresh
     useEffect(() => {
@@ -138,6 +217,7 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
 
     return {
         printJobs,
+        queueStatus,
         isLoading,
         isRefreshing,
         totalJobs: printJobs.length,
@@ -148,7 +228,11 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
         cancelledCount,
         loadPendingJobs,
         loadJobHistory,
+        loadQueueStatus,
         cancelJob,
+        retryJob,
+        retryAllFailedJobs,
+        clearQueue,
         cleanupJobs,
         refreshJobs,
     };
