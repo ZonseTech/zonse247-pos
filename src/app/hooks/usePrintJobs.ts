@@ -34,7 +34,7 @@ interface UsePrintJobsReturn {
 
 export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsReturn => {
     const { autoRefresh = false, refreshInterval = 30000, useNativeAgent = true } = options;
-    
+
     const isNative = useNativeAgent && printAgentAdapter.isNativeAvailable();
 
     const [printJobs, setPrintJobs] = useState<PrintJob[]>([]);

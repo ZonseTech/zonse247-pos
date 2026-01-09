@@ -265,7 +265,7 @@ class PrintAgentAdapter {
             if (!result.success) {
                 throw new Error(result.error || 'Failed to retry all failed jobs');
             }
-            return { 
+            return {
                 affected: result.data?.retriedCount || 0,
                 message: `Retried ${result.data?.retriedCount || 0} jobs`
             };
@@ -282,7 +282,7 @@ class PrintAgentAdapter {
             if (!result.success) {
                 throw new Error(result.error || 'Failed to clear queue');
             }
-            return { 
+            return {
                 affected: result.data?.clearedCount || 0,
                 message: `Cleared ${result.data?.clearedCount || 0} jobs`
             };
@@ -310,7 +310,7 @@ class PrintAgentAdapter {
         if (this.isElectronApp) {
             return window.electronAPI.printAgent.print(content, options);
         }
-        
+
         // Fallback: Create a print job via HTTP API
         // This assumes there's a way to send print content via API
         try {
