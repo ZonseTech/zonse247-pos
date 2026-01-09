@@ -3,15 +3,14 @@ import { Form, Formik, } from 'formik';
 import EPayment from './EPayment';
 import CashPayment from './CashPayment';
 import BankTransfer from './BankTransfer';
-import { FunctionComponent, useState, useEffect, use } from 'react';
+import TransactionCompleteModal from './TransactionCompleteModal';
+import { FunctionComponent, useState, useEffect } from 'react';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useInventory } from '../../../hooks/useInventory';
 import { useAuth } from '../../../context/AuthProvider';
 import { useApp } from '../../../context/AppProvider';
 import transactionService from '../../../services/transactions.service';
 import { generateReferenceNumber } from '../../../utils';
-import printerService from '../../../services/printer.service';
-import { Button } from '../../../components';
 import { DEFAULT_SEED_KEY } from '../../../constants';
 
 interface CheckoutModalProps {
@@ -62,6 +61,8 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
     const [processing, setProcessing] = useState<boolean>(false);
     const [activeInput, setActiveInput] = useState<ActiveInputType>(null);
+    const [completedTransaction, setCompletedTransaction] = useState<Transaction | null>(null);
+    const [showCompleteModal, setShowCompleteModal] = useState<boolean>(false);
 
     const newTransactionValidationSchema = Yup.object({
         paymentMethodId: Yup.string().required('Payment method is required'),
@@ -111,6 +112,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
         if (processing) return;
 
         try {
+            setProcessing(true);
             const refNumber = generateReferenceNumber()
 
             const data: Transaction = {
@@ -136,30 +138,35 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
             const transaction = await transactionService.store(data)
 
-            // await printerService.print({
-            //     transaction,
-            //     options: {
-            //         ...printerOptions,
-            //     },
-            //     settings,
-            // });
+            // Set the completed transaction and show the completion modal
+            setCompletedTransaction({
+                ...transaction,
+                items: cart,
+                user,
+                customer: selectedCustomer,
+            });
+            setShowCompleteModal(true);
 
-            clearCart()
-            reloadInventory()
-
-            values.phoneNumber = ''
-            values.paymentMethodId = ""
-            values.cashTendered = ''
-            values.transactionId = ''
-            values.paymentServiceProviderId = ''
-
-            onClose();
         } catch (error) {
-            onClose();
-        } finally {
-            focusManager.clearFocus();
+            console.error('Transaction failed:', error);
             setProcessing(false);
         }
+    };
+
+    const handleNewTransaction = () => {
+        setShowCompleteModal(false);
+        setCompletedTransaction(null);
+        clearCart();
+        reloadInventory();
+        setProcessing(false);
+        focusManager.clearFocus();
+        onClose();
+    };
+
+    const handleCloseCompleteModal = () => {
+        setShowCompleteModal(false);
+        setCompletedTransaction(null);
+        setProcessing(false);
     };
 
     const canProceed = (values: TransactionValues) => {
@@ -277,7 +284,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                                 <div className="bg-blue-100 border border-blue-400 text-blue-700 px-3 md:px-4 py-2 md:py-3 rounded mx-3 md:mx-6 mb-3 md:mb-0">
                                     <div className="flex items-center gap-2">
                                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700"></div>
-                                        <span className="font-bold text-sm md:text-base">Processing cash payment...</span>
+                                        <span className="font-bold text-sm md:text-base">Processing payment...</span>
                                     </div>
                                 </div>
                             )}
@@ -285,18 +292,18 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                             <div className="flex flex-row space-x-3 md:space-x-4 justify-center items-center border-t p-3 md:p-6 flex-shrink-0">
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting || !canProceed(values)}
-                                    className={`px-6 md:px-32 py-4 md:py-6 text-base md:text-lg font-bold transition-colors rounded-none ${canProceed(values)
+                                    disabled={isSubmitting || !canProceed(values) || processing}
+                                    className={`px-6 md:px-32 py-4 md:py-6 text-base md:text-lg font-bold transition-colors rounded-none ${canProceed(values) && !processing
                                         ? 'bg-cyan-500 hover:bg-cyan-600 text-white'
                                         : 'bg-gray-400 text-gray-700 cursor-not-allowed'
                                         }`}
                                 >
-                                    {isSubmitting ? 'PROCESSING...' : 'PRINT RECEIPT'}
+                                    {isSubmitting || processing ? 'PROCESSING...' : 'COMPLETE TRANSACTION'}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={onClose}
-                                    disabled={isSubmitting}
+                                    disabled={isSubmitting || processing}
                                     className="bg-red-500 text-white px-6 md:px-32 py-4 md:py-6 text-base md:text-lg font-bold rounded-none hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     CANCEL
@@ -306,6 +313,14 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                     )}
                 </Formik>
             </div>
+
+            {/* Transaction Complete Modal with Print Options */}
+            <TransactionCompleteModal
+                isOpen={showCompleteModal}
+                transaction={completedTransaction}
+                onClose={handleCloseCompleteModal}
+                onNewTransaction={handleNewTransaction}
+            />
         </div>
     );
 };

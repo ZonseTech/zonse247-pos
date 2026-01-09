@@ -206,6 +206,91 @@ interface DiscoveredPrinter {
     isOnline: boolean;
 }
 
+interface DiscoveryResult {
+    count: number;
+    printers: DiscoveredPrinter[];
+    discoveredAt: string;
+}
+
+interface NetworkScanParams {
+    baseIP: string;
+    startHost?: number;
+    endHost?: number;
+    port?: number;
+}
+
+interface NetworkScanResult {
+    baseIP: string;
+    scannedRange: string;
+    port: number;
+    count: number;
+    printers: DiscoveredPrinter[];
+}
+
+interface SerialPortInfo {
+    path: string;
+    manufacturer?: string;
+    serialNumber?: string;
+    pnpId?: string;
+    locationId?: string;
+    vendorId?: string;
+    productId?: string;
+}
+
+interface CommonPortInfo {
+    port: number;
+    name: string;
+    description: string;
+    protocol: string;
+}
+
+interface ValidatePrinterRequest {
+    printerName: string;
+    connectionType: PrinterConnectionType;
+    connectionAddress?: string;
+    port?: number;
+    vendorId?: string;
+    productId?: string;
+}
+
+interface ValidatePrinterResult {
+    valid: boolean;
+    message: string;
+    details?: {
+        reachable?: boolean;
+        responseTime?: number;
+        printerInfo?: Partial<DiscoveredPrinter>;
+    };
+}
+
+interface PrinterHealthStatus {
+    printerId: string;
+    printerName: string;
+    status: PrinterStatus;
+    isOnline: boolean;
+    lastChecked: string;
+    responseTime?: number;
+    errorMessage?: string;
+}
+
+interface BranchPrinterHealth {
+    branchId: string;
+    totalPrinters: number;
+    onlineCount: number;
+    offlineCount: number;
+    printers: PrinterHealthStatus[];
+    checkedAt: string;
+}
+
+interface TenantPrinterHealth {
+    tenantId: string;
+    totalPrinters: number;
+    onlineCount: number;
+    offlineCount: number;
+    branches: BranchPrinterHealth[];
+    checkedAt: string;
+}
+
 interface PrinterTestResult {
     success: boolean;
     message: string;
@@ -263,7 +348,43 @@ interface PrinterTestResponse {
 interface DiscoveredPrinterResponse {
     success: boolean;
     message?: string;
-    data: DiscoveredPrinter[];
+    data: DiscoveryResult;
+}
+
+interface NetworkScanResponse {
+    success: boolean;
+    message?: string;
+    data: NetworkScanResult;
+}
+
+interface SerialPortsResponse {
+    success: boolean;
+    message?: string;
+    data: SerialPortInfo[];
+}
+
+interface CommonPortsResponse {
+    success: boolean;
+    message?: string;
+    data: CommonPortInfo[];
+}
+
+interface ValidatePrinterResponse {
+    success: boolean;
+    message?: string;
+    data: ValidatePrinterResult;
+}
+
+interface BranchHealthResponse {
+    success: boolean;
+    message?: string;
+    data: BranchPrinterHealth;
+}
+
+interface TenantHealthResponse {
+    success: boolean;
+    message?: string;
+    data: TenantPrinterHealth;
 }
 
 interface PrinterStatusUpdateRequest {

@@ -14,6 +14,7 @@ import { useNavigate, useLocation } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { Zap, FileText } from 'lucide-react';
 import { HiOutlineDocumentPlus } from 'react-icons/hi2';
+import { useInventory } from '../../hooks/useInventory';
 
 type FormMode = 'quick' | 'full';
 
@@ -23,6 +24,7 @@ const InventoryForm: FunctionComponent = () => {
     const [loading, setLoading] = useState(false);
     const [item, setItem] = useState<InventoryItem | null>(null);
     const [formMode, setFormMode] = useState<FormMode>('full');
+    const { reloadInventory } = useInventory();
 
     const { productId } = location.state || {};
 
@@ -191,11 +193,13 @@ const InventoryForm: FunctionComponent = () => {
 
             if (productId) {
                 await inventoryService.update(productId, data);
+                await reloadInventory();
                 Report.success('Success', 'Inventory item updated successfully', 'Okay', () => {
                     navigate(ROUTES.INVENTORY);
                 });
             } else {
                 await inventoryService.store(data);
+                await reloadInventory();
                 Confirm.show(
                     'Item Saved',
                     'Inventory item created successfully. What would you like to do?',

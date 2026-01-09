@@ -15,6 +15,7 @@ export enum ROUTES {
 	TERMINAL_FORM = '/terminals/form',
 	PRINTERS = '/printers',
 	PRINTER_FORM = '/printers/form',
+	PRINT_JOBS = '/printers/jobs',
 
 	PRODUCTS = '/products',
 	PRODUCT_FORM = '/products/form',

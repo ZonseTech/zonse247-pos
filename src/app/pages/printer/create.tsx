@@ -195,15 +195,16 @@ const PrinterForm: FunctionComponent = () => {
                         <PageHeader
                             title={printer ? 'Edit Printer' : 'Add Printer'}
                             description='Required fields are marked with an asterisk (*)'
-                        >
-                            <Button
-                                type="button"
-                                theme='danger'
-                                onClick={() => navigate(ROUTES.PRINTERS)}
-                            >
-                                Cancel
-                            </Button>
-                        </PageHeader>
+                            action={
+                                <Button
+                                    type="button"
+                                    theme='danger'
+                                    onClick={() => navigate(ROUTES.PRINTERS)}
+                                >
+                                    Cancel
+                                </Button>
+                            }
+                        />
                     </div>
 
                     <Formik

@@ -192,13 +192,13 @@ export const usePrinters = (): UsePrintersReturn => {
     const discoverPrinters = useCallback(async (connectionType?: PrinterConnectionType): Promise<DiscoveredPrinter[]> => {
         try {
             Notify.info('Discovering printers...');
-            const discovered = await printerService.discover(connectionType);
-            if (discovered.length > 0) {
-                Notify.success(`Found ${discovered.length} printer(s)`);
+            const result = await printerService.discover(connectionType);
+            if (result.count > 0) {
+                Notify.success(`Found ${result.count} printer(s)`);
             } else {
                 Notify.info('No printers discovered');
             }
-            return discovered;
+            return result.printers;
         } catch (error: any) {
             console.error('Error discovering printers:', error);
             const errorMessage = error?.response?.data?.message || 'Failed to discover printers';

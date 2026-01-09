@@ -24,17 +24,17 @@ const PrinterPreviewModal: FunctionComponent<Props> = ({
     if (!isOpen) return null;
 
     const [isPrinting, setIsPrinting] = useState<boolean>(false);
-    const { settings, printerOptions } = useApp();
+    const { settings } = useApp();
 
     const handlePrintReceipt = async () => {
         try {
             setIsPrinting(true);
-            await printerService.print({
-                transaction,
-                options: {
-                    ...printerOptions,
-                },
-                settings,
+            await printerService.printReceipt({
+                transactionId: transaction.refNumber,
+                copies: settings?.receiptCopies || 1,
+                includeHeader: true,
+                includeFooter: true,
+                includeLogo: settings?.showStoreLogo || false,
             });
 
             Report.success(

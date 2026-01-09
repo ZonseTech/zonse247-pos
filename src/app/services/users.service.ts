@@ -6,8 +6,8 @@ const endpoints: Record<string, string> = {
 	update: 'users',
 	show: 'users',
 	delete: 'users',
-	changePassword: 'users/change-password',
-	resetPassword: 'users/reset-password',
+	changePassword: 'auth/change-password',
+	resetPassword: 'auth/reset-password',
 	toggleStatus: 'users/status',
 	stats: 'users/stats',
 };
@@ -103,7 +103,7 @@ const usersService = {
 
 	async changePassword(userId: string, data: ChangePasswordRequest): Promise<{ success: boolean }> {
 		try {
-			const response = await api.post<ApiResponse<{ success: boolean }>>(`${endpoints.changePassword}/${userId}`, data as any);
+			const response = await api.put<ApiResponse<{ success: boolean }>>(`${endpoints.changePassword}/${userId}`, data as any);
 			return response.data.data!;
 		} catch (err) {
 			console.error('Error changing password:', err);

@@ -13,6 +13,12 @@ const endpoints = {
 	all: 'printers/all',
 	default: 'printers/default',
 	discover: 'printers/discover',
+	scanNetwork: 'printers/discover/scan-network',
+	serialPorts: 'printers/discover/serial-ports',
+	commonPorts: 'printers/discover/common-ports',
+	validatePrinter: 'printers/discover/validate',
+	healthBranch: 'printers/health/branch',
+	healthTenant: 'printers/health/tenant',
 	byTerminal: 'printers/terminal',
 	create: 'printers/create',
 	update: 'printers/update',
@@ -88,7 +94,7 @@ const printerService = {
 	async getDefault(printerUse?: 'receipt' | 'label' | 'kitchen' | 'report'): Promise<Printer | null> {
 		const params: Record<string, any> = {};
 		if (printerUse) {
-			params.printerUse = printerUse;
+			params.use = printerUse;
 		}
 
 		return api
@@ -108,7 +114,7 @@ const printerService = {
 	 * GET /printers/discover - Discover available printers
 	 * Scans for available printers on the network and USB
 	 */
-	async discover(connectionType?: PrinterConnectionType): Promise<DiscoveredPrinter[]> {
+	async discover(connectionType?: PrinterConnectionType): Promise<DiscoveryResult> {
 		const params: Record<string, any> = {};
 		if (connectionType) {
 			params.connectionType = connectionType;
@@ -116,9 +122,95 @@ const printerService = {
 
 		return api
 			.get<DiscoveredPrinterResponse>(endpoints.discover, params)
-			.then((res) => res.data.data || [])
+			.then((res) => res.data.data || { count: 0, printers: [], discoveredAt: new Date().toISOString() })
 			.catch((err) => {
 				console.error('Error discovering printers:', err);
+				throw err;
+			});
+	},
+
+	/**
+	 * GET /printers/discover/scan-network - Scan network for printers
+	 * Scans a specific IP range for network printers
+	 */
+	async scanNetwork(params: NetworkScanParams): Promise<NetworkScanResult> {
+		const queryParams: Record<string, any> = {
+			baseIP: params.baseIP,
+		};
+		if (params.startHost !== undefined) queryParams.startHost = params.startHost;
+		if (params.endHost !== undefined) queryParams.endHost = params.endHost;
+		if (params.port !== undefined) queryParams.port = params.port;
+
+		return api
+			.get<NetworkScanResponse>(endpoints.scanNetwork, queryParams)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				console.error('Error scanning network:', err);
+				throw err;
+			});
+	},
+
+	/**
+	 * GET /printers/discover/serial-ports - List available serial ports
+	 */
+	async getSerialPorts(): Promise<SerialPortInfo[]> {
+		return api
+			.get<SerialPortsResponse>(endpoints.serialPorts)
+			.then((res) => res.data.data || [])
+			.catch((err) => {
+				console.error('Error fetching serial ports:', err);
+				throw err;
+			});
+	},
+
+	/**
+	 * GET /printers/discover/common-ports - Get common printer ports info
+	 */
+	async getCommonPorts(): Promise<CommonPortInfo[]> {
+		return api
+			.get<CommonPortsResponse>(endpoints.commonPorts)
+			.then((res) => res.data.data || [])
+			.catch((err) => {
+				console.error('Error fetching common ports:', err);
+				throw err;
+			});
+	},
+
+	/**
+	 * POST /printers/discover/validate - Validate printer configuration
+	 */
+	async validatePrinter(data: ValidatePrinterRequest): Promise<ValidatePrinterResult> {
+		return api
+			.post<ValidatePrinterResponse>(endpoints.validatePrinter, data as any)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				console.error('Error validating printer:', err);
+				throw err;
+			});
+	},
+
+	/**
+	 * GET /printers/health/branch - Get health status of all printers in branch
+	 */
+	async getBranchHealth(): Promise<BranchPrinterHealth> {
+		return api
+			.get<BranchHealthResponse>(endpoints.healthBranch)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				console.error('Error fetching branch printer health:', err);
+				throw err;
+			});
+	},
+
+	/**
+	 * GET /printers/health/tenant - Monitor all tenant printers health
+	 */
+	async getTenantHealth(): Promise<TenantPrinterHealth> {
+		return api
+			.get<TenantHealthResponse>(endpoints.healthTenant)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				console.error('Error fetching tenant printer health:', err);
 				throw err;
 			});
 	},
