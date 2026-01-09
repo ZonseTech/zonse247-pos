@@ -2,6 +2,8 @@ import path from 'node:path';
 import MenuBuilder from './partials/menu';
 import { setupIPC } from './ipc/setup.ipc';
 import { setupMenuIPC } from './ipc/menu.ipc';
+import { setupPrintAgentIPC } from './ipc/print-agent.ipc';
+import printAgentService from './services/print-agent.service';
 import started from 'electron-squirrel-startup';
 import { isElectron } from './helpers/index.helper';
 import { app, BrowserWindow, screen, shell } from 'electron';
@@ -77,10 +79,23 @@ app.whenReady().then(async () => {
 
 	setupIPC();
 	setupMenuIPC();
+	setupPrintAgentIPC();
 
+	// Auto-start print agent after window is created
 	const hasSetup = await SecureSettingsService.hasAppSetup();
 
 	await createWindow(!hasSetup);
+
+	// Start print agent in background (non-blocking)
+	printAgentService.start().then((result) => {
+		if (result.success) {
+			console.log('✓ Print Agent auto-started');
+		} else {
+			console.warn('⚠ Print Agent auto-start failed:', result.error);
+		}
+	}).catch((error) => {
+		console.warn('⚠ Print Agent auto-start error:', error);
+	});
 });
 
 app.on('window-all-closed', () => {
@@ -96,6 +111,11 @@ app.on('activate', () => {
 });
 
 app.on('will-quit', () => {
+	// Stop print agent
+	printAgentService.stop().catch((error) => {
+		console.error('Failed to stop print agent:', error);
+	});
+
 	if (server) {
 		server.stop();
 	}
