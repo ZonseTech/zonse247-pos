@@ -33,6 +33,7 @@ export enum ROUTES {
 
 	TENANTS = '/tenants',
 	TENANT_FORM = '/tenants/form',
+	TENANT_REGISTRATION_DETAILS = '/tenant-registration-details',
 
 	BRANCHES = '/branches',
 	BRANCH_FORM = '/branches/form',

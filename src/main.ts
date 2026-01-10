@@ -81,12 +81,10 @@ app.whenReady().then(async () => {
 	setupMenuIPC();
 	setupPrintAgentIPC();
 
-	// Auto-start print agent after window is created
 	const hasSetup = await SecureSettingsService.hasAppSetup();
 
 	await createWindow(!hasSetup);
 
-	// Start print agent in background (non-blocking)
 	printAgentService.start().then((result) => {
 		if (result.success) {
 			console.log('✓ Print Agent auto-started');

@@ -13,7 +13,7 @@ import {
     HiOutlineUserGroup,
     HiOutlineCreditCard,
 } from 'react-icons/hi';
-import { RotateCcw, Package, Users as SuppliersIcon, ShoppingCart as POIcon, ArrowRightLeft } from 'lucide-react';
+import { RotateCcw, Package, Users as SuppliersIcon, ShoppingCart as POIcon, ArrowRightLeft, ClipboardList } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useAuth } from '../../context/AuthProvider';
@@ -48,6 +48,7 @@ const useNavItems = (): Array<NavItem> => {
         subscription: <LucideSubscript className="h-5 w-5" />,
         billing: <HiOutlineCreditCard className="h-5 w-5" />,
         tenants: <RiGroup3Line className="h-5 w-5" />,
+        registration_details: <ClipboardList className="h-5 w-5" />,
         branch: <HiOutlineBuildingStorefront className="h-5 w-5" />,
         migrations: <HiOutlineServerStack className="h-5 w-5" />,
         export_db: <HiOutlineFolderDownload className="h-5 w-5" />,
@@ -261,6 +262,15 @@ const useNavItems = (): Array<NavItem> => {
             text: "Tenants",
             icon: icons.tenants,
             onClick: () => navigate(ROUTES.TENANTS),
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-teal-500 hover:bg-teal-600',
+            iconColor: 'bg-teal-600',
+            text: "Registrations",
+            icon: icons.registration_details,
+            onClick: () => navigate(ROUTES.TENANT_REGISTRATION_DETAILS),
         });
 
         items.push({

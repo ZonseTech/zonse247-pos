@@ -355,6 +355,10 @@ export default class MenuBuilder {
 					label: 'Tenants',
 					click: () => this.navigateTo(ROUTES.TENANTS),
 				},
+				{
+					label: 'Registration Details',
+					click: () => this.navigateTo(ROUTES.TENANT_REGISTRATION_DETAILS),
+				},
 				{ type: 'separator' },
 				{
 					label: 'Migrations',

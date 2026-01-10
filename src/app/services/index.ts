@@ -9,8 +9,17 @@ import purchaseOrderService from './purchase-order.service';
 import stockMovementService from './stock-movement.service';
 import saleService from './sale.service';
 import inventoryService from './inventory.service';
+import tenantRegistrationDetailService from './tenant-registration-detail.service';
 
-export { productService, supplierService, purchaseOrderService, stockMovementService, saleService, inventoryService };
+export {
+    productService,
+    supplierService,
+    purchaseOrderService,
+    stockMovementService,
+    saleService,
+    inventoryService,
+    tenantRegistrationDetailService
+};
 
 // Re-export for convenience
 export const inventoryWorkflow = {

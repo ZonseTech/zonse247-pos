@@ -11,7 +11,31 @@ import type { ForgeConfig } from '@electron-forge/shared-types';
 
 const version = process.env.npm_package_version;
 
-const nativeModules = ['better-sqlite3', 'bindings', 'file-uri-to-path'];
+const nativeModules = [
+	'better-sqlite3',
+	'bindings',
+	'file-uri-to-path',
+	'serialport',
+	'@serialport/binding-mock',
+	'@serialport/bindings-cpp',
+	'@serialport/bindings-interface',
+	'@serialport/parser-byte-length',
+	'@serialport/parser-cctalk',
+	'@serialport/parser-delimiter',
+	'@serialport/parser-inter-byte-timeout',
+	'@serialport/parser-packet-length',
+	'@serialport/parser-readline',
+	'@serialport/parser-ready',
+	'@serialport/parser-regex',
+	'@serialport/parser-slip-encoder',
+	'@serialport/parser-spacepacket',
+	'@serialport/stream',
+	'usb',
+	'node-addon-api',
+	'node-gyp-build',
+	'debug',
+	'ms',
+];
 
 const copyNativeModules = (buildPath: string) => {
 	const nodeModulesPath = path.join(buildPath, 'node_modules');
