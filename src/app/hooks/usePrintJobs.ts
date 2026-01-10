@@ -1,12 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Notify } from 'notiflix';
 import printerService from '../services/printer.service';
-import printAgentAdapter from '../adapter/print-agent-adapter';
 
 interface UsePrintJobsOptions {
     autoRefresh?: boolean;
     refreshInterval?: number; // in milliseconds
-    useNativeAgent?: boolean; // Use Electron print agent when available
 }
 
 interface UsePrintJobsReturn {
@@ -14,7 +12,6 @@ interface UsePrintJobsReturn {
     queueStatus: PrintQueueStatus | null;
     isLoading: boolean;
     isRefreshing: boolean;
-    isNative: boolean;
     totalJobs: number;
     pendingCount: number;
     printingCount: number;
@@ -33,9 +30,7 @@ interface UsePrintJobsReturn {
 }
 
 export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsReturn => {
-    const { autoRefresh = false, refreshInterval = 30000, useNativeAgent = true } = options;
-
-    const isNative = useNativeAgent && printAgentAdapter.isNativeAvailable();
+    const { autoRefresh = false, refreshInterval = 30000 } = options;
 
     const [printJobs, setPrintJobs] = useState<PrintJob[]>([]);
     const [queueStatus, setQueueStatus] = useState<PrintQueueStatus | null>(null);
@@ -60,18 +55,12 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
 
     const loadQueueStatus = useCallback(async () => {
         try {
-            // Use native adapter when available
-            if (isNative) {
-                const status = await printAgentAdapter.getQueueStatus();
-                setQueueStatus(status);
-            } else {
-                const status = await printerService.getQueueStatus();
-                setQueueStatus(status);
-            }
+            const status = await printerService.getQueueStatus();
+            setQueueStatus(status);
         } catch (error: any) {
             console.error('Error loading queue status:', error);
         }
-    }, [isNative]);
+    }, []);
 
     const loadJobHistory = useCallback(async (printerId: string) => {
         setIsLoading(true);
@@ -110,12 +99,7 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
 
     const retryJob = useCallback(async (jobId: string): Promise<boolean> => {
         try {
-            // Use native adapter when available
-            if (isNative) {
-                await printAgentAdapter.retryJob(jobId);
-            } else {
-                await printerService.retryJob(jobId);
-            }
+            await printerService.retryJob(jobId);
             Notify.success('Print job queued for retry');
             // Refresh the current view
             if (currentPrinterId) {
@@ -131,21 +115,13 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
             Notify.failure(errorMessage);
             return false;
         }
-    }, [isNative, currentPrinterId, loadJobHistory, loadPendingJobs, loadQueueStatus]);
+    }, [currentPrinterId, loadJobHistory, loadPendingJobs, loadQueueStatus]);
 
     const retryAllFailedJobs = useCallback(async (): Promise<number> => {
         try {
-            let affected = 0;
-            // Use native adapter when available
-            if (isNative) {
-                const result = await printAgentAdapter.retryAllFailed();
-                affected = result.affected;
-                Notify.success(`Retrying ${affected} failed job(s)`);
-            } else {
-                const result = await printerService.retryAllFailedJobs();
-                affected = result.affected;
-                Notify.success(result.message || `Retrying ${affected} failed job(s)`);
-            }
+            const result = await printerService.retryAllFailedJobs();
+            const affected = result.affected;
+            Notify.success(result.message || `Retrying ${affected} failed job(s)`);
             // Refresh current view
             if (currentPrinterId) {
                 await loadJobHistory(currentPrinterId);
@@ -160,21 +136,13 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
             Notify.failure(errorMessage);
             return 0;
         }
-    }, [isNative, currentPrinterId, loadJobHistory, loadPendingJobs, loadQueueStatus]);
+    }, [currentPrinterId, loadJobHistory, loadPendingJobs, loadQueueStatus]);
 
     const clearQueue = useCallback(async (): Promise<number> => {
         try {
-            let affected = 0;
-            // Use native adapter when available
-            if (isNative) {
-                const result = await printAgentAdapter.clearQueue();
-                affected = result.affected;
-                Notify.success(`Cleared ${affected} job(s) from queue`);
-            } else {
-                const result = await printerService.clearQueue();
-                affected = result.affected;
-                Notify.success(result.message || `Cleared ${affected} job(s) from queue`);
-            }
+            const result = await printerService.clearQueue();
+            const affected = result.affected;
+            Notify.success(result.message || `Cleared ${affected} job(s) from queue`);
             // Refresh current view
             if (currentPrinterId) {
                 await loadJobHistory(currentPrinterId);
@@ -189,7 +157,7 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
             Notify.failure(errorMessage);
             return 0;
         }
-    }, [isNative, currentPrinterId, loadJobHistory, loadPendingJobs, loadQueueStatus]);
+    }, [currentPrinterId, loadJobHistory, loadPendingJobs, loadQueueStatus]);
 
     const cleanupJobs = useCallback(async (daysOld: number = 30): Promise<number> => {
         try {
@@ -254,7 +222,6 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
         queueStatus,
         isLoading,
         isRefreshing,
-        isNative,
         totalJobs: printJobs.length,
         pendingCount,
         printingCount,

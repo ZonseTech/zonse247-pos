@@ -14,20 +14,15 @@ interface UsePrintAgentReturn {
     isLoading: boolean;
     isStarting: boolean;
     isStopping: boolean;
-    isNative: boolean; // Whether using native Electron print agent
     startAgent: () => Promise<boolean>;
     stopAgent: () => Promise<boolean>;
     refreshStatus: () => Promise<void>;
     loadPermissions: () => Promise<void>;
     loadSetupInstructions: () => Promise<void>;
     // Print operations
-    print: (content: string, options?: {
-        contentType?: 'html' | 'url' | 'raw';
-        printerName?: string;
-        copies?: number;
-        silent?: boolean;
-    }) => Promise<{ success: boolean; jobId?: string; error?: string }>;
-    printReceipt: (html: string, printerName?: string) => Promise<{ success: boolean; error?: string }>;
+    printReceipt: (data: PrintReceiptRequest) => Promise<PrintJob>;
+    printLabel: (data: PrintLabelRequest) => Promise<PrintJob>;
+    printTestPage: (printerId: string) => Promise<PrintJob>;
 }
 
 export const usePrintAgent = (options: UsePrintAgentOptions = {}): UsePrintAgentReturn => {
@@ -39,8 +34,6 @@ export const usePrintAgent = (options: UsePrintAgentOptions = {}): UsePrintAgent
     const [isLoading, setIsLoading] = useState(true);
     const [isStarting, setIsStarting] = useState(false);
     const [isStopping, setIsStopping] = useState(false);
-
-    const isNative = printAgentAdapter.isNativeAvailable();
 
     const refreshStatus = useCallback(async () => {
         try {
@@ -108,20 +101,16 @@ export const usePrintAgent = (options: UsePrintAgentOptions = {}): UsePrintAgent
         }
     }, []);
 
-    const print = useCallback(async (
-        content: string,
-        options?: {
-            contentType?: 'html' | 'url' | 'raw';
-            printerName?: string;
-            copies?: number;
-            silent?: boolean;
-        }
-    ) => {
-        return printAgentAdapter.print(content, options);
+    const printReceipt = useCallback(async (data: PrintReceiptRequest): Promise<PrintJob> => {
+        return printAgentAdapter.printReceipt(data);
     }, []);
 
-    const printReceipt = useCallback(async (html: string, printerName?: string) => {
-        return printAgentAdapter.printReceipt(html, printerName);
+    const printLabel = useCallback(async (data: PrintLabelRequest): Promise<PrintJob> => {
+        return printAgentAdapter.printLabel(data);
+    }, []);
+
+    const printTestPage = useCallback(async (printerId: string): Promise<PrintJob> => {
+        return printAgentAdapter.printTestPage(printerId);
     }, []);
 
     // Initial load
@@ -158,14 +147,14 @@ export const usePrintAgent = (options: UsePrintAgentOptions = {}): UsePrintAgent
         isLoading,
         isStarting,
         isStopping,
-        isNative,
         startAgent,
         stopAgent,
         refreshStatus,
         loadPermissions,
         loadSetupInstructions,
-        print,
         printReceipt,
+        printLabel,
+        printTestPage,
     };
 };
 

@@ -1,74 +1,17 @@
-import { isElectron } from '../../helpers/index.helper';
 import printerService from '../services/printer.service';
 
 /**
  * Print Agent Adapter
- * Bridges the Electron main process print agent with the UI.
- * Falls back to HTTP API when not running in Electron.
+ * Provides a unified interface for printing operations using the zonse247 HTTP API.
+ * The Electron main process runs its own print agent that connects to the same API.
  */
 class PrintAgentAdapter {
-    private isElectronApp: boolean;
-
-    constructor() {
-        this.isElectronApp = isElectron() && !!window.electronAPI?.printAgent;
-    }
-
-    /**
-     * Check if running in Electron with print agent available
-     */
-    isNativeAvailable(): boolean {
-        return this.isElectronApp;
-    }
-
     // ==================== Agent Control ====================
-
-    /**
-     * Convert Electron agent state to API PrintAgentState format
-     */
-    private toApiAgentState(electronState: {
-        state: 'idle' | 'starting' | 'running' | 'stopping' | 'error';
-        connectedPrinters: number;
-        lastError?: string;
-        startedAt?: Date;
-    }): PrintAgentState {
-        const statusMap: Record<string, PrintAgentStatus> = {
-            'idle': 'STOPPED',
-            'starting': 'STARTING',
-            'running': 'RUNNING',
-            'stopping': 'STOPPING',
-            'error': 'ERROR',
-        };
-
-        return {
-            status: statusMap[electronState.state] || 'STOPPED',
-            isRunning: electronState.state === 'running',
-            startedAt: electronState.startedAt?.toISOString() || null,
-            stoppedAt: null,
-            lastError: electronState.lastError || null,
-            processedJobs: 0,
-            failedJobs: 0,
-            connectedPrinters: electronState.connectedPrinters,
-            queueSize: 0,
-        };
-    }
 
     /**
      * Start the print agent
      */
     async startAgent(): Promise<PrintAgentState> {
-        if (this.isElectronApp) {
-            const result = await window.electronAPI.printAgent.start();
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to start print agent');
-            }
-            // Get updated status after starting
-            const statusResult = await window.electronAPI.printAgent.getStatus();
-            if (statusResult.success && statusResult.data) {
-                return this.toApiAgentState(statusResult.data);
-            }
-            return this.toApiAgentState({ state: 'running', connectedPrinters: 0 });
-        }
-        // Fallback to HTTP API
         return printerService.startAgent();
     }
 
@@ -76,13 +19,6 @@ class PrintAgentAdapter {
      * Stop the print agent
      */
     async stopAgent(): Promise<PrintAgentState> {
-        if (this.isElectronApp) {
-            const result = await window.electronAPI.printAgent.stop();
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to stop print agent');
-            }
-            return this.toApiAgentState({ state: 'idle', connectedPrinters: 0 });
-        }
         return printerService.stopAgent();
     }
 
@@ -90,16 +26,6 @@ class PrintAgentAdapter {
      * Get agent status
      */
     async getAgentStatus(): Promise<PrintAgentState> {
-        if (this.isElectronApp) {
-            const result = await window.electronAPI.printAgent.getStatus();
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to get agent status');
-            }
-            if (result.data) {
-                return this.toApiAgentState(result.data);
-            }
-            return this.toApiAgentState({ state: 'idle', connectedPrinters: 0 });
-        }
         return printerService.getAgentStatus();
     }
 
@@ -107,22 +33,6 @@ class PrintAgentAdapter {
      * Get agent permissions
      */
     async getAgentPermissions(): Promise<PrintAgentPermissions> {
-        if (this.isElectronApp) {
-            const result = await window.electronAPI.printAgent.getPermissions();
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to get permissions');
-            }
-            // Map electron permissions to API format
-            const electronPerms = result.data;
-            return {
-                hasSerialAccess: electronPerms?.canAccessPrinters || false,
-                hasUsbAccess: electronPerms?.canAccessPrinters || false,
-                serialPorts: [],
-                usbDevices: [],
-                missingPermissions: electronPerms?.missingPermissions || [],
-                instructions: electronPerms?.missingPermissions?.join('. '),
-            };
-        }
         return printerService.getAgentPermissions();
     }
 
@@ -130,16 +40,6 @@ class PrintAgentAdapter {
      * Get setup instructions
      */
     async getSetupInstructions(): Promise<PrintAgentSetupInstructions> {
-        if (this.isElectronApp) {
-            const result = await window.electronAPI.printAgent.getSetupInstructions();
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to get setup instructions');
-            }
-            return result.data || {
-                os: 'unknown',
-                instructions: ['Unable to load instructions'],
-            };
-        }
         return printerService.getAgentSetupInstructions();
     }
 
@@ -149,49 +49,58 @@ class PrintAgentAdapter {
      * Discover available printers
      */
     async discoverPrinters(): Promise<DiscoveredPrinter[]> {
-        if (this.isElectronApp) {
-            const result = await window.electronAPI.printAgent.discoverPrinters();
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to discover printers');
-            }
-            // Map electron printers to API format
-            return (result.data || []).map(p => ({
-                name: p.name,
-                displayName: p.displayName,
-                driver: '',
-                portName: '',
-                description: p.description || '',
-                status: p.status === 0 ? 'online' : 'offline',
-                capabilities: {},
-                isNetwork: false,
-                isUSB: false,
-                isSerial: false,
-            })) as unknown as DiscoveredPrinter[];
-        }
-        // Fallback: use HTTP API to discover printers
         const result = await printerService.discover();
         return result.printers || [];
+    }
+
+    /**
+     * Scan network for printers
+     */
+    async scanNetwork(baseIP: string, startHost?: number, endHost?: number, port?: number): Promise<DiscoveredPrinter[]> {
+        const result = await printerService.scanNetwork({ baseIP, startHost, endHost, port });
+        return result.printers || [];
+    }
+
+    /**
+     * Get available serial ports
+     */
+    async getSerialPorts(): Promise<SerialPortInfo[]> {
+        return printerService.getSerialPorts();
+    }
+
+    /**
+     * Register a discovered printer
+     */
+    async registerPrinter(discoveredPrinter: DiscoveredPrinter, options?: {
+        printerName?: string;
+        tenantId?: string;
+        branchId?: string;
+        isDefault?: boolean;
+        isReceiptPrinter?: boolean;
+        isLabelPrinter?: boolean;
+        isKitchenPrinter?: boolean;
+    }): Promise<Printer> {
+        return printerService.registerDiscoveredPrinter({
+            name: discoveredPrinter.name,
+            address: discoveredPrinter.address,
+            port: discoveredPrinter.port,
+            connectionType: discoveredPrinter.connectionType,
+            printerType: discoveredPrinter.type,
+            ...options,
+        } as any);
+    }
+
+    /**
+     * Test printer connection
+     */
+    async testPrinter(printerId: string): Promise<PrinterTestResult> {
+        return printerService.testConnection(printerId);
     }
 
     /**
      * Get list of registered printers
      */
     async getPrinters(): Promise<Printer[]> {
-        if (this.isElectronApp) {
-            const result = await window.electronAPI.printAgent.getPrinters();
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to get printers');
-            }
-            // Map electron printers to API format
-            return (result.data || []).map(p => ({
-                id: p.name,
-                name: p.displayName || p.name,
-                status: p.status === 0 ? 'online' : 'offline',
-                location: p.description || '',
-                isDefault: p.isDefault,
-            })) as unknown as Printer[];
-        }
-        // Fallback: use HTTP API
         return printerService.getAll();
     }
 
@@ -199,23 +108,6 @@ class PrintAgentAdapter {
      * Get default printer for a specific use
      */
     async getDefaultPrinter(use?: 'receipt' | 'label' | 'kitchen' | 'report'): Promise<Printer | null> {
-        if (this.isElectronApp) {
-            const result = await window.electronAPI.printAgent.getDefaultPrinter();
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to get default printer');
-            }
-            if (result.data) {
-                return {
-                    id: result.data.name,
-                    name: result.data.displayName || result.data.name,
-                    status: result.data.status === 0 ? 'online' : 'offline',
-                    location: result.data.description || '',
-                    isDefault: true,
-                } as unknown as Printer;
-            }
-            return null;
-        }
-        // Fallback: use HTTP API
         return printerService.getDefault(use);
     }
 
@@ -225,51 +117,20 @@ class PrintAgentAdapter {
      * Get queue status
      */
     async getQueueStatus(): Promise<PrintQueueStatus> {
-        if (this.isElectronApp) {
-            const result = await window.electronAPI.printAgent.getQueueStatus();
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to get queue status');
-            }
-            return {
-                queueSize: result.data?.queueSize || 0,
-                pendingJobs: result.data?.pendingJobs || 0,
-                processingJobs: result.data?.processingJobs || 0,
-                failedJobs: result.data?.failedJobs || 0,
-                completedToday: result.data?.completedToday || 0,
-                failedJobsList: [],
-            };
-        }
         return printerService.getQueueStatus();
     }
 
     /**
      * Retry a specific job
      */
-    async retryJob(jobId: string): Promise<void> {
-        if (this.isElectronApp) {
-            const result = await window.electronAPI.printAgent.retryJob(jobId);
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to retry job');
-            }
-            return;
-        }
-        await printerService.retryJob(jobId);
+    async retryJob(jobId: string): Promise<PrintJob> {
+        return printerService.retryJob(jobId);
     }
 
     /**
      * Retry all failed jobs
      */
     async retryAllFailed(): Promise<{ affected: number; message: string }> {
-        if (this.isElectronApp) {
-            const result = await window.electronAPI.printAgent.retryAllFailed();
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to retry all failed jobs');
-            }
-            return {
-                affected: result.data?.retriedCount || 0,
-                message: `Retried ${result.data?.retriedCount || 0} jobs`
-            };
-        }
         return printerService.retryAllFailedJobs();
     }
 
@@ -277,104 +138,51 @@ class PrintAgentAdapter {
      * Clear the print queue
      */
     async clearQueue(): Promise<{ affected: number; message: string }> {
-        if (this.isElectronApp) {
-            const result = await window.electronAPI.printAgent.clearQueue();
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to clear queue');
-            }
-            return {
-                affected: result.data?.clearedCount || 0,
-                message: `Cleared ${result.data?.clearedCount || 0} jobs`
-            };
-        }
         return printerService.clearQueue();
     }
 
     // ==================== Print Operations ====================
 
     /**
-     * Print content directly
+     * Print a receipt
      */
-    async print(
-        content: string,
-        options: {
-            contentType?: 'html' | 'url' | 'raw';
-            printerName?: string;
-            copies?: number;
-            silent?: boolean;
-            color?: boolean;
-            landscape?: boolean;
-            pageSize?: string;
-        } = {}
-    ): Promise<{ success: boolean; jobId?: string; error?: string }> {
-        if (this.isElectronApp) {
-            return window.electronAPI.printAgent.print(content, options);
-        }
-
-        // Fallback: Create a print job via HTTP API
-        // This assumes there's a way to send print content via API
-        try {
-            // For HTTP fallback, we'll need to use the browser's print functionality
-            // or send to a print server
-            console.warn('Print fallback: Native printing not available');
-            return { success: false, error: 'Native printing not available. Please use Electron app.' };
-        } catch (error: any) {
-            return { success: false, error: error.message };
-        }
+    async printReceipt(data: PrintReceiptRequest): Promise<PrintJob> {
+        return printerService.printReceipt(data);
     }
 
     /**
-     * Print HTML content (convenience method)
+     * Print a label
      */
-    async printHtml(
-        html: string,
-        printerName?: string,
-        options: { copies?: number; silent?: boolean; landscape?: boolean } = {}
-    ): Promise<{ success: boolean; jobId?: string; error?: string }> {
-        return this.print(html, {
-            contentType: 'html',
-            printerName,
-            ...options,
-        });
+    async printLabel(data: PrintLabelRequest): Promise<PrintJob> {
+        return printerService.printLabel(data);
     }
 
     /**
-     * Print receipt
+     * Print a test page
      */
-    async printReceipt(
-        receiptHtml: string,
-        printerName?: string
-    ): Promise<{ success: boolean; jobId?: string; error?: string }> {
-        return this.printHtml(receiptHtml, printerName, {
-            silent: true,
-            copies: 1,
-        });
+    async printTestPage(printerId: string): Promise<PrintJob> {
+        return printerService.printTestPage(printerId);
     }
 
     /**
-     * Add a job to the print queue
+     * Get pending print jobs
      */
-    async addJob(job: {
-        content: string;
-        contentType: 'html' | 'url' | 'raw';
-        printerName?: string;
-        options?: {
-            silent?: boolean;
-            printBackground?: boolean;
-            color?: boolean;
-            landscape?: boolean;
-            copies?: number;
-            pageSize?: string;
-        };
-    }): Promise<{ success: boolean; jobId?: string; error?: string }> {
-        if (this.isElectronApp) {
-            const result = await window.electronAPI.printAgent.addJob(job);
-            if (result.success && result.data) {
-                return { success: true, jobId: result.data.id };
-            }
-            return { success: false, error: result.error };
-        }
-        return { success: false, error: 'Queue management requires Electron app' };
+    async getPendingJobs(): Promise<PrintJob[]> {
+        return printerService.getPendingJobs();
+    }
+
+    /**
+     * Get print job history for a printer
+     */
+    async getJobHistory(printerId: string): Promise<PrintJob[]> {
+        return printerService.getJobHistory(printerId);
+    }
+
+    /**
+     * Cancel a print job
+     */
+    async cancelJob(jobId: string): Promise<PrintJob> {
+        return printerService.cancelJob(jobId);
     }
 }
 
