@@ -43,8 +43,6 @@ jobs:
           NODE_ENV=production
           APPNAME=zonse247-pos
           AUTO_SYNC_ENABLED=false
-          APPLICATION_ENVIRONMENT=desktop
-          APPLICATION_OFFLINE_MODE=true
 
           # client config
           VITE_API_URL=http://127.0.0.1:3000/api/v1
@@ -55,11 +53,13 @@ jobs:
           # API Configuration
           API_VERSION=v1
           API_PREFIX=/api
-          API_HOST=139.59.103.109
-          API_PORT=2025
+          API_HOST=127.0.0.1
+          API_PORT=3000
 
           SERVER_PORT=3000
           SERVER_HOST=127.0.0.1
+          LIVE_API_URL=http://139.59.103.109:2025/api/v1
+          API_TIMEOUT=30000
 
           # Server Configuration
           TRUST_PROXY=true
