@@ -2,12 +2,12 @@ import path from 'node:path';
 import MenuBuilder from './partials/menu';
 import { setupIPC } from './ipc/setup.ipc';
 import { setupMenuIPC } from './ipc/menu.ipc';
-import { setupPrintAgentIPC } from './ipc/print-agent.ipc';
-import printAgentService from './services/print-agent.service';
 import started from 'electron-squirrel-startup';
 import { isElectron } from './helpers/index.helper';
 import { app, BrowserWindow, screen, shell } from 'electron';
-import Zonse247PosApi, { SecureSettingsService } from 'zonse247-pos-api';
+import Zonse247PosApi, { SecureSettingsService, PrintAgentService } from 'zonse247-pos-api';
+
+let printAgent: PrintAgentService | null = null;
 
 if (started) {
 	app.quit();
@@ -77,20 +77,26 @@ app.whenReady().then(async () => {
 
 	await SecureSettingsService.initialize(app.getPath('userData'));
 
+	// Initialize the print agent from zonse247-pos-api
+	const setup = await SecureSettingsService.getAppSetup();
+	printAgent = PrintAgentService.getInstance({
+		autoDiscoverPrinters: true,
+		discoveryIntervalMs: 30000,
+		autoRegisterPrinters: false,
+		defaultTenantId: setup?.tenantId || '',
+		defaultBranchId: setup?.branchId || '',
+	});
+
 	setupIPC();
 	setupMenuIPC();
-	setupPrintAgentIPC();
 
 	const hasSetup = await SecureSettingsService.hasAppSetup();
 
 	await createWindow(!hasSetup);
 
-	printAgentService.start().then((result) => {
-		if (result.success) {
-			console.log('✓ Print Agent auto-started');
-		} else {
-			console.warn('⚠ Print Agent auto-start failed:', result.error);
-		}
+	// Start print agent using zonse247-pos-api module
+	printAgent.start().then(() => {
+		console.log('✓ Print Agent auto-started (zonse247-pos-api)');
 	}).catch((error) => {
 		console.warn('⚠ Print Agent auto-start error:', error);
 	});
@@ -109,10 +115,12 @@ app.on('activate', () => {
 });
 
 app.on('will-quit', () => {
-	// Stop print agent
-	printAgentService.stop().catch((error) => {
-		console.error('Failed to stop print agent:', error);
-	});
+	// Stop print agent using zonse247-pos-api module
+	if (printAgent) {
+		printAgent.stop().catch((error) => {
+			console.error('Failed to stop print agent:', error);
+		});
+	}
 
 	if (server) {
 		server.stop();

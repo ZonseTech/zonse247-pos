@@ -15,52 +15,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
         runMigrations: () => ipcRenderer.invoke('db:run-migrations'),
     },
 
-    printAgent: {
-        // Agent Control
-        start: () => ipcRenderer.invoke('print-agent:start'),
-        stop: () => ipcRenderer.invoke('print-agent:stop'),
-        getStatus: () => ipcRenderer.invoke('print-agent:status'),
-        getPermissions: () => ipcRenderer.invoke('print-agent:permissions'),
-        getSetupInstructions: () => ipcRenderer.invoke('print-agent:setup-instructions'),
-
-        // Printer Discovery
-        discoverPrinters: () => ipcRenderer.invoke('print-agent:discover-printers'),
-        getPrinters: () => ipcRenderer.invoke('print-agent:get-printers'),
-        getDefaultPrinter: () => ipcRenderer.invoke('print-agent:get-default-printer'),
-
-        // Print Queue
-        getQueueStatus: () => ipcRenderer.invoke('print-agent:queue-status'),
-        getJobs: (filter?: { status?: string; limit?: number }) =>
-            ipcRenderer.invoke('print-agent:get-jobs', filter),
-        retryJob: (jobId: string) => ipcRenderer.invoke('print-agent:retry-job', jobId),
-        retryAllFailed: () => ipcRenderer.invoke('print-agent:retry-all-failed'),
-        clearQueue: () => ipcRenderer.invoke('print-agent:clear-queue'),
-
-        // Print Operations
-        print: (content: string, options?: {
-            contentType?: 'html' | 'url' | 'raw';
-            printerName?: string;
-            copies?: number;
-            silent?: boolean;
-            color?: boolean;
-            landscape?: boolean;
-            pageSize?: string;
-        }) => ipcRenderer.invoke('print-agent:print', content, options),
-        addJob: (job: {
-            content: string;
-            contentType: 'html' | 'url' | 'raw';
-            printerName?: string;
-            options?: {
-                silent?: boolean;
-                printBackground?: boolean;
-                color?: boolean;
-                landscape?: boolean;
-                copies?: number;
-                pageSize?: string;
-            };
-        }) => ipcRenderer.invoke('print-agent:add-job', job),
-    },
-
     menu: {
         rebuild: (user: User) =>
             ipcRenderer.invoke('menu:rebuild', user),
