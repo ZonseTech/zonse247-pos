@@ -235,6 +235,7 @@ interface SerialPortInfo {
     locationId?: string;
     vendorId?: string;
     productId?: string;
+    friendlyName?: string;
 }
 
 interface CommonPortInfo {
@@ -421,6 +422,7 @@ interface PrintAgentState {
 interface PrintAgentPermissions {
     hasSerialAccess: boolean;
     hasUsbAccess: boolean;
+    hasNetworkAccess?: boolean;
     serialPorts: string[];
     usbDevices: string[];
     missingPermissions: string[];

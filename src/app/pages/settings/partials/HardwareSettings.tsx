@@ -20,12 +20,12 @@ const HardwareSettings: FunctionComponent = () => {
         const loadPrinters = async () => {
             try {
                 setIsLoadingPrinters(true);
-                const printers = await printerService.list();
+                const printers = await printerService.getAll();
                 const options: PrinterOption[] = [
                     { label: 'No Printer Selected', value: '' },
                     ...printers.map(printer => ({
-                        label: printer.displayName || printer.name,
-                        value: printer.name
+                        label: printer.printerName || printer.printerId,
+                        value: printer.printerId
                     }))
                 ];
                 setPrinterOptions(options);
