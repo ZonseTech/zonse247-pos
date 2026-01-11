@@ -8,6 +8,21 @@ export type IconType =
 	| React.FunctionComponent<{ className: string; 'aria-hidden': boolean }>
 	| React.ComponentClass<{ className: string; 'aria-hidden': boolean }>
 
+/**
+ * Button size options matching theme config
+ */
+export type ButtonSize = 'larger' | 'large' | 'regular' | 'small' | 'pagination'
+
+/**
+ * Button layout/variant options matching theme config
+ */
+export type ButtonLayout = 'primary' | 'outline' | 'link' | '__dropdownItem'
+
+/**
+ * Button color theme options matching theme config
+ */
+export type ButtonTheme = 'primary' | 'success' | 'danger' | 'warning' | 'neutral'
+
 export interface Props {
 	children?: React.ReactNode
 	/**
@@ -16,10 +31,11 @@ export interface Props {
 	disabled?: boolean
 	/**
 	 * The size of the button
+	 * @default 'regular'
 	 */
-	size?: 'larger' | 'large' | 'regular' | 'small' | 'pagination'
+	size?: ButtonSize
 	/**
-	 * Shows only one icon inside the button; defaults to left
+	 * Shows only one icon inside the button; defaults to left position
 	 */
 	icon?: IconType
 	/**
@@ -31,21 +47,25 @@ export interface Props {
 	 */
 	iconRight?: IconType
 	/**
-	 * The style of the button
+	 * The layout/variant style of the button
+	 * @default 'primary'
 	 */
-	layout?: 'outline' | 'link' | 'primary' | '__dropdownItem'
+	layout?: ButtonLayout
 	/**
 	 * Shows the button as a block (full width)
+	 * @default false
 	 */
 	block?: boolean
 	/**
-	 * Action indicator
+	 * Shows loading indicator and disables the button
+	 * @default false
 	 */
 	loading?: boolean
 	/**
-	 * The type of the button
+	 * The color theme of the button (only applies to primary layout)
+	 * @default 'primary'
 	 */
-	theme?: 'success' | 'danger' | 'warning' | 'neutral' | 'primary'
+	theme?: ButtonTheme
 }
 
 export interface ButtonAsButtonProps extends Props, React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -88,16 +108,17 @@ const Button = React.forwardRef<Ref, ButtonProps>(function Button(props, ref) {
 		children,
 		...other
 	} = props
+
 	const {
 		theme: { button },
 	}: any = useContext(ThemeContext)
 
-	function hasIcon() {
-		return !!icon || !!iconLeft || !!iconRight
-	}
+	const hasIcon = !!icon || !!iconLeft || !!iconRight
+	const isIconOnly = hasIcon && !children
+	const isDisabled = loading || disabled
 
 	warn(
-		hasIcon() && !other['aria-label'] && !children,
+		isIconOnly && !other['aria-label'],
 		'Button',
 		'You are using an icon button, but no "aria-label" attribute was found. Add an "aria-label" attribute to work as a label for screen readers.'
 	)
@@ -105,97 +126,149 @@ const Button = React.forwardRef<Ref, ButtonProps>(function Button(props, ref) {
 	const IconLeft = iconLeft || icon
 	const IconRight = iconRight
 
+	// Base styles
 	const baseStyle = button.base
 	const blockStyle = button.block
-	const sizeStyles = {
+
+	// Size styles from theme config
+	const sizeStyles: Record<ButtonSize, string> = {
 		larger: button.size.larger,
 		large: button.size.large,
 		regular: button.size.regular,
 		small: button.size.small,
 		pagination: button.size.pagination,
 	}
-	const iconSizeStyles = {
+
+	// Icon-only button size styles from theme config
+	const iconSizeStyles: Record<ButtonSize, string> = {
 		larger: button.size.icon.larger,
 		large: button.size.icon.large,
 		regular: button.size.icon.regular,
 		small: button.size.icon.small,
 		pagination: button.size.icon.regular,
 	}
-	const iconStyle = button.icon[size]
-	const layoutStyles = {
+
+	// Icon dimension styles from theme config
+	const iconDimensionStyles: Record<ButtonSize, string> = {
+		larger: button.icon.larger,
+		large: button.icon.large,
+		regular: button.icon.regular,
+		small: button.icon.small,
+		pagination: button.icon.regular,
+	}
+
+	// Layout styles from theme config
+	const layoutStyles: Record<Exclude<ButtonLayout, '__dropdownItem'>, string> = {
 		primary: button.primary.base,
 		outline: button.outline.base,
 		link: button.link.base,
 	}
-	const activeStyles = {
+
+	// Active/hover styles from theme config
+	const activeStyles: Record<Exclude<ButtonLayout, '__dropdownItem'>, string> = {
 		primary: button.primary.active,
 		outline: button.outline.active,
 		link: button.link.active,
 	}
-	const disabledStyles = {
+
+	// Disabled styles from theme config
+	const disabledStyles: Record<Exclude<ButtonLayout, '__dropdownItem'>, string> = {
 		primary: button.primary.disabled,
 		outline: button.outline.disabled,
 		link: button.link.disabled,
 	}
 
-	const dropdownItemStyle = button.dropdownItem.base
-
-	const themeStyle = {
+	// Theme color styles from theme config (applies to primary layout)
+	const themeStyles: Record<ButtonTheme, string> = {
+		primary: button.theme.primary,
 		success: button.theme.success,
 		danger: button.theme.danger,
 		warning: button.theme.warning,
 		neutral: button.theme.neutral,
-		primary: button.theme.primary,
 	}
 
+	// Dropdown item style
+	const dropdownItemStyle = button.dropdownItem.base
+
+	// Build button class names
 	const buttonStyles =
 		layout === '__dropdownItem'
 			? classNames(dropdownItemStyle, className)
 			: classNames(
 				baseStyle,
-				hasIcon() && !children && iconSizeStyles[size],
-				hasIcon() && children && sizeStyles[size],
-				!hasIcon() && sizeStyles[size],
+				// Apply icon-only size or regular size
+				isIconOnly ? iconSizeStyles[size] : sizeStyles[size],
+				// Layout base styles
 				layoutStyles[layout],
-				disabled ? disabledStyles[layout] : activeStyles[layout],
-				block ? blockStyle : null,
+				// State styles (disabled or active)
+				isDisabled ? disabledStyles[layout] : activeStyles[layout],
+				// Block style for full width
+				block && blockStyle,
+				// Theme colors (only meaningful for primary layout)
+				layout === 'primary' && theme && themeStyles[theme],
+				// Custom className
 				className,
-				theme ? themeStyle[theme] : null,
 			)
 
-	const iconLeftStyles = classNames(iconStyle, children ? button.icon.left : '')
-	const iconRightStyles = classNames(iconStyle, children ? button.icon.right : '')
+	// Icon styles with proper spacing
+	const iconLeftStyles = classNames(
+		iconDimensionStyles[size],
+		children && button.icon.left
+	)
+	const iconRightStyles = classNames(
+		iconDimensionStyles[size],
+		children && button.icon.right
+	)
 
+	// Loading indicator component
 	const LoadingIndicator = () => (
-		<div className="flex items-center justify-center">
-			<span>Loading...</span>
-		</div>
-	);
+		<svg
+			className={classNames('animate-spin', iconDimensionStyles[size], children && 'mr-2')}
+			xmlns="http://www.w3.org/2000/svg"
+			fill="none"
+			viewBox="0 0 24 24"
+			aria-hidden="true"
+		>
+			<circle
+				className="opacity-25"
+				cx="12"
+				cy="12"
+				r="10"
+				stroke="currentColor"
+				strokeWidth="4"
+			/>
+			<path
+				className="opacity-75"
+				fill="currentColor"
+				d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+			/>
+		</svg>
+	)
 
-	const renderContent = () => {
-		return (
-			<Fragment>
-				{IconLeft && (
-					<IconLeft className={iconLeftStyles} aria-hidden={true} />
-				)}
-				{loading ? <LoadingIndicator /> : children}
-				{IconRight && (
-					<IconRight className={iconRightStyles} aria-hidden={true} />
-				)}
-			</Fragment>
-		);
-	};
+	const renderContent = () => (
+		<Fragment>
+			{loading && <LoadingIndicator />}
+			{!loading && IconLeft && (
+				<IconLeft className={iconLeftStyles} aria-hidden={true} />
+			)}
+			{children}
+			{!loading && IconRight && (
+				<IconRight className={iconRightStyles} aria-hidden={true} />
+			)}
+		</Fragment>
+	)
+
 	return React.createElement(
 		tag,
 		{
 			className: buttonStyles,
 			ref,
-			disabled: loading || disabled,
+			disabled: isDisabled,
 			type,
 			...other,
 		},
 		renderContent()
-	);
+	)
 })
 
 export default Button
