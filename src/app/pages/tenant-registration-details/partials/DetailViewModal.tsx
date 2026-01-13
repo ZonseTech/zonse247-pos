@@ -41,8 +41,9 @@ export const DetailViewModal: FunctionComponent<DetailViewModalProps> = ({
             title="Registration Detail"
             size="lg"
         >
-            <div className="max-h-[75vh] overflow-y-auto pr-2">
-                <div className="space-y-4">
+            <>
+                <div className="max-h-[75vh] overflow-y-auto pr-2">
+                    <div className="space-y-4">
                         {/* Status Badge */}
                         <div className="flex justify-center">
                             <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${detail.isProcessed
@@ -143,22 +144,22 @@ export const DetailViewModal: FunctionComponent<DetailViewModalProps> = ({
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div className="border-t border-gray-200 dark:border-gray-600 px-6 py-4 bg-gray-50 dark:bg-gray-700 flex-shrink-0">
-                <div className="flex items-center justify-end space-x-3">
-                    <Button theme="neutral" onClick={onClose}>
-                        Close
-                    </Button>
-                    {!detail.isProcessed && (
-                        <Button theme="primary" onClick={handleMarkProcessed}>
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Mark as Processed
+                <div className="border-t border-gray-200 dark:border-gray-600 px-6 py-4 bg-gray-50 dark:bg-gray-700 flex-shrink-0">
+                    <div className="flex items-center justify-end space-x-3">
+                        <Button theme="neutral" onClick={onClose}>
+                            Close
                         </Button>
-                    )}
+                        {!detail.isProcessed && (
+                            <Button theme="primary" onClick={handleMarkProcessed}>
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                Mark as Processed
+                            </Button>
+                        )}
+                    </div>
                 </div>
-            </div>
-        </Modal >
+            </>
+        </Modal>
     );
 };
 
