@@ -77,7 +77,6 @@ app.whenReady().then(async () => {
 
 	await SecureSettingsService.initialize(app.getPath('userData'));
 
-	// Initialize the print agent from zonse247-pos-api
 	const setup = await SecureSettingsService.getAppSetup();
 	printAgent = PrintAgentService.getInstance({
 		autoDiscoverPrinters: true,
@@ -94,7 +93,6 @@ app.whenReady().then(async () => {
 
 	await createWindow(!hasSetup);
 
-	// Start print agent using zonse247-pos-api module
 	printAgent.start().then(() => {
 		console.log('✓ Print Agent auto-started (zonse247-pos-api)');
 	}).catch((error) => {
@@ -115,7 +113,6 @@ app.on('activate', () => {
 });
 
 app.on('will-quit', () => {
-	// Stop print agent using zonse247-pos-api module
 	if (printAgent) {
 		printAgent.stop().catch((error) => {
 			console.error('Failed to stop print agent:', error);

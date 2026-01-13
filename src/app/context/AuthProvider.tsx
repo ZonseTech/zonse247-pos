@@ -3,6 +3,8 @@ import { Confirm, Notify } from 'notiflix';
 import React, { type PropsWithChildren, createContext, useContext, useEffect, useState } from 'react'
 import { isElectron } from '../utils';
 import settingsService from '../services/settings.service';
+import { Navigate, useNavigate } from 'react-router';
+import { ROUTES } from '../utils/constants';
 
 type ContextProps = {
     user: User | null;
@@ -31,6 +33,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const [auth, setAuth] = useState<string | unknown>(null);
     const [user, setUser] = useState<User | null>(null);
     const isAuthenticated = !!(user && auth);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const loadUserToken = async () => {
@@ -53,6 +56,37 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
         loadUserToken()
     }, [])
+
+    // Handle logout from desktop menu
+    useEffect(() => {
+        if (!isElectron()) return;
+
+        const handleMenuLogout = async () => {
+            try {
+                // Call logout API
+                await api.get('auth/logout/' + user?.userId);
+            } catch (error) {
+                console.error('Logout API failed:', error);
+            } finally {
+                // Clear session data
+                setUser(null);
+                setAuth(null);
+                sessionStorage.removeItem('user');
+                sessionStorage.removeItem('token');
+                sessionStorage.removeItem('tenantId');
+                
+                // Redirect to login page
+                navigate(ROUTES.LOGIN, { replace: true });
+            }
+        };
+
+        // Listen for logout event from main process
+        const cleanup = window.electronAPI?.menu?.onLogout(handleMenuLogout);
+
+        return () => {
+            cleanup?.();
+        };
+    }, [user, navigate])
 
     const signin = async (data: AuthProps) => {
         try {
@@ -131,9 +165,10 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
                             sessionStorage.removeItem('user');
                             sessionStorage.removeItem('token');
 
+                            navigate(ROUTES.LOGIN)
+
                             if (callback) {
                                 callback();
-                                // location.reload();
                             }
                         }))
                 } catch (error) {
