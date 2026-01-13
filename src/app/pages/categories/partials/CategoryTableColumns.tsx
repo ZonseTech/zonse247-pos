@@ -1,6 +1,7 @@
 import { TableColumn } from 'react-data-table-component';
 import { HiOutlinePencil, HiOutlineTrash } from 'react-icons/hi2';
 import { formatDistanceToNow } from 'date-fns';
+import { MoreVertical, Edit2, Trash2, Package } from 'lucide-react';
 
 export const getCategoryColumns = (
     onEdit: (category: Category) => void,
@@ -8,21 +9,26 @@ export const getCategoryColumns = (
 ): TableColumn<Category>[] => {
     return [
         {
-            name: 'Category Name',
+            name: 'Category',
             selector: (row: Category) => row.name,
             sortable: true,
             grow: 2,
             cell: (row: Category) => (
-                <div className="flex items-center space-x-3 py-2">
-                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                <div className="flex items-center gap-3 py-3">
+                    <div
+                        className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md"
+                        style={{
+                            backgroundColor: row.color || '#3B82F6',
+                        }}
+                    >
                         {row.name.charAt(0).toUpperCase()}
                     </div>
-                    <div>
-                        <div className="font-medium text-gray-900 dark:text-white">
+                    <div className="min-w-0">
+                        <div className="font-semibold text-gray-900 dark:text-white truncate">
                             {row.name}
                         </div>
                         {row.description && (
-                            <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
+                            <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[200px] lg:max-w-xs">
                                 {row.description}
                             </div>
                         )}
@@ -31,14 +37,19 @@ export const getCategoryColumns = (
             ),
         },
         {
-            name: 'Product Count',
+            name: 'Products',
             selector: (row: Category) => row.itemCount || 0,
             sortable: true,
             center: true,
+            width: '140px',
             cell: (row: Category) => (
                 <div className="flex items-center justify-center">
-                    <span className="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                        {row.itemCount || 0} {(row.itemCount || 0) === 1 ? 'product' : 'products'}
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full ${(row.itemCount || 0) > 0
+                            ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                        }`}>
+                        <Package className="w-3.5 h-3.5" />
+                        {row.itemCount || 0}
                     </span>
                 </div>
             ),
@@ -47,45 +58,118 @@ export const getCategoryColumns = (
             name: 'Created',
             selector: (row: Category) => row.createdAt ? new Date(row.createdAt).getTime() : 0,
             sortable: true,
+            width: '150px',
             cell: (row: Category) => (
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                     {row.createdAt
                         ? formatDistanceToNow(new Date(row.createdAt), { addSuffix: true })
-                        : 'N/A'}
+                        : '—'}
                 </div>
             ),
         },
         {
-            name: 'Last Updated',
+            name: 'Updated',
             selector: (row: Category) => row.updatedAt ? new Date(row.updatedAt).getTime() : 0,
             sortable: true,
+            width: '150px',
             cell: (row: Category) => (
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                     {row.updatedAt
                         ? formatDistanceToNow(new Date(row.updatedAt), { addSuffix: true })
-                        : 'N/A'}
+                        : '—'}
                 </div>
             ),
         },
         {
             name: 'Actions',
             center: true,
+            width: '120px',
             cell: (row: Category) => (
-                <div className="flex items-center justify-center space-x-2">
+                <div className="flex items-center justify-center gap-1">
                     <button
                         onClick={() => onEdit(row)}
-                        className="p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                        className="p-2 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all"
                         title="Edit category"
                     >
-                        <HiOutlinePencil className="w-5 h-5" />
+                        <HiOutlinePencil className="w-4.5 h-4.5" />
                     </button>
                     <button
                         onClick={() => onDelete(row.categoryId, row.name)}
-                        className="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                        title="Delete category"
+                        className={`p-2 rounded-lg transition-all ${row.itemCount > 0
+                                ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                                : 'text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                            }`}
+                        title={row.itemCount > 0 ? "Can't delete category with products" : "Delete category"}
                         disabled={row.itemCount > 0}
                     >
-                        <HiOutlineTrash className="w-5 h-5" />
+                        <HiOutlineTrash className="w-4.5 h-4.5" />
+                    </button>
+                </div>
+            ),
+        },
+    ];
+};
+
+// Mobile-optimized columns
+export const getMobileCategoryColumns = (
+    onEdit: (category: Category) => void,
+    onDelete: (categoryId: string, categoryName: string) => void
+): TableColumn<Category>[] => {
+    return [
+        {
+            name: 'Category',
+            selector: (row: Category) => row.name,
+            sortable: true,
+            grow: 2,
+            cell: (row: Category) => (
+                <div className="flex items-center gap-3 py-2">
+                    <div
+                        className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold shadow-sm"
+                        style={{ backgroundColor: row.color || '#3B82F6' }}
+                    >
+                        {row.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                        <div className="font-medium text-gray-900 dark:text-white text-sm truncate">
+                            {row.name}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            <span className="inline-flex items-center gap-1">
+                                <Package className="w-3 h-3" />
+                                {row.itemCount || 0}
+                            </span>
+                            {row.updatedAt && (
+                                <>
+                                    <span>•</span>
+                                    <span>{formatDistanceToNow(new Date(row.updatedAt), { addSuffix: true })}</span>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            ),
+        },
+        {
+            name: '',
+            width: '80px',
+            right: true,
+            cell: (row: Category) => (
+                <div className="flex items-center gap-0.5">
+                    <button
+                        onClick={() => onEdit(row)}
+                        className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                    >
+                        <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={() => onDelete(row.categoryId, row.name)}
+                        className={`p-2 rounded-lg transition-colors ${row.itemCount > 0
+                                ? 'text-gray-300 dark:text-gray-600'
+                                : 'text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                            }`}
+                        disabled={row.itemCount > 0}
+                    >
+                        <Trash2 className="w-4 h-4" />
                     </button>
                 </div>
             ),
