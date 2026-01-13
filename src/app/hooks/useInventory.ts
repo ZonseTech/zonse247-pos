@@ -26,8 +26,6 @@ import {
 } from '../store/slices/customerSlice'
 import {
     setLoading,
-    setUser,
-    setTill,
     clearUserData,
 } from '../store/slices/uiSlice'
 import { Notify } from 'notiflix'
@@ -77,11 +75,22 @@ export const useInventory = () => {
 
         const quantity = parseInt(item?.orderItems?.toString() || '0') || 1
         const existingItem = cart.find(cartItem => cartItem.productId === item.productId)
+        const isConsumableItem = item.categoryId?.toString() === DEFAULT_SEED_KEY
+
+        if (!isConsumableItem) {
+            const availableStock = parseInt((item.quantity || '0').toString())
+            const currentCartQuantity = existingItem ? existingItem.quantity : 0
+            const newTotalQuantity = currentCartQuantity + quantity
+
+            if (newTotalQuantity > availableStock) {
+                Notify.failure(`Cannot add ${quantity} item(s). Only ${availableStock - currentCartQuantity} available in stock.`)
+                return
+            }
+        }
 
         dispatch(addToCart(item))
 
         if (!existingItem) {
-            const isConsumableItem = item.categoryId?.toString() === DEFAULT_SEED_KEY
             if (!isConsumableItem) {
                 dispatch(updateInventoryStock({
                     id: item.productId.toString(),
@@ -89,10 +98,12 @@ export const useInventory = () => {
                 }))
             }
         } else {
-            dispatch(updateInventoryStock({
-                id: item.productId.toString(),
-                newStock: parseInt((item.quantity || '0').toString()) - quantity
-            }))
+            if (!isConsumableItem) {
+                dispatch(updateInventoryStock({
+                    id: item.productId.toString(),
+                    newStock: parseInt((item.quantity || '0').toString()) - quantity
+                }))
+            }
         }
     }
 
@@ -117,17 +128,32 @@ export const useInventory = () => {
         if (!isAuthenticated) return
 
         const prevItem = cart.find(item => item.productId === id)
+        if (!prevItem) return
+
+        const inventoryItem = inventory.find(p => p.productId === id)
+        const isConsumableItem = prevItem.categoryId === DEFAULT_SEED_KEY
+
+        if (!isConsumableItem && inventoryItem) {
+            const currentInventoryStock = parseInt((inventoryItem.quantity || '0').toString())
+            const difference = prevItem.quantity - quantity
+
+            const newInventoryStock = currentInventoryStock + difference
+
+            if (newInventoryStock < 0) {
+                const maxAllowedQuantity = prevItem.quantity + currentInventoryStock
+                Notify.failure(`Cannot set quantity to ${quantity}. Maximum available: ${maxAllowedQuantity}`)
+                return
+            }
+        }
+
         dispatch(updateQuantity({ id, quantity }))
 
-        if (prevItem) {
+        if (prevItem && inventoryItem) {
             const difference = prevItem.quantity - quantity
-            const inventoryItem = inventory.find(p => p.productId === id)
-            if (inventoryItem) {
-                dispatch(updateInventoryStock({
-                    id,
-                    newStock: parseInt((inventoryItem.quantity || '0').toString()) + difference
-                }))
-            }
+            dispatch(updateInventoryStock({
+                id,
+                newStock: parseInt((inventoryItem.quantity || '0').toString()) + difference
+            }))
         }
     }
 
