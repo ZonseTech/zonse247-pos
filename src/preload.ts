@@ -30,8 +30,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
         },
         onLogout: (callback: () => void) => {
             const listener = () => callback();
-            ipcRenderer.on('menu-logout', listener);
-            return () => ipcRenderer.removeListener('menu-logout', listener);
+            ipcRenderer.on('auth:logout', listener);
+            return () => ipcRenderer.removeListener('auth:logout', listener);
         },
         onRestoreDatabase: (filePath: string) =>
             ipcRenderer.invoke('menu:restore-database', filePath)

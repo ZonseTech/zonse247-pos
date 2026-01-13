@@ -30,6 +30,17 @@ export function setupMenuIPC() {
         return null;
     });
 
+    ipcMain.on('menu-logout', async (event) => {
+        try {
+            const win = BrowserWindow.fromWebContents(event.sender);
+            if (!win) return;
+
+            win.webContents.send('auth:logout');
+        } catch (error) {
+            console.error('Menu logout error:', error);
+        }
+    });
+
     ipcMain.handle('menu:check-updates', async () => {
         return { updateAvailable: false, version };
     });
