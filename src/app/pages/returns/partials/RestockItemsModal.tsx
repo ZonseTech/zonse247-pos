@@ -2,7 +2,7 @@ import { FunctionComponent, useState } from 'react';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { Notify } from 'notiflix';
-import { Button, Modal, ModalFooter } from '../../../components';
+import { Button, Modal } from '../../../components';
 import returnsService from '../../../services/returns.service';
 
 interface RestockItemsModalProps {
@@ -133,7 +133,7 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                 title="Restock Items"
                 isOpen={isOpen}
                 onClose={onClose}
-                className="max-w-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl shadow-2xl"
+                size="sm"
             >
                 <div className="p-6 text-center">
                     <p className="text-gray-600 dark:text-gray-400">
@@ -152,9 +152,11 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
             title="Restock Returned Items"
             isOpen={isOpen}
             onClose={onClose}
-            className="max-w-4xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl shadow-2xl"
+            size="full"
+            className="max-w-4xl"
         >
-            <div className="p-6 max-h-[80vh] overflow-y-auto">
+            <div className="flex flex-col max-h-[75vh]">
+                <div className="flex-1 overflow-y-auto pr-2">
                 {/* Info Banner */}
                 <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
                     <p className="text-sm text-blue-800 dark:text-blue-200">
@@ -310,22 +312,23 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                         </div>
                     </div>
                 )}
-            </div>
-
-            <ModalFooter className="border-t">
-                <div className="flex justify-end space-x-3">
-                    <Button type="button" layout="outline" onClick={onClose}>
-                        Cancel
-                    </Button>
-                    <Button
-                        type="button"
-                        onClick={handleSubmit}
-                        disabled={selectedItems.length === 0}
-                    >
-                        Restock {selectedItems.length > 0 ? `(${totalItemsToRestock})` : ''} Items
-                    </Button>
                 </div>
-            </ModalFooter>
+
+                <div className="border-t border-gray-200 dark:border-gray-700 mt-6 pt-4 flex-shrink-0">
+                    <div className="flex justify-end space-x-3">
+                        <Button type="button" layout="outline" onClick={onClose}>
+                            Cancel
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={handleSubmit}
+                            disabled={selectedItems.length === 0}
+                        >
+                            Restock {selectedItems.length > 0 ? `(${totalItemsToRestock})` : ''} Items
+                        </Button>
+                    </div>
+                </div>
+            </div>
         </Modal>
     );
 };

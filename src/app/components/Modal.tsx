@@ -17,11 +17,11 @@ interface CustomModalProps {
 }
 
 const sizeClasses = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
-    xl: 'max-w-xl',
-    full: 'max-w-full mx-4',
+    sm: 'sm:max-w-sm',
+    md: 'sm:max-w-md',
+    lg: 'sm:max-w-lg',
+    xl: 'sm:max-w-xl',
+    full: 'sm:max-w-full sm:mx-4',
 };
 
 const CustomModal: React.FC<CustomModalProps> = ({
@@ -91,7 +91,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
             'animate-slide-down sm:animate-scale-out': closing,
         },
         // Size classes (only on desktop)
-        `sm:${sizeClasses[size]}`,
+        sizeClasses[size],
         className
     );
 

@@ -1,6 +1,6 @@
-import { Outlet, useLocation } from "react-router-dom"
 import NavBar from "../navigation/NavBar"
 import Footer from "../components/Footer"
+import { Outlet, useLocation } from "react-router"
 import { useState, type FunctionComponent } from "react"
 import { isElectron } from "../../helpers/index.helper"
 import { useApp } from "../context/AppProvider"
@@ -15,17 +15,15 @@ const ProtectedLayout: FunctionComponent = () => {
 	const showWebNav = isNotDesktopEnv || settings?.navigationMenuType === 'web'
 	const isPOSActive = location.pathname === ROUTES.POS;
 
-	const [isSidebarHidden, setIsSidebarHidden] = useState(isPOSActive);
+	const [isSidebarHidden, setIsSidebarHidden] = useState(false);
 
 	const handleToggleSidebar = () => {
 		setIsSidebarHidden(!isSidebarHidden);
 	};
 
-	const shouldHideSidebar = isPOSActive ? isSidebarHidden : false;
-
 	return (
 		<div className="flex h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
-			{showWebNav && !isMobile && !shouldHideSidebar && (
+			{showWebNav && !isMobile && !isSidebarHidden && (
 				<aside className="hidden md:flex flex-shrink-0 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 w-64">
 					<NavBar
 						variant="sidebar"
@@ -40,8 +38,8 @@ const ProtectedLayout: FunctionComponent = () => {
 					<header className="flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
 						<NavBar
 							variant="topbar"
-							isSidebarCollapsed={shouldHideSidebar}
-							onToggleCollapse={isPOSActive ? handleToggleSidebar : undefined}
+							isSidebarCollapsed={isSidebarHidden}
+							onToggleCollapse={handleToggleSidebar}
 						/>
 					</header>
 				)}

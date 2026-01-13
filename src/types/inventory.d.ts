@@ -46,4 +46,5 @@ interface InventoryItem {
     orderItems?: number;
     customPrice?: string;
     discount?: number;
+    isDefault?: boolean;
 }

@@ -29,7 +29,6 @@ import {
     clearUserData,
 } from '../store/slices/uiSlice'
 import { Notify } from 'notiflix'
-import { DEFAULT_SEED_KEY } from '../constants'
 
 export const useInventory = () => {
     const dispatch = useAppDispatch()
@@ -75,9 +74,10 @@ export const useInventory = () => {
 
         const quantity = parseInt(item?.orderItems?.toString() || '0') || 1
         const existingItem = cart.find(cartItem => cartItem.productId === item.productId)
-        const isConsumableItem = item.categoryId?.toString() === DEFAULT_SEED_KEY
+        const isDefaultItem = item.isDefault === true
 
-        if (!isConsumableItem) {
+        // Skip inventory validation for default items
+        if (!isDefaultItem) {
             const availableStock = parseInt((item.quantity || '0').toString())
             const currentCartQuantity = existingItem ? existingItem.quantity : 0
             const newTotalQuantity = currentCartQuantity + quantity
@@ -91,14 +91,14 @@ export const useInventory = () => {
         dispatch(addToCart(item))
 
         if (!existingItem) {
-            if (!isConsumableItem) {
+            if (!isDefaultItem) {
                 dispatch(updateInventoryStock({
                     id: item.productId.toString(),
                     newStock: parseInt((item.quantity || '0').toString()) - quantity
                 }))
             }
         } else {
-            if (!isConsumableItem) {
+            if (!isDefaultItem) {
                 dispatch(updateInventoryStock({
                     id: item.productId.toString(),
                     newStock: parseInt((item.quantity || '0').toString()) - quantity
@@ -131,9 +131,10 @@ export const useInventory = () => {
         if (!prevItem) return
 
         const inventoryItem = inventory.find(p => p.productId === id)
-        const isConsumableItem = prevItem.categoryId === DEFAULT_SEED_KEY
+        const isDefaultItem = prevItem.isDefault === true
 
-        if (!isConsumableItem && inventoryItem) {
+        // Skip inventory validation for default items
+        if (!isDefaultItem && inventoryItem) {
             const currentInventoryStock = parseInt((inventoryItem.quantity || '0').toString())
             const difference = prevItem.quantity - quantity
 

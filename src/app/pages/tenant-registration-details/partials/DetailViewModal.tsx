@@ -1,6 +1,6 @@
 import { FunctionComponent, useState } from 'react';
-import { X, Building2, User, Mail, Key, Clock, CheckCircle, Hash, Shield, Copy, Check } from 'lucide-react';
-import { Button } from '../../../components';
+import { Building2, User, Mail, Key, Clock, CheckCircle, Hash, Shield, Copy, Check } from 'lucide-react';
+import { Button, Modal } from '../../../components';
 
 interface DetailViewModalProps {
     isOpen: boolean;
@@ -17,7 +17,7 @@ export const DetailViewModal: FunctionComponent<DetailViewModalProps> = ({
 }) => {
     const [copiedField, setCopiedField] = useState<string | null>(null);
 
-    if (!isOpen || !detail) return null;
+    if (!detail) return null;
 
     const handleMarkProcessed = () => {
         onMarkProcessed(detail.detailId);
@@ -35,31 +35,14 @@ export const DetailViewModal: FunctionComponent<DetailViewModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-            <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-                {/* Background overlay */}
-                <div
-                    className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75"
-                    onClick={onClose}
-                />
-
-                {/* Modal panel */}
-                <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-gray-800 rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                    {/* Header */}
-                    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                            Registration Detail
-                        </h3>
-                        <button
-                            onClick={onClose}
-                            className="p-1 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
-                    </div>
-
-                    {/* Content */}
-                    <div className="px-6 py-4 space-y-4">
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Registration Detail"
+            size="lg"
+        >
+            <div className="max-h-[75vh] overflow-y-auto pr-2">
+                <div className="space-y-4">
                         {/* Status Badge */}
                         <div className="flex justify-center">
                             <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${detail.isProcessed
@@ -159,22 +142,23 @@ export const DetailViewModal: FunctionComponent<DetailViewModalProps> = ({
                             <span>Detail ID: {detail.detailId}</span>
                         </div>
                     </div>
-
-                    {/* Footer */}
-                    <div className="flex items-center justify-end px-6 py-4 border-t border-gray-200 dark:border-gray-700 space-x-3">
-                        <Button theme="neutral" onClick={onClose}>
-                            Close
-                        </Button>
-                        {!detail.isProcessed && (
-                            <Button theme="primary" onClick={handleMarkProcessed}>
-                                <CheckCircle className="w-4 h-4 mr-2" />
-                                Mark as Processed
-                            </Button>
-                        )}
-                    </div>
                 </div>
             </div>
-        </div>
+
+            <div className="border-t border-gray-200 dark:border-gray-600 px-6 py-4 bg-gray-50 dark:bg-gray-700 flex-shrink-0">
+                <div className="flex items-center justify-end space-x-3">
+                    <Button theme="neutral" onClick={onClose}>
+                        Close
+                    </Button>
+                    {!detail.isProcessed && (
+                        <Button theme="primary" onClick={handleMarkProcessed}>
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Mark as Processed
+                        </Button>
+                    )}
+                </div>
+            </div>
+        </Modal >
     );
 };
 

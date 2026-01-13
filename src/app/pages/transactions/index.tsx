@@ -10,8 +10,10 @@ import { SearchBar } from "../../components/SearchBar";
 import { getTableStyles } from "../../utils/table-styles";
 import { useTransactions } from "../../hooks/useTransactions";
 import { useTransactionSummary } from "../../hooks/useTransactionSummary";
+import { usePaymentMethods } from "../../hooks/usePaymentMethods";
 import { getTransactionTableColumns } from "./partials/TransactionTableColumns";
 import { StatusFilter } from "./partials/StatusFilter";
+import { PaymentMethodFilter } from "./partials/PaymentMethodFilter";
 import TransactionDetailsModal from "./partials/TransactionDetailsModal";
 import TransactionSummaryCards from "./partials/TransactionSummaryCards";
 import InitiateReturnModal from "../returns/partials/InitiateReturnModal";
@@ -35,23 +37,29 @@ const TransactionsPage: FC = () => {
         startDate,
         endDate,
         selectedStatus,
+        selectedPaymentMethod,
         perPage,
         getPaginatedData,
         handleSearch,
         handleDateChange,
         handleStatusChange,
+        handlePaymentMethodChange,
         getTodayTransactions,
         clearFilters,
         handlePageChange,
         handlePerRowsChange,
         exportData,
+        loadTransactions,
     } = useTransactions();
+
+    const { paymentMethods, isLoading: isLoadingPaymentMethods } = usePaymentMethods();
 
     const { isLoadingSummary, getSummaryCards } = useTransactionSummary({
         searchTerm,
         startDate,
         endDate,
         selectedStatus,
+        selectedPaymentMethod,
     });
 
     const handleViewDetails = useCallback((transaction: Transaction) => {
@@ -106,7 +114,7 @@ const TransactionsPage: FC = () => {
                                         Today
                                     </button>
 
-                                    {(searchTerm || startDate || selectedStatus !== 'all') && (
+                                    {(searchTerm || startDate || selectedStatus !== 'all' || selectedPaymentMethod !== 'all') && (
                                         <button
                                             onClick={clearFilters}
                                             className="flex items-center gap-1 px-3 py-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
@@ -135,10 +143,17 @@ const TransactionsPage: FC = () => {
                                 </div>
                             </div>
 
-                            <div className="mt-4">
+                            <div className="mt-4 space-y-3">
                                 <StatusFilter
                                     selectedStatus={selectedStatus}
                                     onChange={handleStatusChange}
+                                />
+
+                                <PaymentMethodFilter
+                                    selectedPaymentMethod={selectedPaymentMethod}
+                                    onChange={handlePaymentMethodChange}
+                                    paymentMethods={paymentMethods}
+                                    isLoading={isLoadingPaymentMethods}
                                 />
                             </div>
                         </div>
@@ -181,12 +196,12 @@ const TransactionsPage: FC = () => {
                                         No transactions found
                                     </h3>
                                     <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm">
-                                        {searchTerm || startDate || selectedStatus !== 'all'
-                                            ? "Try adjusting your search, date, or status filters to find transactions."
+                                        {searchTerm || startDate || selectedStatus !== 'all' || selectedPaymentMethod !== 'all'
+                                            ? "Try adjusting your search, date, status, or payment method filters to find transactions."
                                             : "Transactions will appear here once they are created."
                                         }
                                     </p>
-                                    {(searchTerm || startDate || selectedStatus !== 'all') && (
+                                    {(searchTerm || startDate || selectedStatus !== 'all' || selectedPaymentMethod !== 'all') && (
                                         <button
                                             onClick={clearFilters}
                                             className="mt-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
@@ -214,6 +229,7 @@ const TransactionsPage: FC = () => {
                             }}
                             transaction={transactionForReturn}
                             onSuccess={() => {
+                                loadTransactions();
                                 setIsReturnModalOpen(false);
                                 setTransactionForReturn(null);
                             }}
