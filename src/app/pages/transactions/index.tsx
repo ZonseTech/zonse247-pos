@@ -54,7 +54,7 @@ const TransactionsPage: FC = () => {
 
     const { paymentMethods, isLoading: isLoadingPaymentMethods } = usePaymentMethods();
 
-    const { isLoadingSummary, getSummaryCards } = useTransactionSummary({
+    const { isLoadingSummary, getSummaryCards, loadSummary } = useTransactionSummary({
         searchTerm,
         startDate,
         endDate,
@@ -230,6 +230,7 @@ const TransactionsPage: FC = () => {
                             transaction={transactionForReturn}
                             onSuccess={() => {
                                 loadTransactions();
+                                loadSummary();
                                 setIsReturnModalOpen(false);
                                 setTransactionForReturn(null);
                             }}

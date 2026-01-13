@@ -6,6 +6,7 @@ import { Button, Modal } from '../../../components';
 import FormWrapper from '../../../components/FormWrapper';
 import FormSelectBox from '../../../components/FormSelectBox';
 import FormTextArea from '../../../components/FormTextArea';
+import FormInput from '../../../components/FormInput';
 import returnsService from '../../../services/returns.service';
 import { formatCurrency } from '../../../utils';
 import { HiOutlineTrash } from 'react-icons/hi';
@@ -265,115 +266,102 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                 <div className="mb-6">
                                     <h3 className="font-semibold mb-3">Items to Return</h3>
                                     <div className="space-y-4">
-                                        {selectedItems.map((item) => (
-                                            <div
+                                        {selectedItems.map((item, index) => (
+                                            <Formik
                                                 key={item.orderItemId}
-                                                className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+                                                initialValues={{
+                                                    returnQuantity: item.returnQuantity,
+                                                    returnReason: item.returnReason,
+                                                    condition: item.condition,
+                                                    notes: item.notes,
+                                                }}
+                                                onSubmit={() => { }}
+                                                enableReinitialize
                                             >
-                                                <div className="flex items-start justify-between mb-3">
-                                                    <div className="flex-1">
-                                                        <h4 className="font-medium">{item.productName}</h4>
-                                                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                                                            Max Quantity: {item.maxQuantity}
-                                                        </p>
-                                                    </div>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleRemoveItem(item.orderItemId)}
-                                                        className="text-red-600 hover:text-red-700 p-1"
-                                                    >
-                                                        <HiOutlineTrash className="w-5 h-5" />
-                                                    </button>
-                                                </div>
+                                                {() => (
+                                                    <Form className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                                        <div className="flex items-start justify-between mb-3">
+                                                            <div className="flex-1">
+                                                                <h4 className="font-medium">{item.productName}</h4>
+                                                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                                                    Max Quantity: {item.maxQuantity}
+                                                                </p>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleRemoveItem(item.orderItemId)}
+                                                                className="text-red-600 hover:text-red-700 p-1"
+                                                            >
+                                                                <HiOutlineTrash className="w-5 h-5" />
+                                                            </button>
+                                                        </div>
 
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1">
-                                                            Return Quantity *
-                                                        </label>
-                                                        <input
-                                                            type="number"
-                                                            min="1"
-                                                            max={item.maxQuantity}
-                                                            value={item.returnQuantity}
-                                                            onChange={(e) =>
-                                                                handleItemChange(
-                                                                    item.orderItemId,
-                                                                    'returnQuantity',
-                                                                    parseInt(e.target.value) || 1
-                                                                )
-                                                            }
-                                                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-                                                        />
-                                                    </div>
+                                                        <FormWrapper>
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                <FormInput
+                                                                    label="Return Quantity"
+                                                                    name="returnQuantity"
+                                                                    type="number"
+                                                                    min={1}
+                                                                    max={item.maxQuantity}
+                                                                    required
+                                                                    onChange={(e) =>
+                                                                        handleItemChange(
+                                                                            item.orderItemId,
+                                                                            'returnQuantity',
+                                                                            parseInt(e.target.value) || 1
+                                                                        )
+                                                                    }
+                                                                />
 
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1">
-                                                            Reason *
-                                                        </label>
-                                                        <select
-                                                            value={item.returnReason}
-                                                            onChange={(e) =>
-                                                                handleItemChange(
-                                                                    item.orderItemId,
-                                                                    'returnReason',
-                                                                    e.target.value
-                                                                )
-                                                            }
-                                                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-                                                        >
-                                                            <option value="">Select reason</option>
-                                                            {returnReasonOptions.map((opt) => (
-                                                                <option key={opt.value} value={opt.value}>
-                                                                    {opt.label}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    </div>
+                                                                <FormSelectBox
+                                                                    label="Reason"
+                                                                    name="returnReason"
+                                                                    options={returnReasonOptions}
+                                                                    required
+                                                                    onChange={(e) =>
+                                                                        handleItemChange(
+                                                                            item.orderItemId,
+                                                                            'returnReason',
+                                                                            e.target.value
+                                                                        )
+                                                                    }
+                                                                />
 
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1">
-                                                            Condition *
-                                                        </label>
-                                                        <select
-                                                            value={item.condition}
-                                                            onChange={(e) =>
-                                                                handleItemChange(
-                                                                    item.orderItemId,
-                                                                    'condition',
-                                                                    e.target.value as ReturnCondition
-                                                                )
-                                                            }
-                                                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-                                                        >
-                                                            {conditionOptions.map((opt) => (
-                                                                <option key={opt.value} value={opt.value}>
-                                                                    {opt.label}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    </div>
+                                                                <FormSelectBox
+                                                                    label="Condition"
+                                                                    name="condition"
+                                                                    options={conditionOptions}
+                                                                    required
+                                                                    onChange={(e) =>
+                                                                        handleItemChange(
+                                                                            item.orderItemId,
+                                                                            'condition',
+                                                                            e.target.value as ReturnCondition
+                                                                        )
+                                                                    }
+                                                                />
 
-                                                    <div className="md:col-span-2">
-                                                        <label className="block text-sm font-medium mb-1">
-                                                            Notes
-                                                        </label>
-                                                        <textarea
-                                                            value={item.notes}
-                                                            onChange={(e) =>
-                                                                handleItemChange(
-                                                                    item.orderItemId,
-                                                                    'notes',
-                                                                    e.target.value
-                                                                )
-                                                            }
-                                                            rows={2}
-                                                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-                                                            placeholder="Additional notes about this return..."
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                                <div className="md:col-span-2">
+                                                                    <FormTextArea
+                                                                        label="Notes"
+                                                                        name="notes"
+                                                                        rows={2}
+                                                                        placeholder="Additional notes about this return..."
+                                                                        onChange={(e) =>
+                                                                            handleItemChange(
+                                                                                item.orderItemId,
+                                                                                'notes',
+                                                                                e.target.value
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </FormWrapper>
+                                                    </Form>
+                                                )}
+                                            </Formik>
                                         ))}
                                     </div>
                                 </div>

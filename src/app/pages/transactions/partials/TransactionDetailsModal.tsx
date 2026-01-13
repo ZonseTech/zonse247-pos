@@ -217,6 +217,18 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 			</div>
 
 			<div className="flex items-center gap-2">
+				{transactionData.canReturn && !transactionData.refundSummary.isFullyRefunded && (
+					<Button
+						onClick={handleInitiateReturn}
+						layout="outline"
+						size="small"
+						className="flex items-center gap-2"
+						aria-label="Initiate return"
+					>
+						<RotateCcw className="w-4 h-4" />
+						<span className="hidden sm:inline">Return</span>
+					</Button>
+				)}
 				<Button
 					onClick={handlePrint}
 					layout="outline"
@@ -335,21 +347,6 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 							<p>Printed on: {new Date().toLocaleString()}</p>
 						</div>
 					</div>
-
-					{transactionData.canReturn && !transactionData.refundSummary.isFullyRefunded && (
-						<div className="px-6 pb-6 no-print">
-							<Button
-								onClick={handleInitiateReturn}
-								layout="primary"
-								theme="primary"
-								block
-								className="flex items-center justify-center gap-2"
-							>
-								<RotateCcw className="w-5 h-5" />
-								Initiate Return/Refund
-							</Button>
-						</div>
-					)}
 				</div>
 			</Modal>
 

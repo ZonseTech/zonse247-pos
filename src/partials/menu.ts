@@ -120,7 +120,7 @@ export default class MenuBuilder {
 			fileSubmenu.push({
 				label: 'Logout',
 				accelerator: 'CommandOrControl+Shift+L',
-				click: () => this.performAction('menu-logout'),
+				click: () => this.performAction('auth:logout'),
 			});
 		}
 
