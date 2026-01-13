@@ -94,9 +94,10 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
             isOpen={isOpen}
             title="Return Details"
             onClose={onClose}
-            className="max-w-5xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700"
+            size="full"
+            className="max-w-5xl"
         >
-            <div className="p-6 max-h-[85vh] overflow-y-auto">
+            <div className="max-h-[75vh] overflow-y-auto pr-2">
                 {/* Return Header */}
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-6 mb-6 border border-blue-100 dark:border-blue-800">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

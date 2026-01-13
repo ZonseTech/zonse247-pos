@@ -18,6 +18,7 @@ interface UseTransactionSummaryParams {
     startDate?: Date | null;
     endDate?: Date | null;
     selectedStatus?: TransactionStatus | 'all';
+    selectedPaymentMethod?: string | 'all';
 }
 
 const defaultSummary: TransactionSummaryResponse = {
@@ -34,6 +35,7 @@ export const useTransactionSummary = ({
     startDate,
     endDate,
     selectedStatus,
+    selectedPaymentMethod,
 }: UseTransactionSummaryParams) => {
     const [summary, setSummary] = useState<TransactionSummaryResponse>(defaultSummary);
     const [isLoadingSummary, setIsLoadingSummary] = useState(false);
@@ -59,6 +61,10 @@ export const useTransactionSummary = ({
                 queryParams.status = selectedStatus;
             }
 
+            if (selectedPaymentMethod && selectedPaymentMethod !== 'all') {
+                queryParams.paymentMethodId = selectedPaymentMethod;
+            }
+
             const response = await transactionService.getSummary(queryParams);
             setSummary(response);
         } catch (error: any) {
@@ -68,7 +74,7 @@ export const useTransactionSummary = ({
         } finally {
             setIsLoadingSummary(false);
         }
-    }, [searchTerm, startDate, endDate, selectedStatus]);
+    }, [searchTerm, startDate, endDate, selectedStatus, selectedPaymentMethod]);
 
     const formatCurrency = (amount: number): string => {
         return new Intl.NumberFormat('en-US', {

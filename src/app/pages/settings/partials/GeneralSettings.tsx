@@ -2,6 +2,10 @@ import FormWrapper from '../../../components/FormWrapper';
 import FormInput from '../../../components/FormInput';
 import FormSelectBox from '../../../components/FormSelectBox';
 import FormTextArea from '../../../components/FormTextArea';
+import { Info } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthProvider';
+import { ROUTES } from '../../../utils/constants';
 
 const currencyOptions = [
     { label: 'USD - US Dollar', value: 'USD' },
@@ -13,11 +17,37 @@ const currencyOptions = [
 ];
 
 const GeneralSettings = () => {
+    const { user } = useAuth();
+    const navigate = useNavigate();
+
+    const handleEditBranch = () => {
+        navigate(ROUTES.BRANCH_FORM, { state: { branchId: user?.branchId } });
+    };
+
     return (
         <div className="rounded-none">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
                 General Settings
             </h2>
+
+            <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex items-start gap-3">
+                <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                <div>
+                    <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                        Information
+                    </p>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                        These settings are managed at the branch level. To update this information, please{' '}
+                        <button
+                            type="button"
+                            onClick={handleEditBranch}
+                            className="font-semibold underline hover:text-blue-900 dark:hover:text-blue-100 transition-colors"
+                        >
+                            edit the branch details
+                        </button>.
+                    </p>
+                </div>
+            </div>
 
             <FormWrapper>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -27,6 +57,7 @@ const GeneralSettings = () => {
                         label="Store Name"
                         required
                         placeholder="Enter store name"
+                        disabled
                     />
                     <FormInput
                         type="email"
@@ -34,6 +65,7 @@ const GeneralSettings = () => {
                         label="Store Email"
                         required
                         placeholder="Enter store email"
+                        disabled
                     />
                     <FormInput
                         type="text"
@@ -41,6 +73,7 @@ const GeneralSettings = () => {
                         label="Store Address"
                         required
                         placeholder="Enter store address"
+                        disabled
                     />
                     <FormInput
                         type="tel"
@@ -48,6 +81,7 @@ const GeneralSettings = () => {
                         label="Store Phone"
                         required
                         placeholder="Enter store phone"
+                        disabled
                     />
                 </div>
 
@@ -57,6 +91,7 @@ const GeneralSettings = () => {
                         name="currency"
                         options={currencyOptions}
                         required
+                        disabled
                     />
                     <FormInput
                         type="number"
@@ -65,6 +100,7 @@ const GeneralSettings = () => {
                         step="0.01"
                         min="0"
                         max="100"
+                        disabled
                     />
                 </div>
 
@@ -75,6 +111,7 @@ const GeneralSettings = () => {
                         placeholder="Enter text to display at the bottom of receipts"
                         maxLength={200}
                         rows={3}
+                        disabled
                     />
                 </div>
             </FormWrapper>

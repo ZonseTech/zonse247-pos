@@ -13,6 +13,7 @@ export const useTransactions = () => {
     const [startDate, setStartDate] = useState<Date | null>(today);
     const [endDate, setEndDate] = useState<Date | null>(today);
     const [selectedStatus, setSelectedStatus] = useState<TransactionStatus | 'all'>('all');
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | 'all'>('all');
     const [transactions, setTransactions] = useState<Transaction[]>([]);
 
     const loadTransactions = useCallback(async () => {
@@ -40,6 +41,10 @@ export const useTransactions = () => {
                 queryParams.status = selectedStatus;
             }
 
+            if (selectedPaymentMethod !== 'all') {
+                queryParams.paymentMethodId = selectedPaymentMethod;
+            }
+
             const response = await transactionService.list(queryParams);
 
             const transactionData = Array.isArray(response.data) ? response.data : [];
@@ -54,7 +59,7 @@ export const useTransactions = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [searchTerm, startDate, endDate, selectedStatus, page, perPage]);
+    }, [searchTerm, startDate, endDate, selectedStatus, selectedPaymentMethod, page, perPage]);
 
     const getPaginatedData = useCallback(() => {
         return transactions;
@@ -78,11 +83,17 @@ export const useTransactions = () => {
         setStartDate(today);
         setEndDate(today);
         setSelectedStatus('all');
+        setSelectedPaymentMethod('all');
         setPage(1);
     }, []);
 
     const handleStatusChange = useCallback((status: TransactionStatus | 'all') => {
         setSelectedStatus(status);
+        setPage(1);
+    }, []);
+
+    const handlePaymentMethodChange = useCallback((paymentMethodId: string | 'all') => {
+        setSelectedPaymentMethod(paymentMethodId);
         setPage(1);
     }, []);
 
@@ -119,12 +130,14 @@ export const useTransactions = () => {
         startDate,
         endDate,
         selectedStatus,
+        selectedPaymentMethod,
         transactions,
         loadTransactions,
         getPaginatedData,
         handleSearch,
         handleDateChange,
         handleStatusChange,
+        handlePaymentMethodChange,
         getTodayTransactions,
         clearFilters,
         handlePageChange,

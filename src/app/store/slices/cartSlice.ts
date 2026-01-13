@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { DEFAULT_SEED_KEY } from '../../constants'
 
 interface CartState {
     items: CartItem[]
@@ -29,10 +28,10 @@ const cartSlice = createSlice({
             if (existingItem) {
                 existingItem.quantity += quantity
             } else {
-                const isConsumableItem = item.categoryId?.toString() === DEFAULT_SEED_KEY
+                const isDefaultItem = item.isDefault === true
                 const sellPriceNum = parseFloat(item.sellPrice?.toString() || '0')
                 const customPriceNum = parseFloat(item.customPrice?.toString() || '0')
-                const price = isConsumableItem && customPriceNum > 0
+                const price = isDefaultItem && customPriceNum > 0
                     ? customPriceNum
                     : sellPriceNum
 
@@ -43,8 +42,9 @@ const cartSlice = createSlice({
                     purchasePrice: parseFloat(item.costPrice?.toString() || '0'),
                     sellPrice: price,
                     discount: item.discount ?? 0,
-                    quantity: isConsumableItem ? 0 : quantity,
+                    quantity: isDefaultItem ? 0 : quantity,
                     categoryId: item.categoryId?.toString() || '',
+                    isDefault: item.isDefault,
                 })
             }
         },
@@ -56,8 +56,8 @@ const cartSlice = createSlice({
             const item = state.items.find(item => item.productId === id)
 
             if (item) {
-                const isConsumable = item.categoryId === DEFAULT_SEED_KEY
-                if (!isConsumable && quantity < 1) return
+                const isDefaultItem = item.isDefault === true
+                if (!isDefaultItem && quantity < 1) return
                 item.quantity = quantity
             }
         },

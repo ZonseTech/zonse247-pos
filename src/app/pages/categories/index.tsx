@@ -90,7 +90,7 @@ const CategoriesManager: FunctionComponent = () => {
                                 icon={HiOutlinePlus}
                                 layout={isMobile ? 'outline' : 'primary'}
                                 onClick={() => setShowCreateModal(true)}
-                                className="!px-3 sm:!px-4 !py-2 sm:!py-2.5 rounded-xl shadow-lg shadow-blue-500/20"
+                                className="!px-3 sm:!px-4 !py-2 sm:!py-2.5"
                                 theme="primary">
                                 {!isMobile && <span className='hidden md:block'>
                                     Add Category

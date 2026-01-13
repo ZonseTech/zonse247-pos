@@ -246,17 +246,16 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 				onClose={handleClose}
 				showCloseButton={false}
 				header={modalHeader}
-				className="max-w-4xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+				size="full"
+				className="max-w-4xl"
 				aria-labelledby="transaction-details-title"
 				aria-describedby="transaction-details-content"
 			>
 				<div
 					id="transaction-details-content"
-					className="max-h-[75vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
+					className="max-h-[75vh] overflow-y-auto pr-2"
 				>
-					{/* Printable content */}
-					<div ref={printRef} className="p-6 space-y-6">
-						{/* Print header - only visible in print */}
+					<div ref={printRef} className="space-y-6">
 						<div className="hidden print:block print-header">
 							<h1>Transaction Receipt</h1>
 							<p>Reference: #{transactionData.refNumber}</p>
@@ -273,7 +272,6 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 							statusColor={transactionData.statusInfo.bgColor}
 						/>
 
-						{/* Refund Information Banner */}
 						{transactionData.refundSummary.hasRefunds && (
 							<div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
 								<div className="flex items-start justify-between gap-4">
@@ -332,14 +330,12 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 							hasDiscount={transactionData.hasDiscount}
 						/>
 
-						{/* Print footer - only visible in print */}
 						<div className="hidden print:block footer">
 							<p>Thank you for your business!</p>
 							<p>Printed on: {new Date().toLocaleString()}</p>
 						</div>
 					</div>
 
-					{/* Action buttons - not printable */}
 					{transactionData.canReturn && !transactionData.refundSummary.isFullyRefunded && (
 						<div className="px-6 pb-6 no-print">
 							<Button

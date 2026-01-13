@@ -2,7 +2,7 @@ import { FunctionComponent, useState } from 'react';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { Notify } from 'notiflix';
-import { Button, Modal, ModalFooter } from '../../../components';
+import { Button, Modal } from '../../../components';
 import FormWrapper from '../../../components/FormWrapper';
 import FormSelectBox from '../../../components/FormSelectBox';
 import FormTextArea from '../../../components/FormTextArea';
@@ -181,7 +181,8 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
             title="Initiate Return/Refund"
             isOpen={isOpen}
             onClose={onClose}
-            className="max-w-6xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl shadow-2xl"
+            size='full'
+            className="max-w-6xl"
         >
             <Formik
                 initialValues={initialValues}
@@ -190,8 +191,8 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                 enableReinitialize={true}
             >
                 {({ isSubmitting }) => (
-                    <Form>
-                        <div className="p-6 max-h-[80vh] overflow-y-auto">
+                    <Form className="flex flex-col max-h-[75vh]">
+                        <div className="flex-1 overflow-y-auto pr-2">
                             <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 mb-6">
                                 <h3 className="font-semibold mb-2">Transaction Details</h3>
                                 <div className="grid grid-cols-2 gap-4 text-sm">
@@ -410,7 +411,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                             )}
                         </div>
 
-                        <ModalFooter className="border-t">
+                        <div className="border-t border-gray-200 dark:border-gray-700 mt-6 pt-4 flex-shrink-0">
                             <div className="flex justify-end space-x-3">
                                 <Button type="button" layout="outline" onClick={onClose}>
                                     Cancel
@@ -423,7 +424,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                     Process Return
                                 </Button>
                             </div>
-                        </ModalFooter>
+                        </div>
                     </Form>
                 )}
             </Formik>

@@ -1,7 +1,7 @@
 import { Report } from 'notiflix';
 import { type FunctionComponent, useState } from 'react';
 import { Logo } from '../../../assets/images';
-import { Button, Modal, ModalFooter } from '../../../components';
+import { Button, Modal } from '../../../components';
 import { useApp } from '../../../context/AppProvider';
 import printerService from '../../../services/printer.service';
 import { formatCurrency, formatDate } from '../../../utils';
@@ -104,9 +104,9 @@ const PrinterPreviewModal: FunctionComponent<Props> = ({
                     </div>
                 </div>
             )}
-            className='max-w-xl bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden'
+            size="lg"
         >
-            <div className="max-h-[70vh] overflow-y-auto">
+            <div className="max-h-[75vh] overflow-y-auto pr-2">
                 <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 p-8">
                     <div className="text-center mb-8">
                         <div className="flex justify-center mb-4">
@@ -271,16 +271,14 @@ const PrinterPreviewModal: FunctionComponent<Props> = ({
                 </div>
             </div>
 
-            <ModalFooter>
-                <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
-                    <div className="flex items-center justify-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>Right-click and reload if printer dialog gets stuck</span>
-                    </div>
+            <div className="border-t border-gray-200 dark:border-gray-600 px-6 py-4 bg-gray-50 dark:bg-gray-700 flex-shrink-0">
+                <div className="flex items-center justify-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Right-click and reload if printer dialog gets stuck</span>
                 </div>
-            </ModalFooter>
+            </div>
         </Modal>
     );
 };

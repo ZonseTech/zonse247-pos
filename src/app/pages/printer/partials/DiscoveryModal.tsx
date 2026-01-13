@@ -44,8 +44,8 @@ export const DiscoveryModal = ({
     discoveredPrinters, selectedPrinter, isSaving, isMobile,
     onClose, onConnectionTypeChange, onRefresh, onSelect, onSave
 }: DiscoveryModalProps) => (
-    <CustomModal isOpen={isOpen} onClose={onClose} title="Discover Printers" className="max-w-2xl">
-        <div className="space-y-4">
+    <CustomModal isOpen={isOpen} onClose={onClose} title="Discover Printers" size="full" className="max-w-2xl">
+        <div className="space-y-4 max-h-[75vh] overflow-y-auto pr-2">
             {/* Connection Type Filter */}
             <div className="flex flex-wrap gap-2 pb-4 border-b border-gray-200 dark:border-gray-600">
                 {CONNECTION_OPTIONS.map(opt => (
