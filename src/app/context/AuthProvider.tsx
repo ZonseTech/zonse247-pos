@@ -57,30 +57,25 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
         loadUserToken()
     }, [])
 
-    // Handle logout from desktop menu
     useEffect(() => {
         if (!isElectron()) return;
 
         const handleMenuLogout = async () => {
             try {
-                // Call logout API
                 await api.get('auth/logout/' + user?.userId);
             } catch (error) {
                 console.error('Logout API failed:', error);
             } finally {
-                // Clear session data
                 setUser(null);
                 setAuth(null);
                 sessionStorage.removeItem('user');
                 sessionStorage.removeItem('token');
                 sessionStorage.removeItem('tenantId');
-                
-                // Redirect to login page
+
                 navigate(ROUTES.LOGIN, { replace: true });
             }
         };
 
-        // Listen for logout event from main process
         const cleanup = window.electronAPI?.menu?.onLogout(handleMenuLogout);
 
         return () => {
