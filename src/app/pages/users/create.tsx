@@ -189,7 +189,7 @@ const UserForm: FunctionComponent = () => {
     return (
         <Fragment>
             <AppLayout>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+                <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2">
                     <div className='sticky top-0 z-10 bg-white dark:bg-gray-800'>
                         <PageHeader
                             title={userId ? 'Edit User' : 'Add User'}
@@ -199,8 +199,10 @@ const UserForm: FunctionComponent = () => {
                                     type="button"
                                     theme='danger'
                                     onClick={() => navigate(ROUTES.USERS)}
+                                    className="text-sm sm:text-base"
                                 >
-                                    Cancel
+                                    <span className="hidden sm:inline">Cancel</span>
+                                    <span className="sm:hidden">×</span>
                                 </Button>
                             }
                         />
@@ -215,18 +217,18 @@ const UserForm: FunctionComponent = () => {
                         {({ isSubmitting, values, setFieldValue, errors, touched }) => (
                             <Form>
                                 <FormWrapper>
-                                    <div className="py-6 relative">
-                                        <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                                    <div className="py-4 sm:py-6 relative">
+                                        <div className="absolute left-3 sm:left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
 
-                                        <div className="flex items-center gap-3 mb-6 relative">
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
+                                        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 relative">
+                                            <div className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-xs sm:text-sm">
                                                 1
                                             </div>
-                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                                                 Basic Information
                                             </h3>
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 ml-8 sm:ml-11">
                                             <FormInput
                                                 label="Username"
                                                 name="username"
@@ -264,19 +266,19 @@ const UserForm: FunctionComponent = () => {
                                         </div>
                                     </div>
 
-                                    <div className="pb-8 relative">
-                                        <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                                    <div className="pb-6 sm:pb-8 relative">
+                                        <div className="absolute left-3 sm:left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
 
-                                        <div className="flex items-center gap-3 mb-6 relative">
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
+                                        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 relative">
+                                            <div className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-xs sm:text-sm">
                                                 2
                                             </div>
-                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                                                 Tenant & Branch Assignment
                                             </h3>
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
-                                            <div className="md:col-span-2">
+                                        <div className="grid grid-cols-1 gap-3 sm:gap-4 ml-8 sm:ml-11">
+                                            <div>
                                                 <TenantSearch
                                                     value={values.tenantId}
                                                     onChange={(tenantId) => {
@@ -288,7 +290,7 @@ const UserForm: FunctionComponent = () => {
                                                 />
                                             </div>
 
-                                            <div className="md:col-span-2">
+                                            <div>
                                                 <BranchSearch
                                                     value={values.branchId}
                                                     onChange={(branchId) => {
@@ -302,19 +304,19 @@ const UserForm: FunctionComponent = () => {
                                         </div>
                                     </div>
 
-                                    <div className="pb-8 relative">
-                                        <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                                    <div className="pb-6 sm:pb-8 relative">
+                                        <div className="absolute left-3 sm:left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
 
-                                        <div className="flex items-center gap-3 mb-6 relative">
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
+                                        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 relative">
+                                            <div className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-xs sm:text-sm">
                                                 3
                                             </div>
-                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                                                 Role & Permissions
                                             </h3>
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
-                                            <div className="md:col-span-2">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 ml-8 sm:ml-11">
+                                            <div className="sm:col-span-2">
                                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                     Role <span className="text-red-500">*</span>
                                                 </label>
@@ -340,16 +342,16 @@ const UserForm: FunctionComponent = () => {
                                         </div>
                                     </div>
 
-                                    <div className="pb-8 relative">
-                                        <div className="flex items-center gap-3 mb-6 relative">
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
+                                    <div className="pb-6 sm:pb-8 relative">
+                                        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 relative">
+                                            <div className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-xs sm:text-sm">
                                                 4
                                             </div>
-                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                                                 Security Settings
                                             </h3>
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 ml-8 sm:ml-11">
                                             <FormInput
                                                 label="PIN Code"
                                                 name="pinCode"
@@ -366,7 +368,7 @@ const UserForm: FunctionComponent = () => {
                                                 max={100}
                                             />
                                             {!userId && (
-                                                <div className="md:col-span-2 flex items-center">
+                                                <div className="sm:col-span-2 flex items-center">
                                                     <label className="flex items-center space-x-2">
                                                         <input
                                                             type="checkbox"
@@ -386,12 +388,13 @@ const UserForm: FunctionComponent = () => {
                                     </div>
 
                                     {/* Form Actions */}
-                                    <div className="flex justify-end gap-3 pt-6 border-t border-gray-300 dark:border-gray-600">
+                                    <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-gray-300 dark:border-gray-600">
                                         <Button
                                             type="button"
                                             theme="neutral"
                                             onClick={() => navigate(ROUTES.USERS)}
                                             disabled={isSubmitting}
+                                            className="w-full sm:w-auto"
                                         >
                                             Cancel
                                         </Button>
@@ -399,14 +402,16 @@ const UserForm: FunctionComponent = () => {
                                             type="submit"
                                             theme="primary"
                                             disabled={isSubmitting || loading}
+                                            className="w-full sm:w-auto"
                                         >
                                             {isSubmitting || loading ? (
                                                 <>
-                                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <svg className="animate-spin -ml-1 mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                     </svg>
-                                                    Saving...
+                                                    <span className="hidden sm:inline">Saving...</span>
+                                                    <span className="sm:hidden">...</span>
                                                 </>
                                             ) : (
                                                 userId ? 'Update User' : 'Create User'

@@ -1,21 +1,26 @@
-import { FunctionComponent, useCallback, useContext } from 'react';
+import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { Confirm, Notify } from 'notiflix';
 import { Users } from 'lucide-react';
 import DataTable from 'react-data-table-component';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
-import { HiOutlinePlus, HiOutlineUsers } from 'react-icons/hi2';
+import { HiOutlinePlus, HiOutlineUsers, HiOutlineChevronLeft, HiOutlineChevronRight } from 'react-icons/hi2';
+import { HiOutlineFilter } from 'react-icons/hi';
 import { getTableStyles } from '../../utils/table-styles';
-import { Button, ZonseThemeContext } from '../../components';
+import { Button, ZonseThemeContext, ComponentLoader } from '../../components';
 import { useUsers } from '../../hooks/useUsers';
 import { SearchBar } from './partials/SearchBar';
 import { getUserTableColumns } from './partials/UserTableColumns';
+import { UserMobileList } from './partials/UserMobileCard';
+import UserSummaryCards, { UserSummaryCard } from './partials/UserSummaryCards';
 import { ROUTES } from '../../utils/constants';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 const UserManagement: FunctionComponent = () => {
     const navigate = useNavigate();
     const { mode } = useContext(ZonseThemeContext);
+    const isMobile = useIsMobile();
 
     const {
         isLoading,
@@ -23,11 +28,13 @@ const UserManagement: FunctionComponent = () => {
         setSearchTerm,
         setPage,
         setPerPage,
+        perPage,
         totalRows,
         deleteUser,
         updateUserStatus,
         resetPassword,
         getPaginatedData,
+        users,
     } = useUsers();
 
     const handleAddUser = useCallback(() => {
@@ -91,57 +98,225 @@ const UserManagement: FunctionComponent = () => {
         onToggleStatus: handleToggleStatus,
     });
 
+    // Calculate summary stats
+    const summaryCards: UserSummaryCard[] = useMemo(() => {
+        const allUsers = users || [];
+        const activeCount = allUsers.filter(u => u.status === 'active').length;
+        const inactiveCount = allUsers.filter(u => u.status === 'inactive').length;
+        const suspendedCount = allUsers.filter(u => u.status !== 'active' && u.status !== 'inactive').length;
+
+        return [
+            {
+                title: 'Total Users',
+                value: totalRows,
+                icon: 'total',
+                bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+                iconBgColor: 'bg-blue-100 dark:bg-blue-900/40',
+                textColor: 'text-blue-600 dark:text-blue-400',
+            },
+            {
+                title: 'Active',
+                value: activeCount,
+                icon: 'active',
+                bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
+                iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
+                textColor: 'text-emerald-600 dark:text-emerald-400',
+            },
+            {
+                title: 'Inactive',
+                value: inactiveCount,
+                icon: 'inactive',
+                bgColor: 'bg-gray-50 dark:bg-gray-700/50',
+                iconBgColor: 'bg-gray-100 dark:bg-gray-600',
+                textColor: 'text-gray-600 dark:text-gray-400',
+            },
+            {
+                title: 'Suspended',
+                value: suspendedCount,
+                icon: 'suspended',
+                bgColor: 'bg-red-50 dark:bg-red-900/20',
+                iconBgColor: 'bg-red-100 dark:bg-red-900/40',
+                textColor: 'text-red-600 dark:text-red-400',
+            },
+        ];
+    }, [users, totalRows]);
+
+    const hasActiveFilters = searchTerm.length > 0;
+
     return (
         <AppLayout>
             <div className="max-w-full">
                 <PageHeader
                     title='Users'
                     description='Manage user accounts, roles, and permissions'
-                    icon={<HiOutlineUsers className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
+                    icon={<HiOutlineUsers className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600 dark:text-blue-400" />}
                     action={
-                        <div className="flex items-center space-x-4">
-                            <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                        <Button
+                            onClick={handleAddUser}
+                            theme='primary'
+                            className="flex items-center"
+                        >
+                            <HiOutlinePlus className="w-4 h-4 mr-1 sm:mr-2" />
+                            <span className="hidden sm:inline">Add User</span>
+                            <span className="sm:hidden">Add</span>
+                        </Button>
+                    }
+                >
+                    {/* Filters Section */}
+                    <div className="p-3 md:p-6 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                            <SearchBar
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Search users by name, email, or username..."
+                            />
 
-                            <div className="flex items-center space-x-3">
-                                <Button
-                                    onClick={handleAddUser}
-                                    theme='primary'
+                            {hasActiveFilters && (
+                                <button
+                                    onClick={() => setSearchTerm('')}
+                                    className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
                                 >
-                                    <HiOutlinePlus className="w-4 h-4 mr-2" />
-                                    {'Add User'}
-                                </Button>
-                            </div>
+                                    <HiOutlineFilter className="w-4 h-4" />
+                                    <span>Clear</span>
+                                </button>
+                            )}
                         </div>
-                    }
-                />
-                <DataTable
-                    columns={columns}
-                    data={getPaginatedData()}
-                    theme={mode as string}
-                    progressPending={isLoading}
-                    highlightOnHover
-                    striped
-                    responsive
-                    pagination
-                    paginationServer
-                    paginationTotalRows={totalRows}
-                    onChangeRowsPerPage={(newPerPage, page) => {
-                        setPage(page);
-                        setPerPage(newPerPage);
-                    }}
-                    onChangePage={setPage}
-                    fixedHeader
-                    fixedHeaderScrollHeight="calc(100vh - 350px)"
-                    customStyles={getTableStyles(mode)}
-                    noDataComponent={
-                        <div className="text-center py-8">
-                            <Users className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                            <p className="text-gray-500 dark:text-gray-400">
-                                {searchTerm ? 'No user(s) found matching your search.' : 'No users found.'}
-                            </p>
+                    </div>
+                </PageHeader>
+
+                {/* Main Content Container */}
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+
+                    {/* Summary Cards */}
+                    <UserSummaryCards
+                        cards={summaryCards}
+                        isLoading={isLoading}
+                    />
+
+                    {/* Mobile View - Card List */}
+                    {isMobile ? (
+                        <div className="overflow-hidden">
+                            {isLoading ? (
+                                <UserMobileList
+                                    users={[]}
+                                    onEdit={handleEdit}
+                                    onDelete={handleDelete}
+                                    onResetPassword={handleResetPassword}
+                                    onToggleStatus={handleToggleStatus}
+                                    isLoading={true}
+                                />
+                            ) : getPaginatedData().length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-12 px-4">
+                                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                                        <Users className="w-8 h-8 text-gray-400" />
+                                    </div>
+                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2 text-center">
+                                        {searchTerm ? 'No matching users' : 'No users yet'}
+                                    </h3>
+                                    <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm text-sm">
+                                        {searchTerm
+                                            ? "Try adjusting your search to find users."
+                                            : "Add your first user to get started."
+                                        }
+                                    </p>
+                                    {hasActiveFilters && (
+                                        <button
+                                            onClick={() => setSearchTerm('')}
+                                            className="mt-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm"
+                                        >
+                                            Clear filters
+                                        </button>
+                                    )}
+                                </div>
+                            ) : (
+                                <>
+                                    <UserMobileList
+                                        users={getPaginatedData()}
+                                        onEdit={handleEdit}
+                                        onDelete={handleDelete}
+                                        onResetPassword={handleResetPassword}
+                                        onToggleStatus={handleToggleStatus}
+                                        isLoading={false}
+                                    />
+
+                                    {/* Mobile Pagination */}
+                                    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+                                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                                            {totalRows} total
+                                        </span>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() => setPage(1)}
+                                                disabled={totalRows <= perPage}
+                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                                <HiOutlineChevronLeft className="w-5 h-5" />
+                                            </button>
+                                            <button
+                                                onClick={() => setPage(Math.ceil(totalRows / perPage))}
+                                                disabled={totalRows <= perPage}
+                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                                <HiOutlineChevronRight className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
-                    }
-                />
+                    ) : (
+                        /* Desktop View - Data Table */
+                        <div className="overflow-hidden">
+                            <DataTable
+                                columns={columns}
+                                data={getPaginatedData()}
+                                theme={mode as string}
+                                progressPending={isLoading}
+                                progressComponent={<ComponentLoader loading={isLoading} />}
+                                highlightOnHover
+                                striped
+                                responsive
+                                pagination
+                                paginationServer
+                                paginationTotalRows={totalRows}
+                                paginationPerPage={perPage}
+                                paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
+                                onChangeRowsPerPage={(newPerPage, page) => {
+                                    setPage(page);
+                                    setPerPage(newPerPage);
+                                }}
+                                onChangePage={setPage}
+                                fixedHeader
+                                fixedHeaderScrollHeight="calc(100vh - 420px)"
+                                customStyles={getTableStyles(mode)}
+                                noDataComponent={
+                                    <div className="flex flex-col items-center justify-center py-12">
+                                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                                            <Users className="w-8 h-8 text-gray-400" />
+                                        </div>
+                                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                                            {searchTerm ? 'No matching users' : 'No users found'}
+                                        </h3>
+                                        <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm">
+                                            {searchTerm
+                                                ? "Try adjusting your search terms."
+                                                : "Add your first user to get started."
+                                            }
+                                        </p>
+                                        {hasActiveFilters && (
+                                            <button
+                                                onClick={() => setSearchTerm('')}
+                                                className="mt-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                                            >
+                                                Clear filters
+                                            </button>
+                                        )}
+                                    </div>
+                                }
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
         </AppLayout>
     );
