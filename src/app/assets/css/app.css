@@ -1,3 +1,168 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+/* ================================
+   Safe Area Insets for Mobile
+   ================================ */
+
+/* Root safe area padding for mobile devices */
+:root {
+    --safe-area-inset-top: env(safe-area-inset-top, 0px);
+    --safe-area-inset-right: env(safe-area-inset-right, 0px);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-inset-left: env(safe-area-inset-left, 0px);
+}
+
+/* Apply safe area to the app container */
+.app-container {
+    padding-top: var(--safe-area-inset-top);
+    padding-bottom: var(--safe-area-inset-bottom);
+    padding-left: var(--safe-area-inset-left);
+    padding-right: var(--safe-area-inset-right);
+}
+
+/* Alternative: Apply safe area only to the top header */
+.safe-area-top {
+    padding-top: var(--safe-area-inset-top);
+}
+
+.safe-area-bottom {
+    padding-bottom: var(--safe-area-inset-bottom);
+}
+
+/* ================================
+   Barcode Scanner Animations
+   ================================ */
+
+/* Scanning line animation */
+@keyframes scan-line {
+
+    0%,
+    100% {
+        transform: translateY(-100px);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: translateY(100px);
+        opacity: 1;
+    }
+}
+
+.animate-scan-line {
+    animation: scan-line 2s ease-in-out infinite;
+}
+
+/* Scale in animation for modal */
+@keyframes scale-in {
+    0% {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Scale out animation for modal */
+@keyframes scale-out {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+}
+
+/* Slide up animation for mobile bottom sheet */
+@keyframes slide-up {
+    0% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Slide down animation for mobile bottom sheet */
+@keyframes slide-down {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+.animate-scale-in {
+    animation: scale-in 0.2s ease-out forwards;
+}
+
+.animate-scale-out {
+    animation: scale-out 0.2s ease-in forwards;
+}
+
+.animate-slide-up {
+    animation: slide-up 0.3s ease-out forwards;
+}
+
+.animate-slide-down {
+    animation: slide-down 0.3s ease-in forwards;
+}
+
+/* ================================
+   Barcode Scanner Camera Visibility
+   ================================ */
+
+/* 
+ * CRITICAL: These styles make the webview transparent so the native 
+ * camera (which renders BEHIND the webview) becomes visible.
+ * The ML Kit scanner renders the camera feed as a native layer.
+ */
+
+/* Scanner container - must be transparent */
+.scanner-container {
+    background: transparent !important;
+}
+
+/* Camera viewfinder background - transparent to show camera */
+.barcode-scanner-viewfinder {
+    background: transparent !important;
+}
+
+/* When scanner is active, make body transparent */
+body.scanner-active {
+    background: transparent !important;
+    --background: transparent !important;
+}
+
+body.scanner-active #root,
+body.scanner-active .app-container,
+body.scanner-active ion-app,
+body.scanner-active ion-content {
+    background: transparent !important;
+    --background: transparent !important;
+}
+
+/* Hide all content except scanner when scanning */
+body.scanner-active>*:not(.scanner-container):not(script):not(style) {
+    display: none !important;
+}
+
+/* Ensure scanner portal is visible */
+body.scanner-active .scanner-container {
+    display: block !important;
+    visibility: visible !important;
+}
