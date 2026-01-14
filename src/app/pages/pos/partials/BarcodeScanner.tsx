@@ -1,10 +1,14 @@
 import { useInventory } from '../../../hooks/useInventory';
-import { FunctionComponent, useState, useEffect, Fragment, useRef } from 'react';
+import { FunctionComponent, useState, useEffect, Fragment, useRef, useCallback } from 'react';
 import { Confirm } from 'notiflix';
 import { createPortal } from 'react-dom';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useScannerSettings, useScannerFeedback } from '../../../hooks/useScannerSettings';
 import inventoryService from '../../../services/inventory.service';
+import { Capacitor } from '@capacitor/core';
+import CameraBarcodeScanner from '../../../components/scanner/CameraBarcodeScanner';
+import { type ScannerResult } from '../../../services/barcode-scanner.service';
+import { BarcodeIcon } from 'lucide-react';
 
 interface BarcodeScannerProps {
     externalInput?: string;
@@ -26,6 +30,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [filteredItems, setFilteredItems] = useState(inventory);
     const [isSearching, setIsSearching] = useState(false);
+    const [isCameraScannerOpen, setIsCameraScannerOpen] = useState(false);
 
     const barcodeBuffer = useRef('');
     const barcodeTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -33,6 +38,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     const MIN_BARCODE_LENGTH = 6;
 
     const isActive = focusManager.isActive('barcode');
+    const isNative = Capacitor.isNativePlatform();
 
     const cleanBarcode = (code: string): string => {
         let cleaned = code.replace(/[$']$/, '').trim();
@@ -147,6 +153,38 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
             );
         }
     };
+
+    /**
+     * Handle camera scanner result
+     */
+    const handleCameraScan = useCallback((result: ScannerResult) => {
+        const scannedBarcode = result.barcode;
+        handleBarcodeEntry(scannedBarcode);
+        // Close the camera scanner after scanning (for mobile)
+        setIsCameraScannerOpen(false);
+        // Refocus the barcode input
+        if (barcodeScannerInputRef.current) {
+            barcodeScannerInputRef.current.focus();
+        }
+    }, [barcodeScannerInputRef]);
+
+    /**
+     * Open camera scanner
+     */
+    const handleOpenCameraScanner = useCallback(() => {
+        setIsCameraScannerOpen(true);
+    }, []);
+
+    /**
+     * Close camera scanner
+     */
+    const handleCloseCameraScanner = useCallback(() => {
+        setIsCameraScannerOpen(false);
+        // Refocus the barcode input after closing camera
+        if (barcodeScannerInputRef.current) {
+            barcodeScannerInputRef.current.focus();
+        }
+    }, [barcodeScannerInputRef]);
 
     useEffect(() => {
         const handleKeyPress = (e: KeyboardEvent) => {
@@ -289,13 +327,13 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
 
     return (
         <Fragment>
-            <div className="flex w-full">
+            <div className="flex w-full gap-2">
                 <input
                     ref={barcodeScannerInputRef}
                     type="text"
                     value={barcode}
                     onChange={handleInputChange}
-                    className={`w-full p-2 border-2 border-gray-800 focus:outline-none text-lg text-center transition-all duration-200 ${isActive ? 'ring-2 ring-gray-500 dark:ring-gray-400 bg-gray-50 dark:bg-gray-900/20' : ''
+                    className={`flex-1 p-2 border-2 border-gray-800 focus:outline-none text-lg text-center transition-all duration-200 ${isActive ? 'ring-2 ring-gray-500 dark:ring-gray-400 bg-gray-50 dark:bg-gray-900/20' : ''
                         }`}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
@@ -308,7 +346,27 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                     onClick={handleInputClick}
                     placeholder="Scan or enter barcode..."
                 />
+
+                {isNative && (
+                    <button
+                        type="button"
+                        onClick={handleOpenCameraScanner}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors flex items-center justify-center gap-2 border-2 border-blue-600"
+                        title="Open camera scanner"
+                    >
+                        <BarcodeIcon className="w-6 h-6" />
+                    </button>
+                )}
             </div>
+
+            <CameraBarcodeScanner
+                isOpen={isCameraScannerOpen}
+                onClose={handleCloseCameraScanner}
+                onScan={handleCameraScan}
+                continuous={false}
+                title="Scan Product"
+                subtitle="Point camera at barcode"
+            />
 
             {barcode.trim() !== '' && filteredItems.length > 0 &&
                 createPortal(
