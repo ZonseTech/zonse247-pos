@@ -8,13 +8,17 @@ interface TenantSearchProps {
     onChange: (tenantId: string, tenantName: string) => void;
     error?: string;
     touched?: boolean;
+    disabled?: boolean;
+    disabledMessage?: string;
 }
 
 const TenantSearch: FunctionComponent<TenantSearchProps> = ({
     value,
     onChange,
     error,
-    touched
+    touched,
+    disabled = false,
+    disabledMessage
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -106,25 +110,32 @@ const TenantSearch: FunctionComponent<TenantSearchProps> = ({
 
             <div className="relative">
                 {selectedTenant ? (
-                    <div className="flex items-center justify-between p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+                    <div className={`flex items-center justify-between p-3 border rounded-lg ${disabled ? 'bg-gray-100 dark:bg-gray-600 border-gray-200 dark:border-gray-500' : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700'}`}>
                         <div className="flex items-center space-x-3 flex-1">
                             <Building2 className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                             <div className="flex-1">
-                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                <p className={`text-sm font-medium ${disabled ? 'text-gray-600 dark:text-gray-300' : 'text-gray-900 dark:text-white'}`}>
                                     {selectedTenant.businessName}
                                 </p>
                                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                                    {selectedTenant.tenantId}
+                                    - {selectedTenant.ownerName}
                                 </p>
+                                {disabled && disabledMessage && (
+                                    <p className="text-xs text-blue-500 dark:text-blue-400 mt-1">
+                                        {disabledMessage}
+                                    </p>
+                                )}
                             </div>
                         </div>
-                        <button
-                            type="button"
-                            onClick={handleClearSelection}
-                            className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
-                        >
-                            <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                        </button>
+                        {!disabled && (
+                            <button
+                                type="button"
+                                onClick={handleClearSelection}
+                                className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
+                            >
+                                <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                            </button>
+                        )}
                     </div>
                 ) : (
                     <div className="relative">
@@ -133,10 +144,14 @@ const TenantSearch: FunctionComponent<TenantSearchProps> = ({
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             onClick={handleInputClick}
-                            placeholder="Search for a tenant..."
-                            className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white ${error && touched
-                                ? 'border-red-500 dark:border-red-500'
-                                : 'border-gray-300 dark:border-gray-600'
+                            placeholder={disabled ? "Tenant auto-assigned" : "Search for a tenant..."}
+                            disabled={disabled}
+                            className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-white ${disabled
+                                ? 'bg-gray-100 dark:bg-gray-600 cursor-not-allowed border-gray-200 dark:border-gray-500'
+                                : 'dark:bg-gray-700'
+                                } ${error && touched && !disabled
+                                    ? 'border-red-500 dark:border-red-500'
+                                    : 'border-gray-300 dark:border-gray-600'
                                 }`}
                         />
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -148,7 +163,7 @@ const TenantSearch: FunctionComponent<TenantSearchProps> = ({
                 <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
             )}
 
-            {isOpen && !selectedTenant && (
+            {isOpen && !selectedTenant && !disabled && (
                 <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                     {loading ? (
                         <div className="p-4 text-center text-gray-500 dark:text-gray-400">

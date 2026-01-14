@@ -7,13 +7,15 @@ import FormSelectBox from '../../components/FormSelectBox';
 import TenantSearch from '../branch/partials/TenantSearch';
 import BranchSearch from '../terminal/partials/BranchSearch';
 import { RoleSearch } from './partials/RoleSearch';
-import { Fragment, useState, useEffect } from 'react';
+import { Fragment, useState, useEffect, useMemo } from 'react';
 import type { ChangeEvent, FunctionComponent } from 'react';
 import usersService from '../../services/users.service';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import { useNavigate, useLocation } from 'react-router';
 import { ROUTES } from '../../utils/constants';
+import { useAuth } from '../../context/AuthProvider';
+import { ROLE_IDS } from '../../constants/roles';
 import * as Yup from 'yup';
 
 const UserForm: FunctionComponent = () => {
@@ -23,6 +25,14 @@ const UserForm: FunctionComponent = () => {
     const [user, setUser] = useState<User | null>(null);
 
     const { userId } = location.state || {};
+    const { user: authUser } = useAuth();
+
+    // Check if user can select tenant (only admins and super admins)
+    const canSelectTenant = useMemo(() => {
+        if (!authUser?.roleId) return false;
+        const adminRoles = [ROLE_IDS.SUPER_ADMIN, ROLE_IDS.ADMIN, ROLE_IDS.TENANT_OWNER];
+        return adminRoles.includes(authUser.roleId as typeof adminRoles[number]);
+    }, [authUser?.roleId]);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -57,7 +67,7 @@ const UserForm: FunctionComponent = () => {
         fullname: '',
         email: '',
         phone: '',
-        tenantId: '',
+        tenantId: authUser?.tenantId || '',
         branchId: '',
         roleId: '',
         pinCode: '',
@@ -287,6 +297,8 @@ const UserForm: FunctionComponent = () => {
                                                     }}
                                                     error={errors.tenantId as string}
                                                     touched={touched.tenantId as boolean}
+                                                    disabled={!canSelectTenant}
+                                                    disabledMessage="Auto-assigned based on your account"
                                                 />
                                             </div>
 

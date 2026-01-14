@@ -6,13 +6,15 @@ import FormWrapper from '../../components/FormWrapper';
 import FormSelectBox from '../../components/FormSelectBox';
 import TenantSearch from '../branch/partials/TenantSearch';
 import BranchSearch from './partials/BranchSearch';
-import { Fragment, useState, useEffect } from 'react';
+import { Fragment, useState, useEffect, useMemo } from 'react';
 import type { ChangeEvent, FunctionComponent } from 'react';
 import terminalService from '../../services/terminal.service';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import { useNavigate, useLocation } from 'react-router';
 import { ROUTES } from '../../utils/constants';
+import { useAuth } from '../../context/AuthProvider';
+import { ROLE_IDS } from '../../constants/roles';
 import * as Yup from 'yup';
 import { capitalizeEachWord } from '../../utils';
 
@@ -23,6 +25,14 @@ const TerminalForm: FunctionComponent = () => {
     const [terminal, setTerminal] = useState<Terminal | null>(null);
 
     const { terminalId } = location.state || {};
+    const { user: authUser } = useAuth();
+
+    // Check if user can select tenant (only admins and super admins)
+    const canSelectTenant = useMemo(() => {
+        if (!authUser?.roleId) return false;
+        const adminRoles = [ROLE_IDS.SUPER_ADMIN, ROLE_IDS.ADMIN, ROLE_IDS.TENANT_OWNER];
+        return adminRoles.includes(authUser.roleId as typeof adminRoles[number]);
+    }, [authUser?.roleId]);
 
     useEffect(() => {
         const fetchTerminal = async () => {
@@ -54,7 +64,7 @@ const TerminalForm: FunctionComponent = () => {
 
     const defaultTerminalValues: Partial<Terminal> = {
         terminalId: '',
-        tenantId: '',
+        tenantId: authUser?.tenantId || '',
         branchId: '',
         terminalLabel: '',
         terminalPosition: 1,
@@ -157,15 +167,16 @@ const TerminalForm: FunctionComponent = () => {
                         <PageHeader
                             title={terminal ? 'Edit Terminal' : 'Add Terminal'}
                             description='Required fields are marked with an asterisk (*)'
-                        >
-                            <Button
-                                type="button"
-                                theme='danger'
-                                onClick={() => navigate(ROUTES.TERMINALS)}
-                            >
-                                Cancel
-                            </Button>
-                        </PageHeader>
+                            action={
+                                <Button
+                                    type="button"
+                                    theme='danger'
+                                    onClick={() => navigate(ROUTES.TERMINALS)}
+                                >
+                                    Cancel
+                                </Button>
+                            }
+                        />
                     </div>
 
                     <Formik
@@ -198,6 +209,8 @@ const TerminalForm: FunctionComponent = () => {
                                                     }}
                                                     error={errors.tenantId}
                                                     touched={touched.tenantId}
+                                                    disabled={!canSelectTenant}
+                                                    disabledMessage="Auto-assigned based on your account"
                                                 />
                                             </div>
 
