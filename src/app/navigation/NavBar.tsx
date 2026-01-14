@@ -1,5 +1,6 @@
-import useNavItems from './partials/navItems';
-import { useState, useEffect, type FunctionComponent } from 'react';
+import useNavItems, { NAV_GROUP_LABELS } from './partials/navItems';
+import type { NavItem, NavGroup } from './partials/RenderNavItem';
+import { useState, useEffect, useMemo, type FunctionComponent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ROUTES } from '../utils/constants';
 import { Menu, X, Bell, Settings, User, PanelLeftClose, PanelLeft, FileText, RefreshCw } from 'lucide-react';
@@ -14,12 +15,34 @@ interface NavBarProps {
     isSidebarCollapsed?: boolean;
 }
 
+// Define the order of groups for display
+const GROUP_ORDER: NavGroup[] = ['operations', 'inventory', 'management', 'settings', 'admin', 'system'];
+
 const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollapsed = false, onToggleCollapse, isSidebarCollapsed = false }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const navItems = useNavItems();
     const { isSyncing, pendingCount, startSync } = useSync();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    // Group nav items by their group property
+    const groupedNavItems = useMemo(() => {
+        const groups: Record<NavGroup, NavItem[]> = {
+            operations: [],
+            inventory: [],
+            management: [],
+            admin: [],
+            settings: [],
+            system: [],
+        };
+
+        navItems.forEach((item) => {
+            const group = item.group || 'operations';
+            groups[group].push(item);
+        });
+
+        return groups;
+    }, [navItems]);
 
     useEffect(() => {
         if (isMenuOpen) {
@@ -177,35 +200,50 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
 
                         <div className="flex-1 overflow-y-auto py-4">
                             <div className="flex flex-col gap-1 px-3">
-                                {navItems.map((item, index) => {
-                                    const routePath = getRoutePath(item.onClick);
-                                    const isActive = location.pathname === routePath;
+                                {GROUP_ORDER.map((groupKey) => {
+                                    const items = groupedNavItems[groupKey];
+                                    if (items.length === 0) return null;
+
                                     return (
-                                        <button
-                                            key={index}
-                                            onClick={() => handleItemClick(item.onClick)}
-                                            className={classNames(
-                                                "flex items-center gap-4 px-3 py-2.5 rounded-xl text-left transition-all duration-200 active:scale-98",
-                                                isActive
-                                                    ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30"
-                                                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                                            )}
-                                        >
-                                            <div className={classNames(
-                                                "flex items-center justify-center w-10 h-10 rounded-lg transition-colors duration-200",
-                                                isActive
-                                                    ? "text-blue-600 dark:text-blue-400"
-                                                    : "text-gray-600 dark:text-gray-400"
-                                            )}>
-                                                {item.icon}
+                                        <div key={groupKey} className="mb-4">
+                                            <div className="flex items-center gap-3 px-3 py-2">
+                                                <span className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                                    {NAV_GROUP_LABELS[groupKey]}
+                                                </span>
+                                                <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
                                             </div>
-                                            <span className={classNames(
-                                                "text-base font-medium",
-                                                isActive ? "font-semibold" : ""
-                                            )}>
-                                                {item.text}
-                                            </span>
-                                        </button>
+                                            {items.map((item, index) => {
+                                                const routePath = getRoutePath(item.onClick);
+                                                const isActive = location.pathname === routePath;
+                                                return (
+                                                    <button
+                                                        key={`${groupKey}-${index}`}
+                                                        onClick={() => handleItemClick(item.onClick)}
+                                                        className={classNames(
+                                                            "flex items-center gap-4 px-3 py-2.5 rounded-xl text-left transition-all duration-200 active:scale-98 w-full",
+                                                            isActive
+                                                                ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30"
+                                                                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                                        )}
+                                                    >
+                                                        <div className={classNames(
+                                                            "flex items-center justify-center w-10 h-10 rounded-lg transition-colors duration-200",
+                                                            isActive
+                                                                ? "text-blue-600 dark:text-blue-400"
+                                                                : "text-gray-600 dark:text-gray-400"
+                                                        )}>
+                                                            {item.icon}
+                                                        </div>
+                                                        <span className={classNames(
+                                                            "text-base font-medium",
+                                                            isActive ? "font-semibold" : ""
+                                                        )}>
+                                                            {item.text}
+                                                        </span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
                                     );
                                 })}
                             </div>
@@ -242,44 +280,64 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
 
             <div className="flex-1 overflow-y-auto py-4">
                 <div className={classNames("flex flex-col gap-1", isCollapsed ? "px-2" : "px-3")}>
-                    {navItems.map((item, index) => {
-                        const routePath = getRoutePath(item.onClick);
-                        const isActive = location.pathname === routePath;
+                    {GROUP_ORDER.map((groupKey) => {
+                        const items = groupedNavItems[groupKey];
+                        if (items.length === 0) return null;
+
                         return (
-                            <button
-                                key={index}
-                                onClick={() => handleItemClick(item.onClick)}
-                                title={isCollapsed ? item.text : undefined}
-                                className={classNames(
-                                    "flex items-center rounded-xl text-left transition-all duration-200 active:scale-98",
-                                    isCollapsed ? "justify-center px-2 py-2.5" : "gap-3 px-3 py-2.5",
-                                    isActive
-                                        ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30"
-                                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                                )}
-                            >
-                                <div className={classNames(
-                                    "flex items-center justify-center w-9 h-9 rounded-lg transition-colors duration-200",
-                                    isActive
-                                        ? "text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50"
-                                        : "text-gray-600 dark:text-gray-400"
-                                )}>
-                                    {item.icon}
-                                </div>
+                            <div key={groupKey} className="mb-3">
                                 {!isCollapsed && (
-                                    <>
-                                        <span className={classNames(
-                                            "text-sm font-medium flex-1",
-                                            isActive ? "font-semibold" : ""
-                                        )}>
-                                            {item.text}
+                                    <div className="flex items-center gap-3 px-3 py-2">
+                                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                            {NAV_GROUP_LABELS[groupKey]}
                                         </span>
-                                        {isActive && (
-                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                                        )}
-                                    </>
+                                        <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+                                    </div>
                                 )}
-                            </button>
+                                {isCollapsed && (
+                                    <div className="w-full h-px bg-gray-200 dark:bg-gray-700 my-2" title={NAV_GROUP_LABELS[groupKey]} />
+                                )}
+                                {items.map((item, index) => {
+                                    const routePath = getRoutePath(item.onClick);
+                                    const isActive = location.pathname === routePath;
+                                    return (
+                                        <button
+                                            key={`${groupKey}-${index}`}
+                                            onClick={() => handleItemClick(item.onClick)}
+                                            title={isCollapsed ? item.text : undefined}
+                                            className={classNames(
+                                                "flex items-center rounded-xl text-left transition-all duration-200 active:scale-98 w-full",
+                                                isCollapsed ? "justify-center px-2 py-2.5" : "gap-3 px-3 py-2.5",
+                                                isActive
+                                                    ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30"
+                                                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                            )}
+                                        >
+                                            <div className={classNames(
+                                                "flex items-center justify-center w-9 h-9 rounded-lg transition-colors duration-200",
+                                                isActive
+                                                    ? "text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50"
+                                                    : "text-gray-600 dark:text-gray-400"
+                                            )}>
+                                                {item.icon}
+                                            </div>
+                                            {!isCollapsed && (
+                                                <>
+                                                    <span className={classNames(
+                                                        "text-sm font-medium flex-1",
+                                                        isActive ? "font-semibold" : ""
+                                                    )}>
+                                                        {item.text}
+                                                    </span>
+                                                    {isActive && (
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                                                    )}
+                                                </>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         );
                     })}
                 </div>
