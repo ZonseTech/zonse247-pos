@@ -78,9 +78,16 @@ export const useInventory = () => {
 
         // Skip inventory validation for default items
         if (!isDefaultItem) {
-            const availableStock = parseInt((item.quantity || '0').toString())
+            // Get the current inventory item from Redux state (not the passed-in item which might be stale)
+            const currentInventoryItem = inventory.find(p => p.productId === item.productId)
+            const availableStock = parseInt((currentInventoryItem?.quantity || '0').toString())
             const currentCartQuantity = existingItem ? existingItem.quantity : 0
             const newTotalQuantity = currentCartQuantity + quantity
+
+            if (availableStock <= 0) {
+                Notify.failure(`${item.name} is out of stock.`)
+                return
+            }
 
             if (newTotalQuantity > availableStock) {
                 Notify.failure(`Cannot add ${quantity} item(s). Only ${availableStock - currentCartQuantity} available in stock.`)
@@ -92,16 +99,18 @@ export const useInventory = () => {
 
         if (!existingItem) {
             if (!isDefaultItem) {
+                const currentInventoryItem = inventory.find(p => p.productId === item.productId)
                 dispatch(updateInventoryStock({
                     id: item.productId.toString(),
-                    newStock: parseInt((item.quantity || '0').toString()) - quantity
+                    newStock: parseInt((currentInventoryItem?.quantity || '0').toString()) - quantity
                 }))
             }
         } else {
             if (!isDefaultItem) {
+                const currentInventoryItem = inventory.find(p => p.productId === item.productId)
                 dispatch(updateInventoryStock({
                     id: item.productId.toString(),
-                    newStock: parseInt((item.quantity || '0').toString()) - quantity
+                    newStock: parseInt((currentInventoryItem?.quantity || '0').toString()) - quantity
                 }))
             }
         }

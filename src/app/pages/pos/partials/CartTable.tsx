@@ -20,9 +20,17 @@ const CartTable: FunctionComponent<CartTableProps> = ({
 }) => {
     const {
         cart,
+        inventory,
         removeFromCart,
         updateQuantity,
     } = useInventory();
+
+    // Calculate max available stock for each cart item (current inventory + quantity in cart)
+    const getMaxStock = (productId: string, currentCartQuantity: number): number => {
+        const inventoryItem = inventory.find(p => p.productId === productId);
+        const availableInInventory = parseInt((inventoryItem?.quantity || '0').toString());
+        return availableInInventory + currentCartQuantity;
+    };
 
     return (
         <Fragment>
@@ -117,6 +125,8 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                                             onInputChange={(value) => updateQuantity(item.productId, value)}
                                             itemId={item.productId}
                                             focusManager={focusManager}
+                                            maxStock={getMaxStock(item.productId, item.quantity)}
+                                            isDefaultItem={item.isDefault}
                                         />
                                     </td>
                                     <td className="p-2.5 border-r border-gray-200 dark:border-gray-700">

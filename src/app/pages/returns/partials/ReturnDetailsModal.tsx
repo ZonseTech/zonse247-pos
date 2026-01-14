@@ -95,52 +95,52 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
             title="Return Details"
             onClose={onClose}
             size="full"
-            className="max-w-5xl"
+            className="max-w-5xl w-full mx-4 sm:mx-auto"
         >
-            <div className="max-h-[75vh] overflow-y-auto pr-2">
+            <div className="max-h-[80vh] sm:max-h-[75vh] overflow-y-auto px-1 sm:pr-2">
                 {/* Return Header */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-6 mb-6 border border-blue-100 dark:border-blue-800">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 border border-blue-100 dark:border-blue-800">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                         <div>
-                            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                            <h3 className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
                                 Return Transaction
                             </h3>
-                            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white break-all">
                                 {returnData.returnRefNumber}
                             </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
                                 {returnData.returnDate}
                             </p>
                         </div>
                         <div>
-                            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                            <h3 className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
                                 Original Transaction
                             </h3>
-                            <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                            <p className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white break-all">
                                 {returnData.originalRefNumber}
                             </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
                                 {returnData.originalDate}
                             </p>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 pt-6 border-t border-blue-200 dark:border-blue-800">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-blue-200 dark:border-blue-800">
                         <div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Customer</p>
-                            <p className="font-medium text-gray-900 dark:text-white">
+                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Customer</p>
+                            <p className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
                                 {returnData.customerName}
                             </p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Processed By</p>
-                            <p className="font-medium text-gray-900 dark:text-white">
+                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Processed By</p>
+                            <p className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
                                 {returnData.cashierName}
                             </p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Refund Method</p>
-                            <p className="font-medium text-gray-900 dark:text-white">
+                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Refund Method</p>
+                            <p className="font-medium text-sm sm:text-base text-gray-900 dark:text-white">
                                 {returnData.paymentMethod}
                             </p>
                         </div>
@@ -149,15 +149,52 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
 
                 {/* Returned Items */}
                 {returnData.hasItems && (
-                    <div className="mb-6">
-                        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <div className="mb-4 sm:mb-6">
+                        <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2">
                             <span>Returned Items</span>
-                            <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                            <span className="text-xs sm:text-sm font-normal text-gray-500 dark:text-gray-400">
                                 ({returnDetails.returnItems.length} items)
                             </span>
                         </h3>
 
-                        <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                        {/* Mobile Card View */}
+                        <div className="block sm:hidden space-y-3">
+                            {returnDetails.returnItems.map((item) => (
+                                <div
+                                    key={item.returnItemId}
+                                    className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
+                                >
+                                    <div className="flex items-start justify-between mb-2">
+                                        <div className="min-w-0 flex-1">
+                                            <p className="font-medium text-sm text-gray-900 dark:text-white">
+                                                Product #{item.productId}
+                                            </p>
+                                            {item.notes && (
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
+                                                    {item.notes}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <span className="font-medium text-sm text-blue-600 dark:text-blue-400 ml-2">
+                                            {formatCurrency(item.returnPrice)}
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                                        <span className="text-gray-600 dark:text-gray-400">
+                                            Qty: <span className="font-medium">{item.returnedQuantity}</span>/{item.originalQuantity}
+                                        </span>
+                                        {getConditionBadge(item.condition)}
+                                        {getRestockStatusBadge(item.restockStatus)}
+                                    </div>
+                                    <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                        Reason: {item.returnReason.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Desktop Table View */}
+                        <div className="hidden sm:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
                             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead className="bg-gray-50 dark:bg-gray-800">
                                     <tr>
@@ -240,14 +277,14 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
                 )}
 
                 {/* Refund Summary */}
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-                    <h3 className="text-lg font-semibold mb-4">Refund Summary</h3>
-                    <div className="space-y-3">
-                        <div className="flex justify-between items-center pb-3 border-b border-gray-200 dark:border-gray-700">
-                            <span className="text-gray-600 dark:text-gray-400">
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Refund Summary</h3>
+                    <div className="space-y-2 sm:space-y-3">
+                        <div className="flex justify-between items-center pb-2 sm:pb-3 border-b border-gray-200 dark:border-gray-700">
+                            <span className="text-sm text-gray-600 dark:text-gray-400">
                                 Items Returned:
                             </span>
-                            <span className="font-medium">
+                            <span className="font-medium text-sm sm:text-base">
                                 {returnDetails.returnItems.reduce(
                                     (sum, item) => sum + item.returnedQuantity,
                                     0
@@ -255,16 +292,16 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
                             </span>
                         </div>
 
-                        <div className="flex justify-between items-center pb-3 border-b border-gray-200 dark:border-gray-700">
-                            <span className="text-gray-600 dark:text-gray-400">Subtotal:</span>
-                            <span className="font-medium">
+                        <div className="flex justify-between items-center pb-2 sm:pb-3 border-b border-gray-200 dark:border-gray-700">
+                            <span className="text-sm text-gray-600 dark:text-gray-400">Subtotal:</span>
+                            <span className="font-medium text-sm sm:text-base">
                                 {formatCurrency(returnData.refundAmount)}
                             </span>
                         </div>
 
-                        <div className="flex justify-between items-center pt-3 border-t-2 border-gray-300 dark:border-gray-600">
-                            <span className="text-lg font-semibold">Total Refund:</span>
-                            <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        <div className="flex justify-between items-center pt-2 sm:pt-3 border-t-2 border-gray-300 dark:border-gray-600">
+                            <span className="text-base sm:text-lg font-semibold">Total Refund:</span>
+                            <span className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
                                 {formatCurrency(returnData.refundAmount)}
                             </span>
                         </div>

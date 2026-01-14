@@ -16,9 +16,17 @@ const CartItemCard: FunctionComponent<CartItemProps> = ({ customPriceInputs,
 
     const {
         cart,
+        inventory,
         removeFromCart,
         updateQuantity,
     } = useInventory();
+
+    // Calculate max available stock for each cart item (current inventory + quantity in cart)
+    const getMaxStock = (productId: string, currentCartQuantity: number): number => {
+        const inventoryItem = inventory.find(p => p.productId === productId);
+        const availableInInventory = parseInt((inventoryItem?.quantity || '0').toString());
+        return availableInInventory + currentCartQuantity;
+    };
 
     return (
         <div className="w-full">
@@ -67,6 +75,8 @@ const CartItemCard: FunctionComponent<CartItemProps> = ({ customPriceInputs,
                                             onDecrease={() => updateQuantity(item.productId, item.quantity - 1)}
                                             onInputChange={(value) => updateQuantity(item.productId, value)}
                                             itemId={item.productId}
+                                            maxStock={getMaxStock(item.productId, item.quantity)}
+                                            isDefaultItem={item.isDefault}
                                         />
                                     </div>
                                     <button

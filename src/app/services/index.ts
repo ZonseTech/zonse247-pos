@@ -10,6 +10,7 @@ import stockMovementService from './stock-movement.service';
 import saleService from './sale.service';
 import inventoryService from './inventory.service';
 import tenantRegistrationDetailService from './tenant-registration-detail.service';
+import barcodeScannerService from './barcode-scanner.service';
 
 export {
     productService,
@@ -18,7 +19,8 @@ export {
     stockMovementService,
     saleService,
     inventoryService,
-    tenantRegistrationDetailService
+    tenantRegistrationDetailService,
+    barcodeScannerService
 };
 
 // Re-export for convenience
