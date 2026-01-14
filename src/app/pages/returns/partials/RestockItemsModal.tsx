@@ -2,7 +2,7 @@ import { FunctionComponent, useState } from 'react';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { Notify } from 'notiflix';
-import { Button, Modal, ModalFooter } from '../../../components';
+import { Button, Modal } from '../../../components';
 import returnsService from '../../../services/returns.service';
 
 interface RestockItemsModalProps {
@@ -133,7 +133,7 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                 title="Restock Items"
                 isOpen={isOpen}
                 onClose={onClose}
-                className="max-w-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl shadow-2xl"
+                size="sm"
             >
                 <div className="p-6 text-center">
                     <p className="text-gray-600 dark:text-gray-400">
@@ -152,180 +152,180 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
             title="Restock Returned Items"
             isOpen={isOpen}
             onClose={onClose}
-            className="max-w-4xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl shadow-2xl"
+            size="full"
+            className="max-w-4xl w-full mx-4 sm:mx-auto"
         >
-            <div className="p-6 max-h-[80vh] overflow-y-auto">
-                {/* Info Banner */}
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-                    <p className="text-sm text-blue-800 dark:text-blue-200">
-                        Select the items you want to restock and specify the quantity for each item.
-                        Items marked as damaged or defective cannot be restocked.
-                    </p>
-                </div>
+            <div className="flex flex-col max-h-[80vh] sm:max-h-[75vh]">
+                <div className="flex-1 overflow-y-auto px-1 sm:pr-2">
+                    {/* Info Banner */}
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+                        <p className="text-xs sm:text-sm text-blue-800 dark:text-blue-200">
+                            Select items to restock and specify quantity. Damaged or defective items cannot be restocked.
+                        </p>
+                    </div>
 
-                {/* Return Info */}
-                <div className="mb-6">
-                    <h3 className="font-semibold mb-2">Return Information</h3>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <span className="text-gray-600 dark:text-gray-400">
-                                Return Transaction:
-                            </span>
-                            <span className="ml-2 font-medium">
-                                {returnDetails.returnTransaction?.refNumber}
-                            </span>
-                        </div>
-                        <div>
-                            <span className="text-gray-600 dark:text-gray-400">
-                                Original Transaction:
-                            </span>
-                            <span className="ml-2 font-medium">
-                                {returnDetails.originalTransaction?.refNumber}
-                            </span>
+                    {/* Return Info */}
+                    <div className="mb-4 sm:mb-6">
+                        <h3 className="font-semibold mb-2 text-sm sm:text-base">Return Information</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
+                            <div className="flex flex-col sm:flex-row sm:items-center">
+                                <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
+                                    Return Transaction:
+                                </span>
+                                <span className="font-medium text-sm sm:ml-2 break-all">
+                                    {returnDetails.returnTransaction?.refNumber}
+                                </span>
+                            </div>
+                            <div className="flex flex-col sm:flex-row sm:items-center">
+                                <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
+                                    Original Transaction:
+                                </span>
+                                <span className="font-medium text-sm sm:ml-2 break-all">
+                                    {returnDetails.originalTransaction?.refNumber}
+                                </span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Items List */}
-                <div className="space-y-4">
-                    <h3 className="font-semibold">
-                        Items Pending Restock ({pendingItems.length})
-                    </h3>
+                    {/* Items List */}
+                    <div className="space-y-3 sm:space-y-4">
+                        <h3 className="font-semibold text-sm sm:text-base">
+                            Items Pending Restock ({pendingItems.length})
+                        </h3>
 
-                    {pendingItems.map((item) => {
-                        const isSelected = selectedItems.some(
-                            (i) => i.returnItemId === item.returnItemId
-                        );
-                        const selectedItem = selectedItems.find(
-                            (i) => i.returnItemId === item.returnItemId
-                        );
+                        {pendingItems.map((item) => {
+                            const isSelected = selectedItems.some(
+                                (i) => i.returnItemId === item.returnItemId
+                            );
+                            const selectedItem = selectedItems.find(
+                                (i) => i.returnItemId === item.returnItemId
+                            );
 
-                        const canRestock =
-                            item.condition === 'excellent' ||
-                            item.condition === 'good' ||
-                            item.condition === 'fair';
+                            const canRestock =
+                                item.condition === 'excellent' ||
+                                item.condition === 'good' ||
+                                item.condition === 'fair';
 
-                        return (
-                            <div
-                                key={item.returnItemId}
-                                className={`p-4 border rounded-lg transition-all ${
-                                    isSelected
-                                        ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                                        : 'border-gray-200 dark:border-gray-700'
-                                } ${!canRestock ? 'opacity-60' : ''}`}
-                            >
-                                <div className="flex items-start justify-between mb-3">
-                                    <div className="flex items-start gap-3 flex-1">
-                                        <input
-                                            type="checkbox"
-                                            checked={isSelected}
-                                            onChange={() => handleToggleItem(item.returnItemId)}
-                                            disabled={!canRestock}
-                                            className="mt-1 w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                                        />
-                                        <div className="flex-1">
-                                            <h4 className="font-medium">Product #{item.productId}</h4>
-                                            <div className="flex items-center gap-3 mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                                <span>Returned: {item.returnedQuantity}</span>
-                                                <span>•</span>
-                                                <span
-                                                    className={`px-2 py-0.5 rounded-full ${
-                                                        item.condition === 'excellent'
-                                                            ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
-                                                            : item.condition === 'good'
-                                                            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                                                            : item.condition === 'fair'
-                                                            ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
-                                                            : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                                                    }`}
-                                                >
-                                                    {item.condition.charAt(0).toUpperCase() +
-                                                        item.condition.slice(1)}
+                            return (
+                                <div
+                                    key={item.returnItemId}
+                                    className={`p-3 sm:p-4 border rounded-lg transition-all ${isSelected
+                                            ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                                            : 'border-gray-200 dark:border-gray-700'
+                                        } ${!canRestock ? 'opacity-60' : ''}`}
+                                >
+                                    <div className="flex items-start justify-between mb-2 sm:mb-3">
+                                        <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
+                                            <input
+                                                type="checkbox"
+                                                checked={isSelected}
+                                                onChange={() => handleToggleItem(item.returnItemId)}
+                                                disabled={!canRestock}
+                                                className="mt-0.5 sm:mt-1 w-4 h-4 sm:w-5 sm:h-5 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                                            />
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="font-medium text-sm sm:text-base truncate">Product #{item.productId}</h4>
+                                                <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                                                    <span>Returned: {item.returnedQuantity}</span>
+                                                    <span
+                                                        className={`px-2 py-0.5 rounded-full text-xs ${item.condition === 'excellent'
+                                                                ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
+                                                                : item.condition === 'good'
+                                                                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                                                                    : item.condition === 'fair'
+                                                                        ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
+                                                                        : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                                                            }`}
+                                                    >
+                                                        {item.condition.charAt(0).toUpperCase() +
+                                                            item.condition.slice(1)}
+                                                    </span>
+                                                </div>
+                                                {item.notes && (
+                                                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 sm:mt-2 line-clamp-2">
+                                                        {item.notes}
+                                                    </p>
+                                                )}
+                                                {!canRestock && (
+                                                    <p className="text-xs sm:text-sm text-red-600 dark:text-red-400 mt-1 sm:mt-2">
+                                                        Cannot restock damaged or defective items
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {isSelected && canRestock && (
+                                        <div className="ml-6 sm:ml-8 mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-200 dark:border-gray-700">
+                                            <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
+                                                Quantity to Restock
+                                            </label>
+                                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    max={item.returnedQuantity}
+                                                    value={selectedItem?.restockedQuantity || 1}
+                                                    onChange={(e) =>
+                                                        handleItemChange(
+                                                            item.returnItemId,
+                                                            parseInt(e.target.value) || 1
+                                                        )
+                                                    }
+                                                    className="w-full sm:w-32 p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 text-sm"
+                                                />
+                                                <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                                                    of {item.returnedQuantity} available
                                                 </span>
                                             </div>
-                                            {item.notes && (
-                                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                                                    {item.notes}
-                                                </p>
-                                            )}
-                                            {!canRestock && (
-                                                <p className="text-sm text-red-600 dark:text-red-400 mt-2">
-                                                    Cannot restock damaged or defective items
-                                                </p>
-                                            )}
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
+                            );
+                        })}
+                    </div>
 
-                                {isSelected && canRestock && (
-                                    <div className="ml-8 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                                        <label className="block text-sm font-medium mb-2">
-                                            Quantity to Restock
-                                        </label>
-                                        <div className="flex items-center gap-3">
-                                            <input
-                                                type="number"
-                                                min="1"
-                                                max={item.returnedQuantity}
-                                                value={selectedItem?.restockedQuantity || 1}
-                                                onChange={(e) =>
-                                                    handleItemChange(
-                                                        item.returnItemId,
-                                                        parseInt(e.target.value) || 1
-                                                    )
-                                                }
-                                                className="w-32 p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
-                                            />
-                                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                                                of {item.returnedQuantity} available
-                                            </span>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
-
-                {/* Summary */}
-                {selectedItems.length > 0 && (
-                    <div className="mt-6 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-emerald-800 dark:text-emerald-200">
-                                    Total Items Selected
-                                </p>
-                                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                                    {totalItemsToRestock}
-                                </p>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-sm text-emerald-800 dark:text-emerald-200">
-                                    Products
-                                </p>
-                                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                                    {selectedItems.length}
-                                </p>
+                    {/* Summary */}
+                    {selectedItems.length > 0 && (
+                        <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-xs sm:text-sm text-emerald-800 dark:text-emerald-200">
+                                        Total Items Selected
+                                    </p>
+                                    <p className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                                        {totalItemsToRestock}
+                                    </p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-xs sm:text-sm text-emerald-800 dark:text-emerald-200">
+                                        Products
+                                    </p>
+                                    <p className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                                        {selectedItems.length}
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
-            </div>
-
-            <ModalFooter className="border-t">
-                <div className="flex justify-end space-x-3">
-                    <Button type="button" layout="outline" onClick={onClose}>
-                        Cancel
-                    </Button>
-                    <Button
-                        type="button"
-                        onClick={handleSubmit}
-                        disabled={selectedItems.length === 0}
-                    >
-                        Restock {selectedItems.length > 0 ? `(${totalItemsToRestock})` : ''} Items
-                    </Button>
+                    )}
                 </div>
-            </ModalFooter>
+
+                <div className="border-t border-gray-200 dark:border-gray-700 mt-4 sm:mt-6 pt-3 sm:pt-4 flex-shrink-0">
+                    <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
+                        <Button type="button" layout="outline" onClick={onClose} className="w-full sm:w-auto">
+                            Cancel
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={handleSubmit}
+                            disabled={selectedItems.length === 0}
+                            className="w-full sm:w-auto"
+                        >
+                            Restock {selectedItems.length > 0 ? `(${totalItemsToRestock})` : ''} Items
+                        </Button>
+                    </div>
+                </div>
+            </div>
         </Modal>
     );
 };

@@ -69,6 +69,7 @@ interface TransactionQueryParams {
     startDate?: string;
     endDate?: string;
     status?: TransactionStatus;
+    paymentMethodId?: string;
     search?: string;
     page?: number;
     perPage?: number;

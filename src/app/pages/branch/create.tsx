@@ -190,16 +190,16 @@ const BranchForm: FunctionComponent = () => {
                         <PageHeader
                             title={branch ? 'Edit Branch' : 'Add Branch'}
                             description='Required fields are marked with an asterisk (*)'
-                        >
-
-                            <Button
-                                type="button"
-                                theme='danger'
-                                onClick={() => navigate(ROUTES.BRANCHES)}
-                            >
-                                Cancel
-                            </Button>
-                        </PageHeader>
+                            action={
+                                <Button
+                                    type="button"
+                                    theme='danger'
+                                    onClick={() => navigate(ROUTES.BRANCHES)}
+                                >
+                                    Cancel
+                                </Button>
+                            }
+                        />
                     </div>
 
                     <Formik

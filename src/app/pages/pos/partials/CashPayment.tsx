@@ -83,13 +83,16 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value.replace('MK ', '').replace(/,/g, '');
-        const numericValue = parseFloat(value);
-
-        if (!isNaN(numericValue) && numericValue <= 9999999.99) {
-            onValueChange('cashTendered', value);
-        } else if (value === '') {
-            onValueChange('cashTendered', '');
+        if (isMobile) {
+            const value = e.target.value.replace('MK ', '').replace(/,/g, '');
+            if (value === '' || value === '0.') {
+                onValueChange('cashTendered', value);
+                return;
+            }
+            const numericValue = parseFloat(value);
+            if (!isNaN(numericValue) && numericValue <= 9999999.99) {
+                onValueChange('cashTendered', value);
+            }
         }
     };
 
@@ -138,13 +141,16 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
                 <div>
                     <h3 className="text-xl md:text-5xl font-bold text-black dark:text-gray-400 mb-2">CASH TENDERED</h3>
                     <input
-                        type="text"
-                        value={formatDisplayValue(values.cashTendered || '')}
+                        type={isMobile ? "number" : "text"}
+                        inputMode={isMobile ? "decimal" : undefined}
+                        pattern={isMobile ? "[0-9]*" : undefined}
+                        value={isMobile ? (values.cashTendered || '') : formatDisplayValue(values.cashTendered || '')}
                         onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
                         onFocus={handleFocus}
                         onBlur={handleBlur}
                         ref={inputRef}
+                        placeholder={isMobile ? "Enter amount" : undefined}
                         className={`bg-gray-800 text-white text-center p-4 md:p-6 text-2xl md:text-5xl font-bold rounded-none w-full`}
                     />
                 </div>

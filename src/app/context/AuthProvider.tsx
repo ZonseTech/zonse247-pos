@@ -54,6 +54,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
         loadUserToken()
     }, [])
 
+
     const signin = async (data: AuthProps) => {
         try {
             const result = await api.post<ApiResponse<LoginResponse>>('auth/login', data as any)
@@ -133,7 +134,6 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
                             if (callback) {
                                 callback();
-                                // location.reload();
                             }
                         }))
                 } catch (error) {

@@ -227,6 +227,12 @@ const InventoryForm: FunctionComponent = () => {
         setFieldValue('barcode', cleanedValue);
     };
 
+    const handleBarcodeKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+        }
+    };
+
     if (loading && !item && productId) {
         return (
             <AppLayout>
@@ -247,11 +253,7 @@ const InventoryForm: FunctionComponent = () => {
                         title={productId ? 'Edit Inventory Item' : 'Add Inventory Item'}
                         description='Required fields are marked with an asterisk (*)'
                         icon={<HiOutlineDocumentPlus className="w-8 h-8 text-blue-600" />}
-                        action={
-                            <></>
-                        }
-                    >
-                        {!productId && (
+                        action={!productId ? (
                             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                                 <div className="flex items-center w-full lg:w-auto gap-3">
 
@@ -281,9 +283,8 @@ const InventoryForm: FunctionComponent = () => {
                                     </div>
                                 </div>
                             </div>
-                        )}
-
-                    </PageHeader>
+                        ) : null}
+                    />
                 </div>
 
                 <Formik
@@ -331,6 +332,7 @@ const InventoryForm: FunctionComponent = () => {
                                             onChange={(e: ChangeEvent<HTMLInputElement>) => {
                                                 handleBarcodeChange(e.target.value, setFieldValue);
                                             }}
+                                            onKeyDown={handleBarcodeKeyDown}
                                         />
 
                                         {formMode === 'full' && (

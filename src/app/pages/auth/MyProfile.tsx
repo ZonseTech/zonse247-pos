@@ -7,6 +7,7 @@ import {
     AccountDetailsCard,
     ActivityCard,
     AppearanceCard,
+    LogoutCard,
     EditProfileForm,
     ChangePasswordForm,
     PermissionsCard,
@@ -29,6 +30,7 @@ const MyProfilePage: FunctionComponent = () => {
                 <div className="lg:col-span-1 space-y-6">
                     <AccountDetailsCard user={user} />
                     <ActivityCard user={user} />
+                    <LogoutCard />
                     <AppearanceCard />
                 </div>
 

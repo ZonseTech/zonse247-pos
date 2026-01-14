@@ -120,7 +120,7 @@ export default class MenuBuilder {
 			fileSubmenu.push({
 				label: 'Logout',
 				accelerator: 'CommandOrControl+Shift+L',
-				click: () => this.performAction('menu-logout'),
+				click: () => this.performAction('auth:logout'),
 			});
 		}
 
@@ -280,6 +280,14 @@ export default class MenuBuilder {
 
 		const managementSubmenu: Array<MenuItemConstructorOptions> = [];
 
+		if (this.user) {
+			managementSubmenu.push({
+				label: 'My Profile',
+				accelerator: 'CommandOrControl+Shift+P',
+				click: () => this.navigateTo(ROUTES.MY_PROFILE),
+			});
+		}
+
 		if (
 			hasAnyPermission(this.user, [
 				'users.view',
@@ -288,6 +296,9 @@ export default class MenuBuilder {
 				'users.delete',
 			])
 		) {
+			if (managementSubmenu.length > 0) {
+				managementSubmenu.push({ type: 'separator' });
+			}
 			managementSubmenu.push({
 				label: 'Billing',
 				click: () => this.navigateTo(ROUTES.SUBSCRIPTION_BILLING),
