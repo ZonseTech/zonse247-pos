@@ -218,7 +218,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
 
     return (
         <aside className={classNames(
-            "h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-all duration-200 flex flex-col",
+            "h-full bg-white dark:bg-gray-900 z-50 border-r border-gray-200 dark:border-gray-800 transition-all duration-200 flex flex-col",
             isCollapsed ? "w-16" : "w-full"
         )}>
             <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-gray-800">

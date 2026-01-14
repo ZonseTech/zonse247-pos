@@ -1,15 +1,17 @@
 import { Confirm } from 'notiflix';
 import { Store } from 'lucide-react';
 import AppLayout from '../../layouts/AppLayout';
-import { HiOutlinePlus, HiOutlineBuildingStorefront } from 'react-icons/hi2';
+import { HiOutlinePlus, HiOutlineBuildingStorefront, HiOutlineChevronLeft, HiOutlineChevronRight } from 'react-icons/hi2';
 import { SearchBar } from '../../components/SearchBar';
 import DataTable from 'react-data-table-component';
 import { useBranches } from '../../hooks/useBranches';
-import { FunctionComponent, useContext } from 'react';
+import { FunctionComponent, useContext, useMemo } from 'react';
 import { getTableStyles } from '../../utils/table-styles';
 import PageHeader from '../../components/page/PageHeader';
-import { Button, ZonseThemeContext } from '../../components';
+import { Button, ZonseThemeContext, ComponentLoader } from '../../components';
 import { getBranchColumns } from './partials/BranchTableColumns';
+import { BranchMobileList } from './partials/BranchMobileCard';
+import BranchSummaryCards, { BranchSummaryCard } from './partials/BranchSummaryCards';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
@@ -24,12 +26,58 @@ const BranchManagement: FunctionComponent = () => {
         searchTerm,
         setSearchTerm,
         totalRows,
+        page,
         setPage,
+        perPage,
         setPerPage,
         getPaginatedData,
         deleteBranch,
-        updateBranchStatus
+        updateBranchStatus,
+        filteredBranches
     } = useBranches();
+
+    // Calculate summary stats
+    const summaryCards: BranchSummaryCard[] = useMemo(() => {
+        const allBranches = filteredBranches || [];
+        const activeCount = allBranches.filter(b => b.status === 'active').length;
+        const inactiveCount = allBranches.filter(b => b.status === 'inactive').length;
+        const pendingCount = allBranches.filter(b => b.mraApprovalStatus === 'PENDING').length;
+
+        return [
+            {
+                title: 'Total Branches',
+                value: totalRows,
+                icon: 'total',
+                bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+                iconBgColor: 'bg-blue-100 dark:bg-blue-900/40',
+                textColor: 'text-blue-600 dark:text-blue-400',
+            },
+            {
+                title: 'Active',
+                value: activeCount,
+                icon: 'active',
+                bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
+                iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
+                textColor: 'text-emerald-600 dark:text-emerald-400',
+            },
+            {
+                title: 'Inactive',
+                value: inactiveCount,
+                icon: 'inactive',
+                bgColor: 'bg-gray-50 dark:bg-gray-700/50',
+                iconBgColor: 'bg-gray-100 dark:bg-gray-600',
+                textColor: 'text-gray-600 dark:text-gray-400',
+            },
+            {
+                title: 'Pending Approval',
+                value: pendingCount,
+                icon: 'pending',
+                bgColor: 'bg-amber-50 dark:bg-amber-900/20',
+                iconBgColor: 'bg-amber-100 dark:bg-amber-900/40',
+                textColor: 'text-amber-600 dark:text-amber-400',
+            },
+        ];
+    }, [filteredBranches, totalRows]);
 
     const handleEdit = (branch: Branch) => {
         navigate(ROUTES.BRANCH_FORM, { state: { branchId: branch.branchId } });
@@ -84,21 +132,21 @@ const BranchManagement: FunctionComponent = () => {
                 <PageHeader
                     title='Branches'
                     description='Manage your branch locations and settings'
-                    icon={<HiOutlineBuildingStorefront className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
+                    icon={<HiOutlineBuildingStorefront className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600 dark:text-blue-400" />}
                     action={
                         <div className='flex items-center justify-between gap-2'>
-                            {
-                                !isMobile && (
-                                    <SearchBar
-                                        value={searchTerm}
-                                        onChange={setSearchTerm}
-                                    />
-                                )}
+                            {!isMobile && (
+                                <SearchBar
+                                    value={searchTerm}
+                                    onChange={setSearchTerm}
+                                />
+                            )}
 
                             <Button
                                 onClick={() => navigate(ROUTES.BRANCH_FORM)}
                                 icon={HiOutlinePlus}
                                 layout={isMobile ? 'outline' : 'primary'}
+                                className="!px-3 sm:!px-4 !py-2 sm:!py-2.5"
                                 theme='primary'
                             >
                                 {!isMobile && <span className='hidden md:block'>
@@ -108,45 +156,129 @@ const BranchManagement: FunctionComponent = () => {
                         </div>
                     }
                 >
-                    {
-                        isMobile && (
-                            <div className='m-4 mt-0'>
-                                <SearchBar
-                                    value={searchTerm}
-                                    onChange={setSearchTerm}
-                                />
-                            </div>
-                        )
-                    }
-                </PageHeader>
-                <DataTable
-                    columns={columns}
-                    data={getPaginatedData()}
-                    theme={mode as string}
-                    progressPending={isLoading}
-                    highlightOnHover
-                    striped
-                    responsive
-                    pagination
-                    paginationServer
-                    paginationTotalRows={totalRows}
-                    onChangeRowsPerPage={(newPerPage, page) => {
-                        setPage(page);
-                        setPerPage(newPerPage);
-                    }}
-                    onChangePage={setPage}
-                    fixedHeader
-                    fixedHeaderScrollHeight="calc(100vh - 350px)"
-                    customStyles={getTableStyles(mode)}
-                    noDataComponent={
-                        <div className="text-center py-8">
-                            <Store className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                            <p className="text-gray-500 dark:text-gray-400">
-                                {searchTerm ? 'No branch(es) found matching your search.' : 'No branches found.'}
-                            </p>
+                    {isMobile && (
+                        <div className='px-4 pb-4'>
+                            <SearchBar
+                                value={searchTerm}
+                                onChange={setSearchTerm}
+                            />
                         </div>
-                    }
-                />
+                    )}
+                </PageHeader>
+
+                {/* Main Content Container */}
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+
+                    {/* Summary Cards */}
+                    <BranchSummaryCards
+                        cards={summaryCards}
+                        isLoading={isLoading}
+                    />
+
+                    {/* Mobile View - Card List */}
+                    {isMobile ? (
+                        <div className="overflow-hidden">
+                            {isLoading ? (
+                                <BranchMobileList
+                                    branches={[]}
+                                    onEdit={handleEdit}
+                                    onStatusToggle={handleStatusToggle}
+                                    onDelete={handleDelete}
+                                    isLoading={true}
+                                />
+                            ) : getPaginatedData().length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-12 px-4">
+                                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                                        <Store className="w-8 h-8 text-gray-400" />
+                                    </div>
+                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2 text-center">
+                                        {searchTerm ? 'No matching branches' : 'No branches yet'}
+                                    </h3>
+                                    <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm text-sm">
+                                        {searchTerm
+                                            ? "Try adjusting your search to find branches."
+                                            : "Add your first branch to get started."
+                                        }
+                                    </p>
+                                </div>
+                            ) : (
+                                <>
+                                    <BranchMobileList
+                                        branches={getPaginatedData()}
+                                        onEdit={handleEdit}
+                                        onStatusToggle={handleStatusToggle}
+                                        onDelete={handleDelete}
+                                        isLoading={false}
+                                    />
+
+                                    {/* Mobile Pagination */}
+                                    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+                                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                                            {totalRows} total
+                                        </span>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() => setPage(Math.max(1, page - 1))}
+                                                disabled={page <= 1}
+                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                                <HiOutlineChevronLeft className="w-5 h-5" />
+                                            </button>
+                                            <span className="text-sm text-gray-600 dark:text-gray-400">
+                                                {page} / {Math.ceil(totalRows / perPage) || 1}
+                                            </span>
+                                            <button
+                                                onClick={() => setPage(Math.min(Math.ceil(totalRows / perPage), page + 1))}
+                                                disabled={page >= Math.ceil(totalRows / perPage)}
+                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                                <HiOutlineChevronRight className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    ) : (
+                        /* Desktop View - Data Table */
+                        <div className="overflow-hidden">
+                            <DataTable
+                                columns={columns}
+                                data={getPaginatedData()}
+                                theme={mode as string}
+                                progressPending={isLoading}
+                                progressComponent={<ComponentLoader loading={isLoading} />}
+                                highlightOnHover
+                                striped
+                                responsive
+                                pagination
+                                paginationServer
+                                paginationTotalRows={totalRows}
+                                paginationPerPage={perPage}
+                                paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
+                                onChangeRowsPerPage={(newPerPage, page) => {
+                                    setPage(page);
+                                    setPerPage(newPerPage);
+                                }}
+                                onChangePage={setPage}
+                                fixedHeader
+                                fixedHeaderScrollHeight="calc(100vh - 420px)"
+                                customStyles={getTableStyles(mode)}
+                                noDataComponent={
+                                    <div className="text-center py-12">
+                                        <Store className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                                            {searchTerm ? 'No matching branches' : 'No branches found'}
+                                        </h3>
+                                        <p className="text-gray-500 dark:text-gray-400">
+                                            {searchTerm ? 'Try adjusting your search terms.' : 'Get started by adding your first branch.'}
+                                        </p>
+                                    </div>
+                                }
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
         </AppLayout>
     );
