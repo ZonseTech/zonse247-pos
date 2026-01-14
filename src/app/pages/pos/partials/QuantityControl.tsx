@@ -9,6 +9,8 @@ interface QuantityControlProps {
     onInputChange: (value: number) => void;
     itemId: string;
     focusManager?: ReturnType<typeof useFocusManager>;
+    maxStock?: number;
+    isDefaultItem?: boolean;
 }
 
 const QuantityControl: React.FC<QuantityControlProps> = ({
@@ -17,7 +19,9 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
     onDecrease,
     onInputChange,
     itemId,
-    focusManager
+    focusManager,
+    maxStock,
+    isDefaultItem = false
 }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const isActive = focusManager?.isActive('quantity', itemId) || false;
@@ -65,10 +69,11 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
     };
 
     const isMinimum = quantity <= 0;
+    const isAtMaxStock = !isDefaultItem && maxStock !== undefined && quantity >= maxStock;
 
     return (
         <div className={`inline-flex items-center rounded-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 overflow-hidden ${isActive ? 'ring-1 ring-blue-500 dark:ring-blue-400' : ''
-            }`}>
+            } ${isAtMaxStock ? 'border-orange-400 dark:border-orange-500' : ''}`}>
             <button
                 onClick={onDecrease}
                 disabled={isMinimum}
@@ -99,11 +104,13 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
 
             <button
                 onClick={onIncrease}
+                disabled={isAtMaxStock}
                 className="flex items-center justify-center w-8 h-8 text-gray-600 dark:text-gray-300
          bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600
+         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-50 dark:disabled:hover:bg-gray-700
          focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20
          transition-all duration-200 border-l border-gray-200 dark:border-gray-600"
-                title="Increase quantity"
+                title={isAtMaxStock ? `Maximum stock reached (${maxStock})` : "Increase quantity"}
             >
                 <HiPlus className="h-3.5 w-3.5" />
             </button>
