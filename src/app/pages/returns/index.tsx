@@ -129,7 +129,7 @@ const ReturnsPage: FC = () => {
                 >
                     {/* Filters Section - Inside PageHeader like transactions */}
                     <div className="p-3 md:p-6 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
-                        <div className="flex flex-col gap-3 md:gap-4">
+                        <div className="flex flex-row items-center justify-between gap-3 md:gap-4">
                             {/* Search Row */}
                             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                                 <SearchBar
@@ -168,13 +168,11 @@ const ReturnsPage: FC = () => {
                 {/* Main Content Container */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
 
-                    {/* Summary Cards */}
                     <ReturnSummaryCards
                         cards={summaryCards}
                         isLoading={isLoading}
                     />
 
-                    {/* Mobile View - Card List */}
                     {isMobile ? (
                         <div className="overflow-hidden">
                             {isLoading ? (
