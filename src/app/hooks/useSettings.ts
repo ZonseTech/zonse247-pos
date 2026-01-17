@@ -20,6 +20,7 @@ interface UseSettingsReturn {
     clearSetup: () => Promise<boolean>;
     updateSetup: (updates: Partial<SetupData>) => Promise<boolean>;
     getSignature: () => Promise<string | null>;
+    getActiveBranch: () => Promise<Branch | null>;
     refreshSetup: () => Promise<void>;
     isDesktop: boolean;
 }
@@ -142,6 +143,16 @@ export function useSettings(): UseSettingsReturn {
         }
     }, [adapter]);
 
+    const getActiveBranch = useCallback(async (): Promise<Branch | null> => {
+        try {
+            const result = await adapter.getActiveBranch();
+            return result.success ? result.data || null : null;
+        } catch (err: any) {
+            console.error('Error getting active branch:', err);
+            return null;
+        }
+    }, [adapter]);
+
     return {
         setup,
         loading,
@@ -151,6 +162,7 @@ export function useSettings(): UseSettingsReturn {
         clearSetup,
         updateSetup,
         getSignature,
+        getActiveBranch,
         refreshSetup: loadSetup,
         isDesktop,
     };
