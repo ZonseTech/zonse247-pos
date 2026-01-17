@@ -104,7 +104,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
 
     if (variant === 'topbar') {
         return (
-            <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors duration-200">
+            <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors duration-200 safe-area-top-android">
                 <div className="flex items-center justify-between px-4 lg:px-6 h-16">
                     <div className="flex items-center gap-4">
                         <button
@@ -262,12 +262,12 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
 
                 <div
                     className={classNames(
-                        "fixed top-0 left-0 h-full w-[85%] max-w-sm bg-white dark:bg-gray-900 shadow-2xl z-50 transition-transform duration-300 ease-out md:hidden",
+                        "fixed top-0 left-0 h-full w-[85%] max-w-sm bg-white dark:bg-gray-900 shadow-2xl z-50 transition-transform duration-300 ease-out md:hidden safe-area-top-android",
                         isMenuOpen ? "translate-x-0" : "-translate-x-full"
                     )}
                 >
                     <div className="flex flex-col h-full">
-                        <div className="flex items-center justify-between px-5 py-4">
+                        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800">
                             <div className="flex items-center gap-3">
                                 <img src={logo} alt="Zonse247" className="w-10 h-10 rounded-xl object-contain" />
                                 <div>
@@ -284,7 +284,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                             </button>
                         </div>
 
-                        <div className="px-4 py-3  border-b border-gray-100 dark:border-gray-800">
+                        <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
                             <BranchSwitcher />
                         </div>
 
@@ -351,7 +351,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
 
     return (
         <aside className={classNames(
-            "h-full z-50 transition-all duration-300 flex flex-col",
+            "h-full z-50 transition-all duration-300 flex flex-col safe-area-top",
             "bg-gradient-to-b from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-900/95",
             "border-r border-gray-200/60 dark:border-gray-800/60",
             isCollapsed ? "w-[72px]" : "w-full"

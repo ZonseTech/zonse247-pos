@@ -74,11 +74,23 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
     };
 
     if (!user || accessibleBranches.length <= 1) {
-        if (currentBranch && compact) {
+        if (currentBranch) {
             return (
-                <div className={`flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 ${className}`}>
-                    <Building2 className="w-4 h-4" />
-                    <span className="truncate max-w-[150px]">{currentBranch.branchName}</span>
+                <div className={`flex items-center gap-2 px-3 py-2.5 text-sm text-gray-600 dark:text-gray-300 ${className}`}>
+                    <Building2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                    <span className="truncate flex-1">{currentBranch.branchName}</span>
+                    {accessibleBranches.length <= 1 && (
+                        <span className="text-xs text-gray-400 dark:text-gray-500">Only branch</span>
+                    )}
+                </div>
+            );
+        }
+
+        if (isLoading) {
+            return (
+                <div className={`flex items-center gap-2 px-3 py-2.5 text-sm text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 rounded-lg ${className}`}>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Loading branch...</span>
                 </div>
             );
         }
@@ -206,8 +218,8 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
                                                         )}
                                                         {isInactive && (
                                                             <span className={`px-1.5 py-0.5 text-xs rounded ${branch.status === 'suspended'
-                                                                    ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
-                                                                    : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'
+                                                                ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+                                                                : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'
                                                                 }`}>
                                                                 {branch.status === 'suspended' ? 'Suspended' : 'Inactive'}
                                                             </span>
