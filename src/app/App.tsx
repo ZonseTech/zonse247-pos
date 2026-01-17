@@ -12,6 +12,7 @@ import { useSettings } from './hooks/useSettings';
 import { DataManager } from './config/data-manager'
 import { AppProvider } from './context/AppProvider'
 import { AuthProvider } from './context/AuthProvider'
+import { BranchProvider } from './context/BranchContext'
 import { LayoutProvider } from './context/LayoutContext'
 import ZonseUIKitContext from './components/ZonseUIKitContext'
 import { NavigationProgress } from './components/loader/NavigationProgress'
@@ -66,25 +67,27 @@ const App: FunctionComponent = () => {
         <ZonseUIKitContext usePreferences>
             <Provider store={store}>
                 <AuthProvider>
-                    <LayoutProvider>
-                        <AppProvider>
-                            <DataManager />
-                            <div className="app-container">
-                                <HashRouter>
-                                    <NavigationProgress />
-                                    <Suspense fallback={<EnhancedPageLoader />}>
-                                        {showOnboarding ? (
-                                            <OnboardingFlow
-                                                onComplete={handleOnboardingComplete}
-                                                error={saveError}
-                                            />
-                                        ) : <AppRoutes appSettings={setup} />}
-                                    </Suspense>
-                                </HashRouter>
-                                <ToastContainer />
-                            </div>
-                        </AppProvider>
-                    </LayoutProvider>
+                    <BranchProvider>
+                        <LayoutProvider>
+                            <AppProvider>
+                                <DataManager />
+                                <div className="app-container">
+                                    <HashRouter>
+                                        <NavigationProgress />
+                                        <Suspense fallback={<EnhancedPageLoader />}>
+                                            {showOnboarding ? (
+                                                <OnboardingFlow
+                                                    onComplete={handleOnboardingComplete}
+                                                    error={saveError}
+                                                />
+                                            ) : <AppRoutes appSettings={setup} />}
+                                        </Suspense>
+                                    </HashRouter>
+                                    <ToastContainer />
+                                </div>
+                            </AppProvider>
+                        </LayoutProvider>
+                    </BranchProvider>
                 </AuthProvider>
             </Provider>
         </ZonseUIKitContext>
