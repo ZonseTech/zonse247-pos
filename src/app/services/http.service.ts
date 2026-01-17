@@ -150,8 +150,9 @@ const handleAuthError = (): void => {
 	sessionStorage.removeItem('token');
 	sessionStorage.removeItem('tenantId');
 
-	if (window.location.pathname !== ROUTES.LOGIN) {
-		window.location.href = ROUTES.LOGIN;
+	const currentHash = window.location.hash.replace('#', '');
+	if (currentHash !== ROUTES.LOGIN) {
+		window.location.hash = `#${ROUTES.LOGIN}`;
 	}
 };
 
