@@ -36,7 +36,6 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const isAuthenticated = !!(user && auth);
 
-    // Derived active branch ID - prioritize currentBranchId (switched) over branchId (default)
     const activeBranchId = user?.currentBranchId || user?.branchId || null;
 
     useEffect(() => {
