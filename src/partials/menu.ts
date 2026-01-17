@@ -11,12 +11,14 @@ import { hasAnyPermission, hasPermission, hasRole } from '../app/utils';
 export default class MenuBuilder {
 	mainWindow: BrowserWindow;
 	private user: User | null = null;
+	private branches: Branch[] = [];
+	private currentBranchId: string | null = null;
 
 	constructor(mainWindow: BrowserWindow) {
 		this.mainWindow = mainWindow;
 	}
 
-	buildMenu(user?: User): Menu {
+	buildMenu(user?: User, branches?: Branch[], currentBranchId?: string): Menu {
 		if (
 			process.env.NODE_ENV === 'development' ||
 			process.env.DEBUG_PROD === 'true'
@@ -25,6 +27,8 @@ export default class MenuBuilder {
 		}
 
 		this.user = user || null;
+		this.branches = branches || [];
+		this.currentBranchId = currentBranchId || user?.currentBranchId || user?.branchId || null;
 		const menu = Menu.buildFromTemplate(this.buildDefaultTemplate());
 		Menu.setApplicationMenu(menu);
 		return menu;
@@ -60,6 +64,31 @@ export default class MenuBuilder {
 		this.mainWindow.webContents.send(action);
 	}
 
+	private switchBranch(branchId: string, branchName: string): void {
+		this.mainWindow.webContents.send('menu-switch-branch', { branchId, branchName });
+	}
+
+	private buildBranchSubmenu(): Array<MenuItemConstructorOptions> {
+		if (!this.user || this.branches.length <= 1) {
+			return [];
+		}
+
+		const branchItems: Array<MenuItemConstructorOptions> = this.branches.map((branch) => ({
+			label: branch.branchName,
+			type: 'checkbox' as const,
+			checked: branch.branchId === this.currentBranchId,
+			click: () => this.switchBranch(branch.branchId, branch.branchName),
+		}));
+
+		return [
+			{
+				label: 'Switch Branch',
+				submenu: branchItems,
+			},
+			{ type: 'separator' },
+		];
+	}
+
 	buildDefaultTemplate(): Array<MenuItemConstructorOptions> {
 		const template: Array<MenuItemConstructorOptions> = [];
 		const fileSubmenu: Array<MenuItemConstructorOptions> = [];
@@ -93,6 +122,12 @@ export default class MenuBuilder {
 				});
 				fileSubmenu.push({ type: 'separator' });
 			}
+		}
+
+		// Add branch switcher to File menu
+		const branchSubmenu = this.buildBranchSubmenu();
+		if (branchSubmenu.length > 0) {
+			fileSubmenu.push(...branchSubmenu);
 		}
 
 		if (
@@ -135,7 +170,8 @@ export default class MenuBuilder {
 			submenu: fileSubmenu,
 		});
 
-		const viewSubmenu: Array<MenuItemConstructorOptions> = [];
+		// Operations menu (top-level)
+		const operationsItems: Array<MenuItemConstructorOptions> = [];
 
 		if (
 			hasAnyPermission(this.user, [
@@ -145,7 +181,7 @@ export default class MenuBuilder {
 				'refunds.process',
 			])
 		) {
-			viewSubmenu.push({
+			operationsItems.push({
 				label: 'Point of Sale',
 				accelerator: 'CommandOrControl+P',
 				click: () => this.navigateTo(ROUTES.POS),
@@ -153,52 +189,10 @@ export default class MenuBuilder {
 		}
 
 		if (this.user) {
-			viewSubmenu.push({
+			operationsItems.push({
 				label: 'Dashboard',
 				accelerator: 'CommandOrControl+D',
 				click: () => this.navigateTo(ROUTES.DASHBOARD),
-			});
-		}
-
-		if (
-			hasAnyPermission(this.user, [
-				'products.view',
-				'products.create',
-				'products.edit',
-			])
-		) {
-			if (viewSubmenu.length > 0) {
-				viewSubmenu.push({ type: 'separator' });
-			}
-			viewSubmenu.push({
-				label: 'Inventory',
-				click: () => this.navigateTo(ROUTES.INVENTORY),
-			});
-			viewSubmenu.push({ type: 'separator' });
-			viewSubmenu.push({
-				label: 'Products',
-				click: () => this.navigateTo(ROUTES.PRODUCTS),
-			});
-			viewSubmenu.push({
-				label: 'Suppliers',
-				click: () => this.navigateTo(ROUTES.SUPPLIERS),
-			});
-			viewSubmenu.push({
-				label: 'Purchase Orders',
-				click: () => this.navigateTo(ROUTES.PURCHASE_ORDERS),
-			});
-			viewSubmenu.push({
-				label: 'Stock Movements',
-				click: () => this.navigateTo(ROUTES.STOCK_MOVEMENTS),
-			});
-			viewSubmenu.push({ type: 'separator' });
-			viewSubmenu.push({
-				label: 'Categories',
-				click: () => this.navigateTo(ROUTES.CATEGORIES),
-			});
-			viewSubmenu.push({
-				label: 'Customers',
-				click: () => this.navigateTo(ROUTES.CUSTOMERS),
 			});
 		}
 
@@ -209,15 +203,77 @@ export default class MenuBuilder {
 				'payments.view',
 			])
 		) {
-			viewSubmenu.push({ type: 'separator' });
-			viewSubmenu.push({
+			operationsItems.push({
 				label: 'Transactions',
 				accelerator: 'CommandOrControl+T',
 				click: () => this.navigateTo(ROUTES.TRANSACTIONS),
 			});
 		}
 
-		viewSubmenu.push({ type: 'separator' });
+		if (
+			hasAnyPermission(this.user, [
+				'products.view',
+				'products.create',
+				'products.edit',
+			])
+		) {
+			operationsItems.push({
+				label: 'Customers',
+				click: () => this.navigateTo(ROUTES.CUSTOMERS),
+			});
+		}
+
+		if (operationsItems.length > 0) {
+			template.push({
+				label: 'Operations',
+				submenu: operationsItems,
+			});
+		}
+
+		// Inventory menu (top-level)
+		if (
+			hasAnyPermission(this.user, [
+				'products.view',
+				'products.create',
+				'products.edit',
+			])
+		) {
+			const inventoryItems: Array<MenuItemConstructorOptions> = [
+				{
+					label: 'Inventory',
+					click: () => this.navigateTo(ROUTES.INVENTORY),
+				},
+				{
+					label: 'Products',
+					click: () => this.navigateTo(ROUTES.PRODUCTS),
+				},
+				{
+					label: 'Suppliers',
+					click: () => this.navigateTo(ROUTES.SUPPLIERS),
+				},
+				{
+					label: 'Purchase Orders',
+					click: () => this.navigateTo(ROUTES.PURCHASE_ORDERS),
+				},
+				{
+					label: 'Stock Movements',
+					click: () => this.navigateTo(ROUTES.STOCK_MOVEMENTS),
+				},
+				{ type: 'separator' },
+				{
+					label: 'Categories',
+					click: () => this.navigateTo(ROUTES.CATEGORIES),
+				},
+			];
+
+			template.push({
+				label: 'Inventory',
+				submenu: inventoryItems,
+			});
+		}
+
+		// View menu (for dev tools only)
+		const viewSubmenu: Array<MenuItemConstructorOptions> = [];
 
 		if (!app.isPackaged) {
 			viewSubmenu.push({
@@ -288,6 +344,9 @@ export default class MenuBuilder {
 			});
 		}
 
+		// Management group (Billing, Users, Security)
+		const managementItems: Array<MenuItemConstructorOptions> = [];
+
 		if (
 			hasAnyPermission(this.user, [
 				'users.view',
@@ -296,53 +355,60 @@ export default class MenuBuilder {
 				'users.delete',
 			])
 		) {
-			if (managementSubmenu.length > 0) {
-				managementSubmenu.push({ type: 'separator' });
-			}
-			managementSubmenu.push({
+			managementItems.push({
 				label: 'Billing',
 				click: () => this.navigateTo(ROUTES.SUBSCRIPTION_BILLING),
 			});
-			managementSubmenu.push({
+			managementItems.push({
 				label: 'Users',
 				click: () => this.navigateTo(ROUTES.USERS),
 			});
 		}
 
 		if (
-			hasAnyPermission(this.user, [
-				'users.roles.assign',
-				'users.create',
-				'users.edit',
-			])
+			hasRole(this.user, 'admin') ||
+			hasRole(this.user, 'super-admin')
 		) {
-			managementSubmenu.push({
+			managementItems.push({
 				label: 'Security & Roles',
 				click: () => this.navigateTo(ROUTES.ROLES_PERMISSIONS),
 			});
 		}
 
-		if (hasPermission(this.user, 'settings.branch.manage')) {
-			if (managementSubmenu.length > 0) {
-				managementSubmenu.push({ type: 'separator' });
-			}
-			managementSubmenu.push({
-				label: 'Branches',
-				click: () => this.navigateTo(ROUTES.BRANCHES),
-			});
-			managementSubmenu.push({
-				label: 'Terminals',
-				click: () => this.navigateTo(ROUTES.TERMINALS),
-			});
-			managementSubmenu.push({
-				label: 'Printers',
-				click: () => this.navigateTo(ROUTES.PRINTERS),
-			});
+		if (managementItems.length > 0) {
 			managementSubmenu.push({ type: 'separator' });
 			managementSubmenu.push({
+				label: 'Management',
+				submenu: managementItems,
+			});
+		}
+
+		// Settings group (Branches, Terminals, Printers, Settings)
+		if (hasPermission(this.user, 'settings.branch.manage')) {
+			const settingsItems: Array<MenuItemConstructorOptions> = [
+				{
+					label: 'Branches',
+					click: () => this.navigateTo(ROUTES.BRANCHES),
+				},
+				{
+					label: 'Terminals',
+					click: () => this.navigateTo(ROUTES.TERMINALS),
+				},
+				{
+					label: 'Printers',
+					click: () => this.navigateTo(ROUTES.PRINTERS),
+				},
+				{ type: 'separator' },
+				{
+					label: 'Settings',
+					accelerator: 'CommandOrControl+,',
+					click: () => this.navigateTo(ROUTES.SETTINGS),
+				},
+			];
+
+			managementSubmenu.push({
 				label: 'Settings',
-				accelerator: 'CommandOrControl+,',
-				click: () => this.navigateTo(ROUTES.SETTINGS),
+				submenu: settingsItems,
 			});
 		}
 
@@ -357,20 +423,29 @@ export default class MenuBuilder {
 			hasRole(this.user, 'admin') ||
 			hasPermission(this.user, 'system.admin')
 		) {
-			const adminSubmenu: Array<MenuItemConstructorOptions> = [
-				{
-					label: 'Subscriptions',
-					click: () => this.navigateTo(ROUTES.SUBSCRIPTIONS),
-				},
-				{
-					label: 'Tenants',
-					click: () => this.navigateTo(ROUTES.TENANTS),
-				},
-				{
-					label: 'Registration Details',
-					click: () => this.navigateTo(ROUTES.TENANT_REGISTRATION_DETAILS),
-				},
-				{ type: 'separator' },
+			const adminSubmenu: Array<MenuItemConstructorOptions> = [];
+
+			// Administration group
+			adminSubmenu.push({
+				label: 'Administration',
+				submenu: [
+					{
+						label: 'Subscriptions',
+						click: () => this.navigateTo(ROUTES.SUBSCRIPTIONS),
+					},
+					{
+						label: 'Tenants',
+						click: () => this.navigateTo(ROUTES.TENANTS),
+					},
+					{
+						label: 'Registration Details',
+						click: () => this.navigateTo(ROUTES.TENANT_REGISTRATION_DETAILS),
+					},
+				],
+			});
+
+			// System group
+			const systemItems: Array<MenuItemConstructorOptions> = [
 				{
 					label: 'Migrations',
 					click: () => this.navigateTo(ROUTES.MIGRATIONS),
@@ -378,11 +453,16 @@ export default class MenuBuilder {
 			];
 
 			if (hasPermission(this.user, 'system.backup')) {
-				adminSubmenu.push({
+				systemItems.push({
 					label: 'Export DB',
 					click: () => this.navigateTo(ROUTES.EXPORT_DB),
 				});
 			}
+
+			adminSubmenu.push({
+				label: 'System',
+				submenu: systemItems,
+			});
 
 			template.push({
 				label: 'Admin',

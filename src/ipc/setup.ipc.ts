@@ -43,6 +43,36 @@ export function setupIPC() {
         }
     });
 
+    ipcMain.handle('settings:get-active-branch', async () => {
+        try {
+            const activeBranch = await SecureSettingsService.getActiveBranch();
+            return { success: true, data: activeBranch };
+        } catch (error: any) {
+            console.error('Failed to get active branch:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('settings:set-active-branch', async (_event, branchId: string) => {
+        try {
+            const result = await SecureSettingsService.setActiveBranch(branchId);
+            return { success: true, data: result };
+        } catch (error: any) {
+            console.error('Failed to set active branch:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('settings:get-available-branches', async () => {
+        try {
+            const branches = await SecureSettingsService.getAvailableBranches();
+            return { success: true, data: branches };
+        } catch (error: any) {
+            console.error('Failed to get available branches:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
     ipcMain.handle('settings:update-setup', async (event, updates) => {
         try {
             await SecureSettingsService.updateAppSetup(updates);

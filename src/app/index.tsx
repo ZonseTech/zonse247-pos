@@ -24,6 +24,7 @@ const initializeStatusBar = async () => {
 	if (Capacitor.isNativePlatform()) {
 		try {
 			await StatusBar.setOverlaysWebView({ overlay: false })
+			await StatusBar.show()
 			await updateStatusBarStyle()
 
 			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateStatusBarStyle)

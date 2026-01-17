@@ -6,15 +6,19 @@ import FormInput from '../../components/FormInput';
 import FormWrapper from '../../components/FormWrapper';
 import FormSelectBox from '../../components/FormSelectBox';
 import { CategorySearch } from '../categories/partials/CategorySearch';
-import { Fragment, useState, useEffect, ChangeEvent, FunctionComponent } from 'react';
+import { Fragment, useState, useEffect, ChangeEvent, FunctionComponent, useCallback } from 'react';
 import inventoryService from '../../services/inventory.service';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import { useNavigate, useLocation } from 'react-router';
 import { ROUTES } from '../../utils/constants';
-import { Zap, FileText } from 'lucide-react';
+import { Zap, FileText, BarcodeIcon } from 'lucide-react';
 import { HiOutlineDocumentPlus } from 'react-icons/hi2';
 import { useInventory } from '../../hooks/useInventory';
+import { Capacitor } from '@capacitor/core';
+import CameraBarcodeScanner from '../../components/scanner/CameraBarcodeScanner';
+import { type ScannerResult } from '../../services/barcode-scanner.service';
+import { useScannerFeedback } from '../../hooks/useScannerSettings';
 
 type FormMode = 'quick' | 'full';
 
@@ -23,6 +27,11 @@ const InventoryForm: FunctionComponent = () => {
     const location = useLocation();
     const [loading, setLoading] = useState(false);
     const [item, setItem] = useState<InventoryItem | null>(null);
+    const [isBarcodeScannerOpen, setIsBarcodeScannerOpen] = useState(false);
+    const { triggerFeedback } = useScannerFeedback();
+
+    // Check if running on native mobile platform
+    const isNative = Capacitor.isNativePlatform();
     const [formMode, setFormMode] = useState<FormMode>('full');
     const { reloadInventory } = useInventory();
 
@@ -215,7 +224,7 @@ const InventoryForm: FunctionComponent = () => {
             }
         } catch (error: any) {
             console.error('Error saving inventory item:', error);
-            const errorMessage = error?.response?.data?.message || `Failed to ${productId ? 'update' : 'create'} inventory item`;
+            const errorMessage = error?.message || error?.response?.data?.message || `Failed to ${productId ? 'update' : 'create'} inventory item`;
             Report.failure('Error', errorMessage, 'Okay');
         } finally {
             setLoading(false);
@@ -261,24 +270,26 @@ const InventoryForm: FunctionComponent = () => {
                                         <button
                                             type="button"
                                             onClick={() => setFormMode('quick')}
-                                            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors ${formMode === 'quick'
+                                            title="Quick Add"
+                                            className={`flex items-center justify-center gap-2 px-3 py-2 sm:px-4 text-sm font-medium transition-colors ${formMode === 'quick'
                                                 ? 'bg-blue-600 text-white'
                                                 : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
                                                 }`}
                                         >
                                             <Zap className="w-4 h-4" />
-                                            Quick Add
+                                            <span className="hidden sm:inline">Quick Add</span>
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => setFormMode('full')}
-                                            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors ${formMode === 'full'
+                                            title="Full Form"
+                                            className={`flex items-center justify-center gap-2 px-3 py-2 sm:px-4 text-sm font-medium transition-colors ${formMode === 'full'
                                                 ? 'bg-blue-600 text-white'
                                                 : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
                                                 }`}
                                         >
                                             <FileText className="w-4 h-4" />
-                                            Full Form
+                                            <span className="hidden sm:inline">Full Form</span>
                                         </button>
                                     </div>
                                 </div>
@@ -308,31 +319,66 @@ const InventoryForm: FunctionComponent = () => {
                                         </h3>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
-                                        <div className="md:col-span-2">
+                                        <div className="col-span-1 md:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
                                             <CategorySearch
                                                 value={values.categoryId || ''}
                                                 onChange={(categoryId) => setFieldValue('categoryId', categoryId)}
                                                 error={errors.categoryId as string}
                                                 touched={touched.categoryId as boolean}
                                             />
+
+                                            <FormInput
+                                                label="Item Name"
+                                                name="name"
+                                                placeholder="Enter item name"
+                                                required
+                                            />
                                         </div>
 
-                                        <FormInput
-                                            label="Item Name"
-                                            name="name"
-                                            placeholder="Enter item name"
-                                            required
-                                        />
+                                        <div className="md:col-span-2 p-3 sm:p-4 rounded-sm border border-gray-200 dark:border-gray-600">
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex-1 min-w-0">
+                                                    <FormInput
+                                                        name="barcode"
+                                                        label='Barcode'
+                                                        placeholder="Scan or enter barcode"
+                                                        required
+                                                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                                            handleBarcodeChange(e.target.value, setFieldValue);
+                                                        }}
+                                                        onKeyDown={handleBarcodeKeyDown}
+                                                    />
+                                                </div>
 
-                                        <FormInput
-                                            label="Barcode"
-                                            name="barcode"
-                                            placeholder="Scan or enter barcode"
-                                            required
-                                            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                                                handleBarcodeChange(e.target.value, setFieldValue);
+                                                {isNative && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setIsBarcodeScannerOpen(true)}
+                                                        className="flex-shrink-0 px-4 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-lg font-medium text-sm transition-colors duration-150 flex items-center justify-center gap-2 touch-manipulation"
+                                                        title="Scan barcode with camera"
+                                                        aria-label="Open camera barcode scanner"
+                                                    >
+                                                        <BarcodeIcon className="w-5 h-5" />
+                                                        <span>Scan</span>
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                                {isNative ? 'Tap the scan button to use your camera' : 'Enter or scan the product barcode'}
+                                            </p>
+                                        </div>
+
+                                        <CameraBarcodeScanner
+                                            isOpen={isBarcodeScannerOpen}
+                                            onClose={() => setIsBarcodeScannerOpen(false)}
+                                            onScan={(result: ScannerResult) => {
+                                                triggerFeedback();
+                                                setFieldValue('barcode', result.barcode);
+                                                setIsBarcodeScannerOpen(false);
                                             }}
-                                            onKeyDown={handleBarcodeKeyDown}
+                                            continuous={false}
+                                            title="Scan Barcode"
+                                            subtitle="Point camera at product barcode"
                                         />
 
                                         {formMode === 'full' && (
@@ -640,7 +686,7 @@ const InventoryForm: FunctionComponent = () => {
                                 <div className="flex justify-end gap-3 pt-6 border-t border-gray-300 dark:border-gray-600">
                                     <Button
                                         type="button"
-                                        theme="neutral"
+                                        theme="danger"
                                         onClick={() => navigate(ROUTES.INVENTORY)}
                                         disabled={isSubmitting}
                                     >

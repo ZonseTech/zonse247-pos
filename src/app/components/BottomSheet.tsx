@@ -1,5 +1,6 @@
 import { FunctionComponent, ReactNode, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 
 interface BottomSheetProps {
@@ -31,20 +32,27 @@ const BottomSheet: FunctionComponent<BottomSheetProps> = ({
     }, [isOpen]);
 
     const sheetClass = classNames(
-        'fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-2xl shadow-2xl z-50 max-h-[90vh] overflow-auto',
+        'absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-2xl shadow-2xl z-50 max-h-[85%] overflow-auto safe-area-bottom',
         className
     );
 
-    return (
+    // Find the main content container to portal into
+    const getPortalContainer = () => {
+        // Try to find the main content area
+        const mainContent = document.querySelector('main');
+        return mainContent || document.body;
+    };
+
+    const content = (
         <AnimatePresence>
             {isOpen && (
-                <>
+                <div className="absolute inset-0 z-40">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-0 bg-black/50 z-40"
+                        className="absolute inset-0 bg-black/50"
                         onClick={onClose}
                     />
 
@@ -81,10 +89,12 @@ const BottomSheet: FunctionComponent<BottomSheetProps> = ({
                             {children}
                         </div>
                     </motion.div>
-                </>
+                </div>
             )}
         </AnimatePresence>
     );
+
+    return createPortal(content, getPortalContainer());
 };
 
 export default BottomSheet;

@@ -3,6 +3,7 @@ import { DEFAULT_SEED_KEY } from '../../../constants';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import type { FunctionComponent } from 'react';
 import { useRef, useEffect } from 'react';
+import { DollarSign } from 'lucide-react';
 
 interface PriceControlProps {
     sellPrice: number;
@@ -92,10 +93,17 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
 
     if (isCustomItem) {
         return (
-            <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm z-10">
-                    MK
-                </span>
+            <div className={`relative inline-flex items-center rounded-xl overflow-hidden shadow-sm
+                ${isActive
+                    ? 'ring-2 ring-amber-500 dark:ring-amber-400 shadow-amber-500/20'
+                    : 'ring-1 ring-gray-200 dark:ring-gray-700'}`}>
+                <div className={`flex items-center justify-center w-10 h-10 
+                    ${isActive
+                        ? 'bg-amber-500 text-white'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'} 
+                    transition-all duration-200`}>
+                    <span className="text-xs font-bold">MK</span>
+                </div>
                 <input
                     ref={inputRef}
                     type="text"
@@ -105,14 +113,11 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                     onKeyDown={handleKeyDown}
-                    className={`w-28 pl-8 pr-3 py-2 border rounded-sm text-sm text-center 
-                                 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 
-                                 transition-all duration-200 focus:outline-none
-                                 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                                 ${isActive
-                            ? 'border-yellow-500 dark:border-yellow-400 ring-2 ring-yellow-500/20 dark:ring-yellow-400/20 bg-yellow-50 dark:bg-yellow-900/20'
-                            : 'border-gray-300 dark:border-gray-600 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent'
-                        }`}
+                    className={`w-24 h-10 px-3 text-base font-bold text-right
+                        bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 
+                        border-0 focus:outline-none transition-all duration-200
+                        [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+                        ${isActive ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300' : ''}`}
                     min="0"
                     max="9999999.99"
                     step="0.01"
@@ -123,9 +128,12 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
     }
 
     return (
-        <span className="font-bold text-emerald-600 dark:text-emerald-400 text-lg">
-            {formatCurrency(sellPrice)}
-        </span>
+        <div className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 ring-1 ring-emerald-200 dark:ring-emerald-500/30">
+            <DollarSign size={16} className="text-emerald-600 dark:text-emerald-400" />
+            <span className="font-bold text-emerald-700 dark:text-emerald-400 text-base">
+                {formatCurrency(sellPrice)}
+            </span>
+        </div>
     );
 };
 

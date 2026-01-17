@@ -6,6 +6,7 @@ import type {
 	InternalAxiosRequestConfig,
 } from 'axios';
 import { isElectron } from '../../helpers/index.helper';
+import { ROUTES } from '../utils/constants';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -83,6 +84,29 @@ const getTenantSignature = async (): Promise<string | undefined> => {
 	}
 };
 
+const getActiveBranchId = async (): Promise<string | undefined> => {
+	if (isElectron()) {
+		try {
+			const userResult = await window.electronAPI.settings.getActiveBranch();
+			if (userResult.success && userResult.data) {
+				return userResult.data.branchId || undefined;
+			}
+		} catch (error) {
+			console.warn('Error getting branchId from Electron settings:', error);
+		}
+	}
+
+	try {
+		const user = sessionStorage?.getItem('user');
+		if (user) {
+			const userData = JSON.parse(user);
+			return userData?.currentBranchId || userData?.branchId;
+		}
+	} catch (error) {
+		console.warn('Error getting branchId from sessionStorage:', error);
+	}
+};
+
 httpInstance.interceptors.request.use(
 	async (config: InternalAxiosRequestConfig<any>) => {
 		try {
@@ -90,6 +114,7 @@ httpInstance.interceptors.request.use(
 
 			const token = await getToken();
 			const tenantSignature = await getTenantSignature();
+			const activeBranchId = await getActiveBranchId();
 			const clientType = import.meta.env.VITE_APP_CLIENT_TYPE || 'desktop';
 
 			if (token)
@@ -99,6 +124,10 @@ httpInstance.interceptors.request.use(
 				if (isElectron())
 					config.headers['X-Tenant-Signature'] = tenantSignature;
 				else config.headers['X-Tenant-Id'] = tenantSignature;
+			}
+
+			if (activeBranchId) {
+				config.headers['X-Branch-Id'] = activeBranchId;
 			}
 
 			config.headers['X-Client-Type'] = clientType;
@@ -116,6 +145,17 @@ httpInstance.interceptors.request.use(
 	}
 );
 
+const handleAuthError = (): void => {
+	sessionStorage.removeItem('user');
+	sessionStorage.removeItem('token');
+	sessionStorage.removeItem('tenantId');
+
+	const currentHash = window.location.hash.replace('#', '');
+	if (currentHash !== ROUTES.LOGIN) {
+		window.location.hash = `#${ROUTES.LOGIN}`;
+	}
+};
+
 httpInstance.interceptors.response.use(
 	(res: AxiosResponse<any, any>) => {
 		stopProgress();
@@ -132,9 +172,10 @@ httpInstance.interceptors.response.use(
 				console.error(message);
 				break;
 			case 401:
+				handleAuthError();
 				break;
 			case 403:
-				sessionStorage.clear();
+				handleAuthError();
 				break;
 			case 404:
 				error.message = (response?.data as any)?.message || message || '';

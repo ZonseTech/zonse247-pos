@@ -163,7 +163,7 @@ export default {
             success: 'text-white bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-600',
             danger: 'text-white bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600',
             warning: 'text-white bg-orange-600 dark:bg-orange-700 hover:bg-orange-700 dark:hover:bg-orange-600',
-            neutral: 'text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600',
+            neutral: 'text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 hover:border-gray-400 dark:hover:border-gray-500 active:bg-gray-300 dark:active:bg-gray-500',
             primary: '',
         },
         // styles applied to the SVG icon

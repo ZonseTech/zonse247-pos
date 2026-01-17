@@ -5,6 +5,8 @@ import IconLabelButton from "../../components/IconLabelButton";
 
 type NavItemType = 'button' | 'split' | 'spacer' | 'icon';
 
+export type NavGroup = 'operations' | 'inventory' | 'management' | 'admin' | 'settings' | 'system';
+
 export type NavItem = {
     type: NavItemType;
     color?: string;
@@ -14,6 +16,7 @@ export type NavItem = {
     fullWidth?: boolean;
     textColor?: string;
     showOnMobile?: boolean;
+    group?: NavGroup;
     onClick?: ((e: MouseEvent<HTMLAnchorElement>) => void) | ReactNode;
     plusAction?: (() => void) | ReactNode;
 };

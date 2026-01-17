@@ -20,6 +20,7 @@ import { Link } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { Button, BottomSheet } from '../../components';
 import { useKeyboardSettings } from '../../hooks/useKeyboardSettings';
+import { useLayout } from '../../context/LayoutContext';
 
 const POSSystem: FunctionComponent = () => {
     const {
@@ -32,6 +33,7 @@ const POSSystem: FunctionComponent = () => {
         addToCart
     } = useInventory();
     const isMobile = useIsMobile();
+    const { isSidebarHidden } = useLayout();
     const focusManager = useFocusManager();
     const keyboardSettings = useKeyboardSettings();
     const barcodeScannerInputRef = useRef<HTMLInputElement>(null);
@@ -199,10 +201,11 @@ const POSSystem: FunctionComponent = () => {
 
 
     return (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full overflow-hidden">
+            {/* Fixed Header - Mobile only */}
             <PageHeader
                 title="Point of Sale"
-                className='md:hidden'
+                className='md:hidden flex-shrink-0'
                 icon={<HiOutlineShoppingCart className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
                 action={
                     <div className="flex gap-3 items-center">
@@ -214,36 +217,43 @@ const POSSystem: FunctionComponent = () => {
                     </div>
                 }
             />
-            <div className="flex-1 overflow-auto pb-32">
-                <div className="mb-3 hidden md:block">
-                    <div className="flex items-center justify-between">
-                        <Panel size='1/2'>
-                            <h1 className="text-7xl uppercase tracking-wider font-bold text-black dark:text-gray-400">BALANCE DUE</h1>
-                        </Panel>
-                        <Panel size='1/2' className="bg-gray-800 text-green-400/95 text-center px-8 py-4 text-6xl font-bold">
-                            MK {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </Panel>
-                    </div>
-                </div>
 
-                <div className="md:flex md:gap-x-4 md:mb-4">
+            {/* Fixed Balance Due - Desktop only */}
+            <div className="flex-shrink-0 mb-3 hidden md:block">
+                <div className="flex items-center justify-between">
+                    <Panel size='1/2'>
+                        <h1 className="text-5xl lg:text-7xl uppercase tracking-wider font-bold text-black dark:text-gray-400">BALANCE DUE</h1>
+                    </Panel>
+                    <Panel size='1/2' className="bg-gray-800 text-green-400/95 text-center px-4 lg:px-8 py-3 lg:py-4 text-4xl lg:text-6xl font-bold">
+                        MK {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </Panel>
+                </div>
+            </div>
+
+            {/* Scrollable Cart Items Section */}
+            <div className="flex-1 min-h-0 overflow-hidden">
+                <div className="h-full md:flex md:gap-x-4">
                     {isMobile ? (
-                        <CartItemCard
-                            customPriceInputs={customPriceInputs}
-                            onPriceChange={handlePriceInputChange}
-                        />
-                    ) : (
-                        <Panel size='3/4' className='w-full'>
-                            <CartTable
-                                focusManager={focusManager}
+                        <div className="h-full overflow-y-auto pb-32">
+                            <CartItemCard
                                 customPriceInputs={customPriceInputs}
                                 onPriceChange={handlePriceInputChange}
                             />
+                        </div>
+                    ) : (
+                        <Panel size='3/4' className='w-full h-full overflow-hidden'>
+                            <div className="h-full overflow-y-auto pb-48">
+                                <CartTable
+                                    focusManager={focusManager}
+                                    customPriceInputs={customPriceInputs}
+                                    onPriceChange={handlePriceInputChange}
+                                />
+                            </div>
                         </Panel>
                     )}
 
                     {keyboardSettings.enabled && (
-                        <Panel size='1/4' className='hidden md:flex'>
+                        <Panel size='1/4' className='hidden md:flex flex-shrink-0'>
                             <InputKeyboard
                                 variant="numpad"
                                 onButtonClick={handleNumpadClick}
@@ -259,75 +269,80 @@ const POSSystem: FunctionComponent = () => {
                 </div>
             </div>
 
-            <div className="fixed md:px-4 bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg">
-                <div>
-                    <div className="flex gap-x-4 my-3">
-                        <Panel size='3/4' className='w-full mx-4 md:mx-0'>
-                            <div className="flex items-center gap-2 mb-1">
-                                <label className="hidden md:block text-lg font-bold text-black dark:text-gray-400 flex-1">
-                                    SCAN/ENTER PRODUCT CODE
-                                </label>
-                                <div className="hidden md:block">
-                                    <CustomerSelector />
-                                </div>
-                            </div>
-                            <BarcodeScanner
-                                externalInput={numpadInput}
-                                barcodeScannerInputRef={barcodeScannerInputRef}
-                                onExternalInputProcessed={handleNumpadInputProcessed}
-                                focusManager={focusManager}
-                            />
-                        </Panel>
-
-                        <Panel size='1/4' className='hidden md:flex'>
-                            <label className="block text-lg font-bold text-black dark:text-gray-400 mb-1">
-                                TOTAL NUMBER OF ITEMS
+            {/* Fixed Bottom Section - Desktop */}
+            <div className={`hidden md:block fixed bottom-16 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-30 transition-all duration-300 ${isSidebarHidden ? 'left-0' : 'left-64'}`}>
+                <div className="flex gap-x-4 py-3 px-4">
+                    <Panel size='3/4' className='w-full'>
+                        <div className="flex items-center gap-2 mb-1">
+                            <label className="block text-base lg:text-lg font-bold text-black dark:text-gray-400 flex-1">
+                                SCAN/ENTER PRODUCT CODE
                             </label>
-                            <div className="bg-gray-800 text-white text-xl font-bold py-2.5 text-center">
-                                {cart.length}
+                            <div className="block">
+                                <CustomerSelector />
                             </div>
-                        </Panel>
-                    </div>
-
-                    <Panel size='full' className="border-0 shadow-none">
-                        <div className="hidden md:block mb-4">
-                            <FunctionButtons
-                                onVoidSale={handleVoidSale}
-                                onParkSale={handleParkSale}
-                                onParkedSales={handleParkedSales}
-                                onOpenDrawer={handleOpenDrawer}
-                                onItemLookup={handleItemLookup}
-                                onReprint={handleReprint}
-                                onDiscount={handleDiscount}
-                                onBankTransfer={() => handleCompleteTransaction(CHECKOUT.BANK_TRANSFER)}
-                                onEPayment={() => handleCompleteTransaction(CHECKOUT.E_PAYMENT)}
-                                onPayCash={() => handleCompleteTransaction(CHECKOUT.CASH)}
-                            />
                         </div>
+                        <BarcodeScanner
+                            externalInput={numpadInput}
+                            barcodeScannerInputRef={barcodeScannerInputRef}
+                            onExternalInputProcessed={handleNumpadInputProcessed}
+                            focusManager={focusManager}
+                        />
+                    </Panel>
 
-                        <div className="md:hidden bg-sky-600 text-white flex">
-                            <div className="flex-1 px-4 py-2.5 flex items-center">
-                                <div className="flex flex-col">
-                                    <span className="text-xl font-semibold">
-                                        MK {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    </span>
-                                    <span>
-                                        Total items: {cart.length}
-                                    </span>
-                                </div>
-                            </div>
-                            <Button
-                                className="bg-sky-700 px-8 py-4 text-lg font-semibold hover:bg-sky-800 active:bg-sky-900"
-                                onClick={() => setIsFunctionSheetOpen(true)}
-                                disabled={cart.length === 0}
-                            >
-                                Next
-                            </Button>
+                    <Panel size='1/4' className='flex'>
+                        <label className="block text-base lg:text-lg font-bold text-black dark:text-gray-400 mb-1">
+                            TOTAL NUMBER OF ITEMS
+                        </label>
+                        <div className="bg-gray-800 text-white text-lg lg:text-xl font-bold py-2 lg:py-2.5 text-center">
+                            {cart.length}
                         </div>
                     </Panel>
                 </div>
-                <div className="hidden md:block border-t border-gray-200 dark:border-gray-700">
-                    <Footer />
+
+                <Panel size='full' className="border-0 shadow-none px-4">
+                    <FunctionButtons
+                        onVoidSale={handleVoidSale}
+                        onParkSale={handleParkSale}
+                        onParkedSales={handleParkedSales}
+                        onOpenDrawer={handleOpenDrawer}
+                        onItemLookup={handleItemLookup}
+                        onReprint={handleReprint}
+                        onDiscount={handleDiscount}
+                        onBankTransfer={() => handleCompleteTransaction(CHECKOUT.BANK_TRANSFER)}
+                        onEPayment={() => handleCompleteTransaction(CHECKOUT.E_PAYMENT)}
+                        onPayCash={() => handleCompleteTransaction(CHECKOUT.CASH)}
+                    />
+                </Panel>
+            </div>
+
+            {/* Fixed Bottom Section - Mobile */}
+            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-30 safe-area-bottom">
+                <div className="px-2 py-2">
+                    <BarcodeScanner
+                        externalInput={numpadInput}
+                        barcodeScannerInputRef={barcodeScannerInputRef}
+                        onExternalInputProcessed={handleNumpadInputProcessed}
+                        focusManager={focusManager}
+                    />
+                </div>
+                <div className="bg-sky-600 text-white flex">
+                    <div className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center">
+                        <div className="flex flex-col">
+                            <span className="text-base sm:text-lg font-semibold">
+                                MK {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                            <span className="text-xs sm:text-sm text-sky-100">
+                                Total items: {cart.length}
+                            </span>
+                        </div>
+                    </div>
+                    <Button
+                        className="bg-sky-700 px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold hover:bg-sky-800 active:bg-sky-900 rounded-none"
+                        onClick={() => setIsFunctionSheetOpen(true)}
+                        disabled={cart.length === 0}
+                    >
+                        Next
+                    </Button>
                 </div>
             </div>
 
@@ -336,7 +351,7 @@ const POSSystem: FunctionComponent = () => {
                 onClose={() => setIsFunctionSheetOpen(false)}
                 title="Actions"
             >
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-3 pb-2">
                     <Button
                         theme='danger'
                         onClick={() => { handleVoidSale(); setIsFunctionSheetOpen(false); }}
@@ -354,12 +369,6 @@ const POSSystem: FunctionComponent = () => {
                         onClick={() => { handleParkedSales(); setIsFunctionSheetOpen(false); }}
                     >
                         Parked Sales
-                    </Button>
-                    <Button
-                        theme='primary'
-                        onClick={() => { handleItemLookup(); setIsFunctionSheetOpen(false); }}
-                    >
-                        Item Lookup
                     </Button>
                     <Button
                         theme='primary'

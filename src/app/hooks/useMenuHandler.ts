@@ -1,20 +1,25 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { useAuth } from '../context/AuthProvider';
+import { useBranch } from '../context/BranchContext';
+import { ROUTES } from '../utils/constants';
 
 export function useMenuHandler() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { signout, user } = useAuth();
+    const { accessibleBranches, currentBranch, switchBranch } = useBranch();
 
     useEffect(() => {
         if (!window.electronAPI?.menu) return;
 
         if (user) {
-            window.electronAPI.menu.rebuild(user);
+            const currentBranchId = currentBranch?.branchId || user?.currentBranchId || user?.branchId;
+            window.electronAPI.menu.rebuild(user, accessibleBranches, currentBranchId);
         } else {
             window.electronAPI.menu.rebuild(null);
         }
-    }, [user]);
+    }, [user, accessibleBranches, currentBranch]);
 
     useEffect(() => {
         if (!window.electronAPI?.menu) return;
@@ -31,7 +36,25 @@ export function useMenuHandler() {
         });
 
         const cleanupLogout = window.electronAPI.menu.onLogout(() => {
-            signout(() => navigate('/login'));
+            signout(() => navigate(ROUTES.LOGIN, { replace: true }));
+        });
+
+        const cleanupBranchSwitch = window.electronAPI.menu.onSwitchBranch(async (data) => {
+            if (data?.branchId) {
+                const success = await switchBranch(data.branchId);
+                if (success) {
+                    window.dispatchEvent(new CustomEvent('branch-data-refresh'));
+
+                    const currentPath = location.pathname;
+                    navigate(ROUTES.POS, { replace: true });
+
+                    setTimeout(() => {
+                        if (currentPath !== ROUTES.POS) {
+                            navigate(currentPath, { replace: true });
+                        }
+                    }, 100);
+                }
+            }
         });
 
         const cleanupUpdates = window.electronAPI.menu.onCheckUpdates(async () => {
@@ -42,8 +65,9 @@ export function useMenuHandler() {
             cleanupNavigate();
             cleanupModal();
             cleanupLogout();
+            cleanupBranchSwitch();
             // cleanupRestore();
             cleanupUpdates();
         };
-    }, [navigate, signout]);
+    }, [navigate, signout, switchBranch, location.pathname]);
 }

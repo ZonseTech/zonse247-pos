@@ -12,6 +12,8 @@
     --safe-area-inset-right: env(safe-area-inset-right, 0px);
     --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
     --safe-area-inset-left: env(safe-area-inset-left, 0px);
+    /* Fallback for Android status bar height when env() doesn't work */
+    --status-bar-height: 24px;
 }
 
 /* Apply safe area to the app container */
@@ -25,6 +27,11 @@
 /* Alternative: Apply safe area only to the top header */
 .safe-area-top {
     padding-top: var(--safe-area-inset-top);
+}
+
+/* Safe area with Android fallback - use this for navbars */
+.safe-area-top-android {
+    padding-top: max(var(--safe-area-inset-top), var(--status-bar-height));
 }
 
 .safe-area-bottom {

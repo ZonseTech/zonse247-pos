@@ -177,7 +177,7 @@ const SubscriptionBilling: FunctionComponent = () => {
 
 	return (
 		<AppLayout>
-			<div className="border-b border-gray-200 bg-white sticky top-0 z-50 shadow-sm">
+			<div className="border-b border-gray-200 bg-white sticky top-0 z-10 shadow-sm">
 				<div className="max-w-7xl mx-auto p-6">
 					<div className="text-center">
 						<h1 className="text-4xl font-bold text-gray-900 mb-3">

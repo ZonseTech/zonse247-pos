@@ -110,12 +110,12 @@ export const CategorySearch: FunctionComponent<CategorySearchProps> = ({
 
     return (
         <div className="relative" ref={dropdownRef}>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Category <span className="text-red-500">*</span>
             </label>
 
             <div
-                className={`flex items-center justify-between w-full px-4 py-2.5 border rounded-lg cursor-pointer transition-all ${disabled
+                className={`flex items-center justify-between w-full px-4 py-2.5 border rounded-sm cursor-pointer transition-all ${disabled
                     ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed'
                     : 'bg-white dark:bg-gray-800 hover:border-blue-400'
                     } ${error && touched
