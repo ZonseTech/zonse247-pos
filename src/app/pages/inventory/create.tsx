@@ -317,7 +317,7 @@ const InventoryForm: FunctionComponent = () => {
                                         </h3>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
-                                        <div className="col-span-1 md:col-span-2 grid grid-cols-2 md:grid-cols-2 gap-4">
+                                        <div className="col-span-1 md:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
                                             <CategorySearch
                                                 value={values.categoryId || ''}
                                                 onChange={(categoryId) => setFieldValue('categoryId', categoryId)}
