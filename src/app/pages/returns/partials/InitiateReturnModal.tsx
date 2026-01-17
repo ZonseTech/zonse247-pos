@@ -10,6 +10,7 @@ import FormInput from '../../../components/FormInput';
 import returnsService from '../../../services/returns.service';
 import { formatCurrency } from '../../../utils';
 import { HiOutlineTrash } from 'react-icons/hi';
+import { useIsEBN } from '../../../hooks/useMediaQuery';
 
 interface InitiateReturnModalProps {
     isOpen: boolean;
@@ -59,6 +60,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
     transaction,
     onSuccess,
 }) => {
+    const isEBN = useIsEBN();
     const [selectedItems, setSelectedItems] = useState<ReturnItemForm[]>([]);
     const canReturn = returnsService.canReturn(transaction);
     const remainingRefundable = returnsService.getRemainingRefundableAmount(transaction);
@@ -183,7 +185,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
             isOpen={isOpen}
             onClose={onClose}
             size='full'
-            className="max-w-6xl w-full mx-4 sm:mx-auto"
+            className={isEBN ? "max-w-4xl w-full mx-2" : "max-w-6xl w-full mx-4 sm:mx-auto"}
         >
             <Formik
                 initialValues={initialValues}
@@ -192,11 +194,11 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                 enableReinitialize={true}
             >
                 {({ isSubmitting }) => (
-                    <Form className="flex flex-col max-h-[80vh] sm:max-h-[75vh]">
+                    <Form className={`flex flex-col ${isEBN ? 'max-h-[70vh]' : 'max-h-[80vh] sm:max-h-[75vh]'}`}>
                         <div className="flex-1 overflow-y-auto px-1 sm:pr-2">
-                            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
-                                <h3 className="font-semibold mb-2 text-sm sm:text-base">Transaction Details</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
+                            <div className={`bg-gray-50 dark:bg-gray-700/50 rounded-lg ${isEBN ? 'p-2 mb-2' : 'p-3 sm:p-4 mb-4 sm:mb-6'}`}>
+                                <h3 className={`font-semibold ${isEBN ? 'mb-1 text-xs' : 'mb-2 text-sm sm:text-base'}`}>Transaction Details</h3>
+                                <div className={`grid grid-cols-2 ${isEBN ? 'gap-1 text-xs' : 'gap-2 sm:gap-4 text-sm'}`}>
                                     <div className="flex flex-col sm:flex-row sm:items-center">
                                         <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
                                             Transaction ID:
@@ -220,19 +222,19 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                         </span>
                                     </div>
                                     <div className="flex flex-col sm:flex-row sm:items-center">
-                                        <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
-                                            Remaining Refundable:
+                                        <span className={`text-gray-600 dark:text-gray-400 ${isEBN ? 'text-[10px]' : 'text-xs sm:text-sm'}`}>
+                                            {isEBN ? 'Remaining:' : 'Remaining Refundable:'}
                                         </span>
-                                        <span className="font-medium text-sm sm:ml-2">
+                                        <span className={`font-medium ${isEBN ? 'text-[11px]' : 'text-sm'} sm:ml-2`}>
                                             {formatCurrency(remainingRefundable)}
                                         </span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="mb-4 sm:mb-6">
-                                <h3 className="font-semibold mb-2 sm:mb-3 text-sm sm:text-base">Available Items</h3>
-                                <div className="space-y-2 max-h-40 sm:max-h-48 overflow-y-auto">
+                            <div className={isEBN ? 'mb-2' : 'mb-4 sm:mb-6'}>
+                                <h3 className={`font-semibold ${isEBN ? 'mb-1 text-xs' : 'mb-2 sm:mb-3 text-sm sm:text-base'}`}>Available Items</h3>
+                                <div className={`space-y-1 ${isEBN ? 'max-h-24' : 'max-h-40 sm:max-h-48'} overflow-y-auto`}>
                                     {transaction.items?.map((item: any) => {
                                         const orderItemId = item.orderId;
                                         const isAdded = selectedItems.some((i) => i.orderItemId === orderItemId);
@@ -264,19 +266,19 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                             </div>
 
                             {selectedItems.length > 0 && (
-                                <div className="mb-4 sm:mb-6">
-                                    <h3 className="font-semibold mb-2 sm:mb-3 text-sm sm:text-base">Items to Return</h3>
-                                    <div className="space-y-3 sm:space-y-4">
+                                <div className={isEBN ? 'mb-2' : 'mb-4 sm:mb-6'}>
+                                    <h3 className={`font-semibold ${isEBN ? 'mb-1 text-xs' : 'mb-2 sm:mb-3 text-sm sm:text-base'}`}>Items to Return</h3>
+                                    <div className={isEBN ? 'space-y-2' : 'space-y-3 sm:space-y-4'}>
                                         {selectedItems.map((item, index) => (
                                             <div
                                                 key={item.orderItemId}
-                                                className="p-3 sm:p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+                                                className={`${isEBN ? 'p-2' : 'p-3 sm:p-4'} border border-gray-200 dark:border-gray-700 rounded-lg`}
                                             >
-                                                <div className="flex items-start justify-between mb-2 sm:mb-3">
+                                                <div className={`flex items-start justify-between ${isEBN ? 'mb-1' : 'mb-2 sm:mb-3'}`}>
                                                     <div className="flex-1 min-w-0">
-                                                        <h4 className="font-medium text-sm sm:text-base truncate">{item.productName}</h4>
-                                                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                                                            Max Quantity: {item.maxQuantity}
+                                                        <h4 className={`font-medium ${isEBN ? 'text-[11px]' : 'text-sm sm:text-base'} truncate`}>{item.productName}</h4>
+                                                        <p className={`${isEBN ? 'text-[10px]' : 'text-xs sm:text-sm'} text-gray-600 dark:text-gray-400`}>
+                                                            Max: {item.maxQuantity}
                                                         </p>
                                                     </div>
                                                     <button
@@ -284,11 +286,11 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                                         onClick={() => handleRemoveItem(item.orderItemId)}
                                                         className="text-red-600 hover:text-red-700 p-1 ml-2"
                                                     >
-                                                        <HiOutlineTrash className="w-4 h-4 sm:w-5 sm:h-5" />
+                                                        <HiOutlineTrash className={isEBN ? 'w-3 h-3' : 'w-4 h-4 sm:w-5 sm:h-5'} />
                                                     </button>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                                <div className={`grid ${isEBN ? 'grid-cols-3 gap-2' : 'grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'}`}>
                                                     <div>
                                                         <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                             Return Quantity <span className="text-red-500">*</span>
@@ -382,14 +384,14 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                             )}
 
                             {selectedItems.length > 0 && (
-                                <div className="mb-4 sm:mb-6">
-                                    <h3 className="font-semibold mb-2 sm:mb-3 text-sm sm:text-base">Refund Details</h3>
+                                <div className={isEBN ? 'mb-2' : 'mb-4 sm:mb-6'}>
+                                    <h3 className={`font-semibold ${isEBN ? 'mb-1 text-xs' : 'mb-2 sm:mb-3 text-sm sm:text-base'}`}>Refund Details</h3>
                                     <FormWrapper>
                                         <FormTextArea
                                             label="Refund Reason"
                                             name="refundReason"
                                             placeholder="Explain the reason for this refund..."
-                                            rows={2}
+                                            rows={isEBN ? 1 : 2}
                                             required
                                         />
 
@@ -400,8 +402,8 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                             required
                                         />
 
-                                        <div className="p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                            <div className="flex items-center justify-between text-base sm:text-lg font-semibold">
+                                        <div className={`${isEBN ? 'p-2' : 'p-3 sm:p-4'} bg-blue-50 dark:bg-blue-900/20 rounded-lg`}>
+                                            <div className={`flex items-center justify-between ${isEBN ? 'text-sm' : 'text-base sm:text-lg'} font-semibold`}>
                                                 <span>Total Refund:</span>
                                                 <span className="text-blue-600 dark:text-blue-400">
                                                     {formatCurrency(refundAmount)}
@@ -413,18 +415,18 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                             )}
                         </div>
 
-                        <div className="border-t border-gray-200 dark:border-gray-700 mt-4 sm:mt-6 pt-3 sm:pt-4 flex-shrink-0">
-                            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
-                                <Button type="button" layout="outline" onClick={onClose} className="w-full sm:w-auto">
+                        <div className={`border-t border-gray-200 dark:border-gray-700 ${isEBN ? 'mt-2 pt-2' : 'mt-4 sm:mt-6 pt-3 sm:pt-4'} flex-shrink-0`}>
+                            <div className={`flex flex-row justify-end ${isEBN ? 'gap-2' : 'gap-2 sm:gap-3'}`}>
+                                <Button type="button" layout="outline" onClick={onClose} className={isEBN ? 'text-xs px-3 py-1 h-7' : 'w-full sm:w-auto'}>
                                     Cancel
                                 </Button>
                                 <Button
                                     type="submit"
                                     loading={isSubmitting}
                                     disabled={selectedItems.length === 0}
-                                    className="w-full sm:w-auto"
+                                    className={isEBN ? 'text-xs px-3 py-1 h-7' : 'w-full sm:w-auto'}
                                 >
-                                    Process Return
+                                    {isEBN ? 'Process' : 'Process Return'}
                                 </Button>
                             </div>
                         </div>

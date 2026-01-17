@@ -13,6 +13,7 @@ interface FiltersProps {
     summaryData: SummaryCard[];
     activeFilter: string;
     onClear: () => void;
+    compact?: boolean;
 }
 
 const getFilterIcon = (title: string) => {
@@ -34,7 +35,17 @@ const getFilterKey = (title: string, idx: number): string => {
     return idx === 0 ? 'all' : title.toLowerCase().replace(/\s+/g, '-');
 };
 
-const Filters: React.FC<FiltersProps> = ({ summaryData, activeFilter, onClear }) => {
+const getShortTitle = (title: string): string => {
+    const shortNames: Record<string, string> = {
+        'total returns': 'All',
+        'pending restock': 'Pending',
+        'restocked': 'Restocked',
+        'damaged': 'Damaged',
+    };
+    return shortNames[title.toLowerCase()] || title;
+};
+
+const Filters: React.FC<FiltersProps> = ({ summaryData, activeFilter, onClear, compact = false }) => {
     const isMobile = useIsMobile();
 
     const handleFilterChange = (filterKey: string) => {
@@ -93,19 +104,21 @@ const Filters: React.FC<FiltersProps> = ({ summaryData, activeFilter, onClear })
     }
 
     return (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1">
             {summaryData.map((filter, idx) => {
                 const filterKey = getFilterKey(filter.title, idx);
                 const isActive = activeFilter === filterKey;
                 const Icon = getFilterIcon(filter.title);
+                const displayTitle = compact ? getShortTitle(filter.title) : filter.title;
 
                 return (
                     <button
                         key={idx}
                         onClick={() => handleFilterChange(filterKey)}
                         className={`
-                            inline-flex items-center gap-1.5 px-2.5 h-9
-                            rounded-md text-sm font-medium whitespace-nowrap
+                            inline-flex items-center gap-1 
+                            ${compact ? 'px-1.5 h-7' : 'px-2.5 h-9'}
+                            rounded-md ${compact ? 'text-[10px]' : 'text-sm'} font-medium whitespace-nowrap
                             transition-all duration-200 border
                             ${isActive
                                 ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-800'
@@ -113,10 +126,10 @@ const Filters: React.FC<FiltersProps> = ({ summaryData, activeFilter, onClear })
                             }
                         `}
                     >
-                        <Icon className="w-3.5 h-3.5" />
-                        <span>{filter.title}</span>
+                        <Icon className={compact ? "w-3 h-3" : "w-3.5 h-3.5"} />
+                        <span>{displayTitle}</span>
                         <span className={`
-                            px-1.5 rounded text-xs font-medium
+                            ${compact ? 'px-1 text-[9px]' : 'px-1.5 text-xs'} rounded font-medium
                             ${isActive
                                 ? 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100'
                                 : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'

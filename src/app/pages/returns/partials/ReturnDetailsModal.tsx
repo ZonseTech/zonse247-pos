@@ -2,6 +2,7 @@ import { FunctionComponent, useMemo } from 'react';
 import { Modal } from '../../../components';
 import { formatCurrency, formatDate } from '../../../utils';
 import { HiOutlineCheckCircle, HiOutlineClock, HiOutlineExclamationCircle } from 'react-icons/hi';
+import { useIsEBN } from '../../../hooks/useMediaQuery';
 
 interface ReturnDetailsModalProps {
     isOpen: boolean;
@@ -65,6 +66,7 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
     onClose,
     returnDetails,
 }) => {
+    const isEBN = useIsEBN();
     const returnData = useMemo(() => {
         if (!returnDetails) return null;
 
@@ -95,52 +97,52 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
             title="Return Details"
             onClose={onClose}
             size="full"
-            className="max-w-5xl w-full mx-4 sm:mx-auto"
+            className={isEBN ? "max-w-3xl w-full mx-2" : "max-w-5xl w-full mx-4 sm:mx-auto"}
         >
-            <div className="max-h-[80vh] sm:max-h-[75vh] overflow-y-auto px-1 sm:pr-2">
+            <div className={`${isEBN ? 'max-h-[70vh]' : 'max-h-[80vh] sm:max-h-[75vh]'} overflow-y-auto px-1 sm:pr-2`}>
                 {/* Return Header */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 border border-blue-100 dark:border-blue-800">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className={`bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl ${isEBN ? 'p-2 mb-2' : 'p-4 sm:p-6 mb-4 sm:mb-6'} border border-blue-100 dark:border-blue-800`}>
+                    <div className={`grid grid-cols-2 ${isEBN ? 'gap-2' : 'gap-4 sm:gap-6'}`}>
                         <div>
-                            <h3 className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                            <h3 className={`${isEBN ? 'text-[10px]' : 'text-xs sm:text-sm'} font-medium text-gray-600 dark:text-gray-400 mb-0.5`}>
                                 Return Transaction
                             </h3>
-                            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white break-all">
+                            <p className={`${isEBN ? 'text-sm' : 'text-xl sm:text-2xl'} font-bold text-gray-900 dark:text-white break-all`}>
                                 {returnData.returnRefNumber}
                             </p>
-                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            <p className={`${isEBN ? 'text-[10px]' : 'text-xs sm:text-sm'} text-gray-600 dark:text-gray-400 mt-0.5`}>
                                 {returnData.returnDate}
                             </p>
                         </div>
                         <div>
-                            <h3 className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                            <h3 className={`${isEBN ? 'text-[10px]' : 'text-xs sm:text-sm'} font-medium text-gray-600 dark:text-gray-400 mb-0.5`}>
                                 Original Transaction
                             </h3>
-                            <p className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white break-all">
+                            <p className={`${isEBN ? 'text-xs' : 'text-lg sm:text-xl'} font-semibold text-gray-900 dark:text-white break-all`}>
                                 {returnData.originalRefNumber}
                             </p>
-                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            <p className={`${isEBN ? 'text-[10px]' : 'text-xs sm:text-sm'} text-gray-600 dark:text-gray-400 mt-0.5`}>
                                 {returnData.originalDate}
                             </p>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-blue-200 dark:border-blue-800">
+                    <div className={`grid grid-cols-3 ${isEBN ? 'gap-2 mt-2 pt-2' : 'gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6'} border-t border-blue-200 dark:border-blue-800`}>
                         <div>
-                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Customer</p>
-                            <p className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
+                            <p className={`${isEBN ? 'text-[10px]' : 'text-xs sm:text-sm'} text-gray-600 dark:text-gray-400`}>Customer</p>
+                            <p className={`font-medium ${isEBN ? 'text-[11px]' : 'text-sm sm:text-base'} text-gray-900 dark:text-white truncate`}>
                                 {returnData.customerName}
                             </p>
                         </div>
                         <div>
-                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Processed By</p>
-                            <p className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
+                            <p className={`${isEBN ? 'text-[10px]' : 'text-xs sm:text-sm'} text-gray-600 dark:text-gray-400`}>Processed By</p>
+                            <p className={`font-medium ${isEBN ? 'text-[11px]' : 'text-sm sm:text-base'} text-gray-900 dark:text-white truncate`}>
                                 {returnData.cashierName}
                             </p>
                         </div>
                         <div>
-                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Refund Method</p>
-                            <p className="font-medium text-sm sm:text-base text-gray-900 dark:text-white">
+                            <p className={`${isEBN ? 'text-[10px]' : 'text-xs sm:text-sm'} text-gray-600 dark:text-gray-400`}>Refund Method</p>
+                            <p className={`font-medium ${isEBN ? 'text-[11px]' : 'text-sm sm:text-base'} text-gray-900 dark:text-white`}>
                                 {returnData.paymentMethod}
                             </p>
                         </div>
@@ -149,16 +151,16 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
 
                 {/* Returned Items */}
                 {returnData.hasItems && (
-                    <div className="mb-4 sm:mb-6">
-                        <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2">
+                    <div className={isEBN ? 'mb-2' : 'mb-4 sm:mb-6'}>
+                        <h3 className={`${isEBN ? 'text-xs mb-1' : 'text-base sm:text-lg mb-3 sm:mb-4'} font-semibold flex items-center gap-2`}>
                             <span>Returned Items</span>
-                            <span className="text-xs sm:text-sm font-normal text-gray-500 dark:text-gray-400">
+                            <span className={`${isEBN ? 'text-[10px]' : 'text-xs sm:text-sm'} font-normal text-gray-500 dark:text-gray-400`}>
                                 ({returnDetails.returnItems.length} items)
                             </span>
                         </h3>
 
                         {/* Mobile Card View */}
-                        <div className="block sm:hidden space-y-3">
+                        <div className={`${isEBN ? 'hidden' : 'block sm:hidden'} space-y-3`}>
                             {returnDetails.returnItems.map((item) => (
                                 <div
                                     key={item.returnItemId}
@@ -194,28 +196,30 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
                         </div>
 
                         {/* Desktop Table View */}
-                        <div className="hidden sm:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div className={`${isEBN ? 'block' : 'hidden sm:block'} overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700`}>
                             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead className="bg-gray-50 dark:bg-gray-800">
                                     <tr>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        <th className={`${isEBN ? 'px-2 py-1.5 text-[10px]' : 'px-4 py-3 text-xs'} text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider`}>
                                             Product
                                         </th>
-                                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Quantity
+                                        <th className={`${isEBN ? 'px-2 py-1.5 text-[10px]' : 'px-4 py-3 text-xs'} text-center font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider`}>
+                                            Qty
                                         </th>
-                                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        <th className={`${isEBN ? 'px-2 py-1.5 text-[10px]' : 'px-4 py-3 text-xs'} text-right font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider`}>
                                             Price
                                         </th>
-                                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        <th className={`${isEBN ? 'px-2 py-1.5 text-[10px]' : 'px-4 py-3 text-xs'} text-center font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider`}>
                                             Condition
                                         </th>
-                                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Restock Status
+                                        <th className={`${isEBN ? 'px-2 py-1.5 text-[10px]' : 'px-4 py-3 text-xs'} text-center font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider`}>
+                                            Status
                                         </th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Reason
-                                        </th>
+                                        {!isEBN && (
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                Reason
+                                            </th>
+                                        )}
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
@@ -224,50 +228,52 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
                                             key={item.returnItemId}
                                             className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                                         >
-                                            <td className="px-4 py-4">
+                                            <td className={isEBN ? 'px-2 py-1.5' : 'px-4 py-4'}>
                                                 <div>
-                                                    <p className="font-medium text-gray-900 dark:text-white">
+                                                    <p className={`font-medium text-gray-900 dark:text-white ${isEBN ? 'text-[11px]' : ''}`}>
                                                         Product #{item.productId}
                                                     </p>
-                                                    {item.notes && (
+                                                    {item.notes && !isEBN && (
                                                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                                             {item.notes}
                                                         </p>
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-4 text-center">
+                                            <td className={`${isEBN ? 'px-2 py-1.5 text-[11px]' : 'px-4 py-4'} text-center`}>
                                                 <span className="font-medium">
                                                     {item.returnedQuantity}
                                                 </span>
-                                                <span className="text-gray-400 text-sm">
+                                                <span className={`text-gray-400 ${isEBN ? 'text-[10px]' : 'text-sm'}`}>
                                                     /{item.originalQuantity}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-4 text-right font-medium">
+                                            <td className={`${isEBN ? 'px-2 py-1.5 text-[11px]' : 'px-4 py-4'} text-right font-medium`}>
                                                 {formatCurrency(item.returnPrice)}
                                             </td>
-                                            <td className="px-4 py-4 text-center">
+                                            <td className={`${isEBN ? 'px-2 py-1.5' : 'px-4 py-4'} text-center`}>
                                                 {getConditionBadge(item.condition)}
                                             </td>
-                                            <td className="px-4 py-4 text-center">
-                                                <div className="flex flex-col items-center gap-1">
+                                            <td className={`${isEBN ? 'px-2 py-1.5' : 'px-4 py-4'} text-center`}>
+                                                <div className="flex flex-col items-center gap-0.5">
                                                     {getRestockStatusBadge(item.restockStatus)}
                                                     {item.restockStatus === 'restocked' &&
-                                                        item.restockedQuantity > 0 && (
+                                                        item.restockedQuantity > 0 && !isEBN && (
                                                             <span className="text-xs text-gray-500 dark:text-gray-400">
                                                                 Qty: {item.restockedQuantity}
                                                             </span>
                                                         )}
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-4">
-                                                <span className="text-sm text-gray-600 dark:text-gray-400">
-                                                    {item.returnReason
-                                                        .replace(/_/g, ' ')
-                                                        .replace(/\b\w/g, (l) => l.toUpperCase())}
-                                                </span>
-                                            </td>
+                                            {!isEBN && (
+                                                <td className="px-4 py-4">
+                                                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                                                        {item.returnReason
+                                                            .replace(/_/g, ' ')
+                                                            .replace(/\b\w/g, (l) => l.toUpperCase())}
+                                                    </span>
+                                                </td>
+                                            )}
                                         </tr>
                                     ))}
                                 </tbody>
@@ -277,14 +283,14 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
                 )}
 
                 {/* Refund Summary */}
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
-                    <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Refund Summary</h3>
-                    <div className="space-y-2 sm:space-y-3">
-                        <div className="flex justify-between items-center pb-2 sm:pb-3 border-b border-gray-200 dark:border-gray-700">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
+                <div className={`bg-gray-50 dark:bg-gray-800 rounded-lg ${isEBN ? 'p-2' : 'p-4 sm:p-6'} border border-gray-200 dark:border-gray-700`}>
+                    <h3 className={`${isEBN ? 'text-xs mb-1' : 'text-base sm:text-lg mb-3 sm:mb-4'} font-semibold`}>Refund Summary</h3>
+                    <div className={isEBN ? 'space-y-1' : 'space-y-2 sm:space-y-3'}>
+                        <div className={`flex justify-between items-center ${isEBN ? 'pb-1' : 'pb-2 sm:pb-3'} border-b border-gray-200 dark:border-gray-700`}>
+                            <span className={`${isEBN ? 'text-[11px]' : 'text-sm'} text-gray-600 dark:text-gray-400`}>
                                 Items Returned:
                             </span>
-                            <span className="font-medium text-sm sm:text-base">
+                            <span className={`font-medium ${isEBN ? 'text-[11px]' : 'text-sm sm:text-base'}`}>
                                 {returnDetails.returnItems.reduce(
                                     (sum, item) => sum + item.returnedQuantity,
                                     0
@@ -292,16 +298,16 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
                             </span>
                         </div>
 
-                        <div className="flex justify-between items-center pb-2 sm:pb-3 border-b border-gray-200 dark:border-gray-700">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">Subtotal:</span>
-                            <span className="font-medium text-sm sm:text-base">
+                        <div className={`flex justify-between items-center ${isEBN ? 'pb-1' : 'pb-2 sm:pb-3'} border-b border-gray-200 dark:border-gray-700`}>
+                            <span className={`${isEBN ? 'text-[11px]' : 'text-sm'} text-gray-600 dark:text-gray-400`}>Subtotal:</span>
+                            <span className={`font-medium ${isEBN ? 'text-[11px]' : 'text-sm sm:text-base'}`}>
                                 {formatCurrency(returnData.refundAmount)}
                             </span>
                         </div>
 
-                        <div className="flex justify-between items-center pt-2 sm:pt-3 border-t-2 border-gray-300 dark:border-gray-600">
-                            <span className="text-base sm:text-lg font-semibold">Total Refund:</span>
-                            <span className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        <div className={`flex justify-between items-center ${isEBN ? 'pt-1' : 'pt-2 sm:pt-3'} border-t-2 border-gray-300 dark:border-gray-600`}>
+                            <span className={`${isEBN ? 'text-xs' : 'text-base sm:text-lg'} font-semibold`}>Total Refund:</span>
+                            <span className={`${isEBN ? 'text-sm' : 'text-xl sm:text-2xl'} font-bold text-blue-600 dark:text-blue-400`}>
                                 {formatCurrency(returnData.refundAmount)}
                             </span>
                         </div>

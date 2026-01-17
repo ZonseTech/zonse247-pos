@@ -12,14 +12,15 @@ import Filters from './partials/Filters';
 import ReturnSummaryCards, { ReturnSummaryCard } from './partials/ReturnSummaryCards';
 import { ReturnMobileList } from './partials/ReturnMobileCard';
 import { useReturns } from '../../hooks/useReturns';
-import { getTableStyles } from '../../utils/table-styles';
+import { getTableStyles, getCompactTableStyles } from '../../utils/table-styles';
 import { getReturnColumns } from './partials/ReturnTableColumns';
 import { ZonseThemeContext } from '../../components';
-import { useIsMobile } from '../../hooks/useMediaQuery';
+import { useIsMobile, useIsEBN } from '../../hooks/useMediaQuery';
 import SearchBar from '../../components/SearchBar';
 
 const ReturnsPage: FC = () => {
     const isMobile = useIsMobile();
+    const isEBN = useIsEBN();
     const { mode } = useContext(ZonseThemeContext);
     const {
         isLoading,
@@ -71,7 +72,7 @@ const ReturnsPage: FC = () => {
         loadReturns();
     }, [loadReturns]);
 
-    const columns = getReturnColumns(handleViewDetails, handleRestock, handleCancelReturn);
+    const columns = getReturnColumns(handleViewDetails, handleRestock, handleCancelReturn, isEBN);
     const summaryData = getSummaryData();
 
     // Transform summary data to card format
@@ -123,46 +124,77 @@ const ReturnsPage: FC = () => {
         <AppLayout>
             <div className="max-w-full">
                 <PageHeader
-                    icon={<RotateCcw className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
-                    title="Returns & Refunds"
-                    description="Manage product returns, process refunds, and track restock status"
+                    icon={<RotateCcw className={isEBN ? "w-5 h-5 text-blue-600 dark:text-blue-400" : "w-8 h-8 text-blue-600 dark:text-blue-400"} />}
+                    title="Returns"
+                    description={(isMobile || isEBN) ? undefined : "Manage product returns, process refunds, and track restock status"}
+                    compact={isEBN}
                 >
-                    {/* Filters Section - Inside PageHeader like transactions */}
-                    <div className="p-3 md:p-6 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
-                        <div className="flex flex-row items-center justify-between gap-3 md:gap-4">
-                            {/* Search Row */}
-                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                                <SearchBar
-                                    placeholder="Search by return ID, transaction, or customer..."
-                                    value={searchTerm}
-                                    onChange={handleSearch}
-                                    className="w-full sm:flex-1 sm:max-w-xs"
-                                />
+                    {/* Filters Section */}
+                    {isEBN ? (
+                        <div className="flex flex-wrap items-center gap-2 px-2 py-2 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
+                            <SearchBar
+                                placeholder="Search..."
+                                value={searchTerm}
+                                onChange={handleSearch}
+                                className="w-32"
+                                compact
+                            />
 
-                                {/* Action buttons */}
-                                <div className="flex items-center gap-2 flex-wrap">
-                                    {hasActiveFilters && (
-                                        <button
-                                            onClick={handleClearFilters}
-                                            className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
-                                        >
-                                            <HiOutlineFilter className="w-4 h-4" />
-                                            <span className="hidden sm:inline">Clear</span>
-                                        </button>
-                                    )}
+                            <Filters
+                                summaryData={summaryData}
+                                activeFilter={activeFilter}
+                                onClear={handleClearFilters}
+                                compact
+                            />
+
+                            {hasActiveFilters && (
+                                <button
+                                    onClick={handleClearFilters}
+                                    className="flex items-center gap-1 px-2 py-1 text-[10px] text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded border border-red-200 dark:border-red-700"
+                                >
+                                    <HiOutlineFilter className="w-3 h-3" />
+                                    Clear
+                                </button>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="p-3 md:p-6 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
+                            <div className="flex flex-row items-center justify-between gap-3 md:gap-4">
+                                {/* Search Row */}
+                                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                                    <SearchBar
+                                        placeholder="Search by return ID, transaction, or customer..."
+                                        value={searchTerm}
+                                        onChange={handleSearch}
+                                        className="w-full sm:flex-1 sm:max-w-xs"
+                                    />
+
+                                    {/* Action buttons */}
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        {hasActiveFilters && (
+                                            <button
+                                                onClick={handleClearFilters}
+                                                className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
+                                            >
+                                                <HiOutlineFilter className="w-4 h-4" />
+                                                <span className="hidden sm:inline">Clear</span>
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Status Filters */}
+                                <div className="flex flex-col gap-3">
+                                    <Filters
+                                        summaryData={summaryData}
+                                        activeFilter={activeFilter}
+                                        onClear={handleClearFilters}
+                                        compact={isEBN}
+                                    />
                                 </div>
                             </div>
-
-                            {/* Status Filters */}
-                            <div className="flex flex-col gap-3">
-                                <Filters
-                                    summaryData={summaryData}
-                                    activeFilter={activeFilter}
-                                    onClear={handleClearFilters}
-                                />
-                            </div>
                         </div>
-                    </div>
+                    )}
                 </PageHeader>
 
                 {/* Main Content Container */}
@@ -171,6 +203,7 @@ const ReturnsPage: FC = () => {
                     <ReturnSummaryCards
                         cards={summaryCards}
                         isLoading={isLoading}
+                        compact={isEBN}
                     />
 
                     {isMobile ? (
@@ -248,12 +281,13 @@ const ReturnsPage: FC = () => {
                                 columns={columns}
                                 data={getPaginatedData()}
                                 theme={mode as Themes}
-                                customStyles={getTableStyles(mode)}
+                                customStyles={isEBN ? getCompactTableStyles(mode) : getTableStyles(mode)}
                                 progressPending={isLoading}
                                 progressComponent={<Loader isLoading={isLoading} />}
                                 highlightOnHover
                                 striped
                                 responsive
+                                dense={isEBN}
                                 pagination
                                 paginationServer
                                 paginationTotalRows={totalRows}
@@ -262,25 +296,36 @@ const ReturnsPage: FC = () => {
                                 onChangeRowsPerPage={handlePerRowsChange}
                                 onChangePage={handlePageChange}
                                 fixedHeader
-                                fixedHeaderScrollHeight="calc(100vh - 420px)"
+                                fixedHeaderScrollHeight={isEBN ? "calc(100vh - 280px)" : "calc(100vh - 420px)"}
                                 noDataComponent={
-                                    <div className="flex flex-col items-center justify-center py-12">
-                                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                                            <RotateCcw className="w-8 h-8 text-gray-400" />
+                                    <div className={isEBN ? "flex flex-col items-center justify-center py-6" : "flex flex-col items-center justify-center py-12"}>
+                                        <div className={isEBN
+                                            ? "w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-2"
+                                            : "w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4"
+                                        }>
+                                            <RotateCcw className={isEBN ? "w-5 h-5 text-gray-400" : "w-8 h-8 text-gray-400"} />
                                         </div>
-                                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                                        <h3 className={isEBN
+                                            ? "text-sm font-medium text-gray-900 dark:text-white mb-1"
+                                            : "text-lg font-medium text-gray-900 dark:text-white mb-2"
+                                        }>
                                             {searchTerm ? 'No matching returns' : 'No returns yet'}
                                         </h3>
-                                        <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm">
-                                            {hasActiveFilters
-                                                ? "Try adjusting your search or status filters to find returns."
-                                                : "Returns will appear here when customers return items."
-                                            }
-                                        </p>
+                                        {!isEBN && (
+                                            <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm">
+                                                {hasActiveFilters
+                                                    ? "Try adjusting your search or status filters to find returns."
+                                                    : "Returns will appear here when customers return items."
+                                                }
+                                            </p>
+                                        )}
                                         {hasActiveFilters && (
                                             <button
                                                 onClick={handleClearFilters}
-                                                className="mt-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                                                className={isEBN
+                                                    ? "mt-2 text-xs text-blue-600 dark:text-blue-400 font-medium"
+                                                    : "mt-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                                                }
                                             >
                                                 Clear filters
                                             </button>
