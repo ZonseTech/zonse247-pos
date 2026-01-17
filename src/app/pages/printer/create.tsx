@@ -7,13 +7,15 @@ import FormSelectBox from '../../components/FormSelectBox';
 import TenantSearch from '../branch/partials/TenantSearch';
 import BranchSearch from '../terminal/partials/BranchSearch';
 import TerminalSearch from './partials/TerminalSearch';
-import { Fragment, useState, useEffect } from 'react';
+import { Fragment, useState, useEffect, useMemo } from 'react';
 import type { FunctionComponent } from 'react';
 import printerService from '../../services/printer.service';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import { useNavigate, useLocation } from 'react-router';
 import { ROUTES } from '../../utils/constants';
+import { useAuth } from '../../context/AuthProvider';
+import { ROLE_IDS } from '../../constants/roles';
 import * as Yup from 'yup';
 import { capitalizeEachWord } from '../../utils';
 
@@ -24,6 +26,14 @@ const PrinterForm: FunctionComponent = () => {
     const [printer, setPrinter] = useState<Printer | null>(null);
 
     const { printerId } = location.state || {};
+    const { user: authUser } = useAuth();
+
+    // Check if user can select tenant (only admins and super admins)
+    const canSelectTenant = useMemo(() => {
+        if (!authUser?.roleId) return false;
+        const adminRoles = [ROLE_IDS.SUPER_ADMIN, ROLE_IDS.ADMIN, ROLE_IDS.TENANT_OWNER];
+        return adminRoles.includes(authUser.roleId as typeof adminRoles[number]);
+    }, [authUser?.roleId]);
 
     useEffect(() => {
         const fetchPrinter = async () => {
@@ -71,7 +81,7 @@ const PrinterForm: FunctionComponent = () => {
     ];
 
     const defaultPrinterValues: Partial<CreatePrinterRequest & { status?: PrinterStatus }> = {
-        tenantId: '',
+        tenantId: authUser?.tenantId || '',
         branchId: '',
         terminalId: '',
         printerName: '',
@@ -239,6 +249,8 @@ const PrinterForm: FunctionComponent = () => {
                                                     }}
                                                     error={errors.tenantId as string}
                                                     touched={touched.tenantId as boolean}
+                                                    disabled={!canSelectTenant}
+                                                    disabledMessage="Auto-assigned based on your account"
                                                 />
                                             </div>
                                             <div>

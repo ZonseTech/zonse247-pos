@@ -110,6 +110,7 @@ export const useBranches = () => {
         perPage,
         setPerPage,
         branches,
+        filteredBranches,
         getPaginatedData,
         deleteBranch,
         updateBranchStatus,

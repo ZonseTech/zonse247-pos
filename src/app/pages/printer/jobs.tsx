@@ -1,7 +1,7 @@
 import { Confirm, Notify } from 'notiflix';
 import { RefreshCw, Printer } from 'lucide-react';
 import AppLayout from '../../layouts/AppLayout';
-import { HiOutlineQueueList } from 'react-icons/hi2';
+import { HiOutlineQueueList, HiOutlineChevronLeft, HiOutlineChevronRight } from 'react-icons/hi2';
 import { SearchBar } from '../../components/SearchBar';
 import DataTable from 'react-data-table-component';
 import { FunctionComponent, useContext, useState, useEffect, useCallback, useMemo } from 'react';
@@ -16,6 +16,8 @@ import { getJobsTableColumns } from './partials/JobsTableColumns';
 import { PrintAgentCard } from './partials/PrintAgentCard';
 import { JobsFilters } from './partials/JobsFilters';
 import { SetupModal } from './partials/SetupModal';
+import { PrintJobMobileList } from './partials/PrintJobMobileCard';
+import PrintJobSummaryCards, { getDefaultPrintJobSummaryCards } from './partials/PrintJobSummaryCards';
 
 type JobStatusFilter = 'ALL' | PrintJobStatus;
 type JobTypeFilter = 'ALL' | PrintJobType;
@@ -151,6 +153,15 @@ const PrintJobsManagement: FunctionComponent = () => {
     const failedCount = printJobs.filter(j => j.status === 'FAILED').length;
     const cancelledCount = printJobs.filter(j => j.status === 'CANCELLED').length;
 
+    const summaryCards = useMemo(() => getDefaultPrintJobSummaryCards(
+        printJobs.length,
+        pendingCount,
+        printingCount,
+        completedCount,
+        failedCount,
+        cancelledCount
+    ), [printJobs.length, pendingCount, printingCount, completedCount, failedCount, cancelledCount]);
+
     const columns = getJobsTableColumns(getPrinterName, handleCancelJob, handleRetryJob);
 
     return (
@@ -159,7 +170,7 @@ const PrintJobsManagement: FunctionComponent = () => {
                 <PageHeader
                     title="Print Jobs"
                     description="Monitor and manage print job queue"
-                    icon={<HiOutlineQueueList className="w-8 h-8 text-sky-600 dark:text-sky-400" />}
+                    icon={<HiOutlineQueueList className="w-7 h-7 sm:w-8 sm:h-8 text-sky-600 dark:text-sky-400" />}
                     action={
                         <div className="flex items-center gap-2">
                             {!isMobile && <SearchBar value={searchTerm} onChange={setSearchTerm} placeholder="Search jobs..." />}
@@ -190,22 +201,107 @@ const PrintJobsManagement: FunctionComponent = () => {
                     onCleanup={handleCleanupJobs} onRetryAllFailed={handleRetryAllFailed} onClearQueue={handleClearQueue}
                 />
 
-                <DataTable
-                    columns={columns} data={paginatedJobs} theme={mode as string}
-                    progressPending={isLoading} highlightOnHover striped responsive pagination paginationServer
-                    paginationTotalRows={filteredJobs.length}
-                    onChangeRowsPerPage={(n, p) => { setPage(p); setPerPage(n); }}
-                    onChangePage={setPage} fixedHeader fixedHeaderScrollHeight="calc(100vh - 550px)"
-                    customStyles={getTableStyles(mode)}
-                    noDataComponent={
-                        <div className="text-center py-12">
-                            <HiOutlineQueueList className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                            <p className="text-gray-500 dark:text-gray-400 font-medium">
-                                {searchTerm || statusFilter !== 'ALL' || typeFilter !== 'ALL' ? 'No jobs match filters.' : selectedPrinterId === 'ALL' ? 'No pending jobs.' : 'No job history.'}
-                            </p>
+                {/* Main Content Container */}
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    {/* Summary Cards */}
+                    <PrintJobSummaryCards cards={summaryCards} isLoading={isLoading} />
+
+                    {/* Mobile View - Card List */}
+                    {isMobile ? (
+                        <div className="overflow-hidden">
+                            {isLoading ? (
+                                <PrintJobMobileList
+                                    jobs={[]}
+                                    getPrinterName={getPrinterName}
+                                    onCancel={handleCancelJob}
+                                    onRetry={handleRetryJob}
+                                    isLoading={true}
+                                />
+                            ) : filteredJobs.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-12 px-4">
+                                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                                        <HiOutlineQueueList className="w-8 h-8 text-gray-400" />
+                                    </div>
+                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2 text-center">
+                                        {searchTerm || statusFilter !== 'ALL' || typeFilter !== 'ALL' ? 'No jobs match filters' : 'No print jobs'}
+                                    </h3>
+                                    <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm text-sm">
+                                        {searchTerm || statusFilter !== 'ALL' || typeFilter !== 'ALL'
+                                            ? "Try adjusting your filters to find jobs."
+                                            : selectedPrinterId === 'ALL' ? "No pending jobs in the queue." : "No job history for this printer."}
+                                    </p>
+                                </div>
+                            ) : (
+                                <>
+                                    <PrintJobMobileList
+                                        jobs={paginatedJobs}
+                                        getPrinterName={getPrinterName}
+                                        onCancel={handleCancelJob}
+                                        onRetry={handleRetryJob}
+                                        isLoading={false}
+                                    />
+
+                                    {/* Mobile Pagination */}
+                                    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+                                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                                            {filteredJobs.length} total
+                                        </span>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() => setPage(Math.max(1, page - 1))}
+                                                disabled={page <= 1}
+                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                                <HiOutlineChevronLeft className="w-5 h-5" />
+                                            </button>
+                                            <span className="text-sm text-gray-600 dark:text-gray-400">
+                                                {page} / {Math.ceil(filteredJobs.length / perPage) || 1}
+                                            </span>
+                                            <button
+                                                onClick={() => setPage(Math.min(Math.ceil(filteredJobs.length / perPage), page + 1))}
+                                                disabled={page >= Math.ceil(filteredJobs.length / perPage)}
+                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                                <HiOutlineChevronRight className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
-                    }
-                />
+                    ) : (
+                        /* Desktop View - Data Table */
+                        <div className="overflow-hidden">
+                            <DataTable
+                                columns={columns}
+                                data={paginatedJobs}
+                                theme={mode as string}
+                                progressPending={isLoading}
+                                highlightOnHover
+                                striped
+                                responsive
+                                pagination
+                                paginationServer
+                                paginationTotalRows={filteredJobs.length}
+                                paginationPerPage={perPage}
+                                paginationRowsPerPageOptions={[10, 15, 25, 50]}
+                                onChangeRowsPerPage={(n, p) => { setPage(p); setPerPage(n); }}
+                                onChangePage={setPage}
+                                fixedHeader
+                                fixedHeaderScrollHeight="calc(100vh - 550px)"
+                                customStyles={getTableStyles(mode)}
+                                noDataComponent={
+                                    <div className="text-center py-12 dark:bg-gray-800">
+                                        <HiOutlineQueueList className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                                        <p className="text-gray-500 dark:text-gray-400 font-medium">
+                                            {searchTerm || statusFilter !== 'ALL' || typeFilter !== 'ALL' ? 'No jobs match filters.' : selectedPrinterId === 'ALL' ? 'No pending jobs.' : 'No job history.'}
+                                        </p>
+                                    </div>
+                                }
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
 
             <SetupModal isOpen={showSetupModal} onClose={() => setShowSetupModal(false)} setupInstructions={setupInstructions} />

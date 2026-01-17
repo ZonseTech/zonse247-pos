@@ -1,6 +1,6 @@
 import api from '../services/http.service';
 import { Confirm, Notify } from 'notiflix';
-import React, { type PropsWithChildren, createContext, useContext, useEffect, useState } from 'react'
+import React, { type PropsWithChildren, createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { isElectron } from '../utils';
 import settingsService from '../services/settings.service';
 
@@ -12,6 +12,8 @@ type ContextProps = {
     signin: (cb: AuthProps) => Promise<LoginResponse>;
     signup: (cb: AccountActivationProps) => Promise<AccountActivationResponse>;
     signout: (callback: () => void) => void;
+    updateUser: (userData: User) => void;
+    activeBranchId: string | null;
 }
 
 const authContext = createContext<ContextProps>({
@@ -24,6 +26,8 @@ const authContext = createContext<ContextProps>({
     signout: async () => ({
         // 
     } as any),
+    updateUser: () => { },
+    activeBranchId: null,
 });
 
 export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
@@ -31,6 +35,8 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const [auth, setAuth] = useState<string | unknown>(null);
     const [user, setUser] = useState<User | null>(null);
     const isAuthenticated = !!(user && auth);
+
+    const activeBranchId = user?.currentBranchId || user?.branchId || null;
 
     useEffect(() => {
         const loadUserToken = async () => {
@@ -53,6 +59,33 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
         loadUserToken()
     }, [])
+
+    useEffect(() => {
+        const handleBranchSwitch = (event: CustomEvent<{ user: User; token: string }>) => {
+            const { user: updatedUser, token } = event.detail;
+            if (updatedUser) {
+                setUser(updatedUser);
+                sessionStorage.setItem('user', JSON.stringify(updatedUser));
+            }
+            if (token) {
+                setAuth({ auth: true });
+                sessionStorage.setItem('token', JSON.stringify(token));
+            }
+        };
+
+        window.addEventListener('branch-switched', handleBranchSwitch as EventListener);
+        return () => {
+            window.removeEventListener('branch-switched', handleBranchSwitch as EventListener);
+        };
+    }, []);
+
+    /**
+     * Update user data - used by branch switching to update user context
+     */
+    const updateUser = useCallback((userData: User) => {
+        setUser(userData);
+        sessionStorage.setItem('user', JSON.stringify(userData));
+    }, []);
 
 
     const signin = async (data: AuthProps) => {
@@ -152,6 +185,8 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
             signin,
             signup,
             signout,
+            updateUser,
+            activeBranchId,
         }}>
             {children}
         </authContext.Provider>

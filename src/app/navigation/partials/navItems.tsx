@@ -29,7 +29,16 @@ import {
 import { hasAnyPermission, hasPermission, hasRole } from '../../utils';
 import { LucideSubscript } from 'lucide-react';
 import { RiGroup3Line } from 'react-icons/ri';
-import { NavItem } from './RenderNavItem';
+import { NavItem, NavGroup } from './RenderNavItem';
+
+export const NAV_GROUP_LABELS: Record<NavGroup, string> = {
+    operations: 'Operations',
+    inventory: 'Inventory',
+    management: 'Management',
+    admin: 'Administration',
+    settings: 'Settings',
+    system: 'System',
+};
 
 const useNavItems = (): Array<NavItem> => {
     const navigate = useNavigate();
@@ -76,6 +85,7 @@ const useNavItems = (): Array<NavItem> => {
             iconColor: 'bg-blue-800',
             text: 'Point of Sale',
             icon: icons.pos,
+            group: 'operations',
             onClick: () => navigate(ROUTES.POS),
         });
 
@@ -85,6 +95,7 @@ const useNavItems = (): Array<NavItem> => {
             iconColor: 'bg-blue-700',
             text: 'Inventory',
             icon: icons.products,
+            group: 'inventory',
             onClick: () => navigate(ROUTES.INVENTORY),
         });
 
@@ -95,6 +106,7 @@ const useNavItems = (): Array<NavItem> => {
                 iconColor: 'bg-indigo-700',
                 text: 'Products',
                 icon: icons.inventory_products,
+                group: 'inventory',
                 onClick: () => navigate(ROUTES.PRODUCTS),
             });
 
@@ -104,6 +116,7 @@ const useNavItems = (): Array<NavItem> => {
                 iconColor: 'bg-purple-700',
                 text: 'Suppliers',
                 icon: icons.suppliers,
+                group: 'inventory',
                 onClick: () => navigate(ROUTES.SUPPLIERS),
             });
 
@@ -113,6 +126,7 @@ const useNavItems = (): Array<NavItem> => {
                 iconColor: 'bg-violet-700',
                 text: 'Purchase Orders',
                 icon: icons.purchase_orders,
+                group: 'inventory',
                 onClick: () => navigate(ROUTES.PURCHASE_ORDERS),
             });
 
@@ -122,6 +136,7 @@ const useNavItems = (): Array<NavItem> => {
                 iconColor: 'bg-fuchsia-700',
                 text: 'Stock Movements',
                 icon: icons.stock_movements,
+                group: 'inventory',
                 onClick: () => navigate(ROUTES.STOCK_MOVEMENTS),
             });
 
@@ -131,6 +146,7 @@ const useNavItems = (): Array<NavItem> => {
                 iconColor: 'bg-blue-600',
                 text: 'Categories',
                 icon: icons.categories,
+                group: 'inventory',
                 onClick: () => navigate(ROUTES.CATEGORIES),
             });
         }
@@ -141,6 +157,7 @@ const useNavItems = (): Array<NavItem> => {
             iconColor: 'bg-teal-600',
             text: 'Customers',
             icon: icons.customers,
+            group: 'operations',
             onClick: () => navigate(ROUTES.CUSTOMERS),
         });
     }
@@ -152,6 +169,7 @@ const useNavItems = (): Array<NavItem> => {
             iconColor: 'bg-emerald-700',
             text: 'Transactions',
             icon: icons.transactions,
+            group: 'operations',
             onClick: () => navigate(ROUTES.TRANSACTIONS),
         });
     }
@@ -163,6 +181,7 @@ const useNavItems = (): Array<NavItem> => {
             iconColor: 'bg-blue-700',
             text: 'Returns',
             icon: icons.returns,
+            group: 'operations',
             onClick: () => navigate(ROUTES.RETURNS),
         });
     }
@@ -173,6 +192,7 @@ const useNavItems = (): Array<NavItem> => {
         iconColor: 'bg-emerald-600',
         text: 'Dashboard',
         icon: icons.dashboard,
+        group: 'operations',
         onClick: () => navigate(ROUTES.DASHBOARD),
     });
 
@@ -183,6 +203,7 @@ const useNavItems = (): Array<NavItem> => {
             iconColor: 'bg-orange-800',
             text: 'Billing',
             icon: icons.billing,
+            group: 'management',
             onClick: () => navigate(ROUTES.SUBSCRIPTION_BILLING),
         });
 
@@ -192,17 +213,19 @@ const useNavItems = (): Array<NavItem> => {
             iconColor: 'bg-orange-700',
             text: 'Users',
             icon: icons.users,
+            group: 'management',
             onClick: () => navigate(ROUTES.USERS),
         });
     }
 
-    if (hasAnyPermission(user, ['users.roles.assign', 'users.create', 'users.edit'])) {
+    if (hasRole(user, 'admin') || hasRole(user, 'super-admin')) {
         items.push({
             type: 'button',
             color: 'bg-orange-500 hover:bg-orange-600',
             iconColor: 'bg-orange-600',
             text: 'Security',
             icon: icons.role_permissions,
+            group: 'management',
             onClick: () => navigate(ROUTES.ROLES_PERMISSIONS),
         });
     }
@@ -214,6 +237,7 @@ const useNavItems = (): Array<NavItem> => {
             iconColor: 'bg-cyan-600',
             text: "Branches",
             icon: icons.branch,
+            group: 'settings',
             onClick: () => navigate(ROUTES.BRANCHES),
         });
 
@@ -223,6 +247,7 @@ const useNavItems = (): Array<NavItem> => {
             iconColor: 'bg-cyan-700',
             text: "Terminals",
             icon: icons.terminals,
+            group: 'settings',
             onClick: () => navigate(ROUTES.TERMINALS),
         });
 
@@ -232,6 +257,7 @@ const useNavItems = (): Array<NavItem> => {
             iconColor: 'bg-emerald-600',
             text: "Printers",
             icon: icons.printer,
+            group: 'settings',
             onClick: () => navigate(ROUTES.PRINTERS),
         });
 
@@ -241,6 +267,7 @@ const useNavItems = (): Array<NavItem> => {
             iconColor: 'bg-green-600',
             text: "Settings",
             icon: icons.settings,
+            group: 'settings',
             onClick: () => navigate(ROUTES.SETTINGS)
         });
     }
@@ -252,6 +279,7 @@ const useNavItems = (): Array<NavItem> => {
             iconColor: 'bg-purple-700',
             text: "Subscriptions",
             icon: icons.subscription,
+            group: 'admin',
             onClick: () => navigate(ROUTES.SUBSCRIPTIONS),
         });
 
@@ -261,6 +289,7 @@ const useNavItems = (): Array<NavItem> => {
             iconColor: 'bg-cyan-500',
             text: "Tenants",
             icon: icons.tenants,
+            group: 'admin',
             onClick: () => navigate(ROUTES.TENANTS),
         });
 
@@ -270,6 +299,7 @@ const useNavItems = (): Array<NavItem> => {
             iconColor: 'bg-teal-600',
             text: "Registrations",
             icon: icons.registration_details,
+            group: 'admin',
             onClick: () => navigate(ROUTES.TENANT_REGISTRATION_DETAILS),
         });
 
@@ -279,6 +309,7 @@ const useNavItems = (): Array<NavItem> => {
             iconColor: 'bg-red-700',
             text: 'Migrations',
             icon: icons.migrations,
+            group: 'system',
             onClick: () => navigate(ROUTES.MIGRATIONS),
         });
 
@@ -289,6 +320,7 @@ const useNavItems = (): Array<NavItem> => {
                 iconColor: 'bg-red-600',
                 text: 'Export DB',
                 icon: icons.export_db,
+                group: 'system',
                 onClick: () => navigate(ROUTES.EXPORT_DB),
             });
         }
@@ -300,6 +332,7 @@ const useNavItems = (): Array<NavItem> => {
         iconColor: 'bg-green-600',
         text: "Sync Data",
         icon: icons.syncData,
+        group: 'system',
         onClick: async () => navigate(ROUTES.SYNC_DATA)
     });
 
@@ -309,6 +342,7 @@ const useNavItems = (): Array<NavItem> => {
         iconColor: 'bg-red-800',
         text: 'Logout',
         icon: icons.logout,
+        group: 'system',
         onClick: async () => {
             signout(() => navigate(ROUTES.LOGIN));
         }

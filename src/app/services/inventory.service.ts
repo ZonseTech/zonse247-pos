@@ -242,12 +242,26 @@ const inventoryService = {
 	 * POST /item - Create a new inventory item
 	 */
 	async store(data: InventoryItem): Promise<InventoryItem> {
-		return api
-			.post<ApiResponse<InventoryItem>>(endpoints.item, data as any)
-			.then((res) => res.data.data)
-			.catch((err) => {
+		try {
+			const res = await api.post<ApiResponse<InventoryItem>>(endpoints.item, data as any);
+			if (!res.data.success) {
+				throw new Error(res.data.message || 'Failed to create inventory item');
+			}
+			return res.data.data;
+		} catch (err: any) {
+			// If it's already an Error with a meaningful message, re-throw it
+			if (err instanceof Error && err.message && err.message !== 'Failed to create inventory item') {
 				throw err;
-			});
+			}
+			// Handle API error responses - interceptor wraps errors in { error }
+			const axiosError = err?.error || err;
+			const message =
+				axiosError?.response?.data?.message ||
+				axiosError?.message ||
+				err?.message ||
+				'Failed to create inventory item';
+			throw new Error(message);
+		}
 	},
 
 	/**

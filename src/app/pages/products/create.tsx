@@ -1,9 +1,10 @@
 import * as Yup from 'yup';
 import { Form, Formik } from 'formik';
-import { FunctionComponent, useEffect, useState } from 'react';
+import { FunctionComponent, useEffect, useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { Notify, Report, Confirm } from 'notiflix';
-import { Package } from 'lucide-react';
+import { Package, BarcodeIcon } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import { Button } from '../../components';
@@ -15,12 +16,16 @@ import { useSettings } from '../../hooks/useSettings';
 import { ROUTES } from '../../utils/constants';
 import BarcodeManager from './partials/BarcodeManager';
 import { CategorySearch } from '../categories/partials/CategorySearch';
+import CameraBarcodeScanner from '../../components/scanner/CameraBarcodeScanner';
+import { type ScannerResult } from '../../services/barcode-scanner.service';
+import { useScannerFeedback } from '../../hooks/useScannerSettings';
 
 const ProductForm: FunctionComponent = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { setup } = useSettings();
     const { createProduct, updateProduct, getProduct } = useProducts();
+    const { triggerFeedback } = useScannerFeedback();
 
     const productId = (location.state as any)?.productId;
     const isEditMode = !!productId;
@@ -28,6 +33,9 @@ const ProductForm: FunctionComponent = () => {
     const [loading, setLoading] = useState(false);
     const [product, setProduct] = useState<any>(null);
     const [barcodes, setBarcodes] = useState<Omit<ProductBarcode, 'id' | 'productId' | 'createdAt' | 'updatedAt'>[]>([]);
+    const [isPrimaryBarcodeScannerOpen, setIsPrimaryBarcodeScannerOpen] = useState(false);
+
+    const isNative = Capacitor.isNativePlatform();
 
     useEffect(() => {
         if (isEditMode) {
@@ -331,13 +339,52 @@ const ProductForm: FunctionComponent = () => {
                                                     Barcode Information
                                                 </h3>
                                             </div>
-                                            <div className="ml-11">
-                                                <FormInput
-                                                    label="Primary Barcode"
-                                                    name="primaryBarcode"
-                                                    placeholder="8901234567890"
+                                            <div className="ml-4 sm:ml-11 space-y-4">
+                                                <div className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                        Primary Barcode
+                                                    </label>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="flex-1 min-w-0">
+                                                            <FormInput
+                                                                name="primaryBarcode"
+                                                                placeholder="Scan or enter barcode"
+                                                                className="w-full"
+                                                            />
+                                                        </div>
+
+                                                        {isNative && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setIsPrimaryBarcodeScannerOpen(true)}
+                                                                className="flex-shrink-0 px-4 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-lg font-medium text-sm transition-colors duration-150 flex items-center justify-center gap-2 touch-manipulation"
+                                                                title="Scan barcode with camera"
+                                                                aria-label="Open camera barcode scanner"
+                                                            >
+                                                                <BarcodeIcon className="w-5 h-5" />
+                                                                <span>Scan</span>
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                                        {isNative ? 'Tap the scan button to use your camera' : 'Enter the main barcode for this product'}
+                                                    </p>
+                                                </div>
+
+                                                <CameraBarcodeScanner
+                                                    isOpen={isPrimaryBarcodeScannerOpen}
+                                                    onClose={() => setIsPrimaryBarcodeScannerOpen(false)}
+                                                    onScan={(result: ScannerResult) => {
+                                                        triggerFeedback();
+                                                        setFieldValue('primaryBarcode', result.barcode);
+                                                        setIsPrimaryBarcodeScannerOpen(false);
+                                                    }}
+                                                    continuous={false}
+                                                    title="Scan Primary Barcode"
+                                                    subtitle="Point camera at product barcode"
                                                 />
-                                                <div className="mt-4">
+
+                                                <div className="pt-2">
                                                     <BarcodeManager barcodes={barcodes} onBarcodesChange={setBarcodes} />
                                                 </div>
                                             </div>

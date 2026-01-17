@@ -72,19 +72,20 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
     const isAtMaxStock = !isDefaultItem && maxStock !== undefined && quantity >= maxStock;
 
     return (
-        <div className={`inline-flex items-center rounded-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 overflow-hidden ${isActive ? 'ring-1 ring-blue-500 dark:ring-blue-400' : ''
-            } ${isAtMaxStock ? 'border-orange-400 dark:border-orange-500' : ''}`}>
+        <div className={`inline-flex items-center rounded-xl bg-gray-50 dark:bg-gray-800 overflow-hidden shadow-sm
+            ${isActive ? 'ring-2 ring-blue-500 dark:ring-blue-400 shadow-blue-500/20' : 'ring-1 ring-gray-200 dark:ring-gray-700'}
+            ${isAtMaxStock ? 'ring-2 ring-orange-400 dark:ring-orange-500 shadow-orange-500/20' : ''}`}>
             <button
                 onClick={onDecrease}
                 disabled={isMinimum}
-                className="flex items-center justify-center w-8 h-8 text-gray-600 dark:text-gray-300
-         bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600
-         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-50 dark:disabled:hover:bg-gray-700
-         focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20
-         transition-all duration-200 border-r border-gray-200 dark:border-gray-600"
+                className="flex items-center justify-center w-10 h-10 text-gray-600 dark:text-gray-300
+                    bg-white dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400
+                    disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-700 disabled:hover:text-gray-600
+                    focus:outline-none active:scale-95
+                    transition-all duration-200"
                 title="Decrease quantity"
             >
-                <HiMinus className="h-3.5 w-3.5" />
+                <HiMinus className="h-4 w-4" />
             </button>
 
             <input
@@ -95,24 +96,25 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
                 onBlur={handleInputBlur}
                 onFocus={handleInputFocus}
                 onClick={handleInputClick}
-                className={`w-12 h-8 text-center text-sm font-semibold text-gray-900 dark:text-gray-100
-         bg-white dark:bg-gray-800 border-0
-         transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-         ${isActive ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
+                className={`w-14 h-10 text-center text-base font-bold text-gray-900 dark:text-gray-100
+                    bg-white dark:bg-gray-800 border-x border-gray-200 dark:border-gray-700
+                    focus:outline-none transition-all duration-200 
+                    [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+                    ${isActive ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : ''}`}
                 min="0"
             />
 
             <button
                 onClick={onIncrease}
                 disabled={isAtMaxStock}
-                className="flex items-center justify-center w-8 h-8 text-gray-600 dark:text-gray-300
-         bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600
-         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-50 dark:disabled:hover:bg-gray-700
-         focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20
-         transition-all duration-200 border-l border-gray-200 dark:border-gray-600"
+                className="flex items-center justify-center w-10 h-10 text-gray-600 dark:text-gray-300
+                    bg-white dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400
+                    disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-700 disabled:hover:text-gray-600
+                    focus:outline-none active:scale-95
+                    transition-all duration-200"
                 title={isAtMaxStock ? `Maximum stock reached (${maxStock})` : "Increase quantity"}
             >
-                <HiPlus className="h-3.5 w-3.5" />
+                <HiPlus className="h-4 w-4" />
             </button>
         </div>
     );
