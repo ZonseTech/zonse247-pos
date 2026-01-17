@@ -103,6 +103,15 @@ export const BranchProvider: React.FC<PropsWithChildren> = ({ children }) => {
             return false;
         }
 
+        const targetBranch = accessibleBranches.find(b => b.branchId === branchId);
+        if (targetBranch && targetBranch.status !== 'active') {
+            const statusMessage = targetBranch.status === 'inactive'
+                ? 'This branch is inactive'
+                : 'This branch is suspended';
+            Notify.failure(`Cannot switch to ${targetBranch.branchName}. ${statusMessage}.`);
+            return false;
+        }
+
         setIsLoading(true);
         setError(null);
 

@@ -317,31 +317,28 @@ const InventoryForm: FunctionComponent = () => {
                                         </h3>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
-                                        <div className="md:col-span-2">
+                                        <div className="col-span-1 md:col-span-2 grid grid-cols-2 md:grid-cols-2 gap-4">
                                             <CategorySearch
                                                 value={values.categoryId || ''}
                                                 onChange={(categoryId) => setFieldValue('categoryId', categoryId)}
                                                 error={errors.categoryId as string}
                                                 touched={touched.categoryId as boolean}
                                             />
+
+                                            <FormInput
+                                                label="Item Name"
+                                                name="name"
+                                                placeholder="Enter item name"
+                                                required
+                                            />
                                         </div>
 
-                                        <FormInput
-                                            label="Item Name"
-                                            name="name"
-                                            placeholder="Enter item name"
-                                            required
-                                        />
-
-                                        {/* Mobile-optimized Barcode Input */}
-                                        <div className="md:col-span-2 p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                Barcode <span className="text-red-500">*</span>
-                                            </label>
+                                        <div className="md:col-span-2 p-3 sm:p-4 rounded-sm border border-gray-200 dark:border-gray-600">
                                             <div className="flex items-center gap-2">
                                                 <div className="flex-1 min-w-0">
                                                     <FormInput
                                                         name="barcode"
+                                                        label='Barcode'
                                                         placeholder="Scan or enter barcode"
                                                         required
                                                         onChange={(e: ChangeEvent<HTMLInputElement>) => {
@@ -687,7 +684,7 @@ const InventoryForm: FunctionComponent = () => {
                                 <div className="flex justify-end gap-3 pt-6 border-t border-gray-300 dark:border-gray-600">
                                     <Button
                                         type="button"
-                                        theme="neutral"
+                                        theme="danger"
                                         onClick={() => navigate(ROUTES.INVENTORY)}
                                         disabled={isSubmitting}
                                     >

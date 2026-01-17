@@ -153,27 +153,35 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
                                 {(Array.isArray(accessibleBranches) ? accessibleBranches : []).map((branch) => {
                                     const isActive = branch.branchId === currentBranch?.branchId;
                                     const isDefault = branch.branchId === user?.branchId;
+                                    const isInactive = branch.status !== 'active';
+                                    const isDisabled = isSwitching || isInactive;
 
                                     return (
                                         <li key={branch.branchId}>
                                             <button
                                                 type="button"
-                                                onClick={() => handleSelectBranch(branch)}
-                                                disabled={isSwitching}
+                                                onClick={() => !isInactive && handleSelectBranch(branch)}
+                                                disabled={isDisabled}
+                                                title={isInactive ? `This branch is ${branch.status}` : undefined}
                                                 className={`
                                                     w-full px-4 py-3 flex items-center gap-3 transition-colors
                                                     ${isActive
                                                         ? 'bg-blue-50 dark:bg-blue-900/30'
-                                                        : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                                                        : isInactive
+                                                            ? 'bg-gray-50 dark:bg-gray-800/50 cursor-not-allowed'
+                                                            : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
                                                     }
                                                     ${isSwitching ? 'opacity-50 cursor-wait' : ''}
+                                                    ${isInactive ? 'opacity-60' : ''}
                                                 `}
                                             >
                                                 <div className={`
                                                     w-8 h-8 rounded-lg flex items-center justify-center
                                                     ${isActive
                                                         ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400'
-                                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                                                        : isInactive
+                                                            ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
+                                                            : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                                                     }
                                                 `}>
                                                     <Building2 className="w-4 h-4" />
@@ -184,7 +192,9 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
                                                             text-sm font-medium
                                                             ${isActive
                                                                 ? 'text-blue-900 dark:text-blue-100'
-                                                                : 'text-gray-900 dark:text-white'
+                                                                : isInactive
+                                                                    ? 'text-gray-500 dark:text-gray-500'
+                                                                    : 'text-gray-900 dark:text-white'
                                                             }
                                                         `}>
                                                             {branch.branchName}
@@ -194,8 +204,16 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
                                                                 Default
                                                             </span>
                                                         )}
+                                                        {isInactive && (
+                                                            <span className={`px-1.5 py-0.5 text-xs rounded ${branch.status === 'suspended'
+                                                                    ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+                                                                    : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'
+                                                                }`}>
+                                                                {branch.status === 'suspended' ? 'Suspended' : 'Inactive'}
+                                                            </span>
+                                                        )}
                                                     </div>
-                                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                    <span className={`text-xs ${isInactive ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400'}`}>
                                                         {branch.branchCode}
                                                         {branch.city && ` • ${branch.city}`}
                                                     </span>
