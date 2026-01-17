@@ -7,6 +7,7 @@ import { Menu, X, Bell, Settings, User, PanelLeftClose, PanelLeft, FileText, Ref
 import classNames from 'classnames';
 import { useSync } from '../hooks/useSync';
 import { useAuth } from '../context/AuthProvider';
+import { useIsEBN } from '../hooks/useMediaQuery';
 import BranchSwitcher from '../components/BranchSwitcher';
 import logo from '../assets/images/logo.png';
 
@@ -25,6 +26,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
     const navItems = useNavItems();
     const { isSyncing, pendingCount, startSync } = useSync();
     const { signout } = useAuth();
+    const isEBN = useIsEBN();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
     const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -104,35 +106,49 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
 
     if (variant === 'topbar') {
         return (
-            <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors duration-200 safe-area-top-android">
-                <div className="flex items-center justify-between px-4 lg:px-6 h-16">
-                    <div className="flex items-center gap-4">
+            <nav className={classNames(
+                "bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors duration-200 safe-area-top-android",
+                isEBN && "py-0"
+            )}>
+                <div className={classNames(
+                    "flex items-center justify-between",
+                    isEBN ? "px-2 h-10" : "px-4 lg:px-6 h-16"
+                )}>
+                    <div className={classNames("flex items-center", isEBN ? "gap-2" : "gap-4")}>
                         <button
                             onClick={toggleMenu}
-                            className="md:hidden p-2.5 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all duration-200"
+                            className={classNames(
+                                "md:hidden rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all duration-200",
+                                isEBN ? "p-1.5" : "p-2.5"
+                            )}
                             aria-label="Toggle menu"
                         >
-                            <Menu size={22} />
+                            <Menu size={isEBN ? 18 : 22} />
                         </button>
 
                         {isSidebarCollapsed && (
-                            <div className="hidden sm:flex items-center gap-3">
+                            <div className={classNames("hidden sm:flex items-center", isEBN ? "gap-1" : "gap-3")}>
                                 {onToggleCollapse && (
                                     <button
                                         onClick={onToggleCollapse}
-                                        className="p-2.5 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200"
+                                        className={classNames(
+                                            "rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200",
+                                            isEBN ? "p-1" : "p-2.5"
+                                        )}
                                         aria-label="Show sidebar"
                                         title="Show sidebar"
                                     >
-                                        <PanelLeft size={20} />
+                                        <PanelLeft size={isEBN ? 16 : 20} />
                                     </button>
                                 )}
 
-                                <div className="flex items-center gap-2">
-                                    <img src={logo} alt="Zonse247" className="w-8 h-8 rounded-lg object-contain" />
-                                    <h1 className="text-lg font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
-                                        Zonse247
-                                    </h1>
+                                <div className={classNames("flex items-center", isEBN ? "gap-1" : "gap-2")}>
+                                    <img src={logo} alt="Zonse247" className={isEBN ? "w-6 h-6 rounded object-contain" : "w-8 h-8 rounded-lg object-contain"} />
+                                    {!isEBN && (
+                                        <h1 className="text-lg font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
+                                            Zonse247
+                                        </h1>
+                                    )}
                                 </div>
 
                                 <BranchSwitcher compact />
@@ -140,20 +156,27 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                         )}
                     </div>
 
-                    <div className="flex items-center gap-1 sm:gap-2">
+                    <div className={classNames("flex items-center", isEBN ? "gap-0.5" : "gap-1 sm:gap-2")}>
                         <button
-                            className="relative p-2.5 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200"
+                            className={classNames(
+                                "relative rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200",
+                                isEBN ? "p-1.5" : "p-2.5"
+                            )}
                             aria-label="Notifications"
                         >
-                            <Bell size={20} />
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-gray-900" />
+                            <Bell size={isEBN ? 16 : 20} />
+                            <span className={classNames(
+                                "absolute bg-red-500 rounded-full ring-2 ring-white dark:ring-gray-900",
+                                isEBN ? "top-1 right-1 w-1.5 h-1.5" : "top-2 right-2 w-2 h-2"
+                            )} />
                         </button>
 
                         <button
                             onClick={() => startSync()}
                             disabled={isSyncing}
                             className={classNames(
-                                "relative flex items-center gap-2 p-2.5 rounded-xl transition-all duration-200",
+                                "relative flex items-center gap-2 rounded-xl transition-all duration-200",
+                                isEBN ? "p-1.5" : "p-2.5",
                                 isSyncing
                                     ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 cursor-wait"
                                     : pendingCount > 0
@@ -164,12 +187,15 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                             title={isSyncing ? "Syncing in progress..." : pendingCount > 0 ? `${pendingCount} documents need syncing` : "All synced"}
                         >
                             {isSyncing ? (
-                                <RefreshCw size={20} className="animate-spin" />
+                                <RefreshCw size={isEBN ? 14 : 20} className="animate-spin" />
                             ) : (
                                 <>
-                                    <FileText size={20} />
+                                    <FileText size={isEBN ? 14 : 20} />
                                     {pendingCount > 0 && (
-                                        <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold text-white bg-gradient-to-r from-amber-500 to-orange-500 rounded-full px-1">
+                                        <span className={classNames(
+                                            "absolute flex items-center justify-center font-bold text-white bg-gradient-to-r from-amber-500 to-orange-500 rounded-full px-1",
+                                            isEBN ? "-top-0.5 -right-0.5 min-w-[14px] h-[14px] text-[8px]" : "-top-0.5 -right-0.5 min-w-[18px] h-[18px] text-[10px]"
+                                        )}>
                                             {pendingCount > 99 ? '99+' : pendingCount}
                                         </span>
                                     )}
@@ -177,13 +203,14 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                             )}
                         </button>
 
-                        <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block" />
+                        <div className={classNames("w-px bg-gray-200 dark:bg-gray-700 hidden sm:block", isEBN ? "h-4 mx-0.5" : "h-6 mx-1")} />
 
                         <div className="relative" ref={profileDropdownRef}>
                             <button
                                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                                 className={classNames(
-                                    "flex items-center gap-2 p-1.5 pr-3 rounded-xl transition-all duration-200",
+                                    "flex items-center gap-2 rounded-xl transition-all duration-200",
+                                    isEBN ? "p-1 pr-2" : "p-1.5 pr-3",
                                     isProfileDropdownOpen || location.pathname === ROUTES.MY_PROFILE
                                         ? "bg-blue-50 dark:bg-blue-500/10"
                                         : "hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -193,15 +220,16 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                                 aria-haspopup="true"
                             >
                                 <div className={classNames(
-                                    "w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200",
+                                    "rounded-lg flex items-center justify-center transition-all duration-200",
+                                    isEBN ? "w-6 h-6" : "w-8 h-8",
                                     isProfileDropdownOpen || location.pathname === ROUTES.MY_PROFILE
                                         ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white"
                                         : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
                                 )}>
-                                    <User size={18} />
+                                    <User size={isEBN ? 14 : 18} />
                                 </div>
                                 <ChevronDown
-                                    size={14}
+                                    size={isEBN ? 12 : 14}
                                     className={classNames(
                                         "text-gray-400 hidden sm:block transition-transform duration-200",
                                         isProfileDropdownOpen && "rotate-180"

@@ -186,15 +186,15 @@ const useNavItems = (): Array<NavItem> => {
         });
     }
 
-    items.push({
-        type: 'button',
-        color: 'bg-emerald-500 hover:bg-emerald-600',
-        iconColor: 'bg-emerald-600',
-        text: 'Dashboard',
-        icon: icons.dashboard,
-        group: 'operations',
-        onClick: () => navigate(ROUTES.DASHBOARD),
-    });
+    // items.push({
+    //     type: 'button',
+    //     color: 'bg-emerald-500 hover:bg-emerald-600',
+    //     iconColor: 'bg-emerald-600',
+    //     text: 'Dashboard',
+    //     icon: icons.dashboard,
+    //     group: 'operations',
+    //     onClick: () => navigate(ROUTES.DASHBOARD),
+    // });
 
     if (hasAnyPermission(user, ['users.view', 'users.create', 'users.edit', 'users.delete'])) {
         items.push({
