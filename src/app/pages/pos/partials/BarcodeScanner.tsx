@@ -15,13 +15,15 @@ interface BarcodeScannerProps {
     onExternalInputProcessed?: () => void;
     focusManager: ReturnType<typeof useFocusManager>;
     barcodeScannerInputRef: React.RefObject<HTMLInputElement | null>;
+    compact?: boolean;
 }
 
 const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     externalInput = '',
     onExternalInputProcessed,
     focusManager,
-    barcodeScannerInputRef
+    barcodeScannerInputRef,
+    compact = false,
 }) => {
     const [barcode, setBarcode] = useState('');
     const { inventory, addToCart } = useInventory();
@@ -333,7 +335,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                     type="text"
                     value={barcode}
                     onChange={handleInputChange}
-                    className={`flex-1 p-2 border-2 border-gray-800 focus:outline-none text-lg text-center transition-all duration-200 ${isActive ? 'ring-2 ring-gray-500 dark:ring-gray-400 bg-gray-50 dark:bg-gray-900/20' : ''
+                    className={`flex-1 border-2 border-gray-800 focus:outline-none text-center transition-all duration-200 ${compact ? 'p-1.5 text-sm' : 'p-2 text-lg'} ${isActive ? 'ring-2 ring-gray-500 dark:ring-gray-400 bg-gray-50 dark:bg-gray-900/20' : ''
                         }`}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {

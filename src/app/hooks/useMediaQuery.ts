@@ -43,4 +43,20 @@ export const useIsDesktop = (): boolean => {
     return useMediaQuery('(min-width: 768px)');
 };
 
+/**
+ * Hook to detect EBN Aures all-in-one POS terminal
+ * EBN devices typically have screens between 1024x768 and 1280x1024
+ * This hook detects medium-sized screens that are not mobile but need compact layouts
+ */
+export const useIsEBN = (): boolean => {
+    return useMediaQuery('(min-width: 768px) and (max-width: 1366px) and (max-height: 900px)');
+};
+
+/**
+ * Hook to check if the device is a large desktop screen (above EBN range)
+ */
+export const useIsLargeScreen = (): boolean => {
+    return useMediaQuery('(min-width: 1367px) or (min-height: 901px)');
+};
+
 export default useMediaQuery;

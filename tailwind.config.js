@@ -140,6 +140,14 @@ export default {
   darkMode: "class",
   content: ["./index.html", "./src/app/**/*.{html,js,ts,jsx,tsx}"],
   theme: {
+    screens: {
+      sm: "640px",
+      md: "768px",
+      ebn: { min: "768px", max: "1366px" }, // EBN Aures all-in-one devices
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1536px",
+    },
     extend: {
       colors,
       backgroundOpacity,
