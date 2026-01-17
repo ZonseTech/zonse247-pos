@@ -1,11 +1,12 @@
 import useNavItems, { NAV_GROUP_LABELS } from './partials/navItems';
 import type { NavItem, NavGroup } from './partials/RenderNavItem';
-import { useState, useEffect, useMemo, type FunctionComponent } from 'react';
+import { useState, useEffect, useMemo, useRef, type FunctionComponent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ROUTES } from '../utils/constants';
-import { Menu, X, Bell, Settings, User, PanelLeftClose, PanelLeft, FileText, RefreshCw, Search, ChevronRight } from 'lucide-react';
+import { Menu, X, Bell, Settings, User, PanelLeftClose, PanelLeft, FileText, RefreshCw, ChevronDown, LogOut } from 'lucide-react';
 import classNames from 'classnames';
 import { useSync } from '../hooks/useSync';
+import { useAuth } from '../context/AuthProvider';
 import BranchSwitcher from '../components/BranchSwitcher';
 import logo from '../assets/images/logo.png';
 
@@ -23,7 +24,10 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
     const navigate = useNavigate();
     const navItems = useNavItems();
     const { isSyncing, pendingCount, startSync } = useSync();
+    const { signout } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+    const profileDropdownRef = useRef<HTMLDivElement>(null);
 
     const groupedNavItems = useMemo(() => {
         const groups: Record<NavGroup, NavItem[]> = {
@@ -53,6 +57,30 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
             document.body.style.overflow = 'unset';
         };
     }, [isMenuOpen]);
+
+    // Close profile dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+                setIsProfileDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const handleProfileMenuClick = (route: string) => {
+        navigate(route);
+        setIsProfileDropdownOpen(false);
+    };
+
+    const handleSignOut = () => {
+        setIsProfileDropdownOpen(false);
+        signout(() => navigate(ROUTES.LOGIN, { replace: true }));
+    };
 
     const getRoutePath = (onClick: any): string => {
         for (const [key, value] of Object.entries(ROUTES)) {
@@ -149,42 +177,78 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                             )}
                         </button>
 
-                        <button
-                            onClick={() => navigate(ROUTES.SETTINGS)}
-                            className={classNames(
-                                "p-2.5 rounded-xl transition-all duration-200",
-                                location.pathname === ROUTES.SETTINGS
-                                    ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10"
-                                    : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200"
-                            )}
-                            aria-label="Settings"
-                        >
-                            <Settings size={20} />
-                        </button>
-
                         <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block" />
 
-                        <button
-                            onClick={() => navigate(ROUTES.MY_PROFILE)}
-                            className={classNames(
-                                "flex items-center gap-2 p-1.5 pr-3 rounded-xl transition-all duration-200",
-                                location.pathname === ROUTES.MY_PROFILE
-                                    ? "bg-blue-50 dark:bg-blue-500/10"
-                                    : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                        <div className="relative" ref={profileDropdownRef}>
+                            <button
+                                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                                className={classNames(
+                                    "flex items-center gap-2 p-1.5 pr-3 rounded-xl transition-all duration-200",
+                                    isProfileDropdownOpen || location.pathname === ROUTES.MY_PROFILE
+                                        ? "bg-blue-50 dark:bg-blue-500/10"
+                                        : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                                )}
+                                aria-label="User Profile Menu"
+                                aria-expanded={isProfileDropdownOpen}
+                                aria-haspopup="true"
+                            >
+                                <div className={classNames(
+                                    "w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200",
+                                    isProfileDropdownOpen || location.pathname === ROUTES.MY_PROFILE
+                                        ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white"
+                                        : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+                                )}>
+                                    <User size={18} />
+                                </div>
+                                <ChevronDown
+                                    size={14}
+                                    className={classNames(
+                                        "text-gray-400 hidden sm:block transition-transform duration-200",
+                                        isProfileDropdownOpen && "rotate-180"
+                                    )}
+                                />
+                            </button>
+
+                            {isProfileDropdownOpen && (
+                                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                    <button
+                                        onClick={() => handleProfileMenuClick(ROUTES.MY_PROFILE)}
+                                        className={classNames(
+                                            "flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm transition-colors duration-150",
+                                            location.pathname === ROUTES.MY_PROFILE
+                                                ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                                                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                        )}
+                                    >
+                                        <User size={18} className="text-gray-500 dark:text-gray-400" />
+                                        <span>My Profile</span>
+                                    </button>
+
+                                    <button
+                                        onClick={() => handleProfileMenuClick(ROUTES.SETTINGS)}
+                                        className={classNames(
+                                            "flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm transition-colors duration-150",
+                                            location.pathname === ROUTES.SETTINGS
+                                                ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                                                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                        )}
+                                    >
+                                        <Settings size={18} className="text-gray-500 dark:text-gray-400" />
+                                        <span>Settings</span>
+                                    </button>
+
+                                    <div className="my-2 border-t border-gray-200 dark:border-gray-700" />
+
+                                    <button
+                                        onClick={handleSignOut}
+                                        className="flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors duration-150"
+                                    >
+                                        <LogOut size={18} />
+                                        <span>Sign Out</span>
+                                    </button>
+                                </div>
                             )}
-                            aria-label="User Profile"
-                            title="User Profile"
-                        >
-                            <div className={classNames(
-                                "w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200",
-                                location.pathname === ROUTES.MY_PROFILE
-                                    ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white"
-                                    : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-                            )}>
-                                <User size={18} />
-                            </div>
-                            <ChevronRight size={14} className="text-gray-400 hidden sm:block" />
-                        </button>
+                        </div>
                     </div>
                 </div>
 
