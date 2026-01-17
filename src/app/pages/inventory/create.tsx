@@ -270,24 +270,26 @@ const InventoryForm: FunctionComponent = () => {
                                         <button
                                             type="button"
                                             onClick={() => setFormMode('quick')}
-                                            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors ${formMode === 'quick'
+                                            title="Quick Add"
+                                            className={`flex items-center justify-center gap-2 px-3 py-2 sm:px-4 text-sm font-medium transition-colors ${formMode === 'quick'
                                                 ? 'bg-blue-600 text-white'
                                                 : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
                                                 }`}
                                         >
                                             <Zap className="w-4 h-4" />
-                                            Quick Add
+                                            <span className="hidden sm:inline">Quick Add</span>
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => setFormMode('full')}
-                                            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors ${formMode === 'full'
+                                            title="Full Form"
+                                            className={`flex items-center justify-center gap-2 px-3 py-2 sm:px-4 text-sm font-medium transition-colors ${formMode === 'full'
                                                 ? 'bg-blue-600 text-white'
                                                 : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
                                                 }`}
                                         >
                                             <FileText className="w-4 h-4" />
-                                            Full Form
+                                            <span className="hidden sm:inline">Full Form</span>
                                         </button>
                                     </div>
                                 </div>

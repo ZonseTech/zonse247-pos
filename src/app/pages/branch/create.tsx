@@ -103,7 +103,7 @@ const BranchForm: FunctionComponent = () => {
         email: '',
         currencyCode: 'MWK',
         currencySymbol: 'K',
-        taxRate: '0',
+        taxRate: 0.00,
         chargeTax: false,
         receiptFooter: '',
         logoUrl: '',
