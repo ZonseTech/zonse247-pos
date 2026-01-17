@@ -478,7 +478,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                 </div>
             </div>
 
-            {!isCollapsed && (
+            {/* {!isCollapsed && (
                 <div className="p-4 border-t border-gray-200/60 dark:border-gray-800/60 bg-gray-50/50 dark:bg-gray-800/20">
                     <div className="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500">
                         <span>© 2026 Zonse247</span>
@@ -488,7 +488,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                         </span>
                     </div>
                 </div>
-            )}
+            )} */}
         </aside>
     );
 };
