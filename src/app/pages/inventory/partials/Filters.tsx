@@ -1,6 +1,6 @@
 import React from 'react';
 import { Package, PackageCheck, PackageX, Clock, TrendingDown, Filter } from 'lucide-react';
-import { useIsMobile } from '../../../hooks/useMediaQuery';
+import { useIsMobile, useIsEBN } from '../../../hooks/useMediaQuery';
 
 interface SummaryCard {
     title: string;
@@ -13,6 +13,7 @@ interface FiltersProps {
     summaryData: SummaryCard[];
     activeFilter: string;
     onClear: () => void;
+    compact?: boolean;
 }
 
 const getFilterIcon = (title: string) => {
@@ -36,7 +37,24 @@ const getFilterKey = (title: string, idx: number): string => {
     return idx === 0 ? 'all' : title.toLowerCase().replace(/\s+/g, '-');
 };
 
-const Filters: React.FC<FiltersProps> = ({ summaryData, activeFilter, onClear }) => {
+const getShortTitle = (title: string): string => {
+    switch (title.toLowerCase()) {
+        case 'total stock':
+            return 'All';
+        case 'new stock':
+            return 'New';
+        case 'expiring soon':
+            return 'Expiring';
+        case 'expired':
+            return 'Expired';
+        case 'low stock':
+            return 'Low';
+        default:
+            return title.split(' ')[0];
+    }
+};
+
+const Filters: React.FC<FiltersProps> = ({ summaryData, activeFilter, onClear, compact = false }) => {
     const isMobile = useIsMobile();
 
     const handleFilterChange = (filterKey: string) => {
@@ -95,7 +113,7 @@ const Filters: React.FC<FiltersProps> = ({ summaryData, activeFilter, onClear })
     }
 
     return (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className={compact ? "flex flex-wrap items-center gap-1" : "flex flex-wrap items-center gap-2"}>
             {summaryData.map((filter, idx) => {
                 const filterKey = getFilterKey(filter.title, idx);
                 const isActive = activeFilter === filterKey;
@@ -105,25 +123,38 @@ const Filters: React.FC<FiltersProps> = ({ summaryData, activeFilter, onClear })
                     <button
                         key={idx}
                         onClick={() => handleFilterChange(filterKey)}
-                        className={`
-                            inline-flex items-center gap-1.5 px-2.5 h-9
-                            rounded-md text-sm font-medium whitespace-nowrap
-                            transition-all duration-200 border
-                            ${isActive
+                        className={compact
+                            ? `inline-flex items-center gap-1 px-1.5 h-7
+                                rounded text-[10px] font-medium whitespace-nowrap
+                                transition-all duration-200 border
+                                ${isActive
                                 ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-800'
                                 : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700'
-                            }
-                        `}
+                            }`
+                            : `inline-flex items-center gap-1.5 px-2.5 h-9
+                                rounded-md text-sm font-medium whitespace-nowrap
+                                transition-all duration-200 border
+                                ${isActive
+                                ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-800'
+                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700'
+                            }`
+                        }
+                        title={filter.title}
                     >
-                        <Icon className="w-3.5 h-3.5" />
-                        <span>{filter.title}</span>
-                        <span className={`
-                            px-1.5 rounded text-xs font-medium
-                            ${isActive
+                        <Icon className={compact ? "w-3 h-3" : "w-3.5 h-3.5"} />
+                        <span>{compact ? getShortTitle(filter.title) : filter.title}</span>
+                        <span className={compact
+                            ? `px-1 rounded text-[10px] font-medium
+                                ${isActive
                                 ? 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100'
                                 : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-                            }
-                        `}>
+                            }`
+                            : `px-1.5 rounded text-xs font-medium
+                                ${isActive
+                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100'
+                                : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                            }`
+                        }>
                             {filter.value}
                         </span>
                     </button>

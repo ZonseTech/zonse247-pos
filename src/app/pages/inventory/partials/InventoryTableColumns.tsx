@@ -9,6 +9,7 @@ interface InventoryTableColumnsProps {
     onDelete: (productId: string) => void;
     onView?: (item: InventoryItem) => void;
     onAdjustQuantity?: (item: InventoryItem) => void;
+    compact?: boolean;
 }
 
 const getStockStatusColor = (quantity: number, minStock: number) => {
@@ -40,7 +41,175 @@ export const getInventoryTableColumns = ({
     onDelete,
     onView,
     onAdjustQuantity,
-}: InventoryTableColumnsProps): TableColumn<InventoryItem>[] => [
+    compact = false,
+}: InventoryTableColumnsProps): TableColumn<InventoryItem>[] => {
+    // Compact columns for EBN terminals - optimized with better visibility
+    if (compact) {
+        return [
+            {
+                name: 'Barcode',
+                selector: (row) => row.barcode || '-',
+                sortable: true,
+                width: '110px',
+                cell: (row) => (
+                    <span className="font-mono text-xs text-gray-600 dark:text-gray-400">
+                        {row.barcode || '-'}
+                    </span>
+                ),
+            },
+            {
+                name: 'Item',
+                selector: (row) => row.name || '-',
+                sortable: true,
+                cell: (row) => (
+                    <div className="flex flex-col py-0.5">
+                        <span className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate max-w-[150px]">
+                            {row.name}
+                        </span>
+                        {row.categoryDetails?.name && (
+                            <span className="text-[10px] text-gray-500 dark:text-gray-400 truncate max-w-[150px]">
+                                {row.categoryDetails.name as string}
+                            </span>
+                        )}
+                    </div>
+                ),
+            },
+            {
+                name: 'Cost',
+                selector: (row) => Number(row.costPrice) || 0,
+                sortable: true,
+                width: '85px',
+                cell: (row) => (
+                    <span className="text-xs text-gray-600 dark:text-gray-400">
+                        {formatCurrency(Number(row.costPrice) || 0)}
+                    </span>
+                ),
+            },
+            {
+                name: 'Sell',
+                selector: (row) => Number(row.sellPrice) || 0,
+                sortable: true,
+                width: '85px',
+                cell: (row) => (
+                    <span className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                        {formatCurrency(Number(row.sellPrice) || 0)}
+                    </span>
+                ),
+            },
+            {
+                name: 'Qty',
+                selector: (row) => Number(row.quantity) || 0,
+                sortable: true,
+                width: '75px',
+                cell: (row) => {
+                    const qty = Number(row.quantity) || 0;
+                    const minStock = Number(row.minStock) || 0;
+                    const colorClass = getStockStatusColor(qty, minStock);
+
+                    return (
+                        <div className="flex items-center gap-1">
+                            <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${colorClass}`}>
+                                {qty}
+                            </span>
+                            {qty <= minStock && qty > 0 && (
+                                <AlertTriangle className="w-3 h-3 text-yellow-500" />
+                            )}
+                        </div>
+                    );
+                },
+            },
+            {
+                name: 'Min',
+                selector: (row) => Number(row.minStock) || 0,
+                sortable: true,
+                width: '55px',
+                cell: (row) => (
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {row.minStock || 0}
+                    </span>
+                ),
+            },
+            {
+                name: 'Expiry',
+                selector: (row) => row.expirationDate ? new Date(row.expirationDate).getTime() : 0,
+                sortable: true,
+                width: '80px',
+                cell: (row) => {
+                    const status = getExpirationStatus(row.expirationDate);
+                    if (!status) return <span className="text-xs text-gray-400">-</span>;
+
+                    return (
+                        <div className="flex flex-col">
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${status.color}`}>
+                                {status.label}
+                            </span>
+                            <span className="text-[9px] text-gray-400 mt-0.5">
+                                {dayjs(row.expirationDate).format('DD/MM')}
+                            </span>
+                        </div>
+                    );
+                },
+            },
+            {
+                name: 'Status',
+                selector: (row) => row.status || 'active',
+                sortable: true,
+                width: '70px',
+                cell: (row) => {
+                    const status = row.status || 'active';
+                    const colorClass = status === 'active'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                        : status === 'inactive'
+                            ? 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
+                            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+
+                    return (
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium capitalize ${colorClass}`}>
+                            {status}
+                        </span>
+                    );
+                },
+            },
+            {
+                name: '',
+                cell: (row) => {
+                    const productId = row.productId?.toString() || '';
+                    return (
+                        <div className="flex items-center space-x-0.5">
+                            {onAdjustQuantity && (
+                                <button
+                                    onClick={() => onAdjustQuantity(row)}
+                                    className="p-1 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                                    title="Adjust"
+                                >
+                                    <PackagePlus className="w-3.5 h-3.5" />
+                                </button>
+                            )}
+                            <button
+                                onClick={() => onEdit(row)}
+                                className="p-1 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
+                                title="Edit"
+                            >
+                                <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                                onClick={() => onDelete(productId)}
+                                className="p-1 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                title="Delete"
+                            >
+                                <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                        </div>
+                    );
+                },
+                width: '95px',
+                right: true,
+            },
+        ];
+    }
+
+    // Full columns for desktop
+    return [
         {
             name: 'Barcode',
             selector: (row) => row.barcode || '-',
@@ -231,5 +400,6 @@ export const getInventoryTableColumns = ({
             right: true,
         },
     ];
+};
 
 export default getInventoryTableColumns;
