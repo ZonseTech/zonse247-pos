@@ -30,4 +30,20 @@ interface AuthenticatedUser {
 	userId: string;
 	tenantId: string;
 	branchId: string;
+	currentBranchId?: string;
+	activeBranchId?: string;
+}
+
+interface SwitchBranchRequest {
+	branchId: string;
+}
+
+interface SwitchBranchResponse {
+	user: User;
+	token: string;
+	branch: Branch;
+}
+
+interface AccessibleBranchesResponse {
+	data: Branch[];
 }
