@@ -18,10 +18,16 @@
 
 [TODO] develop drugs - pills counting device
 
-0|api | businessName: 'Linne',
-0|api | ownerName: 'Timm',
-0|api | email: 'linneltd1@gmail.com',
-0|api | tenantCode: 'TNT-MK45279G-7KJUT',
-0|api | verificationToken: '4c058f6db6d3c06a20a322b2e1486b5ade7abd08e6015cd50c4f4214bf086c1322fc19687be4bcba476126db9f3a0835e4811080:8563119f74af139ca9b7ae67fcdaabe9',
-0|api | username: 'linneltd1',
-0|api | password: 'TNT-MK45279G-7KJUT'
+- add barcode scanner support when add/creating product/inventory for mobile devices
+- check duplicate barcodes when adding new products
+- add split payment support for single sale
+- implement subscription-based pricing models for different user tiers
+- add support for multiple payment methods in a single sale transaction
+
+- improve offline mode performance and reliability
+- enhance security features with 2FA and biometric options
+- implement advanced reporting and analytics features
+- integrate with popular accounting software for seamless financial management
+- expand hardware compatibility for a wider range of devices
+- optimize receipt customization options with more templates and designs
+- develop customer management features with advanced loyalty programs and segmentation
