@@ -4,7 +4,11 @@ import { useInventory } from '../../../hooks/useInventory';
 import { Modal } from '../../../components';
 import CustomerModal from './CustomerModal';
 
-const CustomerSelector: FunctionComponent = () => {
+interface CustomerSelectorProps {
+    compact?: boolean;
+}
+
+const CustomerSelector: FunctionComponent<CustomerSelectorProps> = ({ compact = false }) => {
     const { customers, selectedCustomer, setSelectedCustomer, fetchCustomers } = useInventory();
     const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
     const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
@@ -55,15 +59,15 @@ const CustomerSelector: FunctionComponent = () => {
         <Fragment>
             <button
                 onClick={() => setIsCustomerListModalOpen(true)}
-                className={`inline-flex items-center gap-2 text-sm font-medium transition-all underline decoration-2 underline-offset-4 hover:decoration-1 ${selectedCustomer?.isDefault
+                className={`inline-flex items-center gap-1.5 font-medium transition-all underline decoration-2 underline-offset-4 hover:decoration-1 ${compact ? 'text-xs' : 'text-sm gap-2'} ${selectedCustomer?.isDefault
                     ? 'text-blue-700 dark:text-blue-300 decoration-blue-400 hover:text-blue-800 dark:hover:text-blue-200'
                     : 'text-emerald-700 dark:text-emerald-300 decoration-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200'
                     }`}
             >
                 {selectedCustomer?.isDefault ? (
-                    <HiOutlineUser className="w-4 h-4" />
+                    <HiOutlineUser className={compact ? 'w-3 h-3' : 'w-4 h-4'} />
                 ) : (
-                    <HiOutlineUserGroup className="w-4 h-4" />
+                    <HiOutlineUserGroup className={compact ? 'w-3 h-3' : 'w-4 h-4'} />
                 )}
                 <span className="hidden md:inline">
                     {isLoading ? 'Loading...' : (selectedCustomer?.name || 'Select Customer')}

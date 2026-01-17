@@ -23,6 +23,7 @@ interface InputKeyboardProps {
     onEnter?: () => void;
     onSpace?: () => void;
     settings?: KeyboardSettings;
+    compact?: boolean;
 }
 
 const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
@@ -37,6 +38,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
     onEnter,
     onSpace,
     settings = {},
+    compact = false,
 }) => {
     const [isShiftPressed, setIsShiftPressed] = useState(false);
     const [capsLock, setCapsLock] = useState(false);
@@ -238,10 +240,10 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
         const numpadButtons = getNumpadButtons(numpadType);
 
         return (
-            <div className="flex flex-col h-[calc(56vh)]">
-                {title && <h3 className={`text-3xl font-bold mb-4 uppercase ${themeClasses.title}`}>{title}</h3>}
+            <div className={`flex flex-col ${compact ? 'h-[calc(40vh)]' : 'h-[calc(56vh)]'}`}>
+                {title && <h3 className={`font-bold mb-2 uppercase ${themeClasses.title} ${compact ? 'text-xl' : 'text-3xl mb-4'}`}>{title}</h3>}
                 <div className={`flex-1 ${className}`}>
-                    <div className="grid grid-cols-3 gap-1 h-full" style={{ gridTemplateRows: 'repeat(5, 1fr)' }}>
+                    <div className="grid grid-cols-3 gap-0.5 lg:gap-1 h-full" style={{ gridTemplateRows: 'repeat(5, 1fr)' }}>
                         {numpadButtons.map((btn, index) => (
                             btn ? (
                                 <button
@@ -252,7 +254,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                                         triggerFeedback();
                                         onButtonClick?.(btn);
                                     }}
-                                    className={getNumpadButtonClass(btn)}
+                                    className={`${getNumpadButtonClass(btn)} ${compact ? 'text-sm' : ''}`}
                                     disabled={!focusManager || (!focusManager.activeComponent)}
                                     tabIndex={-1}
                                 >

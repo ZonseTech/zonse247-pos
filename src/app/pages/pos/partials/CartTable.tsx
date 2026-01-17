@@ -11,12 +11,14 @@ interface CartTableProps {
     focusManager: ReturnType<typeof useFocusManager>;
     customPriceInputs: Record<string, string>;
     onPriceChange: (productId: string, value: string) => void;
+    compact?: boolean;
 }
 
 const CartTable: FunctionComponent<CartTableProps> = ({
     focusManager,
     customPriceInputs,
-    onPriceChange
+    onPriceChange,
+    compact = false,
 }) => {
     const {
         cart,
@@ -33,21 +35,21 @@ const CartTable: FunctionComponent<CartTableProps> = ({
 
     return (
         <div className="h-full flex flex-col bg-white dark:bg-gray-900 rounded-none border border-gray-100 dark:border-gray-800 overflow-hidden">
-            <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900">
+            <div className={`border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900 ${compact ? 'px-3 py-2' : 'px-5 py-4'}`}>
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2.5 bg-blue-100 dark:bg-blue-500/20 rounded-xl">
-                            <HiOutlineShoppingCart className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    <div className="flex items-center gap-2">
+                        <div className={`bg-blue-100 dark:bg-blue-500/20 rounded-xl ${compact ? 'p-1.5' : 'p-2.5'}`}>
+                            <HiOutlineShoppingCart className={`text-blue-600 dark:text-blue-400 ${compact ? 'w-4 h-4' : 'w-6 h-6'}`} />
                         </div>
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Shopping Cart</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                            <h3 className={`font-semibold text-gray-900 dark:text-white ${compact ? 'text-sm' : 'text-lg'}`}>Shopping Cart</h3>
+                            <p className={`text-gray-500 dark:text-gray-400 ${compact ? 'text-xs' : 'text-sm'}`}>
                                 {cart.length} {cart.length === 1 ? 'item' : 'items'}
                             </p>
                         </div>
                     </div>
                     {cart.length > 0 && (
-                        <span className="px-3 py-1.5 text-sm font-semibold bg-blue-600 text-white rounded-full">
+                        <span className={`font-semibold bg-blue-600 text-white rounded-full ${compact ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-sm'}`}>
                             {cart.reduce((sum, item) => sum + item.quantity, 0)} units
                         </span>
                     )}
@@ -58,42 +60,42 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                 <table className="w-full table-fixed border-collapse">
                     <thead className="bg-gray-50/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10">
                         <tr>
-                            <th className="w-[28%] text-left px-4 py-4">
-                                <div className="flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                    <Package size={18} />
+                            <th className="w-[28%] text-left px-3 py-2 lg:px-4 lg:py-4">
+                                <div className={`flex items-center gap-1.5 font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider ${compact ? 'text-xs' : 'text-sm'}`}>
+                                    <Package size={compact ? 14 : 18} />
                                     Product
                                 </div>
                             </th>
-                            <th className="w-[12%] text-left px-3 py-4">
-                                <span className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                            <th className="w-[12%] text-left px-2 py-2 lg:px-3 lg:py-4">
+                                <span className={`font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider ${compact ? 'text-xs' : 'text-sm'}`}>
                                     Qty
                                 </span>
                             </th>
-                            <th className="w-[14%] text-left px-3 py-4">
-                                <div className="flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                    <Tag size={18} />
+                            <th className="w-[14%] text-left px-2 py-2 lg:px-3 lg:py-4">
+                                <div className={`flex items-center gap-1.5 font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider ${compact ? 'text-xs' : 'text-sm'}`}>
+                                    <Tag size={compact ? 14 : 18} />
                                     Price
                                 </div>
                             </th>
-                            <th className="w-[14%] text-left px-3 py-4">
-                                <span className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                            <th className="w-[14%] text-left px-2 py-2 lg:px-3 lg:py-4">
+                                <span className={`font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider ${compact ? 'text-xs' : 'text-sm'}`}>
                                     Total
                                 </span>
                             </th>
-                            <th className="w-[14%] text-left px-3 py-4">
-                                <div className="flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                    <Hash size={18} />
+                            <th className="w-[14%] text-left px-2 py-2 lg:px-3 lg:py-4">
+                                <div className={`flex items-center gap-1.5 font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider ${compact ? 'text-xs' : 'text-sm'}`}>
+                                    <Hash size={compact ? 14 : 18} />
                                     Barcode
                                 </div>
                             </th>
-                            <th className="w-[10%] text-left px-3 py-4">
-                                <div className="flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                    <Percent size={18} />
+                            <th className="w-[10%] text-left px-2 py-2 lg:px-3 lg:py-4">
+                                <div className={`flex items-center gap-1.5 font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider ${compact ? 'text-xs' : 'text-sm'}`}>
+                                    <Percent size={compact ? 14 : 18} />
                                     Disc
                                 </div>
                             </th>
-                            <th className="w-[8%] text-center px-3 py-4">
-                                <span className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                            <th className="w-[8%] text-center px-2 py-2 lg:px-3 lg:py-4">
+                                <span className={`font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider ${compact ? 'text-xs' : 'text-sm'}`}>
 
                                 </span>
                             </th>

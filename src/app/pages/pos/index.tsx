@@ -14,7 +14,7 @@ import CheckoutModal, { CHECKOUT, PaymentMethod } from './partials/CheckoutModal
 import { useInventory } from '../../hooks/useInventory';
 import HoldOrdersModal from './partials/HoldOrdersModal';
 import { HiOutlineShoppingCart } from 'react-icons/hi';
-import { useIsMobile } from '../../hooks/useMediaQuery';
+import { useIsMobile, useIsEBN } from '../../hooks/useMediaQuery';
 import { SearchIcon, UserCircle2Icon } from 'lucide-react';
 import { Link } from 'react-router';
 import { ROUTES } from '../../utils/constants';
@@ -33,6 +33,7 @@ const POSSystem: FunctionComponent = () => {
         addToCart
     } = useInventory();
     const isMobile = useIsMobile();
+    const isEBN = useIsEBN();
     const { isSidebarHidden } = useLayout();
     const focusManager = useFocusManager();
     const keyboardSettings = useKeyboardSettings();
@@ -218,13 +219,15 @@ const POSSystem: FunctionComponent = () => {
                 }
             />
 
-            {/* Fixed Balance Due - Desktop only */}
-            <div className="flex-shrink-0 mb-3 hidden md:block">
+            {/* Fixed Balance Due - Desktop only (compact for EBN) */}
+            <div className="flex-shrink-0 mb-2 lg:mb-3 hidden md:block">
                 <div className="flex items-center justify-between">
                     <Panel size='1/2'>
-                        <h1 className="text-5xl lg:text-7xl uppercase tracking-wider font-bold text-black dark:text-gray-400">BALANCE DUE</h1>
+                        <h1 className={`uppercase tracking-wider font-bold text-black dark:text-gray-400 ${isEBN ? 'text-3xl' : 'text-5xl lg:text-7xl'}`}>
+                            BALANCE DUE
+                        </h1>
                     </Panel>
-                    <Panel size='1/2' className="bg-gray-800 text-green-400/95 text-center px-4 lg:px-8 py-3 lg:py-4 text-4xl lg:text-6xl font-bold">
+                    <Panel size='1/2' className={`bg-gray-800 text-green-400/95 text-center font-bold ${isEBN ? 'px-3 py-2 text-2xl' : 'px-4 lg:px-8 py-3 lg:py-4 text-4xl lg:text-6xl'}`}>
                         MK {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </Panel>
                 </div>
@@ -232,7 +235,7 @@ const POSSystem: FunctionComponent = () => {
 
             {/* Scrollable Cart Items Section */}
             <div className="flex-1 min-h-0 overflow-hidden">
-                <div className="h-full md:flex md:gap-x-4">
+                <div className="h-full md:flex md:gap-x-2 lg:gap-x-4">
                     {isMobile ? (
                         <div className="h-full overflow-y-auto pb-32">
                             <CartItemCard
@@ -241,19 +244,20 @@ const POSSystem: FunctionComponent = () => {
                             />
                         </div>
                     ) : (
-                        <Panel size='3/4' className='w-full h-full overflow-hidden'>
-                            <div className="h-full overflow-y-auto pb-48">
+                        <Panel size={isEBN && keyboardSettings.enabled ? '2/3' : '3/4'} className='w-full h-full overflow-hidden'>
+                            <div className={`h-full overflow-y-auto ${isEBN ? 'pb-36' : 'pb-48'}`}>
                                 <CartTable
                                     focusManager={focusManager}
                                     customPriceInputs={customPriceInputs}
                                     onPriceChange={handlePriceInputChange}
+                                    compact={isEBN}
                                 />
                             </div>
                         </Panel>
                     )}
 
                     {keyboardSettings.enabled && (
-                        <Panel size='1/4' className='hidden md:flex flex-shrink-0'>
+                        <Panel size={isEBN ? '1/3' : '1/4'} className='hidden md:flex flex-shrink-0'>
                             <InputKeyboard
                                 variant="numpad"
                                 onButtonClick={handleNumpadClick}
@@ -263,22 +267,23 @@ const POSSystem: FunctionComponent = () => {
                                     enableSound: keyboardSettings.enableSound,
                                     enableHaptic: keyboardSettings.enableHaptic,
                                 }}
+                                compact={isEBN}
                             />
                         </Panel>
                     )}
                 </div>
             </div>
 
-            {/* Fixed Bottom Section - Desktop */}
-            <div className={`hidden md:block fixed bottom-16 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-30 transition-all duration-300 ${isSidebarHidden ? 'left-0' : 'left-64'}`}>
-                <div className="flex gap-x-4 py-3 px-4">
-                    <Panel size='3/4' className='w-full'>
-                        <div className="flex items-center gap-2 mb-1">
-                            <label className="block text-base lg:text-lg font-bold text-black dark:text-gray-400 flex-1">
+            {/* Fixed Bottom Section - Desktop (compact for EBN) */}
+            <div className={`hidden md:block fixed right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-30 transition-all duration-300 ${isSidebarHidden ? 'left-0' : 'left-64'} ${isEBN ? 'bottom-12' : 'bottom-16'}`}>
+                <div className={`flex gap-x-2 lg:gap-x-4 px-2 lg:px-4 ${isEBN ? 'py-1.5' : 'py-3'}`}>
+                    <Panel size={isEBN && keyboardSettings.enabled ? '2/3' : '3/4'} className='w-full'>
+                        <div className="flex items-center gap-2 mb-0.5 lg:mb-1">
+                            <label className={`block font-bold text-black dark:text-gray-400 flex-1 ${isEBN ? 'text-sm' : 'text-base lg:text-lg'}`}>
                                 SCAN/ENTER PRODUCT CODE
                             </label>
                             <div className="block">
-                                <CustomerSelector />
+                                <CustomerSelector compact={isEBN} />
                             </div>
                         </div>
                         <BarcodeScanner
@@ -286,20 +291,21 @@ const POSSystem: FunctionComponent = () => {
                             barcodeScannerInputRef={barcodeScannerInputRef}
                             onExternalInputProcessed={handleNumpadInputProcessed}
                             focusManager={focusManager}
+                            compact={isEBN}
                         />
                     </Panel>
 
-                    <Panel size='1/4' className='flex'>
-                        <label className="block text-base lg:text-lg font-bold text-black dark:text-gray-400 mb-1">
+                    <Panel size={isEBN ? '1/3' : '1/4'} className='flex'>
+                        <label className={`block font-bold text-black dark:text-gray-400 mb-0.5 lg:mb-1 ${isEBN ? 'text-sm' : 'text-base lg:text-lg'}`}>
                             TOTAL NUMBER OF ITEMS
                         </label>
-                        <div className="bg-gray-800 text-white text-lg lg:text-xl font-bold py-2 lg:py-2.5 text-center">
+                        <div className={`bg-gray-800 text-white font-bold text-center ${isEBN ? 'text-base py-1.5' : 'text-lg lg:text-xl py-2 lg:py-2.5'}`}>
                             {cart.length}
                         </div>
                     </Panel>
                 </div>
 
-                <Panel size='full' className="border-0 shadow-none px-4">
+                <Panel size='full' className="border-0 shadow-none px-2 lg:px-4">
                     <FunctionButtons
                         onVoidSale={handleVoidSale}
                         onParkSale={handleParkSale}
@@ -311,6 +317,7 @@ const POSSystem: FunctionComponent = () => {
                         onBankTransfer={() => handleCompleteTransaction(CHECKOUT.BANK_TRANSFER)}
                         onEPayment={() => handleCompleteTransaction(CHECKOUT.E_PAYMENT)}
                         onPayCash={() => handleCompleteTransaction(CHECKOUT.CASH)}
+                        compact={isEBN}
                     />
                 </Panel>
             </div>
