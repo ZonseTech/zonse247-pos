@@ -43,6 +43,17 @@ export function setupIPC() {
         }
     });
 
+    // TODO: Uncomment when SecureSettingsService.getActiveBranch is available
+    ipcMain.handle('settings:get-active-branch', async () => {
+        try {
+            const activeBranch = await SecureSettingsService.getActiveBranch();
+            return { success: true, data: activeBranch };
+        } catch (error: any) {
+            console.error('Failed to get active branch:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
     ipcMain.handle('settings:update-setup', async (event, updates) => {
         try {
             await SecureSettingsService.updateAppSetup(updates);

@@ -11,12 +11,14 @@ import { hasAnyPermission, hasPermission, hasRole } from '../app/utils';
 export default class MenuBuilder {
 	mainWindow: BrowserWindow;
 	private user: User | null = null;
+	private branches: Branch[] = [];
+	private currentBranchId: string | null = null;
 
 	constructor(mainWindow: BrowserWindow) {
 		this.mainWindow = mainWindow;
 	}
 
-	buildMenu(user?: User): Menu {
+	buildMenu(user?: User, branches?: Branch[], currentBranchId?: string): Menu {
 		if (
 			process.env.NODE_ENV === 'development' ||
 			process.env.DEBUG_PROD === 'true'
@@ -25,6 +27,8 @@ export default class MenuBuilder {
 		}
 
 		this.user = user || null;
+		this.branches = branches || [];
+		this.currentBranchId = currentBranchId || user?.currentBranchId || user?.branchId || null;
 		const menu = Menu.buildFromTemplate(this.buildDefaultTemplate());
 		Menu.setApplicationMenu(menu);
 		return menu;
@@ -60,6 +64,31 @@ export default class MenuBuilder {
 		this.mainWindow.webContents.send(action);
 	}
 
+	private switchBranch(branchId: string, branchName: string): void {
+		this.mainWindow.webContents.send('menu-switch-branch', { branchId, branchName });
+	}
+
+	private buildBranchSubmenu(): Array<MenuItemConstructorOptions> {
+		if (!this.user || this.branches.length <= 1) {
+			return [];
+		}
+
+		const branchItems: Array<MenuItemConstructorOptions> = this.branches.map((branch) => ({
+			label: branch.branchName,
+			type: 'checkbox' as const,
+			checked: branch.branchId === this.currentBranchId,
+			click: () => this.switchBranch(branch.branchId, branch.branchName),
+		}));
+
+		return [
+			{
+				label: 'Switch Branch',
+				submenu: branchItems,
+			},
+			{ type: 'separator' },
+		];
+	}
+
 	buildDefaultTemplate(): Array<MenuItemConstructorOptions> {
 		const template: Array<MenuItemConstructorOptions> = [];
 		const fileSubmenu: Array<MenuItemConstructorOptions> = [];
@@ -93,6 +122,12 @@ export default class MenuBuilder {
 				});
 				fileSubmenu.push({ type: 'separator' });
 			}
+		}
+
+		// Add branch switcher to File menu
+		const branchSubmenu = this.buildBranchSubmenu();
+		if (branchSubmenu.length > 0) {
+			fileSubmenu.push(...branchSubmenu);
 		}
 
 		if (

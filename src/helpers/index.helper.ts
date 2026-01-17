@@ -6,6 +6,7 @@ declare global {
                 hasSetup: () => Promise<ApiResponse<boolean>>;
                 getSetup: () => Promise<ApiResponse<SetupData>>;
                 getSignature: () => Promise<ApiResponse<string>>;
+                getActiveBranch: () => Promise<ApiResponse<Branch>>;
                 saveSetup: (setupData: SetupData) => Promise<ApiResponse<void>>;
                 updateSetup: (updates: Partial<SetupData>) => Promise<ApiResponse<void>>;
             };
@@ -25,11 +26,12 @@ declare global {
                 }>;
             };
             menu: {
-                rebuild: (user: User) => void;
+                rebuild: (user: User | null, branches?: Branch[], currentBranchId?: string) => void;
                 onLogout: (callback: () => void) => () => void;
                 onCheckUpdates: (callback: () => void) => () => void;
                 onNavigate: (callback: (route: string) => void) => () => void;
                 onOpenModal: (callback: (modalName: string) => void) => () => void;
+                onSwitchBranch: (callback: (data: { branchId: string; branchName: string }) => void) => () => void;
                 onRestoreDatabase: (callback: (filePath: string) => void) => () => void;
             };
             onOnboardingStatus: (callback: (status: any) => void) => void;

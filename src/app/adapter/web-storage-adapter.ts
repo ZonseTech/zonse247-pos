@@ -1,6 +1,7 @@
 class WebStorageAdapter implements DataStoreAdapter {
     private readonly SETUP_KEY = 'user';
     private readonly SIGNATURE_KEY = 'app_signature';
+    private readonly ACTIVE_BRANCH_KEY = 'active_branch';
 
     async hasSetup(): Promise<{ data: boolean; success: boolean }> {
         try {
@@ -59,6 +60,16 @@ class WebStorageAdapter implements DataStoreAdapter {
         try {
             const data = sessionStorage.getItem(this.SIGNATURE_KEY);
             return { data, success: true };
+        } catch (error) {
+            return { data: null, success: false, error: String(error) };
+        }
+    }
+
+    async getActiveBranch(): Promise<ApiResponse<Branch | null>> {
+        try {
+            const data = sessionStorage.getItem(this.ACTIVE_BRANCH_KEY);
+            const branch = data ? JSON.parse(data) as Branch : null;
+            return { data: branch, success: true };
         } catch (error) {
             return { data: null, success: false, error: String(error) };
         }

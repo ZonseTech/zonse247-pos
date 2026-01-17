@@ -47,4 +47,5 @@ interface DataStoreAdapter {
     updateSetup: (updates: Partial<SetupData>) => Promise<{ success: boolean; error?: string }>;
     clearSetup: () => Promise<{ success: boolean; error?: string }>;
     getSignature: () => Promise<ApiResponse<string>>;
+    getActiveBranch: () => Promise<ApiResponse<Branch | null>>;
 }

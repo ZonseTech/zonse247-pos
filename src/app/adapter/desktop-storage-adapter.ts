@@ -22,6 +22,10 @@ class DesktopStorageAdapter implements DataStoreAdapter {
     async getSignature() {
         return window.electronAPI.settings.getSignature();
     }
+
+    async getActiveBranch() {
+        return window.electronAPI.settings.getActiveBranch();
+    }
 }
 
 export default DesktopStorageAdapter
