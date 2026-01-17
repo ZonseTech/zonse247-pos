@@ -4,12 +4,14 @@ import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useKeyboardSettings } from '../../../hooks/useKeyboardSettings';
 import { FormikErrors } from 'formik';
 import { useIsMobile } from '../../../hooks/useMediaQuery';
+import classNames from 'classnames';
 
 interface CashPaymentProps {
     total: number;
     values: TransactionValues;
     onValueChange: (field: keyof TransactionValues, value: any, shouldValidate?: boolean) => Promise<void | FormikErrors<TransactionValues>>
     focusManager: ReturnType<typeof useFocusManager>;
+    compact?: boolean;
 }
 
 const CashPayment: FunctionComponent<CashPaymentProps> = ({
@@ -17,6 +19,7 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
     values,
     onValueChange,
     focusManager,
+    compact = false,
 }) => {
     const isMobile = useIsMobile();
     const keyboardSettings = useKeyboardSettings();
@@ -112,7 +115,11 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
     const showKeyboard = !isMobile && keyboardSettings.enabled;
 
     return (
-        <div className={`grid grid-cols-1 ${showKeyboard ? 'xl:grid-cols-2' : ''} gap-4 md:gap-6 mb-6 md:mb-8`}>
+        <div className={classNames(
+            "grid grid-cols-1",
+            showKeyboard && "xl:grid-cols-2",
+            compact ? "gap-2 mb-3" : "gap-4 md:gap-6 mb-6 md:mb-8"
+        )}>
             {showKeyboard && <div>
                 <InputKeyboard
                     variant="numpad"
@@ -126,20 +133,33 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
                         enableSound: keyboardSettings.enableSound,
                         enableHaptic: keyboardSettings.enableHaptic,
                     }}
+                    compact={compact}
                 />
             </div>}
-            <div className={`space-y-4 md:space-y-8 ${!showKeyboard ? 'max-w-2xl mx-auto w-full' : ''}`}>
+            <div className={classNames(
+                compact ? "space-y-2" : "space-y-4 md:space-y-8",
+                !showKeyboard && "max-w-2xl mx-auto w-full"
+            )}>
                 <div>
-                    <h3 className="text-xl md:text-5xl font-bold text-black dark:text-gray-400 mb-2">BALANCE DUE</h3>
+                    <h3 className={classNames(
+                        "font-bold text-black dark:text-gray-400",
+                        compact ? "text-sm mb-1" : "text-xl md:text-5xl mb-2"
+                    )}>BALANCE DUE</h3>
                     <input
                         type="text"
                         value={`MK ${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                         readOnly
-                        className="bg-gray-800 text-green-400 text-center p-4 md:p-6 text-2xl md:text-5xl font-bold rounded-none w-full"
+                        className={classNames(
+                            "bg-gray-800 text-green-400 text-center font-bold rounded-none w-full",
+                            compact ? "p-2 text-lg" : "p-4 md:p-6 text-2xl md:text-5xl"
+                        )}
                     />
                 </div>
                 <div>
-                    <h3 className="text-xl md:text-5xl font-bold text-black dark:text-gray-400 mb-2">CASH TENDERED</h3>
+                    <h3 className={classNames(
+                        "font-bold text-black dark:text-gray-400",
+                        compact ? "text-sm mb-1" : "text-xl md:text-5xl mb-2"
+                    )}>CASH TENDERED</h3>
                     <input
                         type={isMobile ? "number" : "text"}
                         inputMode={isMobile ? "decimal" : undefined}
@@ -151,16 +171,25 @@ const CashPayment: FunctionComponent<CashPaymentProps> = ({
                         onBlur={handleBlur}
                         ref={inputRef}
                         placeholder={isMobile ? "Enter amount" : undefined}
-                        className={`bg-gray-800 text-white text-center p-4 md:p-6 text-2xl md:text-5xl font-bold rounded-none w-full`}
+                        className={classNames(
+                            "bg-gray-800 text-white text-center font-bold rounded-none w-full",
+                            compact ? "p-2 text-lg" : "p-4 md:p-6 text-2xl md:text-5xl"
+                        )}
                     />
                 </div>
                 <div>
-                    <h3 className="text-xl md:text-5xl font-bold text-black dark:text-gray-400 mb-2">CHANGE</h3>
+                    <h3 className={classNames(
+                        "font-bold text-black dark:text-gray-400",
+                        compact ? "text-sm mb-1" : "text-xl md:text-5xl mb-2"
+                    )}>CHANGE</h3>
                     <input
                         type="text"
                         value={`MK ${change.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                         readOnly
-                        className="bg-gray-800 text-yellow-400 text-center p-4 md:p-6 text-2xl md:text-5xl font-bold rounded-none w-full"
+                        className={classNames(
+                            "bg-gray-800 text-yellow-400 text-center font-bold rounded-none w-full",
+                            compact ? "p-2 text-lg" : "p-4 md:p-6 text-2xl md:text-5xl"
+                        )}
                     />
                 </div>
             </div>

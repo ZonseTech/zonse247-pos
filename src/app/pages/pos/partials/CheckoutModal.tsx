@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import { Form, Formik, } from 'formik';
+import { createPortal } from 'react-dom';
 import EPayment from './EPayment';
 import CashPayment from './CashPayment';
 import BankTransfer from './BankTransfer';
@@ -12,6 +13,8 @@ import { useApp } from '../../../context/AppProvider';
 import transactionService from '../../../services/transactions.service';
 import { generateReferenceNumber } from '../../../utils';
 import { DEFAULT_SEED_KEY } from '../../../constants';
+import { useIsEBN } from '../../../hooks/useMediaQuery';
+import classNames from 'classnames';
 
 interface CheckoutModalProps {
     isOpen: boolean;
@@ -58,6 +61,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
     const { user } = useAuth()
     const { settings, printerOptions } = useApp()
+    const isEBN = useIsEBN();
 
     const [processing, setProcessing] = useState<boolean>(false);
     const [activeInput, setActiveInput] = useState<ActiveInputType>(null);
@@ -212,21 +216,36 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
-            <div className="bg-white dark:bg-gray-900 w-full max-w-4xl xl:max-w-6xl h-auto max-h-[95vh] md:max-h-[90vh] flex flex-col rounded-lg md:rounded-none overflow-hidden">
-                <div className="text-black p-3 md:p-4 border-b flex items-center justify-between flex-shrink-0">
+    return createPortal(
+        <div className={classNames(
+            "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]",
+            isEBN ? "p-1" : "p-2 md:p-4"
+        )}>
+            <div className={classNames(
+                "bg-white dark:bg-gray-900 w-full flex flex-col rounded-lg md:rounded-none overflow-hidden",
+                isEBN ? "max-w-3xl max-h-[98vh]" : "max-w-4xl xl:max-w-6xl h-auto max-h-[95vh] md:max-h-[90vh]"
+            )}>
+                <div className={classNames(
+                    "text-black border-b flex items-center justify-between flex-shrink-0",
+                    isEBN ? "p-2" : "p-3 md:p-4"
+                )}>
                     <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 md:w-8 md:h-8 rounded flex items-center justify-center">
-                            <span className="text-lg md:text-2xl">{getPaymentIcon()}</span>
+                        <div className={classNames(
+                            "rounded flex items-center justify-center",
+                            isEBN ? "w-5 h-5" : "w-6 h-6 md:w-8 md:h-8"
+                        )}>
+                            <span className={isEBN ? "text-base" : "text-lg md:text-2xl"}>{getPaymentIcon()}</span>
                         </div>
-                        <span className="text-black dark:text-gray-200 text-base md:text-xl font-bold">{getPaymentTitle()}</span>
+                        <span className={classNames(
+                            "text-black dark:text-gray-200 font-bold",
+                            isEBN ? "text-sm" : "text-base md:text-xl"
+                        )}>{getPaymentTitle()}</span>
                     </div>
 
                     {selectedCustomer && (
-                        <div className="mb-4">
+                        <div className={isEBN ? "mb-1" : "mb-4"}>
                             <div className="flex items-center gap-2">
-                                <span className="text-xl">
+                                <span className={isEBN ? "text-base" : "text-xl"}>
                                     {selectedCustomer.customerId === DEFAULT_SEED_KEY ? '👤' : '⭐'}
                                 </span>
                                 <span className={`font-semibold ${selectedCustomer.customerId === DEFAULT_SEED_KEY
@@ -248,10 +267,14 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 >
                     {({ isSubmitting, values, setFieldValue }) => (
                         <Form className="flex flex-col flex-1 min-h-0">
-                            <div className="flex-1 p-3 md:p-6 overflow-y-auto">
+                            <div className={classNames(
+                                "flex-1 overflow-y-auto",
+                                isEBN ? "p-2" : "p-3 md:p-6"
+                            )}>
 
                                 {paymentMethodId === CHECKOUT.CASH && (
                                     <CashPayment
+                                        compact={isEBN}
                                         total={total}
                                         values={values}
                                         onValueChange={setFieldValue}
@@ -261,6 +284,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
                                 {paymentMethodId === CHECKOUT.E_PAYMENT && (
                                     <EPayment
+                                        compact={isEBN}
                                         total={total}
                                         values={values}
                                         activeInput={activeInput}
@@ -271,6 +295,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
                                 {paymentMethodId === CHECKOUT.BANK_TRANSFER && (
                                     <BankTransfer
+                                        compact={isEBN}
                                         total={total}
                                         values={values}
                                         activeInput={activeInput}
@@ -281,30 +306,48 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                             </div>
 
                             {processing && (
-                                <div className="bg-blue-100 border border-blue-400 text-blue-700 px-3 md:px-4 py-2 md:py-3 rounded mx-3 md:mx-6 mb-3 md:mb-0">
+                                <div className={classNames(
+                                    "bg-blue-100 border border-blue-400 text-blue-700 rounded",
+                                    isEBN ? "px-2 py-1.5 mx-2 mb-2" : "px-3 md:px-4 py-2 md:py-3 mx-3 md:mx-6 mb-3 md:mb-0"
+                                )}>
                                     <div className="flex items-center gap-2">
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700"></div>
-                                        <span className="font-bold text-sm md:text-base">Processing payment...</span>
+                                        <div className={classNames(
+                                            "animate-spin rounded-full border-b-2 border-blue-700",
+                                            isEBN ? "h-3 w-3" : "h-4 w-4"
+                                        )}></div>
+                                        <span className={classNames(
+                                            "font-bold",
+                                            isEBN ? "text-xs" : "text-sm md:text-base"
+                                        )}>Processing payment...</span>
                                     </div>
                                 </div>
                             )}
 
-                            <div className="flex flex-row space-x-3 md:space-x-4 justify-center items-center border-t p-3 md:p-6 flex-shrink-0">
+                            <div className={classNames(
+                                "flex flex-row justify-center items-center border-t flex-shrink-0",
+                                isEBN ? "space-x-2 p-2" : "space-x-3 md:space-x-4 p-3 md:p-6"
+                            )}>
                                 <button
                                     type="submit"
                                     disabled={isSubmitting || !canProceed(values) || processing}
-                                    className={`px-6 md:px-32 py-4 md:py-6 text-base md:text-lg font-bold transition-colors rounded-none ${canProceed(values) && !processing
-                                        ? 'bg-cyan-500 hover:bg-cyan-600 text-white'
-                                        : 'bg-gray-400 text-gray-700 cursor-not-allowed'
-                                        }`}
+                                    className={classNames(
+                                        "font-bold transition-colors rounded-none",
+                                        isEBN ? "px-8 py-3 text-sm" : "px-6 md:px-32 py-4 md:py-6 text-base md:text-lg",
+                                        canProceed(values) && !processing
+                                            ? 'bg-cyan-500 hover:bg-cyan-600 text-white'
+                                            : 'bg-gray-400 text-gray-700 cursor-not-allowed'
+                                    )}
                                 >
-                                    {isSubmitting || processing ? 'PROCESSING...' : 'COMPLETE TRANSACTION'}
+                                    {isSubmitting || processing ? 'PROCESSING...' : (isEBN ? 'COMPLETE' : 'COMPLETE TRANSACTION')}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={onClose}
                                     disabled={isSubmitting || processing}
-                                    className="bg-red-500 text-white px-6 md:px-32 py-4 md:py-6 text-base md:text-lg font-bold rounded-none hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className={classNames(
+                                        "bg-red-500 text-white font-bold rounded-none hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed",
+                                        isEBN ? "px-8 py-3 text-sm" : "px-6 md:px-32 py-4 md:py-6 text-base md:text-lg"
+                                    )}
                                 >
                                     CANCEL
                                 </button>
@@ -321,7 +364,8 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 onClose={handleCloseCompleteModal}
                 onNewTransaction={handleNewTransaction}
             />
-        </div>
+        </div>,
+        document.body
     );
 };
 

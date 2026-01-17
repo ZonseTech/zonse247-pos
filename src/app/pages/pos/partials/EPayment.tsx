@@ -6,6 +6,7 @@ import { Phone } from 'lucide-react';
 import { FormikErrors } from 'formik';
 import FormInput from '../../../components/FormInput';
 import { useIsMobile } from '../../../hooks/useMediaQuery';
+import classNames from 'classnames';
 
 interface EPaymentProps {
     total: number;
@@ -13,6 +14,7 @@ interface EPaymentProps {
     activeInput: ActiveInputType;
     onValueChange: (field: keyof TransactionValues, value: any, shouldValidate?: boolean) => Promise<void | FormikErrors<TransactionValues>>
     onActiveInputChange: (input: ActiveInputType) => void;
+    compact?: boolean;
 }
 
 export const E_PAYMENT_METHODS = [
@@ -26,6 +28,7 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
     activeInput,
     onValueChange,
     onActiveInputChange,
+    compact = false,
 }) => {
     const isMobile = useIsMobile();
     const keyboardSettings = useKeyboardSettings();
@@ -177,10 +180,16 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
 
     return (
         <div className="flex flex-col">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
+            <div className={classNames(
+                "grid grid-cols-1 xl:grid-cols-2",
+                compact ? "gap-2" : "gap-4 md:gap-6"
+            )}>
                 <div>
-                    <div className="mb-3 md:mb-4">
-                        <div className="grid grid-cols-2 gap-2 md:gap-4">
+                    <div className={compact ? "mb-2" : "mb-3 md:mb-4"}>
+                        <div className={classNames(
+                            "grid grid-cols-2",
+                            compact ? "gap-1" : "gap-2 md:gap-4"
+                        )}>
                             {E_PAYMENT_METHODS.map((method) => {
                                 const IconComponent = method.icon;
                                 return (
@@ -191,13 +200,19 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                                             e.preventDefault();
                                             handleOnMethodSelect(method.id)
                                         }}
-                                        className={`p-3 md:p-6 rounded-none flex flex-col items-center gap-2 md:gap-3 transition-colors ${selectedSubMethod === method.id
-                                            ? method.color + ' text-white'
-                                            : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                                            }`}
+                                        className={classNames(
+                                            "rounded-none flex flex-col items-center transition-colors",
+                                            compact ? "p-2 gap-1" : "p-3 md:p-6 gap-2 md:gap-3",
+                                            selectedSubMethod === method.id
+                                                ? method.color + ' text-white'
+                                                : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                                        )}
                                     >
-                                        <IconComponent className="w-6 h-6 md:w-8 md:h-8" />
-                                        <span className="text-xs md:text-sm font-bold text-center">{method.name}</span>
+                                        <IconComponent className={compact ? "w-4 h-4" : "w-6 h-6 md:w-8 md:h-8"} />
+                                        <span className={classNames(
+                                            "font-bold text-center",
+                                            compact ? "text-[10px]" : "text-xs md:text-sm"
+                                        )}>{method.name}</span>
                                     </button>
                                 );
                             })}
@@ -205,8 +220,11 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                     </div>
 
                     {(selectedSubMethod === 'airtel-money' || selectedSubMethod === 'tnm-mpamba') && (
-                        <div className="mb-4 md:mb-6">
-                            <h3 className="text-sm md:text-xl font-bold text-black dark:text-gray-400 mb-2 md:mb-3">PHONE NUMBER</h3>
+                        <div className={compact ? "mb-2" : "mb-4 md:mb-6"}>
+                            <h3 className={classNames(
+                                "font-bold text-black dark:text-gray-400",
+                                compact ? "text-xs mb-1" : "text-sm md:text-xl mb-2 md:mb-3"
+                            )}>PHONE NUMBER</h3>
                             <FormInput
                                 ref={phoneInputRef}
                                 type="tel"
@@ -217,14 +235,20 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                                 placeholder="e.g., 0881234567"
                                 name='phoneNumber'
                                 maxLength={10}
-                                className={`w-full p-3 md:p-4 border border-gray-300 rounded-none text-black text-base md:text-xl font-mono ${activeInput === 'phoneNumber' ? 'border-blue-500 bg-blue-50' : ''
-                                    }`}
+                                className={classNames(
+                                    "w-full border border-gray-300 rounded-none text-black font-mono",
+                                    compact ? "p-2 text-sm" : "p-3 md:p-4 text-base md:text-xl",
+                                    activeInput === 'phoneNumber' && 'border-blue-500 bg-blue-50'
+                                )}
                             />
                         </div>
                     )}
 
-                    <div className="mb-4 md:mb-0">
-                        <h3 className="text-sm md:text-xl font-bold text-black dark:text-gray-400 mb-2 md:mb-3">
+                    <div className={compact ? "mb-2" : "mb-4 md:mb-0"}>
+                        <h3 className={classNames(
+                            "font-bold text-black dark:text-gray-400",
+                            compact ? "text-xs mb-1" : "text-sm md:text-xl mb-2 md:mb-3"
+                        )}>
                             REFERENCE NUMBER
                         </h3>
                         <FormInput
@@ -237,22 +261,37 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                             placeholder="REF.GGJH878.292..."
                             name='transactionId'
                             maxLength={50}
-                            className={`w-full p-3 md:p-4 border border-gray-300 rounded-none text-black text-base md:text-xl font-mono ${activeInput === 'referenceNo' ? 'border-blue-500 bg-blue-50' : ''
-                                }`}
+                            className={classNames(
+                                "w-full border border-gray-300 rounded-none text-black font-mono",
+                                compact ? "p-2 text-sm" : "p-3 md:p-4 text-base md:text-xl",
+                                activeInput === 'referenceNo' && 'border-blue-500 bg-blue-50'
+                            )}
                         />
                     </div>
                 </div>
 
-                <div className="space-y-4 md:space-y-8">
+                <div className={compact ? "space-y-2" : "space-y-4 md:space-y-8"}>
                     <div>
-                        <h3 className="text-xl md:text-5xl font-bold text-black dark:text-gray-400 mb-2">BALANCE DUE</h3>
-                        <div className="bg-gray-800 text-green-400 text-center p-4 md:p-6 text-2xl md:text-5xl font-bold rounded-none">
+                        <h3 className={classNames(
+                            "font-bold text-black dark:text-gray-400",
+                            compact ? "text-sm mb-1" : "text-xl md:text-5xl mb-2"
+                        )}>BALANCE DUE</h3>
+                        <div className={classNames(
+                            "bg-gray-800 text-green-400 text-center font-bold rounded-none",
+                            compact ? "p-2 text-lg" : "p-4 md:p-6 text-2xl md:text-5xl"
+                        )}>
                             MK {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                     </div>
                     <div>
-                        <h3 className="text-xl md:text-5xl font-bold text-black dark:text-gray-400 mb-2">PAYMENT AMOUNT</h3>
-                        <div className="bg-gray-800 text-white text-center p-4 md:p-6 text-2xl md:text-5xl font-bold rounded-none">
+                        <h3 className={classNames(
+                            "font-bold text-black dark:text-gray-400",
+                            compact ? "text-sm mb-1" : "text-xl md:text-5xl mb-2"
+                        )}>PAYMENT AMOUNT</h3>
+                        <div className={classNames(
+                            "bg-gray-800 text-white text-center font-bold rounded-none",
+                            compact ? "p-2 text-lg" : "p-4 md:p-6 text-2xl md:text-5xl"
+                        )}>
                             MK {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                     </div>
@@ -269,12 +308,13 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                     onBackspace={handleVirtualBackspace}
                     onEnter={handleVirtualEnter}
                     onSpace={handleVirtualSpace}
-                    className="virtual-keyboard w-full mt-4"
+                    className={classNames("virtual-keyboard w-full", compact ? "mt-2" : "mt-4")}
                     settings={{
                         theme: keyboardSettings.theme,
                         enableSound: keyboardSettings.enableSound,
                         enableHaptic: keyboardSettings.enableHaptic,
                     }}
+                    compact={compact}
                 />
             </div>}
         </div>
