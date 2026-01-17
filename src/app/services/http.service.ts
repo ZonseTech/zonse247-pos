@@ -6,6 +6,7 @@ import type {
 	InternalAxiosRequestConfig,
 } from 'axios';
 import { isElectron } from '../../helpers/index.helper';
+import { ROUTES } from '../utils/constants';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -144,6 +145,16 @@ httpInstance.interceptors.request.use(
 	}
 );
 
+const handleAuthError = (): void => {
+	sessionStorage.removeItem('user');
+	sessionStorage.removeItem('token');
+	sessionStorage.removeItem('tenantId');
+
+	if (window.location.pathname !== ROUTES.LOGIN) {
+		window.location.href = ROUTES.LOGIN;
+	}
+};
+
 httpInstance.interceptors.response.use(
 	(res: AxiosResponse<any, any>) => {
 		stopProgress();
@@ -160,9 +171,10 @@ httpInstance.interceptors.response.use(
 				console.error(message);
 				break;
 			case 401:
+				handleAuthError();
 				break;
 			case 403:
-				sessionStorage.clear();
+				handleAuthError();
 				break;
 			case 404:
 				error.message = (response?.data as any)?.message || message || '';
