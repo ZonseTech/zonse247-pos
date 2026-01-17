@@ -65,14 +65,50 @@ class WebStorageAdapter implements DataStoreAdapter {
         }
     }
 
-    async getActiveBranch(): Promise<ApiResponse<Branch | null>> {
+    async getActiveBranch(): Promise<ApiResponse<{
+        branchId: string;
+        tenantId: string;
+        terminalId: string;
+        branch: Branch | null;
+    } | null>> {
         try {
             const data = sessionStorage.getItem(this.ACTIVE_BRANCH_KEY);
-            const branch = data ? JSON.parse(data) as Branch : null;
-            return { data: branch, success: true };
+            if (!data) {
+                return { data: null, success: true };
+            }
+            const parsed = JSON.parse(data);
+            return { data: parsed, success: true };
         } catch (error) {
             return { data: null, success: false, error: String(error) };
         }
+    }
+
+    async setActiveBranch(branchId: string): Promise<ApiResponse<{
+        branchId: string;
+        tenantId: string;
+        terminalId: string;
+        branch: Branch | null;
+    }>> {
+        try {
+            // For web, we store a minimal branch info structure
+            // The actual branch switching is handled by the API via BranchContext
+            const data = {
+                branchId,
+                tenantId: '',
+                terminalId: '',
+                branch: null
+            };
+            sessionStorage.setItem(this.ACTIVE_BRANCH_KEY, JSON.stringify(data));
+            return { data, success: true };
+        } catch (error) {
+            return { data: { branchId, tenantId: '', terminalId: '', branch: null }, success: false, error: String(error) };
+        }
+    }
+
+    async getAvailableBranches(): Promise<ApiResponse<Branch[]>> {
+        // For web, branches are fetched from the API via BranchContext
+        // This is just a placeholder - web apps should use the API directly
+        return { data: [], success: true };
     }
 }
 

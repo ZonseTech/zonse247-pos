@@ -23,6 +23,7 @@
 - add split payment support for single sale
 - implement subscription-based pricing models for different user tiers
 - add support for multiple payment methods in a single sale transaction
+- support assigning of multiple branchs to a single user
 
 - improve offline mode performance and reliability
 - enhance security features with 2FA and biometric options

@@ -47,5 +47,17 @@ interface DataStoreAdapter {
     updateSetup: (updates: Partial<SetupData>) => Promise<{ success: boolean; error?: string }>;
     clearSetup: () => Promise<{ success: boolean; error?: string }>;
     getSignature: () => Promise<ApiResponse<string>>;
-    getActiveBranch: () => Promise<ApiResponse<Branch | null>>;
+    getActiveBranch: () => Promise<ApiResponse<{
+        branchId: string;
+        tenantId: string;
+        terminalId: string;
+        branch: Branch | null;
+    } | null>>;
+    setActiveBranch: (branchId: string) => Promise<ApiResponse<{
+        branchId: string;
+        tenantId: string;
+        terminalId: string;
+        branch: Branch | null;
+    }>>;
+    getAvailableBranches: () => Promise<ApiResponse<Branch[]>>;
 }

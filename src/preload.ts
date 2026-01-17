@@ -7,6 +7,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
         hasSetup: () => ipcRenderer.invoke('settings:has-setup'),
         getSignature: () => ipcRenderer.invoke('settings:get-tenant-signature'),
         getActiveBranch: () => ipcRenderer.invoke('settings:get-active-branch'),
+        setActiveBranch: (branchId: string) => ipcRenderer.invoke('settings:set-active-branch', branchId),
+        getAvailableBranches: () => ipcRenderer.invoke('settings:get-available-branches'),
         updateSetup: (updates: any) => ipcRenderer.invoke('settings:update-setup', updates),
         clearSetup: () => ipcRenderer.invoke('settings:clear-setup'),
     },

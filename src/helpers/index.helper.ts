@@ -6,7 +6,19 @@ declare global {
                 hasSetup: () => Promise<ApiResponse<boolean>>;
                 getSetup: () => Promise<ApiResponse<SetupData>>;
                 getSignature: () => Promise<ApiResponse<string>>;
-                getActiveBranch: () => Promise<ApiResponse<Branch>>;
+                getActiveBranch: () => Promise<ApiResponse<{
+                    branchId: string;
+                    tenantId: string;
+                    terminalId: string;
+                    branch: Branch | null;
+                } | null>>;
+                setActiveBranch: (branchId: string) => Promise<ApiResponse<{
+                    branchId: string;
+                    tenantId: string;
+                    terminalId: string;
+                    branch: Branch | null;
+                }>>;
+                getAvailableBranches: () => Promise<ApiResponse<Branch[]>>;
                 saveSetup: (setupData: SetupData) => Promise<ApiResponse<void>>;
                 updateSetup: (updates: Partial<SetupData>) => Promise<ApiResponse<void>>;
             };

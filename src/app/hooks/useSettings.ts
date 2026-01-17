@@ -11,6 +11,13 @@ function createStorageAdapter(): DataStoreAdapter {
     return new WebStorageAdapter();
 }
 
+interface ActiveBranchInfo {
+    branchId: string;
+    tenantId: string;
+    terminalId: string;
+    branch: Branch | null;
+}
+
 interface UseSettingsReturn {
     setup: SetupData | null;
     loading: boolean;
@@ -20,7 +27,9 @@ interface UseSettingsReturn {
     clearSetup: () => Promise<boolean>;
     updateSetup: (updates: Partial<SetupData>) => Promise<boolean>;
     getSignature: () => Promise<string | null>;
-    getActiveBranch: () => Promise<Branch | null>;
+    getActiveBranch: () => Promise<ActiveBranchInfo | null>;
+    setActiveBranch: (branchId: string) => Promise<ActiveBranchInfo | null>;
+    getAvailableBranches: () => Promise<Branch[]>;
     refreshSetup: () => Promise<void>;
     isDesktop: boolean;
 }
@@ -143,13 +152,43 @@ export function useSettings(): UseSettingsReturn {
         }
     }, [adapter]);
 
-    const getActiveBranch = useCallback(async (): Promise<Branch | null> => {
+    const getActiveBranch = useCallback(async (): Promise<{
+        branchId: string;
+        tenantId: string;
+        terminalId: string;
+        branch: Branch | null;
+    } | null> => {
         try {
             const result = await adapter.getActiveBranch();
             return result.success ? result.data || null : null;
         } catch (err: any) {
             console.error('Error getting active branch:', err);
             return null;
+        }
+    }, [adapter]);
+
+    const setActiveBranch = useCallback(async (branchId: string): Promise<{
+        branchId: string;
+        tenantId: string;
+        terminalId: string;
+        branch: Branch | null;
+    } | null> => {
+        try {
+            const result = await adapter.setActiveBranch(branchId);
+            return result.success ? result.data : null;
+        } catch (err: any) {
+            console.error('Error setting active branch:', err);
+            return null;
+        }
+    }, [adapter]);
+
+    const getAvailableBranches = useCallback(async (): Promise<Branch[]> => {
+        try {
+            const result = await adapter.getAvailableBranches();
+            return result.success ? result.data || [] : [];
+        } catch (err: any) {
+            console.error('Error getting available branches:', err);
+            return [];
         }
     }, [adapter]);
 
@@ -163,6 +202,8 @@ export function useSettings(): UseSettingsReturn {
         updateSetup,
         getSignature,
         getActiveBranch,
+        setActiveBranch,
+        getAvailableBranches,
         refreshSetup: loadSetup,
         isDesktop,
     };
