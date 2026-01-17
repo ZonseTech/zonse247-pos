@@ -10,7 +10,7 @@ import AuthLayout from "../../layouts/AuthLayout";
 import FormInput from "../../components/FormInput";
 import { useAuth } from "../../context/AuthProvider";
 import FormWrapper from "../../components/FormWrapper";
-import { useIsMobile } from '../../hooks/useMediaQuery';
+import { useIsMobile, useIsEBN } from '../../hooks/useMediaQuery';
 import InputKeyboard from "../../components/InputKeyboard";
 import { useKeyboardSettings } from '../../hooks/useKeyboardSettings';
 import type { Dispatch, FunctionComponent, SetStateAction } from "react";
@@ -24,6 +24,7 @@ interface AuthProps {
 const Login: FunctionComponent = () => {
     const auth = useAuth()
     const isMobile = useIsMobile();
+    const isEBN = useIsEBN();
     const navigate = useNavigate();
     const keyboardSettings = useKeyboardSettings();
     const [authError, setAuthError]: [string, Dispatch<SetStateAction<string>>] = useState('')
@@ -111,6 +112,7 @@ const Login: FunctionComponent = () => {
                     onBackspace={handleBackspace}
                     onEnter={handleEnter}
                     onSpace={handleSpace}
+                    compact={isEBN}
                     settings={{
                         theme: keyboardSettings.theme,
                         enableSound: keyboardSettings.enableSound,
