@@ -84,6 +84,7 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
             showCloseButton={false}
             onClose={onClose}
             className={isEBN ? "max-w-xl max-h-[98vh]" : "max-w-2xl"}
+            overlayClassName="z-[70]"
         >
             <div className={isEBN ? "p-3" : "p-6"}>
                 {/* Success Header */}
@@ -307,9 +308,10 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
 
             {/* Receipt Preview Modal */}
             {showReceiptPreview && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto shadow-2xl">
-                        <div className="sticky top-0 bg-white dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-600 flex items-center justify-between">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[80] p-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full flex flex-col max-h-[90vh] shadow-2xl">
+                        {/* Fixed Header */}
+                        <div className="flex-shrink-0 bg-white dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-600 flex items-center justify-between rounded-t-xl">
                             <h3 className="font-semibold text-gray-900 dark:text-white">Receipt Preview</h3>
                             <button
                                 onClick={() => setShowReceiptPreview(false)}
@@ -319,8 +321,8 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                             </button>
                         </div>
 
-                        {/* Receipt Content */}
-                        <div className="p-6 bg-white dark:bg-gray-800">
+                        {/* Scrollable Receipt Content */}
+                        <div className="flex-1 overflow-y-auto p-6 bg-white dark:bg-gray-800">
                             <div className="text-center mb-6">
                                 <div className="flex justify-center mb-3">
                                     <img
@@ -417,7 +419,8 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                             </div>
                         </div>
 
-                        <div className="sticky bottom-0 bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-600">
+                        {/* Fixed Footer */}
+                        <div className="flex-shrink-0 bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-600 rounded-b-xl">
                             <Button
                                 theme="success"
                                 className="w-full py-3 flex items-center justify-center gap-2"
