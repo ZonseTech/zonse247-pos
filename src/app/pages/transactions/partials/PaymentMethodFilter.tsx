@@ -8,13 +8,15 @@ interface PaymentMethodFilterProps {
     onChange: (paymentMethodId: string | 'all') => void;
     paymentMethods: PaymentMethod[];
     isLoading?: boolean;
+    compact?: boolean;
 }
 
 export const PaymentMethodFilter: FC<PaymentMethodFilterProps> = ({
     selectedPaymentMethod,
     onChange,
     paymentMethods,
-    isLoading = false
+    isLoading = false,
+    compact = false
 }) => {
     const isMobile = useIsMobile();
 
@@ -47,14 +49,17 @@ export const PaymentMethodFilter: FC<PaymentMethodFilterProps> = ({
                 <button
                     key={method.methodId}
                     onClick={() => onChange(method.methodId)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border ${getColorClasses(isSelected)}`}
+                    className={compact
+                        ? `flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium rounded border ${getColorClasses(isSelected)}`
+                        : `flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border ${getColorClasses(isSelected)}`
+                    }
                 >
-                    <Icon className="w-4 h-4" />
-                    <span>{method.name}</span>
+                    <Icon className={compact ? "w-3 h-3" : "w-4 h-4"} />
+                    <span>{compact ? method.name.substring(0, 4) : method.name}</span>
                 </button>
             );
         });
-    }, [paymentMethods, selectedPaymentMethod, onChange, getIcon, getColorClasses]);
+    }, [paymentMethods, selectedPaymentMethod, onChange, getIcon, getColorClasses, compact]);
 
     if (isLoading) {
         return (
@@ -122,15 +127,21 @@ export const PaymentMethodFilter: FC<PaymentMethodFilterProps> = ({
 
     // Desktop: render as button group
     return (
-        <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 mr-1">Payment Method:</span>
+        <div className={compact ? "flex flex-wrap items-center gap-1" : "flex flex-wrap items-center gap-2"}>
+            <span className={compact
+                ? "text-[10px] font-medium text-gray-700 dark:text-gray-300 mr-0.5"
+                : "text-sm font-medium text-gray-700 dark:text-gray-300 mr-1"
+            }>Payment:</span>
 
             {/* All option */}
             <button
                 onClick={() => onChange('all')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border ${getColorClasses(selectedPaymentMethod === 'all')}`}
+                className={compact
+                    ? `flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium rounded border ${getColorClasses(selectedPaymentMethod === 'all')}`
+                    : `flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border ${getColorClasses(selectedPaymentMethod === 'all')}`
+                }
             >
-                <Wallet className="w-4 h-4" />
+                <Wallet className={compact ? "w-3 h-3" : "w-4 h-4"} />
                 <span>All</span>
             </button>
 
