@@ -6,15 +6,19 @@ import FormInput from '../../components/FormInput';
 import FormWrapper from '../../components/FormWrapper';
 import FormSelectBox from '../../components/FormSelectBox';
 import { CategorySearch } from '../categories/partials/CategorySearch';
-import { Fragment, useState, useEffect, ChangeEvent, FunctionComponent } from 'react';
+import { Fragment, useState, useEffect, ChangeEvent, FunctionComponent, useCallback } from 'react';
 import inventoryService from '../../services/inventory.service';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import { useNavigate, useLocation } from 'react-router';
 import { ROUTES } from '../../utils/constants';
-import { Zap, FileText } from 'lucide-react';
+import { Zap, FileText, BarcodeIcon } from 'lucide-react';
 import { HiOutlineDocumentPlus } from 'react-icons/hi2';
 import { useInventory } from '../../hooks/useInventory';
+import { Capacitor } from '@capacitor/core';
+import CameraBarcodeScanner from '../../components/scanner/CameraBarcodeScanner';
+import { type ScannerResult } from '../../services/barcode-scanner.service';
+import { useScannerFeedback } from '../../hooks/useScannerSettings';
 
 type FormMode = 'quick' | 'full';
 
@@ -23,6 +27,11 @@ const InventoryForm: FunctionComponent = () => {
     const location = useLocation();
     const [loading, setLoading] = useState(false);
     const [item, setItem] = useState<InventoryItem | null>(null);
+    const [isBarcodeScannerOpen, setIsBarcodeScannerOpen] = useState(false);
+    const { triggerFeedback } = useScannerFeedback();
+
+    // Check if running on native mobile platform
+    const isNative = Capacitor.isNativePlatform();
     const [formMode, setFormMode] = useState<FormMode>('full');
     const { reloadInventory } = useInventory();
 
@@ -215,7 +224,7 @@ const InventoryForm: FunctionComponent = () => {
             }
         } catch (error: any) {
             console.error('Error saving inventory item:', error);
-            const errorMessage = error?.response?.data?.message || `Failed to ${productId ? 'update' : 'create'} inventory item`;
+            const errorMessage = error?.message || error?.response?.data?.message || `Failed to ${productId ? 'update' : 'create'} inventory item`;
             Report.failure('Error', errorMessage, 'Okay');
         } finally {
             setLoading(false);
@@ -324,15 +333,53 @@ const InventoryForm: FunctionComponent = () => {
                                             required
                                         />
 
-                                        <FormInput
-                                            label="Barcode"
-                                            name="barcode"
-                                            placeholder="Scan or enter barcode"
-                                            required
-                                            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                                                handleBarcodeChange(e.target.value, setFieldValue);
+                                        {/* Mobile-optimized Barcode Input */}
+                                        <div className="md:col-span-2 p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                Barcode <span className="text-red-500">*</span>
+                                            </label>
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex-1 min-w-0">
+                                                    <FormInput
+                                                        name="barcode"
+                                                        placeholder="Scan or enter barcode"
+                                                        required
+                                                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                                            handleBarcodeChange(e.target.value, setFieldValue);
+                                                        }}
+                                                        onKeyDown={handleBarcodeKeyDown}
+                                                    />
+                                                </div>
+
+                                                {isNative && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setIsBarcodeScannerOpen(true)}
+                                                        className="flex-shrink-0 px-4 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-lg font-medium text-sm transition-colors duration-150 flex items-center justify-center gap-2 touch-manipulation"
+                                                        title="Scan barcode with camera"
+                                                        aria-label="Open camera barcode scanner"
+                                                    >
+                                                        <BarcodeIcon className="w-5 h-5" />
+                                                        <span>Scan</span>
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                                {isNative ? 'Tap the scan button to use your camera' : 'Enter or scan the product barcode'}
+                                            </p>
+                                        </div>
+
+                                        <CameraBarcodeScanner
+                                            isOpen={isBarcodeScannerOpen}
+                                            onClose={() => setIsBarcodeScannerOpen(false)}
+                                            onScan={(result: ScannerResult) => {
+                                                triggerFeedback();
+                                                setFieldValue('barcode', result.barcode);
+                                                setIsBarcodeScannerOpen(false);
                                             }}
-                                            onKeyDown={handleBarcodeKeyDown}
+                                            continuous={false}
+                                            title="Scan Barcode"
+                                            subtitle="Point camera at product barcode"
                                         />
 
                                         {formMode === 'full' && (
