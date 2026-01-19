@@ -3,6 +3,7 @@ import { Minus, Plus, Hash, Package } from 'lucide-react';
 import { Button, Modal, ModalFooter } from '../../../components';
 import { Input, Label } from '../../../components';
 import { useInventoryActions } from '../../../hooks/useInventoryActions';
+import { useIsEBN } from '../../../hooks/useMediaQuery';
 import type { AdjustInventoryPayload } from '../../../services/inventory.service';
 
 interface AdjustQuantityModalProps {
@@ -21,6 +22,7 @@ const AdjustQuantityModal: React.FC<AdjustQuantityModalProps> = ({
     const [adjustmentType, setAdjustmentType] = useState<'add' | 'subtract' | 'set'>('add');
     const [adjustmentValue, setAdjustmentValue] = useState('');
     const [adjustmentReason, setAdjustmentReason] = useState('');
+    const isEBN = useIsEBN();
 
     const { adjustInventory, updateQuantity, isLoading } = useInventoryActions();
 
@@ -81,16 +83,29 @@ const AdjustQuantityModal: React.FC<AdjustQuantityModalProps> = ({
             isOpen={isOpen}
             onClose={handleClose}
             title="Adjust Inventory Quantity"
+            className={isEBN ? "max-w-md" : ""}
         >
-            <div className="p-4 space-y-4">
+            <div className={isEBN ? "p-2 space-y-2" : "p-4 space-y-4"}>
                 {/* Item Info */}
-                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                        <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <div className={isEBN
+                    ? "flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+                    : "flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+                }>
+                    <div className={isEBN
+                        ? "p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded"
+                        : "p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg"
+                    }>
+                        <Package className={isEBN ? "w-4 h-4 text-blue-600 dark:text-blue-400" : "w-5 h-5 text-blue-600 dark:text-blue-400"} />
                     </div>
                     <div>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">{item.name}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className={isEBN
+                            ? "text-xs font-medium text-gray-900 dark:text-gray-100"
+                            : "font-medium text-gray-900 dark:text-gray-100"
+                        }>{item.name}</p>
+                        <p className={isEBN
+                            ? "text-[10px] text-gray-500 dark:text-gray-400"
+                            : "text-sm text-gray-500 dark:text-gray-400"
+                        }>
                             Current Stock: <span className="font-semibold">{currentQuantity}</span>
                         </p>
                     </div>
@@ -98,41 +113,62 @@ const AdjustQuantityModal: React.FC<AdjustQuantityModalProps> = ({
 
                 {/* Adjustment Type */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className={isEBN
+                        ? "block text-[10px] font-medium text-gray-700 dark:text-gray-300 mb-1"
+                        : "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    }>
                         Adjustment Type
                     </label>
-                    <div className="flex gap-2">
+                    <div className={isEBN ? "flex gap-1" : "flex gap-2"}>
                         <button
                             type="button"
                             onClick={() => setAdjustmentType('add')}
-                            className={`flex-1 p-3 rounded-lg border-2 flex items-center justify-center gap-2 transition-colors ${adjustmentType === 'add'
-                                ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                                : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
-                                }`}
+                            className={isEBN
+                                ? `flex-1 p-2 rounded border-2 flex items-center justify-center gap-1 transition-colors text-xs ${adjustmentType === 'add'
+                                    ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
+                                }`
+                                : `flex-1 p-3 rounded-lg border-2 flex items-center justify-center gap-2 transition-colors ${adjustmentType === 'add'
+                                    ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
+                                }`
+                            }
                         >
-                            <Plus className="w-4 h-4" />
+                            <Plus className={isEBN ? "w-3 h-3" : "w-4 h-4"} />
                             Add
                         </button>
                         <button
                             type="button"
                             onClick={() => setAdjustmentType('subtract')}
-                            className={`flex-1 p-3 rounded-lg border-2 flex items-center justify-center gap-2 transition-colors ${adjustmentType === 'subtract'
-                                ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-                                : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
-                                }`}
+                            className={isEBN
+                                ? `flex-1 p-2 rounded border-2 flex items-center justify-center gap-1 transition-colors text-xs ${adjustmentType === 'subtract'
+                                    ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
+                                }`
+                                : `flex-1 p-3 rounded-lg border-2 flex items-center justify-center gap-2 transition-colors ${adjustmentType === 'subtract'
+                                    ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
+                                }`
+                            }
                         >
-                            <Minus className="w-4 h-4" />
-                            Subtract
+                            <Minus className={isEBN ? "w-3 h-3" : "w-4 h-4"} />
+                            Sub
                         </button>
                         <button
                             type="button"
                             onClick={() => setAdjustmentType('set')}
-                            className={`flex-1 p-3 rounded-lg border-2 flex items-center justify-center gap-2 transition-colors ${adjustmentType === 'set'
-                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
-                                : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
-                                }`}
+                            className={isEBN
+                                ? `flex-1 p-2 rounded border-2 flex items-center justify-center gap-1 transition-colors text-xs ${adjustmentType === 'set'
+                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
+                                }`
+                                : `flex-1 p-3 rounded-lg border-2 flex items-center justify-center gap-2 transition-colors ${adjustmentType === 'set'
+                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
+                                }`
+                            }
                         >
-                            <Hash className="w-4 h-4" />
+                            <Hash className={isEBN ? "w-3 h-3" : "w-4 h-4"} />
                             Set
                         </button>
                     </div>
@@ -140,7 +176,7 @@ const AdjustQuantityModal: React.FC<AdjustQuantityModalProps> = ({
 
                 {/* Quantity Input */}
                 <div>
-                    <Label htmlFor="quantity">Quantity</Label>
+                    <Label htmlFor="quantity" className={isEBN ? "text-[10px]" : ""}>Quantity</Label>
                     <Input
                         id="quantity"
                         name="quantity"
@@ -149,34 +185,42 @@ const AdjustQuantityModal: React.FC<AdjustQuantityModalProps> = ({
                         value={adjustmentValue}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAdjustmentValue(e.target.value)}
                         placeholder="Enter quantity"
+                        className={isEBN ? "h-7 text-xs" : ""}
                     />
                 </div>
 
                 {/* Reason Input */}
                 <div>
-                    <Label htmlFor="reason">Reason (optional)</Label>
+                    <Label htmlFor="reason" className={isEBN ? "text-[10px]" : ""}>Reason (optional)</Label>
                     <Input
                         id="reason"
                         name="reason"
                         value={adjustmentReason}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAdjustmentReason(e.target.value)}
-                        placeholder="e.g., Stock count adjustment, Damaged goods"
+                        placeholder={isEBN ? "Reason" : "e.g., Stock count adjustment, Damaged goods"}
+                        className={isEBN ? "h-7 text-xs" : ""}
                     />
                 </div>
 
                 {/* Preview */}
                 {adjustmentValue && (
-                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                        <p className="text-sm text-blue-800 dark:text-blue-200">
+                    <div className={isEBN
+                        ? "p-2 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800"
+                        : "p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
+                    }>
+                        <p className={isEBN
+                            ? "text-[10px] text-blue-800 dark:text-blue-200"
+                            : "text-sm text-blue-800 dark:text-blue-200"
+                        }>
                             New quantity will be: <span className="font-bold">{getNewQuantity()}</span>
                         </p>
                     </div>
                 )}
             </div>
 
-            <ModalFooter>
-                <div className="flex justify-end gap-2 w-full">
-                    <Button theme="neutral" layout="outline" onClick={handleClose}>
+            <ModalFooter className={isEBN ? "py-2 px-2" : ""}>
+                <div className={isEBN ? "flex justify-end gap-1 w-full" : "flex justify-end gap-2 w-full"}>
+                    <Button theme="neutral" layout="outline" onClick={handleClose} size={isEBN ? "small" : "regular"}>
                         Cancel
                     </Button>
                     <Button
@@ -184,8 +228,9 @@ const AdjustQuantityModal: React.FC<AdjustQuantityModalProps> = ({
                         onClick={handleSubmit}
                         disabled={!adjustmentValue || isLoading}
                         loading={isLoading}
+                        size={isEBN ? "small" : "regular"}
                     >
-                        Apply Adjustment
+                        Apply
                     </Button>
                 </div>
             </ModalFooter>

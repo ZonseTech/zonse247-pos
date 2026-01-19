@@ -21,6 +21,9 @@ import { ROUTES } from '../../utils/constants';
 import { Button, BottomSheet } from '../../components';
 import { useKeyboardSettings } from '../../hooks/useKeyboardSettings';
 import { useLayout } from '../../context/LayoutContext';
+import { useApp } from '../../context/AppProvider';
+import { isElectron } from '../../../helpers/index.helper';
+import classNames from 'classnames';
 
 const POSSystem: FunctionComponent = () => {
     const {
@@ -35,6 +38,7 @@ const POSSystem: FunctionComponent = () => {
     const isMobile = useIsMobile();
     const isEBN = useIsEBN();
     const { isSidebarHidden } = useLayout();
+    const { settings } = useApp();
     const focusManager = useFocusManager();
     const keyboardSettings = useKeyboardSettings();
     const barcodeScannerInputRef = useRef<HTMLInputElement>(null);
@@ -46,6 +50,9 @@ const POSSystem: FunctionComponent = () => {
     const [paymentMethodId, setPaymentMethodId] = useState<PaymentMethod>(CHECKOUT.CASH);
     const [customPriceInputs, setCustomPriceInputs] = useState<Record<string, string>>({});
 
+    // Check if sidebar is actually visible (web nav enabled AND not hidden by toggle)
+    const showWebNav = !isElectron() || settings?.navigationMenuType === 'web';
+    const isSidebarVisible = showWebNav && !isMobile && !isSidebarHidden;
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.target instanceof HTMLInputElement) return;
@@ -220,14 +227,25 @@ const POSSystem: FunctionComponent = () => {
             />
 
             {/* Fixed Balance Due - Desktop only (compact for EBN) */}
-            <div className="flex-shrink-0 mb-2 lg:mb-3 hidden md:block">
+            <div className={classNames(
+                "flex-shrink-0 hidden md:block",
+                isEBN ? "mb-1" : "mb-2 lg:mb-3"
+            )}>
                 <div className="flex items-center justify-between">
                     <Panel size='1/2'>
-                        <h1 className={`uppercase tracking-wider font-bold text-black dark:text-gray-400 ${isEBN ? 'text-3xl' : 'text-5xl lg:text-7xl'}`}>
+                        <h1 className={classNames(
+                            "uppercase tracking-wider font-bold text-black dark:text-gray-400",
+                            isEBN ? "text-xl" : "text-5xl lg:text-7xl"
+                        )}>
                             BALANCE DUE
                         </h1>
                     </Panel>
-                    <Panel size='1/2' className={`bg-gray-800 text-green-400/95 text-center font-bold ${isEBN ? 'px-3 py-2 text-2xl' : 'px-4 lg:px-8 py-3 lg:py-4 text-4xl lg:text-6xl'}`}>
+                    <Panel size='1/2' className={classNames(
+                        "bg-gray-800 text-green-400/95 text-center font-bold",
+                        isEBN
+                            ? "px-2 py-1.5 text-xl"
+                            : "px-4 lg:px-8 py-3 lg:py-4 text-4xl lg:text-6xl"
+                    )}>
                         MK {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </Panel>
                 </div>
@@ -245,7 +263,10 @@ const POSSystem: FunctionComponent = () => {
                         </div>
                     ) : (
                         <Panel size={isEBN && keyboardSettings.enabled ? '2/3' : '3/4'} className='w-full h-full overflow-hidden'>
-                            <div className={`h-full overflow-y-auto ${isEBN ? 'pb-36' : 'pb-48'}`}>
+                            <div className={classNames(
+                                "h-full overflow-y-auto",
+                                isEBN ? "pb-28" : "pb-48"
+                            )}>
                                 <CartTable
                                     focusManager={focusManager}
                                     customPriceInputs={customPriceInputs}
@@ -275,11 +296,24 @@ const POSSystem: FunctionComponent = () => {
             </div>
 
             {/* Fixed Bottom Section - Desktop (compact for EBN) */}
-            <div className={`hidden md:block fixed right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-30 transition-all duration-300 ${isSidebarHidden ? 'left-0' : 'left-64'} ${isEBN ? 'bottom-12' : 'bottom-16'}`}>
-                <div className={`flex gap-x-2 lg:gap-x-4 px-2 lg:px-4 ${isEBN ? 'py-1.5' : 'py-3'}`}>
+            <div className={classNames(
+                "hidden md:block fixed right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-30 transition-all duration-300",
+                isSidebarVisible ? "left-64" : "left-0",
+                isEBN ? "bottom-8" : "bottom-16"
+            )}>
+                <div className={classNames(
+                    "flex gap-x-2 lg:gap-x-4",
+                    isEBN ? "px-2 py-1" : "px-2 lg:px-4 py-3"
+                )}>
                     <Panel size={isEBN && keyboardSettings.enabled ? '2/3' : '3/4'} className='w-full'>
-                        <div className="flex items-center gap-2 mb-0.5 lg:mb-1">
-                            <label className={`block font-bold text-black dark:text-gray-400 flex-1 ${isEBN ? 'text-sm' : 'text-base lg:text-lg'}`}>
+                        <div className={classNames(
+                            "flex items-center gap-2",
+                            isEBN ? "mb-0.5" : "mb-0.5 lg:mb-1"
+                        )}>
+                            <label className={classNames(
+                                "block font-bold text-black dark:text-gray-400 flex-1",
+                                isEBN ? "text-xs" : "text-base lg:text-lg"
+                            )}>
                                 SCAN/ENTER PRODUCT CODE
                             </label>
                             <div className="block">
@@ -296,16 +330,25 @@ const POSSystem: FunctionComponent = () => {
                     </Panel>
 
                     <Panel size={isEBN ? '1/3' : '1/4'} className='flex'>
-                        <label className={`block font-bold text-black dark:text-gray-400 mb-0.5 lg:mb-1 ${isEBN ? 'text-sm' : 'text-base lg:text-lg'}`}>
+                        <label className={classNames(
+                            "block font-bold text-black dark:text-gray-400",
+                            isEBN ? "text-xs mb-0.5" : "text-base lg:text-lg mb-0.5 lg:mb-1"
+                        )}>
                             TOTAL NUMBER OF ITEMS
                         </label>
-                        <div className={`bg-gray-800 text-white font-bold text-center ${isEBN ? 'text-base py-1.5' : 'text-lg lg:text-xl py-2 lg:py-2.5'}`}>
+                        <div className={classNames(
+                            "bg-gray-800 text-white font-bold text-center",
+                            isEBN ? "text-sm py-1" : "text-lg lg:text-xl py-2 lg:py-2.5"
+                        )}>
                             {cart.length}
                         </div>
                     </Panel>
                 </div>
 
-                <Panel size='full' className="border-0 shadow-none px-2 lg:px-4">
+                <Panel size='full' className={classNames(
+                    "border-0 shadow-none",
+                    isEBN ? "px-2 pb-1" : "px-2 lg:px-4"
+                )}>
                     <FunctionButtons
                         onVoidSale={handleVoidSale}
                         onParkSale={handleParkSale}

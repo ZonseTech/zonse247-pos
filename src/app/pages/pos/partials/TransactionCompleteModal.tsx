@@ -6,6 +6,8 @@ import { useApp } from '../../../context/AppProvider';
 import printerService from '../../../services/printer.service';
 import { formatCurrency, formatDate } from '../../../utils';
 import { Logo } from '../../../assets/images';
+import { useIsEBN } from '../../../hooks/useMediaQuery';
+import classNames from 'classnames';
 
 type SaleOrTransaction = Transaction | Sale;
 
@@ -68,6 +70,7 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
     const [isPrinting, setIsPrinting] = useState<boolean>(false);
     const [showReceiptPreview, setShowReceiptPreview] = useState<boolean>(false);
     const { settings } = useApp();
+    const isEBN = useIsEBN();
 
     if (!isOpen || !transaction) return null;
 
@@ -125,66 +128,115 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
             isOpen={isOpen}
             showCloseButton={false}
             onClose={onClose}
-            className="max-w-2xl"
+            className={isEBN ? "max-w-xl max-h-[98vh]" : "max-w-2xl"}
+            overlayClassName="z-[70]"
         >
-            <div className="p-6">
+            <div className={isEBN ? "p-3" : "p-6"}>
                 {/* Success Header */}
-                <div className="text-center mb-8">
-                    <div className="flex justify-center mb-4">
-                        <div className="w-20 h-20 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center animate-bounce-once">
-                            <CheckCircle className="w-12 h-12 text-green-500" />
+                <div className={classNames("text-center", isEBN ? "mb-3" : "mb-8")}>
+                    <div className={classNames("flex justify-center", isEBN ? "mb-2" : "mb-4")}>
+                        <div className={classNames(
+                            "bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center animate-bounce-once",
+                            isEBN ? "w-12 h-12" : "w-20 h-20"
+                        )}>
+                            <CheckCircle className={isEBN ? "w-7 h-7 text-green-500" : "w-12 h-12 text-green-500"} />
                         </div>
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                    <h2 className={classNames(
+                        "font-bold text-gray-900 dark:text-white",
+                        isEBN ? "text-lg mb-1" : "text-2xl mb-2"
+                    )}>
                         Transaction Complete!
                     </h2>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className={classNames(
+                        "text-gray-600 dark:text-gray-400",
+                        isEBN && "text-xs"
+                    )}>
                         Payment has been processed successfully
                     </p>
                 </div>
 
                 {/* Transaction Summary Card */}
-                <div className="bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 mb-6 border border-gray-200 dark:border-gray-600">
-                    <div className="flex items-center justify-between mb-4">
-                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Reference #</span>
-                        <span className="font-mono text-sm bg-white dark:bg-gray-600 px-3 py-1 rounded-lg shadow-sm">
-                            {getRefNumber(transaction)}
+                <div className={classNames(
+                    "bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-xl border border-gray-200 dark:border-gray-600",
+                    isEBN ? "p-3 mb-3" : "p-6 mb-6"
+                )}>
+                    <div className={classNames("flex items-center justify-between", isEBN ? "mb-2" : "mb-4")}>
+                        <span className={classNames(
+                            "font-medium text-gray-500 dark:text-gray-400",
+                            isEBN ? "text-xs" : "text-sm"
+                        )}>Reference #</span>
+                        <span className={classNames(
+                            "font-mono bg-white dark:bg-gray-600 px-3 py-1 rounded-lg shadow-sm",
+                            isEBN ? "text-xs" : "text-sm"
+                        )}>
+                            {transaction.refNumber}
                         </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div className="bg-white dark:bg-gray-600 rounded-lg p-4 shadow-sm">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Amount</p>
-                            <p className="text-xl font-bold text-gray-900 dark:text-white">
-                                {formatCurrency(getTotal(transaction))}
+                    <div className={classNames("grid grid-cols-2", isEBN ? "gap-2 mb-2" : "gap-4 mb-4")}>
+                        <div className={classNames(
+                            "bg-white dark:bg-gray-600 rounded-lg shadow-sm",
+                            isEBN ? "p-2" : "p-4"
+                        )}>
+                            <p className={classNames(
+                                "text-gray-500 dark:text-gray-400",
+                                isEBN ? "text-[10px] mb-0.5" : "text-xs mb-1"
+                            )}>Total Amount</p>
+                            <p className={classNames(
+                                "font-bold text-gray-900 dark:text-white",
+                                isEBN ? "text-sm" : "text-xl"
+                            )}>
+                                {formatCurrency(transaction.total)}
                             </p>
                         </div>
-                        <div className="bg-white dark:bg-gray-600 rounded-lg p-4 shadow-sm">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Amount Paid</p>
-                            <p className="text-xl font-bold text-green-600 dark:text-green-400">
-                                {formatCurrency(getPaid(transaction))}
+                        <div className={classNames(
+                            "bg-white dark:bg-gray-600 rounded-lg shadow-sm",
+                            isEBN ? "p-2" : "p-4"
+                        )}>
+                            <p className={classNames(
+                                "text-gray-500 dark:text-gray-400",
+                                isEBN ? "text-[10px] mb-0.5" : "text-xs mb-1"
+                            )}>Amount Paid</p>
+                            <p className={classNames(
+                                "font-bold text-green-600 dark:text-green-400",
+                                isEBN ? "text-sm" : "text-xl"
+                            )}>
+                                {formatCurrency(transaction.paid)}
                             </p>
                         </div>
                     </div>
 
                     {change > 0 && (
-                        <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
+                        <div className={classNames(
+                            "bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg",
+                            isEBN ? "p-2 mb-2" : "p-4 mb-4"
+                        )}>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-2xl">💰</span>
-                                    <span className="font-medium text-yellow-800 dark:text-yellow-200">Change Due</span>
+                                    <span className={isEBN ? "text-lg" : "text-2xl"}>💰</span>
+                                    <span className={classNames(
+                                        "font-medium text-yellow-800 dark:text-yellow-200",
+                                        isEBN && "text-sm"
+                                    )}>Change Due</span>
                                 </div>
-                                <span className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">
+                                <span className={classNames(
+                                    "font-bold text-yellow-700 dark:text-yellow-300",
+                                    isEBN ? "text-lg" : "text-2xl"
+                                )}>
                                     {formatCurrency(change)}
                                 </span>
                             </div>
                         </div>
                     )}
 
-                    <div className="flex items-center justify-between text-sm">
+                    <div className={classNames("flex items-center justify-between", isEBN ? "text-xs" : "text-sm")}>
                         <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                             <span>Payment Method:</span>
-                            <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-xs font-medium">
+                            <span className={classNames(
+                                "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full font-medium",
+                                isEBN ? "text-[10px]" : "text-xs"
+                            )}>
                                 {paymentMethodLabel}
                             </span>
                         </div>
@@ -195,29 +247,50 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                 </div>
 
                 {/* Items Summary */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 mb-6 overflow-hidden">
-                    <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-                        <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                            <Receipt className="w-4 h-4" />
+                <div className={classNames(
+                    "bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden",
+                    isEBN ? "mb-3" : "mb-6"
+                )}>
+                    <div className={classNames(
+                        "bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600",
+                        isEBN ? "px-3 py-2" : "px-4 py-3"
+                    )}>
+                        <h3 className={classNames(
+                            "font-semibold text-gray-900 dark:text-white flex items-center gap-2",
+                            isEBN && "text-sm"
+                        )}>
+                            <Receipt className={isEBN ? "w-3 h-3" : "w-4 h-4"} />
                             Items ({transaction.items?.length || 0})
                         </h3>
                     </div>
-                    <div className="max-h-40 overflow-y-auto">
+                    <div className={isEBN ? "max-h-24 overflow-y-auto" : "max-h-40 overflow-y-auto"}>
                         {transaction.items?.map((item, index) => (
                             <div
                                 key={index}
-                                className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700 last:border-0"
+                                className={classNames(
+                                    "flex items-center justify-between border-b border-gray-100 dark:border-gray-700 last:border-0",
+                                    isEBN ? "px-3 py-1.5" : "px-4 py-3"
+                                )}
                             >
                                 <div className="flex-1">
-                                    <p className="font-medium text-gray-900 dark:text-white text-sm">
-                                        {getItemName(item)}
+                                    <p className={classNames(
+                                        "font-medium text-gray-900 dark:text-white",
+                                        isEBN ? "text-xs" : "text-sm"
+                                    )}>
+                                        {item.name}
                                     </p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                                        {item.quantity} × {formatCurrency(getItemPrice(item))}
+                                    <p className={classNames(
+                                        "text-gray-500 dark:text-gray-400",
+                                        isEBN ? "text-[10px]" : "text-xs"
+                                    )}>
+                                        {item.quantity} × {formatCurrency(item.sellPrice)}
                                     </p>
                                 </div>
-                                <span className="font-mono font-semibold text-gray-900 dark:text-white">
-                                    {formatCurrency(getItemPrice(item) * item.quantity)}
+                                <span className={classNames(
+                                    "font-mono font-semibold text-gray-900 dark:text-white",
+                                    isEBN && "text-xs"
+                                )}>
+                                    {formatCurrency(item.sellPrice * item.quantity)}
                                 </span>
                             </div>
                         ))}
@@ -225,42 +298,54 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="space-y-3">
+                <div className={isEBN ? "space-y-2" : "space-y-3"}>
                     <Button
                         theme="success"
-                        className="w-full py-4 text-lg font-semibold flex items-center justify-center gap-3"
+                        className={classNames(
+                            "w-full font-semibold flex items-center justify-center",
+                            isEBN ? "py-2 text-sm gap-2" : "py-4 text-lg gap-3"
+                        )}
                         onClick={handlePrintReceipt}
                         disabled={isPrinting}
                     >
                         {isPrinting ? (
                             <>
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                <div className={classNames(
+                                    "animate-spin rounded-full border-b-2 border-white",
+                                    isEBN ? "h-4 w-4" : "h-5 w-5"
+                                )}></div>
                                 <span>Printing...</span>
                             </>
                         ) : (
                             <>
-                                <Printer className="w-5 h-5" />
+                                <Printer className={isEBN ? "w-4 h-4" : "w-5 h-5"} />
                                 <span>Print Receipt</span>
                             </>
                         )}
                     </Button>
 
-                    <div className="flex gap-3">
+                    <div className={isEBN ? "flex gap-2" : "flex gap-3"}>
                         <Button
                             theme="neutral"
-                            className="flex-1 py-3 flex items-center justify-center gap-2"
+                            className={classNames(
+                                "flex-1 flex items-center justify-center gap-2",
+                                isEBN ? "py-2 text-xs" : "py-3"
+                            )}
                             onClick={handleViewReceipt}
                         >
-                            <Receipt className="w-4 h-4" />
+                            <Receipt className={isEBN ? "w-3 h-3" : "w-4 h-4"} />
                             <span>Preview Receipt</span>
                         </Button>
                         <Button
                             theme="primary"
-                            className="flex-1 py-3 flex items-center justify-center gap-2"
+                            className={classNames(
+                                "flex-1 flex items-center justify-center gap-2",
+                                isEBN ? "py-2 text-xs" : "py-3"
+                            )}
                             onClick={handleSkipPrint}
                         >
                             <span>New Transaction</span>
-                            <ArrowRight className="w-4 h-4" />
+                            <ArrowRight className={isEBN ? "w-3 h-3" : "w-4 h-4"} />
                         </Button>
                     </div>
                 </div>
@@ -268,9 +353,10 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
 
             {/* Receipt Preview Modal */}
             {showReceiptPreview && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto shadow-2xl">
-                        <div className="sticky top-0 bg-white dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-600 flex items-center justify-between">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[80] p-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full flex flex-col max-h-[90vh] shadow-2xl">
+                        {/* Fixed Header */}
+                        <div className="flex-shrink-0 bg-white dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-600 flex items-center justify-between rounded-t-xl">
                             <h3 className="font-semibold text-gray-900 dark:text-white">Receipt Preview</h3>
                             <button
                                 onClick={() => setShowReceiptPreview(false)}
@@ -280,8 +366,8 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                             </button>
                         </div>
 
-                        {/* Receipt Content */}
-                        <div className="p-6 bg-white dark:bg-gray-800">
+                        {/* Scrollable Receipt Content */}
+                        <div className="flex-1 overflow-y-auto p-6 bg-white dark:bg-gray-800">
                             <div className="text-center mb-6">
                                 <div className="flex justify-center mb-3">
                                     <img
@@ -378,7 +464,8 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                             </div>
                         </div>
 
-                        <div className="sticky bottom-0 bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-600">
+                        {/* Fixed Footer */}
+                        <div className="flex-shrink-0 bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-600 rounded-b-xl">
                             <Button
                                 theme="success"
                                 className="w-full py-3 flex items-center justify-center gap-2"

@@ -28,7 +28,8 @@ export default class MenuBuilder {
 
 		this.user = user || null;
 		this.branches = branches || [];
-		this.currentBranchId = currentBranchId || user?.currentBranchId || user?.branchId || null;
+		this.currentBranchId =
+			currentBranchId || user?.currentBranchId || user?.branchId || null;
 		const menu = Menu.buildFromTemplate(this.buildDefaultTemplate());
 		Menu.setApplicationMenu(menu);
 		return menu;
@@ -65,7 +66,10 @@ export default class MenuBuilder {
 	}
 
 	private switchBranch(branchId: string, branchName: string): void {
-		this.mainWindow.webContents.send('menu-switch-branch', { branchId, branchName });
+		this.mainWindow.webContents.send('menu-switch-branch', {
+			branchId,
+			branchName,
+		});
 	}
 
 	private buildBranchSubmenu(): Array<MenuItemConstructorOptions> {
@@ -73,12 +77,14 @@ export default class MenuBuilder {
 			return [];
 		}
 
-		const branchItems: Array<MenuItemConstructorOptions> = this.branches.map((branch) => ({
-			label: branch.branchName,
-			type: 'checkbox' as const,
-			checked: branch.branchId === this.currentBranchId,
-			click: () => this.switchBranch(branch.branchId, branch.branchName),
-		}));
+		const branchItems: Array<MenuItemConstructorOptions> = this.branches.map(
+			(branch) => ({
+				label: branch.branchName,
+				type: 'checkbox' as const,
+				checked: branch.branchId === this.currentBranchId,
+				click: () => this.switchBranch(branch.branchId, branch.branchName),
+			}),
+		);
 
 		return [
 			{
@@ -188,13 +194,13 @@ export default class MenuBuilder {
 			});
 		}
 
-		if (this.user) {
-			operationsItems.push({
-				label: 'Dashboard',
-				accelerator: 'CommandOrControl+D',
-				click: () => this.navigateTo(ROUTES.DASHBOARD),
-			});
-		}
+		// if (this.user) {
+		// 	operationsItems.push({
+		// 		label: 'Dashboard',
+		// 		accelerator: 'CommandOrControl+D',
+		// 		click: () => this.navigateTo(ROUTES.DASHBOARD),
+		// 	});
+		// }
 
 		if (
 			hasAnyPermission(this.user, [
@@ -365,10 +371,7 @@ export default class MenuBuilder {
 			});
 		}
 
-		if (
-			hasRole(this.user, 'admin') ||
-			hasRole(this.user, 'super-admin')
-		) {
+		if (hasRole(this.user, 'admin') || hasRole(this.user, 'super-admin')) {
 			managementItems.push({
 				label: 'Security & Roles',
 				click: () => this.navigateTo(ROUTES.ROLES_PERMISSIONS),

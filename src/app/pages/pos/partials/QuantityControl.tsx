@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { HiMinus, HiPlus } from 'react-icons/hi2';
 import { useFocusManager } from '../../../hooks/useFocusManager';
+import classNames from 'classnames';
 
 interface QuantityControlProps {
     quantity: number;
@@ -11,6 +12,7 @@ interface QuantityControlProps {
     focusManager?: ReturnType<typeof useFocusManager>;
     maxStock?: number;
     isDefaultItem?: boolean;
+    compact?: boolean;
 }
 
 const QuantityControl: React.FC<QuantityControlProps> = ({
@@ -21,7 +23,8 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
     itemId,
     focusManager,
     maxStock,
-    isDefaultItem = false
+    isDefaultItem = false,
+    compact = false
 }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const isActive = focusManager?.isActive('quantity', itemId) || false;
@@ -72,20 +75,25 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
     const isAtMaxStock = !isDefaultItem && maxStock !== undefined && quantity >= maxStock;
 
     return (
-        <div className={`inline-flex items-center rounded-xl bg-gray-50 dark:bg-gray-800 overflow-hidden shadow-sm
-            ${isActive ? 'ring-2 ring-blue-500 dark:ring-blue-400 shadow-blue-500/20' : 'ring-1 ring-gray-200 dark:ring-gray-700'}
-            ${isAtMaxStock ? 'ring-2 ring-orange-400 dark:ring-orange-500 shadow-orange-500/20' : ''}`}>
+        <div className={classNames(
+            "inline-flex items-center bg-gray-50 dark:bg-gray-800 overflow-hidden shadow-sm",
+            compact ? "rounded-lg" : "rounded-xl",
+            isActive ? 'ring-2 ring-blue-500 dark:ring-blue-400 shadow-blue-500/20' : 'ring-1 ring-gray-200 dark:ring-gray-700',
+            isAtMaxStock ? 'ring-2 ring-orange-400 dark:ring-orange-500 shadow-orange-500/20' : ''
+        )}>
             <button
                 onClick={onDecrease}
                 disabled={isMinimum}
-                className="flex items-center justify-center w-10 h-10 text-gray-600 dark:text-gray-300
-                    bg-white dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400
-                    disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-700 disabled:hover:text-gray-600
-                    focus:outline-none active:scale-95
-                    transition-all duration-200"
+                className={classNames(
+                    "flex items-center justify-center text-gray-600 dark:text-gray-300",
+                    "bg-white dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400",
+                    "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-700 disabled:hover:text-gray-600",
+                    "focus:outline-none active:scale-95 transition-all duration-200",
+                    compact ? "w-6 h-6" : "w-10 h-10"
+                )}
                 title="Decrease quantity"
             >
-                <HiMinus className="h-4 w-4" />
+                <HiMinus className={compact ? "h-3 w-3" : "h-4 w-4"} />
             </button>
 
             <input
@@ -96,25 +104,30 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
                 onBlur={handleInputBlur}
                 onFocus={handleInputFocus}
                 onClick={handleInputClick}
-                className={`w-14 h-10 text-center text-base font-bold text-gray-900 dark:text-gray-100
-                    bg-white dark:bg-gray-800 border-x border-gray-200 dark:border-gray-700
-                    focus:outline-none transition-all duration-200 
-                    [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                    ${isActive ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : ''}`}
+                className={classNames(
+                    "text-center font-bold text-gray-900 dark:text-gray-100",
+                    "bg-white dark:bg-gray-800 border-x border-gray-200 dark:border-gray-700",
+                    "focus:outline-none transition-all duration-200",
+                    "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
+                    isActive ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : '',
+                    compact ? "w-10 h-6 text-xs" : "w-14 h-10 text-base"
+                )}
                 min="0"
             />
 
             <button
                 onClick={onIncrease}
                 disabled={isAtMaxStock}
-                className="flex items-center justify-center w-10 h-10 text-gray-600 dark:text-gray-300
-                    bg-white dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400
-                    disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-700 disabled:hover:text-gray-600
-                    focus:outline-none active:scale-95
-                    transition-all duration-200"
+                className={classNames(
+                    "flex items-center justify-center text-gray-600 dark:text-gray-300",
+                    "bg-white dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400",
+                    "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-700 disabled:hover:text-gray-600",
+                    "focus:outline-none active:scale-95 transition-all duration-200",
+                    compact ? "w-6 h-6" : "w-10 h-10"
+                )}
                 title={isAtMaxStock ? `Maximum stock reached (${maxStock})` : "Increase quantity"}
             >
-                <HiPlus className="h-4 w-4" />
+                <HiPlus className={compact ? "h-3 w-3" : "h-4 w-4"} />
             </button>
         </div>
     );

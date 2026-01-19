@@ -3,8 +3,9 @@ import { HiOutlineCheckCircle, HiOutlineClock, HiOutlineXCircle, HiOutlineBan, H
 import { useIsMobile } from '../../../hooks/useMediaQuery';
 
 interface StatusFilterProps {
-    selectedStatus: SaleStatus | TransactionStatus | 'all';
-    onChange: (status: SaleStatus | TransactionStatus | 'all') => void;
+    selectedStatus: TransactionStatus | 'all';
+    onChange: (status: TransactionStatus | 'all') => void;
+    compact?: boolean;
 }
 
 /**
@@ -18,7 +19,7 @@ const statusOptions: Array<{ value: SaleStatus | TransactionStatus | 'all'; labe
     { value: 'RETURNED', label: 'Returned', icon: HiOutlineReceiptRefund, color: 'blue' },
 ];
 
-export const StatusFilter: FC<StatusFilterProps> = ({ selectedStatus, onChange }) => {
+export const StatusFilter: FC<StatusFilterProps> = ({ selectedStatus, onChange, compact = false }) => {
     const isMobile = useIsMobile();
 
     const getColorClasses = (status: string, isSelected: boolean) => {
@@ -85,8 +86,11 @@ export const StatusFilter: FC<StatusFilterProps> = ({ selectedStatus, onChange }
 
     // Desktop: render as button group
     return (
-        <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 mr-1">Status:</span>
+        <div className={compact ? "flex flex-wrap items-center gap-1" : "flex flex-wrap items-center gap-2"}>
+            <span className={compact
+                ? "text-[10px] font-medium text-gray-700 dark:text-gray-300 mr-0.5"
+                : "text-sm font-medium text-gray-700 dark:text-gray-300 mr-1"
+            }>Status:</span>
             {statusOptions.map((option) => {
                 const Icon = option.icon;
                 const isSelected = selectedStatus === option.value;
@@ -95,10 +99,13 @@ export const StatusFilter: FC<StatusFilterProps> = ({ selectedStatus, onChange }
                     <button
                         key={option.value}
                         onClick={() => onChange(option.value)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border ${getColorClasses(option.color, isSelected)}`}
+                        className={compact
+                            ? `flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium rounded border ${getColorClasses(option.color, isSelected)}`
+                            : `flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border ${getColorClasses(option.color, isSelected)}`
+                        }
                     >
-                        <Icon className="w-4 h-4" />
-                        <span>{option.label}</span>
+                        <Icon className={compact ? "w-3 h-3" : "w-4 h-4"} />
+                        <span>{compact ? option.label.substring(0, 4) : option.label}</span>
                     </button>
                 );
             })}

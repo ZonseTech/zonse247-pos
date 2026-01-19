@@ -1,9 +1,11 @@
 import { X, Package } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { formatCurrency } from '../../../utils';
-import { useIsMobile } from '../../../hooks/useMediaQuery';
+import { useIsMobile, useIsEBN } from '../../../hooks/useMediaQuery';
 import InputKeyboard from '../../../components/InputKeyboard';
 import { useKeyboardSettings } from '../../../hooks/useKeyboardSettings';
 import { useState, useEffect, FunctionComponent, useRef } from 'react';
+import classNames from 'classnames';
 
 interface ItemLookupModalProps {
     isOpen: boolean;
@@ -21,6 +23,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
     barcodeScannerInputRef
 }) => {
     const isMobile = useIsMobile()
+    const isEBN = useIsEBN();
     const keyboardSettings = useKeyboardSettings();
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredItems, setFilteredItems] = useState<InventoryItem[]>([]);
@@ -113,22 +116,42 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-none shadow-xl w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between p-6 bg-slate-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-                    <h2 className="text-2xl uppercase font-bold text-slate-800 dark:text-gray-100">
+    const showKeyboard = !isMobile && keyboardSettings.enabled;
+
+    return createPortal(
+        <div className={classNames(
+            "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]",
+            isEBN ? "p-1" : "p-4"
+        )}>
+            <div className={classNames(
+                "bg-white dark:bg-gray-800 rounded-none shadow-xl w-full flex flex-col overflow-hidden border border-gray-200 dark:border-gray-700",
+                isEBN ? "max-w-4xl max-h-[98vh]" : "max-w-6xl max-h-[90vh]"
+            )}>
+                <div className={classNames(
+                    "flex items-center justify-between bg-slate-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700",
+                    isEBN ? "p-3" : "p-6"
+                )}>
+                    <h2 className={classNames(
+                        "uppercase font-bold text-slate-800 dark:text-gray-100",
+                        isEBN ? "text-lg" : "text-2xl"
+                    )}>
                         Search Inventory
                     </h2>
                     <button
                         onClick={onClose}
-                        className="text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors p-2 rounded-none hover:bg-slate-200 dark:hover:bg-gray-700"
+                        className={classNames(
+                            "text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors rounded-none hover:bg-slate-200 dark:hover:bg-gray-700",
+                            isEBN ? "p-1" : "p-2"
+                        )}
                     >
-                        <X className="w-6 h-6" />
+                        <X className={isEBN ? "w-5 h-5" : "w-6 h-6"} />
                     </button>
                 </div>
 
-                <div className="p-6 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+                <div className={classNames(
+                    "bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600",
+                    isEBN ? "p-2" : "p-6"
+                )}>
                     <input
                         ref={inputRef}
                         type="text"
@@ -137,19 +160,28 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                         onFocus={handleInputFocus}
                         onBlur={handleInputBlur}
                         placeholder="Search item name or barcode..."
-                        className="w-full px-4 py-3 text-lg text-center border border-gray-300 dark:border-gray-500 rounded-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-600 shadow-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                        className={classNames(
+                            "w-full text-center border border-gray-300 dark:border-gray-500 rounded-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-600 shadow-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400",
+                            isEBN ? "px-3 py-2 text-sm" : "px-4 py-3 text-lg"
+                        )}
                         autoFocus
                         inputMode={isTouchDevice && showVirtualKeyboard ? "none" : "text"}
                     />
                 </div>
 
-                <div className="hidden md:grid grid-cols-12 bg-slate-100 dark:bg-gray-800 gap-4 px-6 py-4 font-semibold text-sm uppercase tracking-wide text-slate-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600">
+                <div className={classNames(
+                    "hidden md:grid grid-cols-12 bg-slate-100 dark:bg-gray-800 gap-4 font-semibold uppercase tracking-wide text-slate-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600",
+                    isEBN ? "px-3 py-2 text-xs" : "px-6 py-4 text-sm"
+                )}>
                     <div className="col-span-3">Code</div>
                     <div className="col-span-6">Item Name</div>
                     <div className="col-span-3 text-right">Price</div>
                 </div>
 
-                <div className={`flex-1 overflow-auto bg-white dark:bg-gray-800 ${showVirtualKeyboard ? 'max-h-60' : ''}`}>
+                <div className={classNames(
+                    "flex-1 overflow-auto bg-white dark:bg-gray-800",
+                    showVirtualKeyboard && (isEBN ? "max-h-32" : "max-h-60")
+                )}>
                     {filteredItems.length > 0 ? (
                         <div className="divide-y divide-gray-100 dark:divide-gray-700">
                             {filteredItems.map((item) => {
@@ -184,21 +216,36 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                                             </div>
                                         </div>
 
-                                        <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4">
-                                            <div className="col-span-3 font-mono text-sm text-slate-600 dark:text-gray-400 flex items-center group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                                        <div className={classNames(
+                                            "hidden md:grid grid-cols-12 gap-4",
+                                            isEBN ? "px-3 py-2" : "px-6 py-4"
+                                        )}>
+                                            <div className={classNames(
+                                                "col-span-3 font-mono text-slate-600 dark:text-gray-400 flex items-center group-hover:text-blue-600 dark:group-hover:text-blue-400",
+                                                isEBN ? "text-xs" : "text-sm"
+                                            )}>
                                                 {item.barcode}
                                             </div>
                                             <div className="col-span-6 flex flex-col justify-center">
-                                                <div className="font-medium text-slate-800 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                                                <div className={classNames(
+                                                    "font-medium text-slate-800 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400",
+                                                    isEBN && "text-sm"
+                                                )}>
                                                     {item.name}
                                                 </div>
                                                 {item.categoryDetails?.name && (
-                                                    <div className="text-sm text-slate-500 dark:text-gray-400 mt-1">
+                                                    <div className={classNames(
+                                                        "text-slate-500 dark:text-gray-400 mt-1",
+                                                        isEBN ? "text-xs" : "text-sm"
+                                                    )}>
                                                         {item.categoryDetails.name}
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="col-span-3 text-right font-bold text-lg flex items-center justify-end text-slate-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                                            <div className={classNames(
+                                                "col-span-3 text-right font-bold flex items-center justify-end text-slate-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400",
+                                                isEBN ? "text-sm" : "text-lg"
+                                            )}>
                                                 {formatCurrency(parseFloat((item.sellPrice || 0).toString()))}
                                             </div>
                                         </div>
@@ -207,12 +254,24 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                             })}
                         </div>
                     ) : (
-                        <div className="flex flex-1 flex-col items-center justify-center text-slate-500 dark:text-gray-400 py-16 px-4">
-                            <Package className="w-16 h-16 md:w-20 md:h-20 mb-4 md:mb-6 text-slate-300 dark:text-gray-600" />
-                            <h3 className="text-lg md:text-xl font-medium mb-2 md:mb-3 text-slate-600 dark:text-gray-300 text-center">
+                        <div className={classNames(
+                            "flex flex-1 flex-col items-center justify-center text-slate-500 dark:text-gray-400 px-4",
+                            isEBN ? "py-6" : "py-16"
+                        )}>
+                            <Package className={classNames(
+                                "mb-4 text-slate-300 dark:text-gray-600",
+                                isEBN ? "w-10 h-10" : "w-16 h-16 md:w-20 md:h-20 md:mb-6"
+                            )} />
+                            <h3 className={classNames(
+                                "font-medium text-slate-600 dark:text-gray-300 text-center",
+                                isEBN ? "text-sm mb-1" : "text-lg md:text-xl mb-2 md:mb-3"
+                            )}>
                                 No items found
                             </h3>
-                            <p className="text-sm md:text-base max-w-md text-center text-slate-500 dark:text-gray-400 leading-relaxed">
+                            <p className={classNames(
+                                "max-w-md text-center text-slate-500 dark:text-gray-400 leading-relaxed",
+                                isEBN ? "text-xs" : "text-sm md:text-base"
+                            )}>
                                 {searchTerm
                                     ? 'No items match your search criteria. Try a different search term.'
                                     : 'Start typing to search for items by name or barcode.'
@@ -222,22 +281,26 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                     )}
                 </div>
 
-                {!isMobile && keyboardSettings.enabled && (<div className="border-t border-gray-200 dark:border-gray-700">
-                    <InputKeyboard
-                        variant="full"
-                        onKeyPress={handleKeyPress}
-                        onBackspace={handleBackspace}
-                        onSpace={handleSpace}
-                        onEnter={handleEnter}
-                        settings={{
-                            theme: keyboardSettings.theme,
-                            enableSound: keyboardSettings.enableSound,
-                            enableHaptic: keyboardSettings.enableHaptic,
-                        }}
-                    />
-                </div>)}
+                {showKeyboard && (
+                    <div className="border-t border-gray-200 dark:border-gray-700">
+                        <InputKeyboard
+                            variant="full"
+                            onKeyPress={handleKeyPress}
+                            onBackspace={handleBackspace}
+                            onSpace={handleSpace}
+                            onEnter={handleEnter}
+                            settings={{
+                                theme: keyboardSettings.theme,
+                                enableSound: keyboardSettings.enableSound,
+                                enableHaptic: keyboardSettings.enableHaptic,
+                            }}
+                            compact={isEBN}
+                        />
+                    </div>
+                )}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

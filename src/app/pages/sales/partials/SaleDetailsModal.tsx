@@ -15,6 +15,7 @@ import SaleItems from './SaleItems';
 import InitiateReturnModal from '../../returns/partials/InitiateReturnModal';
 import returnsService from '../../../services/returns.service';
 import { RotateCcw, Printer, X, Download, Copy, CheckCircle, Clock, XCircle, AlertCircle, Receipt } from 'lucide-react';
+import { useIsEBN } from '../../../hooks/useMediaQuery';
 
 interface Props {
 	isOpenDetails: boolean;
@@ -78,6 +79,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 	const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
 	const [copied, setCopied] = useState(false);
 	const printRef = useRef<HTMLDivElement>(null);
+	const isEBN = useIsEBN();
 
 	const handleClose = useCallback(() => {
 		setIsOpenDetails(false);
@@ -180,71 +182,92 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 
 	// Custom header with action buttons
 	const modalHeader = (
-		<div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
-			<div className="flex items-center gap-4">
-				<div className="p-2.5 bg-blue-100 dark:bg-blue-900/50 rounded-xl">
-					<Receipt className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+		<div className={isEBN
+			? "flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900"
+			: "flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900"
+		}>
+			<div className={isEBN ? "flex items-center gap-2" : "flex items-center gap-4"}>
+				<div className={isEBN ? "p-1.5 bg-blue-100 dark:bg-blue-900/50 rounded-lg" : "p-2.5 bg-blue-100 dark:bg-blue-900/50 rounded-xl"}>
+					<Receipt className={isEBN ? "w-4 h-4 text-blue-600 dark:text-blue-400" : "w-6 h-6 text-blue-600 dark:text-blue-400"} />
 				</div>
 				<div>
 					<div className="flex items-center gap-2">
-						<h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+						<h2 className={isEBN
+							? "text-sm font-bold text-gray-900 dark:text-gray-100"
+							: "text-xl font-bold text-gray-900 dark:text-gray-100"
+						}>
 							Transaction Details
 						</h2>
-						<div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border ${transactionData.statusInfo.bgColor}`}>
-							<StatusIcon className={`w-3.5 h-3.5 ${transactionData.statusInfo.color}`} />
-							<span className={`text-xs font-semibold ${transactionData.statusInfo.color}`}>
+						<div className={`flex items-center gap-1 px-2 py-0.5 rounded-full border ${transactionData.statusInfo.bgColor}`}>
+							<StatusIcon className={isEBN ? `w-2.5 h-2.5 ${transactionData.statusInfo.color}` : `w-3.5 h-3.5 ${transactionData.statusInfo.color}`} />
+							<span className={isEBN
+								? `text-[9px] font-semibold ${transactionData.statusInfo.color}`
+								: `text-xs font-semibold ${transactionData.statusInfo.color}`
+							}>
 								{transactionData.statusInfo.label}
 							</span>
 						</div>
 					</div>
-					<div className="flex items-center gap-2 mt-1">
-						<span className="text-sm text-gray-500 dark:text-gray-400 font-mono">
+					<div className="flex items-center gap-2 mt-0.5">
+						<span className={isEBN
+							? "text-[10px] text-gray-500 dark:text-gray-400 font-mono"
+							: "text-sm text-gray-500 dark:text-gray-400 font-mono"
+						}>
 							#{transactionData.refNumber}
 						</span>
 						<button
 							onClick={handleCopyRef}
-							className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+							className={isEBN
+								? "p-0.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+								: "p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+							}
 							title="Copy reference number"
 						>
 							{copied ? (
-								<CheckCircle className="w-3.5 h-3.5 text-green-500" />
+								<CheckCircle className={isEBN ? "w-2.5 h-2.5 text-green-500" : "w-3.5 h-3.5 text-green-500"} />
 							) : (
-								<Copy className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+								<Copy className={isEBN
+									? "w-2.5 h-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+									: "w-3.5 h-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+								} />
 							)}
 						</button>
 					</div>
 				</div>
 			</div>
 
-			<div className="flex items-center gap-2">
+			<div className={isEBN ? "flex items-center gap-1" : "flex items-center gap-2"}>
 				{transactionData.canReturn && !transactionData.refundSummary.isFullyRefunded && (
 					<Button
 						onClick={handleInitiateReturn}
 						layout="outline"
-						size="small"
-						className="flex items-center gap-2"
+						size={isEBN ? "smallest" : "small"}
+						className="flex items-center gap-1"
 						aria-label="Initiate return"
 					>
-						<RotateCcw className="w-4 h-4" />
-						<span className="hidden sm:inline">Return</span>
+						<RotateCcw className={isEBN ? "w-3 h-3" : "w-4 h-4"} />
+						<span className={isEBN ? "hidden" : "hidden sm:inline"}>Return</span>
 					</Button>
 				)}
 				<Button
 					onClick={handlePrint}
 					layout="outline"
-					size="small"
-					className="flex items-center gap-2"
+					size={isEBN ? "smallest" : "small"}
+					className="flex items-center gap-1"
 					aria-label="Print receipt"
 				>
-					<Printer className="w-4 h-4" />
-					<span className="hidden sm:inline">Print</span>
+					<Printer className={isEBN ? "w-3 h-3" : "w-4 h-4"} />
+					<span className={isEBN ? "hidden" : "hidden sm:inline"}>Print</span>
 				</Button>
 				<button
 					onClick={handleClose}
-					className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+					className={isEBN
+						? "p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+						: "p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+					}
 					aria-label="Close modal"
 				>
-					<X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+					<X className={isEBN ? "w-4 h-4 text-gray-500 dark:text-gray-400" : "w-5 h-5 text-gray-500 dark:text-gray-400"} />
 				</button>
 			</div>
 		</div>
@@ -259,15 +282,15 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 				showCloseButton={false}
 				header={modalHeader}
 				size="full"
-				className="max-w-4xl"
+				className={isEBN ? "max-w-3xl" : "max-w-4xl"}
 				aria-labelledby="transaction-details-title"
 				aria-describedby="transaction-details-content"
 			>
 				<div
 					id="transaction-details-content"
-					className="max-h-[75vh] overflow-y-auto pr-2"
+					className={isEBN ? "max-h-[65vh] overflow-y-auto pr-1" : "max-h-[75vh] overflow-y-auto pr-2"}
 				>
-					<div ref={printRef} className="space-y-6">
+					<div ref={printRef} className={isEBN ? "space-y-3" : "space-y-6"}>
 						<div className="hidden print:block print-header">
 							<h1>Transaction Receipt</h1>
 							<p>Reference: #{transactionData.refNumber}</p>
@@ -282,42 +305,67 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 							tillName={transactionData.tillName}
 							status={transaction.status || 'pending'}
 							statusColor={transactionData.statusInfo.bgColor}
+							compact={isEBN}
 						/>
 
 						{transactionData.refundSummary.hasRefunds && (
-							<div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
-								<div className="flex items-start justify-between gap-4">
-									<div className="flex items-start gap-3">
-										<div className="p-2 bg-blue-100 dark:bg-blue-800/50 rounded-lg mt-0.5">
-											<RotateCcw className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+							<div className={isEBN
+								? "p-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
+								: "p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl"
+							}>
+								<div className="flex items-start justify-between gap-2">
+									<div className="flex items-start gap-2">
+										<div className={isEBN ? "p-1 bg-blue-100 dark:bg-blue-800/50 rounded mt-0.5" : "p-2 bg-blue-100 dark:bg-blue-800/50 rounded-lg mt-0.5"}>
+											<RotateCcw className={isEBN ? "w-3 h-3 text-blue-600 dark:text-blue-400" : "w-5 h-5 text-blue-600 dark:text-blue-400"} />
 										</div>
 										<div>
-											<h4 className="font-semibold text-blue-900 dark:text-blue-100">
+											<h4 className={isEBN
+												? "text-xs font-semibold text-blue-900 dark:text-blue-100"
+												: "font-semibold text-blue-900 dark:text-blue-100"
+											}>
 												Refund Information
 											</h4>
-											<p className="text-sm text-blue-700 dark:text-blue-300 mt-0.5">
+											<p className={isEBN
+												? "text-[10px] text-blue-700 dark:text-blue-300 mt-0.5"
+												: "text-sm text-blue-700 dark:text-blue-300 mt-0.5"
+											}>
 												{transactionData.refundSummary.refundCount} refund{transactionData.refundSummary.refundCount !== 1 ? 's' : ''} processed
 											</p>
 										</div>
 									</div>
 									<div className="text-right">
-										<p className="text-xs text-blue-600 dark:text-blue-400 uppercase font-medium tracking-wider">
+										<p className={isEBN
+											? "text-[8px] text-blue-600 dark:text-blue-400 uppercase font-medium tracking-wider"
+											: "text-xs text-blue-600 dark:text-blue-400 uppercase font-medium tracking-wider"
+										}>
 											Total Refunded
 										</p>
-										<p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+										<p className={isEBN
+											? "text-sm font-bold text-blue-900 dark:text-blue-100"
+											: "text-2xl font-bold text-blue-900 dark:text-blue-100"
+										}>
 											{formatCurrency(transactionData.refundSummary.totalRefunded)}
 										</p>
 										{!transactionData.refundSummary.isFullyRefunded && (
-											<p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
+											<p className={isEBN
+												? "text-[10px] text-blue-600 dark:text-blue-400 mt-0.5"
+												: "text-sm text-blue-600 dark:text-blue-400 mt-1"
+											}>
 												Remaining: {formatCurrency(transactionData.refundSummary.remainingAmount)}
 											</p>
 										)}
 									</div>
 								</div>
 								{transactionData.refundSummary.isFullyRefunded && (
-									<div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700 flex items-center justify-center gap-2">
-										<CheckCircle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-										<span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+									<div className={isEBN
+										? "mt-2 pt-2 border-t border-blue-200 dark:border-blue-700 flex items-center justify-center gap-1"
+										: "mt-3 pt-3 border-t border-blue-200 dark:border-blue-700 flex items-center justify-center gap-2"
+									}>
+										<CheckCircle className={isEBN ? "w-3 h-3 text-blue-600 dark:text-blue-400" : "w-4 h-4 text-blue-600 dark:text-blue-400"} />
+										<span className={isEBN
+											? "text-[10px] font-medium text-blue-800 dark:text-blue-200"
+											: "text-sm font-medium text-blue-800 dark:text-blue-200"
+										}>
 											Fully Refunded
 										</span>
 									</div>
@@ -328,6 +376,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 						<SaleItems
 							items={transaction.items || []}
 							hasItems={transactionData.hasItems}
+							compact={isEBN}
 						/>
 
 						<SaleSummary
@@ -340,6 +389,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 							paymentMethod={transactionData.paymentMethodName}
 							hasTax={transactionData.hasTax}
 							hasDiscount={transactionData.hasDiscount}
+							compact={isEBN}
 						/>
 
 						<div className="hidden print:block footer">

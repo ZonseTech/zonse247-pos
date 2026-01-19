@@ -56,21 +56,25 @@ const config: ForgeConfig = {
 	packagerConfig: {
 		asar: false,
 		extraResource: [
-			path.join(__dirname, 'node_modules', 'zonse247-pos-api', 'dist', 'databases', 'template.db'),
+			path.join(
+				__dirname,
+				'node_modules',
+				'zonse247-pos-api',
+				'dist',
+				'databases',
+				'template.db',
+			),
 		],
 	},
 	rebuildConfig: {
-		force: true,
+		force: false,
+		onlyModules: [], // Skip rebuild - we pre-rebuild native modules before packaging
 	},
 	hooks: {
 		packageAfterPrune: async (_config, buildPath) => {
 			copyNativeModules(buildPath);
-			const { rebuild } = await import('@electron/rebuild');
-			await rebuild({
-				buildPath,
-				electronVersion: process.env.npm_package_devDependencies_electron || '37.1.0',
-				force: true,
-			});
+			// Native modules should already be built for Electron via `npx @electron/rebuild` before running make
+			// Skip rebuild here to avoid requiring Visual Studio Build Tools during packaging
 		},
 	},
 	makers: [

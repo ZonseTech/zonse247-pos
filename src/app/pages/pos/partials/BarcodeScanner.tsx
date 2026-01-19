@@ -335,7 +335,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                     type="text"
                     value={barcode}
                     onChange={handleInputChange}
-                    className={`flex-1 border-2 border-gray-800 focus:outline-none text-center transition-all duration-200 ${compact ? 'p-1.5 text-sm' : 'p-2 text-lg'} ${isActive ? 'ring-2 ring-gray-500 dark:ring-gray-400 bg-gray-50 dark:bg-gray-900/20' : ''
+                    className={`flex-1 border-2 border-gray-800 focus:outline-none text-center transition-all duration-200 ${compact ? 'p-1 text-xs' : 'p-2 text-lg'} ${isActive ? 'ring-2 ring-gray-500 dark:ring-gray-400 bg-gray-50 dark:bg-gray-900/20' : ''
                         }`}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
@@ -346,17 +346,17 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                     onFocus={handleInputFocus}
                     onBlur={handleInputBlur}
                     onClick={handleInputClick}
-                    placeholder="Scan or enter barcode..."
+                    placeholder={compact ? "Scan barcode..." : "Scan or enter barcode..."}
                 />
 
                 {isNative && (
                     <button
                         type="button"
                         onClick={handleOpenCameraScanner}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors flex items-center justify-center gap-2 border-2 border-blue-600"
+                        className={`bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors flex items-center justify-center gap-2 border-2 border-blue-600 ${compact ? 'px-2 py-1' : 'px-4 py-2'}`}
                         title="Open camera scanner"
                     >
-                        <BarcodeIcon className="w-6 h-6" />
+                        <BarcodeIcon className={compact ? "w-4 h-4" : "w-6 h-6"} />
                     </button>
                 )}
             </div>
@@ -374,13 +374,13 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                 createPortal(
                     <div
                         ref={dropdownRef}
-                        className="border border-gray-200 dark:border-gray-700 rounded-none max-h-60 overflow-y-auto bg-white dark:bg-gray-900 shadow-sm dark:shadow-lg"
+                        className={`border border-gray-200 dark:border-gray-700 rounded-none overflow-y-auto bg-white dark:bg-gray-900 shadow-sm dark:shadow-lg ${compact ? 'max-h-40' : 'max-h-60'}`}
                         data-dropdown="true"
                     >
                         {filteredItems.map(item => (
                             <div
                                 key={item.productId}
-                                className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer flex justify-between items-center border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors"
+                                className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer flex justify-between items-center border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors ${compact ? 'p-2' : 'p-3'}`}
                                 onClick={() => {
                                     triggerFeedback();
                                     addToCart(item);
@@ -390,10 +390,10 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                                     }
                                 }}
                             >
-                                <span className="font-medium text-gray-900 dark:text-gray-100 truncate pr-4">
+                                <span className={`font-medium text-gray-900 dark:text-gray-100 truncate pr-4 ${compact ? 'text-xs' : ''}`}>
                                     {item.name}
                                 </span>
-                                <span className="text-gray-500 dark:text-gray-400 font-mono text-sm flex-shrink-0">
+                                <span className={`text-gray-500 dark:text-gray-400 font-mono flex-shrink-0 ${compact ? 'text-[10px]' : 'text-sm'}`}>
                                     {item.barcode}
                                 </span>
                             </div>

@@ -228,22 +228,46 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
 
     const themeClasses = getThemeClasses();
 
-    const keyBaseClasses = "flex items-center justify-center text-xl font-semibold rounded-lg transition-all duration-150 select-none cursor-pointer active:scale-95 h-14 shadow-sm";
+    const keyBaseClasses = compact
+        ? "flex items-center justify-center text-sm font-semibold rounded-md transition-all duration-150 select-none cursor-pointer active:scale-95 h-8 shadow-sm"
+        : "flex items-center justify-center text-xl font-semibold rounded-lg transition-all duration-150 select-none cursor-pointer active:scale-95 h-14 shadow-sm";
     const regularKeyClasses = themeClasses.regularKey;
     const specialKeyClasses = themeClasses.specialKey;
     const activeSpecialClasses = "bg-gradient-to-b from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white border-blue-600 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-400 dark:hover:to-blue-500 dark:border-blue-500";
     const backKeyClasses = "bg-gradient-to-b from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 border border-yellow-600 text-gray-800 dark:from-yellow-500 dark:to-yellow-600 dark:hover:from-yellow-400 dark:hover:to-yellow-500 dark:border-yellow-500 dark:text-gray-900";
     const enterKeyClasses = "bg-gradient-to-b from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 border-green-600 text-white dark:from-green-500 dark:to-green-600 dark:hover:from-green-400 dark:hover:to-green-500 dark:border-green-500";
-    const rowGridClass = "grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-1 auto-cols-fr";
+    const rowGridClass = compact ? "grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-0.5 auto-cols-fr" : "grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-1 auto-cols-fr";
 
     if (variant === 'numpad') {
         const numpadButtons = getNumpadButtons(numpadType);
 
+        // For EBN compact mode: shorter height, larger touch targets
+        const getCompactNumpadButtonClass = (btn: string): string => {
+            let buttonClass = "font-bold transition-all h-full active:scale-95 ";
+
+            if (btn === 'Del') {
+                buttonClass += "bg-red-500 hover:bg-red-600 active:bg-red-700 text-white text-[10px]";
+            } else if (btn === 'OK') {
+                buttonClass += "bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white text-[10px]";
+            } else {
+                buttonClass += "bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white text-xs";
+            }
+
+            return buttonClass;
+        };
+
         return (
-            <div className={`flex flex-col ${compact ? 'h-[calc(40vh)]' : 'h-[calc(56vh)]'}`}>
-                {title && <h3 className={`font-bold mb-2 uppercase ${themeClasses.title} ${compact ? 'text-xl' : 'text-3xl mb-4'}`}>{title}</h3>}
+            <div className={`flex flex-col ${compact ? 'h-[calc(28vh)]' : 'h-[calc(56vh)]'}`}>
+                {title && (
+                    <h3 className={`font-bold uppercase ${themeClasses.title} ${compact ? 'text-xs mb-0.5' : 'text-3xl mb-4'}`}>
+                        {title}
+                    </h3>
+                )}
                 <div className={`flex-1 ${className}`}>
-                    <div className="grid grid-cols-3 gap-0.5 lg:gap-1 h-full" style={{ gridTemplateRows: 'repeat(5, 1fr)' }}>
+                    <div
+                        className={`grid grid-cols-3 h-full ${compact ? 'gap-0.5' : 'gap-0.5 lg:gap-1'}`}
+                        style={{ gridTemplateRows: numpadType === 'standard' ? 'repeat(5, 1fr)' : 'repeat(4, 1fr)' }}
+                    >
                         {numpadButtons.map((btn, index) => (
                             btn ? (
                                 <button
@@ -254,7 +278,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                                         triggerFeedback();
                                         onButtonClick?.(btn);
                                     }}
-                                    className={`${getNumpadButtonClass(btn)} ${compact ? 'text-sm' : ''}`}
+                                    className={compact ? getCompactNumpadButtonClass(btn) : getNumpadButtonClass(btn)}
                                     disabled={!focusManager || (!focusManager.activeComponent)}
                                     tabIndex={-1}
                                 >
@@ -271,9 +295,9 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
     }
 
     return (
-        <div className={`virtual-keyboard ${themeClasses.container} p-3 border-none border-gray-300 dark:border-gray-600 rounded-none w-full min-w-0 ${className}`}>
-            {title && <h3 className={`text-xl font-bold mb-3 uppercase ${themeClasses.title}`}>{title}</h3>}
-            <div className="flex-1 space-y-2">
+        <div className={`virtual-keyboard ${themeClasses.container} ${compact ? 'p-1.5' : 'p-3'} border-none border-gray-300 dark:border-gray-600 rounded-none w-full min-w-0 ${className}`}>
+            {title && <h3 className={`font-bold uppercase ${themeClasses.title} ${compact ? 'text-xs mb-1' : 'text-xl mb-3'}`}>{title}</h3>}
+            <div className={`flex-1 ${compact ? 'space-y-0.5' : 'space-y-2'}`}>
                 <div className={rowGridClass}>
                     <button
                         type="button"
@@ -283,7 +307,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                         style={{ gridColumn: 'span 1' }}
                         tabIndex={-1}
                     >
-                        <span className="text-xs">{getKeyDisplayText('`', '~')}</span>
+                        <span className={compact ? "text-[10px]" : "text-xs"}>{getKeyDisplayText('`', '~')}</span>
                     </button>
                     {[
                         { key: '1', shift: '!' }, { key: '2', shift: '@' }, { key: '3', shift: '#' },
@@ -301,8 +325,8 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                             tabIndex={-1}
                         >
                             <div className="flex flex-col items-center leading-none">
-                                <span className="text-xs">{shift}</span>
-                                <span>{key}</span>
+                                <span className={compact ? "text-[8px]" : "text-xs"}>{shift}</span>
+                                <span className={compact ? "text-xs" : ""}>{key}</span>
                             </div>
                         </button>
                     ))}
@@ -314,7 +338,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                         style={{ gridColumn: 'span 2' }}
                         tabIndex={-1}
                     >
-                        Backspace
+                        {compact ? '⌫' : 'Backspace'}
                     </button>
                 </div>
 
@@ -327,7 +351,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                         style={{ gridColumn: 'span 1.6' }}
                         tabIndex={-1}
                     >
-                        Tab
+                        {compact ? '⇥' : 'Tab'}
                     </button>
                     {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']'].map((key) => {
                         const shiftKey = key === '[' ? '{' : key === ']' ? '}' : undefined;
@@ -343,8 +367,8 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                             >
                                 {shiftKey ? (
                                     <div className="flex flex-col items-center leading-none">
-                                        <span className="text-xs">{shiftKey}</span>
-                                        <span>{key}</span>
+                                        <span className={compact ? "text-[8px]" : "text-xs"}>{shiftKey}</span>
+                                        <span className={compact ? "text-xs" : ""}>{key}</span>
                                     </div>
                                 ) : (
                                     getKeyDisplayText(key)
@@ -361,8 +385,8 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                         tabIndex={-1}
                     >
                         <div className="flex flex-col items-center leading-none">
-                            <span className="text-xs">|</span>
-                            <span>\</span>
+                            <span className={compact ? "text-[8px]" : "text-xs"}>|</span>
+                            <span className={compact ? "text-xs" : ""}>\</span>
                         </div>
                     </button>
                 </div>
@@ -376,7 +400,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                         style={{ gridColumn: 'span 2' }}
                         tabIndex={-1}
                     >
-                        Caps Lock
+                        {compact ? '⇪' : 'Caps Lock'}
                     </button>
                     {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"].map((key) => {
                         const shiftKey = key === ';' ? ':' : key === "'" ? '"' : undefined;
@@ -392,8 +416,8 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                             >
                                 {shiftKey ? (
                                     <div className="flex flex-col items-center leading-none">
-                                        <span className="text-xs">{shiftKey}</span>
-                                        <span>{key}</span>
+                                        <span className={compact ? "text-[8px]" : "text-xs"}>{shiftKey}</span>
+                                        <span className={compact ? "text-xs" : ""}>{key}</span>
                                     </div>
                                 ) : (
                                     getKeyDisplayText(key)
@@ -409,7 +433,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                         style={{ gridColumn: 'span 1.6' }}
                         tabIndex={-1}
                     >
-                        Enter
+                        {compact ? '↵' : 'Enter'}
                     </button>
                 </div>
 
@@ -422,7 +446,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                         style={{ gridColumn: 'span 2.4' }}
                         tabIndex={-1}
                     >
-                        Shift
+                        {compact ? '⇧' : 'Shift'}
                     </button>
                     {['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'].map((key) => {
                         const shiftKey = key === ',' ? '<' : key === '.' ? '>' : key === '/' ? '?' : undefined;
@@ -438,8 +462,8 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                             >
                                 {shiftKey ? (
                                     <div className="flex flex-col items-center leading-none">
-                                        <span className="text-xs">{shiftKey}</span>
-                                        <span>{key}</span>
+                                        <span className={compact ? "text-[8px]" : "text-xs"}>{shiftKey}</span>
+                                        <span className={compact ? "text-xs" : ""}>{key}</span>
                                     </div>
                                 ) : (
                                     getKeyDisplayText(key)
@@ -455,7 +479,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                         style={{ gridColumn: 'span 2.4' }}
                         tabIndex={-1}
                     >
-                        Shift
+                        {compact ? '⇧' : 'Shift'}
                     </button>
                 </div>
 
@@ -488,7 +512,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
                         style={{ gridColumn: 'span 7.2' }}
                         tabIndex={-1}
                     >
-                        space
+                        {compact ? '' : 'space'}
                     </button>
                     <button
                         type="button"

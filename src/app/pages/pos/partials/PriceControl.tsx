@@ -4,6 +4,7 @@ import { useFocusManager } from '../../../hooks/useFocusManager';
 import type { FunctionComponent } from 'react';
 import { useRef, useEffect } from 'react';
 import { DollarSign } from 'lucide-react';
+import classNames from 'classnames';
 
 interface PriceControlProps {
     sellPrice: number;
@@ -12,6 +13,7 @@ interface PriceControlProps {
     customPriceInput: string;
     onPriceChange: (productId: string, value: string) => void;
     focusManager?: ReturnType<typeof useFocusManager>;
+    compact?: boolean;
 }
 
 const PriceControl: FunctionComponent<PriceControlProps> = ({
@@ -20,7 +22,8 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
     productId,
     customPriceInput,
     onPriceChange,
-    focusManager
+    focusManager,
+    compact = false
 }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const isCustomItem = categoryId === DEFAULT_SEED_KEY;
@@ -93,16 +96,21 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
 
     if (isCustomItem) {
         return (
-            <div className={`relative inline-flex items-center rounded-xl overflow-hidden shadow-sm
-                ${isActive
+            <div className={classNames(
+                "relative inline-flex items-center overflow-hidden shadow-sm",
+                compact ? "rounded-lg" : "rounded-xl",
+                isActive
                     ? 'ring-2 ring-amber-500 dark:ring-amber-400 shadow-amber-500/20'
-                    : 'ring-1 ring-gray-200 dark:ring-gray-700'}`}>
-                <div className={`flex items-center justify-center w-10 h-10 
-                    ${isActive
+                    : 'ring-1 ring-gray-200 dark:ring-gray-700'
+            )}>
+                <div className={classNames(
+                    "flex items-center justify-center transition-all duration-200",
+                    compact ? "w-5 h-5" : "w-10 h-10",
+                    isActive
                         ? 'bg-amber-500 text-white'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'} 
-                    transition-all duration-200`}>
-                    <span className="text-xs font-bold">MK</span>
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                )}>
+                    <span className={compact ? "text-[7px] font-bold" : "text-xs font-bold"}>MK</span>
                 </div>
                 <input
                     ref={inputRef}
@@ -113,11 +121,13 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                     onKeyDown={handleKeyDown}
-                    className={`w-24 h-10 px-3 text-base font-bold text-right
-                        bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 
-                        border-0 focus:outline-none transition-all duration-200
-                        [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                        ${isActive ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300' : ''}`}
+                    className={classNames(
+                        "font-bold text-right bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100",
+                        "border-0 focus:outline-none transition-all duration-200",
+                        "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
+                        isActive ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300' : '',
+                        compact ? "w-12 h-5 px-1 text-[10px]" : "w-24 h-10 px-3 text-base"
+                    )}
                     min="0"
                     max="9999999.99"
                     step="0.01"
@@ -128,9 +138,15 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
     }
 
     return (
-        <div className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 ring-1 ring-emerald-200 dark:ring-emerald-500/30">
-            <DollarSign size={16} className="text-emerald-600 dark:text-emerald-400" />
-            <span className="font-bold text-emerald-700 dark:text-emerald-400 text-base">
+        <div className={classNames(
+            "inline-flex items-center gap-0.5 bg-emerald-50 dark:bg-emerald-500/10 ring-1 ring-emerald-200 dark:ring-emerald-500/30",
+            compact ? "px-1 py-0.5 rounded" : "px-3 py-2 rounded-xl"
+        )}>
+            <DollarSign size={compact ? 10 : 16} className="text-emerald-600 dark:text-emerald-400" />
+            <span className={classNames(
+                "font-bold text-emerald-700 dark:text-emerald-400",
+                compact ? "text-[10px]" : "text-base"
+            )}>
                 {formatCurrency(sellPrice)}
             </span>
         </div>
