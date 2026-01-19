@@ -9,6 +9,7 @@ import { useSync } from '../hooks/useSync';
 import { useAuth } from '../context/AuthProvider';
 import BranchSwitcher from '../components/BranchSwitcher';
 import logo from '../assets/images/logo.png';
+import { useIsMobile } from '../hooks/useMediaQuery';
 
 interface NavBarProps {
     variant?: 'sidebar' | 'topbar';
@@ -25,6 +26,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
     const navItems = useNavItems();
     const { isSyncing, pendingCount, startSync } = useSync();
     const { signout } = useAuth();
+    const isMobile = useIsMobile();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
     const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -102,9 +104,27 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
         setIsMenuOpen(false);
     };
 
+    /**
+     * Check if a route is active, including sub-routes
+     * e.g., /inventory is active when on /inventory/form
+     */
+    const isRouteActive = (routePath: string): boolean => {
+        if (!routePath) return false;
+        const currentPath = location.pathname;
+        
+        // Exact match
+        if (currentPath === routePath) return true;
+        
+        // Sub-route match: /inventory should be active for /inventory/form
+        // But /inventory should NOT be active for /inventory-other
+        if (currentPath.startsWith(routePath + '/')) return true;
+        
+        return false;
+    };
+
     if (variant === 'topbar') {
         return (
-            <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors duration-200 safe-area-top-android">
+            <nav className={classNames("bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors duration-200", isMobile && "safe-area-top-android")}>
                 <div className="flex items-center justify-between px-4 lg:px-6 h-16">
                     <div className="flex items-center gap-4">
                         <button
@@ -262,7 +282,8 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
 
                 <div
                     className={classNames(
-                        "fixed top-0 left-0 h-full w-[85%] max-w-sm bg-white dark:bg-gray-900 shadow-2xl z-50 transition-transform duration-300 ease-out md:hidden safe-area-top-android",
+                        "fixed top-0 left-0 h-full w-[85%] max-w-sm bg-white dark:bg-gray-900 shadow-2xl z-50 transition-transform duration-300 ease-out md:hidden",
+                        isMobile && "safe-area-top-android",
                         isMenuOpen ? "translate-x-0" : "-translate-x-full"
                     )}
                 >
@@ -305,7 +326,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                                             <div className="flex flex-col gap-1">
                                                 {items.map((item, index) => {
                                                     const routePath = getRoutePath(item.onClick);
-                                                    const isActive = location.pathname === routePath;
+                                                    const isActive = isRouteActive(routePath);
                                                     return (
                                                         <button
                                                             key={`${groupKey}-${index}`}
@@ -432,7 +453,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                                 <div className="flex flex-col gap-1">
                                     {items.map((item, index) => {
                                         const routePath = getRoutePath(item.onClick);
-                                        const isActive = location.pathname === routePath;
+                                        const isActive = isRouteActive(routePath);
                                         return (
                                             <button
                                                 key={`${groupKey}-${index}`}
