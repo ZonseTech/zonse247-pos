@@ -21,7 +21,7 @@ import MonthlySalesChart from '../partials/MonthlySalesChart';
 import RenderTopProductRow from '../partials/RenderTopProductRow';
 import RenderTransactionRow from '../partials/RenderTransactionRow';
 import dashboardService from '../../../services/dashboard.service';
-import TransactionDetailsModal from '../../transactions/partials/TransactionDetailsModal';
+import SaleDetailsModal from '../../sales/partials/SaleDetailsModal';
 import { formatCurrency, isCurrentMonth, isFutureMonth } from '../../../utils';
 import { ROUTES } from '../../../utils/constants';
 import type { RoleDashboardProps, ManagerDashboardCounts, QuickAction } from '../types';
@@ -398,7 +398,7 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
                 </div>
             </div>
 
-            <TransactionDetailsModal
+            <SaleDetailsModal
                 transaction={transaction}
                 isOpenDetails={isOpenDetails}
                 setIsOpenDetails={setIsOpenDetails}
