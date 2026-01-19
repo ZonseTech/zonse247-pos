@@ -7,6 +7,8 @@ const endpoints = {
 
 	// GET endpoints
 	summary: 'inventory/summary',
+	overview: 'inventory/overview',
+	topValue: 'inventory/top-value',
 	count: 'inventory/count',
 	all: 'inventory/all',
 	itemsOnly: 'inventory/items-only',
@@ -70,6 +72,65 @@ export interface AdjustInventoryPayload {
 	type: 'add' | 'subtract' | 'set';
 }
 
+export interface CategoryBreakdown {
+	categoryId: string | null;
+	categoryName: string;
+	productCount: number;
+	totalQuantity: number;
+	totalCostValue: number;
+	totalRetailValue: number;
+}
+
+export interface StockHealthSummary {
+	healthy: number;
+	lowStock: number;
+	outOfStock: number;
+	overstocked: number;
+}
+
+export interface InventoryOverview {
+	totalProducts: number;
+	totalStockQuantity: number;
+	totalStockValue: number;
+	totalRetailValue: number;
+	potentialProfit: number;
+	profitMargin: number;
+	averageCostPerUnit: number;
+	averageSellingPricePerUnit: number;
+	lowStockCount: number;
+	outOfStockCount: number;
+	categoryBreakdown: CategoryBreakdown[];
+	stockHealthSummary: StockHealthSummary;
+	filters: {
+		search: string;
+		filter: string;
+		categoryId: string | null;
+		startDate: string | null;
+		endDate: string | null;
+	};
+}
+
+export interface TopValueItem {
+	productId: string;
+	name: string;
+	sku: string;
+	categoryName: string | null;
+	availableQuantity: number;
+	averageCost: number;
+	sellingPrice: number;
+	totalCostValue: number;
+	totalRetailValue: number;
+	potentialProfit: number;
+}
+
+export interface InventoryOverviewQuery {
+	search?: string;
+	filter?: string;
+	categoryId?: string;
+	startDate?: string;
+	endDate?: string;
+}
+
 const inventoryService = {
 	endpoints,
 
@@ -81,6 +142,32 @@ const inventoryService = {
 	async getSummary(): Promise<InventorySummary> {
 		return api
 			.get<ApiResponse<InventorySummary>>(endpoints.summary)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+
+	/**
+	 * GET /overview - Get comprehensive inventory overview with filters
+	 * Includes total values, profit margins, category breakdown, and stock health
+	 */
+	async getOverview(query: InventoryOverviewQuery = {}): Promise<InventoryOverview> {
+		return api
+			.get<ApiResponse<InventoryOverview>>(endpoints.overview, query)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+
+	/**
+	 * GET /top-value - Get top inventory items by value
+	 * Returns items sorted by total retail value
+	 */
+	async getTopValueItems(limit: number = 10): Promise<TopValueItem[]> {
+		return api
+			.get<ApiResponse<TopValueItem[]>>(endpoints.topValue, { limit })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
