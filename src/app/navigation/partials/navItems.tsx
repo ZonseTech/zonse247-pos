@@ -61,7 +61,7 @@ const useNavItems = (): Array<NavItem> => {
         branch: <HiOutlineBuildingStorefront className="h-5 w-5" />,
         migrations: <HiOutlineServerStack className="h-5 w-5" />,
         export_db: <HiOutlineFolderDownload className="h-5 w-5" />,
-        transactions: <HiOutlinePresentationChartBar className="h-5 w-5" />,
+        sales: <HiOutlinePresentationChartBar className="h-5 w-5" />,
         returns: <RotateCcw className="h-5 w-5" />,
         inventory_products: <Package className="h-5 w-5" />,
         suppliers: <SuppliersIcon className="h-5 w-5" />,
@@ -167,10 +167,10 @@ const useNavItems = (): Array<NavItem> => {
             type: 'button',
             color: 'bg-emerald-600 hover:bg-emerald-700',
             iconColor: 'bg-emerald-700',
-            text: 'Transactions',
-            icon: icons.transactions,
+            text: 'Sales',
+            icon: icons.sales,
             group: 'operations',
-            onClick: () => navigate(ROUTES.TRANSACTIONS),
+            onClick: () => navigate(ROUTES.SALES),
         });
     }
 

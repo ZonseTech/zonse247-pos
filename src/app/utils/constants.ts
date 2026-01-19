@@ -5,7 +5,7 @@ export enum ROUTES {
 	MY_PROFILE = '/my-profile',
 	ROLES_PERMISSIONS = '/roles-and-permissions',
 	DASHBOARD = '/dashboard',
-	TRANSACTIONS = '/transactions',
+	SALES = '/sales',
 	RETURNS = '/returns',
 	CATEGORIES = '/categories',
 	CUSTOMERS = '/customers',

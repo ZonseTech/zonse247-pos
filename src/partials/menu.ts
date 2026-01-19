@@ -206,7 +206,7 @@ export default class MenuBuilder {
 			operationsItems.push({
 				label: 'Transactions',
 				accelerator: 'CommandOrControl+T',
-				click: () => this.navigateTo(ROUTES.TRANSACTIONS),
+				click: () => this.navigateTo(ROUTES.SALES),
 			});
 		}
 

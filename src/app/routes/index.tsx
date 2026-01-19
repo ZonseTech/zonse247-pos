@@ -27,7 +27,7 @@ const Migrations = lazy(() => import('../pages/migrations'))
 const TenantForm = lazy(() => import('../pages/tenants/create'))
 const TenantsManagement = lazy(() => import('../pages/tenants'))
 const TenantRegistrationDetails = lazy(() => import('../pages/tenant-registration-details'))
-const Transactions = lazy(() => import('../pages/transactions'))
+const Sales = lazy(() => import('../pages/sales'))
 const Returns = lazy(() => import('../pages/returns'))
 const DatabaseExporter = lazy(() => import('../pages/export-db'))
 const AccountDetails = lazy(() => import('../pages/auth/MyProfile'))
@@ -78,7 +78,7 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 				<Route path={ROUTES.TENANTS} element={<TenantsManagement />} />
 				<Route path={ROUTES.TENANT_FORM} element={<TenantForm />} />
 				<Route path={ROUTES.TENANT_REGISTRATION_DETAILS} element={<TenantRegistrationDetails />} />
-				<Route path={ROUTES.TRANSACTIONS} element={<Transactions />} />
+				<Route path={ROUTES.SALES} element={<Sales />} />
 				<Route path={ROUTES.RETURNS} element={<Returns />} />
 				<Route path={ROUTES.EXPORT_DB} element={<DatabaseExporter />} />
 				<Route path={ROUTES.TERMINALS} element={<TerminalManagement />} />
