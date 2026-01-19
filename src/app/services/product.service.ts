@@ -7,7 +7,7 @@ import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding'
  */
 
 // Fields to decode for products
-const PRODUCT_DECODE_FIELDS: (keyof Product)[] = ['name', 'description', 'brand', 'categoryName', 'sku', 'color', 'size', 'unit'];
+const PRODUCT_DECODE_FIELDS: (keyof Product)[] = ['name', 'description', 'brand', 'sku', 'color', 'size', 'unit'];
 
 const endpoints = {
     // Base
