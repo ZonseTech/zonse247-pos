@@ -125,15 +125,16 @@ export const useSync = () => {
     }, []);
 
     // Poll for pending count periodically
-    useEffect(() => {
-        fetchPendingCount();
-        fetchAutoSyncStatus();
-        const interval = setInterval(() => {
-            fetchPendingCount();
-            fetchAutoSyncStatus();
-        }, 30000); // Check every 30 seconds
-        return () => clearInterval(interval);
-    }, [fetchPendingCount, fetchAutoSyncStatus]);
+    // DISABLED: Auto-sync status and tables endpoints are not available
+    // useEffect(() => {
+    //     fetchPendingCount();
+    //     fetchAutoSyncStatus();
+    //     const interval = setInterval(() => {
+    //         fetchPendingCount();
+    //         fetchAutoSyncStatus();
+    //     }, 30000); // Check every 30 seconds
+    //     return () => clearInterval(interval);
+    // }, [fetchPendingCount, fetchAutoSyncStatus]);
 
     return {
         ...syncStatus,
