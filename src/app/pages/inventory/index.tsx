@@ -6,7 +6,9 @@ import DataTable, { type Themes } from 'react-data-table-component';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import { HiOutlinePlus } from 'react-icons/hi2';
-import { getTableStyles, getCompactTableStyles } from '../../utils/table-styles';
+import { getTableStyles } from '../../utils/table-styles';
+import { useInventoryStats } from '../../hooks/useInventoryStats';
+import InventorySummaryCards, { InventorySummaryCard } from './partials/InventorySummaryCards';
 import { Button, Select, ZonseThemeContext, DateRangeFilter } from '../../components';
 import { SearchBar } from './partials/SearchBar';
 import { getInventoryTableColumns } from './partials/InventoryTableColumns';
@@ -18,7 +20,7 @@ import MobileFilterDrawer from './partials/MobileFilterDrawer';
 import { useInventoryManagement } from '../../hooks/useInventoryManagement';
 import { useInventorySummary } from '../../hooks/useInventorySummary';
 import { ROUTES } from '../../utils/constants';
-import { useIsMobile, useIsEBN } from '../../hooks/useMediaQuery';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 // Format currency for display
 const formatCurrency = (value: number): string => {
@@ -33,7 +35,6 @@ const formatCurrency = (value: number): string => {
 
 const InventoryManagement: FunctionComponent = () => {
     const isMobile = useIsMobile();
-    const isEBN = useIsEBN();
     const navigate = useNavigate();
     const { mode } = useContext(ZonseThemeContext);
 
@@ -243,25 +244,22 @@ const InventoryManagement: FunctionComponent = () => {
         onEdit: handleEdit,
         onDelete: handleDelete,
         onAdjustQuantity: handleAdjustQuantity,
-        compact: isEBN,
     });
 
     return (
         <AppLayout>
             <div className="max-w-full">
                 <PageHeader
-                    icon={<Package className={isEBN ? "w-5 h-5 text-blue-600" : "w-8 h-8 text-blue-600"} />}
+                    icon={<Package className="w-8 h-8 text-blue-600" />}
                     title="Inventory"
-                    description={(isMobile || isEBN) ? undefined : "Manage your inventory items, track stock levels, and monitor expiration dates."}
-                    compact={isEBN}
+                    description={isMobile ? undefined : "Manage your inventory items, track stock levels, and monitor expiration dates."}
                     action={
                         <Button
                             icon={HiOutlinePlus}
-                            layout={(isMobile || isEBN) ? 'outline' : 'primary'}
+                            layout={isMobile ? 'outline' : 'primary'}
                             onClick={handleAddItem}
-                            size={isEBN ? "small" : "regular"}
                             theme="primary">
-                            {!(isMobile || isEBN) && <span className='hidden md:block'>
+                            {!isMobile && <span className='hidden md:block'>
                                 Add Item
                             </span>}
                         </Button>
@@ -319,72 +317,6 @@ const InventoryManagement: FunctionComponent = () => {
                                 >
                                     <Settings2 className="w-4 h-4" />
                                     Bulk Actions ({selectedRows.length})
-                                </Button>
-                            )}
-                        </div>
-                    ) : isEBN ? (
-                        /* EBN compact filter layout */
-                        <div className="flex flex-wrap items-center gap-2 px-2">
-                            <div className="flex items-center gap-1">
-                                <SearchBar
-                                    value={searchTerm}
-                                    onChange={handleSearch}
-                                    onClear={() => applyFilters()}
-                                    placeholder="Search..."
-                                    className="w-32"
-                                    compact
-                                />
-                                <Select
-                                    value={categoryId || ''}
-                                    onChange={(e) => handleFilterByCategory(e.target.value)}
-                                    className="!h-7 !py-0 !px-2 !text-xs !min-h-0 !rounded"
-                                >
-                                    <option value="">Category</option>
-                                    {categories.map((category: Category) => (
-                                        <option key={category.categoryId} value={category.categoryId}>
-                                            {category.name as string}
-                                        </option>
-                                    ))}
-                                </Select>
-                            </div>
-
-                            <DateRangeFilter
-                                startDate={startDate ? new Date(startDate) : null}
-                                endDate={endDate ? new Date(endDate) : null}
-                                onChange={handleDateChange}
-                                compact
-                            />
-
-                            <Filters
-                                summaryData={summaryData}
-                                activeFilter={activeFilter}
-                                onClear={handleClearFilters}
-                                compact
-                            />
-
-                            {selectedRows.length > 0 && (
-                                <Button
-                                    onClick={() => setIsBulkActionsOpen(true)}
-                                    theme="neutral"
-                                    layout="outline"
-                                    size="small"
-                                    className="flex items-center gap-1"
-                                >
-                                    <Settings2 className="w-3 h-3" />
-                                    Bulk ({selectedRows.length})
-                                </Button>
-                            )}
-
-                            {hasActiveFilters && (
-                                <Button
-                                    onClick={handleClearFilters}
-                                    theme="neutral"
-                                    layout="outline"
-                                    size="small"
-                                    className="flex items-center gap-1 text-red-600 dark:text-red-400 border-red-300 dark:border-red-700"
-                                >
-                                    <X className="w-3 h-3" />
-                                    Clear
                                 </Button>
                             )}
                         </div>
@@ -459,74 +391,70 @@ const InventoryManagement: FunctionComponent = () => {
                     )}
                 </PageHeader>
 
-                {/* Mobile: Card-based list / Desktop: DataTable */}
-                {isMobile ? (
-                    <div className="px-4 py-2">
-                        <MobileInventoryList
-                            data={data}
-                            isLoading={isLoading}
-                            searchTerm={searchTerm}
-                            selectedItems={selectedRows}
-                            onEdit={handleEdit}
-                            onDelete={handleDelete}
-                            onAdjustQuantity={handleAdjustQuantity}
-                            onSelectItem={handleMobileSelectItem}
-                            totalRows={totalRows}
-                        />
-                    </div>
-                ) : (
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-                        <DataTable
-                            columns={columns}
-                            data={data}
-                            theme={mode as Themes}
-                            progressPending={isLoading}
-                            highlightOnHover
-                            striped
-                            responsive
-                            pagination
-                            paginationServer
-                            paginationTotalRows={totalRows}
-                            onChangeRowsPerPage={handlePerRowsChange}
-                            onChangePage={handlePageChange}
-                            fixedHeader
-                            selectableRows
-                            selectableRowsHighlight
-                            onSelectedRowsChange={handleRowSelected}
-                            clearSelectedRows={toggleCleared}
-                            fixedHeaderScrollHeight={isEBN ? "calc(100vh - 280px)" : "calc(100vh - 380px)"}
-                            customStyles={isEBN ? getCompactTableStyles(mode) : getTableStyles(mode)}
-                            dense={isEBN}
-                            noDataComponent={
-                                <div className={isEBN
-                                    ? "flex flex-col items-center justify-center py-6 dark:bg-gray-800 flex-1"
-                                    : "flex flex-col items-center justify-center py-12 dark:bg-gray-800 flex-1"
-                                }>
-                                    <div className={isEBN
-                                        ? "flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700"
-                                        : "flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700"
-                                    }>
-                                        <Package className={isEBN ? "h-5 w-5 text-gray-400 dark:text-gray-500" : "h-8 w-8 text-gray-400 dark:text-gray-500"} />
-                                    </div>
-                                    <h3 className={isEBN
-                                        ? "mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100"
-                                        : "mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100"
-                                    }>
-                                        {searchTerm ? 'No matching items' : 'No inventory items yet'}
-                                    </h3>
-                                    {!isEBN && (
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+
+                    <InventorySummaryCards
+                        cards={inventorySummaryCards}
+                        isLoading={statsLoading && !overview}
+                    />
+
+                    {/* Mobile: Card-based list / Desktop: DataTable */}
+                    {isMobile ? (
+                        <div className="px-4 py-2">
+                            <MobileInventoryList
+                                data={data}
+                                isLoading={isLoading}
+                                searchTerm={searchTerm}
+                                selectedItems={selectedRows}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                                onAdjustQuantity={handleAdjustQuantity}
+                                onSelectItem={handleMobileSelectItem}
+                                totalRows={totalRows}
+                            />
+                        </div>
+                    ) : (
+                        <div className="overflow-hidden">
+                            <DataTable
+                                columns={columns}
+                                data={data}
+                                theme={mode as Themes}
+                                progressPending={isLoading}
+                                highlightOnHover
+                                striped
+                                responsive
+                                pagination
+                                paginationServer
+                                paginationTotalRows={totalRows}
+                                onChangeRowsPerPage={handlePerRowsChange}
+                                onChangePage={handlePageChange}
+                                fixedHeader
+                                selectableRows
+                                selectableRowsHighlight
+                                onSelectedRowsChange={handleRowSelected}
+                                clearSelectedRows={toggleCleared}
+                                fixedHeaderScrollHeight="calc(100vh - 380px)"
+                                customStyles={getTableStyles(mode)}
+                                noDataComponent={
+                                    <div className="flex flex-col items-center justify-center py-12 dark:bg-gray-800 flex-1">
+                                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                                            <Package className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                                        </div>
+                                        <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                            {searchTerm ? 'No matching items' : 'No inventory items yet'}
+                                        </h3>
                                         <p className="mt-2 max-w-sm text-center text-sm text-gray-600 dark:text-gray-400">
                                             {searchTerm
                                                 ? 'Try adjusting your search terms or clear the search to see all items.'
                                                 : 'Get started by adding your first inventory item.'
                                             }
                                         </p>
-                                    )}
-                                </div>
-                            }
-                        />
-                    </div>
-                )}
+                                    </div>
+                                }
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Mobile Filter Drawer */}

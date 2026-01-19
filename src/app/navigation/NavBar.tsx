@@ -28,6 +28,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
     const { isSyncing, pendingCount, startSync } = useSync();
     const { signout } = useAuth();
     const isEBN = useIsEBN();
+    const isMobile = useIsMobile();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
     const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -112,14 +113,14 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
     const isRouteActive = (routePath: string): boolean => {
         if (!routePath) return false;
         const currentPath = location.pathname;
-        
+
         // Exact match
         if (currentPath === routePath) return true;
-        
+
         // Sub-route match: /inventory should be active for /inventory/form
         // But /inventory should NOT be active for /inventory-other
         if (currentPath.startsWith(routePath + '/')) return true;
-        
+
         return false;
     };
 

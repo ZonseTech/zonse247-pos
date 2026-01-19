@@ -6,6 +6,20 @@ import dayjs from 'dayjs';
 import { formatCurrency } from '../../../utils';
 import returnsService from '../../../services/returns.service';
 
+// Union type for both Sale and Transaction
+type SaleOrTransaction = (Sale | Transaction) & {
+    saleNumber?: string;
+    refNumber?: string;
+    transactionId?: string;
+    saleDate?: Date | string;
+    date?: string;
+    totalAmount?: number;
+    total?: number;
+    amountPaid?: number;
+    paid?: number;
+    isVoided?: boolean;
+};
+
 interface TransactionTableColumnsProps {
     onViewDetails: (transaction: Transaction) => void;
     onInitiateReturn: (transaction: Transaction) => void;

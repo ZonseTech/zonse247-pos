@@ -23,7 +23,7 @@ const getIcon = (title: string) => {
     }
 };
 
-const TransactionSummaryCards: React.FC<TransactionSummaryCardsProps> = ({ cards, isLoading, compact = false }) => {
+const SaleSummaryCards: React.FC<SaleSummaryCardsProps> = ({ cards, isLoading, compact = false }) => {
     if (isLoading) {
         return (
             <div className={compact

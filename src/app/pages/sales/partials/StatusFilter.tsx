@@ -3,8 +3,8 @@ import { HiOutlineCheckCircle, HiOutlineClock, HiOutlineXCircle, HiOutlineBan, H
 import { useIsMobile } from '../../../hooks/useMediaQuery';
 
 interface StatusFilterProps {
-    selectedStatus: TransactionStatus | 'all';
-    onChange: (status: TransactionStatus | 'all') => void;
+    selectedStatus: SaleStatus | TransactionStatus | 'all';
+    onChange: (status: SaleStatus | TransactionStatus | 'all') => void;
     compact?: boolean;
 }
 
