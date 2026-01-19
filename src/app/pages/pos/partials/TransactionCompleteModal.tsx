@@ -7,11 +7,56 @@ import printerService from '../../../services/printer.service';
 import { formatCurrency, formatDate } from '../../../utils';
 import { Logo } from '../../../assets/images';
 
+type SaleOrTransaction = Transaction | Sale;
+
 type TransactionCompleteModalProps = {
     isOpen: boolean;
-    transaction: Transaction | null;
+    transaction: SaleOrTransaction | null;
     onClose: () => void;
     onNewTransaction: () => void;
+};
+
+// Helper functions to normalize field access between Sale and Transaction
+const getTransactionId = (t: SaleOrTransaction): string =>
+    (t as Transaction).transactionId || (t as Sale).id || t.id;
+
+const getRefNumber = (t: SaleOrTransaction): string =>
+    (t as Transaction).refNumber || (t as Sale).saleNumber || 'N/A';
+
+const getTotal = (t: SaleOrTransaction): number =>
+    (t as Transaction).total ?? (t as Sale).totalAmount ?? 0;
+
+const getPaid = (t: SaleOrTransaction): number =>
+    (t as Transaction).paid ?? (t as Sale).amountPaid ?? 0;
+
+const getDate = (t: SaleOrTransaction): string => {
+    const date = (t as Transaction).date || (t as any).saleDate || (t as any).createdAt || new Date();
+    if (typeof date === 'string') return date;
+    if (date instanceof Date) return date.toISOString();
+    return new Date().toISOString();
+};
+
+const getTax = (t: SaleOrTransaction): number =>
+    (t as Transaction).tax ?? (t as Sale).taxAmount ?? 0;
+
+const getDiscount = (t: SaleOrTransaction): number =>
+    (t as Transaction).discount ?? (t as Sale).discountAmount ?? 0;
+
+const getSubtotal = (t: SaleOrTransaction): number =>
+    (t as Transaction).subtotal ?? (t as Sale).subtotal ?? 0;
+
+// Helper for items
+type ItemType = CartItem | SaleItem;
+const getItemName = (item: ItemType): string => {
+    if ('name' in item && item.name) return item.name;
+    if ('productDetails' in item && item.productDetails?.name) return item.productDetails.name;
+    if ('product' in item && (item as SaleItem).product?.name) return (item as SaleItem).product!.name;
+    return 'Unknown Product';
+};
+const getItemPrice = (item: ItemType): number => {
+    if ('sellPrice' in item) return item.sellPrice;
+    if ('unitPrice' in item) return item.unitPrice;
+    return 0;
 };
 
 const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps> = ({
@@ -31,7 +76,7 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
             setIsPrinting(true);
 
             await printerService.printReceipt({
-                transactionId: transaction.transactionId,
+                transactionId: getTransactionId(transaction),
                 copies: settings?.receiptCopies || 1,
                 includeHeader: true,
                 includeFooter: true,
@@ -103,7 +148,7 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                     <div className="flex items-center justify-between mb-4">
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Reference #</span>
                         <span className="font-mono text-sm bg-white dark:bg-gray-600 px-3 py-1 rounded-lg shadow-sm">
-                            {transaction.refNumber}
+                            {getRefNumber(transaction)}
                         </span>
                     </div>
 
@@ -111,13 +156,13 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                         <div className="bg-white dark:bg-gray-600 rounded-lg p-4 shadow-sm">
                             <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Amount</p>
                             <p className="text-xl font-bold text-gray-900 dark:text-white">
-                                {formatCurrency(transaction.total)}
+                                {formatCurrency(getTotal(transaction))}
                             </p>
                         </div>
                         <div className="bg-white dark:bg-gray-600 rounded-lg p-4 shadow-sm">
                             <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Amount Paid</p>
                             <p className="text-xl font-bold text-green-600 dark:text-green-400">
-                                {formatCurrency(transaction.paid)}
+                                {formatCurrency(getPaid(transaction))}
                             </p>
                         </div>
                     </div>
@@ -144,7 +189,7 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                             </span>
                         </div>
                         <div className="text-gray-500 dark:text-gray-400">
-                            {formatDate(transaction.date)}
+                            {formatDate(getDate(transaction))}
                         </div>
                     </div>
                 </div>
@@ -165,14 +210,14 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                             >
                                 <div className="flex-1">
                                     <p className="font-medium text-gray-900 dark:text-white text-sm">
-                                        {item.name}
+                                        {getItemName(item)}
                                     </p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                                        {item.quantity} × {formatCurrency(item.sellPrice)}
+                                        {item.quantity} × {formatCurrency(getItemPrice(item))}
                                     </p>
                                 </div>
                                 <span className="font-mono font-semibold text-gray-900 dark:text-white">
-                                    {formatCurrency(item.sellPrice * item.quantity)}
+                                    {formatCurrency(getItemPrice(item) * item.quantity)}
                                 </span>
                             </div>
                         ))}
@@ -261,11 +306,11 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                             <div className="text-sm space-y-1 mb-4">
                                 <div className="flex justify-between">
                                     <span className="text-gray-600 dark:text-gray-400">Ref:</span>
-                                    <span className="font-mono">{transaction.refNumber}</span>
+                                    <span className="font-mono">{getRefNumber(transaction)}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-gray-600 dark:text-gray-400">Date:</span>
-                                    <span>{formatDate(transaction.date)}</span>
+                                    <span>{formatDate(getDate(transaction))}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-gray-600 dark:text-gray-400">Cashier:</span>
@@ -279,13 +324,13 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                                 {transaction.items?.map((item, index) => (
                                     <div key={index} className="flex justify-between text-sm">
                                         <div className="flex-1">
-                                            <span>{item.name}</span>
+                                            <span>{getItemName(item)}</span>
                                             <span className="text-gray-500 dark:text-gray-400 ml-2">
                                                 x{item.quantity}
                                             </span>
                                         </div>
                                         <span className="font-mono">
-                                            {formatCurrency(item.sellPrice * item.quantity)}
+                                            {formatCurrency(getItemPrice(item) * item.quantity)}
                                         </span>
                                     </div>
                                 ))}
@@ -296,27 +341,27 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                             <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
                                     <span>Subtotal:</span>
-                                    <span className="font-mono">{formatCurrency(transaction.subtotal)}</span>
+                                    <span className="font-mono">{formatCurrency(getSubtotal(transaction))}</span>
                                 </div>
-                                {transaction.tax > 0 && (
+                                {getTax(transaction) > 0 && (
                                     <div className="flex justify-between">
                                         <span>Tax:</span>
-                                        <span className="font-mono">{formatCurrency(transaction.tax)}</span>
+                                        <span className="font-mono">{formatCurrency(getTax(transaction))}</span>
                                     </div>
                                 )}
-                                {transaction.discount > 0 && (
+                                {getDiscount(transaction) > 0 && (
                                     <div className="flex justify-between text-green-600 dark:text-green-400">
                                         <span>Discount:</span>
-                                        <span className="font-mono">-{formatCurrency(transaction.discount)}</span>
+                                        <span className="font-mono">-{formatCurrency(getDiscount(transaction))}</span>
                                     </div>
                                 )}
                                 <div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-200 dark:border-gray-600">
                                     <span>Total:</span>
-                                    <span className="font-mono">{formatCurrency(transaction.total)}</span>
+                                    <span className="font-mono">{formatCurrency(getTotal(transaction))}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span>Paid:</span>
-                                    <span className="font-mono">{formatCurrency(transaction.paid)}</span>
+                                    <span className="font-mono">{formatCurrency(getPaid(transaction))}</span>
                                 </div>
                                 {change > 0 && (
                                     <div className="flex justify-between font-semibold text-yellow-600 dark:text-yellow-400">
