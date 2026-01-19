@@ -1,4 +1,8 @@
 import api from './http.service';
+import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
+
+// Fields to decode for tenants
+const TENANT_DECODE_FIELDS: (keyof Tenant)[] = ['companyName', 'ownerName', 'address', 'city', 'state', 'country'];
 
 const endpoints: Record<string, string> = {
     all: 'tenants/all',
@@ -16,7 +20,7 @@ const tenantsService = {
     async list(query: TenantQueryParams = {}): Promise<Array<Tenant>> {
         try {
             const response = await api.get<ApiResponse<Array<Tenant>>>(endpoints.all, query);
-            return response.data.data || [];
+            return decodeArrayStrings(response.data.data || [], TENANT_DECODE_FIELDS);
         } catch (err) {
             console.error('Error fetching tenants:', err);
             throw err;
@@ -29,6 +33,9 @@ const tenantsService = {
                 ...query,
                 paginated: true
             });
+            if (response.data.data) {
+                response.data.data = decodeArrayStrings(response.data.data, TENANT_DECODE_FIELDS);
+            }
             return response.data;
         } catch (err) {
             console.error('Error fetching paginated tenants:', err);
@@ -39,7 +46,7 @@ const tenantsService = {
     async store(data: TenantFormValues): Promise<Tenant> {
         try {
             const response = await api.post<ApiResponse<Tenant>>(endpoints.store, data as any);
-            return response.data.data!;
+            return decodeObjectStrings(response.data.data!, TENANT_DECODE_FIELDS);
         } catch (err) {
             throw err;
         }
@@ -48,7 +55,7 @@ const tenantsService = {
     async update(id: string, data: Partial<TenantFormValues>): Promise<Tenant> {
         try {
             const response = await api.put<ApiResponse<Tenant>>(`${endpoints.update}/${id}`, data as any);
-            return response.data.data!;
+            return decodeObjectStrings(response.data.data!, TENANT_DECODE_FIELDS);
         } catch (err) {
             console.error('Error updating tenant:', err);
             throw err;
@@ -58,7 +65,7 @@ const tenantsService = {
     async show(id: string): Promise<Tenant> {
         try {
             const response = await api.get<ApiResponse<Tenant>>(`${endpoints.show}/${id}`);
-            return response.data.data!;
+            return decodeObjectStrings(response.data.data!, TENANT_DECODE_FIELDS);
         } catch (err) {
             console.error('Error fetching tenant:', err);
             throw err;
@@ -78,7 +85,7 @@ const tenantsService = {
     async register(data: RegisterTenantRequest): Promise<Tenant> {
         try {
             const response = await api.post<ApiResponse<Tenant>>(endpoints.register, data as any);
-            return response.data.data!;
+            return decodeObjectStrings(response.data.data!, TENANT_DECODE_FIELDS);
         } catch (err) {
             console.error('Error registering tenant:', err);
             throw err;
@@ -88,7 +95,7 @@ const tenantsService = {
     async updateTenant(tenantUuid: string, data: Partial<RegisterTenantRequest>): Promise<Tenant> {
         try {
             const response = await api.put<ApiResponse<Tenant>>(`${endpoints.updateTenant}/${tenantUuid}`, data as any);
-            return response.data.data!;
+            return decodeObjectStrings(response.data.data!, TENANT_DECODE_FIELDS);
         } catch (err) {
             console.error('Error updating tenant:', err);
             throw err;

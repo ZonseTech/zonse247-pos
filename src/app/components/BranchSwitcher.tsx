@@ -79,9 +79,6 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
                 <div className={`flex items-center gap-2 px-3 py-2.5 text-sm text-gray-600 dark:text-gray-300 ${className}`}>
                     <Building2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     <span className="truncate flex-1">{currentBranch.branchName}</span>
-                    {accessibleBranches.length <= 1 && (
-                        <span className="text-xs text-gray-400 dark:text-gray-500">Only branch</span>
-                    )}
                 </div>
             );
         }

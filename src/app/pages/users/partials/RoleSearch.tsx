@@ -3,6 +3,7 @@ import { Shield } from 'lucide-react';
 import roleService from '../../../services/role.service';
 import { Notify } from 'notiflix';
 import { Dropdown, DropdownOption } from '../../../components/Dropdown';
+import { ROLE_IDS } from '../../../constants/roles';
 
 interface Role {
     roleId: string;
@@ -18,13 +19,22 @@ interface RoleSearchProps {
     onRoleSelect: (role: Role | null) => void;
     tenantId?: string;
     disabled?: boolean;
+    excludeAdminRoles?: boolean;
 }
+
+// Admin roles that should be excluded from selection
+const ADMIN_ROLE_IDS = [
+    ROLE_IDS.SUPER_ADMIN,
+    ROLE_IDS.ADMIN,
+    ROLE_IDS.SUPPORT_ADMIN,
+];
 
 export const RoleSearch: FunctionComponent<RoleSearchProps> = ({
     selectedRoleId,
     onRoleSelect,
     tenantId,
     disabled = false,
+    excludeAdminRoles = true,
 }) => {
     const [roles, setRoles] = useState<Role[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -41,7 +51,15 @@ export const RoleSearch: FunctionComponent<RoleSearchProps> = ({
         setIsLoading(true);
         try {
             const response = await roleService.list();
-            const roleData = response.data || [];
+            let roleData = response.data || [];
+
+            // Filter out admin roles if excludeAdminRoles is true
+            if (excludeAdminRoles) {
+                roleData = roleData.filter((role: Role) =>
+                    !ADMIN_ROLE_IDS.includes(role.roleId as typeof ADMIN_ROLE_IDS[number])
+                );
+            }
+
             setRoles(roleData);
         } catch (error: any) {
             console.error('Error loading roles:', error);

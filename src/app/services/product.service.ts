@@ -1,9 +1,13 @@
 import api from './http.service';
+import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
 
 /**
  * Product Service
  * Handles all product-related API calls following the inventory workflow
  */
+
+// Fields to decode for products
+const PRODUCT_DECODE_FIELDS: (keyof Product)[] = ['name', 'description', 'brand', 'categoryName', 'sku', 'color', 'size', 'unit'];
 
 const endpoints = {
     // Base
@@ -37,7 +41,7 @@ const productService = {
     async createProduct(payload: CreateProductPayload): Promise<Product> {
         return api
             .post<ProductResponse>(endpoints.create, payload as any)
-            .then((res) => res.data.data)
+            .then((res) => decodeObjectStrings(res.data.data, PRODUCT_DECODE_FIELDS))
             .catch((err) => {
                 throw err;
             });
@@ -54,7 +58,13 @@ const productService = {
     ): Promise<ProductSearchResult> {
         return api
             .get<ProductSearchResponse>(`${endpoints.search}/${encodeURIComponent(term)}`, { tenantId, branchId })
-            .then((res) => res.data.data)
+            .then((res) => {
+                const data = res.data.data;
+                if (data.product) {
+                    data.product = decodeObjectStrings(data.product, PRODUCT_DECODE_FIELDS);
+                }
+                return data;
+            })
             .catch((err) => {
                 throw err;
             });
@@ -70,7 +80,7 @@ const productService = {
     ): Promise<Product> {
         return api
             .get<ProductResponse>(`${endpoints.searchByBarcode}/${encodeURIComponent(barcode)}`, { tenantId, branchId })
-            .then((res) => res.data.data)
+            .then((res) => decodeObjectStrings(res.data.data, PRODUCT_DECODE_FIELDS))
             .catch((err) => {
                 throw err;
             });
@@ -86,7 +96,7 @@ const productService = {
     ): Promise<Product> {
         return api
             .get<ProductResponse>(`${endpoints.searchBySku}/${encodeURIComponent(sku)}`, { tenantId, branchId })
-            .then((res) => res.data.data)
+            .then((res) => decodeObjectStrings(res.data.data, PRODUCT_DECODE_FIELDS))
             .catch((err) => {
                 throw err;
             });
@@ -107,7 +117,13 @@ const productService = {
 
         return api
             .get<ProductListResponse>(endpoints.list, params)
-            .then((res) => res.data.data)
+            .then((res) => {
+                const data = res.data.data;
+                if (data.products) {
+                    data.products = decodeArrayStrings(data.products, PRODUCT_DECODE_FIELDS);
+                }
+                return data;
+            })
             .catch((err) => {
                 throw err;
             });
@@ -123,7 +139,7 @@ const productService = {
     ): Promise<Product> {
         return api
             .get<ProductResponse>(`${endpoints.get}/${productId}`, { tenantId, branchId })
-            .then((res) => res.data.data)
+            .then((res) => decodeObjectStrings(res.data.data, PRODUCT_DECODE_FIELDS))
             .catch((err) => {
                 throw err;
             });
@@ -138,7 +154,7 @@ const productService = {
     ): Promise<Product> {
         return api
             .put<ProductResponse>(`${endpoints.update}/${productId}`, payload as any)
-            .then((res) => res.data.data)
+            .then((res) => decodeObjectStrings(res.data.data, PRODUCT_DECODE_FIELDS))
             .catch((err) => {
                 throw err;
             });

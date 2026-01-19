@@ -1,4 +1,8 @@
 import api from './http.service';
+import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
+
+// Fields to decode for printer items
+const PRINTER_DECODE_FIELDS = ['printerName', 'description', 'location', 'branchName', 'terminalName'] as const;
 
 /**
  * Printer Service
@@ -79,7 +83,7 @@ const printerService = {
 
 		return api
 			.get<PrinterListResponse>(endpoints.all, params)
-			.then((res) => res.data.data || [])
+			.then((res) => decodeArrayStrings<Printer>(res.data.data || [], PRINTER_DECODE_FIELDS))
 			.catch((err) => {
 				console.error('Error fetching printers:', err);
 				throw err;
@@ -94,7 +98,10 @@ const printerService = {
 
 		return api
 			.get<PrinterPaginatedResponse>(endpoints.all, params)
-			.then((res) => res.data.data)
+			.then((res) => ({
+				...res.data.data,
+				printers: decodeArrayStrings<Printer>(res.data.data.printers || [], PRINTER_DECODE_FIELDS)
+			}))
 			.catch((err) => {
 				console.error('Error fetching paginated printers:', err);
 				throw err;
@@ -113,7 +120,7 @@ const printerService = {
 
 		return api
 			.get<PrinterResponse>(endpoints.default, params)
-			.then((res) => res.data.data || null)
+			.then((res) => res.data.data ? decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS) : null)
 			.catch((err) => {
 				// Return null if no default printer found
 				if (err?.response?.status === 404) {
@@ -235,7 +242,7 @@ const printerService = {
 	async getByTerminal(terminalId: string): Promise<Printer[]> {
 		return api
 			.get<PrinterListResponse>(`${endpoints.byTerminal}/${terminalId}`)
-			.then((res) => res.data.data || [])
+			.then((res) => decodeArrayStrings<Printer>(res.data.data || [], PRINTER_DECODE_FIELDS))
 			.catch((err) => {
 				console.error('Error fetching printers by terminal:', err);
 				throw err;
@@ -248,7 +255,7 @@ const printerService = {
 	async getById(printerId: string): Promise<Printer> {
 		return api
 			.get<PrinterResponse>(`${endpoints.get}/${printerId}`)
-			.then((res) => res.data.data)
+			.then((res) => decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS))
 			.catch((err) => {
 				console.error('Error fetching printer:', err);
 				throw err;
@@ -261,7 +268,7 @@ const printerService = {
 	async create(data: CreatePrinterRequest): Promise<Printer> {
 		return api
 			.post<PrinterResponse>(endpoints.create, data as any)
-			.then((res) => res.data.data)
+			.then((res) => decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS))
 			.catch((err) => {
 				console.error('Error creating printer:', err);
 				throw err;
@@ -274,7 +281,7 @@ const printerService = {
 	async update(printerId: string, data: UpdatePrinterRequest): Promise<Printer> {
 		return api
 			.put<PrinterResponse>(`${endpoints.update}/${printerId}`, data as any)
-			.then((res) => res.data.data)
+			.then((res) => decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS))
 			.catch((err) => {
 				console.error('Error updating printer:', err);
 				throw err;
@@ -287,7 +294,7 @@ const printerService = {
 	async setDefault(printerId: string): Promise<Printer> {
 		return api
 			.put<PrinterResponse>(`${endpoints.setDefault}/${printerId}`, {} as any)
-			.then((res) => res.data.data)
+			.then((res) => decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS))
 			.catch((err) => {
 				console.error('Error setting default printer:', err);
 				throw err;
@@ -300,7 +307,7 @@ const printerService = {
 	async updateStatus(printerId: string, data: PrinterStatusUpdateRequest): Promise<Printer> {
 		return api
 			.put<PrinterResponse>(`${endpoints.updateStatus}/${printerId}`, data as any)
-			.then((res) => res.data.data)
+			.then((res) => decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS))
 			.catch((err) => {
 				console.error('Error updating printer status:', err);
 				throw err;

@@ -1,4 +1,8 @@
 import api from './http.service';
+import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
+
+// Fields to decode for users
+const USER_DECODE_FIELDS: (keyof User)[] = ['fullname', 'username', 'email', 'roleName', 'branchName', 'tenantName'];
 
 const endpoints: Record<string, string> = {
 	all: 'users/list',
@@ -18,7 +22,7 @@ const usersService = {
 	async list(query: UserQueryParams = {}): Promise<User[]> {
 		try {
 			const response = await api.get<ApiResponse<User[]>>(endpoints.all, query);
-			return response.data.data || [];
+			return decodeArrayStrings(response.data.data || [], USER_DECODE_FIELDS);
 		} catch (err) {
 			console.error('Error fetching users:', err);
 			throw err;
@@ -31,6 +35,9 @@ const usersService = {
 				...query,
 				paginated: true
 			});
+			if (response.data.data) {
+				response.data.data = decodeArrayStrings(response.data.data, USER_DECODE_FIELDS);
+			}
 			return response.data;
 		} catch (err) {
 			console.error('Error fetching paginated users:', err);
@@ -41,7 +48,7 @@ const usersService = {
 	async store(data: CreateUserRequest): Promise<User> {
 		try {
 			const response = await api.post<ApiResponse<User>>(endpoints.store, data as any);
-			return response.data.data!;
+			return decodeObjectStrings(response.data.data!, USER_DECODE_FIELDS);
 		} catch (err) {
 			console.error('Error creating user:', err);
 			throw err;
@@ -51,7 +58,7 @@ const usersService = {
 	async update(id: string, data: UpdateUserRequest): Promise<User> {
 		try {
 			const response = await api.put<ApiResponse<User>>(`${endpoints.update}/${id}`, data as any);
-			return response.data.data!;
+			return decodeObjectStrings(response.data.data!, USER_DECODE_FIELDS);
 		} catch (err) {
 			console.error('Error updating user:', err);
 			throw err;
@@ -61,7 +68,7 @@ const usersService = {
 	async show(id: string): Promise<User> {
 		try {
 			const response = await api.get<ApiResponse<User>>(`${endpoints.show}/${id}`);
-			return response.data.data!;
+			return decodeObjectStrings(response.data.data!, USER_DECODE_FIELDS);
 		} catch (err) {
 			console.error('Error fetching user:', err);
 			throw err;

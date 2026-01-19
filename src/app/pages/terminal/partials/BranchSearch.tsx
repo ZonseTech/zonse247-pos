@@ -120,7 +120,7 @@ const BranchSearch: FunctionComponent<BranchSearchProps> = ({
                                     {selectedBranch.branchName}
                                 </p>
                                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                                    {selectedBranch.branchCode} • {selectedBranch.branchId}
+                                    {selectedBranch.branchCode} • {selectedBranch.isActive ? 'Active' : 'Inactive'}
                                 </p>
                             </div>
                         </div>
@@ -176,7 +176,7 @@ const BranchSearch: FunctionComponent<BranchSearchProps> = ({
                                                 {branch.branchName}
                                             </p>
                                             <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                {branch.branchCode} • {branch.branchId}
+                                                {branch.branchCode} • {branch.isActive ? 'Active' : 'Inactive'}
                                             </p>
                                             {branch.city && (
                                                 <p className="text-xs text-gray-400 dark:text-gray-500">

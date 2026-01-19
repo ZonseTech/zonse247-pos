@@ -1,9 +1,20 @@
 import * as Yup from 'yup';
-import { Form, Formik } from 'formik';
+import { Form, Formik, FormikHelpers } from 'formik';
 import { FunctionComponent, useEffect, useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { Notify, Report, Confirm } from 'notiflix';
-import { Package, BarcodeIcon } from 'lucide-react';
+import {
+    Package,
+    BarcodeIcon,
+    Tag,
+    DollarSign,
+    QrCode,
+    Settings2,
+    AlertCircle,
+    CheckCircle2,
+    Info,
+    Loader2
+} from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
@@ -19,6 +30,18 @@ import { CategorySearch } from '../categories/partials/CategorySearch';
 import CameraBarcodeScanner from '../../components/scanner/CameraBarcodeScanner';
 import { type ScannerResult } from '../../services/barcode-scanner.service';
 import { useScannerFeedback } from '../../hooks/useScannerSettings';
+import {
+    parseApiError,
+    getErrorMessage,
+    mapErrorToFormikErrors,
+    isDuplicateError,
+    isValidationError,
+    isRetryableError,
+    isNotFoundError,
+    ProductErrorMessages,
+    InventoryErrorMessages,
+    getFriendlyFieldName,
+} from '../../utils/api-error-handler';
 
 const ProductForm: FunctionComponent = () => {
     const navigate = useNavigate();
@@ -61,10 +84,20 @@ const ProductForm: FunctionComponent = () => {
                     })));
                 }
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error fetching product:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to load product details';
-            Notify.failure(errorMessage);
+            const parsedError = parseApiError(error);
+
+            if (parsedError.statusCode === 404) {
+                Report.failure(
+                    'Product Not Found',
+                    ProductErrorMessages.PRODUCT_NOT_FOUND(productId),
+                    'Go Back',
+                    () => navigate(ROUTES.PRODUCTS)
+                );
+            } else {
+                Notify.failure(parsedError.message);
+            }
         } finally {
             setLoading(false);
         }
@@ -120,16 +153,16 @@ const ProductForm: FunctionComponent = () => {
     } : defaultProductValues;
 
     const productValidationSchema = Yup.object().shape({
-        categoryId: Yup.string().required('Category is required'),
+        categoryId: Yup.string(),
         sku: Yup.string()
             .required('SKU is required')
-            .max(50, 'SKU is too long'),
+            .max(100, 'SKU is too long'),
         name: Yup.string()
             .required('Product name is required')
-            .min(2, 'Name must be at least 2 characters')
-            .max(200, 'Name is too long'),
+            .min(1, 'Name is required')
+            .max(255, 'Name is too long'),
         description: Yup.string().max(1000, 'Description is too long'),
-        unit: Yup.string().required('Unit is required'),
+        unit: Yup.string().max(50, 'Unit is too long'),
         sellingPrice: Yup.number()
             .required('Selling price is required')
             .min(0, 'Selling price must be 0 or higher'),
@@ -137,14 +170,53 @@ const ProductForm: FunctionComponent = () => {
             .min(0, 'Cost price must be 0 or higher'),
         brand: Yup.string().max(100, 'Brand name is too long'),
         weight: Yup.number().min(0, 'Weight must be 0 or higher'),
+        primaryBarcode: Yup.string().max(100, 'Primary barcode is too long'),
         minStock: Yup.number().min(0, 'Min stock must be 0 or higher'),
         maxStock: Yup.number().min(0, 'Max stock must be 0 or higher'),
         reorderLevel: Yup.number().min(0, 'Reorder level must be 0 or higher'),
     });
 
-    const handleSubmit = async (values: typeof defaultProductValues, { resetForm }: any) => {
+    const handleSubmit = async (
+        values: typeof defaultProductValues,
+        { resetForm, setErrors, setFieldError }: FormikHelpers<typeof defaultProductValues>
+    ) => {
         setLoading(true);
         try {
+            // Validate business rules before submission
+            const minStock = Number(values.minStock) || 0;
+            const maxStock = Number(values.maxStock) || 0;
+            const reorderLevel = Number(values.reorderLevel) || 0;
+
+            if (maxStock > 0 && minStock > maxStock) {
+                setFieldError('minStock', InventoryErrorMessages.MIN_EXCEEDS_MAX(minStock, maxStock));
+                setLoading(false);
+                return;
+            }
+
+            if (maxStock > 0 && reorderLevel > maxStock) {
+                setFieldError('reorderLevel', InventoryErrorMessages.REORDER_EXCEEDS_MAX(reorderLevel, maxStock));
+                setLoading(false);
+                return;
+            }
+
+            // Check for duplicate barcodes in the request
+            if (barcodes.length > 0) {
+                const allBarcodes = values.primaryBarcode
+                    ? [values.primaryBarcode, ...barcodes.map(b => b.barcode)]
+                    : barcodes.map(b => b.barcode);
+                const uniqueBarcodes = new Set(allBarcodes.filter(b => b));
+                if (uniqueBarcodes.size !== allBarcodes.filter(b => b).length) {
+                    const duplicates = allBarcodes.filter((item, index) => item && allBarcodes.indexOf(item) !== index);
+                    Report.warning(
+                        'Duplicate Barcodes',
+                        ProductErrorMessages.DUPLICATE_BARCODES_IN_REQUEST(duplicates[0]),
+                        'Okay'
+                    );
+                    setLoading(false);
+                    return;
+                }
+            }
+
             const payload: CreateProductPayload = {
                 name: values.name,
                 description: values.description || undefined,
@@ -186,10 +258,91 @@ const ProductForm: FunctionComponent = () => {
                     navigate(ROUTES.PRODUCTS);
                 });
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Submit error:', error);
-            const errorMessage = error?.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} product`;
-            Report.failure('Error', errorMessage, 'Okay');
+
+            // Parse the API error
+            const parsedError = parseApiError(error);
+
+            // Map field-specific errors to Formik
+            const formikErrors = mapErrorToFormikErrors(error);
+            if (Object.keys(formikErrors).length > 0) {
+                setErrors(formikErrors);
+            }
+
+            // Handle specific error types
+            if (isDuplicateError(error)) {
+                const fieldName = parsedError.field?.toLowerCase() || '';
+
+                if (fieldName.includes('sku')) {
+                    setFieldError('sku', ProductErrorMessages.SKU_EXISTS(values.sku));
+                    Report.warning(
+                        'Duplicate SKU',
+                        ProductErrorMessages.SKU_EXISTS(values.sku),
+                        'Okay'
+                    );
+                } else if (fieldName.includes('barcode')) {
+                    setFieldError('primaryBarcode', parsedError.message);
+                    Report.warning(
+                        'Duplicate Barcode',
+                        parsedError.message,
+                        'Okay'
+                    );
+                } else {
+                    Report.warning(
+                        'Duplicate Entry',
+                        parsedError.message,
+                        'Okay'
+                    );
+                }
+            } else if (isNotFoundError(error)) {
+                // Handle not found (e.g., category doesn't exist)
+                const fieldName = parsedError.field?.toLowerCase() || '';
+
+                if (fieldName.includes('category')) {
+                    setFieldError('categoryId', ProductErrorMessages.CATEGORY_NOT_FOUND(values.categoryId));
+                    Report.failure(
+                        'Category Not Found',
+                        ProductErrorMessages.CATEGORY_NOT_FOUND(values.categoryId),
+                        'Okay'
+                    );
+                } else {
+                    Report.failure(
+                        'Not Found',
+                        parsedError.message,
+                        'Okay'
+                    );
+                }
+            } else if (isValidationError(error)) {
+                // Handle validation errors
+                Report.failure(
+                    'Validation Error',
+                    parsedError.message,
+                    'Okay'
+                );
+            } else if (isRetryableError(error)) {
+                // Handle retryable errors (network, timeout, etc.)
+                Confirm.show(
+                    'Operation Failed',
+                    `${parsedError.message} Would you like to try again?`,
+                    'Retry',
+                    'Cancel',
+                    async () => {
+                        // Retry the submission
+                        await handleSubmit(values, { resetForm, setErrors, setFieldError } as FormikHelpers<typeof defaultProductValues>);
+                    },
+                    () => {
+                        // User cancelled
+                    }
+                );
+            } else {
+                // Generic error
+                Report.failure(
+                    'Error',
+                    parsedError.message,
+                    'Okay'
+                );
+            }
         } finally {
             setLoading(false);
         }
@@ -199,8 +352,26 @@ const ProductForm: FunctionComponent = () => {
         return (
             <AppLayout>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-                    <div className="flex items-center justify-center h-64">
-                        <div className="text-gray-600 dark:text-gray-400">Loading product details...</div>
+                    <div className="animate-pulse">
+                        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-8"></div>
+                        <div className="space-y-6">
+                            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded md:col-span-2"></div>
+                                </div>
+                            </div>
+                            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </AppLayout>
@@ -228,15 +399,18 @@ const ProductForm: FunctionComponent = () => {
                         <Form>
                             <FormWrapper>
                                 <div className="py-6 relative">
-                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 to-blue-200 dark:from-blue-600 dark:to-blue-900"></div>
 
                                     <div className="flex items-center gap-3 mb-6 relative">
-                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                            1
+                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 border-2 border-blue-500 dark:border-blue-600 text-blue-600 dark:text-blue-400 font-semibold text-sm shadow-sm">
+                                            <Tag className="w-4 h-4" />
                                         </div>
-                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                            Basic Information
-                                        </h3>
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                Basic Information
+                                            </h3>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">Enter the product identification details</p>
+                                        </div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
                                         <div className="md:col-span-2">
@@ -279,21 +453,23 @@ const ProductForm: FunctionComponent = () => {
                                             label="Unit"
                                             name="unit"
                                             options={unitOptions}
-                                            required
                                         />
                                     </div>
                                 </div>
 
                                 <div className="pb-8 relative">
-                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-green-500 to-green-200 dark:from-green-600 dark:to-green-900"></div>
 
                                     <div className="flex items-center gap-3 mb-6 relative">
-                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                            2
+                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/50 border-2 border-green-500 dark:border-green-600 text-green-600 dark:text-green-400 font-semibold text-sm shadow-sm">
+                                            <DollarSign className="w-4 h-4" />
                                         </div>
-                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                            Pricing
-                                        </h3>
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                Pricing
+                                            </h3>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">Set cost and selling prices</p>
+                                        </div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
                                         <FormInput
@@ -329,15 +505,18 @@ const ProductForm: FunctionComponent = () => {
                                 {(
                                     <>
                                         <div className="pb-8 relative">
-                                            <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                                            <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-purple-500 to-purple-200 dark:from-purple-600 dark:to-purple-900"></div>
 
                                             <div className="flex items-center gap-3 mb-6 relative">
-                                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                                    3
+                                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 border-2 border-purple-500 dark:border-purple-600 text-purple-600 dark:text-purple-400 font-semibold text-sm shadow-sm">
+                                                    <QrCode className="w-4 h-4" />
                                                 </div>
-                                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                                    Barcode Information
-                                                </h3>
+                                                <div>
+                                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                        Barcode Information
+                                                    </h3>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Manage product barcodes for scanning</p>
+                                                </div>
                                             </div>
                                             <div className="ml-4 sm:ml-11 space-y-4">
                                                 <div className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
@@ -391,15 +570,18 @@ const ProductForm: FunctionComponent = () => {
                                         </div>
 
                                         <div className="pb-8 relative">
-                                            <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                                            <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-orange-500 to-orange-200 dark:from-orange-600 dark:to-orange-900"></div>
 
                                             <div className="flex items-center gap-3 mb-6 relative">
-                                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                                    4
+                                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/50 border-2 border-orange-500 dark:border-orange-600 text-orange-600 dark:text-orange-400 font-semibold text-sm shadow-sm">
+                                                    <Settings2 className="w-4 h-4" />
                                                 </div>
-                                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                                    Inventory Settings
-                                                </h3>
+                                                <div>
+                                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                        Inventory Settings
+                                                    </h3>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Configure stock tracking and levels</p>
+                                                </div>
                                             </div>
                                             <div className="ml-11">
                                                 <div className="space-y-4 mb-4">
@@ -454,32 +636,40 @@ const ProductForm: FunctionComponent = () => {
                                     </>
                                 )}
 
-                                <div className="flex justify-end gap-3 pt-6 border-t border-gray-300 dark:border-gray-600">
-                                    <Button
-                                        type="button"
-                                        theme="neutral"
-                                        onClick={() => navigate(ROUTES.PRODUCTS)}
-                                        disabled={isSubmitting}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        type="submit"
-                                        theme="primary"
-                                        disabled={isSubmitting || loading}
-                                    >
-                                        {isSubmitting || loading ? (
-                                            <>
-                                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                                Saving...
-                                            </>
-                                        ) : (
-                                            isEditMode ? 'Update Product' : 'Create Product'
-                                        )}
-                                    </Button>
+                                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                                    <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                                        <Info className="w-4 h-4" />
+                                        <span>Fields marked with * are required</span>
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <Button
+                                            type="button"
+                                            theme="neutral"
+                                            onClick={() => navigate(ROUTES.PRODUCTS)}
+                                            disabled={isSubmitting || loading}
+                                            className="min-w-[100px]"
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            theme="primary"
+                                            disabled={isSubmitting || loading}
+                                            className="min-w-[140px]"
+                                        >
+                                            {isSubmitting || loading ? (
+                                                <span className="flex items-center justify-center gap-2">
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    Saving...
+                                                </span>
+                                            ) : (
+                                                <span className="flex items-center justify-center gap-2">
+                                                    <CheckCircle2 className="w-4 h-4" />
+                                                    {isEditMode ? 'Update Product' : 'Create Product'}
+                                                </span>
+                                            )}
+                                        </Button>
+                                    </div>
                                 </div>
                             </FormWrapper>
                         </Form>

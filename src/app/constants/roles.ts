@@ -6,6 +6,7 @@ export const ROLE_IDS = {
     SUPER_ADMIN: 'super-admin',
     TENANT_OWNER: 'tenant-owner',
     ADMIN: 'admin',
+    SUPPORT_ADMIN: 'support-admin',
     BRANCH_MANAGER: 'branch-manager',
     MANAGER: 'manager',
     SHIFT_SUPERVISOR: 'shift-supervisor',

@@ -191,3 +191,9 @@ export function isElectron() {
 		(typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.includes('Electron'))
 	);
 }
+
+// Re-export API error handler utilities
+export * from './api-error-handler';
+
+// Re-export text encoding utilities
+export * from './text-encoding';

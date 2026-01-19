@@ -151,20 +151,8 @@ const UserManagement: FunctionComponent = () => {
                     description='Manage user accounts, roles, and permissions'
                     icon={<HiOutlineUsers className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600 dark:text-blue-400" />}
                     action={
-                        <Button
-                            onClick={handleAddUser}
-                            theme='primary'
-                            className="flex items-center"
-                        >
-                            <HiOutlinePlus className="w-4 h-4 mr-1 sm:mr-2" />
-                            <span className="hidden sm:inline">Add User</span>
-                            <span className="sm:hidden">Add</span>
-                        </Button>
-                    }
-                >
-                    {/* Filters Section */}
-                    <div className="p-3 md:p-6 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
                         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                            {/* Filters Section */}
                             <SearchBar
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -180,9 +168,18 @@ const UserManagement: FunctionComponent = () => {
                                     <span>Clear</span>
                                 </button>
                             )}
+                            <Button
+                                onClick={handleAddUser}
+                                theme='primary'
+                                className="flex items-center"
+                            >
+                                <HiOutlinePlus className="w-4 h-4 mr-1 sm:mr-2" />
+                                <span className="hidden sm:inline">Add User</span>
+                                <span className="sm:hidden">Add</span>
+                            </Button>
                         </div>
-                    </div>
-                </PageHeader>
+                    }
+                />
 
                 {/* Main Content Container */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">

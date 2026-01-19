@@ -1,4 +1,8 @@
 import api from './http.service';
+import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
+
+// Fields to decode for terminal items
+const TERMINAL_DECODE_FIELDS = ['terminalLabel', 'terminalType', 'branchName', 'tenantName', 'location', 'notes'] as const;
 
 const endpoints: Record<string, string> = {
     all: 'terminals/all',
@@ -21,7 +25,7 @@ const terminalService = {
     async list(query: TerminalQueryParams = {}): Promise<Array<Terminal>> {
         try {
             const response = await api.get<ApiResponse<Array<Terminal>>>(endpoints.all, query);
-            return response.data.data || [];
+            return decodeArrayStrings<Terminal>(response.data.data || [], TERMINAL_DECODE_FIELDS);
         } catch (err) {
             console.error('Error fetching terminals:', err);
             throw err;
@@ -34,7 +38,10 @@ const terminalService = {
                 ...query,
                 paginated: true
             });
-            return response.data;
+            return {
+                ...response.data,
+                data: decodeArrayStrings<Terminal>(response.data.data || [], TERMINAL_DECODE_FIELDS)
+            };
         } catch (err) {
             console.error('Error fetching paginated terminals:', err);
             throw err;
@@ -44,7 +51,7 @@ const terminalService = {
     async store(data: CreateTerminalRequest): Promise<Terminal> {
         try {
             const response = await api.post<ApiResponse<Terminal>>(endpoints.store, data as any);
-            return response.data.data!;
+            return decodeObjectStrings<Terminal>(response.data.data!, TERMINAL_DECODE_FIELDS);
         } catch (err) {
             console.error('Error creating terminal:', err);
             throw err;
@@ -54,7 +61,7 @@ const terminalService = {
     async update(id: string, data: UpdateTerminalRequest): Promise<Terminal> {
         try {
             const response = await api.put<ApiResponse<Terminal>>(`${endpoints.update}/${id}`, data as any);
-            return response.data.data!;
+            return decodeObjectStrings<Terminal>(response.data.data!, TERMINAL_DECODE_FIELDS);
         } catch (err) {
             console.error('Error updating terminal:', err);
             throw err;
@@ -64,7 +71,7 @@ const terminalService = {
     async show(id: string): Promise<Terminal> {
         try {
             const response = await api.get<ApiResponse<Terminal>>(`${endpoints.show}/${id}`);
-            return response.data.data!;
+            return decodeObjectStrings<Terminal>(response.data.data!, TERMINAL_DECODE_FIELDS);
         } catch (err) {
             console.error('Error fetching terminal:', err);
             throw err;
@@ -121,7 +128,7 @@ const terminalService = {
     async activate(id: string, activationCode?: string): Promise<Terminal> {
         try {
             const response = await api.post<ApiResponse<Terminal>>(`${endpoints.activate}/${id}`, { activationCode } as any);
-            return response.data.data!;
+            return decodeObjectStrings<Terminal>(response.data.data!, TERMINAL_DECODE_FIELDS);
         } catch (err) {
             console.error('Error activating terminal:', err);
             throw err;
@@ -131,7 +138,7 @@ const terminalService = {
     async deactivate(id: string, reason?: string): Promise<Terminal> {
         try {
             const response = await api.post<ApiResponse<Terminal>>(`${endpoints.deactivate}/${id}`, { reason } as any);
-            return response.data.data!;
+            return decodeObjectStrings<Terminal>(response.data.data!, TERMINAL_DECODE_FIELDS);
         } catch (err) {
             console.error('Error deactivating terminal:', err);
             throw err;
@@ -141,7 +148,7 @@ const terminalService = {
     async block(id: string, reason: string): Promise<Terminal> {
         try {
             const response = await api.post<ApiResponse<Terminal>>(`${endpoints.block}/${id}`, { reason } as any);
-            return response.data.data!;
+            return decodeObjectStrings<Terminal>(response.data.data!, TERMINAL_DECODE_FIELDS);
         } catch (err) {
             console.error('Error blocking terminal:', err);
             throw err;
@@ -151,7 +158,7 @@ const terminalService = {
     async unblock(id: string): Promise<Terminal> {
         try {
             const response = await api.post<ApiResponse<Terminal>>(`${endpoints.unblock}/${id}`, {} as any);
-            return response.data.data!;
+            return decodeObjectStrings<Terminal>(response.data.data!, TERMINAL_DECODE_FIELDS);
         } catch (err) {
             console.error('Error unblocking terminal:', err);
             throw err;
@@ -161,7 +168,7 @@ const terminalService = {
     async setPrimary(id: string, branchId: string): Promise<Terminal> {
         try {
             const response = await api.post<ApiResponse<Terminal>>(`${endpoints.setPrimary}/${id}`, { branchId } as any);
-            return response.data.data!;
+            return decodeObjectStrings<Terminal>(response.data.data!, TERMINAL_DECODE_FIELDS);
         } catch (err) {
             console.error('Error setting primary terminal:', err);
             throw err;

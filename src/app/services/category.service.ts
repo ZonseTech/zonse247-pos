@@ -1,4 +1,8 @@
 import api from './http.service';
+import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
+
+// Fields to decode for category items
+const CATEGORY_DECODE_FIELDS = ['name', 'description'] as const;
 
 const endpoints: Record<string, string> = {
 	all: 'categories/all',
@@ -12,7 +16,7 @@ const categoriesSerive = {
 	async list(query = {}): Promise<Category[]> {
 		return api
 			.get<ApiResponse<Category[]>>(endpoints.all, query)
-			.then((res) => res.data.data)
+			.then((res) => decodeArrayStrings<Category>(res.data.data, CATEGORY_DECODE_FIELDS))
 			.catch((err) => {
 				throw err;
 			});
@@ -20,7 +24,7 @@ const categoriesSerive = {
 	async store(data: Record<string, any>): Promise<Record<string, any>> {
 		return api
 			.post(endpoints.store, data)
-			.then((res) => res.data)
+			.then((res) => decodeObjectStrings(res.data, CATEGORY_DECODE_FIELDS))
 			.catch((err) => {
 				throw err;
 			});
@@ -31,7 +35,7 @@ const categoriesSerive = {
 	): Promise<Record<string, any>> {
 		return api
 			.put(`${endpoints.update}/${id}`, data)
-			.then((res) => res.data)
+			.then((res) => decodeObjectStrings(res.data, CATEGORY_DECODE_FIELDS))
 			.catch((err) => {
 				throw err;
 			});
