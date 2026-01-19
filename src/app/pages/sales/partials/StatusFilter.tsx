@@ -3,18 +3,20 @@ import { HiOutlineCheckCircle, HiOutlineClock, HiOutlineXCircle, HiOutlineBan, H
 import { useIsMobile } from '../../../hooks/useMediaQuery';
 
 interface StatusFilterProps {
-    selectedStatus: TransactionStatus | 'all';
-    onChange: (status: TransactionStatus | 'all') => void;
+    selectedStatus: SaleStatus | TransactionStatus | 'all';
+    onChange: (status: SaleStatus | TransactionStatus | 'all') => void;
     compact?: boolean;
 }
 
-const statusOptions: Array<{ value: TransactionStatus | 'all'; label: string; icon: any; color: string }> = [
+/**
+ * Status options supporting both new SaleStatus and legacy TransactionStatus
+ */
+const statusOptions: Array<{ value: SaleStatus | TransactionStatus | 'all'; label: string; icon: any; color: string }> = [
     { value: 'all', label: 'All', icon: HiOutlineCheckCircle, color: 'gray' },
-    { value: 'completed', label: 'Completed', icon: HiOutlineCheckCircle, color: 'green' },
-    { value: 'pending', label: 'Pending', icon: HiOutlineClock, color: 'yellow' },
-    { value: 'failed', label: 'Failed', icon: HiOutlineXCircle, color: 'red' },
-    { value: 'cancelled', label: 'Cancelled', icon: HiOutlineBan, color: 'gray' },
-    { value: 'refunded', label: 'Refunded', icon: HiOutlineReceiptRefund, color: 'blue' },
+    { value: 'COMPLETED', label: 'Completed', icon: HiOutlineCheckCircle, color: 'green' },
+    { value: 'PENDING', label: 'Pending', icon: HiOutlineClock, color: 'yellow' },
+    { value: 'VOIDED', label: 'Voided', icon: HiOutlineXCircle, color: 'red' },
+    { value: 'RETURNED', label: 'Returned', icon: HiOutlineReceiptRefund, color: 'blue' },
 ];
 
 export const StatusFilter: FC<StatusFilterProps> = ({ selectedStatus, onChange, compact = false }) => {
@@ -51,7 +53,7 @@ export const StatusFilter: FC<StatusFilterProps> = ({ selectedStatus, onChange, 
                     </div>
                     <select
                         value={selectedStatus}
-                        onChange={(e) => onChange(e.target.value as TransactionStatus | 'all')}
+                        onChange={(e) => onChange(e.target.value as SaleStatus | TransactionStatus | 'all')}
                         className="w-full h-10 pl-10 pr-8 
                             appearance-none cursor-pointer
                             rounded-lg text-sm font-medium

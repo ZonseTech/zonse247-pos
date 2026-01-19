@@ -5,11 +5,11 @@ import Loader from "../../../components/Loader";
 import { DateRangeFilter, ZonseThemeContext } from "../../../components";
 import { SearchBar } from "../../../components/SearchBar";
 import { getTableStyles } from "../../../utils/table-styles";
-import { useTransactions } from "../../../hooks/useTransactions";
-import { getTransactionTableColumns } from "./TransactionTableColumns";
-import TransactionDetailsModal from "./TransactionDetailsModal";
+import { useSales } from "../../../hooks/useSales";
+import { getSaleTableColumns } from "./SaleTableColumns";
+import SaleDetailsModal from "./SaleDetailsModal";
 
-const TransactionsDataTable: FunctionComponent = () => {
+const SalesDataTable: FunctionComponent = () => {
     const { mode } = useContext(ZonseThemeContext);
     const [isOpenDetails, setIsOpenDetails] = useState<boolean>(false);
     const [selectedTransaction, setSelectedTransaction] = useState<Transaction>({} as Transaction);
@@ -28,19 +28,19 @@ const TransactionsDataTable: FunctionComponent = () => {
         handlePageChange,
         handlePerRowsChange,
         exportData,
-    } = useTransactions();
+    } = useSales();
 
-    const handleViewDetails = useCallback((transaction: Transaction) => {
-        setSelectedTransaction(transaction);
+    const handleViewDetails = useCallback((sale: Transaction) => {
+        setSelectedTransaction(sale);
         setIsOpenDetails(true);
     }, []);
 
-    const handleInitiateReturn = useCallback((transaction: Transaction) => {
+    const handleInitiateReturn = useCallback((sale: Transaction) => {
         // This component is deprecated, functionality moved to index.tsx
-        console.log('Return initiated for transaction:', transaction);
+        console.log('Return initiated for sale:', sale);
     }, []);
 
-    const columns = getTransactionTableColumns({
+    const columns = getSaleTableColumns({
         onViewDetails: handleViewDetails,
         onInitiateReturn: handleInitiateReturn,
     });
@@ -133,7 +133,7 @@ const TransactionsDataTable: FunctionComponent = () => {
                 />
             </div>
 
-            <TransactionDetailsModal
+            <SaleDetailsModal
                 transaction={selectedTransaction}
                 isOpenDetails={isOpenDetails}
                 setIsOpenDetails={setIsOpenDetails}
@@ -142,4 +142,4 @@ const TransactionsDataTable: FunctionComponent = () => {
     );
 };
 
-export default TransactionsDataTable;
+export default SalesDataTable;

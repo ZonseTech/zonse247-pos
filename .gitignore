@@ -134,3 +134,4 @@ exports
 *.keystore
 *.db
 prisma.config.tsseed.db
+data/

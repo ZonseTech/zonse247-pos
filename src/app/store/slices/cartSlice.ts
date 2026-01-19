@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { decodeHtmlEntities } from '../../utils/text-encoding'
 
 interface CartState {
     items: CartItem[]
@@ -38,7 +39,7 @@ const cartSlice = createSlice({
                 state.items.push({
                     barcode: item.barcode,
                     productId: item.productId.toString(),
-                    name: item.name,
+                    name: decodeHtmlEntities(item.name),
                     purchasePrice: parseFloat(item.costPrice?.toString() || '0'),
                     sellPrice: price,
                     discount: item.discount ?? 0,

@@ -1,9 +1,9 @@
 import React from 'react';
 import { DollarSign, TrendingUp, TrendingDown, Receipt, RotateCcw } from 'lucide-react';
-import { TransactionSummaryCard } from '../../../hooks/useTransactionSummary';
+import { SaleSummaryCard } from '../../../hooks/useSaleSummary';
 
-interface TransactionSummaryCardsProps {
-    cards: TransactionSummaryCard[];
+interface SaleSummaryCardsProps {
+    cards: SaleSummaryCard[];
     isLoading?: boolean;
     compact?: boolean;
 }
@@ -23,7 +23,7 @@ const getIcon = (title: string) => {
     }
 };
 
-const TransactionSummaryCards: React.FC<TransactionSummaryCardsProps> = ({ cards, isLoading, compact = false }) => {
+const SaleSummaryCards: React.FC<SaleSummaryCardsProps> = ({ cards, isLoading, compact = false }) => {
     if (isLoading) {
         return (
             <div className={compact
@@ -107,4 +107,4 @@ const TransactionSummaryCards: React.FC<TransactionSummaryCardsProps> = ({ cards
     );
 };
 
-export default TransactionSummaryCards;
+export default SaleSummaryCards;

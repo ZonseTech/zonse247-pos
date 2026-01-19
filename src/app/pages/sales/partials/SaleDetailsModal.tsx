@@ -9,9 +9,9 @@ import {
 	useState,
 	useRef
 } from 'react';
-import TransactionHeader from './TransactionHeader';
-import TransactionSummary from './TransactionSummary';
-import TransactionItems from './TransactionItems';
+import SaleHeader from './SaleHeader';
+import SaleSummary from './SaleSummary';
+import SaleItems from './SaleItems';
 import InitiateReturnModal from '../../returns/partials/InitiateReturnModal';
 import returnsService from '../../../services/returns.service';
 import { RotateCcw, Printer, X, Download, Copy, CheckCircle, Clock, XCircle, AlertCircle, Receipt } from 'lucide-react';
@@ -296,7 +296,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 							<p>Reference: #{transactionData.refNumber}</p>
 						</div>
 
-						<TransactionHeader
+						<SaleHeader
 							refNumber={transactionData.refNumber}
 							customerName={transactionData.customerName}
 							cashierName={transactionData.cashierName}
@@ -373,13 +373,13 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 							</div>
 						)}
 
-						<TransactionItems
+						<SaleItems
 							items={transaction.items || []}
 							hasItems={transactionData.hasItems}
 							compact={isEBN}
 						/>
 
-						<TransactionSummary
+						<SaleSummary
 							subtotal={transaction.subtotal}
 							tax={transaction.tax}
 							discount={transaction.discount}

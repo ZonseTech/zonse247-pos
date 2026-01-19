@@ -2,8 +2,34 @@ import { FunctionComponent } from "react";
 import { formatCurrency } from "../../../utils";
 import { ShoppingCart, Package, Hash } from "lucide-react";
 
-const TransactionItems: FunctionComponent<{
-    items: CartItem[];
+// Union type for both CartItem and SaleItem
+type ItemType = CartItem | SaleItem;
+
+// Helper functions to normalize item properties
+const getItemName = (item: ItemType): string => {
+    if ('name' in item && item.name) return item.name;
+    if ('productDetails' in item && item.productDetails?.name) return item.productDetails.name;
+    if ('product' in item && (item as SaleItem).product?.name) return (item as SaleItem).product!.name;
+    return 'Unknown Product';
+};
+
+const getItemPrice = (item: ItemType): number => {
+    if ('sellPrice' in item) return item.sellPrice;
+    if ('unitPrice' in item) return item.unitPrice;
+    return 0;
+};
+
+const getItemBarcode = (item: ItemType): string | number | undefined => {
+    if ('barcode' in item) return item.barcode;
+    if ('product' in item) {
+        const saleItem = item as SaleItem;
+        return saleItem.product?.primaryBarcode || saleItem.product?.barcodes?.[0]?.barcode;
+    }
+    return undefined;
+};
+
+const SaleItems: FunctionComponent<{
+    items: ItemType[];
     hasItems: boolean;
     compact?: boolean;
 }> = ({ items = [], hasItems, compact = false }) => (
@@ -97,7 +123,7 @@ const ItemRow: FunctionComponent<{ item: CartItem; compact?: boolean }> = ({ ite
                             <div className="flex items-center gap-1 mt-1">
                                 <Hash className="w-3 h-3 text-gray-400" />
                                 <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
-                                    {item.barcode}
+                                    {barcode}
                                 </span>
                             </div>
                         )}
@@ -148,4 +174,4 @@ const ItemRow: FunctionComponent<{ item: CartItem; compact?: boolean }> = ({ ite
     );
 };
 
-export default TransactionItems
+export default SaleItems

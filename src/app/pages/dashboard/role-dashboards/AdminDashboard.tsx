@@ -46,7 +46,7 @@ const AdminDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoading
     const [dashboardCounts, setDashboardCounts] = useState<AdminDashboardCounts>({} as AdminDashboardCounts);
 
     const [cards, setCards] = useState([
-        { key: 'totalSales', title: 'Total Revenue', value: 0, icon: <HiOutlineBanknotes />, bgColor: 'bg-green-500 dark:bg-green-600', link: ROUTES.TRANSACTIONS },
+        { key: 'totalSales', title: 'Total Revenue', value: 0, icon: <HiOutlineBanknotes />, bgColor: 'bg-green-500 dark:bg-green-600', link: ROUTES.SALES },
         { key: 'stock', title: 'Total Products', value: 0, icon: <HiOutlineBuildingStorefront />, bgColor: 'bg-blue-500 dark:bg-blue-600', link: ROUTES.INVENTORY },
         { key: 'allCustomers', title: 'Total Customers', value: 0, icon: <HiOutlineUserGroup />, bgColor: 'bg-purple-500 dark:bg-purple-600', link: ROUTES.CUSTOMERS },
         { key: 'totalUsers', title: 'Total Users', value: 0, icon: <Users size={20} />, bgColor: 'bg-orange-500 dark:bg-orange-600', link: ROUTES.USERS },
@@ -57,7 +57,7 @@ const AdminDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoading
         { label: 'New Sale', icon: <ShoppingCart size={18} />, onClick: () => navigate(ROUTES.POS), color: 'bg-green-600 hover:bg-green-700' },
         { label: 'Add Product', icon: <Package size={18} />, onClick: () => navigate(ROUTES.INVENTORY_FORM), color: 'bg-blue-600 hover:bg-blue-700' },
         { label: 'Add User', icon: <Users size={18} />, onClick: () => navigate(ROUTES.USER_FORM), color: 'bg-purple-600 hover:bg-purple-700' },
-        { label: 'View Reports', icon: <HiOutlineChartBar size={18} />, onClick: () => navigate(ROUTES.TRANSACTIONS), color: 'bg-orange-600 hover:bg-orange-700' },
+        { label: 'View Reports', icon: <HiOutlineChartBar size={18} />, onClick: () => navigate(ROUTES.SALES), color: 'bg-orange-600 hover:bg-orange-700' },
     ];
 
     useEffect(() => {

@@ -6,13 +6,43 @@ import dayjs from 'dayjs';
 import { formatCurrency } from '../../../utils';
 import returnsService from '../../../services/returns.service';
 
+// Union type for both Sale and Transaction
+type SaleOrTransaction = (Sale | Transaction) & {
+    saleNumber?: string;
+    refNumber?: string;
+    transactionId?: string;
+    saleDate?: Date | string;
+    date?: string;
+    totalAmount?: number;
+    total?: number;
+    amountPaid?: number;
+    paid?: number;
+    isVoided?: boolean;
+};
+
 interface TransactionTableColumnsProps {
     onViewDetails: (transaction: Transaction) => void;
     onInitiateReturn: (transaction: Transaction) => void;
     compact?: boolean;
 }
 
-export const getTransactionTableColumns = ({
+// Helper to get sale identifier (supports both new and legacy format)
+const getSaleRef = (row: SaleOrTransaction) =>
+    row.saleNumber || row.refNumber || row.transactionId || row.id || '-';
+
+// Helper to get sale date (supports both formats)
+const getSaleDate = (row: SaleOrTransaction) =>
+    row.saleDate || row.date || row.createdAt;
+
+// Helper to get total amount (supports both formats)  
+const getSaleTotal = (row: SaleOrTransaction) =>
+    row.totalAmount || row.total || 0;
+
+// Helper to get amount paid (supports both formats)
+const getAmountPaid = (row: SaleOrTransaction) =>
+    row.amountPaid || row.paid || 0;
+
+export const getSaleTableColumns = ({
     onViewDetails,
     onInitiateReturn,
     compact = false,
@@ -147,22 +177,22 @@ export const getTransactionTableColumns = ({
     return [
         {
             name: "Invoice",
-            selector: (row) => row.refNumber || row.transactionId || '-',
+            selector: (row) => getSaleRef(row),
             cell: (row) => (
                 <div className="font-medium text-gray-900 dark:text-white">
-                    {row.refNumber || row.transactionId || '-'}
+                    {getSaleRef(row)}
                 </div>
             ),
             sortable: true,
         },
         {
             name: "Date",
-            selector: (row) => row.date ? dayjs(row.date).format('DD-MM-YYYY') : '-',
+            selector: (row) => getSaleDate(row) ? dayjs(getSaleDate(row)).format('DD-MM-YYYY') : '-',
             cell: (row) => (
                 <div className="flex items-center gap-2">
                     <HiOutlineClock className="w-4 h-4 text-gray-400" />
                     <span className="text-sm text-gray-600 dark:text-gray-300">
-                        {row.date ? dayjs(row.date).format('DD-MM-YYYY') : '-'}
+                        {getSaleDate(row) ? dayjs(getSaleDate(row)).format('DD-MM-YYYY') : '-'}
                     </span>
                 </div>
             ),
@@ -170,11 +200,11 @@ export const getTransactionTableColumns = ({
         },
         {
             name: "Total",
-            selector: (row) => row.total || 0,
+            selector: (row) => getSaleTotal(row),
             cell: (row) => (
                 <div className="flex items-center gap-1">
                     <span className="font-semibold text-green-600 dark:text-green-400">
-                        {formatCurrency(row.total || 0)}
+                        {formatCurrency(getSaleTotal(row))}
                     </span>
                 </div>
             ),
@@ -182,10 +212,10 @@ export const getTransactionTableColumns = ({
         },
         {
             name: "Paid",
-            selector: (row) => row.paid || 0,
+            selector: (row) => getAmountPaid(row),
             cell: (row) => (
                 <span className="text-blue-600 dark:text-blue-400 font-medium">
-                    {formatCurrency(row.paid || 0)}
+                    {formatCurrency(getAmountPaid(row))}
                 </span>
             ),
             sortable: true,
@@ -238,11 +268,12 @@ export const getTransactionTableColumns = ({
             width: "120px",
             name: "Actions",
             cell: (row) => {
-                const canReturn = returnsService.canReturn(row);
-                const refundSummary = returnsService.getRefundSummary(row);
-                const isRefunded = row.status === 'refunded';
-                const hasRefundInProgress = row.refunds?.some(r => r.status === 'pending');
-                const showReturnButton = canReturn && !refundSummary.isFullyRefunded && !isRefunded && !hasRefundInProgress;
+                const canReturn = returnsService.canReturn(row as Transaction);
+                const refundSummary = returnsService.getRefundSummary(row as Transaction);
+                const isVoided = row.isVoided || row.status === 'VOIDED' || row.status === 'void';
+                const isRefunded = row.status === 'refunded' || row.status === 'RETURNED';
+                const hasRefundInProgress = (row as Transaction).refunds?.some(r => r.status === 'pending');
+                const showReturnButton = canReturn && !refundSummary.isFullyRefunded && !isRefunded && !isVoided && !hasRefundInProgress;
 
                 return (
                     <div className="flex gap-1">

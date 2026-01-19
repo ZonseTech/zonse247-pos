@@ -5,39 +5,66 @@ import dayjs from 'dayjs';
 import { formatCurrency } from '../../../utils';
 import returnsService from '../../../services/returns.service';
 
-interface TransactionMobileCardProps {
-    transaction: Transaction;
-    onViewDetails: (transaction: Transaction) => void;
-    onInitiateReturn: (transaction: Transaction) => void;
+// Union type for both Sale and Transaction
+type SaleOrTransaction = (Sale | Transaction) & {
+    saleNumber?: string;
+    refNumber?: string;
+    transactionId?: string;
+    saleDate?: Date | string;
+    date?: string;
+    totalAmount?: number;
+    total?: number;
+    amountPaid?: number;
+    paid?: number;
+    isVoided?: boolean;
+};
+
+interface SaleMobileCardProps {
+    transaction: SaleOrTransaction;
+    onViewDetails: (transaction: SaleOrTransaction) => void;
+    onInitiateReturn: (transaction: SaleOrTransaction) => void;
 }
 
-const getStatusStyles = (status: TransactionStatus | undefined) => {
-    switch (status) {
+/**
+ * Get status styles (supports both SaleStatus and TransactionStatus)
+ */
+const getStatusStyles = (status: SaleStatus | TransactionStatus | undefined) => {
+    const normalizedStatus = status?.toLowerCase();
+    switch (normalizedStatus) {
         case 'completed':
             return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
         case 'pending':
             return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
         case 'failed':
+        case 'voided':
             return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
         case 'cancelled':
             return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
         case 'refunded':
+        case 'returned':
             return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
         default:
             return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
     }
 };
 
-const TransactionMobileCard: React.FC<TransactionMobileCardProps> = ({
+// Helpers for handling both data shapes
+const getSaleRef = (t: SaleOrTransaction) => t.saleNumber || t.refNumber || t.transactionId || t.id || '-';
+const getSaleDate = (t: SaleOrTransaction) => t.saleDate || t.date || t.createdAt;
+const getSaleTotal = (t: SaleOrTransaction) => t.totalAmount || t.total || 0;
+const getAmountPaid = (t: SaleOrTransaction) => t.amountPaid || t.paid || 0;
+
+const SaleMobileCard: React.FC<SaleMobileCardProps> = ({
     transaction,
     onViewDetails,
     onInitiateReturn,
 }) => {
-    const canReturn = returnsService.canReturn(transaction);
-    const refundSummary = returnsService.getRefundSummary(transaction);
-    const isRefunded = transaction.status === 'refunded';
-    const hasRefundInProgress = transaction.refunds?.some(r => r.status === 'pending');
-    const showReturnButton = canReturn && !refundSummary.isFullyRefunded && !isRefunded && !hasRefundInProgress;
+    const canReturn = returnsService.canReturn(transaction as Transaction);
+    const refundSummary = returnsService.getRefundSummary(transaction as Transaction);
+    const isVoided = transaction.status === 'VOIDED' || transaction.status === 'void' || !!(transaction as Sale).voidedAt;
+    const isRefunded = transaction.status === 'refunded' || transaction.status === 'RETURNED';
+    const hasRefundInProgress = (transaction as Transaction).refunds?.some(r => r.status === 'pending');
+    const showReturnButton = canReturn && !refundSummary.isFullyRefunded && !isRefunded && !isVoided && !hasRefundInProgress;
 
     return (
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
@@ -45,7 +72,7 @@ const TransactionMobileCard: React.FC<TransactionMobileCardProps> = ({
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                     <span className="font-semibold text-gray-900 dark:text-white text-sm">
-                        {transaction.refNumber || transaction.transactionId || '-'}
+                        {getSaleRef(transaction)}
                     </span>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusStyles(transaction.status)}`}>
                         {transaction.status || 'unknown'}
@@ -53,7 +80,7 @@ const TransactionMobileCard: React.FC<TransactionMobileCardProps> = ({
                 </div>
                 <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                     <HiOutlineClock className="w-3.5 h-3.5" />
-                    <span>{transaction.date ? dayjs(transaction.date).format('DD MMM YYYY') : '-'}</span>
+                    <span>{getSaleDate(transaction) ? dayjs(getSaleDate(transaction)).format('DD MMM YYYY') : '-'}</span>
                 </div>
             </div>
 
@@ -62,13 +89,13 @@ const TransactionMobileCard: React.FC<TransactionMobileCardProps> = ({
                 <div className="text-center">
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Total</p>
                     <p className="font-bold text-green-600 dark:text-green-400 text-sm">
-                        {formatCurrency(transaction.total || 0)}
+                        {formatCurrency(getSaleTotal(transaction))}
                     </p>
                 </div>
                 <div className="text-center border-x border-gray-200 dark:border-gray-600">
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Paid</p>
                     <p className="font-semibold text-blue-600 dark:text-blue-400 text-sm">
-                        {formatCurrency(transaction.paid || 0)}
+                        {formatCurrency(getAmountPaid(transaction))}
                     </p>
                 </div>
                 <div className="text-center">
@@ -124,14 +151,14 @@ const TransactionMobileCard: React.FC<TransactionMobileCardProps> = ({
     );
 };
 
-interface TransactionMobileListProps {
-    transactions: Transaction[];
-    onViewDetails: (transaction: Transaction) => void;
-    onInitiateReturn: (transaction: Transaction) => void;
+interface SaleMobileListProps {
+    transactions: SaleOrTransaction[];
+    onViewDetails: (transaction: SaleOrTransaction) => void;
+    onInitiateReturn: (transaction: SaleOrTransaction) => void;
     isLoading?: boolean;
 }
 
-export const TransactionMobileList: React.FC<TransactionMobileListProps> = ({
+export const SaleMobileList: React.FC<SaleMobileListProps> = ({
     transactions,
     onViewDetails,
     onInitiateReturn,
@@ -168,8 +195,8 @@ export const TransactionMobileList: React.FC<TransactionMobileListProps> = ({
     return (
         <div className="space-y-3 p-4">
             {transactions.map((transaction) => (
-                <TransactionMobileCard
-                    key={transaction.transactionId}
+                <SaleMobileCard
+                    key={transaction.id || (transaction as Transaction).transactionId}
                     transaction={transaction}
                     onViewDetails={onViewDetails}
                     onInitiateReturn={onInitiateReturn}
@@ -179,4 +206,4 @@ export const TransactionMobileList: React.FC<TransactionMobileListProps> = ({
     );
 };
 
-export default TransactionMobileCard;
+export default SaleMobileCard;

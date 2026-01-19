@@ -13,7 +13,7 @@ import DataTable from '../partials/DataTable';
 import StatCard from '../../../components/card/StatCard';
 import RenderTransactionRow from '../partials/RenderTransactionRow';
 import dashboardService from '../../../services/dashboard.service';
-import TransactionDetailsModal from '../../transactions/partials/TransactionDetailsModal';
+import SaleDetailsModal from '../../sales/partials/SaleDetailsModal';
 import { formatCurrency } from '../../../utils';
 import { ROUTES } from '../../../utils/constants';
 import type { RoleDashboardProps, CashierDashboardCounts, QuickAction } from '../types';
@@ -254,7 +254,7 @@ const CashierDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
                 </div>
             </div>
 
-            <TransactionDetailsModal
+            <SaleDetailsModal
                 transaction={transaction}
                 isOpenDetails={isOpenDetails}
                 setIsOpenDetails={setIsOpenDetails}

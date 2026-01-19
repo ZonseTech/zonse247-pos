@@ -38,8 +38,8 @@ const AccountantDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLo
 
     // Quick actions for accountant
     const quickActions: QuickAction[] = [
-        { label: 'View Transactions', icon: <Receipt size={18} />, onClick: () => navigate(ROUTES.TRANSACTIONS), color: 'bg-blue-600 hover:bg-blue-700' },
-        { label: 'Sales Reports', icon: <HiOutlineDocumentText size={18} />, onClick: () => navigate(ROUTES.TRANSACTIONS), color: 'bg-green-600 hover:bg-green-700' },
+        { label: 'View Sales', icon: <Receipt size={18} />, onClick: () => navigate(ROUTES.SALES), color: 'bg-blue-600 hover:bg-blue-700' },
+        { label: 'Sales Reports', icon: <HiOutlineDocumentText size={18} />, onClick: () => navigate(ROUTES.SALES), color: 'bg-green-600 hover:bg-green-700' },
     ];
 
     useEffect(() => {
@@ -229,10 +229,10 @@ const AccountantDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLo
                         </div>
                     </div>
                     <Link
-                        to={ROUTES.TRANSACTIONS}
+                        to={ROUTES.SALES}
                         className="block mt-4 text-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 text-sm font-medium"
                     >
-                        View All Transactions →
+                        View All Sales →
                     </Link>
                 </div>
             </div>
@@ -286,7 +286,7 @@ const AccountantDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLo
                         <p className="text-blue-100 mt-1">Access comprehensive financial reports and transaction history.</p>
                     </div>
                     <Link
-                        to={ROUTES.TRANSACTIONS}
+                        to={ROUTES.SALES}
                         className="px-6 py-3 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors"
                     >
                         View Reports

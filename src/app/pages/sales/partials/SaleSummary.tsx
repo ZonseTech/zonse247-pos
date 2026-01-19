@@ -39,7 +39,7 @@ const SummaryRow: FunctionComponent<{
     );
 };
 
-const TransactionSummary: FunctionComponent<{
+const SaleSummary: FunctionComponent<{
     subtotal: number;
     tax: number;
     discount: number;
@@ -164,4 +164,4 @@ const TransactionSummary: FunctionComponent<{
 );
 
 
-export default TransactionSummary
+export default SaleSummary

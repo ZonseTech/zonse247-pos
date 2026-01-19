@@ -33,7 +33,7 @@ const DetailRow: FunctionComponent<{
     </div>
 );
 
-const TransactionHeader: FunctionComponent<{
+const SaleHeader: FunctionComponent<{
     refNumber: string;
     customerName: string;
     cashierName: string;
@@ -96,4 +96,4 @@ const TransactionHeader: FunctionComponent<{
     </div>
 );
 
-export default TransactionHeader;
+export default SaleHeader;

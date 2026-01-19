@@ -10,7 +10,7 @@ import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useInventory } from '../../../hooks/useInventory';
 import { useAuth } from '../../../context/AuthProvider';
 import { useApp } from '../../../context/AppProvider';
-import transactionService from '../../../services/transactions.service';
+import salesService from '../../../services/sales.service';
 import { generateReferenceNumber } from '../../../utils';
 import { DEFAULT_SEED_KEY } from '../../../constants';
 import { useIsEBN } from '../../../hooks/useMediaQuery';
@@ -33,6 +33,19 @@ export type PaymentMethod = typeof CHECKOUT[keyof typeof CHECKOUT];
 
 export type ActiveInputType = 'phoneNumber' | 'referenceNo' | 'account' | null;
 
+/**
+ * Sale form values for checkout
+ * (migrated from TransactionValues)
+ */
+interface SaleFormValues {
+    paymentMethodId: string;
+    paymentServiceProviderId: string;
+    transactionId: string;  // Legacy field, maps to reference
+    phoneNumber: string;
+    cashTendered: string;
+    transferType?: string;
+}
+
 const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     isOpen,
     onClose,
@@ -50,7 +63,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
         selectedCustomer,
     } = useInventory();
 
-    const transactionValues: TransactionValues = {
+    const saleFormValues: SaleFormValues = {
         paymentMethodId,
         paymentServiceProviderId: '',
         transactionId: '',
@@ -65,10 +78,10 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
     const [processing, setProcessing] = useState<boolean>(false);
     const [activeInput, setActiveInput] = useState<ActiveInputType>(null);
-    const [completedTransaction, setCompletedTransaction] = useState<Transaction | null>(null);
+    const [completedSale, setCompletedSale] = useState<Sale | Transaction | null>(null);
     const [showCompleteModal, setShowCompleteModal] = useState<boolean>(false);
 
-    const newTransactionValidationSchema = Yup.object({
+    const newSaleValidationSchema = Yup.object({
         paymentMethodId: Yup.string().required('Payment method is required'),
         paymentServiceProviderId: Yup.string().when('paymentMethodId', {
             is: (value: string) => value !== CHECKOUT.CASH,
@@ -112,54 +125,94 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, paymentMethodId, total, processing,]);
 
-    const handleCompleteTransaction = async (values: TransactionValues) => {
+    /**
+     * Complete sale using the new sales API
+     * (migrated from handleCompleteTransaction)
+     */
+    const handleCompleteSale = async (values: SaleFormValues) => {
         if (processing) return;
 
         try {
             setProcessing(true);
             const refNumber = generateReferenceNumber()
 
-            const data: Transaction = {
-                refNumber,
+            // Build sale payload for new API
+            const salePayload: CreateSalePayload = {
+                tenantId: user.tenantId,
+                branchId: user.branchId,
+                userId: user.userId,
+                terminalId: (settings as any)?.terminalId || 'default',
+                customerId: selectedCustomer?.customerId !== 'walk-in' && selectedCustomer?.customerId !== DEFAULT_SEED_KEY
+                    ? selectedCustomer?.customerId
+                    : undefined,
+
+                // Payment info
+                amountPaid: values.cashTendered ? parseFloat(values.cashTendered) : total,
+                paymentMethodId: values.paymentMethodId,
+
+                // Totals
+                subtotal,
+                taxAmount: tax,
+                discountAmount: discount,
+                totalAmount: total,
+
+                // Items - map cart to sale items format
+                items: cart.map(item => ({
+                    productId: item.productId,
+                    quantity: item.quantity,
+                    unitPrice: item.sellPrice,
+                    taxAmount: 0,
+                    discountAmount: item.discount || 0,
+                })),
+
+                // Optional notes with payment reference
+                notes: values.transactionId ? `Ref: ${values.transactionId}` : undefined,
+            };
+
+            const sale = await salesService.store(salePayload);
+
+            // Normalize date to string
+            const saleDate = typeof sale.createdAt === 'string'
+                ? sale.createdAt
+                : sale.createdAt?.toISOString?.() || new Date().toISOString();
+
+            // Map response to backward-compatible format for TransactionCompleteModal
+            const completedSaleData: Transaction = {
+                id: sale.id,
+                refNumber: (sale as any).saleNumber || refNumber,
+                transactionId: sale.id,
+                total: (sale as any).totalAmount || total,
+                paid: (sale as any).amountPaid || (values.cashTendered ? parseFloat(values.cashTendered) : total),
+                changeAmount: sale.changeAmount || (values.cashTendered ? Math.max(0, parseFloat(values.cashTendered) - total) : 0),
+                date: saleDate,
                 discount,
                 subtotal,
                 tax,
-                date: new Date().toJSON(),
                 phoneNumber: values.phoneNumber,
-
                 userId: user.userId,
                 terminalId: (settings as any)?.terminalId || 'default',
-                transactionId: values?.transactionId || '',
-                customerId: selectedCustomer?.customerId !== 'walk-in' ? selectedCustomer?.customerId : undefined,
                 paymentMethodId: values.paymentMethodId,
-                paymentServiceProviderId: values.paymentServiceProviderId,
-
-                total,
-                paid: values.cashTendered ? parseFloat(values.cashTendered) : total,
-                changeAmount: values.cashTendered ? Math.max(0, parseFloat(values.cashTendered) - total) : 0,
-                items: cart,
-            }
-
-            const transaction = await transactionService.store(data)
-
-            // Set the completed transaction and show the completion modal
-            setCompletedTransaction({
-                ...transaction,
                 items: cart,
                 user,
                 customer: selectedCustomer,
-            });
+                status: sale.status || 'COMPLETED',
+            };
+
+            setCompletedSale(completedSaleData);
             setShowCompleteModal(true);
 
         } catch (error) {
-            console.error('Transaction failed:', error);
+            console.error('Sale failed:', error);
             setProcessing(false);
         }
     };
 
+    // Legacy alias for backward compatibility
+    const handleCompleteTransaction = handleCompleteSale;
+
     const handleNewTransaction = () => {
         setShowCompleteModal(false);
-        setCompletedTransaction(null);
+        setCompletedSale(null);
         clearCart();
         reloadInventory();
         setProcessing(false);
@@ -169,11 +222,11 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
     const handleCloseCompleteModal = () => {
         setShowCompleteModal(false);
-        setCompletedTransaction(null);
+        setCompletedSale(null);
         setProcessing(false);
     };
 
-    const canProceed = (values: TransactionValues) => {
+    const canProceed = (values: SaleFormValues) => {
         if (processing) return false;
 
         switch (paymentMethodId) {
@@ -260,9 +313,9 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 </div>
 
                 <Formik
-                    onSubmit={handleCompleteTransaction}
-                    initialValues={transactionValues}
-                    validationSchema={newTransactionValidationSchema}
+                    onSubmit={handleCompleteSale}
+                    initialValues={saleFormValues}
+                    validationSchema={newSaleValidationSchema}
                     enableReinitialize={true}
                 >
                     {({ isSubmitting, values, setFieldValue }) => (
@@ -357,10 +410,10 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 </Formik>
             </div>
 
-            {/* Transaction Complete Modal with Print Options */}
+            {/* Sale Complete Modal with Print Options */}
             <TransactionCompleteModal
                 isOpen={showCompleteModal}
-                transaction={completedTransaction}
+                transaction={completedSale}
                 onClose={handleCloseCompleteModal}
                 onNewTransaction={handleNewTransaction}
             />

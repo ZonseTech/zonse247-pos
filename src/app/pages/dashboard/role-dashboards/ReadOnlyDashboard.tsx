@@ -301,10 +301,10 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
                     </div>
                     {isAuditor && (
                         <Link
-                            to={ROUTES.TRANSACTIONS}
+                            to={ROUTES.SALES}
                             className="block mt-4 text-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 text-sm font-medium"
                         >
-                            View All Transactions →
+                            View All Sales →
                         </Link>
                     )}
                 </div>

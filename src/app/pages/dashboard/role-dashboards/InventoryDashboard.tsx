@@ -6,13 +6,35 @@ import {
     HiOutlineArchiveBox,
     HiOutlineArrowPath,
     HiOutlineClipboardDocumentCheck,
+    HiOutlineCurrencyDollar,
+    HiOutlineChartBar,
 } from 'react-icons/hi2';
-import { Package, AlertTriangle, Clock, CheckCircle, XCircle, TrendingDown, Archive, Boxes } from 'lucide-react';
+import { Package, AlertTriangle, Clock, CheckCircle, XCircle, TrendingDown, Archive, Boxes, TrendingUp, DollarSign } from 'lucide-react';
 
 import StatCard from '../../../components/card/StatCard';
 import dashboardService from '../../../services/dashboard.service';
+import { useInventoryStats } from '../../../hooks/useInventoryStats';
 import { ROUTES } from '../../../utils/constants';
 import type { RoleDashboardProps, InventoryDashboardCounts, QuickAction } from '../types';
+
+/**
+ * Format currency value
+ */
+const formatCurrency = (value: number): string => {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'MWK',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(value);
+};
+
+/**
+ * Format percentage value
+ */
+const formatPercent = (value: number): string => {
+    return `${value.toFixed(1)}%`;
+};
 
 /**
  * Inventory Manager Dashboard
@@ -21,6 +43,10 @@ import type { RoleDashboardProps, InventoryDashboardCounts, QuickAction } from '
 const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoading, setIsLoading }) => {
     const navigate = useNavigate();
     const [dashboardCounts, setDashboardCounts] = useState<InventoryDashboardCounts>({} as InventoryDashboardCounts);
+
+    // Use the new inventory stats hook
+    const { stats, isLoading: statsLoading, fetchAllStats } = useInventoryStats();
+    const { overview, topValueItems } = stats;
 
     const [cards, setCards] = useState([
         { key: 'stock', title: 'Total Products', value: 0, icon: <Package size={20} />, bgColor: 'bg-blue-500 dark:bg-blue-600' },
@@ -49,7 +75,10 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const counts = await dashboardService.counts();
+                const [counts] = await Promise.all([
+                    dashboardService.counts(),
+                    fetchAllStats({}, 5), // Fetch inventory stats with top 5 items
+                ]);
                 setDashboardCounts(counts as unknown as InventoryDashboardCounts);
             } catch (error) {
                 console.error('Error fetching inventory dashboard data:', error);
@@ -146,6 +175,58 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
 
             {/* Inventory Overview */}
             <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                {/* Stock Value Overview */}
+                {overview && (
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+                                <HiOutlineCurrencyDollar className="text-emerald-600 dark:text-emerald-400 w-6 h-6" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Inventory Value</h3>
+                        </div>
+
+                        <div className="space-y-4">
+                            {/* Total Stock Value */}
+                            <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                <div>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">Total Stock Value (Cost)</p>
+                                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                                        {formatCurrency(overview.totalStockValue)}
+                                    </p>
+                                </div>
+                                <DollarSign className="w-8 h-8 text-gray-400" />
+                            </div>
+
+                            {/* Retail Value */}
+                            <div className="flex items-center justify-between p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+                                <div>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">Total Retail Value</p>
+                                    <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                                        {formatCurrency(overview.totalRetailValue)}
+                                    </p>
+                                </div>
+                                <TrendingUp className="w-8 h-8 text-emerald-400" />
+                            </div>
+
+                            {/* Potential Profit */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-center">
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">Potential Profit</p>
+                                    <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                                        {formatCurrency(overview.potentialProfit)}
+                                    </p>
+                                </div>
+                                <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-center">
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">Profit Margin</p>
+                                    <p className="text-xl font-bold text-purple-600 dark:text-purple-400">
+                                        {formatPercent(overview.profitMargin)}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Stock Health */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                     <div className="flex items-center gap-3 mb-6">
@@ -166,7 +247,7 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
                                 </div>
                             </div>
                             <span className="text-2xl font-bold text-green-600 dark:text-green-400">
-                                {Math.max(0, (dashboardCounts.stock || 0) - (expiredCount + lowStockCount))}
+                                {overview?.stockHealthSummary?.healthy ?? Math.max(0, (dashboardCounts.stock || 0) - (expiredCount + lowStockCount))}
                             </span>
                         </div>
 
@@ -180,9 +261,25 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
                                 </div>
                             </div>
                             <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                                {lowStockCount}
+                                {overview?.stockHealthSummary?.lowStock ?? lowStockCount}
                             </span>
                         </div>
+
+                        {/* Out of Stock */}
+                        {overview?.stockHealthSummary?.outOfStock > 0 && (
+                            <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                <div className="flex items-center gap-3">
+                                    <Package className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                                    <div>
+                                        <p className="font-medium text-gray-900 dark:text-white">Out of Stock</p>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">Products with zero quantity</p>
+                                    </div>
+                                </div>
+                                <span className="text-2xl font-bold text-gray-600 dark:text-gray-400">
+                                    {overview.stockHealthSummary.outOfStock}
+                                </span>
+                            </div>
+                        )}
 
                         {/* Expired */}
                         <div className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
@@ -199,7 +296,102 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
                         </div>
                     </div>
                 </div>
+            </div>
 
+            {/* Top Value Items & Category Breakdown */}
+            <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                {/* Top Value Items */}
+                {topValueItems.length > 0 && (
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                                <TrendingUp className="text-amber-600 dark:text-amber-400 w-5 h-5" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Top Value Items</h3>
+                        </div>
+
+                        <div className="space-y-3">
+                            {topValueItems.slice(0, 5).map((item, index) => (
+                                <div key={item.productId} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div className="flex items-center gap-3">
+                                        <span className="w-6 h-6 flex items-center justify-center bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-full text-xs font-bold">
+                                            {index + 1}
+                                        </span>
+                                        <div>
+                                            <p className="font-medium text-gray-900 dark:text-white text-sm">{item.name}</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                {item.categoryName || 'Uncategorized'} • {item.availableQuantity} units
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-semibold text-gray-900 dark:text-white text-sm">
+                                            {formatCurrency(item.totalRetailValue)}
+                                        </p>
+                                        <p className="text-xs text-green-600 dark:text-green-400">
+                                            +{formatCurrency(item.potentialProfit)}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Category Breakdown */}
+                {overview?.categoryBreakdown && overview.categoryBreakdown.length > 0 && (
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                                <HiOutlineChartBar className="text-indigo-600 dark:text-indigo-400 w-5 h-5" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Category Breakdown</h3>
+                        </div>
+
+                        <div className="space-y-3">
+                            {overview.categoryBreakdown.slice(0, 5).map((category) => {
+                                const percentage = overview.totalProducts > 0
+                                    ? (category.productCount / overview.totalProducts) * 100
+                                    : 0;
+                                return (
+                                    <div key={category.categoryId || 'uncategorized'} className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="font-medium text-gray-900 dark:text-white text-sm">
+                                                {category.categoryName}
+                                            </span>
+                                            <span className="text-sm text-gray-600 dark:text-gray-400">
+                                                {category.productCount} products
+                                            </span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                                            <div
+                                                className="bg-indigo-600 dark:bg-indigo-400 h-2 rounded-full transition-all"
+                                                style={{ width: `${Math.min(percentage, 100)}%` }}
+                                            ></div>
+                                        </div>
+                                        <div className="flex justify-between mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                            <span>{category.totalQuantity} units</span>
+                                            <span>{formatCurrency(category.totalRetailValue)}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <div className="mt-4 text-center">
+                            <Link
+                                to={ROUTES.CATEGORIES}
+                                className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 font-medium text-sm"
+                            >
+                                View All Categories →
+                            </Link>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Priority Tasks */}
+            <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
                 {/* Inventory Tasks */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                     <div className="flex items-center gap-3 mb-6">
@@ -230,6 +422,16 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
                             </div>
                         )}
 
+                        {(overview?.stockHealthSummary?.outOfStock ?? 0) > 0 && (
+                            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                                    <span className="text-gray-900 dark:text-white font-medium">Restock out of stock items</span>
+                                </div>
+                                <span className="text-gray-600 dark:text-gray-400 font-semibold">{overview?.stockHealthSummary?.outOfStock} items</span>
+                            </div>
+                        )}
+
                         <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800/40">
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -243,7 +445,7 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
                             </button>
                         </div>
 
-                        {expiredCount === 0 && lowStockCount === 0 && (
+                        {expiredCount === 0 && lowStockCount === 0 && (overview?.stockHealthSummary?.outOfStock ?? 0) === 0 && (
                             <div className="flex flex-col items-center justify-center p-8 text-center">
                                 <CheckCircle className="w-12 h-12 text-green-500 mb-3" />
                                 <p className="text-gray-900 dark:text-white font-medium">All caught up!</p>
@@ -254,6 +456,45 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
                         )}
                     </div>
                 </div>
+
+                {/* Unit Price Analysis */}
+                {overview && (
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg">
+                                <HiOutlineChartBar className="text-cyan-600 dark:text-cyan-400 w-6 h-6" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Price Analysis</h3>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg text-center">
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Cost/Unit</p>
+                                <p className="text-xl font-bold text-gray-900 dark:text-white">
+                                    {formatCurrency(overview.averageCostPerUnit)}
+                                </p>
+                            </div>
+                            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg text-center">
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Sell/Unit</p>
+                                <p className="text-xl font-bold text-gray-900 dark:text-white">
+                                    {formatCurrency(overview.averageSellingPricePerUnit)}
+                                </p>
+                            </div>
+                            <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg text-center">
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Total Quantity</p>
+                                <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                                    {overview.totalStockQuantity.toLocaleString()}
+                                </p>
+                            </div>
+                            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-center">
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Total Products</p>
+                                <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                                    {overview.totalProducts.toLocaleString()}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Stock Distribution */}

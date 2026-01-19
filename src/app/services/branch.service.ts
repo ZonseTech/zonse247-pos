@@ -1,4 +1,8 @@
 import api from './http.service';
+import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
+
+// Fields to decode for branch items
+const BRANCH_DECODE_FIELDS = ['branchName', 'siteName', 'description', 'addressLine1', 'addressLine2', 'addressLine3', 'district', 'city', 'state', 'receiptFooter'] as const;
 
 const endpoints: Record<string, string> = {
     all: 'branches/all',
@@ -14,7 +18,7 @@ const branchService = {
     async list(query: BranchQueryParams = {}): Promise<Array<Branch>> {
         try {
             const response = await api.get<ApiResponse<Array<Branch>>>(endpoints.all, query);
-            return response.data.data || [];
+            return decodeArrayStrings<Branch>(response.data.data || [], BRANCH_DECODE_FIELDS);
         } catch (err) {
             console.error('Error fetching branches:', err);
             throw err;
@@ -27,7 +31,10 @@ const branchService = {
                 ...query,
                 paginated: true
             });
-            return response.data;
+            return {
+                ...response.data,
+                data: decodeArrayStrings<Branch>(response.data.data || [], BRANCH_DECODE_FIELDS)
+            };
         } catch (err) {
             console.error('Error fetching paginated branches:', err);
             throw err;
@@ -37,7 +44,7 @@ const branchService = {
     async store(data: CreateBranchRequest): Promise<Branch> {
         try {
             const response = await api.post<ApiResponse<Branch>>(endpoints.store, data as any);
-            return response.data.data!;
+            return decodeObjectStrings<Branch>(response.data.data!, BRANCH_DECODE_FIELDS);
         } catch (err) {
             console.error('Error creating branch:', err);
             throw err;
@@ -47,7 +54,7 @@ const branchService = {
     async update(id: string, data: UpdateBranchRequest): Promise<Branch> {
         try {
             const response = await api.put<ApiResponse<Branch>>(`${endpoints.update}/${id}`, data as any);
-            return response.data.data!;
+            return decodeObjectStrings<Branch>(response.data.data!, BRANCH_DECODE_FIELDS);
         } catch (err) {
             console.error('Error updating branch:', err);
             throw err;
@@ -57,7 +64,7 @@ const branchService = {
     async show(id: string): Promise<Branch> {
         try {
             const response = await api.get<ApiResponse<Branch>>(`${endpoints.show}/${id}`);
-            return response.data.data!;
+            return decodeObjectStrings<Branch>(response.data.data!, BRANCH_DECODE_FIELDS);
         } catch (err) {
             console.error('Error fetching branch:', err);
             throw err;

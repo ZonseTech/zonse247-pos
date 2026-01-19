@@ -1,9 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Notify } from 'notiflix';
 import dayjs from 'dayjs';
-import transactionService from '../services/transactions.service';
+import salesService from '../services/sales.service';
 
-export const useTransactions = () => {
+/**
+ * Hook for managing sales (migrated from transactions)
+ * 
+ * This hook now uses the sales API endpoints but maintains
+ * backward compatibility with existing component interfaces.
+ */
+export const useSales = () => {
     const today = new Date();
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
@@ -12,15 +18,15 @@ export const useTransactions = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [startDate, setStartDate] = useState<Date | null>(today);
     const [endDate, setEndDate] = useState<Date | null>(today);
-    const [selectedStatus, setSelectedStatus] = useState<TransactionStatus | 'all'>('all');
+    const [selectedStatus, setSelectedStatus] = useState<SaleStatus | TransactionStatus | 'all'>('all');
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | 'all'>('all');
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [sales, setSales] = useState<(Transaction | Sale)[]>([]);
 
-    const loadTransactions = useCallback(async () => {
+    const loadSales = useCallback(async () => {
         try {
             setIsLoading(true);
 
-            const queryParams: TransactionQueryParams = {
+            const queryParams: SaleQueryParams = {
                 includeItems: true,
                 page,
                 perPage,
@@ -38,23 +44,23 @@ export const useTransactions = () => {
             }
 
             if (selectedStatus !== 'all') {
-                queryParams.status = selectedStatus;
+                queryParams.status = selectedStatus as SaleStatus;
             }
 
             if (selectedPaymentMethod !== 'all') {
                 queryParams.paymentMethodId = selectedPaymentMethod;
             }
 
-            const response = await transactionService.list(queryParams);
+            const response = await salesService.list(queryParams);
 
-            const transactionData = Array.isArray(response.data) ? response.data : [];
-            setTransactions(transactionData);
-            setTotalRows(response.pagination?.total || transactionData.length);
+            const salesData = Array.isArray(response.sales) ? response.sales : [];
+            setSales(salesData);
+            setTotalRows(response.pagination?.totalItems || salesData.length);
 
         } catch (error) {
-            console.error("Error loading transactions:", error);
-            Notify.failure("Error loading transactions: " + (error instanceof Error ? error.message : String(error)));
-            setTransactions([]);
+            console.error("Error loading sales:", error);
+            Notify.failure("Error loading sales: " + (error instanceof Error ? error.message : String(error)));
+            setSales([]);
             setTotalRows(0);
         } finally {
             setIsLoading(false);
@@ -62,8 +68,8 @@ export const useTransactions = () => {
     }, [searchTerm, startDate, endDate, selectedStatus, selectedPaymentMethod, page, perPage]);
 
     const getPaginatedData = useCallback(() => {
-        return transactions;
-    }, [transactions]);
+        return sales;
+    }, [sales]);
 
     const handleSearch = useCallback((value: string) => {
         setSearchTerm(value);
@@ -87,7 +93,7 @@ export const useTransactions = () => {
         setPage(1);
     }, []);
 
-    const handleStatusChange = useCallback((status: TransactionStatus | 'all') => {
+    const handleStatusChange = useCallback((status: SaleStatus | TransactionStatus | 'all') => {
         setSelectedStatus(status);
         setPage(1);
     }, []);
@@ -97,12 +103,15 @@ export const useTransactions = () => {
         setPage(1);
     }, []);
 
-    const getTodayTransactions = useCallback(() => {
+    const getTodaySales = useCallback(() => {
         const today = new Date();
         setStartDate(today);
         setEndDate(today);
         setPage(1);
     }, []);
+
+    /** @deprecated Use getTodaySales instead */
+    const getTodayTransactions = getTodaySales;
 
     const handlePageChange = useCallback((newPage: number) => {
         setPage(newPage);
@@ -118,8 +127,8 @@ export const useTransactions = () => {
     }, []);
 
     useEffect(() => {
-        loadTransactions();
-    }, [loadTransactions]);
+        loadSales();
+    }, [loadSales]);
 
     return {
         page,
@@ -131,13 +140,17 @@ export const useTransactions = () => {
         endDate,
         selectedStatus,
         selectedPaymentMethod,
-        transactions,
-        loadTransactions,
+        sales,
+        // Aliased for backward compatibility
+        transactions: sales,
+        loadSales,
+        loadTransactions: loadSales,
         getPaginatedData,
         handleSearch,
         handleDateChange,
         handleStatusChange,
         handlePaymentMethodChange,
+        getTodaySales,
         getTodayTransactions,
         clearFilters,
         handlePageChange,
@@ -145,3 +158,6 @@ export const useTransactions = () => {
         exportData,
     };
 };
+
+/** @deprecated Use useSales instead */
+export const useTransactions = useSales;

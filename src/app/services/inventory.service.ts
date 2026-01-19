@@ -1,4 +1,8 @@
 import api from './http.service';
+import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
+
+// Fields to decode for inventory items
+const INVENTORY_DECODE_FIELDS = ['name', 'description', 'brand', 'sku', 'color', 'size', 'unit', 'supplierName'] as const;
 
 const endpoints = {
 	// Base endpoints
@@ -7,6 +11,8 @@ const endpoints = {
 
 	// GET endpoints
 	summary: 'inventory/summary',
+	overview: 'inventory/overview',
+	topValue: 'inventory/top-value',
 	count: 'inventory/count',
 	all: 'inventory/all',
 	itemsOnly: 'inventory/items-only',
@@ -70,6 +76,65 @@ export interface AdjustInventoryPayload {
 	type: 'add' | 'subtract' | 'set';
 }
 
+export interface CategoryBreakdown {
+	categoryId: string | null;
+	categoryName: string;
+	productCount: number;
+	totalQuantity: number;
+	totalCostValue: number;
+	totalRetailValue: number;
+}
+
+export interface StockHealthSummary {
+	healthy: number;
+	lowStock: number;
+	outOfStock: number;
+	overstocked: number;
+}
+
+export interface InventoryOverview {
+	totalProducts: number;
+	totalStockQuantity: number;
+	totalStockValue: number;
+	totalRetailValue: number;
+	potentialProfit: number;
+	profitMargin: number;
+	averageCostPerUnit: number;
+	averageSellingPricePerUnit: number;
+	lowStockCount: number;
+	outOfStockCount: number;
+	categoryBreakdown: CategoryBreakdown[];
+	stockHealthSummary: StockHealthSummary;
+	filters: {
+		search: string;
+		filter: string;
+		categoryId: string | null;
+		startDate: string | null;
+		endDate: string | null;
+	};
+}
+
+export interface TopValueItem {
+	productId: string;
+	name: string;
+	sku: string;
+	categoryName: string | null;
+	availableQuantity: number;
+	averageCost: number;
+	sellingPrice: number;
+	totalCostValue: number;
+	totalRetailValue: number;
+	potentialProfit: number;
+}
+
+export interface InventoryOverviewQuery {
+	search?: string;
+	filter?: string;
+	categoryId?: string;
+	startDate?: string;
+	endDate?: string;
+}
+
 const inventoryService = {
 	endpoints,
 
@@ -81,6 +146,32 @@ const inventoryService = {
 	async getSummary(): Promise<InventorySummary> {
 		return api
 			.get<ApiResponse<InventorySummary>>(endpoints.summary)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+
+	/**
+	 * GET /overview - Get comprehensive inventory overview with filters
+	 * Includes total values, profit margins, category breakdown, and stock health
+	 */
+	async getOverview(query: InventoryOverviewQuery = {}): Promise<InventoryOverview> {
+		return api
+			.get<ApiResponse<InventoryOverview>>(endpoints.overview, query)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+
+	/**
+	 * GET /top-value - Get top inventory items by value
+	 * Returns items sorted by total retail value
+	 */
+	async getTopValueItems(limit: number = 10): Promise<TopValueItem[]> {
+		return api
+			.get<ApiResponse<TopValueItem[]>>(endpoints.topValue, { limit })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -114,7 +205,7 @@ const inventoryService = {
 				};
 			}>>(endpoints.root, query)
 			.then((res) => ({
-				items: res.data.data.inventoryItems,
+				items: decodeArrayStrings<InventoryItem>(res.data.data.inventoryItems, INVENTORY_DECODE_FIELDS),
 				pagination: res.data.data.pagination
 			}))
 			.catch((err) => {
@@ -128,7 +219,7 @@ const inventoryService = {
 	async getAll(query = {}): Promise<InventoryItem[]> {
 		return api
 			.get<ApiResponse<InventoryItem[]>>(endpoints.all, query)
-			.then((res) => res.data.data)
+			.then((res) => decodeArrayStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
 			.catch((err) => {
 				throw err;
 			});
@@ -140,7 +231,7 @@ const inventoryService = {
 	async index(query = {}): Promise<InventoryItem[]> {
 		return api
 			.get<ApiResponse<InventoryItem[]>>(endpoints.itemsOnly, query)
-			.then((res) => res.data.data)
+			.then((res) => decodeArrayStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
 			.catch((err) => {
 				throw err;
 			});
@@ -152,7 +243,7 @@ const inventoryService = {
 	async show(id: string): Promise<InventoryItem> {
 		return api
 			.get<ApiResponse<InventoryItem>>(`${endpoints.item}/${id}`)
-			.then((res) => res.data.data)
+			.then((res) => decodeObjectStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
 			.catch((err) => {
 				throw err;
 			});
@@ -164,7 +255,7 @@ const inventoryService = {
 	async search(query: string, filters = {}): Promise<InventoryItem[]> {
 		return api
 			.get<ApiResponse<InventoryItem[]>>(endpoints.search, { q: query, ...filters })
-			.then((res) => res.data.data)
+			.then((res) => decodeArrayStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
 			.catch((err) => {
 				throw err;
 			});
@@ -176,7 +267,7 @@ const inventoryService = {
 	async findByBarcode(barcode: string): Promise<InventoryItem | null> {
 		return api
 			.get<ApiResponse<InventoryItem>>(`${endpoints.byBarcode}/${barcode}`)
-			.then((res) => res.data.data)
+			.then((res) => decodeObjectStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
 			.catch((err) => {
 				if (err.response?.status === 404) {
 					return null;
@@ -191,7 +282,7 @@ const inventoryService = {
 	async getByCategory(categoryId: string, query = {}): Promise<InventoryItem[]> {
 		return api
 			.get<ApiResponse<InventoryItem[]>>(`${endpoints.byCategory}/${categoryId}`, query)
-			.then((res) => res.data.data)
+			.then((res) => decodeArrayStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
 			.catch((err) => {
 				throw err;
 			});
@@ -203,7 +294,7 @@ const inventoryService = {
 	async getByStatus(status: string, query = {}): Promise<InventoryItem[]> {
 		return api
 			.get<ApiResponse<InventoryItem[]>>(`${endpoints.byStatus}/${status}`, query)
-			.then((res) => res.data.data)
+			.then((res) => decodeArrayStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
 			.catch((err) => {
 				throw err;
 			});
@@ -215,7 +306,7 @@ const inventoryService = {
 	async getLowStock(query = {}): Promise<InventoryItem[]> {
 		return api
 			.get<ApiResponse<InventoryItem[]>>(endpoints.lowStock, query)
-			.then((res) => res.data.data)
+			.then((res) => decodeArrayStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
 			.catch((err) => {
 				throw err;
 			});
