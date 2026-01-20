@@ -246,9 +246,6 @@ const POSSystem: FunctionComponent = () => {
                     <div className="flex gap-3 items-center">
                         <CustomerSelector />
                         <SearchIcon className="w-5 h-5 cursor-pointer" onClick={handleItemLookup} />
-                        <Link to={ROUTES.MY_PROFILE} className='cursor-pointer'>
-                            <UserCircle2Icon className="w-5 h-5" />
-                        </Link>
                     </div>
                 }
             />
@@ -429,7 +426,6 @@ const POSSystem: FunctionComponent = () => {
                     <Button
                         className="bg-sky-700 px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold hover:bg-sky-800 active:bg-sky-900 rounded-none"
                         onClick={() => setIsFunctionSheetOpen(true)}
-                        disabled={cart.length === 0}
                     >
                         Next
                     </Button>
@@ -444,12 +440,14 @@ const POSSystem: FunctionComponent = () => {
                 <div className="grid grid-cols-2 gap-3 pb-2">
                     <Button
                         theme='danger'
+                        disabled={cart.length === 0}
                         onClick={() => { handleVoidSale(); setIsFunctionSheetOpen(false); }}
                     >
                         Void Sale
                     </Button>
                     <Button
                         theme='danger'
+                        disabled={cart.length === 0}
                         onClick={() => { handleParkSale(); setIsFunctionSheetOpen(false); }}
                     >
                         Park Sale
@@ -468,30 +466,35 @@ const POSSystem: FunctionComponent = () => {
                     </Button>
                     <Button
                         theme='primary'
+                        disabled={cart.length === 0}
                         onClick={() => { handleDiscount(); setIsFunctionSheetOpen(false); }}
                     >
                         Discount
                     </Button>
                     <Button
                         theme='warning'
+                        disabled={cart.length === 0}
                         onClick={() => { handleMultiplePayment(); setIsFunctionSheetOpen(false); }}
                     >
                         Split Payment
                     </Button>
                     <Button
                         theme='success'
+                        disabled={cart.length === 0}
                         onClick={() => { handleCompleteTransaction(CHECKOUT.BANK_TRANSFER); setIsFunctionSheetOpen(false); }}
                     >
                         Bank Transfer
                     </Button>
                     <Button
                         theme='success'
+                        disabled={cart.length === 0}
                         onClick={() => { handleCompleteTransaction(CHECKOUT.E_PAYMENT); setIsFunctionSheetOpen(false); }}
                     >
                         E-Payment
                     </Button>
                     <Button
                         theme='success'
+                        disabled={cart.length === 0}
                         className="col-span-2"
                         onClick={() => { handleCompleteTransaction(CHECKOUT.CASH); setIsFunctionSheetOpen(false); }}
                     >
