@@ -86,18 +86,19 @@ const StockMovements: FunctionComponent = () => {
                 icon={<Activity className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600 dark:text-blue-400" />}
                 title="Stock Movements"
                 description={productId ? 'Product stock history' : 'All stock movements audit trail'}
-            >
-                <div className='px-4 pb-4'>
-                    <Filters
-                        movementTypeFilter={movementTypeFilter}
-                        onMovementTypeChange={setMovementTypeFilter}
-                        startDate={startDate}
-                        onStartDateChange={setStartDate}
-                        endDate={endDate}
-                        onEndDateChange={setEndDate}
-                    />
-                </div>
-            </PageHeader>
+                action={
+                    <div className='px-4 pb-4'>
+                        <Filters
+                            movementTypeFilter={movementTypeFilter}
+                            onMovementTypeChange={setMovementTypeFilter}
+                            startDate={startDate}
+                            onStartDateChange={setStartDate}
+                            endDate={endDate}
+                            onEndDateChange={setEndDate}
+                        />
+                    </div>
+                }
+            />
 
             {/* Main Content Container */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">

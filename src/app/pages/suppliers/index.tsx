@@ -10,12 +10,12 @@ import { HiOutlineFilter } from 'react-icons/hi';
 import { getTableStyles } from '../../utils/table-styles';
 import { Button, ZonseThemeContext, ComponentLoader } from '../../components';
 import { useSuppliers } from '../../hooks/useSuppliers';
-import { SearchBar } from './partials/SearchBar';
 import { getSupplierTableColumns } from './partials/SupplierTableColumns';
 import { SupplierMobileList } from './partials/SupplierMobileCard';
 import SupplierSummaryCards, { SupplierSummaryCard } from './partials/SupplierSummaryCards';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import SearchBar from '../../components/SearchBar';
 
 const SupplierManagement: FunctionComponent = () => {
     const isMobile = useIsMobile();
@@ -145,24 +145,10 @@ const SupplierManagement: FunctionComponent = () => {
                     title="Suppliers"
                     description="Manage your suppliers for purchase orders"
                     action={
-                        <Button
-                            icon={HiOutlinePlus}
-                            layout={isMobile ? 'outline' : 'primary'}
-                            onClick={handleAddSupplier}
-                            className="!px-3 sm:!px-4 !py-2 sm:!py-2.5"
-                            theme="primary">
-                            {!isMobile && <span className='hidden md:block'>
-                                Add Supplier
-                            </span>}
-                        </Button>
-                    }
-                >
-                    {/* Filters Section */}
-                    <div className="p-3 md:p-6 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
                         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                             <SearchBar
-                                searchTerm={searchTerm}
-                                onSearch={setSearchTerm}
+                                value={searchTerm}
+                                onChange={setSearchTerm}
                                 placeholder="Search suppliers by name, code, or contact..."
                             />
 
@@ -184,9 +170,20 @@ const SupplierManagement: FunctionComponent = () => {
                                     <span>Clear</span>
                                 </button>
                             )}
+
+                            <Button
+                                icon={HiOutlinePlus}
+                                layout={isMobile ? 'outline' : 'primary'}
+                                onClick={handleAddSupplier}
+                                className="!px-3 sm:!px-4 !py-2 sm:!py-2.5"
+                                theme="primary">
+                                {!isMobile && <span className='hidden md:block'>
+                                    Add Supplier
+                                </span>}
+                            </Button>
                         </div>
-                    </div>
-                </PageHeader>
+                    }
+                />
 
                 {/* Main Content Container */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">

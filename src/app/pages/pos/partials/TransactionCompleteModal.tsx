@@ -233,6 +233,40 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                         </div>
                     </div>
 
+                    {/* Discount Display */}
+                    {getDiscount(transaction) > 0 && (
+                        <div className={classNames(
+                            "bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg",
+                            isEBN ? "p-2 mb-2" : "p-3 mb-4"
+                        )}>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className={isEBN ? "text-sm" : "text-lg"}>🏷️</span>
+                                    <div>
+                                        <span className={classNames(
+                                            "font-medium text-green-800 dark:text-green-200",
+                                            isEBN ? "text-xs" : "text-sm"
+                                        )}>Discount Applied</span>
+                                        {getSubtotal(transaction) > 0 && (
+                                            <p className={classNames(
+                                                "text-green-600 dark:text-green-400",
+                                                isEBN ? "text-[10px]" : "text-xs"
+                                            )}>
+                                                Subtotal: {formatCurrency(getSubtotal(transaction))}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                                <span className={classNames(
+                                    "font-bold text-green-700 dark:text-green-300",
+                                    isEBN ? "text-sm" : "text-lg"
+                                )}>
+                                    -{formatCurrency(getDiscount(transaction))}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+
                     {change > 0 && (
                         <div className={classNames(
                             "bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg",
