@@ -7,6 +7,7 @@ import BarcodeScanner from './partials/BarcodeScanner';
 import FunctionButtons from './partials/FunctionButtons';
 import ItemLookupModal from './partials/ItemLookupModal';
 import DiscountModal from './partials/DiscountModal';
+import ReprintModal from './partials/ReprintModal';
 import PageHeader from '../../components/page/PageHeader';
 import CustomerSelector from '../customers/partials/CustomerSelector';
 import { useFocusManager } from '../../hooks/useFocusManager';
@@ -53,6 +54,7 @@ const POSSystem: FunctionComponent = () => {
     const [isParkSaleModalOpen, setIsParkSaleModalOpen] = useState(false);
     const [isParkedSalesModalOpen, setIsParkedSalesModalOpen] = useState(false);
     const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
+    const [isReprintModalOpen, setIsReprintModalOpen] = useState(false);
     const [isFunctionSheetOpen, setIsFunctionSheetOpen] = useState(false);
     const [isMultiplePaymentModalOpen, setIsMultiplePaymentModalOpen] = useState(false);
     const [paymentMethodId, setPaymentMethodId] = useState<PaymentMethod>(CHECKOUT.CASH);
@@ -218,7 +220,7 @@ const POSSystem: FunctionComponent = () => {
     };
 
     const handleReprint = () => {
-        console.log('Reprinting receipt...');
+        setIsReprintModalOpen(true);
     };
 
     const handleDiscount = () => {
@@ -533,6 +535,11 @@ const POSSystem: FunctionComponent = () => {
             <DiscountModal
                 isOpen={isDiscountModalOpen}
                 onClose={() => setIsDiscountModalOpen(false)}
+            />
+
+            <ReprintModal
+                isOpen={isReprintModalOpen}
+                onClose={() => setIsReprintModalOpen(false)}
             />
         </div>
     );
