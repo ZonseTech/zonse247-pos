@@ -25,6 +25,7 @@ interface FunctionButtonsProps {
     onBankTransfer?: () => void;
     onEPayment?: () => void;
     onPayCash?: () => void;
+    onMultiplePayment?: () => void;
     compact?: boolean;
 }
 
@@ -62,6 +63,7 @@ const FunctionButtons: FunctionComponent<FunctionButtonsProps> = ({
     onBankTransfer,
     onEPayment,
     onPayCash,
+    onMultiplePayment,
     compact = false,
 }) => {
     const buttonConfigs: Array<FunctionButtonConfig> = [
@@ -72,6 +74,7 @@ const FunctionButtons: FunctionComponent<FunctionButtonsProps> = ({
         { label: 'ITEM(F2)\nLOOKUP', compactLabel: 'LOOKUP\nF2', ebnLabel: 'LOOKUP', colorType: 'blue', action: 'lookup', shortcut: 'F2', hiddenOnMobile: true, priority: 'normal' },
         { label: 'REPRINT\n(F11)', compactLabel: 'REPRINT\nF11', ebnLabel: 'REPRINT', colorType: 'blue', action: 'reprint', shortcut: 'F11', priority: 'normal' },
         { label: 'DISCOUNT\n(F5)', compactLabel: 'DISC\nF5', ebnLabel: 'DISC', colorType: 'orange', action: 'discount', shortcut: 'F5', priority: 'normal' },
+        { label: 'SPLIT(F9)\nPAYMENT', compactLabel: 'SPLIT\nF9', ebnLabel: 'SPLIT', colorType: 'orange', action: 'multiple-payment', shortcut: 'F9', priority: 'high' },
         { label: 'BANK(F12)\nTRASFER', compactLabel: 'BANK\nF12', ebnLabel: 'BANK', colorType: 'green', action: 'bank-transfer', shortcut: 'F12', priority: 'high' },
         { label: 'E(F8)\nPAYMENT', compactLabel: 'E-PAY\nF8', ebnLabel: 'E-PAY', colorType: 'green', action: 'e-payment', shortcut: 'F8', priority: 'high' },
         { label: 'PAY(F10)\nCASH', compactLabel: 'CASH\nF10', ebnLabel: 'CASH', colorType: 'green', action: 'pay-cash', shortcut: 'F10', priority: 'high' },
@@ -99,6 +102,9 @@ const FunctionButtons: FunctionComponent<FunctionButtonsProps> = ({
                 break;
             case 'discount':
                 onDiscount?.();
+                break;
+            case 'multiple-payment':
+                onMultiplePayment?.();
                 break;
             case 'bank-transfer':
                 onBankTransfer?.();
@@ -132,7 +138,7 @@ const FunctionButtons: FunctionComponent<FunctionButtonsProps> = ({
     if (compact) {
         // Split into two rows: utility functions on top, payment functions on bottom
         const topRow = buttonConfigs.slice(0, 7); // VOID, PARK, PARKED, DRAWER, LOOKUP, REPRINT, DISC
-        const bottomRow = buttonConfigs.slice(7);  // BANK, E-PAY, CASH
+        const bottomRow = buttonConfigs.slice(7);  // SPLIT, BANK, E-PAY, CASH
 
         return (
             <div className="flex flex-col gap-0.5">
@@ -156,7 +162,7 @@ const FunctionButtons: FunctionComponent<FunctionButtonsProps> = ({
                     ))}
                 </div>
                 {/* Bottom row - payment functions (larger touch targets) */}
-                <div className="grid grid-cols-3 gap-0.5">
+                <div className="grid grid-cols-4 gap-0.5">
                     {bottomRow.map((button, index) => (
                         <button
                             key={index}

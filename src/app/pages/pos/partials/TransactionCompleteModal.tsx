@@ -61,6 +61,11 @@ const getItemPrice = (item: ItemType): number => {
     return 0;
 };
 
+// Helper for payments
+const getPayments = (t: SaleOrTransaction): SalePayment[] | undefined => {
+    return (t as Transaction).payments || (t as Sale).payments;
+};
+
 const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps> = ({
     isOpen,
     transaction,
@@ -114,13 +119,34 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
     };
 
     const change = transaction.changeAmount || 0;
-    const paymentMethodLabel = transaction.paymentMethodId === 'cash'
-        ? 'Cash'
-        : transaction.paymentMethodId === 'mobile-money'
-            ? 'Mobile Money'
-            : transaction.paymentMethodId === 'bank-transfer'
-                ? 'Bank Transfer'
-                : 'Card';
+    const payments = getPayments(transaction);
+    const hasMultiplePayments = payments && payments.length > 1;
+    const paymentMethodLabel = hasMultiplePayments
+        ? 'Split Payment'
+        : transaction.paymentMethodId === 'cash'
+            ? 'Cash'
+            : transaction.paymentMethodId === 'mobile-money'
+                ? 'Mobile Money'
+                : transaction.paymentMethodId === 'bank-transfer'
+                    ? 'Bank Transfer'
+                    : transaction.paymentMethodId === 'multiple'
+                        ? 'Split Payment'
+                        : 'Card';
+
+    const getPaymentMethodLabel = (methodId: string) => {
+        switch (methodId) {
+            case 'cash':
+                return 'Cash';
+            case 'mobile-money':
+                return 'Mobile Money';
+            case 'bank-transfer':
+                return 'Bank Transfer';
+            case 'card':
+                return 'Card';
+            default:
+                return methodId;
+        }
+    };
 
     return (
         <Modal
@@ -170,7 +196,7 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                             "font-mono bg-white dark:bg-gray-600 px-3 py-1 rounded-lg shadow-sm",
                             isEBN ? "text-xs" : "text-sm"
                         )}>
-                            {transaction.refNumber}
+                            {getRefNumber(transaction)}
                         </span>
                     </div>
 
@@ -187,7 +213,7 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                                 "font-bold text-gray-900 dark:text-white",
                                 isEBN ? "text-sm" : "text-xl"
                             )}>
-                                {formatCurrency(transaction.total)}
+                                {formatCurrency(getTotal(transaction))}
                             </p>
                         </div>
                         <div className={classNames(
@@ -202,7 +228,7 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                                 "font-bold text-green-600 dark:text-green-400",
                                 isEBN ? "text-sm" : "text-xl"
                             )}>
-                                {formatCurrency(transaction.paid)}
+                                {formatCurrency(getPaid(transaction))}
                             </p>
                         </div>
                     </div>
@@ -244,6 +270,52 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                             {formatDate(getDate(transaction))}
                         </div>
                     </div>
+
+                    {/* Multiple Payments Breakdown */}
+                    {hasMultiplePayments && payments && (
+                        <div className={classNames(
+                            "mt-4 border-t border-gray-200 dark:border-gray-600 pt-4",
+                        )}>
+                            <p className={classNames(
+                                "font-semibold text-gray-700 dark:text-gray-300 mb-2",
+                                isEBN ? "text-xs" : "text-sm"
+                            )}>Payment Breakdown:</p>
+                            <div className="space-y-2">
+                                {payments.map((payment, index) => (
+                                    <div
+                                        key={payment.id || index}
+                                        className={classNames(
+                                            "flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-lg",
+                                            isEBN ? "px-2 py-1.5" : "px-3 py-2"
+                                        )}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <span className={classNames(
+                                                "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full font-medium",
+                                                isEBN ? "text-[10px]" : "text-xs"
+                                            )}>
+                                                {getPaymentMethodLabel(payment.paymentMethodId)}
+                                            </span>
+                                            {payment.reference && (
+                                                <span className={classNames(
+                                                    "text-gray-500 dark:text-gray-400",
+                                                    isEBN ? "text-[10px]" : "text-xs"
+                                                )}>
+                                                    Ref: {payment.reference}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <span className={classNames(
+                                            "font-mono font-semibold text-gray-900 dark:text-white",
+                                            isEBN ? "text-xs" : "text-sm"
+                                        )}>
+                                            {formatCurrency(payment.amount)}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Items Summary */}
