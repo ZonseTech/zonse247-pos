@@ -15,7 +15,8 @@ import { useIsEBN } from '../../../hooks/useMediaQuery';
 interface InitiateReturnModalProps {
     isOpen: boolean;
     onClose: () => void;
-    transaction: Transaction;
+    transaction?: Transaction;
+    sale?: Sale;
     onSuccess?: () => void;
 }
 
@@ -58,12 +59,17 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
     isOpen,
     onClose,
     transaction,
+    sale,
     onSuccess,
 }) => {
     const isEBN = useIsEBN();
     const [selectedItems, setSelectedItems] = useState<ReturnItemForm[]>([]);
-    const canReturn = returnsService.canReturn(transaction);
-    const remainingRefundable = returnsService.getRemainingRefundableAmount(transaction);
+
+    // Support both Sale and Transaction - prefer Sale if provided
+    const saleOrTransaction = sale || transaction;
+
+    const canReturn = returnsService.canReturn(saleOrTransaction as Transaction);
+    const remainingRefundable = returnsService.getRemainingRefundableAmount(saleOrTransaction as Transaction);
 
     const initialValues = {
         refundReason: '',
@@ -131,8 +137,11 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
         }
 
         try {
+            // Get transaction ID - supports both Sale (id) and Transaction (transactionId)
+            const transactionId = sale?.id || (saleOrTransaction as Sale)?.id || (saleOrTransaction as Transaction)?.transactionId || '';
+
             const data: InitiateReturnRequest = {
-                originalTransactionId: transaction.transactionId,
+                originalTransactionId: transactionId,
                 items: selectedItems.map((item) => ({
                     orderItemId: item.orderItemId,
                     productId: item.productId,
@@ -203,14 +212,14 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                         <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
                                             Transaction ID:
                                         </span>
-                                        <span className="font-medium text-sm sm:ml-2">{transaction.refNumber}</span>
+                                        <span className="font-medium text-sm sm:ml-2">{(saleOrTransaction as Sale)?.saleNumber || (saleOrTransaction as Transaction)?.refNumber || saleOrTransaction?.id}</span>
                                     </div>
                                     <div className="flex flex-col sm:flex-row sm:items-center">
                                         <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
                                             Original Amount:
                                         </span>
                                         <span className="font-medium text-sm sm:ml-2">
-                                            {formatCurrency(typeof transaction.total === 'string' ? parseFloat(transaction.total) : transaction.total)}
+                                            {formatCurrency((saleOrTransaction as Sale)?.totalAmount || (typeof (saleOrTransaction as Transaction)?.total === 'string' ? parseFloat((saleOrTransaction as Transaction).total as unknown as string) : (saleOrTransaction as Transaction)?.total) || 0)}
                                         </span>
                                     </div>
                                     <div className="flex flex-col sm:flex-row sm:items-center">
@@ -218,7 +227,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                             Already Refunded:
                                         </span>
                                         <span className="font-medium text-sm sm:ml-2">
-                                            {formatCurrency(typeof transaction.refundedAmount === 'string' ? parseFloat(transaction.refundedAmount) : (transaction.refundedAmount || 0))}
+                                            {formatCurrency(typeof (saleOrTransaction as Transaction)?.refundedAmount === 'string' ? parseFloat((saleOrTransaction as Transaction).refundedAmount as unknown as string) : ((saleOrTransaction as Transaction)?.refundedAmount || 0))}
                                         </span>
                                     </div>
                                     <div className="flex flex-col sm:flex-row sm:items-center">
@@ -235,9 +244,15 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                             <div className={isEBN ? 'mb-2' : 'mb-4 sm:mb-6'}>
                                 <h3 className={`font-semibold ${isEBN ? 'mb-1 text-xs' : 'mb-2 sm:mb-3 text-sm sm:text-base'}`}>Available Items</h3>
                                 <div className={`space-y-1 ${isEBN ? 'max-h-24' : 'max-h-40 sm:max-h-48'} overflow-y-auto`}>
-                                    {transaction.items?.map((item: any) => {
-                                        const orderItemId = item.orderId;
+                                    {saleOrTransaction?.items?.map((item: any) => {
+                                        // Support both Sale items (id) and Transaction items (orderId)
+                                        const orderItemId = item.id || item.orderId;
                                         const isAdded = selectedItems.some((i) => i.orderItemId === orderItemId);
+
+                                        // Get item name - supports Sale items (product.name) and Transaction items (productDetails.name)
+                                        const itemName = item.product?.name || item.productDetails?.name || item.name || 'Unknown Product';
+                                        // Get item price - supports Sale items (unitPrice) and Transaction items (sellPrice)
+                                        const itemPrice = item.unitPrice || item.sellPrice || 0;
 
                                         return (
                                             <div
@@ -245,15 +260,15 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                                 className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
                                             >
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="font-medium text-sm truncate">{item.productDetails?.name || item.name || 'Unknown Product'}</p>
+                                                    <p className="font-medium text-sm truncate">{itemName}</p>
                                                     <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                                                        Qty: {item.quantity} × {formatCurrency(typeof item.sellPrice === 'string' ? parseFloat(item.sellPrice) : item.sellPrice)}
+                                                        Qty: {item.quantity} × {formatCurrency(typeof itemPrice === 'string' ? parseFloat(itemPrice) : itemPrice)}
                                                     </p>
                                                 </div>
                                                 <Button
                                                     type="button"
                                                     size="small"
-                                                    onClick={() => handleAddItem(item)}
+                                                    onClick={() => handleAddItem({ ...item, orderId: orderItemId, sellPrice: itemPrice, productDetails: { name: itemName } })}
                                                     disabled={isAdded}
                                                     className="w-full sm:w-auto text-xs sm:text-sm"
                                                 >

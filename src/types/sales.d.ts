@@ -28,15 +28,19 @@ interface SalePayment {
     saleId: string;
     paymentMethodId: string;
     amount: number;
-    reference?: string;
-    providerId?: string;
-    providerRef?: string;
+    reference?: string | null;
+    providerId?: string | null;
+    providerRef?: string | null;
     status: string;
     processedAt: Date | string;
-    notes?: string;
+    notes?: string | null;
     createdAt: Date | string;
     updatedAt: Date | string;
-    paymentMethod?: PaymentMethod;
+    paymentMethod?: {
+        methodId: string;
+        name: string;
+        icon?: string;
+    };
 }
 
 interface SaleQueryParams {

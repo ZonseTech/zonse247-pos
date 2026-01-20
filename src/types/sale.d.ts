@@ -19,7 +19,13 @@ interface SaleItem {
     id?: string;
     saleId?: string;
     productId: string;
-    product?: Product; // Populated in responses
+    product?: {
+        id: string;
+        name: string;
+        sku?: string;
+        primaryBarcode?: string;
+        barcodes?: { barcode: string }[];
+    }; // Populated in responses
 
     // Quantities
     quantity: number;
@@ -62,16 +68,29 @@ interface Sale {
 
     // User and terminal
     userId: string;
-    user?: User; // Cashier who processed the sale
+    user?: {
+        userId: string;
+        fullname: string;
+        username?: string;
+        email?: string;
+    }; // Cashier who processed the sale
     terminalId?: string;
-    terminal?: Terminal;
+    terminal?: {
+        terminalId: string;
+        terminalLabel: string;
+        terminalCode?: string;
+    };
 
     // Customer
-    customerId?: string;
-    customer?: Customer;
+    customerId?: string | null;
+    customer?: Customer | null;
 
     // Status
     status: SaleStatus;
+    isVoided?: boolean;
+
+    // Sale date (main transaction date)
+    saleDate?: Date | string;
 
     // Items
     items: SaleItem[];
@@ -87,6 +106,9 @@ interface Sale {
     changeAmount: number;
     paymentMethodId: string;
     paymentMethod?: PaymentMethod;
+
+    // Multiple payments support
+    payments?: SalePayment[];
 
     // Profit calculation
     totalCost?: number;
@@ -116,6 +138,19 @@ interface Sale {
 }
 
 /**
+ * Single payment entry for multiple payments
+ */
+interface PaymentEntry {
+    paymentMethodId: string;
+    amount: number;
+    reference?: string;
+    providerId?: string;
+    providerRef?: string;
+    phoneNumber?: string;
+    notes?: string;
+}
+
+/**
  * Create sale payload (from POS)
  */
 interface CreateSalePayload {
@@ -125,9 +160,12 @@ interface CreateSalePayload {
     terminalId?: string;
     customerId?: string;
 
-    // Payment
+    // Payment - single payment (legacy)
     amountPaid: number;
     paymentMethodId: string;
+
+    // Multiple payments support
+    payments?: PaymentEntry[];
 
     // Items
     items: {
@@ -210,10 +248,14 @@ interface SaleListResponse {
     data: {
         sales: Sale[];
         pagination: {
-            page: number;
-            limit: number;
-            total: number;
+            currentPage: number;
             totalPages: number;
+            totalItems: number;
+            itemsPerPage: number;
+            // Legacy aliases
+            page?: number;
+            limit?: number;
+            total?: number;
         };
     };
 }

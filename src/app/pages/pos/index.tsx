@@ -11,8 +11,10 @@ import CustomerSelector from '../customers/partials/CustomerSelector';
 import { useFocusManager } from '../../hooks/useFocusManager';
 import { FunctionComponent, useState, useEffect, useRef } from 'react';
 import CheckoutModal, { CHECKOUT, PaymentMethod } from './partials/CheckoutModal';
+import MultiplePaymentModal from './partials/MultiplePaymentModal';
 import { useInventory } from '../../hooks/useInventory';
-import HoldOrdersModal from './partials/HoldOrdersModal';
+import ParkSaleModal from './partials/ParkSaleModal';
+import ParkedSalesModal from './partials/ParkedSalesModal';
 import { HiOutlineShoppingCart } from 'react-icons/hi';
 import { useIsMobile, useIsEBN } from '../../hooks/useMediaQuery';
 import { SearchIcon, UserCircle2Icon } from 'lucide-react';
@@ -45,8 +47,10 @@ const POSSystem: FunctionComponent = () => {
     const [numpadInput, setNumpadInput] = useState('');
     const [isLookupModalOpen, setIsLookupModalOpen] = useState(false);
     const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
-    const [isHoldOrdersModalOpen, setIsHoldOrdersModalOpen] = useState(false);
+    const [isParkSaleModalOpen, setIsParkSaleModalOpen] = useState(false);
+    const [isParkedSalesModalOpen, setIsParkedSalesModalOpen] = useState(false);
     const [isFunctionSheetOpen, setIsFunctionSheetOpen] = useState(false);
+    const [isMultiplePaymentModalOpen, setIsMultiplePaymentModalOpen] = useState(false);
     const [paymentMethodId, setPaymentMethodId] = useState<PaymentMethod>(CHECKOUT.CASH);
     const [customPriceInputs, setCustomPriceInputs] = useState<Record<string, string>>({});
 
@@ -93,6 +97,10 @@ const POSSystem: FunctionComponent = () => {
                 case 'F10':
                     event.preventDefault();
                     handleCompleteTransaction(CHECKOUT.CASH);
+                    break;
+                case 'F9':
+                    event.preventDefault();
+                    handleMultiplePayment();
                     break;
                 case 'F11':
                     event.preventDefault();
@@ -171,6 +179,14 @@ const POSSystem: FunctionComponent = () => {
         setIsCheckoutModalOpen(true);
     };
 
+    const handleMultiplePayment = () => {
+        if (cart.length === 0) {
+            return;
+        }
+
+        setIsMultiplePaymentModalOpen(true);
+    };
+
     const handleVoidSale = () => {
         clearCart();
         setCustomPriceInputs({});
@@ -178,12 +194,14 @@ const POSSystem: FunctionComponent = () => {
     };
 
     const handleParkSale = () => {
-        console.log('Parking sale...');
-        // Add park sale logic
+        if (cart.length === 0) {
+            return;
+        }
+        setIsParkSaleModalOpen(true);
     };
 
     const handleParkedSales = () => {
-        setIsHoldOrdersModalOpen(true)
+        setIsParkedSalesModalOpen(true);
     };
 
     const handleOpenDrawer = () => {
@@ -357,6 +375,7 @@ const POSSystem: FunctionComponent = () => {
                         onItemLookup={handleItemLookup}
                         onReprint={handleReprint}
                         onDiscount={handleDiscount}
+                        onMultiplePayment={handleMultiplePayment}
                         onBankTransfer={() => handleCompleteTransaction(CHECKOUT.BANK_TRANSFER)}
                         onEPayment={() => handleCompleteTransaction(CHECKOUT.E_PAYMENT)}
                         onPayCash={() => handleCompleteTransaction(CHECKOUT.CASH)}
@@ -433,6 +452,12 @@ const POSSystem: FunctionComponent = () => {
                         Discount
                     </Button>
                     <Button
+                        theme='warning'
+                        onClick={() => { handleMultiplePayment(); setIsFunctionSheetOpen(false); }}
+                    >
+                        Split Payment
+                    </Button>
+                    <Button
                         theme='success'
                         onClick={() => { handleCompleteTransaction(CHECKOUT.BANK_TRANSFER); setIsFunctionSheetOpen(false); }}
                     >
@@ -454,9 +479,17 @@ const POSSystem: FunctionComponent = () => {
                 </div>
             </BottomSheet>
 
-            <HoldOrdersModal
-                isOpen={isHoldOrdersModalOpen}
-                onClickOpen={() => setIsHoldOrdersModalOpen(false)} />
+            <ParkSaleModal
+                isOpen={isParkSaleModalOpen}
+                onClose={() => setIsParkSaleModalOpen(false)}
+                onSuccess={() => setIsParkSaleModalOpen(false)}
+            />
+
+            <ParkedSalesModal
+                isOpen={isParkedSalesModalOpen}
+                onClose={() => setIsParkedSalesModalOpen(false)}
+                onResumeSuccess={() => setIsParkedSalesModalOpen(false)}
+            />
 
             <ItemLookupModal
                 isOpen={isLookupModalOpen}
@@ -471,6 +504,11 @@ const POSSystem: FunctionComponent = () => {
                 paymentMethodId={paymentMethodId}
                 isOpen={isCheckoutModalOpen}
                 onClose={() => setIsCheckoutModalOpen(false)}
+            />
+
+            <MultiplePaymentModal
+                isOpen={isMultiplePaymentModalOpen}
+                onClose={() => setIsMultiplePaymentModalOpen(false)}
             />
         </div>
     );
