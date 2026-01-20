@@ -197,12 +197,14 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
 
     return createPortal(
         <div className={classNames(
-            "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]",
-            isEBN ? "p-1" : "p-2 md:p-4"
+            "fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-[60] transition-all",
+            isEBN ? "p-1" : "p-0 sm:p-3 md:p-4"
         )}>
             <div className={classNames(
-                "bg-white dark:bg-gray-900 w-full flex flex-col rounded-lg overflow-hidden",
-                isEBN ? "max-w-4xl max-h-[98vh]" : "max-w-5xl xl:max-w-6xl max-h-[95vh] md:max-h-[90vh]"
+                "bg-white dark:bg-gray-900 w-full flex flex-col overflow-hidden shadow-2xl",
+                isEBN
+                    ? "max-w-4xl max-h-[98vh] rounded-lg"
+                    : "h-[95vh] sm:h-auto sm:max-h-[92vh] md:max-h-[88vh] sm:max-w-5xl xl:max-w-6xl rounded-t-2xl sm:rounded-xl"
             )}>
                 <ModalHeader
                     onClose={onClose}
@@ -210,12 +212,26 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
                     isEBN={isEBN}
                 />
 
+                {/* Mobile: Sticky Summary Bar at Top */}
+                <div className="sm:hidden">
+                    <PaymentSummary
+                        total={total}
+                        totalPaid={totalPaid}
+                        remaining={remaining}
+                        change={change}
+                        isFullyPaid={isFullyPaid}
+                        isEBN={isEBN}
+                        isMobile={true}
+                    />
+                </div>
+
                 <div className={classNames(
-                    "flex-1 overflow-y-auto",
-                    isEBN ? "p-2" : "p-4 md:p-6"
+                    "flex-1 overflow-y-auto overscroll-contain",
+                    isEBN ? "p-2" : "p-3 sm:p-4 md:p-6"
                 )}>
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-                        <div className="lg:col-span-1 order-2 lg:order-1">
+                        {/* Desktop Summary - Hidden on Mobile */}
+                        <div className="hidden sm:block lg:col-span-1">
                             <PaymentSummary
                                 total={total}
                                 totalPaid={totalPaid}
@@ -223,10 +239,11 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
                                 change={change}
                                 isFullyPaid={isFullyPaid}
                                 isEBN={isEBN}
+                                isMobile={false}
                             />
                         </div>
 
-                        <div className="lg:col-span-2 order-1 lg:order-2">
+                        <div className="lg:col-span-2">
                             <PaymentMethodButtons
                                 onAddPayment={addPayment}
                                 processing={processing}
@@ -251,6 +268,7 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
                     processing={processing}
                     paymentsCount={payments.length}
                     isEBN={isEBN}
+                    remaining={remaining}
                 />
             </div>
 

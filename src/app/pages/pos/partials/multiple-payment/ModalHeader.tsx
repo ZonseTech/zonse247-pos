@@ -10,39 +10,39 @@ const ModalHeader: FunctionComponent<ModalHeaderProps> = ({
 }) => {
     return (
         <div className={classNames(
-            "border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0 bg-white dark:bg-gray-900",
-            isEBN ? "p-2" : "p-3 md:p-4"
+            "border-b border-gray-200 dark:border-gray-700/50 flex items-center justify-between flex-shrink-0 bg-white dark:bg-gray-900",
+            isEBN ? "p-2" : "px-4 py-3 sm:px-5 sm:py-4"
         )}>
-            <div className={classNames("flex items-center", isEBN ? "gap-2" : "gap-2 md:gap-3")}>
+            <div className="flex items-center gap-3">
                 <div className={classNames(
-                    "bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center",
-                    isEBN ? "w-8 h-8" : "w-8 h-8 md:w-10 md:h-10"
+                    "bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/20",
+                    isEBN ? "w-9 h-9" : "w-10 h-10 sm:w-11 sm:h-11"
                 )}>
                     <CreditCard className={classNames(
-                        "text-gray-700 dark:text-gray-300",
-                        isEBN ? "w-4 h-4" : "w-4 h-4 md:w-5 md:h-5"
+                        "text-white",
+                        isEBN ? "w-4 h-4" : "w-5 h-5 sm:w-5 sm:h-5"
                     )} />
                 </div>
                 <div>
                     <h2 className={classNames(
                         "font-bold text-gray-900 dark:text-white",
-                        isEBN ? "text-sm" : "text-base md:text-lg"
+                        isEBN ? "text-sm" : "text-base sm:text-lg"
                     )}>Split Payment</h2>
                     <p className={classNames(
-                        "text-gray-500 dark:text-gray-400 hidden sm:block",
-                        isEBN ? "text-xs" : "text-xs md:text-sm"
-                    )}>Pay with multiple methods</p>
+                        "text-gray-500 dark:text-gray-400",
+                        isEBN ? "text-xs" : "text-xs sm:text-sm"
+                    )}>Multiple payment methods</p>
                 </div>
             </div>
             <button
                 onClick={onClose}
                 disabled={processing}
                 className={classNames(
-                    "hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-gray-500 dark:text-gray-400",
-                    isEBN ? "p-1.5" : "p-1.5 md:p-2"
+                    "hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 active:scale-95",
+                    isEBN ? "p-2" : "p-2 sm:p-2.5"
                 )}
             >
-                <X className={isEBN ? "w-5 h-5" : "w-5 h-5 md:w-6 md:h-6"} />
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
         </div>
     );

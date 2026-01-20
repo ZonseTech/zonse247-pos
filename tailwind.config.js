@@ -141,6 +141,7 @@ export default {
   content: ["./index.html", "./src/app/**/*.{html,js,ts,jsx,tsx}"],
   theme: {
     screens: {
+      xs: "480px",
       sm: "640px",
       md: "768px",
       ebn: { min: "768px", max: "1366px" }, // EBN Aures all-in-one devices

@@ -28,6 +28,7 @@ export interface PaymentSummaryProps {
     change: number;
     isFullyPaid: boolean;
     isEBN: boolean;
+    isMobile?: boolean;
 }
 
 export interface PaymentMethodButtonsProps {
@@ -68,4 +69,5 @@ export interface ModalFooterProps {
     processing: boolean;
     paymentsCount: number;
     isEBN: boolean;
+    remaining?: number;
 }
