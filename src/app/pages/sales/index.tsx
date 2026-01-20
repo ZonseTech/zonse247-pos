@@ -27,9 +27,9 @@ const SalesPage: FC = () => {
     const isMobile = useIsMobile();
     const { mode } = useContext(ZonseThemeContext);
     const [isOpenDetails, setIsOpenDetails] = useState<boolean>(false);
-    const [selectedSale, setSelectedSale] = useState<Transaction>({} as Transaction);
+    const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
     const [isReturnModalOpen, setIsReturnModalOpen] = useState<boolean>(false);
-    const [saleForReturn, setSaleForReturn] = useState<Transaction | null>(null);
+    const [saleForReturn, setSaleForReturn] = useState<Sale | null>(null);
 
     const {
         totalRows,
@@ -71,12 +71,12 @@ const SalesPage: FC = () => {
     };
 
     const handleViewDetails = useCallback((sale: SaleOrTransaction) => {
-        setSelectedSale(sale as Transaction);
+        setSelectedSale(sale as Sale);
         setIsOpenDetails(true);
     }, []);
 
     const handleInitiateReturn = useCallback((sale: SaleOrTransaction) => {
-        setSaleForReturn(sale as Transaction);
+        setSaleForReturn(sale as Sale);
         setIsReturnModalOpen(true);
     }, []);
 
@@ -293,7 +293,7 @@ const SalesPage: FC = () => {
                     )}
 
                     <SaleDetailsModal
-                        transaction={selectedSale}
+                        sale={selectedSale}
                         isOpenDetails={isOpenDetails}
                         setIsOpenDetails={setIsOpenDetails}
                     />
@@ -305,7 +305,7 @@ const SalesPage: FC = () => {
                                 setIsReturnModalOpen(false);
                                 setSaleForReturn(null);
                             }}
-                            transaction={saleForReturn}
+                            sale={saleForReturn}
                             onSuccess={() => {
                                 loadSales();
                                 loadSummary();

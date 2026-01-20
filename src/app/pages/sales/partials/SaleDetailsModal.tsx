@@ -19,7 +19,7 @@ import { useIsEBN } from '../../../hooks/useMediaQuery';
 
 interface Props {
 	isOpenDetails: boolean;
-	transaction: Transaction | null;
+	sale: Sale | null;
 	setIsOpenDetails: Dispatch<SetStateAction<boolean>>;
 }
 
@@ -30,7 +30,19 @@ const statusConfig: Record<string, { icon: typeof CheckCircle; color: string; bg
 		bgColor: 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800/50',
 		label: 'Completed'
 	},
+	COMPLETED: {
+		icon: CheckCircle,
+		color: 'text-emerald-600 dark:text-emerald-400',
+		bgColor: 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800/50',
+		label: 'Completed'
+	},
 	pending: {
+		icon: Clock,
+		color: 'text-amber-600 dark:text-amber-400',
+		bgColor: 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800/50',
+		label: 'Pending'
+	},
+	PENDING: {
 		icon: Clock,
 		color: 'text-amber-600 dark:text-amber-400',
 		bgColor: 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800/50',
@@ -48,6 +60,12 @@ const statusConfig: Record<string, { icon: typeof CheckCircle; color: string; bg
 		bgColor: 'bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800/50',
 		label: 'Refunded'
 	},
+	RETURNED: {
+		icon: RotateCcw,
+		color: 'text-blue-600 dark:text-blue-400',
+		bgColor: 'bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800/50',
+		label: 'Returned'
+	},
 	failed: {
 		icon: AlertCircle,
 		color: 'text-red-600 dark:text-red-400',
@@ -59,6 +77,12 @@ const statusConfig: Record<string, { icon: typeof CheckCircle; color: string; bg
 		color: 'text-gray-600 dark:text-gray-400',
 		bgColor: 'bg-gray-50 dark:bg-gray-950/50 border-gray-200 dark:border-gray-800/50',
 		label: 'Void'
+	},
+	VOIDED: {
+		icon: XCircle,
+		color: 'text-gray-600 dark:text-gray-400',
+		bgColor: 'bg-gray-50 dark:bg-gray-950/50 border-gray-200 dark:border-gray-800/50',
+		label: 'Voided'
 	}
 };
 
@@ -72,7 +96,7 @@ const getStatusConfig = (status: string) => {
 };
 
 const TransactionDetailsModal: FunctionComponent<Props> = ({
-	transaction,
+	sale,
 	isOpenDetails,
 	setIsOpenDetails
 }) => {
@@ -80,6 +104,48 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 	const [copied, setCopied] = useState(false);
 	const printRef = useRef<HTMLDivElement>(null);
 	const isEBN = useIsEBN();
+
+	// Helper to get sale reference number (supports both new and legacy formats)
+	const getSaleRef = (s: Sale | Transaction | null): string => {
+		if (!s) return 'N/A';
+		return (s as Sale).saleNumber || (s as Transaction).refNumber || (s as Transaction).transactionId || s.id || 'N/A';
+	};
+
+	// Helper to get sale date (supports both formats)
+	const getSaleDate = (s: Sale | Transaction | null): Date | string | undefined => {
+		if (!s) return undefined;
+		return (s as Sale).saleDate || (s as Transaction).date || s.createdAt;
+	};
+
+	// Helper to get total amount
+	const getSaleTotal = (s: Sale | Transaction | null): number => {
+		if (!s) return 0;
+		return (s as Sale).totalAmount || (s as Transaction).total || 0;
+	};
+
+	// Helper to get amount paid
+	const getAmountPaid = (s: Sale | Transaction | null): number => {
+		if (!s) return 0;
+		return (s as Sale).amountPaid || (s as Transaction).paid || 0;
+	};
+
+	// Helper to get subtotal
+	const getSubtotal = (s: Sale | Transaction | null): number => {
+		if (!s) return 0;
+		return s.subtotal || 0;
+	};
+
+	// Helper to get tax amount
+	const getTaxAmount = (s: Sale | Transaction | null): number => {
+		if (!s) return 0;
+		return (s as Sale).taxAmount || (s as Transaction).tax || 0;
+	};
+
+	// Helper to get discount amount
+	const getDiscountAmount = (s: Sale | Transaction | null): number => {
+		if (!s) return 0;
+		return (s as Sale).discountAmount || (s as Transaction).discount || 0;
+	};
 
 	const handleClose = useCallback(() => {
 		setIsOpenDetails(false);
@@ -100,7 +166,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 			<!DOCTYPE html>
 			<html>
 			<head>
-				<title>Transaction Receipt - ${transaction?.refNumber || 'N/A'}</title>
+				<title>Transaction Receipt - ${getSaleRef(sale)}</title>
 				<style>
 					* { margin: 0; padding: 0; box-sizing: border-box; }
 					body { font-family: 'Segoe UI', system-ui, sans-serif; padding: 20px; color: #1f2937; }
@@ -138,47 +204,53 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 			printWindow.print();
 			printWindow.close();
 		}, 250);
-	}, [transaction?.refNumber]);
+	}, [sale]);
 
 	const handleCopyRef = useCallback(async () => {
-		if (!transaction?.refNumber) return;
+		const ref = getSaleRef(sale);
+		if (ref === 'N/A') return;
 		try {
-			await navigator.clipboard.writeText(transaction.refNumber);
+			await navigator.clipboard.writeText(ref);
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (err) {
 			console.error('Failed to copy:', err);
 		}
-	}, [transaction?.refNumber]);
+	}, [sale]);
 
-	const transactionData = useMemo(() => {
-		if (!transaction) return null;
+	const saleData = useMemo(() => {
+		if (!sale) return null;
 
-		const statusInfo = getStatusConfig(transaction.status || 'pending');
+		const statusInfo = getStatusConfig(sale.status || 'pending');
+
+		// Get payment method name - supports multiple payments or single payment
+		const paymentMethodName = sale.payments && sale.payments.length > 0
+			? sale.payments.map(p => p.paymentMethod?.name || p.paymentMethodId).join(', ')
+			: sale.paymentMethod?.name || sale.paymentMethodId || 'Cash';
 
 		return {
-			refNumber: transaction.refNumber || 'N/A',
-			customerName: transaction.customer?.name || 'Walk-in Customer',
-			cashierName: transaction.user?.fullname || transaction.user?.username || 'Administrator',
-			formattedDate: formatDate(transaction.date),
-			phoneNumber: transaction.phoneNumber?.trim() || null,
-			tillName: transaction?.user?.fullname || 'Main Till',
-			paymentMethodName: transaction.paymentMethod?.name || 'Cash',
-			hasItems: Array.isArray(transaction.items) && transaction.items.length > 0,
-			hasTax: transaction.tax > 0,
-			hasDiscount: transaction.discount > 0,
+			refNumber: getSaleRef(sale),
+			customerName: sale.customer?.name || 'Walk-in Customer',
+			cashierName: sale.user?.fullname || sale.user?.username || 'Administrator',
+			formattedDate: formatDate(getSaleDate(sale) as string),
+			phoneNumber: (sale as unknown as Transaction).phoneNumber?.trim() || null,
+			tillName: sale.terminal?.terminalLabel || sale.terminalId || 'Main Terminal',
+			paymentMethodName,
+			hasItems: Array.isArray(sale.items) && sale.items.length > 0,
+			hasTax: getTaxAmount(sale) > 0,
+			hasDiscount: getDiscountAmount(sale) > 0,
 			statusInfo,
-			canReturn: returnsService.canReturn(transaction),
-			refundSummary: returnsService.getRefundSummary(transaction),
-			itemCount: transaction.items?.length || 0
+			canReturn: returnsService.canReturn(sale as unknown as Transaction),
+			refundSummary: returnsService.getRefundSummary(sale as unknown as Transaction),
+			itemCount: sale.items?.length || 0
 		};
-	}, [transaction]);
+	}, [sale]);
 
-	if (!transaction || !transactionData) {
+	if (!sale || !saleData) {
 		return null;
 	}
 
-	const StatusIcon = transactionData.statusInfo.icon;
+	const StatusIcon = saleData.statusInfo.icon;
 
 	// Custom header with action buttons
 	const modalHeader = (
@@ -198,13 +270,13 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 						}>
 							Transaction Details
 						</h2>
-						<div className={`flex items-center gap-1 px-2 py-0.5 rounded-full border ${transactionData.statusInfo.bgColor}`}>
-							<StatusIcon className={isEBN ? `w-2.5 h-2.5 ${transactionData.statusInfo.color}` : `w-3.5 h-3.5 ${transactionData.statusInfo.color}`} />
+						<div className={`flex items-center gap-1 px-2 py-0.5 rounded-full border ${saleData.statusInfo.bgColor}`}>
+							<StatusIcon className={isEBN ? `w-2.5 h-2.5 ${saleData.statusInfo.color}` : `w-3.5 h-3.5 ${saleData.statusInfo.color}`} />
 							<span className={isEBN
-								? `text-[9px] font-semibold ${transactionData.statusInfo.color}`
-								: `text-xs font-semibold ${transactionData.statusInfo.color}`
+								? `text-[9px] font-semibold ${saleData.statusInfo.color}`
+								: `text-xs font-semibold ${saleData.statusInfo.color}`
 							}>
-								{transactionData.statusInfo.label}
+								{saleData.statusInfo.label}
 							</span>
 						</div>
 					</div>
@@ -213,7 +285,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 							? "text-[10px] text-gray-500 dark:text-gray-400 font-mono"
 							: "text-sm text-gray-500 dark:text-gray-400 font-mono"
 						}>
-							#{transactionData.refNumber}
+							#{saleData.refNumber}
 						</span>
 						<button
 							onClick={handleCopyRef}
@@ -237,11 +309,11 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 			</div>
 
 			<div className={isEBN ? "flex items-center gap-1" : "flex items-center gap-2"}>
-				{transactionData.canReturn && !transactionData.refundSummary.isFullyRefunded && (
+				{saleData.canReturn && !saleData.refundSummary.isFullyRefunded && (
 					<Button
 						onClick={handleInitiateReturn}
 						layout="outline"
-						size={isEBN ? "smallest" : "small"}
+						size="small"
 						className="flex items-center gap-1"
 						aria-label="Initiate return"
 					>
@@ -252,7 +324,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 				<Button
 					onClick={handlePrint}
 					layout="outline"
-					size={isEBN ? "smallest" : "small"}
+					size="small"
 					className="flex items-center gap-1"
 					aria-label="Print receipt"
 				>
@@ -293,22 +365,22 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 					<div ref={printRef} className={isEBN ? "space-y-3" : "space-y-6"}>
 						<div className="hidden print:block print-header">
 							<h1>Transaction Receipt</h1>
-							<p>Reference: #{transactionData.refNumber}</p>
+							<p>Reference: #{saleData.refNumber}</p>
 						</div>
 
 						<SaleHeader
-							refNumber={transactionData.refNumber}
-							customerName={transactionData.customerName}
-							cashierName={transactionData.cashierName}
-							date={transactionData.formattedDate}
-							phoneNumber={transactionData.phoneNumber}
-							tillName={transactionData.tillName}
-							status={transaction.status || 'pending'}
-							statusColor={transactionData.statusInfo.bgColor}
+							refNumber={saleData.refNumber}
+							customerName={saleData.customerName}
+							cashierName={saleData.cashierName}
+							date={saleData.formattedDate}
+							phoneNumber={saleData.phoneNumber}
+							tillName={saleData.tillName}
+							status={sale.status || 'pending'}
+							statusColor={saleData.statusInfo.bgColor}
 							compact={isEBN}
 						/>
 
-						{transactionData.refundSummary.hasRefunds && (
+						{saleData.refundSummary.hasRefunds && (
 							<div className={isEBN
 								? "p-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
 								: "p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl"
@@ -329,7 +401,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 												? "text-[10px] text-blue-700 dark:text-blue-300 mt-0.5"
 												: "text-sm text-blue-700 dark:text-blue-300 mt-0.5"
 											}>
-												{transactionData.refundSummary.refundCount} refund{transactionData.refundSummary.refundCount !== 1 ? 's' : ''} processed
+												{saleData.refundSummary.refundCount} refund{saleData.refundSummary.refundCount !== 1 ? 's' : ''} processed
 											</p>
 										</div>
 									</div>
@@ -344,19 +416,19 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 											? "text-sm font-bold text-blue-900 dark:text-blue-100"
 											: "text-2xl font-bold text-blue-900 dark:text-blue-100"
 										}>
-											{formatCurrency(transactionData.refundSummary.totalRefunded)}
+											{formatCurrency(saleData.refundSummary.totalRefunded)}
 										</p>
-										{!transactionData.refundSummary.isFullyRefunded && (
+										{!saleData.refundSummary.isFullyRefunded && (
 											<p className={isEBN
 												? "text-[10px] text-blue-600 dark:text-blue-400 mt-0.5"
 												: "text-sm text-blue-600 dark:text-blue-400 mt-1"
 											}>
-												Remaining: {formatCurrency(transactionData.refundSummary.remainingAmount)}
+												Remaining: {formatCurrency(saleData.refundSummary.remainingAmount)}
 											</p>
 										)}
 									</div>
 								</div>
-								{transactionData.refundSummary.isFullyRefunded && (
+								{saleData.refundSummary.isFullyRefunded && (
 									<div className={isEBN
 										? "mt-2 pt-2 border-t border-blue-200 dark:border-blue-700 flex items-center justify-center gap-1"
 										: "mt-3 pt-3 border-t border-blue-200 dark:border-blue-700 flex items-center justify-center gap-2"
@@ -374,21 +446,21 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 						)}
 
 						<SaleItems
-							items={transaction.items || []}
-							hasItems={transactionData.hasItems}
+							items={sale.items || []}
+							hasItems={saleData.hasItems}
 							compact={isEBN}
 						/>
 
 						<SaleSummary
-							subtotal={transaction.subtotal}
-							tax={transaction.tax}
-							discount={transaction.discount}
-							total={transaction.total}
-							paid={transaction.paid}
-							changeAmount={transaction.changeAmount}
-							paymentMethod={transactionData.paymentMethodName}
-							hasTax={transactionData.hasTax}
-							hasDiscount={transactionData.hasDiscount}
+							subtotal={getSubtotal(sale)}
+							tax={getTaxAmount(sale)}
+							discount={getDiscountAmount(sale)}
+							total={getSaleTotal(sale)}
+							paid={getAmountPaid(sale)}
+							changeAmount={sale.changeAmount || 0}
+							paymentMethod={saleData.paymentMethodName}
+							hasTax={saleData.hasTax}
+							hasDiscount={saleData.hasDiscount}
 							compact={isEBN}
 						/>
 
@@ -400,11 +472,11 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 				</div>
 			</Modal>
 
-			{transaction && (
+			{sale && (
 				<InitiateReturnModal
 					isOpen={isReturnModalOpen}
 					onClose={() => setIsReturnModalOpen(false)}
-					transaction={transaction}
+					sale={sale}
 					onSuccess={() => {
 						setIsReturnModalOpen(false);
 					}}

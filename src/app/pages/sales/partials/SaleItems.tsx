@@ -96,8 +96,10 @@ const SaleItems: FunctionComponent<{
     </div>
 );
 
-const ItemRow: FunctionComponent<{ item: CartItem; compact?: boolean }> = ({ item, compact = false }) => {
-    const itemTotal = item.quantity * item.sellPrice;
+const ItemRow: FunctionComponent<{ item: ItemType; compact?: boolean }> = ({ item, compact = false }) => {
+    const itemPrice = getItemPrice(item);
+    const itemTotal = item.quantity * itemPrice;
+    const itemBarcode = getItemBarcode(item);
 
     return (
         <div className={compact
@@ -117,13 +119,13 @@ const ItemRow: FunctionComponent<{ item: CartItem; compact?: boolean }> = ({ ite
                             ? "text-[10px] font-semibold text-gray-900 dark:text-gray-100 truncate"
                             : "font-semibold text-gray-900 dark:text-gray-100 truncate"
                         }>
-                            {item?.productDetails?.name || 'Unknown Product'}
+                            {getItemName(item)}
                         </p>
-                        {!compact && item.barcode && (
+                        {!compact && itemBarcode && (
                             <div className="flex items-center gap-1 mt-1">
                                 <Hash className="w-3 h-3 text-gray-400" />
                                 <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
-                                    {barcode}
+                                    {itemBarcode}
                                 </span>
                             </div>
                         )}
@@ -131,7 +133,7 @@ const ItemRow: FunctionComponent<{ item: CartItem; compact?: boolean }> = ({ ite
                         {!compact && (
                             <div className="flex items-center justify-between mt-2 sm:hidden text-sm">
                                 <span className="text-gray-500 dark:text-gray-400">
-                                    {formatCurrency(item.sellPrice)} × {item.quantity}
+                                    {formatCurrency(itemPrice)} × {item.quantity}
                                 </span>
                                 <span className="font-bold text-gray-900 dark:text-gray-100">
                                     {formatCurrency(itemTotal)}
@@ -160,7 +162,7 @@ const ItemRow: FunctionComponent<{ item: CartItem; compact?: boolean }> = ({ ite
                 ? "col-span-2 flex items-center justify-end text-[10px] text-gray-600 dark:text-gray-400 font-medium"
                 : "hidden sm:flex col-span-2 items-center justify-end text-gray-600 dark:text-gray-400 font-medium text-sm"
             }>
-                {formatCurrency(item.sellPrice)}
+                {formatCurrency(itemPrice)}
             </div>
 
             {/* Total */}
