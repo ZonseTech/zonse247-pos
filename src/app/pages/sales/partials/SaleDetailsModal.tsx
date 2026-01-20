@@ -19,7 +19,7 @@ import { useIsEBN } from '../../../hooks/useMediaQuery';
 
 interface Props {
 	isOpenDetails: boolean;
-	sale: Sale | null;
+	sale: Sale | Transaction | null;
 	setIsOpenDetails: Dispatch<SetStateAction<boolean>>;
 }
 
@@ -476,7 +476,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 				<InitiateReturnModal
 					isOpen={isReturnModalOpen}
 					onClose={() => setIsReturnModalOpen(false)}
-					sale={sale}
+					sale={sale as Sale}
 					onSuccess={() => {
 						setIsReturnModalOpen(false);
 					}}

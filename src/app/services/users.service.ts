@@ -2,7 +2,7 @@ import api from './http.service';
 import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
 
 // Fields to decode for users
-const USER_DECODE_FIELDS: (keyof User)[] = ['fullname', 'username', 'email', 'roleName', 'branchName', 'tenantName'];
+const USER_DECODE_FIELDS = ['fullname', 'username', 'email', 'roleName', 'branchName', 'tenantName'] as const;
 
 const endpoints: Record<string, string> = {
 	all: 'users/list',

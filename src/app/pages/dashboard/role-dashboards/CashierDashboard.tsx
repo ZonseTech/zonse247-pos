@@ -255,7 +255,7 @@ const CashierDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
             </div>
 
             <SaleDetailsModal
-                transaction={transaction}
+                sale={transaction}
                 isOpenDetails={isOpenDetails}
                 setIsOpenDetails={setIsOpenDetails}
             />

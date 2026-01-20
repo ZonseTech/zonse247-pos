@@ -2,7 +2,7 @@ import api from './http.service';
 import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
 
 // Fields to decode for tenants
-const TENANT_DECODE_FIELDS: (keyof Tenant)[] = ['companyName', 'ownerName', 'address', 'city', 'state', 'country'];
+const TENANT_DECODE_FIELDS = ['companyName', 'ownerName', 'address', 'city', 'state', 'country'] as const;
 
 const endpoints: Record<string, string> = {
     all: 'tenants/all',

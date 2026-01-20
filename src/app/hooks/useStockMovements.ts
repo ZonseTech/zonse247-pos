@@ -87,7 +87,7 @@ export const useStockMovements = (productId?: string) => {
             } else {
                 const normalizedMovements = (result.movements || []).map(normalizeMovement);
                 setMovements(normalizedMovements);
-                setTotalRows(result.pagination?.total || result.pagination?.totalItems || 0);
+                setTotalRows(result.pagination?.total || (result.pagination as any)?.totalItems || 0);
             }
         } catch (error: any) {
             Notify.failure(error?.response?.data?.message || 'Failed to load stock movements');

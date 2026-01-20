@@ -134,7 +134,7 @@ const SalesDataTable: FunctionComponent = () => {
             </div>
 
             <SaleDetailsModal
-                transaction={selectedTransaction}
+                sale={selectedTransaction}
                 isOpenDetails={isOpenDetails}
                 setIsOpenDetails={setIsOpenDetails}
             />
