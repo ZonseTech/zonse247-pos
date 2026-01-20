@@ -27,10 +27,10 @@ const TerminalForm: FunctionComponent = () => {
     const { terminalId } = location.state || {};
     const { user: authUser } = useAuth();
 
-    // Check if user can select tenant (only admins and super admins)
+    // Check if user can select tenant (only super admin and admin)
     const canSelectTenant = useMemo(() => {
         if (!authUser?.roleId) return false;
-        const adminRoles = [ROLE_IDS.SUPER_ADMIN, ROLE_IDS.ADMIN, ROLE_IDS.TENANT_OWNER];
+        const adminRoles = [ROLE_IDS.SUPER_ADMIN, ROLE_IDS.ADMIN];
         return adminRoles.includes(authUser.roleId as typeof adminRoles[number]);
     }, [authUser?.roleId]);
 
