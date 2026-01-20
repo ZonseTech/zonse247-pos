@@ -6,6 +6,7 @@ import Footer from '../../components/Footer';
 import BarcodeScanner from './partials/BarcodeScanner';
 import FunctionButtons from './partials/FunctionButtons';
 import ItemLookupModal from './partials/ItemLookupModal';
+import DiscountModal from './partials/DiscountModal';
 import PageHeader from '../../components/page/PageHeader';
 import CustomerSelector from '../customers/partials/CustomerSelector';
 import { useFocusManager } from '../../hooks/useFocusManager';
@@ -33,6 +34,8 @@ const POSSystem: FunctionComponent = () => {
         updateQuantity,
         updateCustomPrice,
         total,
+        subtotal,
+        discount,
         clearCart,
         inventory,
         addToCart
@@ -49,6 +52,7 @@ const POSSystem: FunctionComponent = () => {
     const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
     const [isParkSaleModalOpen, setIsParkSaleModalOpen] = useState(false);
     const [isParkedSalesModalOpen, setIsParkedSalesModalOpen] = useState(false);
+    const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
     const [isFunctionSheetOpen, setIsFunctionSheetOpen] = useState(false);
     const [isMultiplePaymentModalOpen, setIsMultiplePaymentModalOpen] = useState(false);
     const [paymentMethodId, setPaymentMethodId] = useState<PaymentMethod>(CHECKOUT.CASH);
@@ -218,7 +222,10 @@ const POSSystem: FunctionComponent = () => {
     };
 
     const handleDiscount = () => {
-        console.log('Applying discount...');
+        if (cart.length === 0) {
+            return;
+        }
+        setIsDiscountModalOpen(true);
     };
 
     const handleAddToCartFromLookup = (item: InventoryItem) => {
@@ -257,6 +264,15 @@ const POSSystem: FunctionComponent = () => {
                         )}>
                             BALANCE DUE
                         </h1>
+                        {discount > 0 && (
+                            <div className={classNames(
+                                "flex items-center gap-2 mt-1",
+                                isEBN ? "text-xs" : "text-sm lg:text-base"
+                            )}>
+                                <span className="text-gray-500 dark:text-gray-400">Subtotal: MK {subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                <span className="text-green-600 dark:text-green-400 font-semibold">Discount: -MK {discount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            </div>
+                        )}
                     </Panel>
                     <Panel size='1/2' className={classNames(
                         "bg-gray-800 text-green-400/95 text-center font-bold",
@@ -400,9 +416,12 @@ const POSSystem: FunctionComponent = () => {
                             <span className="text-base sm:text-lg font-semibold">
                                 MK {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </span>
-                            <span className="text-xs sm:text-sm text-sky-100">
-                                Total items: {cart.length}
-                            </span>
+                            <div className="flex items-center gap-2 text-xs sm:text-sm text-sky-100">
+                                <span>Items: {cart.length}</span>
+                                {discount > 0 && (
+                                    <span className="text-green-300">• Disc: -MK {discount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                )}
+                            </div>
                         </div>
                     </div>
                     <Button
@@ -509,6 +528,11 @@ const POSSystem: FunctionComponent = () => {
             <MultiplePaymentModal
                 isOpen={isMultiplePaymentModalOpen}
                 onClose={() => setIsMultiplePaymentModalOpen(false)}
+            />
+
+            <DiscountModal
+                isOpen={isDiscountModalOpen}
+                onClose={() => setIsDiscountModalOpen(false)}
             />
         </div>
     );

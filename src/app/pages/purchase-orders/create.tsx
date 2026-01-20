@@ -301,7 +301,7 @@ const PurchaseOrderForm: FunctionComponent = () => {
                                 <div className="flex justify-end gap-3 pt-6 border-t border-gray-300 dark:border-gray-600">
                                     <Button
                                         type="button"
-                                        theme="neutral"
+                                        theme="danger"
                                         onClick={() => navigate(ROUTES.PURCHASE_ORDERS)}
                                         disabled={isSubmitting}
                                     >

@@ -3,6 +3,35 @@ import { Notify } from 'notiflix';
 import { stockMovementService } from '../services';
 import { useSettings } from './useSettings';
 
+/**
+ * Helper to derive movement direction from movement type
+ */
+const getDirectionFromType = (movementType: StockMovementType): StockMovementDirection => {
+    const inTypes: StockMovementType[] = ['PURCHASE_RECEIPT', 'RETURN', 'TRANSFER_IN', 'PRODUCTION'];
+    const outTypes: StockMovementType[] = ['SALE', 'TRANSFER_OUT', 'DAMAGE', 'EXPIRY', 'CONSUMPTION'];
+
+    if (inTypes.includes(movementType)) return 'IN';
+    if (outTypes.includes(movementType)) return 'OUT';
+    return 'ADJUSTMENT';
+};
+
+/**
+ * Normalize API response to match expected StockMovement interface
+ */
+const normalizeMovement = (apiMovement: any): StockMovement => {
+    // Handle nested inventory.product structure from API
+    const product = apiMovement.product || apiMovement.inventory?.product || null;
+
+    return {
+        ...apiMovement,
+        product: product,
+        productId: apiMovement.productId || apiMovement.inventory?.productId || product?.id,
+        direction: apiMovement.direction || getDirectionFromType(apiMovement.movementType),
+        performedBy: apiMovement.performedBy || apiMovement.movedBy,
+        referenceNumber: apiMovement.referenceNumber || apiMovement.notes?.match(/(?:Sale|PO|Transfer)\s+(\S+)/)?.[1],
+    };
+};
+
 export const useStockMovements = (productId?: string) => {
     const { setup } = useSettings();
     const [movements, setMovements] = useState<StockMovement[]>([]);
@@ -53,11 +82,12 @@ export const useStockMovements = (productId?: string) => {
             }
 
             if (Array.isArray(result)) {
-                setMovements(result);
+                setMovements(result.map(normalizeMovement));
                 setTotalRows(result.length);
             } else {
-                setMovements(result.movements || []);
-                setTotalRows(result.pagination?.total || 0);
+                const normalizedMovements = (result.movements || []).map(normalizeMovement);
+                setMovements(normalizedMovements);
+                setTotalRows(result.pagination?.total || result.pagination?.totalItems || 0);
             }
         } catch (error: any) {
             Notify.failure(error?.response?.data?.message || 'Failed to load stock movements');

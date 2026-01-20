@@ -139,20 +139,6 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                     title="Purchase Orders"
                     description="Manage purchase orders and receive inventory"
                     action={
-                        <Button
-                            icon={HiOutlinePlus}
-                            layout={isMobile ? 'outline' : 'primary'}
-                            onClick={handleAddPO}
-                            className="!px-3 sm:!px-4 !py-2 sm:!py-2.5"
-                            theme="primary">
-                            {!isMobile && <span className='hidden md:block'>
-                                New Purchase Order
-                            </span>}
-                        </Button>
-                    }
-                >
-                    {/* Filters Section */}
-                    <div className="p-3 md:p-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
                         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                             <SearchBar
                                 searchTerm={searchTerm}
@@ -203,9 +189,19 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                                     <span>Clear</span>
                                 </button>
                             )}
+                            <Button
+                                icon={HiOutlinePlus}
+                                layout={isMobile ? 'outline' : 'primary'}
+                                onClick={handleAddPO}
+                                className="!px-3 sm:!px-4 !py-2 sm:!py-2.5"
+                                theme="primary">
+                                {!isMobile && <span className='hidden md:block'>
+                                    New Purchase Order
+                                </span>}
+                            </Button>
                         </div>
-                    </div>
-                </PageHeader>
+                    }
+                />
 
                 {/* Main Content Container */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
