@@ -462,6 +462,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 							hasTax={saleData.hasTax}
 							hasDiscount={saleData.hasDiscount}
 							compact={isEBN}
+							payments={sale.payments}
 						/>
 
 						<div className="hidden print:block footer">
