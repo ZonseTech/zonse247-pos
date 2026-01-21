@@ -16,6 +16,28 @@ interface MobileInventoryListProps {
     totalRows: number;
 }
 
+const SkeletonCard: React.FC = () => (
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 animate-pulse">
+        <div className="flex justify-between mb-3">
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32" />
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20" />
+        </div>
+        <div className="flex gap-2 mb-3">
+            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20" />
+            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-24" />
+        </div>
+        <div className="grid grid-cols-2 gap-2 mb-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+            <div className="h-8 bg-gray-200 dark:bg-gray-600 rounded" />
+            <div className="h-8 bg-gray-200 dark:bg-gray-600 rounded" />
+        </div>
+        <div className="flex gap-2">
+            <div className="flex-1 h-10 bg-gray-200 dark:bg-gray-700 rounded" />
+            <div className="flex-1 h-10 bg-gray-200 dark:bg-gray-700 rounded" />
+            <div className="flex-1 h-10 bg-gray-200 dark:bg-gray-700 rounded" />
+        </div>
+    </div>
+);
+
 const MobileInventoryList: React.FC<MobileInventoryListProps> = ({
     data,
     isLoading,
@@ -31,32 +53,20 @@ const MobileInventoryList: React.FC<MobileInventoryListProps> = ({
         return selectedItems.some(selected => selected.productId === item.productId);
     };
 
+    // Show skeleton loading
     if (isLoading && data.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-16">
-                <Loader2 className="h-10 w-10 text-blue-500 animate-spin" />
-                <p className="mt-4 text-gray-500 dark:text-gray-400">Loading inventory...</p>
+            <div className="space-y-3 pb-4">
+                {[1, 2, 3].map((i) => (
+                    <SkeletonCard key={i} />
+                ))}
             </div>
         );
     }
 
+    // Empty state is handled by parent component
     if (data.length === 0) {
-        return (
-            <div className="flex flex-col items-center justify-center py-16 px-4">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-                    <Package className="h-10 w-10 text-gray-400 dark:text-gray-500" />
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100 text-center">
-                    {searchTerm ? 'No matching items' : 'No inventory items yet'}
-                </h3>
-                <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400 max-w-xs">
-                    {searchTerm
-                        ? 'Try adjusting your search terms or clear the search to see all items.'
-                        : 'Get started by adding your first inventory item.'
-                    }
-                </p>
-            </div>
-        );
+        return null;
     }
 
     return (

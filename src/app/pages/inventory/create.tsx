@@ -42,6 +42,7 @@ import {
     isRetryableError,
     InventoryErrorMessages,
     getFriendlyFieldName,
+    getValidationErrorSummary,
 } from '../../utils/api-error-handler';
 
 type FormMode = 'quick' | 'full';
@@ -273,10 +274,24 @@ const InventoryForm: FunctionComponent = () => {
             // Parse the API error
             const parsedError = parseApiError(error);
 
-            // Map field-specific errors to Formik
+            // Map field-specific errors (from data object) to Formik
             const formikErrors = mapErrorToFormikErrors(error);
             if (Object.keys(formikErrors).length > 0) {
                 setErrors(formikErrors);
+            }
+
+            // Show the API message directly
+            const errorSummary = getValidationErrorSummary(error);
+
+            if (errorSummary.hasFieldErrors) {
+                // Show warning with API message - field errors are shown inline
+                Report.warning(
+                    errorSummary.title,
+                    errorSummary.message,
+                    'Okay'
+                );
+                setLoading(false);
+                return;
             }
 
             // Handle specific error types
