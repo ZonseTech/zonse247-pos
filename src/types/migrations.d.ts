@@ -1,111 +1,91 @@
-interface MigrationProgress {
-	table: string;
-	status: 'pending' | 'processing' | 'completed' | 'error';
-	message?: string;
-	details?: string;
-	recordCount?: number;
-	timestamp: string;
+/**
+ * Transaction to Sale Migration Types
+ * 
+ * These types are used for migrating legacy transaction records to the new Sale format.
+ * API Endpoints:
+ * - GET  /sales/migration/status         - Check migration status
+ * - POST /sales/migration/run            - Run migration
+ * - GET  /sales/migration/unified        - Get unified sales data
+ * - GET  /sales/migration/unified/summary - Get unified summary
+ */
+
+/** Migration status response */
+interface MigrationStatus {
+	totalTransactions: number;
+	migratedCount: number;
+	pendingCount: number;
+	failedCount: number;
+	lastMigrationDate?: string;
+	isComplete: boolean;
 }
 
-interface UploadStatus {
-	type: 'success' | 'error';
+/** Configuration for running a migration */
+interface MigrationRunConfig {
+	/** If true, simulates migration without making changes */
+	dryRun?: boolean;
+	/** Number of records to process per batch (default: 100) */
+	batchSize?: number;
+}
+
+/** Result of a migration run */
+interface MigrationRunResult {
+	success: boolean;
 	message: string;
-	data?: MigrationUploadResponse;
+	migratedCount: number;
+	failedCount: number;
+	skippedCount: number;
+	errors?: MigrationError[];
+	dryRun: boolean;
 }
 
-interface MigrationStats {
-	total: number;
-	completed: number;
-	errors: number;
-	progress: number;
-}
-
-interface MigrationUploadResponse {
-	recordCount: number;
-	tableName: string;
-	message: string;
-	columns?: any
-}
-
-interface MigrationProgressItem {
-	table?: string;
-	status: 'completed' | 'error' | 'processing' | 'pending';
-	message?: string;
+/** Migration error details */
+interface MigrationError {
+	id: string;
+	error: string;
 	details?: string;
-	timestamp: string;
-	recordCount?: number;
 }
 
-interface MigrationStats {
-	total: number;
-	completed: number;
-	errors: number;
-	progress?: number;
+/** Query parameters for unified sales data */
+interface UnifiedSalesQuery {
+	page?: number;
+	perPage?: number;
+	startDate?: string;
+	endDate?: string;
+	status?: string;
+	search?: string;
+	includeItems?: boolean;
 }
 
-interface MigrationProgressResponse {
-	progress: MigrationProgressItem[];
-	stats: MigrationStats;
-	completed: boolean;
+/** Response for unified sales data */
+interface UnifiedSalesResponse {
+	sales: (Sale | Transaction)[];
+	pagination: {
+		page: number;
+		perPage: number;
+		total: number;
+		totalPages: number;
+	};
+	source: {
+		salesCount: number;
+		transactionsCount: number;
+	};
 }
 
-interface MigrationStartRequest {
-	fileName: string;
-	tableName: string;
+/** Summary of unified sales data */
+interface UnifiedSummaryResponse {
+	totalSales: number;
+	totalAmount: number;
+	salesFromNewApi: number;
+	salesFromLegacy: number;
+	migrationProgress: number; // percentage
 }
 
-
-
-interface UploadedFile {
-	path: string;
-	originalname: string;
-	size: number;
-	mimetype: string;
-}
-
-interface TColumnMapping {
-	dbColumn: string;
-	recordColumn: string;
-}
-
-interface MigrationRecord {
-	uuid?: string;
-	_id?: string;
-	synced?: number;
-	createdAt?: any;
-	updatedAt?: any;
-	created_at?: string;
-	updated_at?: string;
-	[key: string]: any;
-}
-
-interface MappingConfig {
-	columnMappings: ColumnMapping[];
-	outputFileName?: string;
-	format?: "json" | "csv"
-}
-
-interface MappingConfigRequest {
-	columnMappings: Array<{
-		sourceColumn: string;
-		targetColumn: string;
-	}>;
-	outputFileName?: string;
-	format?: 'json' | 'csv';
-}
-
-interface MappingResult {
-	data?: any;
-	success?: boolean;
-	message?: string;
-	outputFile?: string;
-	recordCount?: number;
-	columnMappings?: any;
-	outputFileName?: any;
-	format?: any;
-}
-
-interface ColumnMapping {
-	sourceColumn: string;
-	targetColumn: string;
+/** Status mapping from legacy transaction status to new sale status */
+interface TransactionStatusToSaleStatusMap {
+	completed: 'COMPLETED';
+	pending: 'PENDING';
+	failed: 'VOIDED';
+	cancelled: 'VOIDED';
+	refunded: 'RETURNED';
+	void: 'VOIDED';
 }
