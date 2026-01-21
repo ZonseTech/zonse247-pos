@@ -125,7 +125,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
         )}>
             <div className={classNames(
                 "bg-white dark:bg-gray-800 rounded-none shadow-xl w-full flex flex-col overflow-hidden border border-gray-200 dark:border-gray-700",
-                isEBN ? "max-w-4xl max-h-[98vh]" : "max-w-6xl max-h-[90vh]"
+                isEBN ? "max-w-5xl h-[98vh]" : "max-w-6xl max-h-[90vh]"
             )}>
                 <div className={classNames(
                     "flex items-center justify-between bg-slate-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700",
@@ -179,8 +179,8 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                 </div>
 
                 <div className={classNames(
-                    "flex-1 overflow-auto bg-white dark:bg-gray-800",
-                    showVirtualKeyboard && (isEBN ? "max-h-32" : "max-h-60")
+                    "flex-1 overflow-auto bg-white dark:bg-gray-800 min-h-0",
+                    showVirtualKeyboard && (isEBN ? "max-h-48" : "max-h-60")
                 )}>
                     {filteredItems.length > 0 ? (
                         <div className="divide-y divide-gray-100 dark:divide-gray-700">

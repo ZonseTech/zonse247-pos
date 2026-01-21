@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Package, PackageCheck, PackageX, Clock, TrendingDown, AlertTriangle } from "lucide-react";
-import { useIsMobile } from '../../../hooks/useMediaQuery';
+import { useIsMobile, useIsEBN } from '../../../hooks/useMediaQuery';
 
 interface StockStatusFilterProps {
 	selectedStatus: string;
@@ -19,6 +19,7 @@ const statusOptions: Array<{ value: string; label: string; icon: any; color: str
 
 export const StockStatusFilter: FC<StockStatusFilterProps> = ({ selectedStatus, onChange, compact = false }) => {
 	const isMobile = useIsMobile();
+	const isEBN = useIsEBN();
 
 	const getColorClasses = (status: string, isSelected: boolean) => {
 		const baseClasses = "transition-all duration-200";
@@ -82,36 +83,34 @@ export const StockStatusFilter: FC<StockStatusFilterProps> = ({ selectedStatus, 
 		);
 	}
 
-	// Desktop: render as button group
+	// EBN/Desktop: render as button group
 	return (
-		<div className={compact ? "flex flex-wrap items-center gap-1" : "flex flex-wrap items-center gap-2"}>
-			<span className={compact
-				? "text-[10px] font-medium text-gray-700 dark:text-gray-300 mr-0.5"
-				: "text-sm font-medium text-gray-700 dark:text-gray-300 mr-1"
-			}>Stock:</span>
-			{statusOptions.map((option) => {
-				const Icon = option.icon;
-				const isSelected = selectedStatus === option.value;
+		<div className="flex flex-wrap items-center gap-2">
+			<span className={`text-sm font-medium text-gray-700 dark:text-gray-300 mr-1 ${isEBN ? 'text-xs' : ''}`}>
+				Stock:
+			</span>
+			<div className={`flex items-center gap-1.5 overflow-x-auto ${isEBN ? 'scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600' : ''}`}>
+				{statusOptions.map((option) => {
+					const Icon = option.icon;
+					const isSelected = selectedStatus === option.value;
 
-				return (
-					<button
-						key={option.value}
-						onClick={() => onChange(option.value)}
-						className={`
-                            ${compact
-								? "flex items-center gap-1 px-2 py-1 rounded-md text-xs border"
-								: "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border"
-							}
-                            font-medium
-                            ${getColorClasses(option.color, isSelected)}
-                        `}
-					>
-						<Icon className={compact ? "w-3 h-3" : "w-4 h-4"} />
-						<span className="hidden sm:inline">{option.label}</span>
-						<span className="sm:hidden">{option.label.split(' ')[0]}</span>
-					</button>
-				);
-			})}
+					return (
+						<button
+							key={option.value}
+							onClick={() => onChange(option.value)}
+							className={`
+								flex items-center gap-1.5 
+								${isEBN ? 'px-2 py-1 text-xs' : 'px-2.5 py-1.5 text-sm'}
+								rounded-lg border font-medium whitespace-nowrap
+								${getColorClasses(option.color, isSelected)}
+							`}
+						>
+							<Icon className={isEBN ? "w-3 h-3" : "w-4 h-4"} />
+							<span>{option.label}</span>
+						</button>
+					);
+				})}
+			</div>
 		</div>
 	);
 };

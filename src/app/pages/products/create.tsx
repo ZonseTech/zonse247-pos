@@ -589,7 +589,7 @@ const ProductForm: FunctionComponent = () => {
                                     <div className="flex gap-3">
                                         <Button
                                             type="button"
-                                            theme="neutral"
+                                            theme="danger"
                                             onClick={() => navigate(ROUTES.PRODUCTS)}
                                             disabled={isSubmitting || loading}
                                             className="min-w-[100px]"
