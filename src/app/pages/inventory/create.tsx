@@ -34,15 +34,8 @@ import CameraBarcodeScanner from '../../components/scanner/CameraBarcodeScanner'
 import { type ScannerResult } from '../../services/barcode-scanner.service';
 import { useScannerFeedback } from '../../hooks/useScannerSettings';
 import {
-    parseApiError,
-    getErrorMessage,
     mapErrorToFormikErrors,
-    isDuplicateError,
-    isValidationError,
-    isRetryableError,
     InventoryErrorMessages,
-    getFriendlyFieldName,
-    getValidationErrorSummary,
 } from '../../utils/api-error-handler';
 
 type FormMode = 'quick' | 'full';
@@ -68,11 +61,15 @@ const InventoryForm: FunctionComponent = () => {
                 try {
                     const itemData = await inventoryService.show(productId);
                     setItem(itemData);
-                } catch (error: unknown) {
+                } catch (error: any) {
                     console.error('Error fetching inventory item:', error);
-                    const parsedError = parseApiError(error);
 
-                    if (parsedError.statusCode === 404) {
+                    const responseData = error?.error?.response?.data || error?.response?.data;
+                    const statusCode = error?.error?.response?.status || error?.response?.status;
+                    const mainMessage = responseData?.message || 'Failed to fetch inventory item';
+                    const detailedError = responseData?.error;
+
+                    if (statusCode === 404) {
                         Report.failure(
                             'Item Not Found',
                             'The inventory item you are trying to edit was not found.',
@@ -80,7 +77,10 @@ const InventoryForm: FunctionComponent = () => {
                             () => navigate(ROUTES.INVENTORY)
                         );
                     } else {
-                        Notify.failure(parsedError.message);
+                        const fullErrorMessage = detailedError
+                            ? `${mainMessage}:\n${detailedError}`
+                            : mainMessage;
+                        Notify.failure(fullErrorMessage);
                     }
                 } finally {
                     setLoading(false);
@@ -268,86 +268,43 @@ const InventoryForm: FunctionComponent = () => {
                     }
                 );
             }
-        } catch (error: unknown) {
+        } catch (error: any) {
             console.error('Error saving inventory item:', error);
 
-            // Parse the API error
-            const parsedError = parseApiError(error);
+            // Extract error messages from axios response
+            // API can return: 
+            // { success: false, message: "...", error: "detailed error" }
+            // { success: false, message: "...", data: { fieldName: "error message" } }
+            const responseData = error?.error?.response?.data || error?.response?.data;
+            const mainMessage = responseData?.message || 'Failed to save inventory item';
+            const detailedError = responseData?.error;
+            const fieldErrors = responseData?.data;
 
-            // Map field-specific errors (from data object) to Formik
-            const formikErrors = mapErrorToFormikErrors(error);
-            if (Object.keys(formikErrors).length > 0) {
-                setErrors(formikErrors);
+            // Format field errors from data object if present
+            let fieldErrorsMessage = '';
+            if (fieldErrors && typeof fieldErrors === 'object' && !Array.isArray(fieldErrors)) {
+                fieldErrorsMessage = Object.entries(fieldErrors)
+                    .map(([field, message]) => `• ${field}: ${message}`)
+                    .join('\n');
+                // Also set Formik errors for inline display
+                setErrors(fieldErrors as Record<string, string>);
             }
 
-            // Show the API message directly
-            const errorSummary = getValidationErrorSummary(error);
-
-            if (errorSummary.hasFieldErrors) {
-                // Show warning with API message - field errors are shown inline
-                Report.warning(
-                    errorSummary.title,
-                    errorSummary.message,
-                    'Okay'
-                );
-                setLoading(false);
-                return;
+            // Build full error message
+            let fullErrorMessage = mainMessage;
+            if (detailedError) {
+                fullErrorMessage += `:\n${detailedError}`;
+            } else if (fieldErrorsMessage) {
+                fullErrorMessage += `:\n${fieldErrorsMessage}`;
+            } else if (!responseData) {
+                fullErrorMessage = error?.message || 'An unknown error occurred';
             }
 
-            // Handle specific error types
-            if (isDuplicateError(error)) {
-                // Handle duplicate barcode or SKU
-                if (parsedError.field?.toLowerCase().includes('barcode')) {
-                    setFieldError('barcode', parsedError.message);
-                    Report.warning(
-                        'Duplicate Barcode',
-                        parsedError.message,
-                        'Okay'
-                    );
-                } else if (parsedError.field?.toLowerCase().includes('sku')) {
-                    setFieldError('sku', parsedError.message);
-                    Report.warning(
-                        'Duplicate SKU',
-                        parsedError.message,
-                        'Okay'
-                    );
-                } else {
-                    Report.warning(
-                        'Duplicate Entry',
-                        parsedError.message,
-                        'Okay'
-                    );
-                }
-            } else if (isValidationError(error)) {
-                // Handle validation errors
-                Report.failure(
-                    'Validation Error',
-                    parsedError.message,
-                    'Okay'
-                );
-            } else if (isRetryableError(error)) {
-                // Handle retryable errors (network, timeout, etc.)
-                Confirm.show(
-                    'Operation Failed',
-                    `${parsedError.message} Would you like to try again?`,
-                    'Retry',
-                    'Cancel',
-                    async () => {
-                        // Retry the submission
-                        await handleSubmit(values, { resetForm, setErrors, setFieldError } as FormikHelpers<Partial<InventoryItem>>);
-                    },
-                    () => {
-                        // User cancelled
-                    }
-                );
-            } else {
-                // Generic error
-                Report.failure(
-                    'Error',
-                    parsedError.message,
-                    'Okay'
-                );
-            }
+            Report.failure(
+                'Error',
+                fullErrorMessage,
+                'Okay'
+            );
         } finally {
             setLoading(false);
         }

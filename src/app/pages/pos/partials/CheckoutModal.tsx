@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import { Report } from 'notiflix';
 import { Form, Formik, } from 'formik';
 import { createPortal } from 'react-dom';
 import EPayment from './EPayment';
@@ -201,9 +202,41 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
             setCompletedSale(completedSaleData);
             setShowCompleteModal(true);
 
-        } catch (error) {
-            console.error('Sale failed:', error);
+        } catch (error: any) {
             setProcessing(false);
+
+            // Extract error messages from axios response
+            // API can return: 
+            // { success: false, message: "...", error: "detailed error" }
+            // { success: false, message: "...", data: { fieldName: "error message" } }
+            const responseData = error?.error?.response?.data || error?.response?.data;
+            const mainMessage = responseData?.message || 'Failed to complete sale';
+            const detailedError = responseData?.error;
+            const fieldErrors = responseData?.data;
+
+            // Format field errors from data object if present
+            let fieldErrorsMessage = '';
+            if (fieldErrors && typeof fieldErrors === 'object' && !Array.isArray(fieldErrors)) {
+                fieldErrorsMessage = Object.entries(fieldErrors)
+                    .map(([field, message]) => `• ${field}: ${message}`)
+                    .join('\n');
+            }
+
+            // Build full error message
+            let fullErrorMessage = mainMessage;
+            if (detailedError) {
+                fullErrorMessage += `:\n${detailedError}`;
+            } else if (fieldErrorsMessage) {
+                fullErrorMessage += `:\n${fieldErrorsMessage}`;
+            } else if (!responseData) {
+                fullErrorMessage = error?.message || 'An unknown error occurred';
+            }
+
+            Report.failure(
+                'Transaction Failed',
+                fullErrorMessage,
+                'Okay'
+            );
         }
     };
 

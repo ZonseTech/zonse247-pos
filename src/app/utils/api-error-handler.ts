@@ -219,7 +219,6 @@ function parseForeignKeyField(error: any): string {
  * Parse API error response
  */
 export function parseApiError(error: unknown): ParsedApiError {
-	// Default error structure
 	const defaultError: ParsedApiError = {
 		message: 'An unexpected error occurred. Please try again.',
 		code: ApiErrorCode.UNKNOWN_ERROR,
@@ -232,7 +231,6 @@ export function parseApiError(error: unknown): ParsedApiError {
 		return defaultError;
 	}
 
-	// Handle Axios-like error response
 	const axiosError = error as any;
 	const responseData = axiosError?.response?.data;
 	const statusCode = axiosError?.response?.status || 500;

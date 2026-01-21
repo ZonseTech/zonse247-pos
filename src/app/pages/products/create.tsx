@@ -31,16 +31,9 @@ import CameraBarcodeScanner from '../../components/scanner/CameraBarcodeScanner'
 import { type ScannerResult } from '../../services/barcode-scanner.service';
 import { useScannerFeedback } from '../../hooks/useScannerSettings';
 import {
-    parseApiError,
-    getErrorMessage,
-    mapErrorToFormikErrors,
-    isDuplicateError,
-    isValidationError,
-    isRetryableError,
-    isNotFoundError,
-    ProductErrorMessages,
     InventoryErrorMessages,
-    getFriendlyFieldName,
+    parseApiError,
+    ProductErrorMessages,
 } from '../../utils/api-error-handler';
 
 const ProductForm: FunctionComponent = () => {
@@ -258,91 +251,43 @@ const ProductForm: FunctionComponent = () => {
                     navigate(ROUTES.PRODUCTS);
                 });
             }
-        } catch (error: unknown) {
+        } catch (error: any) {
             console.error('Submit error:', error);
 
-            // Parse the API error
-            const parsedError = parseApiError(error);
+            // Extract error messages from axios response
+            // API can return: 
+            // { success: false, message: "...", error: "detailed error" }
+            // { success: false, message: "...", data: { fieldName: "error message" } }
+            const responseData = error?.error?.response?.data || error?.response?.data;
+            const mainMessage = responseData?.message || 'Failed to save product';
+            const detailedError = responseData?.error;
+            const fieldErrors = responseData?.data;
 
-            // Map field-specific errors to Formik
-            const formikErrors = mapErrorToFormikErrors(error);
-            if (Object.keys(formikErrors).length > 0) {
-                setErrors(formikErrors);
+            // Format field errors from data object if present
+            let fieldErrorsMessage = '';
+            if (fieldErrors && typeof fieldErrors === 'object' && !Array.isArray(fieldErrors)) {
+                fieldErrorsMessage = Object.entries(fieldErrors)
+                    .map(([field, message]) => `• ${field}: ${message}`)
+                    .join('\n');
+                // Also set Formik errors for inline display
+                setErrors(fieldErrors as Record<string, string>);
             }
 
-            // Handle specific error types
-            if (isDuplicateError(error)) {
-                const fieldName = parsedError.field?.toLowerCase() || '';
-
-                if (fieldName.includes('sku')) {
-                    setFieldError('sku', ProductErrorMessages.SKU_EXISTS(values.sku));
-                    Report.warning(
-                        'Duplicate SKU',
-                        ProductErrorMessages.SKU_EXISTS(values.sku),
-                        'Okay'
-                    );
-                } else if (fieldName.includes('barcode')) {
-                    setFieldError('primaryBarcode', parsedError.message);
-                    Report.warning(
-                        'Duplicate Barcode',
-                        parsedError.message,
-                        'Okay'
-                    );
-                } else {
-                    Report.warning(
-                        'Duplicate Entry',
-                        parsedError.message,
-                        'Okay'
-                    );
-                }
-            } else if (isNotFoundError(error)) {
-                // Handle not found (e.g., category doesn't exist)
-                const fieldName = parsedError.field?.toLowerCase() || '';
-
-                if (fieldName.includes('category')) {
-                    setFieldError('categoryId', ProductErrorMessages.CATEGORY_NOT_FOUND(values.categoryId));
-                    Report.failure(
-                        'Category Not Found',
-                        ProductErrorMessages.CATEGORY_NOT_FOUND(values.categoryId),
-                        'Okay'
-                    );
-                } else {
-                    Report.failure(
-                        'Not Found',
-                        parsedError.message,
-                        'Okay'
-                    );
-                }
-            } else if (isValidationError(error)) {
-                // Handle validation errors
-                Report.failure(
-                    'Validation Error',
-                    parsedError.message,
-                    'Okay'
-                );
-            } else if (isRetryableError(error)) {
-                // Handle retryable errors (network, timeout, etc.)
-                Confirm.show(
-                    'Operation Failed',
-                    `${parsedError.message} Would you like to try again?`,
-                    'Retry',
-                    'Cancel',
-                    async () => {
-                        // Retry the submission
-                        await handleSubmit(values, { resetForm, setErrors, setFieldError } as FormikHelpers<typeof defaultProductValues>);
-                    },
-                    () => {
-                        // User cancelled
-                    }
-                );
-            } else {
-                // Generic error
-                Report.failure(
-                    'Error',
-                    parsedError.message,
-                    'Okay'
-                );
+            // Build full error message
+            let fullErrorMessage = mainMessage;
+            if (detailedError) {
+                fullErrorMessage += `:\n${detailedError}`;
+            } else if (fieldErrorsMessage) {
+                fullErrorMessage += `:\n${fieldErrorsMessage}`;
+            } else if (!responseData) {
+                fullErrorMessage = error?.message || 'An unknown error occurred';
             }
+
+            Report.failure(
+                'Error',
+                fullErrorMessage,
+                'Okay'
+            );
         } finally {
             setLoading(false);
         }
