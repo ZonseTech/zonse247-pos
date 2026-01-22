@@ -30,18 +30,18 @@ const GeneralSettings = () => {
                 General Settings
             </h2>
 
-            <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex items-start gap-3">
-                <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <div className="mb-4 p-4 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-lg flex items-start gap-3">
+                <Info className="w-5 h-5 text-sky-600 dark:text-sky-400 flex-shrink-0 mt-0.5" />
                 <div>
-                    <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                    <p className="text-sm font-medium text-sky-900 dark:text-sky-100">
                         Information
                     </p>
-                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                    <p className="text-sm text-sky-700 dark:text-sky-300 mt-1">
                         These settings are managed at the branch level. To update this information, please{' '}
                         <button
                             type="button"
                             onClick={handleEditBranch}
-                            className="font-semibold underline hover:text-blue-900 dark:hover:text-blue-100 transition-colors"
+                            className="font-semibold underline hover:text-sky-900 dark:hover:text-sky-100 transition-colors"
                         >
                             edit the branch details
                         </button>.

@@ -95,7 +95,7 @@ export const getSaleTableColumns = ({
                 name: "Paid",
                 selector: (row) => row.paid || 0,
                 cell: (row) => (
-                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                    <span className="text-xs text-sky-600 dark:text-sky-400 font-medium">
                         {formatCurrency(row.paid || 0)}
                     </span>
                 ),
@@ -151,7 +151,7 @@ export const getSaleTableColumns = ({
                         <div className="flex gap-0.5">
                             <button
                                 onClick={() => onViewDetails(row)}
-                                className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/50 rounded transition-colors duration-200"
+                                className="p-1 text-sky-600 hover:text-sky-800 hover:bg-sky-50 dark:hover:bg-sky-900/50 rounded transition-colors duration-200"
                                 title="View Details"
                             >
                                 <HiOutlineEye className='w-3.5 h-3.5' />
@@ -214,7 +214,7 @@ export const getSaleTableColumns = ({
             name: "Paid",
             selector: (row) => getAmountPaid(row),
             cell: (row) => (
-                <span className="text-blue-600 dark:text-blue-400 font-medium">
+                <span className="text-sky-600 dark:text-sky-400 font-medium">
                     {formatCurrency(getAmountPaid(row))}
                 </span>
             ),
@@ -253,8 +253,8 @@ export const getSaleTableColumns = ({
             selector: (row) => row.user?.fullname || row.user?.email || '-',
             cell: (row) => (
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                        <span className="text-xs font-medium text-blue-600 dark:text-blue-300">
+                    <div className="w-6 h-6 bg-sky-100 dark:bg-sky-900 rounded-full flex items-center justify-center">
+                        <span className="text-xs font-medium text-sky-600 dark:text-sky-300">
                             {(row.user?.fullname || row.user?.email || '-').charAt(0).toUpperCase()}
                         </span>
                     </div>
@@ -279,7 +279,7 @@ export const getSaleTableColumns = ({
                     <div className="flex gap-1">
                         <button
                             onClick={() => onViewDetails(row)}
-                            className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/50 rounded-md transition-colors duration-200"
+                            className="p-1.5 text-sky-600 hover:text-sky-800 hover:bg-sky-50 dark:hover:bg-sky-900/50 rounded-md transition-colors duration-200"
                             title="View Details"
                         >
                             <HiOutlineEye className='w-4 h-4' />

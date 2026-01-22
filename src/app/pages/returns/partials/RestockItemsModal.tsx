@@ -187,8 +187,8 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
             <div className="flex flex-col max-h-[80vh] sm:max-h-[75vh]">
                 <div className="flex-1 overflow-y-auto px-1 sm:pr-2">
                     {/* Info Banner */}
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
-                        <p className="text-xs sm:text-sm text-blue-800 dark:text-blue-200">
+                    <div className="bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+                        <p className="text-xs sm:text-sm text-sky-800 dark:text-sky-200">
                             Select items to restock and specify quantity. Damaged or defective items cannot be restocked.
                         </p>
                     </div>
@@ -239,7 +239,7 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                                 <div
                                     key={item.returnItemId}
                                     className={`p-3 sm:p-4 border rounded-lg transition-all ${isSelected
-                                        ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                                        ? 'border-sky-500 dark:border-sky-400 bg-sky-50 dark:bg-sky-900/20'
                                         : 'border-gray-200 dark:border-gray-700'
                                         } ${!canRestock ? 'opacity-60' : ''}`}
                                 >
@@ -250,7 +250,7 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                                                 checked={isSelected}
                                                 onChange={() => handleToggleItem(item.returnItemId)}
                                                 disabled={!canRestock}
-                                                className="mt-0.5 sm:mt-1 w-4 h-4 sm:w-5 sm:h-5 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                                                className="mt-0.5 sm:mt-1 w-4 h-4 sm:w-5 sm:h-5 rounded border-gray-300 dark:border-gray-600 text-sky-600 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                                             />
                                             <div className="flex-1 min-w-0">
                                                 <h4 className="font-medium text-sm sm:text-base truncate">{getProductName(item)}</h4>
@@ -260,7 +260,7 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                                                         className={`px-2 py-0.5 rounded-full text-xs ${item.condition === 'excellent'
                                                             ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
                                                             : item.condition === 'good'
-                                                                ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                                                                ? 'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300'
                                                                 : item.condition === 'fair'
                                                                     ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
                                                                     : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
@@ -301,7 +301,7 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                                                             parseInt(e.target.value) || 1
                                                         )
                                                     }
-                                                    className="w-full sm:w-32 p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 text-sm"
+                                                    className="w-full sm:w-32 p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-sky-500 text-sm"
                                                 />
                                                 <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                                                     of {item.returnedQuantity} available

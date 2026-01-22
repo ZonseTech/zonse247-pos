@@ -40,7 +40,7 @@ const UserMobileCard: FC<UserMobileCardProps> = ({
         <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-start gap-3">
                 {/* Avatar */}
-                {/* <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
+                {/* <div className="w-12 h-12 bg-gradient-to-br from-sky-500 to-sky-600 rounded-full flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
                     {getInitials(user.fullname || user.username || '')}
                 </div> */}
 
@@ -84,7 +84,7 @@ const UserMobileCard: FC<UserMobileCardProps> = ({
                     <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                         <button
                             onClick={() => onEdit(user)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
                         >
                             <Edit2 className="w-4 h-4" />
                             <span>Edit</span>

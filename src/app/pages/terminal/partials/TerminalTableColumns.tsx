@@ -25,7 +25,7 @@ const TerminalActions: FunctionComponent<TerminalActionsProps> = ({
             {/* Sync Button */}
             <button
                 onClick={() => onSync(terminal.terminalId)}
-                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                 title="Sync terminal"
             >
                 <RefreshCw className="w-4 h-4 transition-transform group-hover:rotate-180 duration-300" />
@@ -62,7 +62,7 @@ const TerminalActions: FunctionComponent<TerminalActionsProps> = ({
             {/* Edit Button */}
             <button
                 onClick={() => onEdit(terminal)}
-                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                 title="Edit terminal"
             >
                 <Edit2 className="w-4 h-4 transition-transform group-hover:scale-110" />
@@ -219,7 +219,7 @@ export const getTerminalColumns = (
                         </div>
                         {row.lastSync && (
                             <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                                <RefreshCw className="w-3 h-3 mr-1 text-blue-500 dark:text-blue-400" />
+                                <RefreshCw className="w-3 h-3 mr-1 text-sky-500 dark:text-sky-400" />
                                 Synced: {formatDate(row.lastSync)}
                             </div>
                         )}

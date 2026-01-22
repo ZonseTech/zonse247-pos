@@ -118,7 +118,7 @@ const ViewRecordsModal: FunctionComponent<ViewRecordsModalProps> = ({
                                 placeholder="Search records..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2.5 bg-slate-100 dark:bg-slate-700 border-0 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-blue-500"
+                                className="w-full pl-10 pr-4 py-2.5 bg-slate-100 dark:bg-slate-700 border-0 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-sky-500"
                             />
                         </div>
                     </div>
@@ -127,7 +127,7 @@ const ViewRecordsModal: FunctionComponent<ViewRecordsModalProps> = ({
                     <div className="flex-1 overflow-auto p-4">
                         {isLoading ? (
                             <div className="flex items-center justify-center py-12">
-                                <HiOutlineRefresh className="w-8 h-8 text-blue-500 animate-spin" />
+                                <HiOutlineRefresh className="w-8 h-8 text-sky-500 animate-spin" />
                             </div>
                         ) : filteredRecords.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-12 text-slate-400 dark:text-slate-500">

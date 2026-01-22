@@ -18,7 +18,7 @@ export const DetailActions: React.FC<DetailActionsProps> = ({
     <div className="flex items-center space-x-2">
         <button
             onClick={() => onView(detail.detailId)}
-            className="p-1 rounded transition-colors text-blue-600 hover:text-blue-800"
+            className="p-1 rounded transition-colors text-sky-600 hover:text-sky-800"
             title="View details"
         >
             <Eye className="w-4 h-4" />
@@ -54,8 +54,8 @@ export const getDetailColumns = (
             cell: (row) => (
                 <Fragment>
                     <div className="flex items-center">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <Building2 className="w-5 h-5 text-blue-600" />
+                        <div className="w-10 h-10 bg-sky-100 rounded-full flex items-center justify-center">
+                            <Building2 className="w-5 h-5 text-sky-600" />
                         </div>
                         <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900 dark:text-gray-100">

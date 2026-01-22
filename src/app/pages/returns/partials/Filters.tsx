@@ -77,8 +77,8 @@ const Filters: React.FC<FiltersProps> = ({ summaryData, activeFilter, onClear, c
                         bg-white dark:bg-gray-800 
                         text-gray-700 dark:text-gray-200
                         border border-gray-300 dark:border-gray-600
-                        focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
-                        focus:border-blue-500 dark:focus:border-blue-400
+                        focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400
+                        focus:border-sky-500 dark:focus:border-sky-400
                         transition-colors"
                 >
                     {summaryData.map((filter, idx) => {
@@ -121,7 +121,7 @@ const Filters: React.FC<FiltersProps> = ({ summaryData, activeFilter, onClear, c
                             rounded-md ${compact ? 'text-[10px]' : 'text-sm'} font-medium whitespace-nowrap
                             transition-all duration-200 border
                             ${isActive
-                                ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-800'
+                                ? 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-900/50 dark:text-sky-200 dark:border-sky-800'
                                 : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700'
                             }
                         `}
@@ -131,7 +131,7 @@ const Filters: React.FC<FiltersProps> = ({ summaryData, activeFilter, onClear, c
                         <span className={`
                             ${compact ? 'px-1 text-[9px]' : 'px-1.5 text-xs'} rounded font-medium
                             ${isActive
-                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100'
+                                ? 'bg-sky-100 text-sky-800 dark:bg-sky-800 dark:text-sky-100'
                                 : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
                             }
                         `}>

@@ -45,14 +45,14 @@ const BackupSettings = () => {
                         placeholder="Enter backup server URL"
                     />
 
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                    <div className="p-4 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800">
                         <div className="flex gap-3">
-                            <HiOutlineCommandLine className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                            <HiOutlineCommandLine className="w-5 h-5 text-sky-600 dark:text-sky-400 flex-shrink-0 mt-0.5" />
                             <div>
-                                <p className="text-sm font-medium text-blue-900 dark:text-blue-300">
+                                <p className="text-sm font-medium text-sky-900 dark:text-sky-300">
                                     Last Backup
                                 </p>
-                                <p className="text-sm text-blue-700 dark:text-blue-400 mt-1">
+                                <p className="text-sm text-sky-700 dark:text-sky-400 mt-1">
                                     2024-01-15 at 02:30 AM
                                 </p>
                             </div>

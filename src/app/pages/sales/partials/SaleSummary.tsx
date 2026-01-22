@@ -11,7 +11,7 @@ const getPaymentIcon = (methodName: string, compact: boolean = false) => {
         return <Banknote className={`${iconClass} text-green-500`} />;
     }
     if (lowerName.includes('card') || lowerName.includes('credit') || lowerName.includes('debit')) {
-        return <CreditCard className={`${iconClass} text-blue-500`} />;
+        return <CreditCard className={`${iconClass} text-sky-500`} />;
     }
     if (lowerName.includes('mobile') || lowerName.includes('mpesa') || lowerName.includes('airtel')) {
         return <Smartphone className={`${iconClass} text-purple-500`} />;
@@ -34,8 +34,8 @@ const SummaryRow: FunctionComponent<{
     const variantStyles = {
         default: '',
         highlight: compact
-            ? 'bg-blue-50/50 dark:bg-blue-900/20 -mx-2 px-2 py-1 rounded'
-            : 'bg-blue-50/50 dark:bg-blue-900/20 -mx-4 px-4 py-2 rounded-lg',
+            ? 'bg-sky-50/50 dark:bg-sky-900/20 -mx-2 px-2 py-1 rounded'
+            : 'bg-sky-50/50 dark:bg-sky-900/20 -mx-4 px-4 py-2 rounded-lg',
         success: '',
         warning: ''
     };
@@ -92,8 +92,8 @@ const SaleSummary: FunctionComponent<{
                     Payment Summary
                     {hasMultiplePayments && (
                         <span className={compact
-                            ? "ml-1 px-1 py-0.5 text-[8px] bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded"
-                            : "ml-2 px-2 py-0.5 text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full"
+                            ? "ml-1 px-1 py-0.5 text-[8px] bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300 rounded"
+                            : "ml-2 px-2 py-0.5 text-xs bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300 rounded-full"
                         }>
                             Split Payment
                         </span>

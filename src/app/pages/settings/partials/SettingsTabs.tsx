@@ -34,7 +34,7 @@ const SettingsTabs: React.FC<SettingsTabsProps> = ({ tabs, activeTab, setActiveT
                         className="w-full flex items-center justify-between py-4 border-b border-gray-200 dark:border-gray-700"
                     >
                         <div className="flex items-center gap-2">
-                            {ActiveIcon && <ActiveIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />}
+                            {ActiveIcon && <ActiveIcon className="w-5 h-5 text-sky-600 dark:text-sky-400" />}
                             <span className="font-medium text-gray-900 dark:text-white">
                                 {activeTabData?.label}
                             </span>
@@ -54,8 +54,8 @@ const SettingsTabs: React.FC<SettingsTabsProps> = ({ tabs, activeTab, setActiveT
                                         key={id}
                                         onClick={() => handleTabSelect(id)}
                                         className={`w-full flex items-center gap-3 py-3 px-3 rounded-lg transition-colors ${activeTab === id
-                                                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                                                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                            ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                                             }`}
                                     >
                                         <Icon className="w-5 h-5" />
@@ -74,8 +74,8 @@ const SettingsTabs: React.FC<SettingsTabsProps> = ({ tabs, activeTab, setActiveT
                             key={id}
                             onClick={() => setActiveTab(id as 'general' | 'sales' | 'security' | 'backup')}
                             className={`py-4 px-2 lg:px-3 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === id
-                                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                                    : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                ? 'border-sky-500 text-sky-600 dark:text-sky-400'
+                                : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                                 }`}
                         >
                             <Icon className="w-5 h-5" />

@@ -31,7 +31,7 @@ export const StatusFilter: FC<StatusFilterProps> = ({ selectedStatus, onChange, 
                 green: "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700",
                 yellow: "bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700",
                 red: "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700",
-                blue: "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700",
+                blue: "bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 border-sky-300 dark:border-sky-700",
             };
             return `${baseClasses} ${colors[status as keyof typeof colors]}`;
         }
@@ -60,8 +60,8 @@ export const StatusFilter: FC<StatusFilterProps> = ({ selectedStatus, onChange, 
                             bg-white dark:bg-gray-800 
                             text-gray-700 dark:text-gray-200
                             border border-gray-300 dark:border-gray-600
-                            focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
-                            focus:border-blue-500 dark:focus:border-blue-400
+                            focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400
+                            focus:border-sky-500 dark:focus:border-sky-400
                             transition-colors"
                     >
                         {statusOptions.map((option) => (

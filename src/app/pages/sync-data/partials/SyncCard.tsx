@@ -56,7 +56,7 @@ const SyncCard: FunctionComponent<SyncCardProps> = ({
 			case 'error':
 				return `${baseClasses} bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400`
 			case 'syncing':
-				return `${baseClasses} bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400`
+				return `${baseClasses} bg-sky-100 dark:bg-sky-900/30 text-sky-800 dark:text-sky-400`
 			default:
 				return `${baseClasses} bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400`
 		}
@@ -105,7 +105,7 @@ const SyncCard: FunctionComponent<SyncCardProps> = ({
 					<button
 						onClick={() => handleAction(table.id, 'pull')}
 						disabled={loadingStates[`${table.id}-pull`]}
-						className='flex-1 flex items-center justify-center p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-sm transition-colors duration-200'>
+						className='flex-1 flex items-center justify-center p-2 bg-sky-600 hover:bg-sky-700 disabled:bg-sky-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-sm transition-colors duration-200'>
 						{loadingStates[`${table.id}-pull`] ? (
 							<HiOutlineRefresh className='w-4 h-4 animate-spin' />
 						) : (

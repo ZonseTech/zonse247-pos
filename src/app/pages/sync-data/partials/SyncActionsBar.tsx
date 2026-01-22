@@ -54,7 +54,7 @@ const SyncActionsBar: FunctionComponent<SyncActionsBarProps> = ({
                     <button
                         onClick={onPullAll}
                         disabled={isBulkSyncing}
-                        className="inline-flex items-center gap-1.5 px-3 py-2 bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 bg-sky-100 dark:bg-sky-900/30 hover:bg-sky-200 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-400 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isLoading['bulk-pull'] ? (
                             <HiOutlineRefresh className="w-4 h-4 animate-spin" />
@@ -132,13 +132,13 @@ const SyncActionsBar: FunctionComponent<SyncActionsBarProps> = ({
                         <span className="text-slate-600 dark:text-slate-400">
                             Syncing {tables.filter(t => t.status === 'syncing').length} of {tables.length} tables...
                         </span>
-                        <span className="text-blue-600 dark:text-blue-400 font-medium">
+                        <span className="text-sky-600 dark:text-sky-400 font-medium">
                             {Math.round((tables.filter(t => t.status === 'synced').length / tables.length) * 100)}%
                         </span>
                     </div>
                     <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                         <div
-                            className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300"
+                            className="h-full rounded-full bg-gradient-to-r from-sky-500 to-indigo-500 transition-all duration-300"
                             style={{
                                 width: `${(tables.filter(t => t.status === 'synced').length / tables.length) * 100}%`
                             }}

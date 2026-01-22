@@ -38,7 +38,7 @@ const SyncTableCard: FunctionComponent<SyncTableCardProps> = ({
     const getStatusColor = (status: SyncStatus) => {
         const colors = {
             idle: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400',
-            syncing: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+            syncing: 'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400',
             synced: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
             pending: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
             error: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
@@ -83,7 +83,7 @@ const SyncTableCard: FunctionComponent<SyncTableCardProps> = ({
             <div className="p-4 border-b border-slate-100 dark:border-slate-700">
                 <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-sm">
+                        <div className="p-2.5 bg-gradient-to-br from-sky-500 to-indigo-600 rounded-lg shadow-sm">
                             <HiOutlineDatabase className="w-5 h-5 text-white" />
                         </div>
                         <div>
@@ -136,8 +136,8 @@ const SyncTableCard: FunctionComponent<SyncTableCardProps> = ({
                     <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                         <div
                             className={`h-full rounded-full transition-all duration-500 ${syncProgress === 100
-                                    ? 'bg-gradient-to-r from-green-500 to-emerald-500'
-                                    : 'bg-gradient-to-r from-blue-500 to-indigo-500'
+                                ? 'bg-gradient-to-r from-green-500 to-emerald-500'
+                                : 'bg-gradient-to-r from-sky-500 to-indigo-500'
                                 }`}
                             style={{ width: `${syncProgress}%` }}
                         />
@@ -163,7 +163,7 @@ const SyncTableCard: FunctionComponent<SyncTableCardProps> = ({
                     <button
                         onClick={() => onPull(table.name)}
                         disabled={isSyncing}
-                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-sky-600 hover:bg-sky-700 disabled:bg-sky-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
                     >
                         {isLoading[`${table.name}-pull`] ? (
                             <HiOutlineRefresh className="w-4 h-4 animate-spin" />

@@ -52,7 +52,7 @@ const SaleHeader: FunctionComponent<{
             ? "text-[9px] font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2 flex items-center gap-1"
             : "text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2"
         }>
-            <span className={compact ? "w-0.5 h-3 bg-blue-500 rounded-full" : "w-1 h-4 bg-blue-500 rounded-full"}></span>
+            <span className={compact ? "w-0.5 h-3 bg-sky-500 rounded-full" : "w-1 h-4 bg-sky-500 rounded-full"}></span>
             Transaction Information
         </h4>
 

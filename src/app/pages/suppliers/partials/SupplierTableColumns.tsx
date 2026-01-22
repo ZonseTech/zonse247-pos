@@ -116,7 +116,7 @@ export const getSupplierTableColumns = ({
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => onEdit(row.id)}
-                        className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                        className="p-2 text-sky-600 hover:text-sky-800 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
                         title="Edit supplier"
                     >
                         <Pencil className="w-4 h-4" />

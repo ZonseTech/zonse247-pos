@@ -33,7 +33,7 @@ export const PaymentMethodFilter: FC<PaymentMethodFilterProps> = ({
         const baseClasses = "transition-all duration-200";
 
         if (isSelected) {
-            return `${baseClasses} bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700`;
+            return `${baseClasses} bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 border-sky-300 dark:border-sky-700`;
         }
 
         return `${baseClasses} bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50`;
@@ -98,8 +98,8 @@ export const PaymentMethodFilter: FC<PaymentMethodFilterProps> = ({
                             bg-white dark:bg-gray-800 
                             text-gray-700 dark:text-gray-200
                             border border-gray-300 dark:border-gray-600
-                            focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
-                            focus:border-blue-500 dark:focus:border-blue-400
+                            focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400
+                            focus:border-sky-500 dark:focus:border-sky-400
                             transition-colors"
                     >
                         <option value="all" className="bg-white dark:bg-gray-800">

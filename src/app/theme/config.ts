@@ -7,14 +7,14 @@ export default {
         danger: 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400',
         warning: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400',
         neutral: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
-        info: 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400',
+        info: 'bg-sky-100 text-sky-700 dark:bg-sky-900/20 dark:text-sky-400',
         icon: {
             base: 'h-5 w-5',
             success: 'text-green-700 dark:text-green-400',
             danger: 'text-red-700 dark:text-red-400',
             warning: 'text-yellow-700 dark:text-yellow-400',
             neutral: 'text-gray-500 dark:text-gray-400',
-            info: 'text-blue-700 dark:text-blue-400',
+            info: 'text-sky-700 dark:text-sky-400',
         },
     },
     // Pagination
@@ -89,7 +89,7 @@ export default {
         danger: 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-900/20',
         warning: 'text-orange-700 bg-orange-100 dark:text-orange-400 dark:bg-orange-900/20',
         neutral: 'text-gray-700 bg-gray-100 dark:text-gray-300 dark:bg-gray-700',
-        primary: 'text-blue-700 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/20',
+        primary: 'text-sky-700 bg-sky-100 dark:text-sky-400 dark:bg-sky-900/20',
     },
     // Backdrop
     backdrop: {
@@ -106,7 +106,7 @@ export default {
     // Select
     select: {
         base: 'block w-full text-sm focus:outline-none rounded-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100',
-        active: 'focus:border-blue-400 dark:focus:border-blue-500 border-gray-300 dark:border-gray-600 focus:ring-1 focus:ring-blue-300 dark:focus:ring-blue-800',
+        active: 'focus:border-sky-400 dark:focus:border-sky-500 border-gray-300 dark:border-gray-600 focus:ring-1 focus:ring-sky-300 dark:focus:ring-sky-800',
         select: 'leading-5',
         disabled: 'cursor-not-allowed opacity-50 bg-gray-300 dark:bg-gray-700',
         valid: 'border-green-600 dark:border-green-500 focus:border-green-400 focus:ring-1 focus:ring-green-200 dark:focus:ring-green-800',
@@ -125,8 +125,8 @@ export default {
         disabled: 'cursor-not-allowed opacity-50 bg-gray-300 dark:bg-gray-700',
         valid: 'border-green-600 dark:border-green-500 focus:border-green-400 focus:ring-1 focus:ring-green-200 dark:focus:ring-green-800',
         invalid: 'border-red-600 dark:border-red-500 focus:border-red-400 focus:ring-1 focus:ring-red-200 dark:focus:ring-red-800',
-        radio: 'text-blue-600 dark:text-blue-500 form-radio focus:border-gray-400 dark:focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-700 focus:ring-offset-0 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600',
-        checkbox: 'text-blue-600 dark:text-blue-500 form-checkbox focus:border-gray-400 dark:focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-700 focus:ring-offset-0 rounded bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600',
+        radio: 'text-sky-600 dark:text-sky-500 form-radio focus:border-gray-400 dark:focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-700 focus:ring-offset-0 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600',
+        checkbox: 'text-sky-600 dark:text-sky-500 form-checkbox focus:border-gray-400 dark:focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-700 focus:ring-offset-0 rounded bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600',
     },
     // HelperText
     helperText: {
@@ -164,7 +164,7 @@ export default {
             danger: 'text-white bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600',
             warning: 'text-white bg-orange-600 dark:bg-orange-700 hover:bg-orange-700 dark:hover:bg-orange-600',
             neutral: 'text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 hover:border-gray-400 dark:hover:border-gray-500 active:bg-gray-300 dark:active:bg-gray-500',
-            primary: '',
+            primary: 'bg-sky-600 dark:bg-sky-700 hover:bg-sky-700 dark:hover:bg-sky-600',
         },
         // styles applied to the SVG icon
         icon: {
@@ -176,8 +176,8 @@ export default {
             right: 'ml-2 -mr-1',
         },
         primary: {
-            base: 'text-white dark:text-gray-100 bg-blue-600 dark:bg-blue-700 border border-transparent',
-            active: 'active:bg-blue-700 dark:active:bg-blue-800 hover:bg-blue-700 dark:hover:bg-blue-600 focus:ring-1 focus:ring-blue-300 dark:focus:ring-blue-800',
+            base: 'text-white dark:text-gray-100 border border-transparent',
+            active: 'active:bg-sky-700 dark:active:bg-sky-800 focus:ring-1 focus:ring-sky-300 dark:focus:ring-sky-800',
             disabled: 'opacity-50 cursor-not-allowed',
         },
         outline: {

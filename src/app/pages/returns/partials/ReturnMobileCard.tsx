@@ -84,7 +84,7 @@ const ReturnMobileCard: React.FC<ReturnMobileCardProps> = ({
             <div className="grid grid-cols-3 gap-1.5 mb-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                 <div className="text-center">
                     <p className="text-[9px] text-gray-500 dark:text-gray-400 mb-0.5">Refund</p>
-                    <p className="font-bold text-blue-600 dark:text-blue-400 text-xs">
+                    <p className="font-bold text-sky-600 dark:text-sky-400 text-xs">
                         {formatCurrency(returnData.refundAmount || 0)}
                     </p>
                 </div>
@@ -109,8 +109,8 @@ const ReturnMobileCard: React.FC<ReturnMobileCardProps> = ({
                     <span className="truncate">{returnData.originalSale?.saleNumber || returnData.originalTransaction?.refNumber || '-'}</span>
                 </div>
                 <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <div className="w-5 h-5 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center">
-                        <User className="w-2.5 h-2.5 text-blue-600 dark:text-blue-300" />
+                    <div className="w-5 h-5 bg-sky-100 dark:bg-sky-900/50 rounded-full flex items-center justify-center">
+                        <User className="w-2.5 h-2.5 text-sky-600 dark:text-sky-300" />
                     </div>
                     <span className="text-[10px] text-gray-600 dark:text-gray-300 max-w-[80px] truncate">
                         {returnData.originalSale?.customer?.name || returnData.originalTransaction?.customer?.name || 'Walk-in'}
@@ -122,7 +122,7 @@ const ReturnMobileCard: React.FC<ReturnMobileCardProps> = ({
             <div className="flex items-center gap-1.5">
                 <button
                     onClick={() => onViewDetails(returnData)}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 active:bg-blue-200 dark:active:bg-blue-900/70 rounded-lg transition-colors duration-150"
+                    className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs font-medium text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-900/30 hover:bg-sky-100 dark:hover:bg-sky-900/50 active:bg-sky-200 dark:active:bg-sky-900/70 rounded-lg transition-colors duration-150"
                 >
                     <HiOutlineEye className="w-4 h-4" />
                     <span>View</span>

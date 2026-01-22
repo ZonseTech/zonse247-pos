@@ -50,8 +50,8 @@ const SaleItems: FunctionComponent<{
                 Items
             </h4>
             <span className={compact
-                ? "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded-full text-[8px] font-semibold"
-                : "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full text-xs font-semibold"
+                ? "bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 px-1.5 py-0.5 rounded-full text-[8px] font-semibold"
+                : "bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 px-3 py-1 rounded-full text-xs font-semibold"
             }>
                 {items.length} item{items.length !== 1 ? 's' : ''}
             </span>

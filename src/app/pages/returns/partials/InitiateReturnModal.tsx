@@ -320,7 +320,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                                                     parseInt(e.target.value) || 1
                                                                 )
                                                             }
-                                                            className="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2"
+                                                            className="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm px-3 py-2"
                                                         />
                                                     </div>
 
@@ -337,7 +337,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                                                     e.target.value
                                                                 )
                                                             }
-                                                            className="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2"
+                                                            className="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm px-3 py-2"
                                                         >
                                                             <option value="">Select a reason</option>
                                                             {returnReasonOptions.map((option) => (
@@ -361,7 +361,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                                                     e.target.value as ReturnCondition
                                                                 )
                                                             }
-                                                            className="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2"
+                                                            className="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm px-3 py-2"
                                                         >
                                                             {conditionOptions.map((option) => (
                                                                 <option key={option.value} value={option.value}>
@@ -386,7 +386,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                                                     e.target.value
                                                                 )
                                                             }
-                                                            className="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2"
+                                                            className="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm px-3 py-2"
                                                         />
                                                     </div>
                                                 </div>
@@ -414,10 +414,10 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                             required
                                         />
 
-                                        <div className={`${isEBN ? 'p-2' : 'p-3 sm:p-4'} bg-blue-50 dark:bg-blue-900/20 rounded-lg`}>
+                                        <div className={`${isEBN ? 'p-2' : 'p-3 sm:p-4'} bg-sky-50 dark:bg-sky-900/20 rounded-lg`}>
                                             <div className={`flex items-center justify-between ${isEBN ? 'text-sm' : 'text-base sm:text-lg'} font-semibold`}>
                                                 <span>Total Refund:</span>
-                                                <span className="text-blue-600 dark:text-blue-400">
+                                                <span className="text-sky-600 dark:text-sky-400">
                                                     {formatCurrency(refundAmount)}
                                                 </span>
                                             </div>

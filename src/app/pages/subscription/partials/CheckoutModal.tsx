@@ -66,7 +66,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
             <div className="bg-white rounded-2xl max-w-3xl w-full shadow-2xl my-8">
-                <div className="relative rounded-t-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 text-white px-8 pt-6 pb-0.5">
+                <div className="relative rounded-t-2xl bg-gradient-to-br from-sky-600 via-sky-700 to-indigo-700 text-white px-8 pt-6 pb-0.5">
                     <button
                         onClick={onClose}
                         className="absolute top-6 right-6 text-white/80 hover:text-white transition-colors"
@@ -79,7 +79,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                         <h2 className="text-3xl font-bold mb-2">
                             {isFreePlan ? 'Get Started Free' : `Subscribe to ${selectedPlan.name} Plan`}
                         </h2>
-                        <p className="text-blue-100 text-lg">
+                        <p className="text-sky-100 text-lg">
                             {isFreePlan ? 'No credit card required' : `${getPrice(selectedPlan)}/${billingCycle === 'monthly' ? 'mo' : 'yr'}`}
                         </p>
                     </div>
@@ -141,7 +141,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
                     {currentStep === steps.length && (
                         <div className="space-y-6 animate-fadeIn">
-                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+                            <div className="bg-gradient-to-br from-sky-50 to-indigo-50 rounded-xl p-6 border border-sky-200">
                                 <h4 className="font-semibold text-gray-900 mb-4">Subscription Details</h4>
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center">
@@ -154,9 +154,9 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                                                 <span className="text-gray-600">Billing Cycle:</span>
                                                 <span className="font-semibold text-gray-900 capitalize">{billingCycle}</span>
                                             </div>
-                                            <div className="flex justify-between items-center pt-3 border-t border-blue-200">
+                                            <div className="flex justify-between items-center pt-3 border-t border-sky-200">
                                                 <span className="text-gray-600">Amount:</span>
-                                                <span className="text-2xl font-bold text-blue-600">
+                                                <span className="text-2xl font-bold text-sky-600">
                                                     {getPrice(selectedPlan)}
                                                     <span className="text-sm text-gray-600">/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>
                                                 </span>
@@ -220,7 +220,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                             type="submit"
                             disabled={!canProceed()}
                             className={`flex items-center gap-2 px-8 py-3 font-semibold transition-all ${canProceed()
-                                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-none'
+                                ? 'bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white shadow-none'
                                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                 }`}
                         >

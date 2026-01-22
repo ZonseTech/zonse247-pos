@@ -42,7 +42,7 @@ const getStatusStyles = (status: SaleStatus | TransactionStatus | undefined) => 
             return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
         case 'refunded':
         case 'returned':
-            return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
+            return 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300';
         default:
             return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
     }
@@ -94,7 +94,7 @@ const SaleMobileCard: React.FC<SaleMobileCardProps> = ({
                 </div>
                 <div className="text-center border-x border-gray-200 dark:border-gray-600">
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Paid</p>
-                    <p className="font-semibold text-blue-600 dark:text-blue-400 text-sm">
+                    <p className="font-semibold text-sky-600 dark:text-sky-400 text-sm">
                         {formatCurrency(getAmountPaid(transaction))}
                     </p>
                 </div>
@@ -120,8 +120,8 @@ const SaleMobileCard: React.FC<SaleMobileCardProps> = ({
 
             {/* Cashier */}
             <div className="flex items-center gap-2 mb-3 pb-3 border-b border-gray-100 dark:border-gray-700">
-                <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center flex-shrink-0">
-                    <User className="w-3 h-3 text-blue-600 dark:text-blue-300" />
+                <div className="w-6 h-6 bg-sky-100 dark:bg-sky-900/50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <User className="w-3 h-3 text-sky-600 dark:text-sky-300" />
                 </div>
                 <span className="text-xs text-gray-600 dark:text-gray-300 truncate">
                     {transaction.user?.fullname || transaction.user?.email || 'Unknown Cashier'}
@@ -132,7 +132,7 @@ const SaleMobileCard: React.FC<SaleMobileCardProps> = ({
             <div className="flex items-center gap-2">
                 <button
                     onClick={() => onViewDetails(transaction)}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors duration-200"
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-900/30 hover:bg-sky-100 dark:hover:bg-sky-900/50 rounded-lg transition-colors duration-200"
                 >
                     <HiOutlineEye className="w-4 h-4" />
                     <span>View Details</span>

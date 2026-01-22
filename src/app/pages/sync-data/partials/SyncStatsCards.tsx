@@ -28,8 +28,8 @@ const SyncStatsCards: FunctionComponent<SyncStatsCardsProps> = ({ tables, autoSy
             value: totalTables,
             icon: HiOutlineDatabase,
             color: 'blue',
-            bgGradient: 'from-blue-500 to-indigo-600',
-            lightBg: 'bg-blue-50 dark:bg-blue-900/20',
+            bgGradient: 'from-sky-500 to-indigo-600',
+            lightBg: 'bg-sky-50 dark:bg-sky-900/20',
         },
         {
             label: 'Synced',
@@ -88,16 +88,16 @@ const SyncStatsCards: FunctionComponent<SyncStatsCardsProps> = ({ tables, autoSy
                 <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                            <HiOutlineChartBar className="w-5 h-5 text-blue-500" />
+                            <HiOutlineChartBar className="w-5 h-5 text-sky-500" />
                             Overall Sync Progress
                         </h3>
-                        <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        <span className="text-2xl font-bold text-sky-600 dark:text-sky-400">
                             {syncPercentage}%
                         </span>
                     </div>
                     <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden mb-3">
                         <div
-                            className="h-full rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 transition-all duration-700"
+                            className="h-full rounded-full bg-gradient-to-r from-sky-500 via-indigo-500 to-violet-500 transition-all duration-700"
                             style={{ width: `${syncPercentage}%` }}
                         />
                     </div>
@@ -120,8 +120,8 @@ const SyncStatsCards: FunctionComponent<SyncStatsCardsProps> = ({ tables, autoSy
                             Auto-Sync Status
                         </h3>
                         <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${autoSyncStatus?.isRunning
-                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                                : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                            : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
                             }`}>
                             {autoSyncStatus?.isRunning ? 'Running' : 'Stopped'}
                         </span>

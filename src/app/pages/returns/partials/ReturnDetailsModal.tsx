@@ -48,7 +48,7 @@ const getRestockStatusBadge = (status: RestockStatus) => {
 const getConditionBadge = (condition: ReturnCondition) => {
     const colors = {
         excellent: 'text-emerald-700 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-900/30',
-        good: 'text-blue-700 bg-blue-50 dark:text-blue-300 dark:bg-blue-900/30',
+        good: 'text-sky-700 bg-sky-50 dark:text-sky-300 dark:bg-sky-900/30',
         fair: 'text-amber-700 bg-amber-50 dark:text-amber-300 dark:bg-amber-900/30',
         damaged: 'text-red-700 bg-red-50 dark:text-red-300 dark:bg-red-900/30',
         defective: 'text-purple-700 bg-purple-50 dark:text-purple-300 dark:bg-purple-900/30',
@@ -140,7 +140,7 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
         >
             <div className={`${isEBN ? 'max-h-[70vh]' : 'max-h-[80vh] sm:max-h-[75vh]'} overflow-y-auto px-1 sm:pr-2`}>
                 {/* Return Header */}
-                <div className={`bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl ${isEBN ? 'p-2 mb-2' : 'p-4 sm:p-6 mb-4 sm:mb-6'} border border-blue-100 dark:border-blue-800`}>
+                <div className={`bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-sky-900/20 dark:to-indigo-900/20 rounded-xl ${isEBN ? 'p-2 mb-2' : 'p-4 sm:p-6 mb-4 sm:mb-6'} border border-sky-100 dark:border-sky-800`}>
                     <div className={`grid grid-cols-2 ${isEBN ? 'gap-2' : 'gap-4 sm:gap-6'}`}>
                         <div>
                             <h3 className={`${isEBN ? 'text-[10px]' : 'text-xs sm:text-sm'} font-medium text-gray-600 dark:text-gray-400 mb-0.5`}>
@@ -166,7 +166,7 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
                         </div>
                     </div>
 
-                    <div className={`grid grid-cols-3 ${isEBN ? 'gap-2 mt-2 pt-2' : 'gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6'} border-t border-blue-200 dark:border-blue-800`}>
+                    <div className={`grid grid-cols-3 ${isEBN ? 'gap-2 mt-2 pt-2' : 'gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6'} border-t border-sky-200 dark:border-sky-800`}>
                         <div>
                             <p className={`${isEBN ? 'text-[10px]' : 'text-xs sm:text-sm'} text-gray-600 dark:text-gray-400`}>Customer</p>
                             <p className={`font-medium ${isEBN ? 'text-[11px]' : 'text-sm sm:text-base'} text-gray-900 dark:text-white truncate`}>
@@ -216,7 +216,7 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
                                                 </p>
                                             )}
                                         </div>
-                                        <span className="font-medium text-sm text-blue-600 dark:text-blue-400 ml-2">
+                                        <span className="font-medium text-sm text-sky-600 dark:text-sky-400 ml-2">
                                             {formatCurrency(parseNumber(item.returnPrice))}
                                         </span>
                                     </div>
@@ -346,7 +346,7 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
 
                         <div className={`flex justify-between items-center ${isEBN ? 'pt-1' : 'pt-2 sm:pt-3'} border-t-2 border-gray-300 dark:border-gray-600`}>
                             <span className={`${isEBN ? 'text-xs' : 'text-base sm:text-lg'} font-semibold`}>Total Refund:</span>
-                            <span className={`${isEBN ? 'text-sm' : 'text-xl sm:text-2xl'} font-bold text-blue-600 dark:text-blue-400`}>
+                            <span className={`${isEBN ? 'text-sm' : 'text-xl sm:text-2xl'} font-bold text-sky-600 dark:text-sky-400`}>
                                 {formatCurrency(returnData.refundAmount)}
                             </span>
                         </div>

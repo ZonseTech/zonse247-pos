@@ -65,7 +65,7 @@ const ConfigureTableModal: FunctionComponent<ConfigureTableModalProps> = ({
                     {/* Header */}
                     <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                            <div className="p-2 bg-gradient-to-br from-sky-500 to-indigo-600 rounded-lg">
                                 <HiOutlineCog className="w-5 h-5 text-white" />
                             </div>
                             <div>
@@ -102,8 +102,8 @@ const ConfigureTableModal: FunctionComponent<ConfigureTableModalProps> = ({
                                         key={option.value}
                                         onClick={() => setConfig({ ...config, syncDirection: option.value as SyncDirection })}
                                         className={`flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-all ${config.syncDirection === option.value
-                                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
-                                                : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 text-slate-600 dark:text-slate-400'
+                                            ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400'
+                                            : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 text-slate-600 dark:text-slate-400'
                                             }`}
                                     >
                                         <option.icon className="w-5 h-5" />
@@ -129,8 +129,8 @@ const ConfigureTableModal: FunctionComponent<ConfigureTableModalProps> = ({
                             <button
                                 onClick={() => setConfig({ ...config, autoSyncEnabled: !config.autoSyncEnabled })}
                                 className={`relative w-12 h-6 rounded-full transition-colors ${config.autoSyncEnabled
-                                        ? 'bg-blue-600'
-                                        : 'bg-slate-300 dark:bg-slate-600'
+                                    ? 'bg-sky-600'
+                                    : 'bg-slate-300 dark:bg-slate-600'
                                     }`}
                             >
                                 <span
@@ -150,7 +150,7 @@ const ConfigureTableModal: FunctionComponent<ConfigureTableModalProps> = ({
                                 <select
                                     value={config.syncInterval}
                                     onChange={(e) => setConfig({ ...config, syncInterval: Number(e.target.value) })}
-                                    className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                                 >
                                     <option value={5}>Every 5 minutes</option>
                                     <option value={15}>Every 15 minutes</option>
@@ -172,7 +172,7 @@ const ConfigureTableModal: FunctionComponent<ConfigureTableModalProps> = ({
                             <select
                                 value={config.conflictResolution}
                                 onChange={(e) => setConfig({ ...config, conflictResolution: e.target.value as TableConfig['conflictResolution'] })}
-                                className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                             >
                                 <option value="server_wins">Server wins (Remote overwrites local)</option>
                                 <option value="client_wins">Client wins (Local overwrites remote)</option>
@@ -192,7 +192,7 @@ const ConfigureTableModal: FunctionComponent<ConfigureTableModalProps> = ({
                                 max="10"
                                 value={config.priority}
                                 onChange={(e) => setConfig({ ...config, priority: Number(e.target.value) })}
-                                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-600"
                             />
                             <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
                                 <span>Low</span>
@@ -213,7 +213,7 @@ const ConfigureTableModal: FunctionComponent<ConfigureTableModalProps> = ({
                         <button
                             onClick={handleSave}
                             disabled={isLoading}
-                            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed rounded-lg transition-colors flex items-center gap-2"
+                            className="px-4 py-2 text-sm font-medium text-white bg-sky-600 hover:bg-sky-700 disabled:bg-sky-400 disabled:cursor-not-allowed rounded-lg transition-colors flex items-center gap-2"
                         >
                             {isLoading && <HiOutlineRefresh className="w-4 h-4 animate-spin" />}
                             Save Configuration

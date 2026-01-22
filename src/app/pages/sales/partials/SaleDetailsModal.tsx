@@ -56,14 +56,14 @@ const statusConfig: Record<string, { icon: typeof CheckCircle; color: string; bg
 	},
 	refunded: {
 		icon: RotateCcw,
-		color: 'text-blue-600 dark:text-blue-400',
-		bgColor: 'bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800/50',
+		color: 'text-sky-600 dark:text-sky-400',
+		bgColor: 'bg-sky-50 dark:bg-sky-950/50 border-sky-200 dark:border-sky-800/50',
 		label: 'Refunded'
 	},
 	RETURNED: {
 		icon: RotateCcw,
-		color: 'text-blue-600 dark:text-blue-400',
-		bgColor: 'bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800/50',
+		color: 'text-sky-600 dark:text-sky-400',
+		bgColor: 'bg-sky-50 dark:bg-sky-950/50 border-sky-200 dark:border-sky-800/50',
 		label: 'Returned'
 	},
 	failed: {
@@ -259,8 +259,8 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 			: "flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900"
 		}>
 			<div className={isEBN ? "flex items-center gap-2" : "flex items-center gap-4"}>
-				<div className={isEBN ? "p-1.5 bg-blue-100 dark:bg-blue-900/50 rounded-lg" : "p-2.5 bg-blue-100 dark:bg-blue-900/50 rounded-xl"}>
-					<Receipt className={isEBN ? "w-4 h-4 text-blue-600 dark:text-blue-400" : "w-6 h-6 text-blue-600 dark:text-blue-400"} />
+				<div className={isEBN ? "p-1.5 bg-sky-100 dark:bg-sky-900/50 rounded-lg" : "p-2.5 bg-sky-100 dark:bg-sky-900/50 rounded-xl"}>
+					<Receipt className={isEBN ? "w-4 h-4 text-sky-600 dark:text-sky-400" : "w-6 h-6 text-sky-600 dark:text-sky-400"} />
 				</div>
 				<div>
 					<div className="flex items-center gap-2">
@@ -382,24 +382,24 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 
 						{saleData.refundSummary.hasRefunds && (
 							<div className={isEBN
-								? "p-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
-								: "p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl"
+								? "p-2 bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-sky-900/20 dark:to-indigo-900/20 border border-sky-200 dark:border-sky-800 rounded-lg"
+								: "p-4 bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-sky-900/20 dark:to-indigo-900/20 border border-sky-200 dark:border-sky-800 rounded-xl"
 							}>
 								<div className="flex items-start justify-between gap-2">
 									<div className="flex items-start gap-2">
-										<div className={isEBN ? "p-1 bg-blue-100 dark:bg-blue-800/50 rounded mt-0.5" : "p-2 bg-blue-100 dark:bg-blue-800/50 rounded-lg mt-0.5"}>
-											<RotateCcw className={isEBN ? "w-3 h-3 text-blue-600 dark:text-blue-400" : "w-5 h-5 text-blue-600 dark:text-blue-400"} />
+										<div className={isEBN ? "p-1 bg-sky-100 dark:bg-sky-800/50 rounded mt-0.5" : "p-2 bg-sky-100 dark:bg-sky-800/50 rounded-lg mt-0.5"}>
+											<RotateCcw className={isEBN ? "w-3 h-3 text-sky-600 dark:text-sky-400" : "w-5 h-5 text-sky-600 dark:text-sky-400"} />
 										</div>
 										<div>
 											<h4 className={isEBN
-												? "text-xs font-semibold text-blue-900 dark:text-blue-100"
-												: "font-semibold text-blue-900 dark:text-blue-100"
+												? "text-xs font-semibold text-sky-900 dark:text-sky-100"
+												: "font-semibold text-sky-900 dark:text-sky-100"
 											}>
 												Refund Information
 											</h4>
 											<p className={isEBN
-												? "text-[10px] text-blue-700 dark:text-blue-300 mt-0.5"
-												: "text-sm text-blue-700 dark:text-blue-300 mt-0.5"
+												? "text-[10px] text-sky-700 dark:text-sky-300 mt-0.5"
+												: "text-sm text-sky-700 dark:text-sky-300 mt-0.5"
 											}>
 												{saleData.refundSummary.refundCount} refund{saleData.refundSummary.refundCount !== 1 ? 's' : ''} processed
 											</p>
@@ -407,21 +407,21 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 									</div>
 									<div className="text-right">
 										<p className={isEBN
-											? "text-[8px] text-blue-600 dark:text-blue-400 uppercase font-medium tracking-wider"
-											: "text-xs text-blue-600 dark:text-blue-400 uppercase font-medium tracking-wider"
+											? "text-[8px] text-sky-600 dark:text-sky-400 uppercase font-medium tracking-wider"
+											: "text-xs text-sky-600 dark:text-sky-400 uppercase font-medium tracking-wider"
 										}>
 											Total Refunded
 										</p>
 										<p className={isEBN
-											? "text-sm font-bold text-blue-900 dark:text-blue-100"
-											: "text-2xl font-bold text-blue-900 dark:text-blue-100"
+											? "text-sm font-bold text-sky-900 dark:text-sky-100"
+											: "text-2xl font-bold text-sky-900 dark:text-sky-100"
 										}>
 											{formatCurrency(saleData.refundSummary.totalRefunded)}
 										</p>
 										{!saleData.refundSummary.isFullyRefunded && (
 											<p className={isEBN
-												? "text-[10px] text-blue-600 dark:text-blue-400 mt-0.5"
-												: "text-sm text-blue-600 dark:text-blue-400 mt-1"
+												? "text-[10px] text-sky-600 dark:text-sky-400 mt-0.5"
+												: "text-sm text-sky-600 dark:text-sky-400 mt-1"
 											}>
 												Remaining: {formatCurrency(saleData.refundSummary.remainingAmount)}
 											</p>
@@ -430,13 +430,13 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 								</div>
 								{saleData.refundSummary.isFullyRefunded && (
 									<div className={isEBN
-										? "mt-2 pt-2 border-t border-blue-200 dark:border-blue-700 flex items-center justify-center gap-1"
-										: "mt-3 pt-3 border-t border-blue-200 dark:border-blue-700 flex items-center justify-center gap-2"
+										? "mt-2 pt-2 border-t border-sky-200 dark:border-sky-700 flex items-center justify-center gap-1"
+										: "mt-3 pt-3 border-t border-sky-200 dark:border-sky-700 flex items-center justify-center gap-2"
 									}>
-										<CheckCircle className={isEBN ? "w-3 h-3 text-blue-600 dark:text-blue-400" : "w-4 h-4 text-blue-600 dark:text-blue-400"} />
+										<CheckCircle className={isEBN ? "w-3 h-3 text-sky-600 dark:text-sky-400" : "w-4 h-4 text-sky-600 dark:text-sky-400"} />
 										<span className={isEBN
-											? "text-[10px] font-medium text-blue-800 dark:text-blue-200"
-											: "text-sm font-medium text-blue-800 dark:text-blue-200"
+											? "text-[10px] font-medium text-sky-800 dark:text-sky-200"
+											: "text-sm font-medium text-sky-800 dark:text-sky-200"
 										}>
 											Fully Refunded
 										</span>

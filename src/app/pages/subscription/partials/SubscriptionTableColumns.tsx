@@ -25,8 +25,8 @@ export const getSubscriptionColumns = (
 			minWidth: "280px",
 			cell: (row) => (
 				<div className="flex items-center gap-3 py-2">
-					<div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 transition-all duration-200">
-						<CreditCard className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+					<div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-sky-50 to-indigo-50 dark:from-sky-900/20 dark:to-indigo-900/20 transition-all duration-200">
+						<CreditCard className="h-5 w-5 text-sky-600 dark:text-sky-400" />
 					</div>
 					<div className="min-w-0 flex-1">
 						<div className="flex items-center gap-2">

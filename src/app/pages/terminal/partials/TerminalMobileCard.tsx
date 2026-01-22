@@ -115,7 +115,7 @@ const TerminalMobileCard: FC<TerminalMobileCardProps> = ({
                     <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex-wrap">
                         <button
                             onClick={() => onSync(terminal.terminalId)}
-                            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
                         >
                             <RefreshCw className="w-4 h-4" />
                             <span>Sync</span>
@@ -123,8 +123,8 @@ const TerminalMobileCard: FC<TerminalMobileCardProps> = ({
                         <button
                             onClick={() => onSetPrimary(terminal.terminalId, terminal.branchId)}
                             className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm transition-colors ${terminal.isPrimary
-                                    ? 'text-yellow-600 dark:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20'
-                                    : 'text-gray-600 dark:text-gray-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20'
+                                ? 'text-yellow-600 dark:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20'
+                                : 'text-gray-600 dark:text-gray-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20'
                                 }`}
                         >
                             <Star className={`w-4 h-4 ${terminal.isPrimary ? 'fill-current' : ''}`} />
@@ -132,8 +132,8 @@ const TerminalMobileCard: FC<TerminalMobileCardProps> = ({
                         <button
                             onClick={() => onToggleBlock(terminal.terminalId, terminal.isBlocked || false)}
                             className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm transition-colors ${terminal.isBlocked
-                                    ? 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
-                                    : 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                                ? 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
+                                : 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
                                 }`}
                         >
                             {terminal.isBlocked ? <Shield className="w-4 h-4" /> : <ShieldOff className="w-4 h-4" />}
@@ -141,7 +141,7 @@ const TerminalMobileCard: FC<TerminalMobileCardProps> = ({
                         </button>
                         <button
                             onClick={() => onEdit(terminal)}
-                            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
                         >
                             <Edit2 className="w-4 h-4" />
                         </button>

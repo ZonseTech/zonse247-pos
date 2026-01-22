@@ -123,7 +123,7 @@ const SalesDataTable: FunctionComponent = () => {
                             {(searchTerm || startDate) && (
                                 <button
                                     onClick={clearFilters}
-                                    className="mt-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                                    className="mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium"
                                 >
                                     Clear filters
                                 </button>
