@@ -266,13 +266,15 @@ export const Dropdown: FunctionComponent<DropdownOptionProps> = ({
                             <>
                                 {renderSelected ? renderSelected(selectedOption) : defaultRenderSelected(selectedOption)}
                                 {allowClear && !disabled && (
-                                    <button
-                                        type="button"
+                                    <span
+                                        role="button"
+                                        tabIndex={0}
                                         onClick={handleClear}
-                                        className="ml-2 p-1 hover:bg-g-100 dark:hover:bg-g-900/40 rounded transition-colors duration-200"
+                                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClear(e as any); }}
+                                        className="ml-2 p-1 hover:bg-g-100 dark:hover:bg-g-900/40 rounded transition-colors duration-200 cursor-pointer"
                                     >
                                         <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                                    </button>
+                                    </span>
                                 )}
                             </>
                         ) : (
