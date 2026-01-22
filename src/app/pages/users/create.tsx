@@ -227,11 +227,25 @@ const UserForm: FunctionComponent = () => {
         } catch (error: any) {
             console.error('Error saving user:', error);
 
-            // Parse and handle API errors
-            const parsedError = parseApiError(error);
+            // Handle wrapped error (error.error) or direct error
+            const actualError = error?.error || error;
 
+            // Parse and handle API errors
+            const parsedError = parseApiError(actualError);
+            const responseData = actualError?.response?.data;
+
+            // Check for password validation errors with details array
+            if (responseData?.error === 'Password Validation Error' && responseData?.details?.length > 0) {
+                const detailsList = responseData.details.join('\n• ');
+                setErrors({ password: responseData.details[0] });
+                Report.failure(
+                    'Password Validation Error',
+                    `${responseData.message}:\n\n• ${detailsList}`,
+                    'Okay'
+                );
+            }
             // Check for duplicate errors
-            if (isDuplicateError(parsedError.message)) {
+            else if (isDuplicateError(parsedError.message)) {
                 if (parsedError.message.toLowerCase().includes('username')) {
                     setErrors({ username: 'This username is already taken' });
                     Notify.failure('Username already exists');
@@ -272,7 +286,7 @@ const UserForm: FunctionComponent = () => {
                         {/* Section 1 Skeleton */}
                         <div className="mb-8">
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="w-8 h-8 bg-blue-200 dark:bg-blue-900/50 rounded-full animate-pulse" />
+                                <div className="w-8 h-8 bg-sky-200 dark:bg-sky-900/50 rounded-full animate-pulse" />
                                 <div className="h-6 w-40 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 ml-11">
@@ -320,7 +334,7 @@ const UserForm: FunctionComponent = () => {
                         {/* Action Buttons Skeleton */}
                         <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
                             <div className="h-10 w-24 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
-                            <div className="h-10 w-32 bg-blue-200 dark:bg-blue-900/50 rounded-lg animate-pulse" />
+                            <div className="h-10 w-32 bg-sky-200 dark:bg-sky-900/50 rounded-lg animate-pulse" />
                         </div>
                     </div>
                 </div>
@@ -336,7 +350,7 @@ const UserForm: FunctionComponent = () => {
                         <PageHeader
                             title={userId ? 'Edit User' : 'Add User'}
                             description='Required fields are marked with an asterisk (*)'
-                            icon={<UserCog className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600 dark:text-blue-400" />}
+                            icon={<UserCog className="w-7 h-7 sm:w-8 sm:h-8 text-sky-600 dark:text-sky-400" />}
                             action={
                                 <Button
                                     type="button"
@@ -362,10 +376,10 @@ const UserForm: FunctionComponent = () => {
                                 <FormWrapper>
                                     {/* Section 1: Basic Information */}
                                     <div className="py-4 sm:py-6 relative">
-                                        <div className="absolute left-3 sm:left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 to-blue-200 dark:from-blue-600 dark:to-blue-900"></div>
+                                        <div className="absolute left-3 sm:left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-sky-500 to-sky-200 dark:from-sky-600 dark:to-sky-900"></div>
 
                                         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 relative">
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 border-2 border-blue-500 dark:border-blue-600 text-blue-600 dark:text-blue-400 shadow-sm">
+                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-sky-100 dark:bg-sky-900/50 border-2 border-sky-500 dark:border-sky-600 text-sky-600 dark:text-sky-400 shadow-sm">
                                                 <User className="w-4 h-4" />
                                             </div>
                                             <div>
