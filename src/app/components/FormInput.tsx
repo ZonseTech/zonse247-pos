@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useContext } from 'react';
+import React, { ChangeEvent, useContext, useState } from 'react';
 import { useField } from 'formik';
 import Label from './Label';
 import Input from './Input';
@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { ThemeContext } from '../context/ThemeContext';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface TextInputProps {
 	label?: string;
@@ -156,6 +157,7 @@ const FormInput: React.FC<TextInputProps & React.InputHTMLAttributes<HTMLInputEl
 	}
 
 	const [field, meta, helpers] = useField({ ...props, name });
+	const [showPassword, setShowPassword] = useState(false);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		let value = e.target.value;
@@ -167,19 +169,39 @@ const FormInput: React.FC<TextInputProps & React.InputHTMLAttributes<HTMLInputEl
 		helpers.setValue(value);
 	};
 
+	const isPasswordType = type === 'password';
+	const inputType = isPasswordType && showPassword ? 'text' : type;
+
 	return (
 		<div className={classNames(wrapperClass, '')}>
 			<Label htmlFor={id || name}>
 				{label} {required && <span className='text-red-500'>*</span>}
 			</Label>
-			<Input
-				{...field}
-				// onChange={handleChange}
-				{...props}
-				type={type}
-				step={step as string}
-				id={id || name}
-			/>
+			<div className="relative">
+				<Input
+					{...field}
+					// onChange={handleChange}
+					{...props}
+					type={inputType}
+					step={step as string}
+					id={id || name}
+					className={isPasswordType ? 'pr-10' : props.className}
+				/>
+				{isPasswordType && (
+					<button
+						type="button"
+						onClick={() => setShowPassword(!showPassword)}
+						className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+						tabIndex={-1}
+					>
+						{showPassword ? (
+							<EyeOff className="h-5 w-5" />
+						) : (
+							<Eye className="h-5 w-5" />
+						)}
+					</button>
+				)}
+			</div>
 			{meta.touched && meta.error ? (
 				<HelperText valid={false}>
 					{meta.error}
