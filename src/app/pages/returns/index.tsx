@@ -204,6 +204,7 @@ const ReturnsPage: FC = () => {
                         cards={summaryCards}
                         isLoading={isLoading}
                         compact={isEBN}
+                        mobile={isMobile}
                     />
 
                     {isMobile ? (
