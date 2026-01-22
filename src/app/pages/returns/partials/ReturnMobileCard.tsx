@@ -62,69 +62,67 @@ const ReturnMobileCard: React.FC<ReturnMobileCardProps> = ({
     const StatusIcon = restockStatus.icon;
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3 shadow-sm active:scale-[0.99] transition-transform">
             {/* Header - Return ID & Status */}
-            <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <span className="font-semibold text-gray-900 dark:text-white text-sm truncate">
-                        {returnData.returnTransaction?.refNumber || '-'}
+            <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                    <span className="font-semibold text-gray-900 dark:text-white text-xs truncate">
+                        {returnData.returnNumber || returnData.returnTransaction?.refNumber || '-'}
                     </span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 flex-shrink-0 ${restockStatus.color}`}>
-                        <StatusIcon className="w-3 h-3" />
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium flex items-center gap-0.5 flex-shrink-0 ${restockStatus.color}`}>
+                        <StatusIcon className="w-2.5 h-2.5" />
                         {restockStatus.label}
                     </span>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2">
-                    <HiOutlineClock className="w-3.5 h-3.5" />
-                    <span>{returnData.returnTransaction?.date ? dayjs(returnData.returnTransaction.date).format('DD MMM YYYY') : '-'}</span>
+                <div className="flex items-center gap-1 text-[10px] text-gray-500 dark:text-gray-400 flex-shrink-0 ml-1">
+                    <HiOutlineClock className="w-3 h-3" />
+                    <span>{(returnData.createdAt || returnData.returnTransaction?.date) ? dayjs(returnData.createdAt || returnData.returnTransaction?.date).format('DD MMM') : '-'}</span>
                 </div>
             </div>
 
             {/* Financial Details */}
-            <div className="grid grid-cols-3 gap-2 mb-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+            <div className="grid grid-cols-3 gap-1.5 mb-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                 <div className="text-center">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Refund</p>
-                    <p className="font-bold text-blue-600 dark:text-blue-400 text-sm">
+                    <p className="text-[9px] text-gray-500 dark:text-gray-400 mb-0.5">Refund</p>
+                    <p className="font-bold text-blue-600 dark:text-blue-400 text-xs">
                         {formatCurrency(returnData.refundAmount || 0)}
                     </p>
                 </div>
                 <div className="text-center border-x border-gray-200 dark:border-gray-600">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Items</p>
-                    <p className="font-semibold text-gray-900 dark:text-white text-sm">
+                    <p className="text-[9px] text-gray-500 dark:text-gray-400 mb-0.5">Items</p>
+                    <p className="font-semibold text-gray-900 dark:text-white text-xs">
                         {returnData.returnItems?.length || 0}
                     </p>
                 </div>
                 <div className="text-center">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Qty</p>
-                    <p className="font-medium text-gray-900 dark:text-white text-sm">
-                        {returnData.returnItems?.reduce((sum, item) => sum + item.returnedQuantity, 0) || 0}
+                    <p className="text-[9px] text-gray-500 dark:text-gray-400 mb-0.5">Qty</p>
+                    <p className="font-medium text-gray-900 dark:text-white text-xs">
+                        {returnData.returnItems?.reduce((sum, item) => sum + (typeof item.returnedQuantity === 'string' ? parseInt(item.returnedQuantity, 10) : item.returnedQuantity), 0) || 0}
                     </p>
                 </div>
             </div>
 
-            {/* Meta Information */}
-            <div className="grid grid-cols-1 gap-2 mb-3">
-                <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
-                    <Package className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                    <span className="truncate">Original: {returnData.originalTransaction?.refNumber || '-'}</span>
+            {/* Meta Information & Customer - Combined Row */}
+            <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-gray-100 dark:border-gray-700">
+                <div className="flex items-center gap-1.5 text-[10px] text-gray-600 dark:text-gray-300 min-w-0">
+                    <Package className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                    <span className="truncate">{returnData.originalSale?.saleNumber || returnData.originalTransaction?.refNumber || '-'}</span>
+                </div>
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <div className="w-5 h-5 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center">
+                        <User className="w-2.5 h-2.5 text-blue-600 dark:text-blue-300" />
+                    </div>
+                    <span className="text-[10px] text-gray-600 dark:text-gray-300 max-w-[80px] truncate">
+                        {returnData.originalSale?.customer?.name || returnData.originalTransaction?.customer?.name || 'Walk-in'}
+                    </span>
                 </div>
             </div>
 
-            {/* Customer */}
-            <div className="flex items-center gap-2 mb-3 pb-3 border-b border-gray-100 dark:border-gray-700">
-                <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center flex-shrink-0">
-                    <User className="w-3 h-3 text-blue-600 dark:text-blue-300" />
-                </div>
-                <span className="text-xs text-gray-600 dark:text-gray-300 truncate">
-                    {returnData.originalTransaction?.customer?.name || 'Walk-in Customer'}
-                </span>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-2">
+            {/* Actions - Touch Friendly */}
+            <div className="flex items-center gap-1.5">
                 <button
                     onClick={() => onViewDetails(returnData)}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors duration-200"
+                    className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 active:bg-blue-200 dark:active:bg-blue-900/70 rounded-lg transition-colors duration-150"
                 >
                     <HiOutlineEye className="w-4 h-4" />
                     <span>View</span>
@@ -132,15 +130,18 @@ const ReturnMobileCard: React.FC<ReturnMobileCardProps> = ({
                 {hasPendingRestock && (
                     <button
                         onClick={() => onRestock(returnData)}
-                        className="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 rounded-lg transition-colors duration-200"
+                        className="flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 active:bg-emerald-200 dark:active:bg-emerald-900/70 rounded-lg transition-colors duration-150"
                     >
                         <RotateCcw className="w-4 h-4" />
                         <span>Restock</span>
                     </button>
                 )}
                 <button
-                    onClick={() => onCancel(returnData.returnTransaction.transactionId, returnData.returnTransaction.refNumber)}
-                    className="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors duration-200"
+                    onClick={() => onCancel(
+                        returnData.returnId || returnData.returnTransaction?.transactionId || '',
+                        returnData.returnNumber || returnData.returnTransaction?.refNumber || ''
+                    )}
+                    className="flex items-center justify-center p-2.5 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 active:bg-red-200 dark:active:bg-red-900/70 rounded-lg transition-colors duration-150"
                 >
                     <Trash2 className="w-4 h-4" />
                 </button>
@@ -166,25 +167,25 @@ export const ReturnMobileList: React.FC<ReturnMobileListProps> = ({
 }) => {
     if (isLoading) {
         return (
-            <div className="space-y-3 p-4">
+            <div className="space-y-3 p-3">
                 {[1, 2, 3].map((i) => (
                     <div
                         key={i}
-                        className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 animate-pulse"
+                        className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3 animate-pulse"
                     >
-                        <div className="flex justify-between mb-3">
-                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24" />
-                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20" />
+                        <div className="flex justify-between mb-2">
+                            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20" />
+                            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-14" />
                         </div>
-                        <div className="grid grid-cols-3 gap-2 mb-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                            <div className="h-8 bg-gray-200 dark:bg-gray-600 rounded" />
-                            <div className="h-8 bg-gray-200 dark:bg-gray-600 rounded" />
-                            <div className="h-8 bg-gray-200 dark:bg-gray-600 rounded" />
+                        <div className="grid grid-cols-3 gap-1.5 mb-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div className="h-6 bg-gray-200 dark:bg-gray-600 rounded" />
+                            <div className="h-6 bg-gray-200 dark:bg-gray-600 rounded" />
+                            <div className="h-6 bg-gray-200 dark:bg-gray-600 rounded" />
                         </div>
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 mb-3" />
-                        <div className="flex gap-2">
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-28 mb-2" />
+                        <div className="flex gap-1.5">
                             <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded flex-1" />
-                            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-20" />
+                            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-10" />
                         </div>
                     </div>
                 ))}
@@ -193,10 +194,10 @@ export const ReturnMobileList: React.FC<ReturnMobileListProps> = ({
     }
 
     return (
-        <div className="space-y-3 p-4">
+        <div className="space-y-3 p-3">
             {returns.map((returnData) => (
                 <ReturnMobileCard
-                    key={returnData.returnTransaction?.transactionId}
+                    key={returnData.returnId || returnData.returnTransaction?.transactionId}
                     returnData={returnData}
                     onViewDetails={onViewDetails}
                     onRestock={onRestock}
