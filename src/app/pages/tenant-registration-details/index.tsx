@@ -81,7 +81,7 @@ const TenantRegistrationDetails: FunctionComponent = () => {
                 <PageHeader
                     title='Registration Details'
                     description='View and manage tenant registration details'
-                    icon={<ClipboardList className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
+                    icon={<ClipboardList className="w-8 h-8 text-sky-600 dark:text-sky-400" />}
                     action={
                         <div className="flex items-center space-x-4">
                             <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
@@ -95,7 +95,7 @@ const TenantRegistrationDetails: FunctionComponent = () => {
                                     else if (value === 'processed') setProcessedFilter(true);
                                     else setProcessedFilter(false);
                                 }}
-                                className="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
                             >
                                 <option value="all">All Status</option>
                                 <option value="pending">Pending Only</option>

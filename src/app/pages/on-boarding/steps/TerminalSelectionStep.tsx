@@ -45,7 +45,7 @@ const TerminalSelectionStep: FunctionComponent<{
                                     className={`p-4 border rounded-lg transition-colors ${isDisabled
                                         ? 'border-gray-200 bg-gray-100 cursor-not-allowed opacity-60'
                                         : isSelected
-                                            ? 'border-blue-500 bg-blue-50 cursor-pointer'
+                                            ? 'border-sky-500 bg-sky-50 cursor-pointer'
                                             : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 cursor-pointer'
                                         }`}
                                 >

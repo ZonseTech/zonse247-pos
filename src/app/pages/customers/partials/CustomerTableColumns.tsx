@@ -18,7 +18,7 @@ export const getCustomerColumns = ({
             grow: 2,
             cell: (row) => (
                 <div className="flex items-center gap-3 py-3">
-                    <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                    <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br from-sky-500 to-sky-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
                         {row.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0">
@@ -96,7 +96,7 @@ export const getCustomerColumns = ({
                 <div className="flex items-center justify-center gap-1">
                     <button
                         onClick={() => onEdit(row)}
-                        className="p-2 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all"
+                        className="p-2 text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-all"
                         title="Edit customer"
                     >
                         <HiOutlinePencil className="w-4.5 h-4.5" />
@@ -128,7 +128,7 @@ export const getMobileCustomerColumns = ({
             grow: 2,
             cell: (row) => (
                 <div className="flex items-center gap-3 py-2">
-                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold shadow-sm">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-sky-500 to-sky-600 flex items-center justify-center text-white font-bold shadow-sm">
                         {row.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -167,7 +167,7 @@ export const getMobileCustomerColumns = ({
                 <div className="flex items-center gap-0.5">
                     <button
                         onClick={() => onEdit(row)}
-                        className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                        className="p-2 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
                     >
                         <Edit2 className="w-4 h-4" />
                     </button>

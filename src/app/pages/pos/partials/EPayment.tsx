@@ -238,7 +238,7 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                                 className={classNames(
                                     "w-full border border-gray-300 rounded-none text-black font-mono",
                                     compact ? "p-2 text-sm" : "p-3 md:p-4 text-base md:text-xl",
-                                    activeInput === 'phoneNumber' && 'border-blue-500 bg-blue-50'
+                                    activeInput === 'phoneNumber' && 'border-sky-500 bg-sky-50'
                                 )}
                             />
                         </div>
@@ -264,7 +264,7 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                             className={classNames(
                                 "w-full border border-gray-300 rounded-none text-black font-mono",
                                 compact ? "p-2 text-sm" : "p-3 md:p-4 text-base md:text-xl",
-                                activeInput === 'referenceNo' && 'border-blue-500 bg-blue-50'
+                                activeInput === 'referenceNo' && 'border-sky-500 bg-sky-50'
                             )}
                         />
                     </div>

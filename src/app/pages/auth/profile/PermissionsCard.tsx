@@ -39,7 +39,7 @@ const PermissionsCard: FunctionComponent<Props> = ({ permissions }) => {
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                         Permissions
                     </h3>
-                    <span className="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium">
+                    <span className="px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 text-xs font-medium">
                         {permissions?.length || 0}
                     </span>
                 </div>

@@ -87,9 +87,9 @@ const ReturnsPage: FC = () => {
                 title: 'Total Returns',
                 value: totalReturns,
                 displayValue: String(totalReturns),
-                bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-                iconBgColor: 'bg-blue-100 dark:bg-blue-900/40',
-                textColor: 'text-blue-600 dark:text-blue-400',
+                bgColor: 'bg-sky-50 dark:bg-sky-900/20',
+                iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
+                textColor: 'text-sky-600 dark:text-sky-400',
             },
             {
                 title: 'Pending Restock',
@@ -124,7 +124,7 @@ const ReturnsPage: FC = () => {
         <AppLayout>
             <div className="max-w-full">
                 <PageHeader
-                    icon={<RotateCcw className={isEBN ? "w-5 h-5 text-blue-600 dark:text-blue-400" : "w-8 h-8 text-blue-600 dark:text-blue-400"} />}
+                    icon={<RotateCcw className={isEBN ? "w-5 h-5 text-sky-600 dark:text-sky-400" : "w-8 h-8 text-sky-600 dark:text-sky-400"} />}
                     title="Returns"
                     description={(isMobile || isEBN) ? undefined : "Manage product returns, process refunds, and track restock status"}
                     compact={isEBN}
@@ -234,7 +234,7 @@ const ReturnsPage: FC = () => {
                                     {hasActiveFilters && (
                                         <button
                                             onClick={handleClearFilters}
-                                            className="mt-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm"
+                                            className="mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
                                         >
                                             Clear filters
                                         </button>
@@ -324,8 +324,8 @@ const ReturnsPage: FC = () => {
                                             <button
                                                 onClick={handleClearFilters}
                                                 className={isEBN
-                                                    ? "mt-2 text-xs text-blue-600 dark:text-blue-400 font-medium"
-                                                    : "mt-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                                                    ? "mt-2 text-xs text-sky-600 dark:text-sky-400 font-medium"
+                                                    : "mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium"
                                                 }
                                             >
                                                 Clear filters

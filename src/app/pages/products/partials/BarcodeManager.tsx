@@ -64,7 +64,7 @@ const BarcodeManager: FunctionComponent<BarcodeManagerProps> = ({ barcodes, onBa
                         <button
                             type="button"
                             onClick={() => setIsScannerOpen(true)}
-                            className="mb-1 px-3 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-lg font-medium text-sm transition-colors duration-150 flex items-center justify-center gap-1.5 touch-manipulation"
+                            className="mb-1 px-3 py-2.5 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white rounded-lg font-medium text-sm transition-colors duration-150 flex items-center justify-center gap-1.5 touch-manipulation"
                             title="Scan barcode with camera"
                             aria-label="Open camera barcode scanner"
                         >

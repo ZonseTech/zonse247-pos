@@ -103,7 +103,7 @@ const SetupTerminal: FunctionComponent<SetupTerminalProps> = ({ onComplete, para
                             {item.loaded ? (
                                 <CheckCircle className="h-5 w-5 text-green-500" />
                             ) : item.loading ? (
-                                <Loader className="h-5 w-5 text-blue-500 animate-spin" />
+                                <Loader className="h-5 w-5 text-sky-500 animate-spin" />
                             ) : item.error ? (
                                 <AlertCircle className="h-5 w-5 text-red-500" />
                             ) : (

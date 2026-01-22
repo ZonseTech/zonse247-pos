@@ -36,9 +36,9 @@ const colorClasses: Record<ButtonColorType, { base: string; hover: string; activ
         active: 'active:bg-red-700'
     },
     blue: {
-        base: 'bg-blue-500',
-        hover: 'hover:bg-blue-600',
-        active: 'active:bg-blue-700'
+        base: 'bg-sky-500',
+        hover: 'hover:bg-sky-600',
+        active: 'active:bg-sky-700'
     },
     green: {
         base: 'bg-green-500',

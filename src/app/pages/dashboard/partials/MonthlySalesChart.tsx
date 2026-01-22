@@ -114,8 +114,8 @@ const MonthlySalesChart: FunctionComponent<{ data: Array<MonthlySales>; chartHea
 							dataKey="totalAmount"
 							radius={[4, 4, 0, 0]}
 							className="
-								fill-blue-400 dark:fill-blue-500
-								hover:fill-blue-500 dark:hover:fill-blue-400
+								fill-sky-400 dark:fill-sky-500
+								hover:fill-sky-500 dark:hover:fill-sky-400
 								transition-all duration-300
 								drop-shadow-sm dark:drop-shadow-lg
               				"

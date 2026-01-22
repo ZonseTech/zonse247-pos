@@ -27,7 +27,7 @@ const PrinterActions: FunctionComponent<PrinterActionsProps> = ({
             {/* Test Connection Button */}
             <button
                 onClick={() => onTestConnection(printer.printerId)}
-                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                 title="Test connection"
             >
                 <Wifi className="w-4 h-4 transition-transform group-hover:scale-110" />
@@ -73,7 +73,7 @@ const PrinterActions: FunctionComponent<PrinterActionsProps> = ({
             {/* Edit Button */}
             <button
                 onClick={() => onEdit(printer)}
-                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                 title="Edit printer"
             >
                 <Edit2 className="w-4 h-4 transition-transform group-hover:scale-110" />
@@ -132,7 +132,7 @@ const getStatusDotColor = (status?: PrinterStatus): string => {
 export const getPrinterTypeColor = (type?: PrinterType): string => {
     switch (type) {
         case 'THERMAL':
-            return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300';
+            return 'bg-sky-100 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300';
         case 'INKJET':
             return 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300';
         case 'LASER':
@@ -257,7 +257,7 @@ export const getPrinterColumns = (
                 <Fragment>
                     <div className="flex flex-wrap gap-1">
                         {row.isReceiptPrinter && (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-sky-100 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300">
                                 Receipt
                             </span>
                         )}

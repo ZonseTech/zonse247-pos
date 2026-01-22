@@ -74,9 +74,9 @@ const ProductManagement: FunctionComponent = () => {
 
             const colorMap: Record<string, { bgColor: string; iconBgColor: string; textColor: string }> = {
                 'Total Products': {
-                    bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-                    iconBgColor: 'bg-blue-100 dark:bg-blue-900/40',
-                    textColor: 'text-blue-600 dark:text-blue-400',
+                    bgColor: 'bg-sky-50 dark:bg-sky-900/20',
+                    iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
+                    textColor: 'text-sky-600 dark:text-sky-400',
                 },
                 'Active': {
                     bgColor: 'bg-green-50 dark:bg-green-900/20',
@@ -238,7 +238,7 @@ const ProductManagement: FunctionComponent = () => {
         <AppLayout>
             <div className="max-w-full">
                 <PageHeader
-                    icon={<Package className="w-8 h-8 text-blue-600" />}
+                    icon={<Package className="w-8 h-8 text-sky-600" />}
                     title="Products"
                     description={isMobile ? undefined : "Manage your product catalog with barcode support."}
                     action={

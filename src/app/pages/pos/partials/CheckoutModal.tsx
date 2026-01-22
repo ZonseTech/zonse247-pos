@@ -335,7 +335,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                                     {selectedCustomer.customerId === DEFAULT_SEED_KEY ? '👤' : '⭐'}
                                 </span>
                                 <span className={`font-semibold ${selectedCustomer.customerId === DEFAULT_SEED_KEY
-                                    ? 'text-blue-900 dark:text-blue-100'
+                                    ? 'text-sky-900 dark:text-sky-100'
                                     : 'text-emerald-900 dark:text-emerald-100'
                                     }`}>
                                     {selectedCustomer.name}
@@ -393,12 +393,12 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
                             {processing && (
                                 <div className={classNames(
-                                    "bg-blue-100 border border-blue-400 text-blue-700 rounded",
+                                    "bg-sky-100 border border-sky-400 text-sky-700 rounded",
                                     isEBN ? "px-2 py-1.5 mx-2 mb-2" : "px-3 md:px-4 py-2 md:py-3 mx-3 md:mx-6 mb-3 md:mb-0"
                                 )}>
                                     <div className="flex items-center gap-2">
                                         <div className={classNames(
-                                            "animate-spin rounded-full border-b-2 border-blue-700",
+                                            "animate-spin rounded-full border-b-2 border-sky-700",
                                             isEBN ? "h-3 w-3" : "h-4 w-4"
                                         )}></div>
                                         <span className={classNames(

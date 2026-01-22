@@ -198,7 +198,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                                 "relative flex items-center gap-2 rounded-xl transition-all duration-200",
                                 isEBN ? "p-1.5" : "p-2.5",
                                 isSyncing
-                                    ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 cursor-wait"
+                                    ? "text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-500/10 cursor-wait"
                                     : pendingCount > 0
                                         ? "text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10"
                                         : "text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10"
@@ -232,7 +232,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                                     "flex items-center gap-2 rounded-xl transition-all duration-200",
                                     isEBN ? "p-1 pr-2" : "p-1.5 pr-3",
                                     isProfileDropdownOpen || location.pathname === ROUTES.MY_PROFILE
-                                        ? "bg-blue-50 dark:bg-blue-500/10"
+                                        ? "bg-sky-50 dark:bg-sky-500/10"
                                         : "hover:bg-gray-100 dark:hover:bg-gray-800"
                                 )}
                                 aria-label="User Profile Menu"
@@ -243,7 +243,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                                     "rounded-lg flex items-center justify-center transition-all duration-200",
                                     isEBN ? "w-6 h-6" : "w-8 h-8",
                                     isProfileDropdownOpen || location.pathname === ROUTES.MY_PROFILE
-                                        ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white"
+                                        ? "bg-gradient-to-br from-sky-500 to-indigo-600 text-white"
                                         : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
                                 )}>
                                     <User size={isEBN ? 14 : 18} />
@@ -264,7 +264,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                                         className={classNames(
                                             "flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm transition-colors duration-150",
                                             location.pathname === ROUTES.MY_PROFILE
-                                                ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                                                ? "bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400"
                                                 : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                                         )}
                                     >
@@ -277,7 +277,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                                         className={classNames(
                                             "flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm transition-colors duration-150",
                                             location.pathname === ROUTES.SETTINGS
-                                                ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                                                ? "bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400"
                                                 : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                                         )}
                                     >
@@ -362,14 +362,14 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                                                             className={classNames(
                                                                 "flex items-center gap-3 px-3 py-3 rounded-xl text-left transition-all duration-200 active:scale-[0.98] w-full group",
                                                                 isActive
-                                                                    ? "bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-500/10 dark:to-indigo-500/10 text-blue-600 dark:text-blue-400"
+                                                                    ? "bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-sky-500/10 dark:to-indigo-500/10 text-sky-600 dark:text-sky-400"
                                                                     : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                                                             )}
                                                         >
                                                             <div className={classNames(
                                                                 "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200",
                                                                 isActive
-                                                                    ? "bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400"
+                                                                    ? "bg-sky-100 dark:bg-sky-500/20 text-sky-600 dark:text-sky-400"
                                                                     : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-gray-700"
                                                             )}>
                                                                 {item.icon}
@@ -381,7 +381,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                                                                 {item.text}
                                                             </span>
                                                             {isActive && (
-                                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-sky-500" />
                                                             )}
                                                         </button>
                                                     );
@@ -491,14 +491,14 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                                                     "flex items-center rounded-lg text-left transition-all duration-200 active:scale-[0.98] w-full group",
                                                     isCollapsed ? "justify-center p-2" : "gap-2.5 px-2.5 py-1.5",
                                                     isActive
-                                                        ? "bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-500/10 dark:to-indigo-500/10 text-blue-600 dark:text-blue-400"
+                                                        ? "bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-sky-500/10 dark:to-indigo-500/10 text-sky-600 dark:text-sky-400"
                                                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-gray-200"
                                                 )}
                                             >
                                                 <div className={classNames(
                                                     "flex items-center justify-center transition-all duration-200",
                                                     isActive
-                                                        ? "text-blue-600 dark:text-blue-400"
+                                                        ? "text-sky-600 dark:text-sky-400"
                                                         : "text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                                                 )}>
                                                     {item.icon}
@@ -512,7 +512,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({ variant = 'sidebar', isCollaps
                                                             {item.text}
                                                         </span>
                                                         {isActive && (
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
                                                         )}
                                                     </>
                                                 )}

@@ -59,8 +59,8 @@ export const StockStatusFilter: FC<StockStatusFilterProps> = ({ selectedStatus, 
                             bg-white dark:bg-gray-800 
                             text-gray-700 dark:text-gray-200
                             border border-gray-300 dark:border-gray-600
-                            focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
-                            focus:border-blue-500 dark:focus:border-blue-400
+                            focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400
+                            focus:border-sky-500 dark:focus:border-sky-400
                             transition-colors"
 					>
 						{statusOptions.map((option) => (

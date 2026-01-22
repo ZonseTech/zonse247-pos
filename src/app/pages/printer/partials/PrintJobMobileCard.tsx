@@ -37,8 +37,8 @@ const PrintJobMobileCard: FunctionComponent<PrintJobMobileCardProps> = ({
                 label: 'Pending'
             },
             'PRINTING': {
-                color: 'text-blue-600 dark:text-blue-400',
-                bgColor: 'bg-blue-100 dark:bg-blue-900/30',
+                color: 'text-sky-600 dark:text-sky-400',
+                bgColor: 'bg-sky-100 dark:bg-sky-900/30',
                 icon: <RefreshCw className="w-3.5 h-3.5 animate-spin" />,
                 label: 'Printing'
             },
@@ -66,7 +66,7 @@ const PrintJobMobileCard: FunctionComponent<PrintJobMobileCardProps> = ({
 
     const getJobTypeConfig = (type: PrintJobType) => {
         const configs: Record<PrintJobType, { color: string; label: string }> = {
-            'RECEIPT': { color: 'text-blue-600 dark:text-blue-400', label: 'Receipt' },
+            'RECEIPT': { color: 'text-sky-600 dark:text-sky-400', label: 'Receipt' },
             'INVOICE': { color: 'text-purple-600 dark:text-purple-400', label: 'Invoice' },
             'REPORT': { color: 'text-indigo-600 dark:text-indigo-400', label: 'Report' },
             'LABEL': { color: 'text-teal-600 dark:text-teal-400', label: 'Label' },

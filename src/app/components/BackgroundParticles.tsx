@@ -9,7 +9,7 @@ const BackgroundParticles: FunctionComponent = () => {
 				{[...Array(20)].map((_, i) => (
 					<motion.div
 						key={i}
-						className="absolute w-2 h-2 bg-blue-500/20 rounded-full"
+						className="absolute w-2 h-2 bg-sky-500/20 rounded-full"
 						style={{
 							left: `${Math.random() * 100}%`,
 							top: `${Math.random() * 100}%`,

@@ -54,9 +54,9 @@ const SupplierManagement: FunctionComponent = () => {
                 title: 'Total Suppliers',
                 value: totalRows,
                 icon: 'total',
-                bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-                iconBgColor: 'bg-blue-100 dark:bg-blue-900/40',
-                textColor: 'text-blue-600 dark:text-blue-400',
+                bgColor: 'bg-sky-50 dark:bg-sky-900/20',
+                iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
+                textColor: 'text-sky-600 dark:text-sky-400',
             },
             {
                 title: 'Active',
@@ -141,7 +141,7 @@ const SupplierManagement: FunctionComponent = () => {
         <AppLayout>
             <div className="max-w-full">
                 <PageHeader
-                    icon={<Truck className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600 dark:text-blue-400" />}
+                    icon={<Truck className="w-7 h-7 sm:w-8 sm:h-8 text-sky-600 dark:text-sky-400" />}
                     title="Suppliers"
                     description="Manage your suppliers for purchase orders"
                     action={
@@ -153,9 +153,9 @@ const SupplierManagement: FunctionComponent = () => {
                             />
 
                             {selectedRows.length > 0 && !isMobile && (
-                                <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
-                                    <Settings2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                                    <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                                <div className="flex items-center gap-2 px-4 py-2 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-md">
+                                    <Settings2 className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                                    <span className="text-sm font-medium text-sky-900 dark:text-sky-100">
                                         {selectedRows.length} selected
                                     </span>
                                 </div>
@@ -221,7 +221,7 @@ const SupplierManagement: FunctionComponent = () => {
                                     {hasActiveFilters && (
                                         <button
                                             onClick={handleClearFilters}
-                                            className="mt-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm"
+                                            className="mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
                                         >
                                             Clear filters
                                         </button>

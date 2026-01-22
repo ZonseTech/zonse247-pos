@@ -6,7 +6,7 @@
 }
 
 #nprogress .bar {
-    @apply bg-blue-500 dark:bg-blue-400;
+    @apply bg-sky-500 dark:bg-sky-400;
     position: fixed;
     z-index: 9999;
     top: 0;
@@ -40,7 +40,7 @@
     height: 18px;
     box-sizing: border-box;
     border: solid 2px transparent;
-    @apply border-t-blue-500 border-l-blue-500 dark:border-t-blue-400 dark:border-l-blue-400;
+    @apply border-t-sky-500 border-l-sky-500 dark:border-t-sky-400 dark:border-l-sky-400;
     border-radius: 50%;
     animation: nprogress-spinner 400ms linear infinite;
 }

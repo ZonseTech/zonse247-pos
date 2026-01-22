@@ -23,9 +23,9 @@ const statusConfig: Record<PurchaseOrderStatus, { bg: string; text: string; dot:
         label: 'Pending'
     },
     PARTIALLY_RECEIVED: {
-        bg: 'bg-blue-100 dark:bg-blue-900/30',
-        text: 'text-blue-800 dark:text-blue-400',
-        dot: 'bg-blue-500',
+        bg: 'bg-sky-100 dark:bg-sky-900/30',
+        text: 'text-sky-800 dark:text-sky-400',
+        dot: 'bg-sky-500',
         label: 'Partial'
     },
     RECEIVED: {
@@ -62,7 +62,7 @@ const PurchaseOrderMobileCard: FC<PurchaseOrderMobileCardProps> = ({
             <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-base font-bold text-blue-600 dark:text-blue-400">
+                        <h3 className="text-base font-bold text-sky-600 dark:text-sky-400">
                             {purchaseOrder.poNumber}
                         </h3>
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
@@ -111,7 +111,7 @@ const PurchaseOrderMobileCard: FC<PurchaseOrderMobileCardProps> = ({
             <div className="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
                 <button
                     onClick={() => onView(purchaseOrder)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
                 >
                     <Eye className="w-4 h-4" />
                     <span>View</span>

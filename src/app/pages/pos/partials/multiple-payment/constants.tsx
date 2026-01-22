@@ -18,7 +18,7 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethodType, string> = {
 export const PAYMENT_METHOD_COLORS: Record<PaymentMethodType, string> = {
     [PAYMENT_METHODS.CASH]: 'bg-green-500 hover:bg-green-600',
     [PAYMENT_METHODS.MOBILE_MONEY]: 'bg-orange-500 hover:bg-orange-600',
-    [PAYMENT_METHODS.BANK_TRANSFER]: 'bg-blue-500 hover:bg-blue-600',
+    [PAYMENT_METHODS.BANK_TRANSFER]: 'bg-sky-500 hover:bg-sky-600',
 };
 
 export const QUICK_AMOUNTS = [500, 1000, 2000, 5000, 10000];

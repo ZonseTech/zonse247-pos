@@ -49,7 +49,7 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
     const { overview, topValueItems } = stats;
 
     const [cards, setCards] = useState([
-        { key: 'stock', title: 'Total Products', value: 0, icon: <Package size={20} />, bgColor: 'bg-blue-500 dark:bg-blue-600' },
+        { key: 'stock', title: 'Total Products', value: 0, icon: <Package size={20} />, bgColor: 'bg-sky-500 dark:bg-sky-600' },
         { key: 'expiredProducts', title: 'Expired Items', value: 0, icon: <XCircle size={20} />, bgColor: 'bg-red-500 dark:bg-red-600' },
         { key: 'lowStockItems', title: 'Low Stock Items', value: 0, icon: <TrendingDown size={20} />, bgColor: 'bg-amber-500 dark:bg-amber-600' },
         { key: 'recentlyAdded', title: 'Recently Added', value: 0, icon: <Clock size={20} />, bgColor: 'bg-green-500 dark:bg-green-600' },
@@ -57,7 +57,7 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
 
     // Quick actions for inventory manager
     const quickActions: QuickAction[] = [
-        { label: 'Add Product', icon: <Package size={18} />, onClick: () => navigate(ROUTES.INVENTORY_FORM), color: 'bg-blue-600 hover:bg-blue-700' },
+        { label: 'Add Product', icon: <Package size={18} />, onClick: () => navigate(ROUTES.INVENTORY_FORM), color: 'bg-sky-600 hover:bg-sky-700' },
         { label: 'View All Products', icon: <Boxes size={18} />, onClick: () => navigate(ROUTES.INVENTORY), color: 'bg-green-600 hover:bg-green-700' },
         { label: 'Categories', icon: <Archive size={18} />, onClick: () => navigate(ROUTES.CATEGORIES), color: 'bg-purple-600 hover:bg-purple-700' },
     ];
@@ -210,9 +210,9 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
 
                             {/* Potential Profit */}
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-center">
+                                <div className="p-4 bg-sky-50 dark:bg-sky-900/20 rounded-lg text-center">
                                     <p className="text-sm text-gray-600 dark:text-gray-400">Potential Profit</p>
-                                    <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                                    <p className="text-xl font-bold text-sky-600 dark:text-sky-400">
                                         {formatCurrency(overview.potentialProfit)}
                                     </p>
                                 </div>
@@ -230,8 +230,8 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
                 {/* Stock Health */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                            <HiOutlineArchiveBox className="text-blue-600 dark:text-blue-400 w-6 h-6" />
+                        <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
+                            <HiOutlineArchiveBox className="text-sky-600 dark:text-sky-400 w-6 h-6" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Stock Health Overview</h3>
                     </div>
@@ -432,14 +432,14 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
                             </div>
                         )}
 
-                        <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800/40">
+                        <div className="flex items-center justify-between p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800/40">
                             <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                <div className="w-2 h-2 bg-sky-500 rounded-full"></div>
                                 <span className="text-gray-900 dark:text-white font-medium">Regular stock audit</span>
                             </div>
                             <button
                                 onClick={() => navigate(ROUTES.INVENTORY)}
-                                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 font-medium text-sm"
+                                className="text-sky-600 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 font-medium text-sm"
                             >
                                 Start →
                             </button>
@@ -486,9 +486,9 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
                                     {overview.totalStockQuantity.toLocaleString()}
                                 </p>
                             </div>
-                            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-center">
+                            <div className="p-4 bg-sky-50 dark:bg-sky-900/20 rounded-lg text-center">
                                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Products</p>
-                                <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                                <p className="text-xl font-bold text-sky-600 dark:text-sky-400">
                                     {overview.totalProducts.toLocaleString()}
                                 </p>
                             </div>
@@ -518,7 +518,7 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Stock Health</p>
                     </div>
                     <div className="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                        <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{dashboardCounts.recentlyAdded || 0}</p>
+                        <p className="text-3xl font-bold text-sky-600 dark:text-sky-400">{dashboardCounts.recentlyAdded || 0}</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Added This Week</p>
                     </div>
                 </div>
@@ -526,7 +526,7 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
                 <div className="mt-6 text-center">
                     <Link
                         to={ROUTES.INVENTORY}
-                        className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 font-medium"
+                        className="inline-flex items-center gap-2 text-sky-600 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 font-medium"
                     >
                         View Full Inventory
                         <span>→</span>

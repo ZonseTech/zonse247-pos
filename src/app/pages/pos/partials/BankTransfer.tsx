@@ -18,7 +18,7 @@ interface BankTransferProps {
 }
 
 export const TRANSFER_TYPES = [
-    { id: 'mobile-banking', name: 'Mobile Banking', icon: Smartphone, color: 'bg-blue-500' },
+    { id: 'mobile-banking', name: 'Mobile Banking', icon: Smartphone, color: 'bg-sky-500' },
     { id: 'pos-machine', name: 'POS Machine', icon: CreditCard, color: 'bg-purple-500' },
 ];
 
@@ -257,7 +257,7 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
                             className={classNames(
                                 "w-full border rounded-none text-black font-mono",
                                 compact ? "p-2 text-sm" : "p-3 md:p-4 text-base md:text-xl",
-                                activeInput === 'referenceNo' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                                activeInput === 'referenceNo' ? 'border-sky-500 bg-sky-50' : 'border-gray-300'
                             )}
                         />
                     </div>

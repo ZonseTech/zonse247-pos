@@ -353,7 +353,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                     <button
                         type="button"
                         onClick={handleOpenCameraScanner}
-                        className={`bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors flex items-center justify-center gap-2 border-2 border-blue-600 ${compact ? 'px-2 py-1' : 'px-4 py-2'}`}
+                        className={`bg-sky-600 hover:bg-sky-700 text-white font-medium transition-colors flex items-center justify-center gap-2 border-2 border-sky-600 ${compact ? 'px-2 py-1' : 'px-4 py-2'}`}
                         title="Open camera scanner"
                     >
                         <BarcodeIcon className={compact ? "w-4 h-4" : "w-6 h-6"} />

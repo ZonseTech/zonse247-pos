@@ -56,7 +56,7 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
             className={`
                 bg-white dark:bg-gray-800 
                 rounded-xl shadow-sm 
-                border ${isSelected ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800' : 'border-gray-200 dark:border-gray-700'}
+                border ${isSelected ? 'border-sky-500 ring-2 ring-sky-200 dark:ring-sky-800' : 'border-gray-200 dark:border-gray-700'}
                 overflow-hidden
                 transition-all duration-200
                 active:scale-[0.98]
@@ -80,7 +80,7 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
                                         onSelect(item, e.target.checked);
                                     }}
                                     onClick={(e) => e.stopPropagation()}
-                                    className="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                                    className="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-sky-600 focus:ring-sky-500"
                                 />
                             )}
                             <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">

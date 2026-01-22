@@ -81,8 +81,8 @@ const useNavItems = (): Array<NavItem> => {
     if (hasAnyPermission(user, ['products.view', 'products.create', 'sales.create', 'refunds.process'])) {
         items.push({
             type: 'button',
-            color: 'bg-blue-700 hover:bg-blue-800',
-            iconColor: 'bg-blue-800',
+            color: 'bg-sky-700 hover:bg-sky-800',
+            iconColor: 'bg-sky-800',
             text: 'Point of Sale',
             icon: icons.pos,
             group: 'operations',
@@ -91,8 +91,8 @@ const useNavItems = (): Array<NavItem> => {
 
         items.push({
             type: 'button',
-            color: 'bg-blue-600 hover:bg-blue-700',
-            iconColor: 'bg-blue-700',
+            color: 'bg-sky-600 hover:bg-sky-700',
+            iconColor: 'bg-sky-700',
             text: 'Inventory',
             icon: icons.products,
             group: 'inventory',
@@ -142,8 +142,8 @@ const useNavItems = (): Array<NavItem> => {
 
             items.push({
                 type: 'button',
-                color: 'bg-blue-500 hover:bg-blue-600',
-                iconColor: 'bg-blue-600',
+                color: 'bg-sky-500 hover:bg-sky-600',
+                iconColor: 'bg-sky-600',
                 text: 'Categories',
                 icon: icons.categories,
                 group: 'inventory',
@@ -177,8 +177,8 @@ const useNavItems = (): Array<NavItem> => {
     if (hasAnyPermission(user, ['refunds.process', 'refunds.view', 'returns.manage'])) {
         items.push({
             type: 'button',
-            color: 'bg-blue-600 hover:bg-blue-700',
-            iconColor: 'bg-blue-700',
+            color: 'bg-sky-600 hover:bg-sky-700',
+            iconColor: 'bg-sky-700',
             text: 'Returns',
             icon: icons.returns,
             group: 'operations',

@@ -57,9 +57,9 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                 title: 'Total Orders',
                 value: totalRows,
                 icon: 'total',
-                bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-                iconBgColor: 'bg-blue-100 dark:bg-blue-900/40',
-                textColor: 'text-blue-600 dark:text-blue-400',
+                bgColor: 'bg-sky-50 dark:bg-sky-900/20',
+                iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
+                textColor: 'text-sky-600 dark:text-sky-400',
             },
             {
                 title: 'Pending',
@@ -135,7 +135,7 @@ const PurchaseOrderManagement: FunctionComponent = () => {
         <AppLayout>
             <div className="max-w-full">
                 <PageHeader
-                    icon={<ShoppingCart className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600 dark:text-blue-400" />}
+                    icon={<ShoppingCart className="w-7 h-7 sm:w-8 sm:h-8 text-sky-600 dark:text-sky-400" />}
                     title="Purchase Orders"
                     description="Manage purchase orders and receive inventory"
                     action={
@@ -149,7 +149,7 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                             <Select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value as PurchaseOrderStatus | '')}
-                                className="h-10 px-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors w-full sm:w-48"
+                                className="h-10 px-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:border-sky-500 dark:focus:border-sky-400 transition-colors w-full sm:w-48"
                             >
                                 <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                                     All Status
@@ -172,9 +172,9 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                             </Select>
 
                             {selectedRows.length > 0 && !isMobile && (
-                                <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
-                                    <Settings2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                                    <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                                <div className="flex items-center gap-2 px-4 py-2 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-md">
+                                    <Settings2 className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                                    <span className="text-sm font-medium text-sky-900 dark:text-sky-100">
                                         {selectedRows.length} selected
                                     </span>
                                 </div>
@@ -239,7 +239,7 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                                     {hasActiveFilters && (
                                         <button
                                             onClick={handleClearFilters}
-                                            className="mt-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm"
+                                            className="mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
                                         >
                                             Clear filters
                                         </button>

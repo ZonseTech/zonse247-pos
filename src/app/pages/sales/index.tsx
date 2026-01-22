@@ -32,6 +32,7 @@ const SalesPage: FC = () => {
     const [saleForReturn, setSaleForReturn] = useState<Sale | null>(null);
 
     const {
+        page,
         totalRows,
         isLoading,
         searchTerm,
@@ -52,6 +53,8 @@ const SalesPage: FC = () => {
         exportData,
         loadSales,
     } = useSales();
+
+    const totalPages = Math.ceil(totalRows / perPage);
 
     const { paymentMethods, isLoading: isLoadingPaymentMethods } = usePaymentMethods();
 
@@ -91,7 +94,7 @@ const SalesPage: FC = () => {
                 <PageHeader
                     title="Sales"
                     description="Manage and view all sales transactions"
-                    icon={<ReceiptEuro className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
+                    icon={<ReceiptEuro className="w-8 h-8 text-sky-600 dark:text-sky-400" />}
                     action={
                         <Button
                             icon={HiOutlinePlus}
@@ -127,7 +130,7 @@ const SalesPage: FC = () => {
 
                                     <button
                                         onClick={getTodaySales}
-                                        className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-700 rounded-lg transition-colors duration-200"
+                                        className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 bg-sky-50 hover:bg-sky-100 dark:bg-sky-900/30 dark:hover:bg-sky-900/50 border border-sky-200 dark:border-sky-700 rounded-lg transition-colors duration-200"
                                     >
                                         <HiOutlineFilter className="w-4 h-4" />
                                         <span className="hidden sm:inline">Today</span>
@@ -202,7 +205,7 @@ const SalesPage: FC = () => {
                                     {(searchTerm || startDate || selectedStatus !== 'all' || selectedPaymentMethod !== 'all') && (
                                         <button
                                             onClick={clearFilters}
-                                            className="mt-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm"
+                                            className="mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
                                         >
                                             Clear filters
                                         </button>
@@ -220,19 +223,19 @@ const SalesPage: FC = () => {
                                     {/* Mobile Pagination */}
                                     <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
                                         <span className="text-xs text-gray-600 dark:text-gray-400">
-                                            {totalRows} total
+                                            Page {page} of {totalPages} ({totalRows} total)
                                         </span>
                                         <div className="flex items-center gap-2">
                                             <button
-                                                onClick={() => handlePageChange(Math.max(1, Math.ceil(totalRows / perPage) - 1))}
-                                                disabled={totalRows <= perPage}
+                                                onClick={() => handlePageChange(page - 1)}
+                                                disabled={page <= 1}
                                                 className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                             >
                                                 <HiOutlineChevronLeft className="w-5 h-5" />
                                             </button>
                                             <button
-                                                onClick={() => handlePageChange(2)}
-                                                disabled={totalRows <= perPage}
+                                                onClick={() => handlePageChange(page + 1)}
+                                                disabled={page >= totalPages}
                                                 className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                             >
                                                 <HiOutlineChevronRight className="w-5 h-5" />
@@ -281,7 +284,7 @@ const SalesPage: FC = () => {
                                         {(searchTerm || startDate || selectedStatus !== 'all' || selectedPaymentMethod !== 'all') && (
                                             <button
                                                 onClick={clearFilters}
-                                                className="mt-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                                                className="mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium"
                                             >
                                                 Clear filters
                                             </button>

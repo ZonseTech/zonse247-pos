@@ -36,7 +36,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             className={`
                 bg-white dark:bg-gray-800 
                 rounded-xl shadow-sm 
-                border ${isSelected ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800' : 'border-gray-200 dark:border-gray-700'}
+                border ${isSelected ? 'border-sky-500 ring-2 ring-sky-200 dark:ring-sky-800' : 'border-gray-200 dark:border-gray-700'}
                 overflow-hidden
                 transition-all duration-200
                 active:scale-[0.98]
@@ -57,7 +57,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                         onSelect(product, e.target.checked);
                                     }}
                                     onClick={(e) => e.stopPropagation()}
-                                    className="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                                    className="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-sky-600 focus:ring-sky-500"
                                 />
                             )}
                             <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{product.name}</h3>
@@ -72,9 +72,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 {/* Category & Barcode */}
                 <div className="flex flex-wrap items-center gap-2 mb-3">
                     {product.categoryDetails?.name && (
-                        <div className="flex items-center gap-1.5 px-2 py-1 bg-blue-50 dark:bg-blue-900/20 rounded-md">
-                            <Tag className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                            <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                        <div className="flex items-center gap-1.5 px-2 py-1 bg-sky-50 dark:bg-sky-900/20 rounded-md">
+                            <Tag className="w-3 h-3 text-sky-600 dark:text-sky-400" />
+                            <span className="text-xs font-medium text-sky-700 dark:text-sky-300">
                                 {product.categoryDetails.name}
                             </span>
                         </div>
@@ -151,9 +151,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         onEdit(product);
                     }}
                     className="flex-1 flex items-center justify-center gap-2 py-3 
-                        text-blue-600 dark:text-blue-400 
-                        hover:bg-blue-50 dark:hover:bg-blue-900/20 
-                        active:bg-blue-100 dark:active:bg-blue-900/30
+                        text-sky-600 dark:text-sky-400 
+                        hover:bg-sky-50 dark:hover:bg-sky-900/20 
+                        active:bg-sky-100 dark:active:bg-sky-900/30
                         transition-colors border-r border-gray-100 dark:border-gray-700"
                 >
                     <Pencil className="w-4 h-4" />

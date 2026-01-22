@@ -21,7 +21,7 @@ const MyProfilePage: FunctionComponent = () => {
             <PageHeader
                 title="My Profile"
                 description="Manage your account settings and preferences"
-                icon={<User2Icon className="w-8 h-8 text-blue-600" />}
+                icon={<User2Icon className="w-8 h-8 text-sky-600" />}
             />
 
             <ProfileOverviewCard user={user} />

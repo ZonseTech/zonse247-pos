@@ -42,7 +42,7 @@ export const getProductTableColumns = ({
             cell: (row) => (
                 <div className="py-2">
                     {row.categoryDetails?.name ? (
-                        <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-md text-sm">
+                        <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-300 rounded-md text-sm">
                             <Tag className="w-3.5 h-3.5" />
                             <span>{row.categoryDetails.name}</span>
                         </div>
@@ -123,7 +123,7 @@ export const getProductTableColumns = ({
                     </button>
                     <button
                         onClick={() => onEdit(row)}
-                        className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                        className="p-2 text-sky-600 hover:text-sky-800 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
                         title="Edit product"
                     >
                         <Pencil className="w-4 h-4" />

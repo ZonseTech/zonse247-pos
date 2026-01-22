@@ -71,8 +71,8 @@ export const getDefaultPrinterSummaryCards = (
             title: 'Total',
             value: total,
             icon: <Printer className="w-4 h-4" />,
-            color: 'text-blue-600 dark:text-blue-400',
-            bgColor: 'bg-blue-50 dark:bg-blue-900/20'
+            color: 'text-sky-600 dark:text-sky-400',
+            bgColor: 'bg-sky-50 dark:bg-sky-900/20'
         },
         {
             title: 'Online',

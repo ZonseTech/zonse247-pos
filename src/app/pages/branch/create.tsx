@@ -421,7 +421,7 @@ const BranchForm: FunctionComponent = () => {
                                                         checked={values.chargeTax}
                                                         name='chargeTax'
                                                         onChange={(e) => setFieldValue('chargeTax', e.target.checked)}
-                                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                        className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-gray-300 rounded"
                                                     />
                                                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                                         Charge tax on transactions
@@ -465,7 +465,7 @@ const BranchForm: FunctionComponent = () => {
                                                         checked={values.isVirtualWarehouse}
                                                         name='isVirtualWarehouse'
                                                         onChange={(e) => setFieldValue('isVirtualWarehouse', e.target.checked)}
-                                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                        className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-gray-300 rounded"
                                                     />
                                                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                                         Virtual Warehouse

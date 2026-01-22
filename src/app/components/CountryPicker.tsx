@@ -56,7 +56,7 @@ export default function CountryPicker({
                     className={`${disabled
                         ? "bg-neutral-100 dark:bg-neutral-800"
                         : "bg-white dark:bg-gray-800"
-                        } relative w-full border border-gray-300 dark:border-gray-600 rounded-sm shadow-sm pl-3 pr-10 py-3 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 sm:text-sm text-gray-900 dark:text-gray-100`}
+                        } relative w-full border border-gray-300 dark:border-gray-600 rounded-sm shadow-sm pl-3 pr-10 py-3 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-sky-500 dark:focus:ring-sky-400 focus:border-sky-500 dark:focus:border-sky-400 sm:text-sm text-gray-900 dark:text-gray-100`}
                     aria-haspopup="listbox"
                     aria-expanded="true"
                     aria-labelledby="listbox-label"
@@ -154,7 +154,7 @@ export default function CountryPicker({
                                                     {value.title}
                                                 </span>
                                                 {value.value === selectedValue.value ? (
-                                                    <span className="text-blue-600 dark:text-blue-400 absolute inset-y-0 right-0 flex items-center pr-8">
+                                                    <span className="text-sky-600 dark:text-sky-400 absolute inset-y-0 right-0 flex items-center pr-8">
                                                         <svg
                                                             className="h-5 w-5"
                                                             xmlns="http://www.w3.org/2000/svg"

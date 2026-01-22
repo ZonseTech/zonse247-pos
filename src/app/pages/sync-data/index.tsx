@@ -383,8 +383,8 @@ const SyncData: FunctionComponent = () => {
 			<AppLayout>
 				<div className="min-h-[60vh] flex flex-col items-center justify-center">
 					<div className="relative">
-						<div className="w-16 h-16 border-4 border-blue-200 dark:border-blue-900 rounded-full" />
-						<div className="absolute top-0 left-0 w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+						<div className="w-16 h-16 border-4 border-sky-200 dark:border-sky-900 rounded-full" />
+						<div className="absolute top-0 left-0 w-16 h-16 border-4 border-sky-600 border-t-transparent rounded-full animate-spin" />
 					</div>
 					<p className="mt-4 text-slate-600 dark:text-slate-400 font-medium">Loading sync data...</p>
 				</div>
@@ -400,7 +400,7 @@ const SyncData: FunctionComponent = () => {
 					title="Data Synchronization"
 					description="Manage and sync your data between local and remote databases"
 					icon={
-						<div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+						<div className="p-2 bg-gradient-to-br from-sky-500 to-indigo-600 rounded-xl shadow-lg">
 							<HiOutlineArrowPath className="w-6 h-6 text-white" />
 						</div>
 					}
@@ -411,7 +411,7 @@ const SyncData: FunctionComponent = () => {
 								<button
 									onClick={() => setViewMode('grid')}
 									className={`p-2 rounded-md transition-colors ${viewMode === 'grid'
-										? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm'
+										? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm'
 										: 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
 										}`}
 								>
@@ -420,7 +420,7 @@ const SyncData: FunctionComponent = () => {
 								<button
 									onClick={() => setViewMode('list')}
 									className={`p-2 rounded-md transition-colors ${viewMode === 'list'
-										? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm'
+										? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm'
 										: 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
 										}`}
 								>
@@ -470,7 +470,7 @@ const SyncData: FunctionComponent = () => {
 							placeholder="Search tables..."
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
-							className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+							className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-sky-500 focus:border-transparent"
 						/>
 					</div>
 					<div className="relative">
@@ -478,7 +478,7 @@ const SyncData: FunctionComponent = () => {
 						<select
 							value={filterStatus}
 							onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
-							className="pl-10 pr-8 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer min-w-[160px]"
+							className="pl-10 pr-8 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-transparent appearance-none cursor-pointer min-w-[160px]"
 						>
 							<option value="all">All Status</option>
 							<option value="synced">Synced</option>
@@ -504,7 +504,7 @@ const SyncData: FunctionComponent = () => {
 						</p>
 						<button
 							onClick={fetchTables}
-							className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+							className="inline-flex items-center gap-2 px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-medium rounded-lg transition-colors"
 						>
 							<HiOutlineRefresh className="w-4 h-4" />
 							Refresh

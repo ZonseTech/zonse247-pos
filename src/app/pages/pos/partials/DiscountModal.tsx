@@ -120,10 +120,10 @@ const DiscountModal: FunctionComponent<DiscountModalProps> = ({
         >
             <div className="p-6 space-y-6">
                 {/* Cart Summary */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-xl p-4 border border-blue-100 dark:border-gray-600">
+                <div className="bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-xl p-4 border border-sky-100 dark:border-gray-600">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-blue-500 dark:bg-blue-600 rounded-lg flex items-center justify-center">
+                            <div className="w-10 h-10 bg-sky-500 dark:bg-sky-600 rounded-lg flex items-center justify-center">
                                 <HiOutlineCurrencyDollar className="w-5 h-5 text-white" />
                             </div>
                             <div>

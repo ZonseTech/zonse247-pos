@@ -233,7 +233,7 @@ const InputKeyboard: FunctionComponent<InputKeyboardProps> = ({
         : "flex items-center justify-center text-xl font-semibold rounded-lg transition-all duration-150 select-none cursor-pointer active:scale-95 h-14 shadow-sm";
     const regularKeyClasses = themeClasses.regularKey;
     const specialKeyClasses = themeClasses.specialKey;
-    const activeSpecialClasses = "bg-gradient-to-b from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white border-blue-600 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-400 dark:hover:to-blue-500 dark:border-blue-500";
+    const activeSpecialClasses = "bg-gradient-to-b from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-600 text-white border-sky-600 dark:from-sky-500 dark:to-sky-600 dark:hover:from-sky-400 dark:hover:to-sky-500 dark:border-sky-500";
     const backKeyClasses = "bg-gradient-to-b from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 border border-yellow-600 text-gray-800 dark:from-yellow-500 dark:to-yellow-600 dark:hover:from-yellow-400 dark:hover:to-yellow-500 dark:border-yellow-500 dark:text-gray-900";
     const enterKeyClasses = "bg-gradient-to-b from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 border-green-600 text-white dark:from-green-500 dark:to-green-600 dark:hover:from-green-400 dark:hover:to-green-500 dark:border-green-500";
     const rowGridClass = compact ? "grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-0.5 auto-cols-fr" : "grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-1 auto-cols-fr";

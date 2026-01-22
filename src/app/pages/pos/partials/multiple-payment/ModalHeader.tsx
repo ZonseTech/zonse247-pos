@@ -15,7 +15,7 @@ const ModalHeader: FunctionComponent<ModalHeaderProps> = ({
         )}>
             <div className="flex items-center gap-3">
                 <div className={classNames(
-                    "bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/20",
+                    "bg-gradient-to-br from-cyan-500 to-sky-600 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/20",
                     isEBN ? "w-9 h-9" : "w-10 h-10 sm:w-11 sm:h-11"
                 )}>
                     <CreditCard className={classNames(

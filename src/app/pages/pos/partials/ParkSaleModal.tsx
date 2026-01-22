@@ -123,10 +123,10 @@ const ParkSaleModal: FunctionComponent<ParkSaleModalProps> = ({
         >
             <div className="flex flex-col gap-6 p-2">
                 <div className="space-y-4">
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-xl p-4 border border-blue-100 dark:border-gray-600">
+                    <div className="bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-xl p-4 border border-sky-100 dark:border-gray-600">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 bg-blue-500 dark:bg-blue-600 rounded-lg flex items-center justify-center">
+                                <div className="w-10 h-10 bg-sky-500 dark:bg-sky-600 rounded-lg flex items-center justify-center">
                                     <HiOutlineShoppingCart className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
@@ -136,7 +136,7 @@ const ParkSaleModal: FunctionComponent<ParkSaleModalProps> = ({
                             </div>
                             <div className="text-right">
                                 <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{cart.length}</p>
-                                <p className="text-xs text-blue-600 dark:text-blue-400">items</p>
+                                <p className="text-xs text-sky-600 dark:text-sky-400">items</p>
                             </div>
                         </div>
                     </div>

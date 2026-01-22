@@ -43,11 +43,11 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <div className={classNames(
-                            "bg-blue-100 dark:bg-blue-500/20 rounded-xl",
+                            "bg-sky-100 dark:bg-sky-500/20 rounded-xl",
                             compact ? "p-1" : "p-2.5"
                         )}>
                             <HiOutlineShoppingCart className={classNames(
-                                "text-blue-600 dark:text-blue-400",
+                                "text-sky-600 dark:text-sky-400",
                                 compact ? "w-3.5 h-3.5" : "w-6 h-6"
                             )} />
                         </div>
@@ -66,7 +66,7 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                     </div>
                     {cart.length > 0 && (
                         <span className={classNames(
-                            "font-semibold bg-blue-600 text-white rounded-full",
+                            "font-semibold bg-sky-600 text-white rounded-full",
                             compact ? "px-1.5 py-0.5 text-[10px]" : "px-3 py-1.5 text-sm"
                         )}>
                             {cart.reduce((sum, item) => sum + item.quantity, 0)} units
@@ -211,7 +211,7 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                             cart.map((item, index) => (
                                 <tr
                                     key={item.productId}
-                                    className="group hover:bg-blue-50/50 dark:hover:bg-blue-500/5 transition-all duration-200"
+                                    className="group hover:bg-sky-50/50 dark:hover:bg-sky-500/5 transition-all duration-200"
                                 >
                                     <td className={classNames(compact ? "px-1.5 py-1" : "px-4 py-4")}>
                                         <div className="flex items-center gap-2">
@@ -224,7 +224,7 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                                                 </p>
                                                 {item.isDefault && (
                                                     <span className={classNames(
-                                                        "inline-flex items-center rounded-full font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 mt-0.5",
+                                                        "inline-flex items-center rounded-full font-medium bg-sky-100 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 mt-0.5",
                                                         compact ? "px-1 py-0 text-[7px]" : "px-2 py-0.5 text-xs"
                                                     )}>
                                                         Custom Item

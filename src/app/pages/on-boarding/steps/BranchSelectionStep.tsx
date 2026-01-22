@@ -15,7 +15,7 @@ const BranchSelectionStep: FunctionComponent<{ branches: Array<Branch>, onBranch
                     <div
                         key={branch.branchId}
                         onClick={() => onBranchSelect(branch)}
-                        className="p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-colors"
+                        className="p-4 border border-gray-200 rounded-lg hover:border-sky-500 hover:bg-sky-50 cursor-pointer transition-colors"
                     >
                         <div className="flex items-center justify-between">
                             <div>

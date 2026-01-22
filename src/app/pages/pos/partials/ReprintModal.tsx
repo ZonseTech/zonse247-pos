@@ -216,7 +216,7 @@ const ReprintModal: FunctionComponent<ReprintModalProps> = ({
                             onChange={(e) => setSearchTerm(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSearch(1)}
                             className={classNames(
-                                "w-full pl-10 pr-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white",
+                                "w-full pl-10 pr-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white",
                                 isEBN ? "py-2 text-sm" : "py-3"
                             )}
                         />
@@ -248,7 +248,7 @@ const ReprintModal: FunctionComponent<ReprintModalProps> = ({
                 )}>
                     {isLoading ? (
                         <div className="flex items-center justify-center py-8">
-                            <RefreshCw className="w-6 h-6 animate-spin text-blue-500" />
+                            <RefreshCw className="w-6 h-6 animate-spin text-sky-500" />
                             <span className="ml-2 text-gray-500">Loading sales...</span>
                         </div>
                     ) : recentSales.length === 0 ? (
@@ -267,7 +267,7 @@ const ReprintModal: FunctionComponent<ReprintModalProps> = ({
                                         "cursor-pointer transition-colors",
                                         isEBN ? "p-2" : "p-3",
                                         selectedSale?.id === sale.id
-                                            ? "bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500"
+                                            ? "bg-sky-50 dark:bg-sky-900/30 border-l-4 border-sky-500"
                                             : "hover:bg-gray-50 dark:hover:bg-gray-800"
                                     )}
                                 >
@@ -370,11 +370,11 @@ const ReprintModal: FunctionComponent<ReprintModalProps> = ({
                 {/* Selected Sale Details */}
                 {selectedSale && (
                     <div className={classNames(
-                        "bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800",
+                        "bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800",
                         isEBN ? "p-2" : "p-4"
                     )}>
                         <h4 className={classNames(
-                            "font-semibold text-blue-900 dark:text-blue-200 mb-2",
+                            "font-semibold text-sky-900 dark:text-sky-200 mb-2",
                             isEBN ? "text-sm" : "text-base"
                         )}>
                             Selected Sale: {selectedSale.saleNumber || selectedSale.id.slice(0, 8)}
@@ -430,7 +430,7 @@ const ReprintModal: FunctionComponent<ReprintModalProps> = ({
                             value={copies}
                             onChange={(e) => setCopies(Math.max(1, Math.min(5, parseInt(e.target.value) || 1)))}
                             className={classNames(
-                                "w-16 text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white",
+                                "w-16 text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white",
                                 isEBN ? "py-1 text-sm" : "py-2"
                             )}
                         />

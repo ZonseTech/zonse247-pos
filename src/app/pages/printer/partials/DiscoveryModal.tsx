@@ -102,7 +102,7 @@ export const DiscoveryModal = ({
                                                 {printer.manufacturer && <span>• {printer.manufacturer}</span>}
                                             </div>
                                             <div className="flex items-center gap-2 mt-1">
-                                                <span className={`px-2 py-0.5 rounded text-xs font-medium ${printer.connectionType === 'USB' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'}`}>
+                                                <span className={`px-2 py-0.5 rounded text-xs font-medium ${printer.connectionType === 'USB' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' : 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300'}`}>
                                                     {printer.connectionType}
                                                 </span>
                                                 <span className={`px-2 py-0.5 rounded text-xs font-medium ${printer.isOnline ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'}`}>

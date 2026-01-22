@@ -364,7 +364,7 @@ export const getInventoryTableColumns = ({
                         {onView && (
                             <button
                                 onClick={() => onView(row)}
-                                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20"
                                 title="View Details"
                             >
                                 <Eye className="w-4 h-4" />

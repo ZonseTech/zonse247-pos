@@ -82,26 +82,12 @@ const TransactionToSaleMigration: React.FC<TransactionToSaleMigrationProps> = ({
 
     return (
         <div className="space-y-6">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl px-6 py-5 text-white">
-                <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-white/20 rounded-lg">
-                        <HiOutlineArrowRight className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h2 className="text-xl font-bold">Transaction to Sale Migration</h2>
-                        <p className="text-blue-100 text-sm mt-0.5">
-                            Migrate legacy transaction records to the new Sale format
-                        </p>
-                    </div>
-                </div>
-            </div>
 
             {/* Migration Status Card */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div className="px-5 py-4 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <HiOutlineChartBar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <HiOutlineChartBar className="w-5 h-5 text-sky-600 dark:text-sky-400" />
                         <h3 className="font-semibold text-gray-900 dark:text-white">Migration Status</h3>
                     </div>
                     <Button
@@ -123,7 +109,7 @@ const TransactionToSaleMigration: React.FC<TransactionToSaleMigrationProps> = ({
                 <div className="p-5">
                     {isLoadingStatus && !status ? (
                         <div className="flex items-center justify-center py-8">
-                            <FaSpinner className="w-6 h-6 text-blue-500 animate-spin" />
+                            <FaSpinner className="w-6 h-6 text-sky-500 animate-spin" />
                             <span className="ml-2 text-gray-500">Loading status...</span>
                         </div>
                     ) : status ? (
@@ -140,7 +126,7 @@ const TransactionToSaleMigration: React.FC<TransactionToSaleMigrationProps> = ({
                                     <div
                                         className={`h-full rounded-full transition-all duration-500 ${status.isComplete
                                             ? 'bg-green-500'
-                                            : 'bg-blue-500'
+                                            : 'bg-sky-500'
                                             }`}
                                         style={{ width: `${getProgressPercentage()}%` }}
                                     />
@@ -223,7 +209,7 @@ const TransactionToSaleMigration: React.FC<TransactionToSaleMigrationProps> = ({
                                 max={500}
                                 value={batchSize}
                                 onChange={(e) => setBatchSize(Math.min(500, Math.max(10, parseInt(e.target.value) || 100)))}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                             />
                             <p className="text-xs text-gray-500 mt-1">Records processed per batch (10-500)</p>
                         </div>
@@ -237,7 +223,7 @@ const TransactionToSaleMigration: React.FC<TransactionToSaleMigrationProps> = ({
                                 <button
                                     onClick={() => setDryRun(true)}
                                     className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${dryRun
-                                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 ring-2 ring-blue-500'
+                                        ? 'bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300 ring-2 ring-sky-500'
                                         : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                                         }`}
                                 >

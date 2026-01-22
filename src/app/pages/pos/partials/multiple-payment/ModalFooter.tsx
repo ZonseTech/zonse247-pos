@@ -42,7 +42,7 @@ const ModalFooter: FunctionComponent<ModalFooterProps> = ({
                             ? "flex-1 px-6 py-3 text-sm"
                             : "w-full xs:flex-1 px-5 py-3.5 sm:py-4 text-sm sm:text-base",
                         canComplete
-                            ? 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-cyan-500/25'
+                            ? 'bg-gradient-to-r from-cyan-500 to-sky-600 hover:from-cyan-600 hover:to-sky-700 text-white shadow-cyan-500/25'
                             : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed shadow-none'
                     )}
                 >

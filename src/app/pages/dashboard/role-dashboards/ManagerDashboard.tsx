@@ -65,7 +65,7 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
 
     const [cards, setCards] = useState([
         { key: 'totalSales', title: 'Branch Sales', value: 0, icon: <HiOutlineBanknotes />, bgColor: 'bg-green-500 dark:bg-green-600' },
-        { key: 'myTotalTransactions', title: 'Transactions Today', value: 0, icon: <HiOutlineClipboardDocumentList />, bgColor: 'bg-blue-500 dark:bg-blue-600' },
+        { key: 'myTotalTransactions', title: 'Transactions Today', value: 0, icon: <HiOutlineClipboardDocumentList />, bgColor: 'bg-sky-500 dark:bg-sky-600' },
         { key: 'stock', title: 'Products in Stock', value: 0, icon: <HiOutlineBuildingStorefront />, bgColor: 'bg-purple-500 dark:bg-purple-600' },
         { key: 'allCustomers', title: 'Customers Served', value: 0, icon: <HiOutlineUserGroup />, bgColor: 'bg-orange-500 dark:bg-orange-600' },
     ]);
@@ -73,7 +73,7 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
     // Quick actions for managers
     const quickActions: QuickAction[] = [
         { label: 'New Sale', icon: <ShoppingCart size={18} />, onClick: () => navigate(ROUTES.POS), color: 'bg-green-600 hover:bg-green-700' },
-        { label: 'View Inventory', icon: <Package size={18} />, onClick: () => navigate(ROUTES.INVENTORY), color: 'bg-blue-600 hover:bg-blue-700' },
+        { label: 'View Inventory', icon: <Package size={18} />, onClick: () => navigate(ROUTES.INVENTORY), color: 'bg-sky-600 hover:bg-sky-700' },
         { label: 'Team Members', icon: <Users size={18} />, onClick: () => navigate(ROUTES.USERS), color: 'bg-purple-600 hover:bg-purple-700' },
     ];
 
@@ -224,7 +224,7 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
                         headers={topProductsHeaders}
                         data={topProductsData.slice(0, 5)}
                         renderRow={p => <RenderTopProductRow product={p} />}
-                        icon={<RiMedicineBottleFill className="mr-2 text-blue-600 dark:text-blue-400" />}
+                        icon={<RiMedicineBottleFill className="mr-2 text-sky-600 dark:text-sky-400" />}
                     />
                 </div>
 
@@ -312,8 +312,8 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
                 {/* Today's Summary */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                            <Clock className="text-blue-600 dark:text-blue-400 w-5 h-5" />
+                        <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
+                            <Clock className="text-sky-600 dark:text-sky-400 w-5 h-5" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Today's Summary</h3>
                     </div>
@@ -367,7 +367,7 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
                     </div>
                     <Link
                         to={ROUTES.INVENTORY}
-                        className="block mt-4 text-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 text-sm font-medium"
+                        className="block mt-4 text-center text-sky-600 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 text-sm font-medium"
                     >
                         View Inventory →
                     </Link>
@@ -391,7 +391,7 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
                     </div>
                     <Link
                         to={ROUTES.CUSTOMERS}
-                        className="block mt-4 text-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 text-sm font-medium"
+                        className="block mt-4 text-center text-sky-600 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 text-sm font-medium"
                     >
                         View Customers →
                     </Link>

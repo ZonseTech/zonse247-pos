@@ -9,11 +9,11 @@ interface EmptyStateProps {
 export const EmptyState: FunctionComponent<EmptyStateProps> = ({ searchTerm, onCreateCategory }) => (
     <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-gray-700 p-8 sm:p-12 text-center">
         <div className="relative inline-flex mb-6">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/40 dark:to-blue-800/40 rounded-2xl sm:rounded-3xl flex items-center justify-center">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-sky-100 to-sky-200 dark:from-sky-900/40 dark:to-sky-800/40 rounded-2xl sm:rounded-3xl flex items-center justify-center">
                 {searchTerm ? (
-                    <Search className="w-10 h-10 sm:w-12 sm:h-12 text-blue-500 dark:text-blue-400" />
+                    <Search className="w-10 h-10 sm:w-12 sm:h-12 text-sky-500 dark:text-sky-400" />
                 ) : (
-                    <FolderOpen className="w-10 h-10 sm:w-12 sm:h-12 text-blue-500 dark:text-blue-400" />
+                    <FolderOpen className="w-10 h-10 sm:w-12 sm:h-12 text-sky-500 dark:text-sky-400" />
                 )}
             </div>
             {!searchTerm && (
@@ -35,7 +35,7 @@ export const EmptyState: FunctionComponent<EmptyStateProps> = ({ searchTerm, onC
         {!searchTerm && (
             <button
                 onClick={onCreateCategory}
-                className="group bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 dark:hover:from-blue-600 dark:hover:to-blue-700 transition-all duration-200 inline-flex items-center gap-2 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 active:scale-[0.98]"
+                className="group bg-gradient-to-r from-sky-600 to-sky-700 dark:from-sky-500 dark:to-sky-600 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl hover:from-sky-700 hover:to-sky-800 dark:hover:from-sky-600 dark:hover:to-sky-700 transition-all duration-200 inline-flex items-center gap-2 shadow-lg shadow-sky-500/25 hover:shadow-xl hover:shadow-sky-500/30 active:scale-[0.98]"
             >
                 <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-200" />
                 <span className="font-medium">Create Category</span>

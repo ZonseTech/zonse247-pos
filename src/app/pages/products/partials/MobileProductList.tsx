@@ -32,7 +32,7 @@ const MobileProductList: React.FC<MobileProductListProps> = ({
     if (isLoading && data.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-16">
-                <Loader2 className="h-10 w-10 text-blue-500 animate-spin" />
+                <Loader2 className="h-10 w-10 text-sky-500 animate-spin" />
                 <p className="mt-4 text-gray-500 dark:text-gray-400">Loading products...</p>
             </div>
         );
@@ -64,7 +64,7 @@ const MobileProductList: React.FC<MobileProductListProps> = ({
                     Showing {data.length} of {totalRows} products
                 </p>
                 {selectedItems.length > 0 && (
-                    <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                    <span className="text-sm font-medium text-sky-600 dark:text-sky-400">
                         {selectedItems.length} selected
                     </span>
                 )}
@@ -86,7 +86,7 @@ const MobileProductList: React.FC<MobileProductListProps> = ({
             {/* Loading indicator for pagination */}
             {isLoading && data.length > 0 && (
                 <div className="flex items-center justify-center py-4">
-                    <Loader2 className="h-6 w-6 text-blue-500 animate-spin" />
+                    <Loader2 className="h-6 w-6 text-sky-500 animate-spin" />
                 </div>
             )}
         </div>

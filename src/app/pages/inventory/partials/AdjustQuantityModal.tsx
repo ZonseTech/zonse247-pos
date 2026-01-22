@@ -92,10 +92,10 @@ const AdjustQuantityModal: React.FC<AdjustQuantityModalProps> = ({
                     : "flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
                 }>
                     <div className={isEBN
-                        ? "p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded"
-                        : "p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg"
+                        ? "p-1.5 bg-sky-100 dark:bg-sky-900/30 rounded"
+                        : "p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg"
                     }>
-                        <Package className={isEBN ? "w-4 h-4 text-blue-600 dark:text-blue-400" : "w-5 h-5 text-blue-600 dark:text-blue-400"} />
+                        <Package className={isEBN ? "w-4 h-4 text-sky-600 dark:text-sky-400" : "w-5 h-5 text-sky-600 dark:text-sky-400"} />
                     </div>
                     <div>
                         <p className={isEBN
@@ -159,11 +159,11 @@ const AdjustQuantityModal: React.FC<AdjustQuantityModalProps> = ({
                             onClick={() => setAdjustmentType('set')}
                             className={isEBN
                                 ? `flex-1 p-2 rounded border-2 flex items-center justify-center gap-1 transition-colors text-xs ${adjustmentType === 'set'
-                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                                    ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400'
                                     : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
                                 }`
                                 : `flex-1 p-3 rounded-lg border-2 flex items-center justify-center gap-2 transition-colors ${adjustmentType === 'set'
-                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                                    ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400'
                                     : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
                                 }`
                             }
@@ -205,12 +205,12 @@ const AdjustQuantityModal: React.FC<AdjustQuantityModalProps> = ({
                 {/* Preview */}
                 {adjustmentValue && (
                     <div className={isEBN
-                        ? "p-2 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800"
-                        : "p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
+                        ? "p-2 bg-sky-50 dark:bg-sky-900/20 rounded border border-sky-200 dark:border-sky-800"
+                        : "p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800"
                     }>
                         <p className={isEBN
-                            ? "text-[10px] text-blue-800 dark:text-blue-200"
-                            : "text-sm text-blue-800 dark:text-blue-200"
+                            ? "text-[10px] text-sky-800 dark:text-sky-200"
+                            : "text-sm text-sky-800 dark:text-sky-200"
                         }>
                             New quantity will be: <span className="font-bold">{getNewQuantity()}</span>
                         </p>

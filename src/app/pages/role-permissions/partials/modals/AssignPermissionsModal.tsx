@@ -264,10 +264,10 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
                                 </div>
 
                                 {savingPermissions.size > 0 && (
-                                    <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <div className="mb-4 p-3 bg-sky-50 border border-sky-200 rounded-lg">
                                         <div className="flex items-center">
-                                            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
-                                            <span className="text-sm text-blue-800">
+                                            <div className="w-4 h-4 border-2 border-sky-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                                            <span className="text-sm text-sky-800">
                                                 Updating {savingPermissions.size} permission(s)...
                                             </span>
                                         </div>
@@ -332,7 +332,7 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
                                                                         </span>
                                                                     )}
                                                                     {isAssigned && (
-                                                                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                                                                        <span className="text-xs bg-sky-100 text-sky-800 px-2 py-0.5 rounded">
                                                                             Assigned
                                                                         </span>
                                                                     )}

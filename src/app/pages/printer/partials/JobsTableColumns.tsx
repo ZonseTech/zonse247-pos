@@ -15,7 +15,7 @@ const JOB_TYPE_ICONS: Record<PrintJobType, React.ReactNode> = {
 
 const STATUS_CONFIG: Record<PrintJobStatus, { bg: string; text: string; icon: React.ReactNode }> = {
     PENDING: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-800 dark:text-yellow-300', icon: <Clock className="w-3 h-3" /> },
-    PRINTING: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-800 dark:text-blue-300', icon: <Loader2 className="w-3 h-3 animate-spin" /> },
+    PRINTING: { bg: 'bg-sky-100 dark:bg-sky-900/30', text: 'text-sky-800 dark:text-sky-300', icon: <Loader2 className="w-3 h-3 animate-spin" /> },
     COMPLETED: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-800 dark:text-green-300', icon: <CheckCircle className="w-3 h-3" /> },
     FAILED: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-800 dark:text-red-300', icon: <XCircle className="w-3 h-3" /> },
     CANCELLED: { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-800 dark:text-gray-300', icon: <X className="w-3 h-3" /> },
@@ -111,7 +111,7 @@ export const getJobsTableColumns = (
                     )}
                     {row.status === 'FAILED' && (
                         <>
-                            <button onClick={() => onRetry(row.printJobId, row.jobTitle)} className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20" title="Retry">
+                            <button onClick={() => onRetry(row.printJobId, row.jobTitle)} className="p-1.5 rounded-lg text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20" title="Retry">
                                 <RotateCcw className="w-4 h-4" />
                             </button>
                             {row.errorMessage && (

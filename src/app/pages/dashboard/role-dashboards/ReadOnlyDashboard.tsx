@@ -44,7 +44,7 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
 
     const [cards, setCards] = useState([
         { key: 'totalSales', title: 'Total Sales', value: 0, icon: <HiOutlineBanknotes />, bgColor: 'bg-green-500 dark:bg-green-600' },
-        { key: 'stock', title: 'Total Products', value: 0, icon: <HiOutlineBuildingStorefront />, bgColor: 'bg-blue-500 dark:bg-blue-600' },
+        { key: 'stock', title: 'Total Products', value: 0, icon: <HiOutlineBuildingStorefront />, bgColor: 'bg-sky-500 dark:bg-sky-600' },
         { key: 'allCustomers', title: 'Total Customers', value: 0, icon: <HiOutlineUserGroup />, bgColor: 'bg-purple-500 dark:bg-purple-600' },
         { key: 'myTotalTransactions', title: 'Total Transactions', value: 0, icon: <FileText size={20} />, bgColor: 'bg-orange-500 dark:bg-orange-600' },
     ]);
@@ -116,16 +116,16 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
     return (
         <div className="space-y-6">
             {/* Read-Only Notice */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40 rounded-lg p-4 shadow-sm">
+            <div className="bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/40 rounded-lg p-4 shadow-sm">
                 <div className="flex items-center">
-                    <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg mr-3">
-                        {isAuditor ? <Eye className="w-5 h-5 text-blue-600 dark:text-blue-400" /> : <Lock className="w-5 h-5 text-blue-600 dark:text-blue-400" />}
+                    <div className="p-2 bg-sky-100 dark:bg-sky-900/40 rounded-lg mr-3">
+                        {isAuditor ? <Eye className="w-5 h-5 text-sky-600 dark:text-sky-400" /> : <Lock className="w-5 h-5 text-sky-600 dark:text-sky-400" />}
                     </div>
                     <div>
-                        <h3 className="text-blue-900 dark:text-blue-200 font-semibold">
+                        <h3 className="text-sky-900 dark:text-sky-200 font-semibold">
                             {isAuditor ? 'Auditor View' : 'Viewer Mode'}
                         </h3>
-                        <p className="text-blue-700 dark:text-blue-300 text-sm">
+                        <p className="text-sky-700 dark:text-sky-300 text-sm">
                             {isAuditor
                                 ? 'You have read-only access with full visibility for audit purposes.'
                                 : 'You have read-only access to view sales, products, and reports.'
@@ -157,7 +157,7 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
                         headers={topProductsHeaders}
                         data={topProductsData}
                         renderRow={p => <RenderTopProductRow product={p} />}
-                        icon={<RiMedicineBottleFill className="mr-2 text-blue-600 dark:text-blue-400" />}
+                        icon={<RiMedicineBottleFill className="mr-2 text-sky-600 dark:text-sky-400" />}
                     />
                 </div>
 
@@ -240,8 +240,8 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
                 {/* Inventory Summary */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                            <HiOutlineBuildingStorefront className="text-blue-600 dark:text-blue-400 w-5 h-5" />
+                        <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
+                            <HiOutlineBuildingStorefront className="text-sky-600 dark:text-sky-400 w-5 h-5" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Inventory Summary</h3>
                     </div>
@@ -262,7 +262,7 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
                     {isAuditor && (
                         <Link
                             to={ROUTES.INVENTORY}
-                            className="block mt-4 text-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 text-sm font-medium"
+                            className="block mt-4 text-center text-sky-600 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 text-sm font-medium"
                         >
                             View Full Inventory →
                         </Link>
@@ -302,7 +302,7 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
                     {isAuditor && (
                         <Link
                             to={ROUTES.SALES}
-                            className="block mt-4 text-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 text-sm font-medium"
+                            className="block mt-4 text-center text-sky-600 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 text-sm font-medium"
                         >
                             View All Sales →
                         </Link>

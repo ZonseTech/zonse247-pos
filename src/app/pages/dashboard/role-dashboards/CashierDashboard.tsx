@@ -46,7 +46,7 @@ const CashierDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
 
     const [cards, setCards] = useState([
         { key: 'totalSales', title: 'My Total Sales', value: 0, icon: <HiOutlineBanknotes />, bgColor: 'bg-green-500 dark:bg-green-600' },
-        { key: 'myTotalTransactions', title: 'My Transactions', value: 0, icon: <Receipt size={20} />, bgColor: 'bg-blue-500 dark:bg-blue-600' },
+        { key: 'myTotalTransactions', title: 'My Transactions', value: 0, icon: <Receipt size={20} />, bgColor: 'bg-sky-500 dark:bg-sky-600' },
         { key: 'avgTransaction', title: 'Avg Transaction', value: 0, icon: <TrendingUp size={20} />, bgColor: 'bg-purple-500 dark:bg-purple-600' },
         { key: 'todayTransactions', title: 'Today\'s Count', value: 0, icon: <Clock size={20} />, bgColor: 'bg-orange-500 dark:bg-orange-600' },
     ]);
@@ -167,7 +167,7 @@ const CashierDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
                                 setTransaction={setTransaction}
                             />
                         )}
-                        icon={<HiOutlineClipboardDocumentList className="mr-2 text-blue-600 dark:text-blue-400" />}
+                        icon={<HiOutlineClipboardDocumentList className="mr-2 text-sky-600 dark:text-sky-400" />}
                     >
                         <div className='flex items-center justify-between bg-white dark:bg-gray-800/50 px-4 py-3 rounded-sm'>
                             <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -231,8 +231,8 @@ const CashierDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
                     {/* Quick Tips */}
                     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                                <Award className="text-blue-600 dark:text-blue-400 w-5 h-5" />
+                            <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
+                                <Award className="text-sky-600 dark:text-sky-400 w-5 h-5" />
                             </div>
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Tips</h3>
                         </div>

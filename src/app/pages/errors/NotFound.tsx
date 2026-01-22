@@ -30,7 +30,7 @@ const NotFound: FunctionComponent = () => {
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-8 overflow-hidden relative">
             <div className="absolute inset-0 overflow-hidden">
                 <div
-                    className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"
+                    className="absolute top-1/4 left-1/4 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl animate-pulse"
                     style={{ transform: `translate(${parallaxX}px, ${parallaxY}px)` }}
                 />
                 <div
@@ -43,14 +43,14 @@ const NotFound: FunctionComponent = () => {
                 <div className="text-center space-y-8">
                     <div className="relative">
                         <div className="absolute inset-0 flex items-center justify-center opacity-20">
-                            <div className="text-[20rem] font-bold text-blue-500/20 select-none">404</div>
+                            <div className="text-[20rem] font-bold text-sky-500/20 select-none">404</div>
                         </div>
                         <div className="relative space-y-4 pt-16">
                             <div className="flex items-center justify-center gap-4 mb-8">
                                 <div className="p-4 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 animate-bounce delay-100">
-                                    <Package className="w-12 h-12 text-blue-400" />
+                                    <Package className="w-12 h-12 text-sky-400" />
                                 </div>
-                                <div className="text-9xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 text-transparent bg-clip-text">
+                                <div className="text-9xl font-bold bg-gradient-to-r from-sky-400 via-purple-400 to-pink-400 text-transparent bg-clip-text">
                                     404
                                 </div>
                                 <div className="p-4 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 animate-bounce delay-300">

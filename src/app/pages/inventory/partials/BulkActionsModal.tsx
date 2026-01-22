@@ -215,11 +215,11 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
                                 onClick={() => setAdjustmentType('set')}
                                 className={isEBN
                                     ? `flex-1 p-2 rounded border-2 flex items-center justify-center gap-1 transition-colors text-xs ${adjustmentType === 'set'
-                                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                                        ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400'
                                         : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
                                     }`
                                     : `flex-1 p-3 rounded-lg border-2 flex items-center justify-center gap-2 transition-colors ${adjustmentType === 'set'
-                                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                                        ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400'
                                         : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
                                     }`
                                 }
@@ -260,11 +260,11 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
                         <button
                             onClick={() => setActionType('move-category')}
                             className={isEBN
-                                ? "p-2 rounded border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all flex flex-col items-center gap-1"
-                                : "p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all flex flex-col items-center gap-2"
+                                ? "p-2 rounded border-2 border-gray-200 dark:border-gray-700 hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all flex flex-col items-center gap-1"
+                                : "p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all flex flex-col items-center gap-2"
                             }
                         >
-                            <FolderInput className={isEBN ? "w-5 h-5 text-blue-600 dark:text-blue-400" : "w-8 h-8 text-blue-600 dark:text-blue-400"} />
+                            <FolderInput className={isEBN ? "w-5 h-5 text-sky-600 dark:text-sky-400" : "w-8 h-8 text-sky-600 dark:text-sky-400"} />
                             <span className={isEBN
                                 ? "text-[10px] font-medium text-gray-900 dark:text-gray-100"
                                 : "font-medium text-gray-900 dark:text-gray-100"

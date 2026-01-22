@@ -23,8 +23,8 @@ import { useInventorySummary } from '../../hooks/useInventorySummary';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 
-// Format currency for display
-const formatCurrency = (value: number): string => {
+// Format currency for display (abbreviated)
+const formatCurrencyShort = (value: number): string => {
     if (value >= 1000000) {
         return `MK ${(value / 1000000).toFixed(1)}M`;
     }
@@ -32,6 +32,11 @@ const formatCurrency = (value: number): string => {
         return `MK ${(value / 1000).toFixed(1)}K`;
     }
     return `MK ${value.toFixed(0)}`;
+};
+
+// Format currency for display (full value)
+const formatCurrencyFull = (value: number): string => {
+    return `MK ${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
 const InventoryManagement: FunctionComponent = () => {
@@ -55,9 +60,9 @@ const InventoryManagement: FunctionComponent = () => {
                 title: 'Products',
                 value: overview.totalProducts,
                 icon: 'products',
-                bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-                iconBgColor: 'bg-blue-100 dark:bg-blue-900/40',
-                textColor: 'text-blue-600 dark:text-blue-400',
+                bgColor: 'bg-sky-50 dark:bg-sky-900/20',
+                iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
+                textColor: 'text-sky-600 dark:text-sky-400',
             },
             {
                 title: 'Total Units',
@@ -70,7 +75,8 @@ const InventoryManagement: FunctionComponent = () => {
             {
                 title: 'Stock Value',
                 value: overview.totalStockValue,
-                displayValue: formatCurrency(overview.totalStockValue),
+                displayValue: formatCurrencyShort(overview.totalStockValue),
+                fullValue: formatCurrencyFull(overview.totalStockValue),
                 icon: 'stockValue',
                 bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
                 iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
@@ -79,7 +85,8 @@ const InventoryManagement: FunctionComponent = () => {
             {
                 title: 'Retail Value',
                 value: overview.totalRetailValue,
-                displayValue: formatCurrency(overview.totalRetailValue),
+                displayValue: formatCurrencyShort(overview.totalRetailValue),
+                fullValue: formatCurrencyFull(overview.totalRetailValue),
                 icon: 'retailValue',
                 bgColor: 'bg-cyan-50 dark:bg-cyan-900/20',
                 iconBgColor: 'bg-cyan-100 dark:bg-cyan-900/40',
@@ -111,8 +118,6 @@ const InventoryManagement: FunctionComponent = () => {
 
     const [isAdjustQuantityOpen, setIsAdjustQuantityOpen] = useState(false);
     const [selectedItemForAdjust, setSelectedItemForAdjust] = useState<InventoryItem | null>(null);
-    const [perPage, setPerPage] = useState(10);
-    const [currentPage, setCurrentPage] = useState(1);
 
     const {
         isLoading,
@@ -123,6 +128,8 @@ const InventoryManagement: FunctionComponent = () => {
         categoryId,
         startDate,
         endDate,
+        page,
+        perPage,
         loadInventory,
         loadCategories,
         handleSearch,
@@ -137,6 +144,9 @@ const InventoryManagement: FunctionComponent = () => {
         activeFilter,
         applyFilters
     } = useInventoryManagement();
+
+    // Calculate total pages for pagination
+    const totalPages = Math.ceil(totalRows / perPage);
 
     const { summaryData, loadSummary } = useInventorySummary(setActiveFilter, loadInventory, applyFilters);
 
@@ -280,7 +290,7 @@ const InventoryManagement: FunctionComponent = () => {
         <AppLayout>
             <div className="max-w-full">
                 <PageHeader
-                    icon={<Package className="w-8 h-8 text-blue-600" />}
+                    icon={<Package className="w-8 h-8 text-sky-600" />}
                     title="Inventory"
                     description={isMobile ? undefined : "Manage your inventory items, track stock levels, and monitor expiration dates."}
                     action={
@@ -403,7 +413,7 @@ const InventoryManagement: FunctionComponent = () => {
                                     {hasActiveFilters && (
                                         <button
                                             onClick={handleClearFilters}
-                                            className="mt-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm"
+                                            className="mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
                                         >
                                             Clear filters
                                         </button>
@@ -428,22 +438,22 @@ const InventoryManagement: FunctionComponent = () => {
                                     {/* Mobile Pagination */}
                                     <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
                                         <span className="text-xs text-gray-600 dark:text-gray-400">
-                                            {totalRows} total
+                                            Page {page} of {totalPages} ({totalRows} total)
                                         </span>
                                         <div className="flex items-center gap-2">
                                             <button
-                                                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                                                disabled={currentPage <= 1}
+                                                onClick={() => handlePageChange(page - 1)}
+                                                disabled={page <= 1}
                                                 className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                             >
                                                 <HiOutlineChevronLeft className="w-5 h-5" />
                                             </button>
                                             <span className="text-sm text-gray-600 dark:text-gray-400">
-                                                {currentPage}
+                                                {page}
                                             </span>
                                             <button
-                                                onClick={() => handlePageChange(currentPage + 1)}
-                                                disabled={totalRows <= currentPage * perPage}
+                                                onClick={() => handlePageChange(page + 1)}
+                                                disabled={page >= totalPages}
                                                 className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                             >
                                                 <HiOutlineChevronRight className="w-5 h-5" />
@@ -496,7 +506,7 @@ const InventoryManagement: FunctionComponent = () => {
                                         {hasActiveFilters && (
                                             <button
                                                 onClick={handleClearFilters}
-                                                className="mt-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                                                className="mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium"
                                             >
                                                 Clear filters
                                             </button>

@@ -36,7 +36,7 @@ const RenderTransactionRow: FunctionComponent<Props> = ({ trans, setIsOpenDetail
 			<td className="px-6 py-4 whitespace-nowrap">
 				<span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-sm transition-colors duration-200
 					${trans?.paymentMethod?.methodId === DEFAULT_SEED_KEY
-						? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 dark:ring-1 dark:ring-blue-500/30'
+						? 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 dark:ring-1 dark:ring-sky-500/30'
 						: 'bg-green-100 text-yellow-800 dark:bg-green-900/30 dark:text-green-300 dark:ring-1 dark:ring-green-500/30'
 					}`}>
 					{trans?.paymentMethod?.name}

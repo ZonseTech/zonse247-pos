@@ -126,7 +126,7 @@ const HeroSection: FunctionComponent<{ staggerContainer, fadeInUp }> = ({ stagge
 										onClick={() => navigate(ROUTES.GET_STARTED)}
 									>
 										<motion.div
-											className="absolute inset-0 bg-gradient-to-r from-green-400 to-blue-500"
+											className="absolute inset-0 bg-gradient-to-r from-green-400 to-sky-500"
 											initial={{ x: '-100%' }}
 											whileHover={{ x: 0 }}
 											transition={{ duration: 0.3 }}

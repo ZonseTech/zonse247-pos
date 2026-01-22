@@ -173,7 +173,7 @@ export default function RolePermissionAdmin() {
         <PageHeader
           title="Role & Permission"
           description="Manage system roles and permissions"
-          icon={<HiOutlineShieldCheck className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
+          icon={<HiOutlineShieldCheck className="w-8 h-8 text-sky-600 dark:text-sky-400" />}
         />
 
         {error && (

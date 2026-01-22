@@ -60,7 +60,7 @@ const CustomerSelector: FunctionComponent<CustomerSelectorProps> = ({ compact = 
             <button
                 onClick={() => setIsCustomerListModalOpen(true)}
                 className={`inline-flex items-center gap-1.5 font-medium transition-all underline decoration-2 underline-offset-4 hover:decoration-1 ${compact ? 'text-xs' : 'text-sm gap-2'} ${selectedCustomer?.isDefault
-                    ? 'text-blue-700 dark:text-blue-300 decoration-blue-400 hover:text-blue-800 dark:hover:text-blue-200'
+                    ? 'text-sky-700 dark:text-sky-300 decoration-sky-400 hover:text-sky-800 dark:hover:text-sky-200'
                     : 'text-emerald-700 dark:text-emerald-300 decoration-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200'
                     }`}
             >
@@ -94,7 +94,7 @@ const CustomerSelector: FunctionComponent<CustomerSelectorProps> = ({ compact = 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Search by name, phone, or email..."
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                         />
                     </div>
 
@@ -102,13 +102,13 @@ const CustomerSelector: FunctionComponent<CustomerSelectorProps> = ({ compact = 
                         <button
                             onClick={() => handleSelectCustomer(defaultCustomer)}
                             className={`w-full p-4 rounded-lg border-2 transition-all text-left ${selectedCustomer?.customerId === defaultCustomer.customerId
-                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                                : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
+                                ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/20'
+                                : 'border-gray-200 dark:border-gray-700 hover:border-sky-300 dark:hover:border-sky-700'
                                 }`}
                         >
                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                                    <HiOutlineUser className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                                <div className="w-12 h-12 rounded-full bg-sky-100 dark:bg-sky-900 flex items-center justify-center">
+                                    <HiOutlineUser className="w-6 h-6 text-sky-600 dark:text-sky-400" />
                                 </div>
                                 <div>
                                     <div className="font-semibold text-gray-900 dark:text-white">{defaultCustomer.name}</div>
@@ -136,7 +136,7 @@ const CustomerSelector: FunctionComponent<CustomerSelectorProps> = ({ compact = 
                     <div className="max-h-96 overflow-y-auto space-y-2">
                         {isLoading ? (
                             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                                <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                                <div className="animate-spin w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full mx-auto mb-2"></div>
                                 <p>Loading customers...</p>
                             </div>
                         ) : filteredCustomers.length > 0 ? (

@@ -14,7 +14,7 @@ export const useProductSummary = (
     setStatusFilter: (status: ProductStatus | '') => void
 ) => {
     const [summaryData, setSummaryData] = useState<SummaryCard[]>([
-        { title: 'Total Products', value: 0, bgColor: 'bg-blue-400', onClick: () => ({}) },
+        { title: 'Total Products', value: 0, bgColor: 'bg-sky-400', onClick: () => ({}) },
         { title: 'Active', value: 0, bgColor: 'bg-green-400', onClick: () => ({}) },
         { title: 'Inactive', value: 0, bgColor: 'bg-gray-400', onClick: () => ({}) },
         { title: 'Out of Stock', value: 0, bgColor: 'bg-orange-400', onClick: () => ({}) },
@@ -33,7 +33,7 @@ export const useProductSummary = (
                 {
                     title: 'Total Products',
                     value: totalProducts,
-                    bgColor: 'bg-blue-400',
+                    bgColor: 'bg-sky-400',
                     onClick: () => {
                         setActiveFilter('all');
                         setStatusFilter('');

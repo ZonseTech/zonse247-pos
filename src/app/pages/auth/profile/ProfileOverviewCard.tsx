@@ -20,7 +20,7 @@ const ProfileOverviewCard: FunctionComponent<Props> = ({ user }) => {
             <div className="flex flex-col md:flex-row md:items-center gap-6">
                 {/* Avatar Section */}
                 <div className="flex-shrink-0">
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-sky-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
                         {user?.fullname?.charAt(0)?.toUpperCase() || 'U'}
                     </div>
                 </div>
@@ -42,8 +42,8 @@ const ProfileOverviewCard: FunctionComponent<Props> = ({ user }) => {
                     </div>
                     <p className="text-gray-600 dark:text-gray-400 mt-1">@{user?.username}</p>
                     <div className="flex items-center gap-2 mt-2">
-                        <BadgeCheckIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                        <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                        <BadgeCheckIcon className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                        <span className="text-sm font-medium text-sky-600 dark:text-sky-400">
                             {formatRoleName(user?.roleName)}
                         </span>
                     </div>

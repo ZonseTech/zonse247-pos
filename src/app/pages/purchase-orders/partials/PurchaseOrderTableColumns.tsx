@@ -17,7 +17,7 @@ export const getPurchaseOrderTableColumns = ({
             name: 'PO Number',
             cell: (row) => (
                 <div className="py-2">
-                    <div className="font-semibold text-blue-600 dark:text-blue-400">
+                    <div className="font-semibold text-sky-600 dark:text-sky-400">
                         {row.poNumber}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
@@ -81,9 +81,9 @@ export const getPurchaseOrderTableColumns = ({
                         label: 'Pending'
                     },
                     PARTIALLY_RECEIVED: {
-                        bg: 'bg-blue-100 dark:bg-blue-900/30',
-                        text: 'text-blue-800 dark:text-blue-400',
-                        dot: 'bg-blue-500',
+                        bg: 'bg-sky-100 dark:bg-sky-900/30',
+                        text: 'text-sky-800 dark:text-sky-400',
+                        dot: 'bg-sky-500',
                         label: 'Partial'
                     },
                     RECEIVED: {
@@ -121,7 +121,7 @@ export const getPurchaseOrderTableColumns = ({
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => onView(row)}
-                        className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                        className="p-2 text-sky-600 hover:text-sky-800 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
                         title="View details"
                     >
                         <Eye className="w-4 h-4" />

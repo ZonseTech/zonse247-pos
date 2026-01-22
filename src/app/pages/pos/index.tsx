@@ -241,7 +241,7 @@ const POSSystem: FunctionComponent = () => {
             <PageHeader
                 title="Point of Sale"
                 className='md:hidden flex-shrink-0'
-                icon={<HiOutlineShoppingCart className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
+                icon={<HiOutlineShoppingCart className="w-8 h-8 text-sky-600 dark:text-sky-400" />}
                 action={
                     <div className="flex gap-3 items-center">
                         <CustomerSelector />

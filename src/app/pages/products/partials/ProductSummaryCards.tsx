@@ -102,8 +102,8 @@ const ProductSummaryCards: FC<ProductSummaryCardsProps> = ({ cards, isLoading = 
 						onClick={card.onClick}
 						className={
 							isEBN
-								? `${card.bgColor} rounded-lg p-2 transition-all duration-200 hover:shadow-sm active:scale-[0.98] text-left ${isActive ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`
-								: `${card.bgColor} rounded-xl p-3 sm:p-4 transition-all duration-200 hover:shadow-md text-left ${isActive ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`
+								? `${card.bgColor} rounded-lg p-2 transition-all duration-200 hover:shadow-sm active:scale-[0.98] text-left ${isActive ? 'ring-2 ring-sky-500 ring-offset-1' : ''}`
+								: `${card.bgColor} rounded-xl p-3 sm:p-4 transition-all duration-200 hover:shadow-md text-left ${isActive ? 'ring-2 ring-sky-500 ring-offset-2' : ''}`
 						}
 					>
 						{/* Horizontal layout - icon left, text right */}

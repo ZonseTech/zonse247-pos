@@ -230,7 +230,7 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
 
                 {/* Transaction Summary Card */}
                 <div className={classNames(
-                    "bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-xl border border-gray-200 dark:border-gray-600",
+                    "bg-gradient-to-br from-gray-50 to-sky-50 dark:from-gray-800 dark:to-gray-700 rounded-xl border border-gray-200 dark:border-gray-600",
                     isEBN ? "p-3 mb-3" : "p-6 mb-6"
                 )}>
                     <div className={classNames("flex items-center justify-between", isEBN ? "mb-2" : "mb-4")}>
@@ -340,7 +340,7 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                         <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                             <span>Payment Method:</span>
                             <span className={classNames(
-                                "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full font-medium",
+                                "bg-sky-100 dark:bg-sky-900 text-sky-800 dark:text-sky-200 px-2 py-1 rounded-full font-medium",
                                 isEBN ? "text-[10px]" : "text-xs"
                             )}>
                                 {paymentMethodLabel}
@@ -371,7 +371,7 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                                     >
                                         <div className="flex items-center gap-2">
                                             <span className={classNames(
-                                                "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full font-medium",
+                                                "bg-sky-100 dark:bg-sky-900 text-sky-800 dark:text-sky-200 px-2 py-0.5 rounded-full font-medium",
                                                 isEBN ? "text-[10px]" : "text-xs"
                                             )}>
                                                 {getPaymentMethodLabel(payment.paymentMethodId)}

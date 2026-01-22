@@ -68,7 +68,7 @@ const PaymentSummary: FunctionComponent<PaymentSummaryProps> = ({
                         <div
                             className={classNames(
                                 "h-full transition-all duration-500 ease-out rounded-full",
-                                isFullyPaid ? "bg-gradient-to-r from-emerald-500 to-emerald-400" : "bg-gradient-to-r from-cyan-500 to-blue-500"
+                                isFullyPaid ? "bg-gradient-to-r from-emerald-500 to-emerald-400" : "bg-gradient-to-r from-cyan-500 to-sky-500"
                             )}
                             style={{ width: `${progressPercent}%` }}
                         />
@@ -85,7 +85,7 @@ const PaymentSummary: FunctionComponent<PaymentSummaryProps> = ({
             isEBN ? "p-3" : "p-4 md:p-5"
         )}>
             <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-sky-600 rounded-lg flex items-center justify-center">
                     <Wallet className="w-4 h-4 text-white" />
                 </div>
                 <h3 className={classNames(
@@ -178,7 +178,7 @@ const PaymentSummary: FunctionComponent<PaymentSummaryProps> = ({
                             "h-full transition-all duration-500 ease-out rounded-full",
                             isFullyPaid
                                 ? "bg-gradient-to-r from-emerald-500 to-emerald-400"
-                                : "bg-gradient-to-r from-cyan-500 to-blue-500"
+                                : "bg-gradient-to-r from-cyan-500 to-sky-500"
                         )}
                         style={{ width: `${progressPercent}%` }}
                     />

@@ -16,7 +16,7 @@ const Card: React.FC<CardProps> = ({ title, value, bgColor = 'bg-gray-300', onCl
             className={`
                 ${bgColor}
                 ${small ? 'p-3 h-16' : 'p-6 h-28'}
-                ${active ? 'ring-2 ring-blue-400' : ''}
+                ${active ? 'ring-2 ring-sky-400' : ''}
                 rounded-lg
                 flex
                 flex-col

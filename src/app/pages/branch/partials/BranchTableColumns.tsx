@@ -40,7 +40,7 @@ export const BranchActions: React.FC<BranchActionsProps> = ({
                 disabled={isDefaultBranch}
                 className={`group p-2 rounded-lg transition-all duration-200 ${isDefaultBranch
                     ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800'
                     }`}
                 title="Edit branch"
             >
@@ -90,8 +90,8 @@ export const getBranchColumns = (
                             {row.logoUrl ? (
                                 <img
                                     src={row.logoUrl}
-                                    alt={row.branchName}
-                                    className="w-10 h-10 rounded-full object-cover"
+                                    alt={'...'}
+                                    className="w-10 h-10 rounded-full object-cover text-center"
                                 />
                             ) : (
                                 <Store className="w-5 h-5 text-gray-500 dark:text-gray-400" />

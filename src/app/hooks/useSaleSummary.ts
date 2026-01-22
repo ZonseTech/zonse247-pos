@@ -121,9 +121,9 @@ export const useSaleSummary = ({
                 title: 'Net Sales',
                 value: summary.netSales || 0,
                 displayValue: formatCurrency(summary.netSales || 0),
-                bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-                textColor: 'text-blue-700 dark:text-blue-400',
-                iconBgColor: 'bg-blue-100 dark:bg-blue-900/40',
+                bgColor: 'bg-sky-50 dark:bg-sky-900/20',
+                textColor: 'text-sky-700 dark:text-sky-400',
+                iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
                 isMonetary: true,
             },
             {

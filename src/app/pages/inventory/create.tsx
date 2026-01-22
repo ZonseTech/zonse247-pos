@@ -358,7 +358,7 @@ const InventoryForm: FunctionComponent = () => {
                     <PageHeader
                         title={productId ? 'Edit Inventory Item' : 'Add Inventory Item'}
                         description='Required fields are marked with an asterisk (*)'
-                        icon={<HiOutlineDocumentPlus className="w-8 h-8 text-blue-600" />}
+                        icon={<HiOutlineDocumentPlus className="w-8 h-8 text-sky-600" />}
                         action={!productId ? (
                             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                                 <div className="flex items-center w-full lg:w-auto gap-3">
@@ -369,7 +369,7 @@ const InventoryForm: FunctionComponent = () => {
                                             onClick={() => setFormMode('quick')}
                                             title="Quick Add"
                                             className={`flex items-center justify-center gap-2 px-3 py-2 sm:px-4 text-sm font-medium transition-colors ${formMode === 'quick'
-                                                ? 'bg-blue-600 text-white'
+                                                ? 'bg-sky-600 text-white'
                                                 : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
                                                 }`}
                                         >
@@ -381,7 +381,7 @@ const InventoryForm: FunctionComponent = () => {
                                             onClick={() => setFormMode('full')}
                                             title="Full Form"
                                             className={`flex items-center justify-center gap-2 px-3 py-2 sm:px-4 text-sm font-medium transition-colors ${formMode === 'full'
-                                                ? 'bg-blue-600 text-white'
+                                                ? 'bg-sky-600 text-white'
                                                 : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
                                                 }`}
                                         >
@@ -405,10 +405,10 @@ const InventoryForm: FunctionComponent = () => {
                         <Form>
                             <FormWrapper>
                                 <div className="py-6 relative">
-                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 to-blue-200 dark:from-blue-600 dark:to-blue-900"></div>
+                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-sky-500 to-sky-200 dark:from-sky-600 dark:to-sky-900"></div>
 
                                     <div className="flex items-center gap-3 mb-6 relative">
-                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 border-2 border-blue-500 dark:border-blue-600 text-blue-600 dark:text-blue-400 font-semibold text-sm shadow-sm">
+                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-sky-100 dark:bg-sky-900/50 border-2 border-sky-500 dark:border-sky-600 text-sky-600 dark:text-sky-400 font-semibold text-sm shadow-sm">
                                             <Tag className="w-4 h-4" />
                                         </div>
                                         <div>
@@ -453,7 +453,7 @@ const InventoryForm: FunctionComponent = () => {
                                                     <button
                                                         type="button"
                                                         onClick={() => setIsBarcodeScannerOpen(true)}
-                                                        className="flex-shrink-0 px-4 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-lg font-medium text-sm transition-colors duration-150 flex items-center justify-center gap-2 touch-manipulation"
+                                                        className="flex-shrink-0 px-4 py-3 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white rounded-lg font-medium text-sm transition-colors duration-150 flex items-center justify-center gap-2 touch-manipulation"
                                                         title="Scan barcode with camera"
                                                         aria-label="Open camera barcode scanner"
                                                     >
@@ -571,7 +571,7 @@ const InventoryForm: FunctionComponent = () => {
                                                             type="checkbox"
                                                             checked={values.isTaxable}
                                                             onChange={(e) => setFieldValue('isTaxable', e.target.checked)}
-                                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                            className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-gray-300 rounded"
                                                         />
                                                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                                             Taxable Item
@@ -652,7 +652,7 @@ const InventoryForm: FunctionComponent = () => {
                                                             type="checkbox"
                                                             checked={values.trackInventory}
                                                             onChange={(e) => setFieldValue('trackInventory', e.target.checked)}
-                                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                            className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-gray-300 rounded"
                                                         />
                                                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                                             Track Inventory
@@ -666,7 +666,7 @@ const InventoryForm: FunctionComponent = () => {
                                                             type="checkbox"
                                                             checked={values.allowNegativeStock}
                                                             onChange={(e) => setFieldValue('allowNegativeStock', e.target.checked)}
-                                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                            className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-gray-300 rounded"
                                                         />
                                                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                                             Allow Negative Stock

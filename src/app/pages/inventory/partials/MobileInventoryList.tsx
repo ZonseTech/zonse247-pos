@@ -77,7 +77,7 @@ const MobileInventoryList: React.FC<MobileInventoryListProps> = ({
                     Showing {data.length} of {totalRows} items
                 </p>
                 {selectedItems.length > 0 && (
-                    <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                    <span className="text-sm font-medium text-sky-600 dark:text-sky-400">
                         {selectedItems.length} selected
                     </span>
                 )}
@@ -99,7 +99,7 @@ const MobileInventoryList: React.FC<MobileInventoryListProps> = ({
             {/* Loading indicator for pagination */}
             {isLoading && data.length > 0 && (
                 <div className="flex items-center justify-center py-4">
-                    <Loader2 className="h-6 w-6 text-blue-500 animate-spin" />
+                    <Loader2 className="h-6 w-6 text-sky-500 animate-spin" />
                 </div>
             )}
         </div>

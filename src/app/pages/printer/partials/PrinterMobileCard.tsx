@@ -140,7 +140,7 @@ const PrinterMobileCard: FunctionComponent<PrinterMobileCardProps> = ({
                     {getPrinterRoles().map((role) => (
                         <span
                             key={role}
-                            className="px-2 py-0.5 text-xs rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                            className="px-2 py-0.5 text-xs rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300"
                         >
                             {role}
                         </span>
@@ -172,7 +172,7 @@ const PrinterMobileCard: FunctionComponent<PrinterMobileCardProps> = ({
                     </button>
                     <button
                         onClick={() => onTestConnection(printer.printerId)}
-                        className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                        className="p-2 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
                         title="Test Connection"
                     >
                         <TestTube className="w-4 h-4" />
@@ -198,8 +198,8 @@ const PrinterMobileCard: FunctionComponent<PrinterMobileCardProps> = ({
                     <button
                         onClick={() => onToggleActive(printer.printerId, printer.isActive)}
                         className={`p-2 rounded-lg transition-colors ${printer.isActive
-                                ? 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
-                                : 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
+                            ? 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                            : 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
                             }`}
                         title={printer.isActive ? 'Deactivate' : 'Activate'}
                     >

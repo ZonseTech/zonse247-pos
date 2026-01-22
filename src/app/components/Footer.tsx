@@ -86,7 +86,7 @@ const Footer: FunctionComponent<FooterProps> = ({ className, compact: compactPro
                     >
                         {serverChecking ? (
                             <Loader2 className={classNames(
-                                "text-blue-500 animate-spin",
+                                "text-sky-500 animate-spin",
                                 compact ? "w-3.5 h-3.5" : "w-5 h-5"
                             )} />
                         ) : isServerConnected ? (
@@ -104,7 +104,7 @@ const Footer: FunctionComponent<FooterProps> = ({ className, compact: compactPro
                             <span className={classNames(
                                 'text-xs hidden lg:inline',
                                 serverChecking
-                                    ? 'text-blue-600 dark:text-blue-400'
+                                    ? 'text-sky-600 dark:text-sky-400'
                                     : isServerConnected
                                         ? 'text-green-600 dark:text-green-400'
                                         : 'text-red-600 dark:text-red-400'

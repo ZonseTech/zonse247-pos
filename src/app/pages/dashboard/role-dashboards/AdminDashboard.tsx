@@ -47,7 +47,7 @@ const AdminDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoading
 
     const [cards, setCards] = useState([
         { key: 'totalSales', title: 'Total Revenue', value: 0, icon: <HiOutlineBanknotes />, bgColor: 'bg-green-500 dark:bg-green-600', link: ROUTES.SALES },
-        { key: 'stock', title: 'Total Products', value: 0, icon: <HiOutlineBuildingStorefront />, bgColor: 'bg-blue-500 dark:bg-blue-600', link: ROUTES.INVENTORY },
+        { key: 'stock', title: 'Total Products', value: 0, icon: <HiOutlineBuildingStorefront />, bgColor: 'bg-sky-500 dark:bg-sky-600', link: ROUTES.INVENTORY },
         { key: 'allCustomers', title: 'Total Customers', value: 0, icon: <HiOutlineUserGroup />, bgColor: 'bg-purple-500 dark:bg-purple-600', link: ROUTES.CUSTOMERS },
         { key: 'totalUsers', title: 'Total Users', value: 0, icon: <Users size={20} />, bgColor: 'bg-orange-500 dark:bg-orange-600', link: ROUTES.USERS },
     ]);
@@ -55,7 +55,7 @@ const AdminDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoading
     // Quick actions for admin
     const quickActions: QuickAction[] = [
         { label: 'New Sale', icon: <ShoppingCart size={18} />, onClick: () => navigate(ROUTES.POS), color: 'bg-green-600 hover:bg-green-700' },
-        { label: 'Add Product', icon: <Package size={18} />, onClick: () => navigate(ROUTES.INVENTORY_FORM), color: 'bg-blue-600 hover:bg-blue-700' },
+        { label: 'Add Product', icon: <Package size={18} />, onClick: () => navigate(ROUTES.INVENTORY_FORM), color: 'bg-sky-600 hover:bg-sky-700' },
         { label: 'Add User', icon: <Users size={18} />, onClick: () => navigate(ROUTES.USER_FORM), color: 'bg-purple-600 hover:bg-purple-700' },
         { label: 'View Reports', icon: <HiOutlineChartBar size={18} />, onClick: () => navigate(ROUTES.SALES), color: 'bg-orange-600 hover:bg-orange-700' },
     ];
@@ -204,7 +204,7 @@ const AdminDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoading
                         headers={topProductsHeaders}
                         data={topProductsData}
                         renderRow={p => <RenderTopProductRow product={p} />}
-                        icon={<RiMedicineBottleFill className="mr-2 text-blue-600 dark:text-blue-400" />}
+                        icon={<RiMedicineBottleFill className="mr-2 text-sky-600 dark:text-sky-400" />}
                     />
                 </div>
 
@@ -252,8 +252,8 @@ const AdminDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoading
                 {/* System Health */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                            <HiOutlineChartBar className="text-blue-600 dark:text-blue-400 w-5 h-5" />
+                        <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
+                            <HiOutlineChartBar className="text-sky-600 dark:text-sky-400 w-5 h-5" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">System Overview</h3>
                     </div>
@@ -326,7 +326,7 @@ const AdminDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoading
                         </div>
                         <Link
                             to={ROUTES.INVENTORY}
-                            className="block mt-4 text-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 text-sm font-medium"
+                            className="block mt-4 text-center text-sky-600 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 text-sm font-medium"
                         >
                             Manage Inventory →
                         </Link>

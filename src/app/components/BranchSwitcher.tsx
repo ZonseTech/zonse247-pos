@@ -175,7 +175,7 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
                                                 className={`
                                                     w-full px-4 py-3 flex items-center gap-3 transition-colors
                                                     ${isActive
-                                                        ? 'bg-blue-50 dark:bg-blue-900/30'
+                                                        ? 'bg-sky-50 dark:bg-sky-900/30'
                                                         : isInactive
                                                             ? 'bg-gray-50 dark:bg-gray-800/50 cursor-not-allowed'
                                                             : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
@@ -187,7 +187,7 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
                                                 <div className={`
                                                     w-8 h-8 rounded-lg flex items-center justify-center
                                                     ${isActive
-                                                        ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400'
+                                                        ? 'bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400'
                                                         : isInactive
                                                             ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
                                                             : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
@@ -200,7 +200,7 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
                                                         <span className={`
                                                             text-sm font-medium
                                                             ${isActive
-                                                                ? 'text-blue-900 dark:text-blue-100'
+                                                                ? 'text-sky-900 dark:text-sky-100'
                                                                 : isInactive
                                                                     ? 'text-gray-500 dark:text-gray-500'
                                                                     : 'text-gray-900 dark:text-white'
@@ -228,7 +228,7 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
                                                     </span>
                                                 </div>
                                                 {isActive && (
-                                                    <Check className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                                    <Check className="w-5 h-5 text-sky-600 dark:text-sky-400" />
                                                 )}
                                             </button>
                                         </li>

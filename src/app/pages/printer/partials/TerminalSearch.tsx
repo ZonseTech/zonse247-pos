@@ -135,10 +135,10 @@ const TerminalSearch: FunctionComponent<TerminalSearchProps> = ({
             </label>
 
             {selectedTerminal ? (
-                <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-700 rounded-lg">
                     <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center">
-                            <Monitor className="w-4 h-4 text-blue-600 dark:text-blue-300" />
+                        <div className="w-8 h-8 bg-sky-100 dark:bg-sky-800 rounded-full flex items-center justify-center">
+                            <Monitor className="w-4 h-4 text-sky-600 dark:text-sky-300" />
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -179,7 +179,7 @@ const TerminalSearch: FunctionComponent<TerminalSearchProps> = ({
                                 : 'border-gray-300 dark:border-gray-600'
                             }
                             text-gray-900 dark:text-gray-100 placeholder-gray-400 
-                            focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                            focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400
                             ${!branchId ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -198,7 +198,7 @@ const TerminalSearch: FunctionComponent<TerminalSearchProps> = ({
                 <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                     {loading ? (
                         <div className="p-4 text-center">
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-sky-500 mx-auto"></div>
                             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Searching...</p>
                         </div>
                     ) : terminals.length > 0 ? (
@@ -207,7 +207,7 @@ const TerminalSearch: FunctionComponent<TerminalSearchProps> = ({
                                 <li
                                     key={terminal.terminalId}
                                     className={`p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-b-0
-                                        ${value === terminal.terminalId ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
+                                        ${value === terminal.terminalId ? 'bg-sky-50 dark:bg-sky-900/20' : ''}`}
                                     onClick={() => handleSelectTerminal(terminal)}
                                 >
                                     <div className="flex items-center justify-between">
@@ -232,7 +232,7 @@ const TerminalSearch: FunctionComponent<TerminalSearchProps> = ({
                                                 </span>
                                             )}
                                             {value === terminal.terminalId && (
-                                                <Check className="w-4 h-4 text-blue-500" />
+                                                <Check className="w-4 h-4 text-sky-500" />
                                             )}
                                         </div>
                                     </div>

@@ -47,9 +47,9 @@ const StockMovements: FunctionComponent = () => {
                 title: 'Total Movements',
                 value: totalRows,
                 icon: 'total',
-                bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-                iconBgColor: 'bg-blue-100 dark:bg-blue-900/40',
-                textColor: 'text-blue-600 dark:text-blue-400',
+                bgColor: 'bg-sky-50 dark:bg-sky-900/20',
+                iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
+                textColor: 'text-sky-600 dark:text-sky-400',
             },
             {
                 title: 'Stock In',
@@ -83,7 +83,7 @@ const StockMovements: FunctionComponent = () => {
     return (
         <AppLayout>
             <PageHeader
-                icon={<Activity className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600 dark:text-blue-400" />}
+                icon={<Activity className="w-7 h-7 sm:w-8 sm:h-8 text-sky-600 dark:text-sky-400" />}
                 title="Stock Movements"
                 description={productId ? 'Product stock history' : 'All stock movements audit trail'}
                 action={

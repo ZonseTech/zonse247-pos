@@ -52,9 +52,9 @@ const TerminalManagement: FunctionComponent = () => {
                 title: 'Total Terminals',
                 value: totalRows,
                 icon: 'total',
-                bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-                iconBgColor: 'bg-blue-100 dark:bg-blue-900/40',
-                textColor: 'text-blue-600 dark:text-blue-400',
+                bgColor: 'bg-sky-50 dark:bg-sky-900/20',
+                iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
+                textColor: 'text-sky-600 dark:text-sky-400',
             },
             {
                 title: 'Active',
@@ -178,7 +178,7 @@ const TerminalManagement: FunctionComponent = () => {
                 <PageHeader
                     title='Terminals'
                     description='Manage your terminal devices and settings'
-                    icon={<HiOutlineComputerDesktop className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600 dark:text-blue-400" />}
+                    icon={<HiOutlineComputerDesktop className="w-7 h-7 sm:w-8 sm:h-8 text-sky-600 dark:text-sky-400" />}
                     action={
                         <div className='flex items-center justify-between gap-2'>
                             {!isMobile && (

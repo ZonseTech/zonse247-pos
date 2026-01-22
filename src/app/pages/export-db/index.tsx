@@ -201,8 +201,8 @@ const DatabaseExportTool: FunctionComponent = () => {
 					<div className="bg-white dark:bg-slate-800 rounded-xs p-6 mb-6 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-slate-900/20">
 						<div className="flex items-center justify-between">
 							<div className="flex items-center space-x-3">
-								<div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-sm">
-									<RiDatabase2Line className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+								<div className="p-2 bg-sky-100 dark:bg-sky-900/50 rounded-sm">
+									<RiDatabase2Line className="h-6 w-6 text-sky-600 dark:text-sky-400" />
 								</div>
 								<div>
 									<h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Database Export Tool</h1>
@@ -222,7 +222,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 								<button
 									onClick={handleExport}
 									disabled={loading || selectedTables.length === 0}
-									className="flex items-center space-x-2 px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-sm hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+									className="flex items-center space-x-2 px-4 py-2 bg-sky-600 dark:bg-sky-700 text-white rounded-sm hover:bg-sky-700 dark:hover:bg-sky-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
 								>
 									<RiDownloadCloud2Fill className="h-4 w-4" />
 									<span>Export Selected</span>
@@ -242,7 +242,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 									key={key}
 									onClick={() => setActiveTab(key as any)}
 									className={`flex items-center space-x-2 px-6 py-4 font-medium transition-colors ${activeTab === key
-										? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+										? 'text-sky-600 dark:text-sky-400 border-b-2 border-sky-600 dark:border-sky-400'
 										: 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
 										}`}
 								>
@@ -259,7 +259,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 										<h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Select Tables to Export</h3>
 										<button
 											onClick={handleSelectAll}
-											className="flex items-center space-x-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+											className="flex items-center space-x-2 text-sm text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300"
 										>
 											{selectedTables.length === tables.length ? (
 												<FaRegCheckSquare className="h-4 w-4" />
@@ -276,7 +276,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 											<p className="text-slate-600 dark:text-slate-400">No tables available or failed to load</p>
 											<button
 												onClick={loadTables}
-												className="mt-4 px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-sm hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors shadow-sm"
+												className="mt-4 px-4 py-2 bg-sky-600 dark:bg-sky-700 text-white rounded-sm hover:bg-sky-700 dark:hover:bg-sky-600 transition-colors shadow-sm"
 											>
 												Retry
 											</button>
@@ -291,7 +291,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 													<div
 														key={tableName}
 														className={`border rounded-sm p-4 cursor-pointer transition-all shadow-sm ${isSelected
-															? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+															? 'border-sky-500 dark:border-sky-400 bg-sky-50 dark:bg-sky-900/20'
 															: 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800 hover:shadow-md dark:hover:shadow-slate-900/30'
 															}`}
 														onClick={() => handleTableToggle(tableName)}
@@ -299,7 +299,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 														<div className="flex items-center justify-between mb-3">
 															<div className="flex items-center space-x-2">
 																{isSelected ? (
-																	<FaCheckSquare className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+																	<FaCheckSquare className="h-5 w-5 text-sky-600 dark:text-sky-400" />
 																) : (
 																	<HiOutlineSquaresPlus className="h-5 w-5 text-slate-400 dark:text-slate-500" />
 																)}
@@ -310,7 +310,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 																	e.stopPropagation();
 																	handlePreview(tableName);
 																}}
-																className="p-1 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+																className="p-1 text-slate-400 dark:text-slate-500 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
 															>
 																<HiEye className="h-4 w-4" />
 															</button>
@@ -400,7 +400,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 
 											<div className="mt-4">
 												<details className="group">
-													<summary className="cursor-pointer text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
+													<summary className="cursor-pointer text-sm text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 font-medium">
 														View Raw JSON
 													</summary>
 													<pre className="mt-2 p-4 bg-slate-800 dark:bg-slate-900 text-green-400 dark:text-green-300 rounded-sm text-xs overflow-x-auto border border-slate-600 dark:border-slate-700">
@@ -434,7 +434,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 															value={format}
 															checked={exportOptions.format === format}
 															onChange={(e) => setExportOptions(prev => ({ ...prev, format: e.target.value as 'json' | 'csv' }))}
-															className="text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-slate-700 dark:border-slate-600"
+															className="text-sky-600 dark:text-sky-400 focus:ring-sky-500 dark:focus:ring-sky-400 dark:bg-slate-700 dark:border-slate-600"
 														/>
 														<span className="text-slate-700 dark:text-slate-300 uppercase">{format}</span>
 													</label>
@@ -449,7 +449,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 													type="checkbox"
 													checked={exportOptions.includeMetadata || false}
 													onChange={(e) => setExportOptions(prev => ({ ...prev, includeMetadata: e.target.checked }))}
-													className="text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400 rounded dark:bg-slate-700 dark:border-slate-600"
+													className="text-sky-600 dark:text-sky-400 focus:ring-sky-500 dark:focus:ring-sky-400 rounded dark:bg-slate-700 dark:border-slate-600"
 												/>
 												<span className="text-slate-700 dark:text-slate-300">Include metadata (internal IDs, etc.)</span>
 											</label>
@@ -459,7 +459,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 									<div className="border-t border-slate-200 dark:border-slate-700 pt-6">
 										<button
 											onClick={() => setShowFilters(!showFilters)}
-											className="flex items-center space-x-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+											className="flex items-center space-x-2 text-sm text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 font-medium"
 										>
 											<RiFileTransferFill className="h-4 w-4" />
 											<span>Advanced Filters</span>
@@ -478,7 +478,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 																...prev,
 																limit: e.target.value ? parseInt(e.target.value) : undefined
 															}))}
-															className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500"
+															className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-sm focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:border-sky-500 dark:focus:border-sky-400 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500"
 														/>
 													</div>
 
@@ -492,7 +492,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 																...prev,
 																offset: e.target.value ? parseInt(e.target.value) : undefined
 															}))}
-															className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500"
+															className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-sm focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:border-sky-500 dark:focus:border-sky-400 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500"
 														/>
 													</div>
 												</div>
@@ -513,7 +513,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 																		end: prev.dateRange?.end || ''
 																	} : undefined
 																}))}
-																className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 text-sm dark:bg-slate-800 dark:text-slate-200"
+																className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-sm focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:border-sky-500 dark:focus:border-sky-400 text-sm dark:bg-slate-800 dark:text-slate-200"
 															>
 																<option value="">Select field</option>
 																<option value="createdAt">Created At</option>
@@ -533,7 +533,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 																		start: e.target.value
 																	} : undefined
 																}))}
-																className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 text-sm dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500"
+																className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-sm focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:border-sky-500 dark:focus:border-sky-400 text-sm dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500"
 															/>
 														</div>
 
@@ -549,7 +549,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 																		end: e.target.value
 																	} : undefined
 																}))}
-																className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 text-sm dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500"
+																className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-sm focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:border-sky-500 dark:focus:border-sky-400 text-sm dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500"
 															/>
 														</div>
 													</div>
@@ -565,7 +565,7 @@ const DatabaseExportTool: FunctionComponent = () => {
 					{loading && (
 						<div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm">
 							<div className="bg-white dark:bg-slate-800 rounded-sm p-6 flex items-center space-x-3 shadow-xl border border-slate-200 dark:border-slate-700">
-								<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 dark:border-blue-400" />
+								<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-sky-600 dark:border-sky-400" />
 								<span className="text-slate-700 dark:text-slate-300">Processing...</span>
 							</div>
 						</div>
