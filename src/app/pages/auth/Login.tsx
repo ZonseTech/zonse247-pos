@@ -29,7 +29,6 @@ const Login: FunctionComponent = () => {
     const keyboardSettings = useKeyboardSettings();
     const [authError, setAuthError]: [string, Dispatch<SetStateAction<string>>] = useState('')
     const [activeField, setActiveField] = useState<'username' | 'password' | null>('username')
-    const [showPassword, setShowPassword] = useState(false)
     const usernameInputRef = useRef<HTMLInputElement>(null)
     const passwordInputRef = useRef<HTMLInputElement>(null)
     const formikRef = useRef<any>(null)
@@ -159,7 +158,7 @@ const Login: FunctionComponent = () => {
                                     label='Password'
                                     id='password'
                                     name='password'
-                                    type={showPassword ? 'text' : 'password'}
+                                    type='password'
                                     step={2}
                                     required
                                     placeholder="***************"
@@ -170,18 +169,6 @@ const Login: FunctionComponent = () => {
                                         passwordInputRef.current?.focus()
                                     }}
                                 />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-[38px] text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none transition-colors"
-                                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                                >
-                                    {showPassword ? (
-                                        <EyeOff className="w-5 h-5" />
-                                    ) : (
-                                        <Eye className="w-5 h-5" />
-                                    )}
-                                </button>
                             </div>
 
                             <Button type='submit' className="mt-6 mb-8" block loading={isSubmitting}>
