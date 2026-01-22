@@ -1,5 +1,5 @@
 import { Report } from 'notiflix';
-import { FunctionComponent, useState } from 'react';
+import { FunctionComponent, useState, useEffect, useRef } from 'react';
 import { CheckCircle, Printer, X, Receipt, ArrowRight } from 'lucide-react';
 import { Button, Modal } from '../../../components';
 import { useApp } from '../../../context/AppProvider';
@@ -21,6 +21,9 @@ type TransactionCompleteModalProps = {
 // Helper functions to normalize field access between Sale and Transaction
 const getTransactionId = (t: SaleOrTransaction): string =>
     (t as Transaction).transactionId || (t as Sale).id || t.id;
+
+const getSaleId = (t: SaleOrTransaction): string =>
+    (t as Transaction).saleId || (t as Transaction).id || (t as Sale).id || t.id;
 
 const getRefNumber = (t: SaleOrTransaction): string =>
     (t as Transaction).refNumber || (t as Sale).saleNumber || 'N/A';
@@ -76,6 +79,48 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
     const [showReceiptPreview, setShowReceiptPreview] = useState<boolean>(false);
     const { settings } = useApp();
     const isEBN = useIsEBN();
+    const hasAutoPrinted = useRef<string | null>(null);
+
+    useEffect(() => {
+        const autoPrintReceipt = async () => {
+            if (!isOpen || !transaction || isPrinting) return;
+
+            if (!settings?.autoPrintReceipt) return;
+
+            const saleId = getSaleId(transaction);
+
+            if (hasAutoPrinted.current === saleId) return;
+
+            try {
+                setIsPrinting(true);
+                hasAutoPrinted.current = saleId;
+
+                await printerService.printReceipt({
+                    saleId: saleId,
+                    transactionId: getTransactionId(transaction),
+                    copies: settings?.receiptCopies || 1,
+                    includeHeader: true,
+                    includeFooter: true,
+                    includeLogo: settings?.showStoreLogo || false,
+                });
+
+                console.log('Receipt auto-printed successfully for sale:', saleId);
+            } catch (error) {
+                console.error('Auto-print failed:', error);
+            } finally {
+                setIsPrinting(false);
+            }
+        };
+
+        autoPrintReceipt();
+    }, [isOpen, transaction, settings?.autoPrintReceipt]);
+
+    // Reset auto-print flag when modal closes
+    useEffect(() => {
+        if (!isOpen) {
+            hasAutoPrinted.current = null;
+        }
+    }, [isOpen]);
 
     if (!isOpen || !transaction) return null;
 
@@ -84,6 +129,7 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
             setIsPrinting(true);
 
             await printerService.printReceipt({
+                saleId: getSaleId(transaction),
                 transactionId: getTransactionId(transaction),
                 copies: settings?.receiptCopies || 1,
                 includeHeader: true,
@@ -425,14 +471,14 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                         ) : (
                             <>
                                 <Printer className={isEBN ? "w-4 h-4" : "w-5 h-5"} />
-                                <span>Print Receipt</span>
+                                <span>Reprint Receipt</span>
                             </>
                         )}
                     </Button>
 
                     <div className={isEBN ? "flex gap-2" : "flex gap-3"}>
                         <Button
-                            theme="neutral"
+                            theme="warning"
                             className={classNames(
                                 "flex-1 flex items-center justify-center gap-2",
                                 isEBN ? "py-2 text-xs" : "py-3"
@@ -570,7 +616,6 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                             </div>
                         </div>
 
-                        {/* Fixed Footer */}
                         <div className="flex-shrink-0 bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-600 rounded-b-xl">
                             <Button
                                 theme="success"
