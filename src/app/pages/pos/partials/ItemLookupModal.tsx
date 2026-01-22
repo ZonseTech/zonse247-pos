@@ -6,6 +6,7 @@ import InputKeyboard from '../../../components/InputKeyboard';
 import { useKeyboardSettings } from '../../../hooks/useKeyboardSettings';
 import { useState, useEffect, FunctionComponent, useRef } from 'react';
 import classNames from 'classnames';
+import { Capacitor } from '@capacitor/core';
 
 interface ItemLookupModalProps {
     isOpen: boolean;
@@ -24,6 +25,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
 }) => {
     const isMobile = useIsMobile()
     const isEBN = useIsEBN();
+    const isNative = Capacitor.isNativePlatform();
     const keyboardSettings = useKeyboardSettings();
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredItems, setFilteredItems] = useState<InventoryItem[]>([]);
@@ -161,11 +163,11 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                         onBlur={handleInputBlur}
                         placeholder="Search item name or barcode..."
                         className={classNames(
-                            "w-full text-center border border-gray-300 dark:border-gray-500 rounded-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-600 shadow-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400",
+                            "w-full text-center border border-gray-300 dark:border-gray-500 rounded-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 bg-white dark:bg-gray-600 shadow-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400",
                             isEBN ? "px-3 py-2 text-sm" : "px-4 py-3 text-lg"
                         )}
                         autoFocus
-                        inputMode={isTouchDevice && showVirtualKeyboard ? "none" : "text"}
+                        inputMode={isNative ? "text" : (isTouchDevice && showVirtualKeyboard ? "none" : "text")}
                     />
                 </div>
 
@@ -193,12 +195,12 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                                     <div
                                         key={item.productId}
                                         onClick={() => handleAddToCart(item)}
-                                        className="cursor-pointer bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:shadow-sm transition-all duration-150 group"
+                                        className="cursor-pointer bg-white dark:bg-gray-800 hover:bg-sky-50 dark:hover:bg-sky-900/30 hover:shadow-sm transition-all duration-150 group"
                                     >
                                         <div className="md:hidden px-4 py-3 space-y-2">
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="flex-1 min-w-0">
-                                                    <div className="font-medium text-slate-800 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate">
+                                                    <div className="font-medium text-slate-800 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400 truncate">
                                                         {item.name}
                                                     </div>
                                                     {item.categoryDetails?.name && (
@@ -207,11 +209,11 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                                                         </div>
                                                     )}
                                                 </div>
-                                                <div className="font-bold text-lg text-slate-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 whitespace-nowrap">
+                                                <div className="font-bold text-lg text-slate-900 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400 whitespace-nowrap">
                                                     {formatCurrency(parseFloat((item.sellPrice || 0).toString()))}
                                                 </div>
                                             </div>
-                                            <div className="font-mono text-xs text-slate-500 dark:text-gray-400 group-hover:text-blue-500 dark:group-hover:text-blue-400">
+                                            <div className="font-mono text-xs text-slate-500 dark:text-gray-400 group-hover:text-sky-500 dark:group-hover:text-sky-400">
                                                 Code: {item.barcode}
                                             </div>
                                         </div>
@@ -221,14 +223,14 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                                             isEBN ? "px-3 py-2" : "px-6 py-4"
                                         )}>
                                             <div className={classNames(
-                                                "col-span-3 font-mono text-slate-600 dark:text-gray-400 flex items-center group-hover:text-blue-600 dark:group-hover:text-blue-400",
+                                                "col-span-3 font-mono text-slate-600 dark:text-gray-400 flex items-center group-hover:text-sky-600 dark:group-hover:text-sky-400",
                                                 isEBN ? "text-xs" : "text-sm"
                                             )}>
                                                 {item.barcode}
                                             </div>
                                             <div className="col-span-6 flex flex-col justify-center">
                                                 <div className={classNames(
-                                                    "font-medium text-slate-800 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400",
+                                                    "font-medium text-slate-800 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400",
                                                     isEBN && "text-sm"
                                                 )}>
                                                     {item.name}
@@ -243,7 +245,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                                                 )}
                                             </div>
                                             <div className={classNames(
-                                                "col-span-3 text-right font-bold flex items-center justify-end text-slate-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400",
+                                                "col-span-3 text-right font-bold flex items-center justify-end text-slate-900 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400",
                                                 isEBN ? "text-sm" : "text-lg"
                                             )}>
                                                 {formatCurrency(parseFloat((item.sellPrice || 0).toString()))}
