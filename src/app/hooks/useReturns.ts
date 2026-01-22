@@ -43,11 +43,17 @@ export const useReturns = () => {
         }
 
         if (searchTerm.trim() !== "") {
-            filtered = filtered.filter(returnData =>
-                returnData.returnTransaction?.refNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                returnData.originalTransaction?.refNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                returnData.originalTransaction?.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-            );
+            filtered = filtered.filter(returnData => {
+                const term = searchTerm.toLowerCase();
+                // Support both new API format (returnNumber, originalSale) and legacy format (returnTransaction, originalTransaction)
+                const returnRef = returnData.returnNumber || returnData.returnTransaction?.refNumber || '';
+                const originalRef = returnData.originalSale?.saleNumber || returnData.originalTransaction?.refNumber || '';
+                const customerName = returnData.originalSale?.customer?.name || returnData.originalTransaction?.customer?.name || '';
+
+                return returnRef.toLowerCase().includes(term) ||
+                    originalRef.toLowerCase().includes(term) ||
+                    customerName.toLowerCase().includes(term);
+            });
         }
 
         setFilteredReturns(filtered);
@@ -93,7 +99,11 @@ export const useReturns = () => {
     const cancelReturn = async (returnTransactionId: string, refNumber: string) => {
         try {
             await returnsService.cancelReturn(returnTransactionId);
-            const updatedReturns = returns.filter(ret => ret.returnTransaction.transactionId !== returnTransactionId);
+            // Support both new API format (returnId) and legacy format (returnTransaction.transactionId)
+            const updatedReturns = returns.filter(ret => {
+                const retId = ret.returnId || ret.returnTransaction?.transactionId;
+                return retId !== returnTransactionId;
+            });
             setReturns(updatedReturns);
             setFilteredReturns(updatedReturns);
             setTotalRows(updatedReturns.length);

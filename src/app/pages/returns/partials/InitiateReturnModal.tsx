@@ -65,7 +65,6 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
     const isEBN = useIsEBN();
     const [selectedItems, setSelectedItems] = useState<ReturnItemForm[]>([]);
 
-    // Support both Sale and Transaction - prefer Sale if provided
     const saleOrTransaction = sale || transaction;
 
     const canReturn = returnsService.canReturn(saleOrTransaction as Transaction);
@@ -78,7 +77,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
     };
 
     const validationSchema = Yup.object({
-        refundReason: Yup.string().required('Refund reason is required'),
+        refundReason: Yup.string(),
         refundMethod: Yup.string().required('Refund method is required'),
     });
 
@@ -137,20 +136,19 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
         }
 
         try {
-            // Get transaction ID - supports both Sale (id) and Transaction (transactionId)
             const transactionId = sale?.id || (saleOrTransaction as Sale)?.id || (saleOrTransaction as Transaction)?.transactionId || '';
 
             const data: InitiateReturnRequest = {
-                originalTransactionId: transactionId,
+                originalSaleId: transactionId,
                 items: selectedItems.map((item) => ({
-                    orderItemId: item.orderItemId,
+                    saleItemId: item.orderItemId,
                     productId: item.productId,
                     returnQuantity: item.returnQuantity,
                     returnReason: item.returnReason,
                     condition: item.condition,
                     notes: item.notes,
                 })),
-                refundReason: values.refundReason,
+                refundReason: values.refundReason?.trim() || 'NA',
                 refundMethod: values.refundMethod,
                 partialRefund: values.partialRefund,
             };
@@ -407,7 +405,6 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                             name="refundReason"
                                             placeholder="Explain the reason for this refund..."
                                             rows={isEBN ? 1 : 2}
-                                            required
                                         />
 
                                         <FormSelectBox

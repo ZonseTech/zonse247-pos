@@ -28,6 +28,26 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
     returnDetails,
     onSuccess,
 }) => {
+    // Helper to get product name from originalSale items
+    const getProductName = (item: ReturnItem): string => {
+        if (item.product?.name) return item.product.name;
+
+        const originalSale = returnDetails.originalSale;
+        if (originalSale?.items) {
+            const saleItem = (originalSale.items as any[]).find(
+                (si: any) => si.id === item.originalOrderId || si.productId === item.productId
+            );
+            if (saleItem?.product?.name) return saleItem.product.name;
+        }
+
+        return `Product #${item.productId.slice(0, 8)}...`;
+    };
+
+    // Helper to safely parse quantity (API returns strings)
+    const parseQuantity = (val: number | string): number => {
+        return typeof val === 'string' ? parseInt(val, 10) || 0 : val;
+    };
+
     const [selectedItems, setSelectedItems] = useState<RestockItemForm[]>(() => {
         // Initialize with items that are pending restock and in good condition
         return returnDetails.returnItems
@@ -36,15 +56,18 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                     item.restockStatus === 'pending' &&
                     (item.condition === 'excellent' || item.condition === 'good' || item.condition === 'fair')
             )
-            .map((item) => ({
-                returnItemId: item.returnItemId,
-                returnedQuantity: item.returnedQuantity,
-                restockedQuantity: item.returnedQuantity, // Default to full quantity
-                maxQuantity: item.returnedQuantity,
-                productId: item.productId,
-                condition: item.condition,
-                restockStatus: item.restockStatus,
-            }));
+            .map((item) => {
+                const qty = parseQuantity(item.returnedQuantity);
+                return {
+                    returnItemId: item.returnItemId,
+                    returnedQuantity: qty,
+                    restockedQuantity: qty, // Default to full quantity
+                    maxQuantity: qty,
+                    productId: item.productId,
+                    condition: item.condition,
+                    restockStatus: item.restockStatus,
+                };
+            });
     });
 
     const handleItemChange = (returnItemId: string, restockQuantity: number) => {
@@ -66,13 +89,14 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                 (i) => i.returnItemId === returnItemId
             );
             if (originalItem && originalItem.restockStatus === 'pending') {
+                const qty = parseQuantity(originalItem.returnedQuantity);
                 setSelectedItems([
                     ...selectedItems,
                     {
                         returnItemId: originalItem.returnItemId,
-                        returnedQuantity: originalItem.returnedQuantity,
-                        restockedQuantity: originalItem.returnedQuantity,
-                        maxQuantity: originalItem.returnedQuantity,
+                        returnedQuantity: qty,
+                        restockedQuantity: qty,
+                        maxQuantity: qty,
                         productId: originalItem.productId,
                         condition: originalItem.condition,
                         restockStatus: originalItem.restockStatus,
@@ -105,8 +129,13 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                 })),
             };
 
+            // Support both new API format (returnId) and legacy format (returnTransaction.transactionId)
+            const returnTransactionId = returnDetails.returnId || returnDetails.returnTransaction?.transactionId;
+            if (!returnTransactionId) {
+                throw new Error('Return transaction ID not found');
+            }
             await returnsService.restockItems(
-                returnDetails.returnTransaction.transactionId,
+                returnTransactionId,
                 data
             );
 
@@ -173,7 +202,7 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                                     Return Transaction:
                                 </span>
                                 <span className="font-medium text-sm sm:ml-2 break-all">
-                                    {returnDetails.returnTransaction?.refNumber}
+                                    {returnDetails.returnNumber || returnDetails.returnTransaction?.refNumber}
                                 </span>
                             </div>
                             <div className="flex flex-col sm:flex-row sm:items-center">
@@ -181,7 +210,7 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                                     Original Transaction:
                                 </span>
                                 <span className="font-medium text-sm sm:ml-2 break-all">
-                                    {returnDetails.originalTransaction?.refNumber}
+                                    {returnDetails.originalSale?.saleNumber || returnDetails.originalTransaction?.refNumber}
                                 </span>
                             </div>
                         </div>
@@ -210,8 +239,8 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                                 <div
                                     key={item.returnItemId}
                                     className={`p-3 sm:p-4 border rounded-lg transition-all ${isSelected
-                                            ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                                            : 'border-gray-200 dark:border-gray-700'
+                                        ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                                        : 'border-gray-200 dark:border-gray-700'
                                         } ${!canRestock ? 'opacity-60' : ''}`}
                                 >
                                     <div className="flex items-start justify-between mb-2 sm:mb-3">
@@ -224,17 +253,17 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                                                 className="mt-0.5 sm:mt-1 w-4 h-4 sm:w-5 sm:h-5 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                                             />
                                             <div className="flex-1 min-w-0">
-                                                <h4 className="font-medium text-sm sm:text-base truncate">Product #{item.productId}</h4>
+                                                <h4 className="font-medium text-sm sm:text-base truncate">{getProductName(item)}</h4>
                                                 <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                                                    <span>Returned: {item.returnedQuantity}</span>
+                                                    <span>Returned: {parseQuantity(item.returnedQuantity)}</span>
                                                     <span
                                                         className={`px-2 py-0.5 rounded-full text-xs ${item.condition === 'excellent'
-                                                                ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
-                                                                : item.condition === 'good'
-                                                                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                                                                    : item.condition === 'fair'
-                                                                        ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
-                                                                        : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                                                            ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
+                                                            : item.condition === 'good'
+                                                                ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                                                                : item.condition === 'fair'
+                                                                    ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
+                                                                    : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
                                                             }`}
                                                     >
                                                         {item.condition.charAt(0).toUpperCase() +

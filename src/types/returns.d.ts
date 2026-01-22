@@ -20,26 +20,32 @@ interface ReturnItem {
     returnTransactionId: string;
     originalOrderId: string;
     productId: string;
-    returnedQuantity: number;
-    originalQuantity: number;
-    returnPrice: number;
+    returnedQuantity: number | string;
+    originalQuantity: number | string;
+    returnPrice: number | string;
     returnReason: string;
     restockStatus: RestockStatus;
-    restockedQuantity: number;
+    restockedQuantity: number | string;
     restockedAt?: string | Date;
     condition: ReturnCondition;
     notes?: string;
     createdAt?: string | Date;
     updatedAt?: string | Date;
+    // Product details (may be populated from originalSale.items)
+    product?: {
+        id?: string;
+        name?: string;
+        sku?: string;
+    };
 }
 
 /**
  * Request body for initiating a return
  */
 interface InitiateReturnRequest {
-    originalTransactionId: string;
+    originalSaleId: string;
     items: {
-        orderItemId: string;
+        saleItemId: string;
         productId: string;
         returnQuantity: number;
         returnReason: string;
@@ -95,10 +101,21 @@ interface ReturnStatisticsQuery {
 
 /**
  * Full return details including transaction and items
+ * Supports both legacy format (returnTransaction/originalTransaction) and new API format (returnId/originalSale)
  */
 interface ReturnDetails {
-    returnTransaction: Transaction;
+    // New API format
+    returnId?: string;
+    returnNumber?: string;
+    originalSale?: Sale;
+    status?: string;
+    createdAt?: string | Date;
+
+    // Legacy format
+    returnTransaction?: Transaction;
+    originalTransaction?: Transaction;
+
+    // Common fields
     returnItems: ReturnItem[];
     refundAmount: number;
-    originalTransaction: Transaction;
 }

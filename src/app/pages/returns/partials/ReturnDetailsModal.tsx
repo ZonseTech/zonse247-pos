@@ -67,22 +67,61 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
     returnDetails,
 }) => {
     const isEBN = useIsEBN();
+
+    // Helper to safely parse numeric values (API may return strings)
+    const parseNumber = (val: number | string | undefined): number => {
+        if (val === undefined || val === null) return 0;
+        return typeof val === 'string' ? parseFloat(val) || 0 : val;
+    };
+
+    // Helper to convert date to string for formatDate
+    const toDateString = (val: string | Date | undefined): string => {
+        if (!val) return '';
+        return typeof val === 'string' ? val : val.toISOString();
+    };
+
+    // Helper to get product name from originalSale items or return item itself
+    const getProductName = (item: ReturnItem): string => {
+        // First check if product info is directly on the item
+        if (item.product?.name) return item.product.name;
+
+        // Look up from originalSale.items by matching originalOrderId to item id
+        const originalSale = returnDetails?.originalSale;
+        if (originalSale?.items) {
+            const saleItem = originalSale.items.find(
+                (si: any) => si.id === item.originalOrderId || si.productId === item.productId
+            );
+            if (saleItem?.product?.name) return saleItem.product.name;
+        }
+
+        return `Product #${item.productId.slice(0, 8)}...`;
+    };
+
     const returnData = useMemo(() => {
         if (!returnDetails) return null;
 
+        // Support both new API format (originalSale, returnNumber) and legacy format (returnTransaction, originalTransaction)
+        const originalSale = returnDetails.originalSale;
+        const returnTransaction = returnDetails.returnTransaction;
+        const originalTransaction = returnDetails.originalTransaction;
+
         return {
-            returnRefNumber: returnDetails.returnTransaction?.refNumber || 'N/A',
-            originalRefNumber: returnDetails.originalTransaction?.refNumber || 'N/A',
+            returnRefNumber: returnDetails.returnNumber || returnTransaction?.refNumber || 'N/A',
+            originalRefNumber: originalSale?.saleNumber || originalTransaction?.refNumber || 'N/A',
             customerName:
-                returnDetails.originalTransaction?.customer?.name || 'Walk-in Customer',
+                originalSale?.customer?.name ||
+                originalTransaction?.customer?.name ||
+                'Walk-in Customer',
             cashierName:
-                returnDetails.returnTransaction?.user?.fullname ||
-                returnDetails.returnTransaction?.user?.username ||
+                originalSale?.user?.fullname ||
+                originalSale?.user?.username ||
+                returnTransaction?.user?.fullname ||
+                returnTransaction?.user?.username ||
                 'Administrator',
-            returnDate: formatDate(returnDetails.returnTransaction?.date),
-            originalDate: formatDate(returnDetails.originalTransaction?.date),
+            returnDate: formatDate(toDateString(returnDetails.createdAt || returnTransaction?.date)),
+            originalDate: formatDate(toDateString(originalSale?.saleDate || originalTransaction?.date)),
             refundAmount: returnDetails.refundAmount || 0,
-            paymentMethod: returnDetails.returnTransaction?.paymentMethod?.name || 'Original Method',
+            paymentMethod: originalSale?.paymentMethod?.name || returnTransaction?.paymentMethod?.name || 'Original Method',
             hasItems: Array.isArray(returnDetails.returnItems) && returnDetails.returnItems.length > 0,
         };
     }, [returnDetails]);
@@ -169,7 +208,7 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
                                     <div className="flex items-start justify-between mb-2">
                                         <div className="min-w-0 flex-1">
                                             <p className="font-medium text-sm text-gray-900 dark:text-white">
-                                                Product #{item.productId}
+                                                {getProductName(item)}
                                             </p>
                                             {item.notes && (
                                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
@@ -178,12 +217,12 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
                                             )}
                                         </div>
                                         <span className="font-medium text-sm text-blue-600 dark:text-blue-400 ml-2">
-                                            {formatCurrency(item.returnPrice)}
+                                            {formatCurrency(parseNumber(item.returnPrice))}
                                         </span>
                                     </div>
                                     <div className="flex flex-wrap items-center gap-2 text-xs">
                                         <span className="text-gray-600 dark:text-gray-400">
-                                            Qty: <span className="font-medium">{item.returnedQuantity}</span>/{item.originalQuantity}
+                                            Qty: <span className="font-medium">{parseNumber(item.returnedQuantity)}</span>/{parseNumber(item.originalQuantity)}
                                         </span>
                                         {getConditionBadge(item.condition)}
                                         {getRestockStatusBadge(item.restockStatus)}
@@ -231,7 +270,7 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
                                             <td className={isEBN ? 'px-2 py-1.5' : 'px-4 py-4'}>
                                                 <div>
                                                     <p className={`font-medium text-gray-900 dark:text-white ${isEBN ? 'text-[11px]' : ''}`}>
-                                                        Product #{item.productId}
+                                                        {getProductName(item)}
                                                     </p>
                                                     {item.notes && !isEBN && (
                                                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -242,14 +281,14 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
                                             </td>
                                             <td className={`${isEBN ? 'px-2 py-1.5 text-[11px]' : 'px-4 py-4'} text-center`}>
                                                 <span className="font-medium">
-                                                    {item.returnedQuantity}
+                                                    {parseNumber(item.returnedQuantity)}
                                                 </span>
                                                 <span className={`text-gray-400 ${isEBN ? 'text-[10px]' : 'text-sm'}`}>
-                                                    /{item.originalQuantity}
+                                                    /{parseNumber(item.originalQuantity)}
                                                 </span>
                                             </td>
                                             <td className={`${isEBN ? 'px-2 py-1.5 text-[11px]' : 'px-4 py-4'} text-right font-medium`}>
-                                                {formatCurrency(item.returnPrice)}
+                                                {formatCurrency(parseNumber(item.returnPrice))}
                                             </td>
                                             <td className={`${isEBN ? 'px-2 py-1.5' : 'px-4 py-4'} text-center`}>
                                                 {getConditionBadge(item.condition)}
@@ -258,9 +297,9 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
                                                 <div className="flex flex-col items-center gap-0.5">
                                                     {getRestockStatusBadge(item.restockStatus)}
                                                     {item.restockStatus === 'restocked' &&
-                                                        item.restockedQuantity > 0 && !isEBN && (
+                                                        parseNumber(item.restockedQuantity) > 0 && !isEBN && (
                                                             <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                                Qty: {item.restockedQuantity}
+                                                                Qty: {parseNumber(item.restockedQuantity)}
                                                             </span>
                                                         )}
                                                 </div>
@@ -292,7 +331,7 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
                             </span>
                             <span className={`font-medium ${isEBN ? 'text-[11px]' : 'text-sm sm:text-base'}`}>
                                 {returnDetails.returnItems.reduce(
-                                    (sum, item) => sum + item.returnedQuantity,
+                                    (sum, item) => sum + parseNumber(item.returnedQuantity),
                                     0
                                 )}
                             </span>

@@ -4,6 +4,53 @@ import { HiOutlineEye, HiOutlineTrash, HiOutlineMenuAlt4 } from 'react-icons/hi'
 import { RotateCcw, Eye, Trash2, Package } from 'lucide-react';
 import { formatCurrency, formatDate } from '../../../utils';
 
+// Helper to convert Date or string to string for formatDate
+const toDateString = (date: string | Date | undefined): string | undefined => {
+    if (!date) return undefined;
+    if (date instanceof Date) return date.toISOString();
+    return date;
+};
+
+// Helper functions to handle both API formats (legacy and new)
+const getReturnRefNumber = (row: ReturnDetails): string => {
+    // New API format: returnNumber at root level
+    if (row.returnNumber) return row.returnNumber;
+    // Legacy format: nested in returnTransaction
+    return row.returnTransaction?.refNumber || 'N/A';
+};
+
+const getReturnId = (row: ReturnDetails): string => {
+    // New API format: returnId at root level
+    if (row.returnId) return row.returnId;
+    // Legacy format: nested in returnTransaction
+    return row.returnTransaction?.transactionId || row.returnTransaction?.refNumber || '';
+};
+
+const getReturnDate = (row: ReturnDetails): string | Date | undefined => {
+    // New API format: createdAt at root level
+    if (row.createdAt) return row.createdAt;
+    // Legacy format: nested in returnTransaction
+    return row.returnTransaction?.date;
+};
+
+const getOriginalSaleRef = (row: ReturnDetails): string => {
+    // New API format: originalSale at root level
+    if (row.originalSale?.saleNumber) return row.originalSale.saleNumber;
+    // Legacy format: nested in originalTransaction
+    return row.originalTransaction?.refNumber || 'N/A';
+};
+
+const getCustomerName = (row: ReturnDetails): string => {
+    // New API format: originalSale.customer
+    if (row.originalSale?.customer?.name) return row.originalSale.customer.name;
+    // Legacy format: originalTransaction.customer
+    return row.originalTransaction?.customer?.name || 'Walk-in';
+};
+
+const getReturnItems = (row: ReturnDetails): ReturnItem[] => {
+    return row.returnItems || [];
+};
+
 interface ReturnActionsProps {
     returnData: ReturnDetails;
     onViewDetails: (returnData: ReturnDetails) => void;
@@ -19,7 +66,7 @@ export const ReturnActions: React.FC<ReturnActionsProps> = ({
     onCancel,
     compact = false
 }) => {
-    const hasPendingRestock = returnData.returnItems.some(
+    const hasPendingRestock = getReturnItems(returnData).some(
         (item) => item.restockStatus === 'pending'
     );
 
@@ -51,8 +98,8 @@ export const ReturnActions: React.FC<ReturnActionsProps> = ({
             <button
                 onClick={() =>
                     onCancel(
-                        returnData.returnTransaction.transactionId,
-                        returnData.returnTransaction.refNumber
+                        getReturnId(returnData),
+                        getReturnRefNumber(returnData)
                     )
                 }
                 className={`${buttonClass} text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20`}
@@ -65,13 +112,14 @@ export const ReturnActions: React.FC<ReturnActionsProps> = ({
 };
 
 const getRestockStatusBadge = (returnData: ReturnDetails, compact: boolean = false) => {
-    const allRestocked = returnData.returnItems.every(
+    const items = getReturnItems(returnData);
+    const allRestocked = items.length > 0 && items.every(
         (item) => item.restockStatus === 'restocked'
     );
-    const anyPending = returnData.returnItems.some(
+    const anyPending = items.some(
         (item) => item.restockStatus === 'pending'
     );
-    const anyDamaged = returnData.returnItems.some(
+    const anyDamaged = items.some(
         (item) => item.restockStatus === 'damaged'
     );
 
@@ -120,12 +168,12 @@ export const getReturnColumns = (
             cell: (row) => (
                 <Fragment>
                     <div className={`${textClass} font-medium text-gray-900 dark:text-white`}>
-                        {row.returnTransaction.refNumber}
+                        {getReturnRefNumber(row)}
                     </div>
                 </Fragment>
             ),
             sortable: true,
-            selector: (row) => row.returnTransaction.refNumber,
+            selector: (row) => getReturnRefNumber(row),
             minWidth: compact ? '120px' : undefined,
             grow: compact ? 1 : undefined,
         },
@@ -134,26 +182,32 @@ export const getReturnColumns = (
             cell: (row) => (
                 <Fragment>
                     <div className={`${textClass} text-gray-900 dark:text-white`}>
-                        {row.originalTransaction.customer?.name || 'Walk-in'}
+                        {getCustomerName(row)}
                     </div>
                 </Fragment>
             ),
             sortable: true,
-            selector: (row) => row.originalTransaction.customer?.name || 'Walk-in',
+            selector: (row) => getCustomerName(row),
             minWidth: compact ? '140px' : undefined,
             grow: compact ? 1.5 : undefined,
         },
         {
             name: 'Date',
-            cell: (row) => (
-                <Fragment>
-                    <div className={`${textClass} text-gray-600 dark:text-gray-400`}>
-                        {formatDate(row.returnTransaction.date)}
-                    </div>
-                </Fragment>
-            ),
+            cell: (row) => {
+                const date = toDateString(getReturnDate(row));
+                return (
+                    <Fragment>
+                        <div className={`${textClass} text-gray-600 dark:text-gray-400`}>
+                            {date ? formatDate(date) : 'N/A'}
+                        </div>
+                    </Fragment>
+                );
+            },
             sortable: true,
-            selector: (row) => row.returnTransaction.date,
+            selector: (row) => {
+                const date = getReturnDate(row);
+                return date ? String(date) : '';
+            },
             minWidth: compact ? '100px' : undefined,
             grow: compact ? 1 : undefined,
             omit: compact,
@@ -178,12 +232,12 @@ export const getReturnColumns = (
             cell: (row) => (
                 <Fragment>
                     <div className={`${textClass} text-gray-900 dark:text-white`}>
-                        {row.returnItems.length}
+                        {getReturnItems(row).length}
                     </div>
                 </Fragment>
             ),
             sortable: true,
-            selector: (row) => row.returnItems.length,
+            selector: (row) => getReturnItems(row).length,
             center: true,
             minWidth: compact ? '60px' : undefined,
             grow: compact ? 0.5 : undefined,
@@ -223,12 +277,12 @@ export const getReturnColumns = (
             cell: (row) => (
                 <Fragment>
                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {row.originalTransaction.refNumber}
+                        {getOriginalSaleRef(row)}
                     </div>
                 </Fragment>
             ),
             sortable: true,
-            selector: (row) => row.originalTransaction.refNumber,
+            selector: (row) => getOriginalSaleRef(row),
         });
     }
 
@@ -243,16 +297,18 @@ export const getMobileReturnColumns = (
 ): TableColumn<ReturnDetails>[] => [
         {
             name: 'Return',
-            selector: (row) => row.returnTransaction.refNumber,
+            selector: (row) => getReturnRefNumber(row),
             sortable: true,
             grow: 2,
             cell: (row) => {
-                const hasPendingRestock = row.returnItems.some(
+                const items = getReturnItems(row);
+                const hasPendingRestock = items.some(
                     (item) => item.restockStatus === 'pending'
                 );
-                const allRestocked = row.returnItems.every(
+                const allRestocked = items.length > 0 && items.every(
                     (item) => item.restockStatus === 'restocked'
                 );
+                const returnDate = toDateString(getReturnDate(row));
 
                 return (
                     <div className="flex items-center gap-3 py-2">
@@ -261,7 +317,7 @@ export const getMobileReturnColumns = (
                         </div>
                         <div className="min-w-0 flex-1">
                             <div className="font-medium text-gray-900 dark:text-white text-sm truncate">
-                                {row.returnTransaction.refNumber}
+                                {getReturnRefNumber(row)}
                             </div>
                             <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-0.5 flex-wrap">
                                 <span className="font-medium text-blue-600 dark:text-blue-400">
@@ -270,7 +326,7 @@ export const getMobileReturnColumns = (
                                 <span>•</span>
                                 <span className="inline-flex items-center gap-1">
                                     <Package className="w-3 h-3" />
-                                    {row.returnItems.length}
+                                    {items.length}
                                 </span>
                                 <span>•</span>
                                 <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${allRestocked
@@ -283,7 +339,7 @@ export const getMobileReturnColumns = (
                                 </span>
                             </div>
                             <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                                {row.originalTransaction?.customer?.name || 'Walk-in'} • {formatDate(row.returnTransaction.date)}
+                                {getCustomerName(row)} • {returnDate ? formatDate(returnDate) : 'N/A'}
                             </div>
                         </div>
                     </div>
@@ -295,7 +351,7 @@ export const getMobileReturnColumns = (
             width: '80px',
             right: true,
             cell: (row) => {
-                const hasPendingRestock = row.returnItems.some(
+                const hasPendingRestock = getReturnItems(row).some(
                     (item) => item.restockStatus === 'pending'
                 );
 
@@ -316,7 +372,7 @@ export const getMobileReturnColumns = (
                             </button>
                         ) : (
                             <button
-                                onClick={() => onCancel(row.returnTransaction.transactionId, row.returnTransaction.refNumber)}
+                                onClick={() => onCancel(getReturnId(row), getReturnRefNumber(row))}
                                 className="p-2 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                             >
                                 <Trash2 className="w-4 h-4" />

@@ -130,6 +130,8 @@ const returnsService = {
         if (!transaction) return false;
         if (transaction.isRefund) return false;
         if (transaction.status === 'cancelled' || transaction.status === 'void') return false;
+        // Check for REFUNDED status (case-insensitive for both 'refunded' and 'REFUNDED')
+        if (transaction.status?.toLowerCase() === 'refunded') return false;
         return true;
     },
 
