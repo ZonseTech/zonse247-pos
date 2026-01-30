@@ -1,0 +1,172 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  PROJECT_ROOT: "{{.ROOT_DIR}}"
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  # ===================
+  # Build Tasks
+  # ===================
+
+  build:android:
+    desc: Build for Android (Capacitor)
+    cmds:
+      - task: env:setup
+        vars: { PLATFORM: android }
+      - task: _build:web
+      - task: _sync:android
+      - task: env:restore
+    ignore_error: false
+
+  build:web:
+    desc: Build for Web deployment
+    cmds:
+      - task: env:setup
+        vars: { PLATFORM: web }
+      - task: _build:web
+      - task: env:restore
+    ignore_error: false
+
+  build:desktop:
+    desc: Build for Desktop (Electron)
+    cmds:
+      - task: env:setup
+        vars: { PLATFORM: desktop }
+      - task: _build:desktop
+      - task: env:restore
+    ignore_error: false
+
+  # ===================
+  # Environment Tasks
+  # ===================
+
+  env:setup:
+    desc: Setup environment for a platform
+    internal: true
+    vars:
+      PLATFORM: "{{.PLATFORM}}"
+    cmds:
+      - |
+        echo "[INFO] Setting up environment for {{.PLATFORM}}..."
+        if [ -f .env ]; then
+          cp .env .env.backup
+          echo "[INFO] Backed up .env to .env.backup"
+        fi
+        if [ ! -f .env.{{.PLATFORM}}.example ]; then
+          echo "[ERROR] .env.{{.PLATFORM}}.example not found!"
+          exit 1
+        fi
+        cp .env.{{.PLATFORM}}.example .env
+        echo "[SUCCESS] Environment configured for {{.PLATFORM}}"
+    silent: false
+
+  env:restore:
+    desc: Restore original .env file
+    internal: true
+    cmds:
+      - |
+        if [ -f .env.backup ]; then
+          mv .env.backup .env
+          echo "[INFO] Restored .env from backup"
+        fi
+    silent: false
+
+  # ===================
+  # Internal Build Tasks
+  # ===================
+
+  _build:web:
+    desc: Build web assets
+    internal: true
+    cmds:
+      - echo "[INFO] Building web assets..."
+      - npm run build
+      - echo "[SUCCESS] Web build complete!"
+
+  _build:desktop:
+    desc: Build desktop app with Electron
+    internal: true
+    cmds:
+      - echo "[INFO] Building desktop app..."
+      - npm run make
+      - echo "[SUCCESS] Desktop build complete! Output in 'out' folder"
+
+  _sync:android:
+    desc: Sync with Capacitor for Android
+    internal: true
+    cmds:
+      - echo "[INFO] Syncing with Capacitor..."
+      - npx ionic cap sync android
+      - echo "[SUCCESS] Android sync complete!"
+      - 'echo "[INFO] To create APK/AAB, run: cd android && ./gradlew assembleRelease"'
+
+  # ===================
+  # Development Tasks
+  # ===================
+
+  dev:
+    desc: Start development server
+    cmds:
+      - npm run dev
+
+  start:
+    desc: Start Electron app in development
+    cmds:
+      - npm run start
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf dist out .vite
+      - echo "[SUCCESS] Build artifacts cleaned"
+
+  # ===================
+  # Utility Tasks
+  # ===================
+
+  db:verify:
+    desc: Verify template database exists
+    cmds:
+      - npm run db:verify-template
+
+  db:status:
+    desc: Check database status
+    cmds:
+      - npm run db:status
+
+  lint:
+    desc: Run ESLint
+    cmds:
+      - npm run lint
+
+  # ===================
+  # Android-specific Tasks
+  # ===================
+
+  android:apk:
+    desc: Build Android APK (release)
+    dir: android
+    cmds:
+      - ./gradlew assembleRelease
+      - echo "[SUCCESS] APK built at android/app/build/outputs/apk/release/"
+
+  android:aab:
+    desc: Build Android App Bundle (release)
+    dir: android
+    cmds:
+      - ./gradlew bundleRelease
+      - echo "[SUCCESS] AAB built at android/app/build/outputs/bundle/release/"
+
+  android:clean:
+    desc: Clean Android build
+    dir: android
+    cmds:
+      - ./gradlew clean
+      - echo "[SUCCESS] Android build cleaned"
