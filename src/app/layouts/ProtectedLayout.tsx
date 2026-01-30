@@ -1,26 +1,23 @@
 import NavBar from "../navigation/NavBar"
 import Footer from "../components/Footer"
-import { Outlet, useLocation } from "react-router"
+import { Outlet } from "react-router"
 import { type FunctionComponent } from "react"
 import { isElectron } from "../../helpers/index.helper"
 import { useApp } from "../context/AppProvider"
 import { useLayout } from "../context/LayoutContext"
-import { useIsMobile } from "../hooks/useMediaQuery"
-import { ROUTES } from "../utils/constants"
+import { useIsMobile, useIsNativeMobile } from "../hooks/useMediaQuery"
 import classNames from "classnames"
 
 const ProtectedLayout: FunctionComponent = () => {
 	const { settings } = useApp();
 	const { isSidebarHidden, toggleSidebar } = useLayout();
 	const isMobile = useIsMobile();
-	const location = useLocation();
+	const isNativeMobile = useIsNativeMobile();
 	const isNotDesktopEnv = !isElectron()
-	const showWebNav = isNotDesktopEnv || settings?.navigationMenuType === 'web'
-	const isPOSActive = location.pathname === ROUTES.POS;
+	const showWebNav = (isNotDesktopEnv || settings?.navigationMenuType === 'web') && !isNativeMobile
 
 	return (
 		<div className="flex h-screen bg-white dark:bg-gray-900 transition-colors duration-300 relative">
-			{/* Sidebar - Hidden on mobile, shown on desktop with slide animation */}
 			{showWebNav && !isMobile && (
 				<aside
 					className={classNames(
@@ -49,16 +46,18 @@ const ProtectedLayout: FunctionComponent = () => {
 					</header>
 				)}
 
-				<main className="flex-grow overflow-hidden pt-2.5 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 relative z-0">
+				<main className="flex-grow overflow-hidden md:pt-2.5 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 relative z-0">
 					<div className="h-full overflow-auto">
-						<div className="min-h-full px-4">
+						<div className="min-h-full md:px-4">
 							<Outlet />
 						</div>
 					</div>
 				</main>
-				<div className="border-t border-gray-200 dark:border-gray-700">
-					<Footer />
-				</div>
+				{!isNativeMobile && (
+					<div className="border-t border-gray-200 dark:border-gray-700">
+						<Footer />
+					</div>
+				)}
 			</div>
 		</div>
 	)

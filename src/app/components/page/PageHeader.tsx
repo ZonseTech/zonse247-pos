@@ -1,5 +1,7 @@
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import React, { PropsWithChildren, ReactNode } from 'react';
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router';
 
 interface PageHeaderProps {
     title?: string;
@@ -8,6 +10,8 @@ interface PageHeaderProps {
     action?: ReactNode;
     className?: string;
     compact?: boolean;
+    showBackButton?: boolean;
+    onBack?: () => void;
 }
 
 const PageHeader: React.FC<PropsWithChildren<PageHeaderProps>> = ({
@@ -17,9 +21,20 @@ const PageHeader: React.FC<PropsWithChildren<PageHeaderProps>> = ({
     action,
     children,
     className = "",
-    compact = false
+    compact = false,
+    showBackButton = false,
+    onBack
 }) => {
     const isMobile = useIsMobile();
+    const navigate = useNavigate();
+
+    const handleBack = () => {
+        if (onBack) {
+            onBack();
+        } else {
+            navigate(-1);
+        }
+    };
 
     return (
         <div className={compact
@@ -34,6 +49,18 @@ const PageHeader: React.FC<PropsWithChildren<PageHeaderProps>> = ({
                     ? "flex items-center gap-2 flex-1 min-w-0"
                     : "flex items-center gap-2 sm:gap-4 flex-1 min-w-0"
                 }>
+                    {showBackButton && (
+                        <button
+                            onClick={handleBack}
+                            className={compact
+                                ? "flex-shrink-0 p-1 -ml-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all"
+                                : "flex-shrink-0 p-1.5 -ml-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all"
+                            }
+                            aria-label="Go back"
+                        >
+                            <ArrowLeft className={compact ? "w-5 h-5 text-gray-600 dark:text-gray-400" : "w-6 h-6 text-gray-600 dark:text-gray-400"} />
+                        </button>
+                    )}
                     {icon && (
                         <div className={compact
                             ? "flex-shrink-0 [&>svg]:w-5 [&>svg]:h-5"
