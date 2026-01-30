@@ -25,7 +25,7 @@ const MobileTabLayout: FunctionComponent<MobileTabLayoutProps> = ({ children }) 
         if (path === ROUTES.DASHBOARD || path.startsWith(ROUTES.DASHBOARD + '/')) return 'reports';
         if (path === ROUTES.SALES || path.startsWith(ROUTES.SALES + '/')) return 'today';
         if (path === ROUTES.POS || path.startsWith(ROUTES.POS + '/')) return 'counter';
-        if (path === ROUTES.INVENTORY || path.startsWith(ROUTES.INVENTORY + '/')) return 'items';
+        if (path === ROUTES.ITEMS || path.startsWith(ROUTES.ITEMS + '/')) return 'items';
         return '';
     }, [location.pathname]);
 
@@ -53,7 +53,7 @@ const MobileTabLayout: FunctionComponent<MobileTabLayoutProps> = ({ children }) 
             id: 'items',
             label: 'Items',
             icon: <FaListCheck className="w-6 h-6" />,
-            route: ROUTES.INVENTORY,
+            route: ROUTES.ITEMS,
         },
         {
             id: 'more',

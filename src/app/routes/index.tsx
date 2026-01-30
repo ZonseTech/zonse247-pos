@@ -13,6 +13,7 @@ const Users = lazy(() => import('../pages/users/index'))
 const PointOfSale = lazy(() => import('../pages/pos'))
 const Login = lazy(() => import('../pages/auth/Login'))
 const Inventory = lazy(() => import('../pages/inventory'))
+const MobileInventory = lazy(() => import('../pages/inventory/MobileStocks'))
 const InventoryForm = lazy(() => import('../pages/inventory/create'))
 const Categories = lazy(() => import('../pages/categories'))
 const Customers = lazy(() => import('../pages/customers'))
@@ -69,7 +70,7 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 						<Route path={ROUTES.POS} element={<PointOfSale />} />
 						<Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
 						<Route path={ROUTES.SALES} element={<Sales />} />
-						<Route path={ROUTES.INVENTORY} element={<Inventory />} />
+						<Route path={ROUTES.ITEMS} element={<MobileInventory />} />
 					</Route>
 				) : (
 					<>

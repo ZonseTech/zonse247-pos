@@ -1,20 +1,22 @@
 import CartItemCard from './partials/CartItemCard';
-import ItemLookupModal from './partials/ItemLookupModal';
 import MobilePageHeader from '../../components/page/MobilePageHeader';
 import CustomerSelector from '../customers/partials/CustomerSelector';
 import { CameraBarcodeScanner } from '../../components';
+import { HelpModal, MobileItemLookupModal } from '../../components/modals';
 import { FunctionComponent, useRef, useState, useEffect } from 'react';
 import { useInventory } from '../../hooks/useInventory';
 import { useParkedSales } from '../../hooks/useParkedSales';
 import { useBranch } from '../../context/BranchContext';
 import BranchSwitchModal from '../../navigation/components/BranchSwitchModal';
-import { HiOutlineChatAlt2, HiSearch, HiPlus, HiShoppingCart, HiChevronRight, HiPlusCircle, HiMenu } from 'react-icons/hi';
+import { HiOutlineChatAlt2, HiSearch, HiShoppingCart, HiPlusCircle, HiMenu } from 'react-icons/hi';
 import { RiUserAddLine } from 'react-icons/ri';
 import { FaCaretDown } from 'react-icons/fa';
 import { BsUpcScan } from 'react-icons/bs';
 import InventoryStatsCard from '../../components/stats/InventoryStatsCard';
 import { HiArrowRight } from 'react-icons/hi2';
 import { useMobileNav } from '../../context/MobileNavContext';
+import { useNavigate } from 'react-router';
+import { ROUTES } from '../../utils/constants';
 
 const MobilePOS: FunctionComponent = () => {
     const {
@@ -28,14 +30,14 @@ const MobilePOS: FunctionComponent = () => {
     const { currentBranch } = useBranch();
     const { parkedSales, fetchParkedSales, resumeParkedSale, isLoading: isLoadingParked } = useParkedSales();
     const { openDrawer } = useMobileNav();
+    const navigate = useNavigate();
 
-    const barcodeScannerInputRef = useRef<HTMLInputElement>(null);
     const [isBranchSwitchModalOpen, setIsBranchSwitchModalOpen] = useState(false);
     const [isCameraScannerOpen, setIsCameraScannerOpen] = useState(false);
     const [isLookupModalOpen, setIsLookupModalOpen] = useState(false);
+    const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
     const [customPriceInputs, setCustomPriceInputs] = useState<Record<string, string>>({});
 
-    // Fetch parked sales on mount
     useEffect(() => {
         fetchParkedSales();
     }, [fetchParkedSales]);
@@ -112,7 +114,7 @@ const MobilePOS: FunctionComponent = () => {
                             />
                             <HiOutlineChatAlt2
                                 className="w-6 h-6 text-white cursor-pointer active:scale-95 transition-transform"
-                                onClick={() => {/* TODO: Open help modal */ }}
+                                onClick={() => setIsHelpModalOpen(true)}
                             />
                         </div>
                     }
@@ -131,7 +133,7 @@ const MobilePOS: FunctionComponent = () => {
                                 className="p-2.5 bg-white dark:bg-gray-800 rounded-sm transition-colors border border-gray-200 dark:border-gray-700"
                                 aria-label="Open camera scanner"
                             >
-                                <BsUpcScan className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                                <BsUpcScan className="w-6 h-6 text-sky-500 dark:text-sky-400" />
                             </button>
                         </div>
                     ) : null}
@@ -148,7 +150,7 @@ const MobilePOS: FunctionComponent = () => {
                     ) : (
                         <div className="space-y-5">
                             <button
-                                onClick={() => setIsLookupModalOpen(true)}
+                                onClick={() => navigate(ROUTES.ITEMS)}
                                 className="w-full flex flex-col items-center justify-center gap-2 py-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 active:bg-gray-100 dark:active:bg-gray-700 rounded-sm transition-colors"
                             >
                                 <HiPlusCircle className="w-10 h-10 text-emerald-500" />
@@ -227,12 +229,18 @@ const MobilePOS: FunctionComponent = () => {
                 subtitle="Point camera at product barcode"
             />
 
-            <ItemLookupModal
+            <MobileItemLookupModal
                 isOpen={isLookupModalOpen}
                 onClose={() => setIsLookupModalOpen(false)}
                 inventory={inventory}
                 onAddToCart={handleAddToCartFromLookup}
-                barcodeScannerInputRef={barcodeScannerInputRef}
+                onOpenScanner={() => setIsCameraScannerOpen(true)}
+                multiSelect
+            />
+
+            <HelpModal
+                isOpen={isHelpModalOpen}
+                onClose={() => setIsHelpModalOpen(false)}
             />
         </div>
     );
