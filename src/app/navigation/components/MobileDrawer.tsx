@@ -12,7 +12,7 @@ import BranchSwitchModal from './BranchSwitchModal';
 import { ROUTES } from '../../utils/constants';
 import type { MobileDrawerProps } from './types';
 import { GROUP_ORDER } from './types';
-import { HiOutlineChevronUpDown } from 'react-icons/hi2';
+import { FaCaretDown } from 'react-icons/fa';
 
 const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
     isOpen,
@@ -112,7 +112,7 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
                                     {currentBranch?.phoneNumber || 'No phone number'}
                                 </p>
                             </div>
-                            <HiOutlineChevronUpDown className="w-6 h-6 flex-shrink-0 text-sky-600 dark:text-sky-400 " />
+                            <FaCaretDown className="w-6 h-6 flex-shrink-0 text-sky-600 dark:text-sky-400 " />
                         </button>
                     </div>
 

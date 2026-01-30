@@ -1,4 +1,4 @@
-import { Fragment, FunctionComponent, useState, useEffect, useMemo } from 'react';
+import { Fragment, FunctionComponent, useState, useEffect, useMemo, ReactNode } from 'react';
 import { HiOutlineUser, HiOutlineUserGroup, HiOutlinePlus, HiOutlineSearch, HiOutlineUserCircle } from 'react-icons/hi';
 import { useInventory } from '../../../hooks/useInventory';
 import { Modal } from '../../../components';
@@ -6,9 +6,10 @@ import CustomerModal from './CustomerModal';
 
 interface CustomerSelectorProps {
     compact?: boolean;
+    trigger?: ReactNode;
 }
 
-const CustomerSelector: FunctionComponent<CustomerSelectorProps> = ({ compact = false }) => {
+const CustomerSelector: FunctionComponent<CustomerSelectorProps> = ({ compact = false, trigger }) => {
     const { customers, selectedCustomer, setSelectedCustomer, fetchCustomers } = useInventory();
     const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
     const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
@@ -57,25 +58,31 @@ const CustomerSelector: FunctionComponent<CustomerSelectorProps> = ({ compact = 
 
     return (
         <Fragment>
-            <button
-                onClick={() => setIsCustomerListModalOpen(true)}
-                className={`inline-flex items-center gap-1.5 font-medium transition-all underline decoration-2 underline-offset-4 hover:decoration-1 ${compact ? 'text-xs' : 'text-sm gap-2'} ${selectedCustomer?.isDefault
-                    ? 'text-sky-700 dark:text-sky-300 decoration-sky-400 hover:text-sky-800 dark:hover:text-sky-200'
-                    : 'text-emerald-700 dark:text-emerald-300 decoration-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200'
-                    }`}
-            >
-                {selectedCustomer?.isDefault ? (
-                    <HiOutlineUser className={compact ? 'w-3 h-3' : 'w-4 h-4'} />
-                ) : (
-                    <HiOutlineUserGroup className={compact ? 'w-3 h-3' : 'w-4 h-4'} />
-                )}
-                <span className="hidden md:inline">
-                    {isLoading ? 'Loading...' : (selectedCustomer?.name || 'Select Customer')}
-                </span>
-                <span className="md:hidden">
-                    {isLoading ? '...' : (selectedCustomer?.isDefault ? selectedCustomer?.name?.split(' ')[0] : selectedCustomer?.name?.split(' ')[0] || 'Customer')}
-                </span>
-            </button>
+            {trigger ? (
+                <div onClick={() => setIsCustomerListModalOpen(true)} className="cursor-pointer">
+                    {trigger}
+                </div>
+            ) : (
+                <button
+                    onClick={() => setIsCustomerListModalOpen(true)}
+                    className={`inline-flex items-center gap-1.5 font-medium transition-all underline decoration-2 underline-offset-4 hover:decoration-1 ${compact ? 'text-xs' : 'text-sm gap-2'} ${selectedCustomer?.isDefault
+                        ? 'text-sky-700 dark:text-sky-300 decoration-sky-400 hover:text-sky-800 dark:hover:text-sky-200'
+                        : 'text-emerald-700 dark:text-emerald-300 decoration-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200'
+                        }`}
+                >
+                    {selectedCustomer?.isDefault ? (
+                        <HiOutlineUser className={compact ? 'w-3 h-3' : 'w-4 h-4'} />
+                    ) : (
+                        <HiOutlineUserGroup className={compact ? 'w-3 h-3' : 'w-4 h-4'} />
+                    )}
+                    <span className="hidden md:inline">
+                        {isLoading ? 'Loading...' : (selectedCustomer?.name || 'Select Customer')}
+                    </span>
+                    <span className="md:hidden">
+                        {isLoading ? '...' : (selectedCustomer?.isDefault ? selectedCustomer?.name?.split(' ')[0] : selectedCustomer?.name?.split(' ')[0] || 'Customer')}
+                    </span>
+                </button>
+            )}
 
             <Modal
                 title="Select Customer"
