@@ -34,14 +34,10 @@ export type PaymentMethod = typeof CHECKOUT[keyof typeof CHECKOUT];
 
 export type ActiveInputType = 'phoneNumber' | 'referenceNo' | 'account' | null;
 
-/**
- * Sale form values for checkout
- * (migrated from TransactionValues)
- */
 interface SaleFormValues {
     paymentMethodId: string;
     paymentServiceProviderId: string;
-    transactionId: string;  // Legacy field, maps to reference
+    transactionId: string;
     phoneNumber: string;
     cashTendered: string;
     transferType?: string;
@@ -126,18 +122,12 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, paymentMethodId, total, processing,]);
 
-    /**
-     * Complete sale using the new sales API
-     * (migrated from handleCompleteTransaction)
-     */
     const handleCompleteSale = async (values: SaleFormValues) => {
         if (processing) return;
 
         try {
             setProcessing(true);
             const refNumber = generateReferenceNumber()
-
-            // Build sale payload for new API
             const salePayload: CreateSalePayload = {
                 tenantId: user.tenantId,
                 branchId: user.branchId,
@@ -146,18 +136,12 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 customerId: selectedCustomer?.customerId !== 'walk-in' && selectedCustomer?.customerId !== DEFAULT_SEED_KEY
                     ? selectedCustomer?.customerId
                     : undefined,
-
-                // Payment info
                 amountPaid: values.cashTendered ? parseFloat(values.cashTendered) : total,
                 paymentMethodId: values.paymentMethodId,
-
-                // Totals
                 subtotal,
                 taxAmount: tax,
                 discountAmount: discount,
                 totalAmount: total,
-
-                // Items - map cart to sale items format
                 items: cart.map(item => ({
                     productId: item.productId,
                     quantity: item.quantity,
@@ -165,19 +149,15 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                     taxAmount: 0,
                     discountAmount: item.discount || 0,
                 })),
-
-                // Optional notes with payment reference
                 notes: values.transactionId ? `Ref: ${values.transactionId}` : undefined,
             };
 
             const sale = await salesService.store(salePayload);
 
-            // Normalize date to string
             const saleDate = typeof sale.createdAt === 'string'
                 ? sale.createdAt
                 : sale.createdAt?.toISOString?.() || new Date().toISOString();
 
-            // Map response to backward-compatible format for TransactionCompleteModal
             const completedSaleData: Transaction = {
                 id: sale.id,
                 refNumber: (sale as any).saleNumber || refNumber,
@@ -205,16 +185,11 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
         } catch (error: any) {
             setProcessing(false);
 
-            // Extract error messages from axios response
-            // API can return: 
-            // { success: false, message: "...", error: "detailed error" }
-            // { success: false, message: "...", data: { fieldName: "error message" } }
             const responseData = error?.error?.response?.data || error?.response?.data;
             const mainMessage = responseData?.message || 'Failed to complete sale';
             const detailedError = responseData?.error;
             const fieldErrors = responseData?.data;
 
-            // Format field errors from data object if present
             let fieldErrorsMessage = '';
             if (fieldErrors && typeof fieldErrors === 'object' && !Array.isArray(fieldErrors)) {
                 fieldErrorsMessage = Object.entries(fieldErrors)
@@ -222,7 +197,6 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                     .join('\n');
             }
 
-            // Build full error message
             let fullErrorMessage = mainMessage;
             if (detailedError) {
                 fullErrorMessage += `:\n${detailedError}`;
@@ -239,9 +213,6 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
             );
         }
     };
-
-    // Legacy alias for backward compatibility
-    const handleCompleteTransaction = handleCompleteSale;
 
     const handleNewTransaction = () => {
         setShowCompleteModal(false);
@@ -443,7 +414,6 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 </Formik>
             </div>
 
-            {/* Sale Complete Modal with Print Options */}
             <TransactionCompleteModal
                 isOpen={showCompleteModal}
                 transaction={completedSale}
