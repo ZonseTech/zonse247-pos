@@ -21,28 +21,21 @@ const DiscountModal: FunctionComponent<DiscountModalProps> = ({
     const [discountValue, setDiscountValue] = useState<string>('')
     const [error, setError] = useState<string>('')
 
-    const { subtotal, discount, setDiscount, cart } = useInventory()
+    const { subtotal, discount, discountIsPercentage, setDiscount, cart } = useInventory()
 
     // Reset form when modal opens
     useEffect(() => {
         if (isOpen) {
             // Calculate current discount percentage or amount based on existing discount
             if (discount > 0) {
-                const percentage = (discount / subtotal) * 100
-                // If it's a clean percentage, show as percentage, otherwise show as amount
-                if (Number.isInteger(percentage) || percentage.toFixed(2) === percentage.toString()) {
-                    setDiscountType('percentage')
-                    setDiscountValue(percentage.toFixed(2).replace(/\.?0+$/, ''))
-                } else {
-                    setDiscountType('amount')
-                    setDiscountValue(discount.toString())
-                }
+                setDiscountType(discountIsPercentage ? 'percentage' : 'amount')
+                setDiscountValue(discount.toString())
             } else {
                 setDiscountValue('')
             }
             setError('')
         }
-    }, [isOpen, discount, subtotal])
+    }, [isOpen, discount, discountIsPercentage])
 
     const calculateDiscountAmount = (): number => {
         const value = parseFloat(discountValue) || 0
@@ -81,12 +74,12 @@ const DiscountModal: FunctionComponent<DiscountModalProps> = ({
             return
         }
 
-        setDiscount(discountAmount)
+        setDiscount(parseFloat(discountValue) || 0, discountType === 'percentage')
         onClose()
     }
 
     const handleClearDiscount = () => {
-        setDiscount(0)
+        setDiscount(0, false)
         setDiscountValue('')
         setError('')
         onClose()
