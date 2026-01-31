@@ -6,6 +6,9 @@ import { BiSolidEditAlt } from "react-icons/bi";
 import { BsUpcScan } from "react-icons/bs";
 import Button from "../../../components/Button";
 import ParkSaleModal from "./ParkSaleModal";
+import TaxModal from "./TaxModal";
+import MobileDiscountModal from "./MobileDiscountModal";
+import OtherChargesModal from "./OtherChargesModal";
 
 interface MobileCartItemCardProps {
     onEditItem?: (item: CartItem) => void;
@@ -15,19 +18,28 @@ interface MobileCartItemCardProps {
 }
 
 const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEditItem, onAddNewItem, onScanBarcode, onParkSaleSuccess }) => {
-    const { cart, clearCart } = useInventory();
+    const { cart, clearCart, subtotal, discount, discountIsPercentage, tax, taxName, otherCharges, total } = useInventory();
     const [isParkSaleModalOpen, setIsParkSaleModalOpen] = useState(false);
+    const [isTaxModalOpen, setIsTaxModalOpen] = useState(false);
+    const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
+    const [isOtherChargesModalOpen, setIsOtherChargesModalOpen] = useState(false);
 
-    const subtotal = cart.reduce((sum, item) => sum + (item.sellPrice * item.quantity), 0);
-    const totalDiscount = cart.reduce((sum, item) => sum + (item.discount || 0), 0);
-    const grandTotal = subtotal - totalDiscount;
+    // Calculate amounts for display
+    const discountAmount = discountIsPercentage ? (subtotal * discount) / 100 : discount;
+    const taxableAmount = subtotal - discountAmount;
+    const taxAmount = (taxableAmount * tax) / 100;
+    const otherChargesTotal = otherCharges.reduce((sum, charge) => {
+        const chargeAmount = charge.isPercentage ? (subtotal * charge.value) / 100 : charge.value;
+        return sum + chargeAmount;
+    }, 0);
+
     const totalItems = cart.length;
     const totalUnits = cart.reduce((sum, item) => sum + item.quantity, 0);
 
     const handleClearCart = () => {
         Confirm.show(
             'Clear Cart',
-            'Are you sure you want to clear all items from your cart? This action cannot be undone & all items will be removed.',
+            'Are you sure you want to clear all items from your cart? This action cannot be undone.',
             'Yes, Clear',
             'Cancel',
             () => {
@@ -122,11 +134,38 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
                     <span className="text-gray-900 dark:text-gray-100 text-sm">{formatCurrency(subtotal)}</span>
                 </div>
 
+                {tax > 0 && (
+                    <div className="flex justify-between items-center mt-1">
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">
+                            {taxName || 'Tax'} ({tax}%)
+                        </span>
+                        <span className="text-sky-600 dark:text-sky-400 text-sm">+{formatCurrency(taxAmount)}</span>
+                    </div>
+                )}
+
+                {discount > 0 && (
+                    <div className="flex justify-between items-center mt-1">
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">
+                            Discount {discountIsPercentage && `(${discount}%)`}
+                        </span>
+                        <span className="text-green-600 dark:text-green-400 text-sm">-{formatCurrency(discountAmount)}</span>
+                    </div>
+                )}
+
+                {otherCharges.length > 0 && (
+                    <div className="flex justify-between items-center mt-1">
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">
+                            Other Charges ({otherCharges.length})
+                        </span>
+                        <span className="text-amber-600 dark:text-amber-400 text-sm">+{formatCurrency(otherChargesTotal)}</span>
+                    </div>
+                )}
+
                 <hr className="my-2 border-gray-300 dark:border-gray-700" />
 
                 <div className="flex justify-between items-center">
                     <span className="text-gray-500 dark:text-gray-400 font-medium">Grand Total</span>
-                    <span className="text-sky-500 dark:text-sky-400 font-bold text-lg">{formatCurrency(grandTotal)}</span>
+                    <span className="text-sky-500 dark:text-sky-400 font-bold text-lg">{formatCurrency(total)}</span>
                 </div>
 
                 <div className="flex justify-between items-center mt-0.5">
@@ -134,8 +173,9 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
                         layout="link"
                         theme="primary"
                         size="small"
-                        className="underline flex-shrink-0 text-xs text-sky-600 dark:text-sky-400 px-0 pl-0"
-                    >ADD TAX</Button>
+                        className="underline flex-shrink-0 text-xs text-sky-600 dark:text-sky-400 px-0 pl-0 pr-0"
+                        onClick={() => setIsTaxModalOpen(true)}
+                    >{tax > 0 ? 'EDIT TAX' : 'ADD TAX'}</Button>
                     <span className="text-gray-500 dark:text-gray-400 text-sm">{totalItems} ITEMS | {totalUnits} UNITS</span>
                 </div>
 
@@ -144,14 +184,16 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
                         layout="link"
                         theme="primary"
                         size="small"
-                        className="underline flex-shrink-0 text-xs text-sky-600 dark:text-sky-400 px-0 pl-0"
-                    >ADD DISCOUNT</Button>
+                        className="underline flex-shrink-0 text-xs text-sky-600 dark:text-sky-400 px-0 pl-0 pr-0"
+                        onClick={() => setIsDiscountModalOpen(true)}
+                    >{discount > 0 ? 'EDIT DISCOUNT' : 'ADD DISCOUNT'}</Button>
                     <Button
                         layout="link"
                         theme="primary"
                         size="small"
-                        className="underline flex-shrink-0 text-xs text-sky-600 dark:text-sky-400 px-0 pr-0"
-                    >ADD OTHER CHARGES</Button>
+                        className="underline flex-shrink-0 text-xs text-sky-600 dark:text-sky-400 px-0 pl-0 pr-0"
+                        onClick={() => setIsOtherChargesModalOpen(true)}
+                    >{otherCharges.length > 0 ? 'EDIT CHARGES' : 'ADD OTHER CHARGES'}</Button>
                 </div>
             </div>
 
@@ -178,6 +220,21 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
                 isOpen={isParkSaleModalOpen}
                 onClose={() => setIsParkSaleModalOpen(false)}
                 onSuccess={handleParkSaleSuccess}
+            />
+
+            <TaxModal
+                isOpen={isTaxModalOpen}
+                onClose={() => setIsTaxModalOpen(false)}
+            />
+
+            <MobileDiscountModal
+                isOpen={isDiscountModalOpen}
+                onClose={() => setIsDiscountModalOpen(false)}
+            />
+
+            <OtherChargesModal
+                isOpen={isOtherChargesModalOpen}
+                onClose={() => setIsOtherChargesModalOpen(false)}
             />
         </div>
     );
