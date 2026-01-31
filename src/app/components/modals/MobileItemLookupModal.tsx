@@ -14,7 +14,6 @@ interface MobileItemLookupModalProps {
     inventory: InventoryItem[];
     onAddToCart: (item: InventoryItem) => void;
     onOpenScanner?: () => void;
-    /** Enable multi-select mode - items are added but modal stays open */
     multiSelect?: boolean;
 }
 
@@ -80,6 +79,8 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
 
     const handleGoToCounter = () => {
         navigate(ROUTES.POS);
+
+        setTimeout(onClose, 200);
     };
 
     const handleScannerClick = () => {
