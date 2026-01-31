@@ -178,6 +178,8 @@ const MobileStocks: FunctionComponent = () => {
                             onDelete={handleDelete}
                             onSelectItem={handleSelectItem}
                             totalRows={totalRows}
+                            onAddToCart={handleAddToCartFromLookup}
+                            onNewItem={() => navigate(ROUTES.INVENTORY_FORM)}
                         />
                     )}
                 </div>

@@ -1,6 +1,10 @@
 import React from 'react';
-import { Package, Loader2 } from 'lucide-react';
-import InventoryCard from './InventoryCard';
+import { Loader2, PlusCircle, ShoppingCart } from 'lucide-react';
+import { formatCurrency } from '../../../utils';
+import { useAppSelector } from '../../../hooks/redux';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../../utils/constants';
+import { HiPlusCircle } from 'react-icons/hi2';
 
 interface MobileInventoryListProps {
     data: InventoryItem[];
@@ -14,89 +18,153 @@ interface MobileInventoryListProps {
     onLoadMore?: () => void;
     hasMore?: boolean;
     totalRows: number;
+    onAddToCart?: (item: InventoryItem) => void;
+    onNewItem?: () => void;
 }
 
-const SkeletonCard: React.FC = () => (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 animate-pulse">
-        <div className="flex justify-between mb-3">
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32" />
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20" />
-        </div>
-        <div className="flex gap-2 mb-3">
-            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20" />
-            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-24" />
-        </div>
-        <div className="grid grid-cols-2 gap-2 mb-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-            <div className="h-8 bg-gray-200 dark:bg-gray-600 rounded" />
-            <div className="h-8 bg-gray-200 dark:bg-gray-600 rounded" />
-        </div>
-        <div className="flex gap-2">
-            <div className="flex-1 h-10 bg-gray-200 dark:bg-gray-700 rounded" />
-            <div className="flex-1 h-10 bg-gray-200 dark:bg-gray-700 rounded" />
-            <div className="flex-1 h-10 bg-gray-200 dark:bg-gray-700 rounded" />
-        </div>
+const SkeletonTile: React.FC = () => (
+    <div className="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 p-4 animate-pulse flex flex-col items-center justify-center aspect-square">
+        <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full mb-3" />
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 mb-2" />
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12" />
     </div>
+);
+
+interface ItemTileProps {
+    item: InventoryItem;
+    onTap: (item: InventoryItem) => void;
+    cartQuantity: number;
+}
+
+const ItemTile: React.FC<ItemTileProps> = ({ item, onTap, cartQuantity }) => {
+    const imageUrl = item.imageUrls?.[0];
+    const firstLetter = item.name?.charAt(0)?.toUpperCase() || '?';
+
+    return (
+        <button
+            onClick={() => onTap(item)}
+            className="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 p-4 flex flex-col items-center justify-center aspect-square active:scale-95 transition-all relative"
+        >
+            {cartQuantity > 0 && (
+                <div className="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-sm min-w-[24px] text-center">
+                    x{cartQuantity}
+                </div>
+            )}
+
+            {imageUrl ? (
+                <img
+                    src={imageUrl}
+                    alt={item.name}
+                    className="w-12 h-12 rounded-full object-cover mb-3"
+                />
+            ) : (
+                <div className="w-12 h-12 rounded-full bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center mb-3">
+                    <span className="text-xl font-bold text-sky-600 dark:text-sky-400">
+                        {firstLetter}
+                    </span>
+                </div>
+            )}
+
+            <p className="text-sm font-medium text-gray-800 dark:text-gray-200 text-center line-clamp-2 mb-1">
+                {item.name}
+            </p>
+
+            <p className="text-sm font-semibold text-sky-600 dark:text-sky-400">
+                {formatCurrency(item.sellPrice)}
+            </p>
+        </button>
+    );
+};
+
+interface NewItemTileProps {
+    onTap: () => void;
+}
+
+const NewItemTile: React.FC<NewItemTileProps> = ({ onTap }) => (
+    <button
+        onClick={onTap}
+        className="bg-white dark:bg-gray-800 rounded-sm border-2 border-dashed border-gray-300 dark:border-gray-600 p-4 flex flex-col items-center justify-center aspect-square hover:border-sky-400 dark:hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-900/10 active:scale-95 transition-all"
+    >
+        <HiPlusCircle className="w-8 h-8 text-sky-500 dark:text-sky-400 mb-3" />
+
+        <p className="text-sm font-semibold text-sky-600 dark:text-sky-400 text-center">
+            NEW ITEM
+        </p>
+    </button>
 );
 
 const MobileInventoryList: React.FC<MobileInventoryListProps> = ({
     data,
     isLoading,
-    searchTerm,
-    selectedItems,
-    onEdit,
-    onDelete,
-    onAdjustQuantity,
-    onSelectItem,
     totalRows,
+    onAddToCart,
+    onNewItem,
 }) => {
-    const isItemSelected = (item: InventoryItem) => {
-        return selectedItems.some(selected => selected.productId === item.productId);
+    const navigate = useNavigate();
+    const cartItems = useAppSelector((state) => state.cart.items);
+
+    const getTotalCartCount = () => {
+        return cartItems.reduce((sum, item) => sum + item.quantity, 0);
     };
 
-    // Show skeleton loading
+    const getCartQuantity = (productId: string): number => {
+        const cartItem = cartItems.find(item => item.productId === productId);
+        return cartItem ? cartItem.quantity : 0;
+    };
+
+    const handleItemTap = (item: InventoryItem) => {
+        onAddToCart?.(item);
+    };
+
+    const handleNewItemTap = () => {
+        onNewItem?.();
+    };
+
+    const handleGoToCart = () => {
+        navigate(ROUTES.POS);
+    };
+
     if (isLoading && data.length === 0) {
         return (
-            <div className="space-y-3 pb-4">
-                {[1, 2, 3].map((i) => (
-                    <SkeletonCard key={i} />
-                ))}
+            <div className="pb-4">
+                <div className="grid grid-cols-3 gap-3">
+                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                        <SkeletonTile key={i} />
+                    ))}
+                </div>
             </div>
         );
     }
 
-    // Empty state is handled by parent component
     if (data.length === 0) {
         return null;
     }
 
     return (
-        <div className="space-y-3 pb-4">
-            {/* Results count */}
-            <div className="px-1 flex items-center justify-between">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Showing {data.length} of {totalRows} items
-                </p>
-                {selectedItems.length > 0 && (
-                    <span className="text-sm font-medium text-sky-600 dark:text-sky-400">
-                        {selectedItems.length} selected
-                    </span>
-                )}
+        <div className="pb-4">
+            {getTotalCartCount() > 0 && (
+                <button
+                    onClick={handleGoToCart}
+                    className="w-full mb-3 py-3 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-semibold rounded-sm flex items-center justify-center gap-2 transition-colors"
+                >
+                    <ShoppingCart className="w-4 h-4" />
+                    <span>Go to Cart ({getTotalCartCount()} items)</span>
+                </button>
+            )}
+
+            <div className="grid grid-cols-3 gap-2">
+                {data.map((item) => (
+                    <ItemTile
+                        key={item.productId}
+                        item={item}
+                        onTap={handleItemTap}
+                        cartQuantity={getCartQuantity(item.productId)}
+                    />
+                ))}
+
+                <NewItemTile onTap={handleNewItemTap} />
             </div>
 
-            {/* Cards */}
-            {data.map((item) => (
-                <InventoryCard
-                    key={item.productId}
-                    item={item}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                    onAdjustQuantity={onAdjustQuantity}
-                    isSelected={isItemSelected(item)}
-                    onSelect={onSelectItem}
-                />
-            ))}
-
-            {/* Loading indicator for pagination */}
             {isLoading && data.length > 0 && (
                 <div className="flex items-center justify-center py-4">
                     <Loader2 className="h-6 w-6 text-sky-500 animate-spin" />
