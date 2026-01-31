@@ -13,10 +13,15 @@ import {
     updateQuantity,
     clearCart,
     setDiscount,
+    setTax,
+    addOtherCharge,
+    removeOtherCharge,
+    clearOtherCharges,
     calculateTotals,
     updateCustomPrice,
     setCart,
     setTotal,
+    OtherCharge,
 } from '../store/slices/cartSlice'
 import {
     fetchCustomers,
@@ -40,7 +45,10 @@ export const useInventory = () => {
     const cart = useAppSelector((state) => state.cart.items)
     const subtotal = useAppSelector((state) => state.cart.subtotal)
     const discount = useAppSelector((state) => state.cart.discount)
+    const discountIsPercentage = useAppSelector((state) => state.cart.discountIsPercentage)
     const tax = useAppSelector((state) => state.cart.tax)
+    const taxName = useAppSelector((state) => state.cart.taxName)
+    const otherCharges = useAppSelector((state) => state.cart.otherCharges)
     const total = useAppSelector((state) => state.cart.total)
 
     const customers = useAppSelector((state) => state.customers.customers)
@@ -207,7 +215,10 @@ export const useInventory = () => {
         selectedCustomer,
         subtotal,
         discount,
+        discountIsPercentage,
         tax,
+        taxName,
+        otherCharges,
         total,
         isLoading: isLoading || inventoryLoading || customersLoading,
         setCart: (items: CartItem[]) => dispatch(setCart(items)),
@@ -217,7 +228,11 @@ export const useInventory = () => {
         removeFromCart: handleRemoveFromCart,
         updateQuantity: handleUpdateQuantity,
         clearCart: handleClearCart,
-        setDiscount: (amount: number) => dispatch(setDiscount(amount)),
+        setDiscount: (amount: number, isPercentage: boolean = false) => dispatch(setDiscount({ amount, isPercentage })),
+        setTax: (amount: number, name: string = '') => dispatch(setTax({ amount, name })),
+        addOtherCharge: (charge: OtherCharge) => dispatch(addOtherCharge(charge)),
+        removeOtherCharge: (id: string) => dispatch(removeOtherCharge(id)),
+        clearOtherCharges: () => dispatch(clearOtherCharges()),
         reloadInventory,
         updateCustomPrice: (productId: string, newPrice: number) =>
             dispatch(updateCustomPrice({ productId, newPrice })),

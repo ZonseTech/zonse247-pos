@@ -1,11 +1,24 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { decodeHtmlEntities } from '../../utils/text-encoding'
 
+export type OtherChargeType = 'delivery' | 'packing' | 'service' | 'other';
+
+export interface OtherCharge {
+    id: string;
+    type: OtherChargeType;
+    label: string;
+    value: number;
+    isPercentage: boolean;
+}
+
 interface CartState {
     items: CartItem[]
     subtotal: number
     discount: number
+    discountIsPercentage: boolean
     tax: number
+    taxName: string
+    otherCharges: OtherCharge[]
     total: number
 }
 
@@ -13,7 +26,10 @@ const initialState: CartState = {
     items: [],
     subtotal: 0,
     discount: 0,
+    discountIsPercentage: false,
     tax: 0,
+    taxName: '',
+    otherCharges: [],
     total: 0,
 }
 
@@ -69,13 +85,31 @@ const cartSlice = createSlice({
                 item.sellPrice = newPrice
             }
         },
-        setDiscount: (state, action: PayloadAction<number>) => {
-            state.discount = action.payload
+        setDiscount: (state, action: PayloadAction<{ amount: number; isPercentage: boolean }>) => {
+            state.discount = action.payload.amount
+            state.discountIsPercentage = action.payload.isPercentage
+        },
+        setTax: (state, action: PayloadAction<{ amount: number; name: string }>) => {
+            state.tax = action.payload.amount
+            state.taxName = action.payload.name
+        },
+        addOtherCharge: (state, action: PayloadAction<OtherCharge>) => {
+            state.otherCharges.push(action.payload)
+        },
+        removeOtherCharge: (state, action: PayloadAction<string>) => {
+            state.otherCharges = state.otherCharges.filter(charge => charge.id !== action.payload)
+        },
+        clearOtherCharges: (state) => {
+            state.otherCharges = []
         },
         clearCart: (state) => {
             state.items = []
             state.subtotal = 0
             state.discount = 0
+            state.discountIsPercentage = false
+            state.tax = 0
+            state.taxName = ''
+            state.otherCharges = []
             state.total = 0
         },
         calculateTotals: (state) => {
@@ -90,7 +124,25 @@ const cartSlice = createSlice({
             }, 0)
 
             state.subtotal = newSubtotal
-            state.total = newSubtotal - state.discount
+
+            // Calculate discount amount
+            const discountAmount = state.discountIsPercentage
+                ? (newSubtotal * state.discount) / 100
+                : state.discount
+
+            // Calculate tax amount (always percentage)
+            const taxableAmount = newSubtotal - discountAmount
+            const taxAmount = (taxableAmount * state.tax) / 100
+
+            // Calculate other charges total
+            const otherChargesTotal = state.otherCharges.reduce((sum, charge) => {
+                const chargeAmount = charge.isPercentage
+                    ? (newSubtotal * charge.value) / 100
+                    : charge.value
+                return sum + chargeAmount
+            }, 0)
+
+            state.total = newSubtotal - discountAmount + taxAmount + otherChargesTotal
         },
         setCart: (state, action: PayloadAction<CartItem[]>) => {
             state.items = action.payload
@@ -107,6 +159,10 @@ export const {
     updateQuantity,
     updateCustomPrice,
     setDiscount,
+    setTax,
+    addOtherCharge,
+    removeOtherCharge,
+    clearOtherCharges,
     clearCart,
     calculateTotals,
     setCart,
