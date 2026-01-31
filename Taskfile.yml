@@ -20,7 +20,7 @@ tasks:
     cmds:
       - task: env:setup
         vars: { PLATFORM: android }
-      - task: _build:web
+      # - task: _build:web
       - task: _sync:android
       - task: env:restore
     ignore_error: false
