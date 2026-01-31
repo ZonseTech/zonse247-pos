@@ -1,9 +1,9 @@
 import MobileCartItemCard from './partials/MobileCartItemCard';
 import MobilePaymentModal, { PaymentMode } from './partials/MobilePaymentModal';
 import MobileEditItemModal from './partials/MobileEditItemModal';
+import MobileCheckoutModal, { CHECKOUT, PaymentMethod } from './partials/MobileCheckoutModal';
 import MobilePageHeader from '../../components/page/MobilePageHeader';
 import CustomerSelector from '../customers/partials/CustomerSelector';
-import CheckoutModal, { CHECKOUT, PaymentMethod } from './partials/CheckoutModal';
 import MultiplePaymentModal from './partials/MultiplePaymentModal';
 import { CameraBarcodeScanner } from '../../components';
 import { HelpModal, MobileItemLookupModal } from '../../components/modals';
@@ -279,7 +279,7 @@ const MobilePOS: FunctionComponent = () => {
                 onSelectPaymentMode={handleSelectPaymentMode}
             />
 
-            <CheckoutModal
+            <MobileCheckoutModal
                 isOpen={isCheckoutModalOpen}
                 onClose={() => setIsCheckoutModalOpen(false)}
                 focusManager={focusManager}
@@ -306,7 +306,7 @@ const MobilePOS: FunctionComponent = () => {
                         onClick={() => setIsPaymentModalOpen(true)}
                         className="w-full py-3 bg-green-500 hover:bg-green-700 active:bg-green-800 text-white font-bold text-lg rounded-sm transition-colors"
                     >
-                        CHARGE: {formatCurrency(total)}
+                        CHARGE: {formatCurrency(total, true)}
                     </button>
                 </div>
             )}
