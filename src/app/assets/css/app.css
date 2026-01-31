@@ -130,6 +130,71 @@
 }
 
 /* ================================
+   Transaction Success Animations
+   ================================ */
+
+/* Checkmark draw animation */
+@keyframes check-draw {
+    0% {
+        stroke-dashoffset: 50;
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+.animate-check-draw {
+    animation: check-draw 0.5s ease-out 0.3s forwards;
+    stroke-dasharray: 50;
+    stroke-dashoffset: 50;
+}
+
+/* Ring expand animation */
+@keyframes ring-expand {
+    0% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+.animate-ring-expand {
+    animation: ring-expand 0.8s ease-out 0.4s forwards;
+}
+
+.animate-ring-expand-delay {
+    animation: ring-expand 0.8s ease-out 0.6s forwards;
+}
+
+/* Single pulse animation */
+@keyframes pulse-once {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.animate-pulse-once {
+    animation: pulse-once 0.4s ease-out forwards;
+}
+
+/* ================================
    Barcode Scanner Camera Visibility
    ================================ */
 
