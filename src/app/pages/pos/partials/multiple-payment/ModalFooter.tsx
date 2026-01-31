@@ -20,7 +20,6 @@ const ModalFooter: FunctionComponent<ModalFooterProps> = ({
             "border-t border-gray-200 dark:border-gray-700/50 flex-shrink-0 bg-white dark:bg-gray-900",
             isEBN ? "p-2" : "p-3 sm:p-4 md:p-5"
         )}>
-            {/* Mobile: Show remaining indicator */}
             {!isFullyPaid && remaining > 0 && (
                 <div className="sm:hidden mb-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2 flex items-center justify-between">
                     <span className="text-amber-700 dark:text-amber-300 text-xs font-medium">Amount remaining</span>
