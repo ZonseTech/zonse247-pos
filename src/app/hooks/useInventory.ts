@@ -19,6 +19,7 @@ import {
     clearOtherCharges,
     calculateTotals,
     updateCustomPrice,
+    updateItemDiscount,
     setCart,
     setTotal,
     OtherCharge,
@@ -236,6 +237,8 @@ export const useInventory = () => {
         reloadInventory,
         updateCustomPrice: (productId: string, newPrice: number) =>
             dispatch(updateCustomPrice({ productId, newPrice })),
+        updateItemDiscount: (productId: string, discount: number, isPercentage: boolean = false) =>
+            dispatch(updateItemDiscount({ productId, discount, isPercentage })),
         setCategories: (categories: Category[]) => dispatch(setCategories(categories)),
         setCustomers: (customers: Customer[]) => dispatch(setCustomers(customers)),
         fetchCustomers: handleFetchCustomers,

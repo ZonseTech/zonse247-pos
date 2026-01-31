@@ -24,7 +24,6 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
     const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
     const [isOtherChargesModalOpen, setIsOtherChargesModalOpen] = useState(false);
 
-    // Calculate amounts for display
     const discountAmount = discountIsPercentage ? (subtotal * discount) / 100 : discount;
     const taxableAmount = subtotal - discountAmount;
     const taxAmount = (taxableAmount * tax) / 100;
@@ -100,9 +99,12 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
                                 </div>
 
                                 {item.discount > 0 && (
-                                    <div className="flex justify-end mt-1">
-                                        <span className="text-green-600 dark:text-green-400 text-xs">
-                                            Discount: -{formatCurrency(item.discount)}
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm">
+                                            <span className="text-gray-500 dark:text-gray-400">Discount</span>
+                                        </span>
+                                        <span className="text-gray-900 dark:text-gray-100 text-sm">
+                                            -{formatCurrency(item.discount)}
                                         </span>
                                     </div>
                                 )}
@@ -165,7 +167,7 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
 
                 <div className="flex justify-between items-center">
                     <span className="text-gray-500 dark:text-gray-400 font-medium">Grand Total</span>
-                    <span className="text-sky-500 dark:text-sky-400 font-bold text-lg">{formatCurrency(total)}</span>
+                    <span className="text-sky-500 dark:text-sky-400 font-bold text-lg">{formatCurrency(total, true)}</span>
                 </div>
 
                 <div className="flex justify-between items-center mt-0.5">

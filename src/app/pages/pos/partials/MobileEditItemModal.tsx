@@ -20,7 +20,7 @@ const MobileEditItemModal: FunctionComponent<MobileEditItemModalProps> = ({
     onClose,
     item,
 }) => {
-    const { updateQuantity, updateCustomPrice, removeFromCart, inventory } = useInventory();
+    const { updateQuantity, updateCustomPrice, updateItemDiscount, removeFromCart, inventory } = useInventory();
 
     const [sellingPrice, setSellingPrice] = useState('');
     const [quantity, setQuantity] = useState(1);
@@ -41,6 +41,7 @@ const MobileEditItemModal: FunctionComponent<MobileEditItemModalProps> = ({
             setQuantity(item.quantity);
             setOfferType(item.discount > 0 ? 'discount' : null);
             setDiscountValue(item.discount > 0 ? item.discount.toString() : '');
+            setDiscountType(item.discountIsPercentage ? 'percentage' : 'price');
         }
     }, [item, isOpen]);
 
@@ -76,17 +77,15 @@ const MobileEditItemModal: FunctionComponent<MobileEditItemModalProps> = ({
 
         if (offerType === 'free') {
             updateCustomPrice(item.productId, 0);
+            updateItemDiscount(item.productId, 0, false);
         } else if (offerType === 'discount' && discountValue) {
             const discount = parseFloat(discountValue);
             if (!isNaN(discount) && discount > 0) {
-                if (discountType === 'percentage') {
-                    const discountAmount = (newPrice * quantity * discount) / 100;
-                    // Note: You may need to update the cart slice to handle discount
-                } else {
-                    // Price per item discount
-                    // Note: You may need to update the cart slice to handle discount
-                }
+                const isPercentage = discountType === 'percentage';
+                updateItemDiscount(item.productId, discount, isPercentage);
             }
+        } else {
+            updateItemDiscount(item.productId, 0, false);
         }
 
         onClose();

@@ -85,6 +85,14 @@ const cartSlice = createSlice({
                 item.sellPrice = newPrice
             }
         },
+        updateItemDiscount: (state, action: PayloadAction<{ productId: string; discount: number; isPercentage: boolean }>) => {
+            const { productId, discount, isPercentage } = action.payload
+            const item = state.items.find(item => item.productId === productId)
+            if (item) {
+                item.discount = discount
+                item.discountIsPercentage = isPercentage
+            }
+        },
         setDiscount: (state, action: PayloadAction<{ amount: number; isPercentage: boolean }>) => {
             state.discount = action.payload.amount
             state.discountIsPercentage = action.payload.isPercentage
@@ -114,21 +122,35 @@ const cartSlice = createSlice({
         },
         calculateTotals: (state) => {
             let totalPrice = 0
+            let totalItemDiscounts = 0
             const newSubtotal = state.items.reduce((sum, item) => {
                 if (item.quantity === 0) {
                     totalPrice = item.sellPrice
                 } else {
                     totalPrice = item.sellPrice * item.quantity
                 }
+                // Calculate item-level discount
+                const itemDiscountValue = item.discount || 0
+                const itemQty = item.quantity === 0 ? 1 : item.quantity
+                if (item.discountIsPercentage) {
+                    // Percentage discount: calculate from item total
+                    totalItemDiscounts += (totalPrice * itemDiscountValue) / 100
+                } else {
+                    // Fixed amount discount per item
+                    totalItemDiscounts += itemDiscountValue * itemQty
+                }
                 return sum + totalPrice
             }, 0)
 
             state.subtotal = newSubtotal
 
-            // Calculate discount amount
-            const discountAmount = state.discountIsPercentage
+            // Calculate cart-level discount amount
+            const cartDiscountAmount = state.discountIsPercentage
                 ? (newSubtotal * state.discount) / 100
                 : state.discount
+
+            // Total discount includes both item-level and cart-level discounts
+            const discountAmount = totalItemDiscounts + cartDiscountAmount
 
             // Calculate tax amount (always percentage)
             const taxableAmount = newSubtotal - discountAmount
@@ -158,6 +180,7 @@ export const {
     removeFromCart,
     updateQuantity,
     updateCustomPrice,
+    updateItemDiscount,
     setDiscount,
     setTax,
     addOtherCharge,

@@ -40,6 +40,7 @@ interface CartItem {
     categoryId: string;
     sellPrice: number;
     discount: number;
+    discountIsPercentage?: boolean;
     purchasePrice: number;
     variancePrice?: number;
     quantity: number;
