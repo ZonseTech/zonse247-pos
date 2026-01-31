@@ -1,10 +1,16 @@
-import CartItemCard from './partials/CartItemCard';
+import MobileCartItemCard from './partials/MobileCartItemCard';
+import MobilePaymentModal, { PaymentMode } from './partials/MobilePaymentModal';
+import MobileEditItemModal from './partials/MobileEditItemModal';
 import MobilePageHeader from '../../components/page/MobilePageHeader';
 import CustomerSelector from '../customers/partials/CustomerSelector';
+import CheckoutModal, { CHECKOUT, PaymentMethod } from './partials/CheckoutModal';
+import MultiplePaymentModal from './partials/MultiplePaymentModal';
 import { CameraBarcodeScanner } from '../../components';
 import { HelpModal, MobileItemLookupModal } from '../../components/modals';
-import { FunctionComponent, useRef, useState, useEffect } from 'react';
+import { FunctionComponent, useState, useEffect } from 'react';
 import { useInventory } from '../../hooks/useInventory';
+import { useFocusManager } from '../../hooks/useFocusManager';
+import { formatCurrency } from '../../utils';
 import { useParkedSales } from '../../hooks/useParkedSales';
 import { useBranch } from '../../context/BranchContext';
 import BranchSwitchModal from '../../navigation/components/BranchSwitchModal';
@@ -21,36 +27,59 @@ import { ROUTES } from '../../utils/constants';
 const MobilePOS: FunctionComponent = () => {
     const {
         cart,
-        updateCustomPrice,
         inventory,
         addToCart,
         setCart,
-        setSelectedCustomer
+        setSelectedCustomer,
+        total
     } = useInventory();
     const { currentBranch } = useBranch();
     const { parkedSales, fetchParkedSales, resumeParkedSale, isLoading: isLoadingParked } = useParkedSales();
     const { openDrawer } = useMobileNav();
     const navigate = useNavigate();
+    const focusManager = useFocusManager();
 
     const [isBranchSwitchModalOpen, setIsBranchSwitchModalOpen] = useState(false);
     const [isCameraScannerOpen, setIsCameraScannerOpen] = useState(false);
     const [isLookupModalOpen, setIsLookupModalOpen] = useState(false);
     const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
-    const [customPriceInputs, setCustomPriceInputs] = useState<Record<string, string>>({});
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+    const [isMultiplePaymentModalOpen, setIsMultiplePaymentModalOpen] = useState(false);
+    const [paymentMethodId, setPaymentMethodId] = useState<PaymentMethod>(CHECKOUT.CASH);
+    const [editingItem, setEditingItem] = useState<CartItem | null>(null);
+    const [isEditItemModalOpen, setIsEditItemModalOpen] = useState(false);
 
     useEffect(() => {
         fetchParkedSales();
     }, [fetchParkedSales]);
 
-    const handlePriceInputChange = (itemId: string, value: string) => {
-        setCustomPriceInputs(prev => ({
-            ...prev,
-            [itemId]: value
-        }));
+    const handleEditItem = (item: CartItem) => {
+        setEditingItem(item);
+        setIsEditItemModalOpen(true);
+    };
 
-        const numericValue = parseFloat(value);
-        if (!isNaN(numericValue) && numericValue >= 0) {
-            updateCustomPrice(itemId, numericValue);
+    const handleSelectPaymentMode = (mode: PaymentMode) => {
+        setIsPaymentModalOpen(false);
+
+        if (cart.length === 0) return;
+
+        switch (mode) {
+            case 'cash':
+                setPaymentMethodId(CHECKOUT.CASH);
+                setIsCheckoutModalOpen(true);
+                break;
+            case 'e-pay':
+                setPaymentMethodId(CHECKOUT.E_PAYMENT);
+                setIsCheckoutModalOpen(true);
+                break;
+            case 'bank':
+                setPaymentMethodId(CHECKOUT.BANK_TRANSFER);
+                setIsCheckoutModalOpen(true);
+                break;
+            case 'split':
+                setIsMultiplePaymentModalOpen(true);
+                break;
         }
     };
 
@@ -68,7 +97,6 @@ const MobilePOS: FunctionComponent = () => {
         try {
             const result = await resumeParkedSale(sale.id);
             if (result) {
-                // Set cart items from resumed sale
                 setCart(sale.items);
                 if (sale.customer) {
                     setSelectedCustomer(sale.customer);
@@ -141,14 +169,15 @@ const MobilePOS: FunctionComponent = () => {
             </div>
 
             <div className={`flex-1 min-h-0 overflow-hidden ${hasCartItems ? 'pt-[52px]' : 'pt-[108px]'}`}>
-                <div className="h-full overflow-y-auto pb-40 p-4">
+                <div className="h-full overflow-y-auto pb-40">
                     {hasCartItems ? (
-                        <CartItemCard
-                            customPriceInputs={customPriceInputs}
-                            onPriceChange={handlePriceInputChange}
+                        <MobileCartItemCard
+                            onEditItem={handleEditItem}
+                            onAddNewItem={() => navigate(ROUTES.ITEMS)}
+                            onScanBarcode={() => setIsCameraScannerOpen(true)}
                         />
                     ) : (
-                        <div className="space-y-5">
+                        <div className="space-y-5 px-4 pt-2">
                             <button
                                 onClick={() => navigate(ROUTES.ITEMS)}
                                 className="w-full flex flex-col items-center justify-center gap-2 py-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 active:bg-gray-100 dark:active:bg-gray-700 rounded-sm transition-colors"
@@ -242,6 +271,45 @@ const MobilePOS: FunctionComponent = () => {
                 isOpen={isHelpModalOpen}
                 onClose={() => setIsHelpModalOpen(false)}
             />
+
+            <MobilePaymentModal
+                isOpen={isPaymentModalOpen}
+                onClose={() => setIsPaymentModalOpen(false)}
+                total={total}
+                onSelectPaymentMode={handleSelectPaymentMode}
+            />
+
+            <CheckoutModal
+                isOpen={isCheckoutModalOpen}
+                onClose={() => setIsCheckoutModalOpen(false)}
+                focusManager={focusManager}
+                paymentMethodId={paymentMethodId}
+            />
+
+            <MultiplePaymentModal
+                isOpen={isMultiplePaymentModalOpen}
+                onClose={() => setIsMultiplePaymentModalOpen(false)}
+            />
+
+            <MobileEditItemModal
+                isOpen={isEditItemModalOpen}
+                onClose={() => {
+                    setIsEditItemModalOpen(false);
+                    setEditingItem(null);
+                }}
+                item={editingItem}
+            />
+
+            {hasCartItems && (
+                <div className="fixed bottom-[65px] left-0 right-0 p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 safe-area-bottom">
+                    <button
+                        onClick={() => setIsPaymentModalOpen(true)}
+                        className="w-full py-3 bg-green-500 hover:bg-green-700 active:bg-green-800 text-white font-bold text-lg rounded-sm transition-colors"
+                    >
+                        CHARGE: {formatCurrency(total)}
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
