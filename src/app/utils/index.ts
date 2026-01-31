@@ -19,7 +19,7 @@ export const formatCurrency = (amount: number) => {
 		maximumFractionDigits: 2,
 	})
 		.format(amount || 0)
-		.replace(/^/, 'MK');
+	// .replace(/^/, 'MK');
 };
 
 export const formatFileSize = (bytes: number) => {
