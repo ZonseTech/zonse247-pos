@@ -94,7 +94,7 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
 
     return createPortal(
         <div className="fixed inset-0 bg-white dark:bg-gray-900 z-[60] flex flex-col">
-            <div className="bg-white dark:bg-gray-900 px-2 py-3 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-900 px-2 py-3 border-b border-gray-200 dark:border-gray-700 safe-area-top-android">
                 <div className="flex items-center gap-2">
                     <div className="flex-1 flex items-center gap-2 px-2 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-sm">
                         <button

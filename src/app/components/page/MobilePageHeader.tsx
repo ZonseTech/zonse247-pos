@@ -71,7 +71,7 @@ const MobilePageHeader: React.FC<PropsWithChildren<MobilePageHeaderProps>> = ({
     return (
         <div
             className={classNames(
-                'flex flex-col',
+                'flex flex-col safe-area-top-android',
                 !noBorder && 'border-b border-gray-200 dark:border-gray-700',
                 className
             )}

@@ -60,21 +60,8 @@ const MobileEditItemModal: FunctionComponent<MobileEditItemModalProps> = ({
     const handleDelete = () => {
         if (!item) return;
 
-        Confirm.show(
-            'Remove Item',
-            `Are you sure you want to remove "${item.name}" from the cart?`,
-            'Yes, Remove',
-            'Cancel',
-            () => {
-                removeFromCart(item.productId);
-                onClose();
-            },
-            () => { },
-            {
-                titleColor: '#ef4444',
-                okButtonBackground: '#ef4444',
-            }
-        );
+        removeFromCart(item.productId);
+        onClose();
     };
 
     const handleUpdate = () => {
@@ -109,7 +96,7 @@ const MobileEditItemModal: FunctionComponent<MobileEditItemModalProps> = ({
 
     return createPortal(
         <div className="fixed inset-0 bg-white dark:bg-gray-900 z-[70] flex flex-col">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 safe-area-top-android">
                 <div className="flex items-center gap-3">
                     <button
                         onClick={onClose}
