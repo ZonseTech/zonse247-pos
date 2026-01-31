@@ -27,12 +27,11 @@ const PaymentMethodButtons: FunctionComponent<PaymentMethodButtonsProps> = ({
                         onClick={() => onAddPayment(method)}
                         disabled={processing}
                         className={classNames(
-                            "group relative flex flex-col items-center justify-center text-white transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl overflow-hidden shadow-md hover:shadow-lg",
+                            "group relative flex flex-col items-center justify-center text-white transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed rounded-sm overflow-hidden",
                             getPaymentMethodColor(method),
                             isEBN ? "p-3 gap-1.5" : "p-3 sm:p-4 gap-1.5 sm:gap-2"
                         )}
                     >
-                        {/* Subtle shine effect */}
                         <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
                         <div className="relative z-10 flex flex-col items-center">

@@ -212,7 +212,6 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
                     isEBN={isEBN}
                 />
 
-                {/* Mobile: Sticky Summary Bar at Top */}
                 <div className="sm:hidden">
                     <PaymentSummary
                         total={total}
@@ -230,7 +229,6 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
                     isEBN ? "p-2" : "p-3 sm:p-4 md:p-6"
                 )}>
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-                        {/* Desktop Summary - Hidden on Mobile */}
                         <div className="hidden sm:block lg:col-span-1">
                             <PaymentSummary
                                 total={total}

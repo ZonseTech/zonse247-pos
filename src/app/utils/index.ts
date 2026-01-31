@@ -12,14 +12,14 @@ export const hasAnyPermission = (user: User, permissions: Array<string>) => {
 	return permissions.some(permission => hasPermission(user, permission));
 };
 
-export const formatCurrency = (amount: number) => {
-	return new Intl.NumberFormat('en-US', {
+export const formatCurrency = (amount: number, addCurrency?: boolean, prefix = 'MK') => {
+	const formatted = new Intl.NumberFormat('en-US', {
 		style: 'decimal',
 		minimumFractionDigits: 2,
 		maximumFractionDigits: 2,
-	})
-		.format(amount || 0)
-		.replace(/^/, 'MK');
+	}).format(amount || 0);
+
+	return addCurrency ? `${prefix}${formatted}` : formatted;
 };
 
 export const formatFileSize = (bytes: number) => {
