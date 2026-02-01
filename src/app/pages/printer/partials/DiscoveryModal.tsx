@@ -89,10 +89,10 @@ export const DiscoveryModal = ({
                                     key={`${printer.name}-${i}`}
                                     onClick={() => onSelect(printer)}
                                     className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-all
-                                        ${isSelected ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/20 ring-2 ring-sky-500' : 'border-gray-200 dark:border-gray-600 hover:border-sky-300 dark:hover:border-sky-600 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                                        ${isSelected ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/20 ring-2 ring-sky-500' : 'border-gray-200 dark:border-gray-600 hover:border-sky-300 dark:hover:border-sky-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className={`p-2 rounded-full ${printer.isOnline ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
+                                        <div className={`p-2 rounded-full ${printer.isOnline ? 'bg-green-100 text-green-500 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
                                             {getConnectionIcon(printer.connectionType)}
                                         </div>
                                         <div>

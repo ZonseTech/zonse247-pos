@@ -17,7 +17,7 @@ export const getPurchaseOrderTableColumns = ({
             name: 'PO Number',
             cell: (row) => (
                 <div className="py-2">
-                    <div className="font-semibold text-sky-600 dark:text-sky-400">
+                    <div className="font-semibold text-sky-500 dark:text-sky-400">
                         {row.poNumber}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
@@ -121,7 +121,7 @@ export const getPurchaseOrderTableColumns = ({
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => onView(row)}
-                        className="p-2 text-sky-600 hover:text-sky-800 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
+                        className="p-2 text-sky-500 hover:text-sky-800 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
                         title="View details"
                     >
                         <Eye className="w-4 h-4" />
@@ -129,7 +129,7 @@ export const getPurchaseOrderTableColumns = ({
                     {(row.status === 'PENDING' || row.status === 'PARTIALLY_RECEIVED') && (
                         <button
                             onClick={() => onReceive(row)}
-                            className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                            className="p-2 text-green-500 hover:text-green-800 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
                             title="Receive items"
                         >
                             <CheckCircle className="w-4 h-4" />
@@ -138,7 +138,7 @@ export const getPurchaseOrderTableColumns = ({
                     {row.status === 'PENDING' && (
                         <button
                             onClick={() => onCancel(row)}
-                            className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                            className="p-2 text-red-500 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                             title="Cancel order"
                         >
                             <XCircle className="w-4 h-4" />

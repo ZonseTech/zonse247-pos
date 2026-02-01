@@ -98,7 +98,7 @@ const Dashboard: FunctionComponent = () => {
             <PageHeader
                 title="Dashboard"
                 description={getDashboardDescription()}
-                icon={<HiOutlineHome className="w-8 h-8 text-sky-600 dark:text-sky-400" />}
+                icon={<HiOutlineHome className="w-8 h-8 text-sky-500 dark:text-sky-400" />}
             />
             <div className="pb-8 pt-0">
                 {renderDashboard()}

@@ -64,7 +64,7 @@ const MobileProductList: React.FC<MobileProductListProps> = ({
                     Showing {data.length} of {totalRows} products
                 </p>
                 {selectedItems.length > 0 && (
-                    <span className="text-sm font-medium text-sky-600 dark:text-sky-400">
+                    <span className="text-sm font-medium text-sky-500 dark:text-sky-400">
                         {selectedItems.length} selected
                     </span>
                 )}

@@ -81,7 +81,7 @@ const PrinterPreviewModal: FunctionComponent<Props> = ({
                     <div className="flex items-center space-x-3">
                         <Button
                             disabled={isPrinting}
-                            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-lg transform transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                            className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-500 hover:to-emerald-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-lg transform transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                             onClick={handlePrintReceipt}
                         >
                             {isPrinting ? (
@@ -240,13 +240,13 @@ const PrinterPreviewModal: FunctionComponent<Props> = ({
 
                             <div className="flex justify-between items-center py-2 text-gray-700 dark:text-gray-300">
                                 <span>Discount</span>
-                                <span className="font-mono text-green-600 dark:text-green-400">-{formatCurrency(transaction.discount)}</span>
+                                <span className="font-mono text-green-500 dark:text-green-400">-{formatCurrency(transaction.discount)}</span>
                             </div>
 
                             <div className="border-t border-gray-300 dark:border-gray-500 pt-3">
                                 <div className="flex justify-between items-center py-2 text-lg font-bold text-gray-900 dark:text-white">
                                     <span>Total Amount</span>
-                                    <span className="font-mono bg-sky-600 text-white px-3 py-1 rounded-lg">{formatCurrency(transaction.total)}</span>
+                                    <span className="font-mono bg-sky-500 text-white px-3 py-1 rounded-lg">{formatCurrency(transaction.total)}</span>
                                 </div>
                             </div>
 
@@ -257,7 +257,7 @@ const PrinterPreviewModal: FunctionComponent<Props> = ({
                                 </div>
                                 <div className="flex justify-between items-center text-gray-700 dark:text-gray-300">
                                     <span>Change Given</span>
-                                    <span className="font-mono font-semibold text-green-600 dark:text-green-400">{formatCurrency(transaction.changeAmount)}</span>
+                                    <span className="font-mono font-semibold text-green-500 dark:text-green-400">{formatCurrency(transaction.changeAmount)}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-gray-700 dark:text-gray-300">
                                     <span>Payment Method</span>

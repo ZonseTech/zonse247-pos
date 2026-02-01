@@ -57,7 +57,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                         onSelect(product, e.target.checked);
                                     }}
                                     onClick={(e) => e.stopPropagation()}
-                                    className="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-sky-600 focus:ring-sky-500"
+                                    className="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-sky-500 focus:ring-sky-500"
                                 />
                             )}
                             <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{product.name}</h3>
@@ -73,7 +73,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 <div className="flex flex-wrap items-center gap-2 mb-3">
                     {product.categoryDetails?.name && (
                         <div className="flex items-center gap-1.5 px-2 py-1 bg-sky-50 dark:bg-sky-900/20 rounded-md">
-                            <Tag className="w-3 h-3 text-sky-600 dark:text-sky-400" />
+                            <Tag className="w-3 h-3 text-sky-500 dark:text-sky-400" />
                             <span className="text-xs font-medium text-sky-700 dark:text-sky-300">
                                 {product.categoryDetails.name}
                             </span>
@@ -151,7 +151,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         onEdit(product);
                     }}
                     className="flex-1 flex items-center justify-center gap-2 py-3 
-                        text-sky-600 dark:text-sky-400 
+                        text-sky-500 dark:text-sky-400 
                         hover:bg-sky-50 dark:hover:bg-sky-900/20 
                         active:bg-sky-100 dark:active:bg-sky-900/30
                         transition-colors border-r border-gray-100 dark:border-gray-700"
@@ -165,7 +165,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         onDelete(product.productId);
                     }}
                     className="flex-1 flex items-center justify-center gap-2 py-3 
-                        text-red-600 dark:text-red-400 
+                        text-red-500 dark:text-red-400 
                         hover:bg-red-50 dark:hover:bg-red-900/20 
                         active:bg-red-100 dark:active:bg-red-900/30
                         transition-colors"

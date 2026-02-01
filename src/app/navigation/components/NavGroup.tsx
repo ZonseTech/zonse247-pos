@@ -42,14 +42,14 @@ const NavGroup: FunctionComponent<NavGroupProps> = ({
                                 "flex items-center rounded-lg text-left transition-all duration-200 active:scale-[0.98] w-full group",
                                 isCollapsed ? "justify-center p-2" : "gap-2.5 px-2.5 py-1.5",
                                 isActive
-                                    ? "bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-sky-500/10 dark:to-indigo-500/10 text-sky-600 dark:text-sky-400"
+                                    ? "bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-sky-500/10 dark:to-indigo-500/10 text-sky-500 dark:text-sky-400"
                                     : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-gray-200"
                             )}
                         >
                             <div className={classNames(
                                 "flex items-center justify-center transition-all duration-200",
                                 isActive
-                                    ? "text-sky-600 dark:text-sky-400"
+                                    ? "text-sky-500 dark:text-sky-400"
                                     : "text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                             )}>
                                 {item.icon}

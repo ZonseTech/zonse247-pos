@@ -47,7 +47,7 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                             compact ? "p-1" : "p-2.5"
                         )}>
                             <HiOutlineShoppingCart className={classNames(
-                                "text-sky-600 dark:text-sky-400",
+                                "text-sky-500 dark:text-sky-400",
                                 compact ? "w-3.5 h-3.5" : "w-6 h-6"
                             )} />
                         </div>
@@ -66,7 +66,7 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                     </div>
                     {cart.length > 0 && (
                         <span className={classNames(
-                            "font-semibold bg-sky-600 text-white rounded-full",
+                            "font-semibold bg-sky-500 text-white rounded-full",
                             compact ? "px-1.5 py-0.5 text-[10px]" : "px-3 py-1.5 text-sm"
                         )}>
                             {cart.reduce((sum, item) => sum + item.quantity, 0)} units
@@ -185,7 +185,7 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                                                 )} />
                                             </div>
                                             <div className={classNames(
-                                                "absolute -bottom-1 -right-1 bg-gradient-to-br from-sky-500 to-sky-600 rounded-full flex items-center justify-center",
+                                                "absolute -bottom-1 -right-1 bg-gradient-to-br from-sky-500 to-sky-500 rounded-full flex items-center justify-center",
                                                 compact ? "w-5 h-5" : "w-8 h-8"
                                             )}>
                                                 <span className={classNames(

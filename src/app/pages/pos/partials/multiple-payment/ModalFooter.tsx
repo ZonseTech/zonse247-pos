@@ -23,7 +23,7 @@ const ModalFooter: FunctionComponent<ModalFooterProps> = ({
             {!isFullyPaid && remaining > 0 && (
                 <div className="sm:hidden mb-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2 flex items-center justify-between">
                     <span className="text-amber-700 dark:text-amber-300 text-xs font-medium">Amount remaining</span>
-                    <span className="text-amber-600 dark:text-amber-400 font-bold text-sm">{formatCurrency(remaining)}</span>
+                    <span className="text-amber-500 dark:text-amber-400 font-bold text-sm">{formatCurrency(remaining)}</span>
                 </div>
             )}
 
@@ -41,7 +41,7 @@ const ModalFooter: FunctionComponent<ModalFooterProps> = ({
                             ? "flex-1 px-6 py-3 text-sm"
                             : "w-full xs:flex-1 px-5 py-3.5 sm:py-4 text-sm sm:text-base",
                         canComplete
-                            ? 'bg-gradient-to-r from-cyan-500 to-sky-600 hover:from-cyan-600 hover:to-sky-700 text-white shadow-cyan-500/25'
+                            ? 'bg-gradient-to-r from-cyan-500 to-sky-500 hover:from-cyan-600 hover:to-sky-700 text-white shadow-cyan-500/25'
                             : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed shadow-none'
                     )}
                 >

@@ -349,7 +349,7 @@ const CameraBarcodeScanner: FunctionComponent<CameraBarcodeScannerProps> = ({
                     </p>
                     <button
                         onClick={handleClose}
-                        className="px-6 py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium transition-colors"
+                        className="px-6 py-3 bg-sky-500 hover:bg-sky-700 text-white rounded-lg font-medium transition-colors"
                     >
                         Close
                     </button>
@@ -411,7 +411,7 @@ const CameraBarcodeScanner: FunctionComponent<CameraBarcodeScannerProps> = ({
                                     <p className="text-white text-xs">{error}</p>
                                     <button
                                         onClick={startScanning}
-                                        className="mt-2 px-3 py-1.5 bg-white text-red-600 rounded-md text-xs font-medium flex items-center justify-center mx-auto gap-1"
+                                        className="mt-2 px-3 py-1.5 bg-white text-red-500 rounded-md text-xs font-medium flex items-center justify-center mx-auto gap-1"
                                     >
                                         <HiRefresh className="w-3 h-3" />
                                         Retry

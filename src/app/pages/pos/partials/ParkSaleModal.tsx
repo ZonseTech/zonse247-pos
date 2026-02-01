@@ -126,7 +126,7 @@ const ParkSaleModal: FunctionComponent<ParkSaleModalProps> = ({
                     <div className="bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-xl p-4 border border-sky-100 dark:border-gray-600">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 bg-sky-500 dark:bg-sky-600 rounded-lg flex items-center justify-center">
+                                <div className="w-10 h-10 bg-sky-500 dark:bg-sky-500 rounded-lg flex items-center justify-center">
                                     <HiOutlineShoppingCart className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
@@ -136,7 +136,7 @@ const ParkSaleModal: FunctionComponent<ParkSaleModalProps> = ({
                             </div>
                             <div className="text-right">
                                 <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{cart.length}</p>
-                                <p className="text-xs text-sky-600 dark:text-sky-400">items</p>
+                                <p className="text-xs text-sky-500 dark:text-sky-400">items</p>
                             </div>
                         </div>
                     </div>
@@ -144,7 +144,7 @@ const ParkSaleModal: FunctionComponent<ParkSaleModalProps> = ({
                     <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-gray-700 dark:to-gray-600 rounded-xl p-4 border border-emerald-100 dark:border-gray-600">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 bg-emerald-500 dark:bg-emerald-600 rounded-lg flex items-center justify-center">
+                                <div className="w-10 h-10 bg-emerald-500 dark:bg-emerald-500 rounded-lg flex items-center justify-center">
                                     <HiOutlineCurrencyDollar className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
@@ -154,7 +154,7 @@ const ParkSaleModal: FunctionComponent<ParkSaleModalProps> = ({
                             </div>
                             <div className="text-right">
                                 <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{formatCurrency(total)}</p>
-                                <p className="text-xs text-emerald-600 dark:text-emerald-400">total</p>
+                                <p className="text-xs text-emerald-500 dark:text-emerald-400">total</p>
                             </div>
                         </div>
                     </div>
@@ -214,7 +214,7 @@ const ParkSaleModal: FunctionComponent<ParkSaleModalProps> = ({
                     <button
                         onClick={handleCloseModal}
                         type="button"
-                        className="flex-1 bg-red-100 hover:bg-red-200 dark:bg-red-600 dark:hover:bg-red-500 text-red-700 dark:text-red-200 py-3 px-6 rounded-sm font-medium transition-all duration-200 border border-red-300 dark:border-red-500 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-red-800"
+                        className="flex-1 bg-red-100 hover:bg-red-200 dark:bg-red-500 dark:hover:bg-red-500 text-red-700 dark:text-red-200 py-3 px-6 rounded-sm font-medium transition-all duration-200 border border-red-300 dark:border-red-500 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-red-800"
                     >
                         Cancel
                     </button>
@@ -223,7 +223,7 @@ const ParkSaleModal: FunctionComponent<ParkSaleModalProps> = ({
                         onClick={handleSubmitParkSale}
                         type="button"
                         disabled={isSubmitting || cart.length === 0}
-                        className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-3 px-6 rounded-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none disabled:cursor-not-allowed transform hover:scale-105 disabled:scale-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:focus:ring-gray-400"
+                        className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-500 hover:to-orange-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-3 px-6 rounded-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none disabled:cursor-not-allowed transform hover:scale-105 disabled:scale-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:focus:ring-gray-400"
                     >
                         {isSubmitting ? (
                             <div className="flex items-center justify-center space-x-2">

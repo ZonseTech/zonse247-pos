@@ -258,7 +258,7 @@ const TerminalForm: FunctionComponent = () => {
                                                         checked={values.isPrimary}
                                                         name='isPrimary'
                                                         onChange={(e) => setFieldValue('isPrimary', e.target.checked)}
-                                                        className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-gray-300 rounded"
+                                                        className="h-4 w-4 text-sky-500 focus:ring-sky-500 border-gray-300 rounded"
                                                     />
                                                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                                         Set as primary terminal
@@ -397,7 +397,7 @@ const TerminalForm: FunctionComponent = () => {
                                                         checked={values.isBlocked}
                                                         name='isBlocked'
                                                         onChange={(e) => setFieldValue('isBlocked', e.target.checked)}
-                                                        className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                                                        className="h-4 w-4 text-red-500 focus:ring-red-500 border-gray-300 rounded"
                                                     />
                                                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                                         Block this terminal

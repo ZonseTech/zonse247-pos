@@ -402,7 +402,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                                     onClick={onClose}
                                     disabled={isSubmitting || processing}
                                     className={classNames(
-                                        "bg-red-500 text-white font-bold rounded-none hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed",
+                                        "bg-red-500 text-white font-bold rounded-none hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed",
                                         isEBN ? "px-8 py-3 text-sm" : "px-6 md:px-32 py-4 md:py-6 text-base md:text-lg"
                                     )}
                                 >

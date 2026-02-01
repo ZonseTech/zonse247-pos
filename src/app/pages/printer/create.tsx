@@ -390,7 +390,7 @@ const PrinterForm: FunctionComponent = () => {
                                                         name="isDefault"
                                                         checked={values.isDefault}
                                                         onChange={(e) => setFieldValue('isDefault', e.target.checked)}
-                                                        className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+                                                        className="w-4 h-4 text-emerald-500 border-gray-300 rounded focus:ring-emerald-500"
                                                     />
                                                     <span className="text-sm text-gray-700 dark:text-gray-300">Set as Default Printer</span>
                                                 </label>
@@ -403,7 +403,7 @@ const PrinterForm: FunctionComponent = () => {
                                                         name="isReceiptPrinter"
                                                         checked={values.isReceiptPrinter}
                                                         onChange={(e) => setFieldValue('isReceiptPrinter', e.target.checked)}
-                                                        className="w-4 h-4 text-sky-600 border-gray-300 rounded focus:ring-sky-500"
+                                                        className="w-4 h-4 text-sky-500 border-gray-300 rounded focus:ring-sky-500"
                                                     />
                                                     <span className="text-sm text-gray-700 dark:text-gray-300">Receipt Printer</span>
                                                 </label>
@@ -570,7 +570,7 @@ const PrinterForm: FunctionComponent = () => {
                                                         name="configuration.cutPaper"
                                                         checked={values.configuration?.cutPaper}
                                                         onChange={(e) => setFieldValue('configuration.cutPaper', e.target.checked)}
-                                                        className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+                                                        className="w-4 h-4 text-emerald-500 border-gray-300 rounded focus:ring-emerald-500"
                                                     />
                                                     <span className="text-sm text-gray-700 dark:text-gray-300">Auto-cut Paper</span>
                                                 </label>
@@ -582,7 +582,7 @@ const PrinterForm: FunctionComponent = () => {
                                                         name="configuration.openCashDrawer"
                                                         checked={values.configuration?.openCashDrawer}
                                                         onChange={(e) => setFieldValue('configuration.openCashDrawer', e.target.checked)}
-                                                        className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+                                                        className="w-4 h-4 text-emerald-500 border-gray-300 rounded focus:ring-emerald-500"
                                                     />
                                                     <span className="text-sm text-gray-700 dark:text-gray-300">Open Cash Drawer</span>
                                                 </label>
@@ -594,7 +594,7 @@ const PrinterForm: FunctionComponent = () => {
                                                         name="configuration.printLogo"
                                                         checked={values.configuration?.printLogo}
                                                         onChange={(e) => setFieldValue('configuration.printLogo', e.target.checked)}
-                                                        className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+                                                        className="w-4 h-4 text-emerald-500 border-gray-300 rounded focus:ring-emerald-500"
                                                     />
                                                     <span className="text-sm text-gray-700 dark:text-gray-300">Print Logo</span>
                                                 </label>
@@ -606,7 +606,7 @@ const PrinterForm: FunctionComponent = () => {
                                                         name="configuration.beepAfterPrint"
                                                         checked={values.configuration?.beepAfterPrint}
                                                         onChange={(e) => setFieldValue('configuration.beepAfterPrint', e.target.checked)}
-                                                        className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+                                                        className="w-4 h-4 text-emerald-500 border-gray-300 rounded focus:ring-emerald-500"
                                                     />
                                                     <span className="text-sm text-gray-700 dark:text-gray-300">Beep After Print</span>
                                                 </label>

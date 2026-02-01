@@ -30,16 +30,16 @@ const AccountantDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLo
     const [dashboardCounts, setDashboardCounts] = useState<AccountantDashboardCounts>({} as AccountantDashboardCounts);
 
     const [cards, setCards] = useState([
-        { key: 'totalSales', title: 'Total Revenue', value: 0, icon: <HiOutlineBanknotes />, bgColor: 'bg-green-500 dark:bg-green-600' },
-        { key: 'myTotalTransactions', title: 'Total Transactions', value: 0, icon: <Receipt size={20} />, bgColor: 'bg-sky-500 dark:bg-sky-600' },
+        { key: 'totalSales', title: 'Total Revenue', value: 0, icon: <HiOutlineBanknotes />, bgColor: 'bg-green-500 dark:bg-green-500' },
+        { key: 'myTotalTransactions', title: 'Total Transactions', value: 0, icon: <Receipt size={20} />, bgColor: 'bg-sky-500 dark:bg-sky-500' },
         { key: 'allCustomers', title: 'Total Customers', value: 0, icon: <CreditCard size={20} />, bgColor: 'bg-purple-500 dark:bg-purple-600' },
         { key: 'stock', title: 'Products', value: 0, icon: <Wallet size={20} />, bgColor: 'bg-orange-500 dark:bg-orange-600' },
     ]);
 
     // Quick actions for accountant
     const quickActions: QuickAction[] = [
-        { label: 'View Sales', icon: <Receipt size={18} />, onClick: () => navigate(ROUTES.SALES), color: 'bg-sky-600 hover:bg-sky-700' },
-        { label: 'Sales Reports', icon: <HiOutlineDocumentText size={18} />, onClick: () => navigate(ROUTES.SALES), color: 'bg-green-600 hover:bg-green-700' },
+        { label: 'View Sales', icon: <Receipt size={18} />, onClick: () => navigate(ROUTES.SALES), color: 'bg-sky-500 hover:bg-sky-700' },
+        { label: 'Sales Reports', icon: <HiOutlineDocumentText size={18} />, onClick: () => navigate(ROUTES.SALES), color: 'bg-green-500 hover:bg-green-700' },
     ];
 
     useEffect(() => {
@@ -147,14 +147,14 @@ const AccountantDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLo
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                            <DollarSign className="text-green-600 dark:text-green-400 w-5 h-5" />
+                            <DollarSign className="text-green-500 dark:text-green-400 w-5 h-5" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Revenue Summary</h3>
                     </div>
                     <div className="space-y-4">
                         <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                             <span className="text-gray-600 dark:text-gray-400">Total Revenue</span>
-                            <span className="text-xl font-bold text-green-600 dark:text-green-400">
+                            <span className="text-xl font-bold text-green-500 dark:text-green-400">
                                 {formatCurrency(Number(dashboardCounts.totalSales) || 0)}
                             </span>
                         </div>
@@ -177,14 +177,14 @@ const AccountantDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLo
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
-                            <HiOutlineCalculator className="text-sky-600 dark:text-sky-400 w-5 h-5" />
+                            <HiOutlineCalculator className="text-sky-500 dark:text-sky-400 w-5 h-5" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Transaction Metrics</h3>
                     </div>
                     <div className="space-y-4">
                         <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                             <span className="text-gray-600 dark:text-gray-400">Total Transactions</span>
-                            <span className="text-xl font-bold text-sky-600 dark:text-sky-400">
+                            <span className="text-xl font-bold text-sky-500 dark:text-sky-400">
                                 {dashboardCounts.myTotalTransactions || 0}
                             </span>
                         </div>
@@ -214,7 +214,7 @@ const AccountantDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLo
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <span className="text-gray-600 dark:text-gray-400">Products Sold</span>
-                            <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                            <div className="flex items-center gap-1 text-green-500 dark:text-green-400">
                                 <ArrowUpRight className="w-4 h-4" />
                                 <span className="font-semibold">{dashboardCounts.stock || 0}</span>
                             </div>
@@ -230,7 +230,7 @@ const AccountantDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLo
                     </div>
                     <Link
                         to={ROUTES.SALES}
-                        className="block mt-4 text-center text-sky-600 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 text-sm font-medium"
+                        className="block mt-4 text-center text-sky-500 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 text-sm font-medium"
                     >
                         View All Sales →
                     </Link>
@@ -246,7 +246,7 @@ const AccountantDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLo
                             <div className="flex items-center justify-between gap-3">
                                 <div className="flex items-center gap-2">
                                     <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-sm">
-                                        <HiOutlineCurrencyDollar className="text-green-600 dark:text-green-400 w-5 h-5" />
+                                        <HiOutlineCurrencyDollar className="text-green-500 dark:text-green-400 w-5 h-5" />
                                     </div>
                                     <div>
                                         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -279,7 +279,7 @@ const AccountantDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLo
             </div>
 
             {/* Financial Reports Link */}
-            <div className="bg-gradient-to-r from-sky-500 to-sky-600 dark:from-sky-600 dark:to-sky-700 rounded-lg shadow-sm p-6 text-white">
+            <div className="bg-gradient-to-r from-sky-500 to-sky-500 dark:from-sky-500 dark:to-sky-700 rounded-lg shadow-sm p-6 text-white">
                 <div className="flex items-center justify-between">
                     <div>
                         <h3 className="text-lg font-semibold">Need Detailed Reports?</h3>
@@ -287,7 +287,7 @@ const AccountantDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLo
                     </div>
                     <Link
                         to={ROUTES.SALES}
-                        className="px-6 py-3 bg-white text-sky-600 rounded-lg font-medium hover:bg-sky-50 transition-colors"
+                        className="px-6 py-3 bg-white text-sky-500 rounded-lg font-medium hover:bg-sky-50 transition-colors"
                     >
                         View Reports
                     </Link>

@@ -216,7 +216,7 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
                                                 </p>
                                             )}
                                         </div>
-                                        <span className="font-medium text-sm text-sky-600 dark:text-sky-400 ml-2">
+                                        <span className="font-medium text-sm text-sky-500 dark:text-sky-400 ml-2">
                                             {formatCurrency(parseNumber(item.returnPrice))}
                                         </span>
                                     </div>
@@ -346,7 +346,7 @@ const ReturnDetailsModal: FunctionComponent<ReturnDetailsModalProps> = ({
 
                         <div className={`flex justify-between items-center ${isEBN ? 'pt-1' : 'pt-2 sm:pt-3'} border-t-2 border-gray-300 dark:border-gray-600`}>
                             <span className={`${isEBN ? 'text-xs' : 'text-base sm:text-lg'} font-semibold`}>Total Refund:</span>
-                            <span className={`${isEBN ? 'text-sm' : 'text-xl sm:text-2xl'} font-bold text-sky-600 dark:text-sky-400`}>
+                            <span className={`${isEBN ? 'text-sm' : 'text-xl sm:text-2xl'} font-bold text-sky-500 dark:text-sky-400`}>
                                 {formatCurrency(returnData.refundAmount)}
                             </span>
                         </div>

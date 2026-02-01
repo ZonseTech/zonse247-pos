@@ -79,7 +79,7 @@ export const ReturnActions: React.FC<ReturnActionsProps> = ({
         <div className="flex items-center justify-end gap-0.5">
             <button
                 onClick={() => onViewDetails(returnData)}
-                className={`${buttonClass} text-sky-600 hover:text-sky-900 dark:text-sky-400 dark:hover:text-sky-300 hover:bg-sky-50 dark:hover:bg-sky-900/20`}
+                className={`${buttonClass} text-sky-500 hover:text-sky-900 dark:text-sky-400 dark:hover:text-sky-300 hover:bg-sky-50 dark:hover:bg-sky-900/20`}
                 title="View Details"
             >
                 <HiOutlineEye className={iconClass} />
@@ -88,7 +88,7 @@ export const ReturnActions: React.FC<ReturnActionsProps> = ({
             {hasPendingRestock && (
                 <button
                     onClick={() => onRestock(returnData)}
-                    className={`${buttonClass} text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20`}
+                    className={`${buttonClass} text-emerald-500 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20`}
                     title="Restock Items"
                 >
                     <RotateCcw className={iconClass} />
@@ -102,7 +102,7 @@ export const ReturnActions: React.FC<ReturnActionsProps> = ({
                         getReturnRefNumber(returnData)
                     )
                 }
-                className={`${buttonClass} text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20`}
+                className={`${buttonClass} text-red-500 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20`}
                 title="Cancel Return"
             >
                 <HiOutlineTrash className={iconClass} />
@@ -216,7 +216,7 @@ export const getReturnColumns = (
             name: 'Refund',
             cell: (row) => (
                 <Fragment>
-                    <div className={`${textClass} font-medium text-sky-600 dark:text-sky-400`}>
+                    <div className={`${textClass} font-medium text-sky-500 dark:text-sky-400`}>
                         {formatCurrency(row.refundAmount)}
                     </div>
                 </Fragment>
@@ -312,7 +312,7 @@ export const getMobileReturnColumns = (
 
                 return (
                     <div className="flex items-center gap-3 py-2">
-                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-sky-500 to-sky-600 flex items-center justify-center text-white shadow-sm">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-sky-500 to-sky-500 flex items-center justify-center text-white shadow-sm">
                             <RotateCcw className="w-5 h-5" />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -320,7 +320,7 @@ export const getMobileReturnColumns = (
                                 {getReturnRefNumber(row)}
                             </div>
                             <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-0.5 flex-wrap">
-                                <span className="font-medium text-sky-600 dark:text-sky-400">
+                                <span className="font-medium text-sky-500 dark:text-sky-400">
                                     {formatCurrency(row.refundAmount)}
                                 </span>
                                 <span>•</span>
@@ -359,14 +359,14 @@ export const getMobileReturnColumns = (
                     <div className="flex items-center gap-0.5">
                         <button
                             onClick={() => onViewDetails(row)}
-                            className="p-2 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
+                            className="p-2 text-sky-500 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
                         >
                             <Eye className="w-4 h-4" />
                         </button>
                         {hasPendingRestock ? (
                             <button
                                 onClick={() => onRestock(row)}
-                                className="p-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
+                                className="p-2 text-emerald-500 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
                             >
                                 <RotateCcw className="w-4 h-4" />
                             </button>

@@ -23,7 +23,7 @@ const PlanCard: FunctionComponent<PlanCardProps> = ({
             }`}
         >
             {plan.isPopular && (
-                <span className="bg-sky-600 text-white px-3 py-1 rounded-full text-sm font-semibold mb-4 inline-block">
+                <span className="bg-sky-500 text-white px-3 py-1 rounded-full text-sm font-semibold mb-4 inline-block">
                     Most Popular
                 </span>
             )}
@@ -46,7 +46,7 @@ const PlanCard: FunctionComponent<PlanCardProps> = ({
                 className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${isCurrentPlan
                     ? 'bg-gray-400 text-white cursor-not-allowed'
                     : plan.isPopular
-                        ? 'bg-sky-600 text-white hover:bg-sky-700'
+                        ? 'bg-sky-500 text-white hover:bg-sky-700'
                         : plan.subscriptionPlanId === 'free'
                             ? 'bg-gray-600 text-white hover:bg-gray-700'
                             : 'bg-gray-900 text-white hover:bg-gray-800'

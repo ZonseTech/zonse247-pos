@@ -49,7 +49,7 @@ export const SearchAndFilters: FunctionComponent<SearchAndFiltersProps> = ({
                 <button
                     onClick={() => onViewModeChange('grid')}
                     className={`p-2 rounded transition-colors ${viewMode === 'grid'
-                        ? 'bg-white dark:bg-gray-600 shadow-sm text-sky-600 dark:text-sky-400'
+                        ? 'bg-white dark:bg-gray-600 shadow-sm text-sky-500 dark:text-sky-400'
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                         }`}
                 >
@@ -58,7 +58,7 @@ export const SearchAndFilters: FunctionComponent<SearchAndFiltersProps> = ({
                 <button
                     onClick={() => onViewModeChange('list')}
                     className={`p-2 rounded transition-colors ${viewMode === 'list'
-                        ? 'bg-white dark:bg-gray-600 shadow-sm text-sky-600 dark:text-sky-400'
+                        ? 'bg-white dark:bg-gray-600 shadow-sm text-sky-500 dark:text-sky-400'
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                         }`}
                 >

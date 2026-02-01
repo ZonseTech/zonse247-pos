@@ -36,12 +36,12 @@ const PrinterMobileCard: FunctionComponent<PrinterMobileCardProps> = ({
 }) => {
     const getStatusConfig = (status: PrinterStatus) => {
         const configs: Record<PrinterStatus, { color: string; bgColor: string; label: string }> = {
-            'ONLINE': { color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-100 dark:bg-green-900/30', label: 'Online' },
+            'ONLINE': { color: 'text-green-500 dark:text-green-400', bgColor: 'bg-green-100 dark:bg-green-900/30', label: 'Online' },
             'OFFLINE': { color: 'text-gray-600 dark:text-gray-400', bgColor: 'bg-gray-100 dark:bg-gray-700', label: 'Offline' },
             'BUSY': { color: 'text-yellow-600 dark:text-yellow-400', bgColor: 'bg-yellow-100 dark:bg-yellow-900/30', label: 'Busy' },
-            'ERROR': { color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-100 dark:bg-red-900/30', label: 'Error' },
+            'ERROR': { color: 'text-red-500 dark:text-red-400', bgColor: 'bg-red-100 dark:bg-red-900/30', label: 'Error' },
             'PAPER_OUT': { color: 'text-orange-600 dark:text-orange-400', bgColor: 'bg-orange-100 dark:bg-orange-900/30', label: 'Paper Out' },
-            'COVER_OPEN': { color: 'text-amber-600 dark:text-amber-400', bgColor: 'bg-amber-100 dark:bg-amber-900/30', label: 'Cover Open' }
+            'COVER_OPEN': { color: 'text-amber-500 dark:text-amber-400', bgColor: 'bg-amber-100 dark:bg-amber-900/30', label: 'Cover Open' }
         };
         return configs[status] || configs['OFFLINE'];
     };
@@ -85,7 +85,7 @@ const PrinterMobileCard: FunctionComponent<PrinterMobileCardProps> = ({
             <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                     <div className={`p-2 rounded-lg ${printer.isActive ? 'bg-sky-100 dark:bg-sky-900/30' : 'bg-gray-100 dark:bg-gray-700'}`}>
-                        <Printer className={`w-5 h-5 ${printer.isActive ? 'text-sky-600 dark:text-sky-400' : 'text-gray-400'}`} />
+                        <Printer className={`w-5 h-5 ${printer.isActive ? 'text-sky-500 dark:text-sky-400' : 'text-gray-400'}`} />
                     </div>
                     <div>
                         <div className="flex items-center gap-2">
@@ -172,7 +172,7 @@ const PrinterMobileCard: FunctionComponent<PrinterMobileCardProps> = ({
                     </button>
                     <button
                         onClick={() => onTestConnection(printer.printerId)}
-                        className="p-2 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
+                        className="p-2 text-sky-500 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
                         title="Test Connection"
                     >
                         <TestTube className="w-4 h-4" />
@@ -198,8 +198,8 @@ const PrinterMobileCard: FunctionComponent<PrinterMobileCardProps> = ({
                     <button
                         onClick={() => onToggleActive(printer.printerId, printer.isActive)}
                         className={`p-2 rounded-lg transition-colors ${printer.isActive
-                            ? 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
-                            : 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
+                            ? 'text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                            : 'text-green-500 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
                             }`}
                         title={printer.isActive ? 'Deactivate' : 'Activate'}
                     >
@@ -207,7 +207,7 @@ const PrinterMobileCard: FunctionComponent<PrinterMobileCardProps> = ({
                     </button>
                     <button
                         onClick={() => onDelete(printer.printerId, printer.printerName)}
-                        className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        className="p-2 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                         title="Delete"
                     >
                         <Trash2 className="w-4 h-4" />

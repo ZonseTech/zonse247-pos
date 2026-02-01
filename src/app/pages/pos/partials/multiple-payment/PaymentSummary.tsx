@@ -85,7 +85,7 @@ const PaymentSummary: FunctionComponent<PaymentSummaryProps> = ({
             isEBN ? "p-3" : "p-4 md:p-5"
         )}>
             <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-sky-600 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-sky-500 rounded-lg flex items-center justify-center">
                     <Wallet className="w-4 h-4 text-white" />
                 </div>
                 <h3 className={classNames(
@@ -118,7 +118,7 @@ const PaymentSummary: FunctionComponent<PaymentSummaryProps> = ({
                     <p className="text-emerald-700 dark:text-emerald-300 text-xs font-medium">Amount Paid</p>
                 </div>
                 <p className={classNames(
-                    "font-bold text-emerald-600 dark:text-emerald-400",
+                    "font-bold text-emerald-500 dark:text-emerald-400",
                     isEBN ? "text-xl" : "text-xl md:text-2xl"
                 )}>
                     {formatCurrency(totalPaid)}
@@ -136,7 +136,7 @@ const PaymentSummary: FunctionComponent<PaymentSummaryProps> = ({
                         <p className="text-red-700 dark:text-red-300 text-xs font-medium">Remaining</p>
                     </div>
                     <p className={classNames(
-                        "font-bold text-red-600 dark:text-red-400",
+                        "font-bold text-red-500 dark:text-red-400",
                         isEBN ? "text-xl" : "text-xl md:text-2xl"
                     )}>
                         {formatCurrency(remaining)}
@@ -155,7 +155,7 @@ const PaymentSummary: FunctionComponent<PaymentSummaryProps> = ({
                         <p className="text-amber-700 dark:text-amber-300 text-xs font-medium">Change Due</p>
                     </div>
                     <p className={classNames(
-                        "font-bold text-amber-600 dark:text-amber-400",
+                        "font-bold text-amber-500 dark:text-amber-400",
                         isEBN ? "text-xl" : "text-xl md:text-2xl"
                     )}>
                         {formatCurrency(change)}
@@ -169,7 +169,7 @@ const PaymentSummary: FunctionComponent<PaymentSummaryProps> = ({
                     <span className="font-medium">Progress</span>
                     <span className={classNames(
                         "font-semibold",
-                        isFullyPaid ? "text-emerald-600 dark:text-emerald-400" : "text-gray-600 dark:text-gray-300"
+                        isFullyPaid ? "text-emerald-500 dark:text-emerald-400" : "text-gray-600 dark:text-gray-300"
                     )}>{Math.round(progressPercent)}%</span>
                 </div>
                 <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">

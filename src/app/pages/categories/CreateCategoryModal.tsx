@@ -253,7 +253,7 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
                                                 checked={values.isDefault || false}
                                                 readOnly
                                                 disabled
-                                                className="mt-0.5 w-4 h-4 text-amber-600 border-amber-300 rounded"
+                                                className="mt-0.5 w-4 h-4 text-amber-500 border-amber-300 rounded"
                                             />
                                             <div>
                                                 <span className="text-sm font-medium text-amber-900 dark:text-amber-200">

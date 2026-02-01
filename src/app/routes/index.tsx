@@ -31,6 +31,7 @@ const TenantForm = lazy(() => import('../pages/tenants/create'))
 const TenantsManagement = lazy(() => import('../pages/tenants'))
 const TenantRegistrationDetails = lazy(() => import('../pages/tenant-registration-details'))
 const Sales = lazy(() => import('../pages/sales'))
+const TodaySales = lazy(() => import('../pages/sales/TodaySales'))
 const Returns = lazy(() => import('../pages/returns'))
 const DatabaseExporter = lazy(() => import('../pages/export-db'))
 const AccountDetails = lazy(() => import('../pages/auth/MyProfile'))
@@ -42,7 +43,6 @@ const PrinterManagement = lazy(() => import('../pages/printer'))
 const PrinterForm = lazy(() => import('../pages/printer/create'))
 const PrintJobsManagement = lazy(() => import('../pages/printer/jobs'))
 
-// Inventory Workflow Pages
 const Products = lazy(() => import('../pages/products'))
 const ProductForm = lazy(() => import('../pages/products/create'))
 const Suppliers = lazy(() => import('../pages/suppliers'))
@@ -69,18 +69,18 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 					<Route element={<MobileTabLayout />}>
 						<Route path={ROUTES.POS} element={<PointOfSale />} />
 						<Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
-						<Route path={ROUTES.SALES} element={<Sales />} />
+						<Route path={ROUTES.TODAY_SALES} element={<TodaySales />} />
 						<Route path={ROUTES.ITEMS} element={<MobileInventory />} />
 					</Route>
 				) : (
 					<>
 						<Route path={ROUTES.POS} element={<PointOfSale />} />
 						<Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
-						<Route path={ROUTES.SALES} element={<Sales />} />
-						<Route path={ROUTES.INVENTORY} element={<Inventory />} />
 					</>
 				)}
 
+				<Route path={ROUTES.SALES} element={<Sales />} />
+				<Route path={ROUTES.INVENTORY} element={<Inventory />} />
 				<Route path={ROUTES.USERS} element={<Users />} />
 				<Route path={ROUTES.USER_FORM} element={<UserForm />} />
 				<Route path={ROUTES.MY_PROFILE} element={<AccountDetails />} />

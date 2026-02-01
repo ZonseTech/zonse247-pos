@@ -64,16 +64,16 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
     const endRecord = Math.min(offset + pageSize, totalRecords);
 
     const [cards, setCards] = useState([
-        { key: 'totalSales', title: 'Branch Sales', value: 0, icon: <HiOutlineBanknotes />, bgColor: 'bg-green-500 dark:bg-green-600' },
-        { key: 'myTotalTransactions', title: 'Transactions Today', value: 0, icon: <HiOutlineClipboardDocumentList />, bgColor: 'bg-sky-500 dark:bg-sky-600' },
+        { key: 'totalSales', title: 'Branch Sales', value: 0, icon: <HiOutlineBanknotes />, bgColor: 'bg-green-500 dark:bg-green-500' },
+        { key: 'myTotalTransactions', title: 'Transactions Today', value: 0, icon: <HiOutlineClipboardDocumentList />, bgColor: 'bg-sky-500 dark:bg-sky-500' },
         { key: 'stock', title: 'Products in Stock', value: 0, icon: <HiOutlineBuildingStorefront />, bgColor: 'bg-purple-500 dark:bg-purple-600' },
         { key: 'allCustomers', title: 'Customers Served', value: 0, icon: <HiOutlineUserGroup />, bgColor: 'bg-orange-500 dark:bg-orange-600' },
     ]);
 
     // Quick actions for managers
     const quickActions: QuickAction[] = [
-        { label: 'New Sale', icon: <ShoppingCart size={18} />, onClick: () => navigate(ROUTES.POS), color: 'bg-green-600 hover:bg-green-700' },
-        { label: 'View Inventory', icon: <Package size={18} />, onClick: () => navigate(ROUTES.INVENTORY), color: 'bg-sky-600 hover:bg-sky-700' },
+        { label: 'New Sale', icon: <ShoppingCart size={18} />, onClick: () => navigate(ROUTES.POS), color: 'bg-green-500 hover:bg-green-700' },
+        { label: 'View Inventory', icon: <Package size={18} />, onClick: () => navigate(ROUTES.INVENTORY), color: 'bg-sky-500 hover:bg-sky-700' },
         { label: 'Team Members', icon: <Users size={18} />, onClick: () => navigate(ROUTES.USERS), color: 'bg-purple-600 hover:bg-purple-700' },
     ];
 
@@ -171,13 +171,13 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
             {expiredProductsCount > 0 && (
                 <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-lg p-4 shadow-sm">
                     <div className="flex items-center">
-                        <HiOutlineExclamationTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 mr-3" />
+                        <HiOutlineExclamationTriangle className="w-5 h-5 text-amber-500 dark:text-amber-400 mr-3" />
                         <div className="text-amber-700 dark:text-amber-300 font-medium">
                             {expiredProductsCount} item(s) have expired and need attention.
                         </div>
                         <Link
                             to={ROUTES.INVENTORY}
-                            className="ml-4 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 font-medium text-sm transition-colors"
+                            className="ml-4 text-amber-500 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 font-medium text-sm transition-colors"
                         >
                             Review Items →
                         </Link>
@@ -224,7 +224,7 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
                         headers={topProductsHeaders}
                         data={topProductsData.slice(0, 5)}
                         renderRow={p => <RenderTopProductRow product={p} />}
-                        icon={<RiMedicineBottleFill className="mr-2 text-sky-600 dark:text-sky-400" />}
+                        icon={<RiMedicineBottleFill className="mr-2 text-sky-500 dark:text-sky-400" />}
                     />
                 </div>
 
@@ -241,7 +241,7 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
                                 setTransaction={setTransaction}
                             />
                         )}
-                        icon={<HiOutlineClipboardDocumentList className="mr-2 text-green-600 dark:text-green-400" />}
+                        icon={<HiOutlineClipboardDocumentList className="mr-2 text-green-500 dark:text-green-400" />}
                     >
                         <div className='flex items-center justify-between bg-white dark:bg-gray-800/50 px-4 py-3 rounded-sm'>
                             <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -280,7 +280,7 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
                             <div className="flex items-center justify-between gap-3">
                                 <div className="flex items-center gap-2">
                                     <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-sm">
-                                        <HiOutlineCurrencyDollar className="text-green-600 dark:text-green-400 w-5 h-5" />
+                                        <HiOutlineCurrencyDollar className="text-green-500 dark:text-green-400 w-5 h-5" />
                                     </div>
                                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                                         {dayjs(currentMonthYear).format('MMMM YYYY')} Sales
@@ -313,14 +313,14 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
-                            <Clock className="text-sky-600 dark:text-sky-400 w-5 h-5" />
+                            <Clock className="text-sky-500 dark:text-sky-400 w-5 h-5" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Today's Summary</h3>
                     </div>
                     <div className="space-y-3">
                         <div className="flex justify-between items-center">
                             <span className="text-gray-600 dark:text-gray-400">Total Sales</span>
-                            <span className="font-semibold text-green-600 dark:text-green-400">
+                            <span className="font-semibold text-green-500 dark:text-green-400">
                                 {formatCurrency(Number(dashboardCounts.totalSales) || 0)}
                             </span>
                         </div>
@@ -359,7 +359,7 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
                         </div>
                         <div className="flex justify-between items-center">
                             <span className="text-gray-600 dark:text-gray-400">Expired</span>
-                            <span className={`font-semibold flex items-center gap-1 ${expiredProductsCount > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
+                            <span className={`font-semibold flex items-center gap-1 ${expiredProductsCount > 0 ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
                                 <XCircle className={`w-4 h-4 ${expiredProductsCount > 0 ? 'text-red-500' : 'text-gray-400'}`} />
                                 {expiredProductsCount}
                             </span>
@@ -367,7 +367,7 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
                     </div>
                     <Link
                         to={ROUTES.INVENTORY}
-                        className="block mt-4 text-center text-sky-600 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 text-sm font-medium"
+                        className="block mt-4 text-center text-sky-500 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 text-sm font-medium"
                     >
                         View Inventory →
                     </Link>
@@ -391,7 +391,7 @@ const ManagerDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoadi
                     </div>
                     <Link
                         to={ROUTES.CUSTOMERS}
-                        className="block mt-4 text-center text-sky-600 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 text-sm font-medium"
+                        className="block mt-4 text-center text-sky-500 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 text-sm font-medium"
                     >
                         View Customers →
                     </Link>

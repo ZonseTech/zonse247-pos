@@ -91,7 +91,7 @@ const useNavItems = (): Array<NavItem> => {
 
         items.push({
             type: 'button',
-            color: 'bg-sky-600 hover:bg-sky-700',
+            color: 'bg-sky-500 hover:bg-sky-700',
             iconColor: 'bg-sky-700',
             text: 'Inventory',
             icon: icons.products,
@@ -142,8 +142,8 @@ const useNavItems = (): Array<NavItem> => {
 
             items.push({
                 type: 'button',
-                color: 'bg-sky-500 hover:bg-sky-600',
-                iconColor: 'bg-sky-600',
+                color: 'bg-sky-500 hover:bg-sky-500',
+                iconColor: 'bg-sky-500',
                 text: 'Categories',
                 icon: icons.categories,
                 group: 'inventory',
@@ -165,7 +165,7 @@ const useNavItems = (): Array<NavItem> => {
     if (hasAnyPermission(user, ['reports.sales.daily', 'reports.sales.detailed', 'payments.view'])) {
         items.push({
             type: 'button',
-            color: 'bg-emerald-600 hover:bg-emerald-700',
+            color: 'bg-emerald-500 hover:bg-emerald-700',
             iconColor: 'bg-emerald-700',
             text: 'Sales',
             icon: icons.sales,
@@ -177,7 +177,7 @@ const useNavItems = (): Array<NavItem> => {
     if (hasAnyPermission(user, ['refunds.process', 'refunds.view', 'returns.manage'])) {
         items.push({
             type: 'button',
-            color: 'bg-sky-600 hover:bg-sky-700',
+            color: 'bg-sky-500 hover:bg-sky-700',
             iconColor: 'bg-sky-700',
             text: 'Returns',
             icon: icons.returns,
@@ -188,8 +188,8 @@ const useNavItems = (): Array<NavItem> => {
 
     // items.push({
     //     type: 'button',
-    //     color: 'bg-emerald-500 hover:bg-emerald-600',
-    //     iconColor: 'bg-emerald-600',
+    //     color: 'bg-emerald-500 hover:bg-emerald-500',
+    //     iconColor: 'bg-emerald-500',
     //     text: 'Dashboard',
     //     icon: icons.dashboard,
     //     group: 'operations',
@@ -253,8 +253,8 @@ const useNavItems = (): Array<NavItem> => {
 
         items.push({
             type: 'button',
-            color: 'bg-emerald-500 hover:bg-emerald-600',
-            iconColor: 'bg-emerald-600',
+            color: 'bg-emerald-500 hover:bg-emerald-500',
+            iconColor: 'bg-emerald-500',
             text: "Printers",
             icon: icons.printer,
             group: 'settings',
@@ -263,8 +263,8 @@ const useNavItems = (): Array<NavItem> => {
 
         items.push({
             type: 'button',
-            color: 'bg-green-500 hover:bg-green-600',
-            iconColor: 'bg-green-600',
+            color: 'bg-green-500 hover:bg-green-500',
+            iconColor: 'bg-green-500',
             text: "Settings",
             icon: icons.settings,
             group: 'settings',
@@ -305,7 +305,7 @@ const useNavItems = (): Array<NavItem> => {
 
         items.push({
             type: 'button',
-            color: 'bg-red-600 hover:bg-red-700',
+            color: 'bg-red-500 hover:bg-red-700',
             iconColor: 'bg-red-700',
             text: 'Migrations',
             icon: icons.migrations,
@@ -316,8 +316,8 @@ const useNavItems = (): Array<NavItem> => {
         if (hasPermission(user, 'system.backup')) {
             items.push({
                 type: 'button',
-                color: 'bg-red-500 hover:bg-red-600',
-                iconColor: 'bg-red-600',
+                color: 'bg-red-500 hover:bg-red-500',
+                iconColor: 'bg-red-500',
                 text: 'Export DB',
                 icon: icons.export_db,
                 group: 'system',
@@ -328,8 +328,8 @@ const useNavItems = (): Array<NavItem> => {
 
     items.push({
         type: 'button',
-        color: 'bg-green-500 hover:bg-green-600',
-        iconColor: 'bg-green-600',
+        color: 'bg-green-500 hover:bg-green-500',
+        iconColor: 'bg-green-500',
         text: "Sync Data",
         icon: icons.syncData,
         group: 'system',

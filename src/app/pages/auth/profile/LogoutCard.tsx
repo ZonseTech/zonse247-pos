@@ -17,7 +17,7 @@ const LogoutCard: FunctionComponent = () => {
     return (
         <Card className="p-6 border-red-200 dark:border-red-900/30">
             <div className="flex items-center gap-2 mb-4">
-                <LogOut className="w-5 h-5 text-red-600 dark:text-red-400" />
+                <LogOut className="w-5 h-5 text-red-500 dark:text-red-400" />
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                     Sign Out
                 </h3>

@@ -71,7 +71,7 @@ const App: FunctionComponent = () => {
                         <LayoutProvider>
                             <AppProvider>
                                 <DataManager />
-                                <div className="app-container">
+                                <div className="app-container bg-gray-100 dark:bg-gray-900">
                                     <HashRouter>
                                         <NavigationProgress />
                                         <Suspense fallback={<EnhancedPageLoader />}>

@@ -59,7 +59,7 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                 icon: 'total',
                 bgColor: 'bg-sky-50 dark:bg-sky-900/20',
                 iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
-                textColor: 'text-sky-600 dark:text-sky-400',
+                textColor: 'text-sky-500 dark:text-sky-400',
             },
             {
                 title: 'Pending',
@@ -67,7 +67,7 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                 icon: 'pending',
                 bgColor: 'bg-amber-50 dark:bg-amber-900/20',
                 iconBgColor: 'bg-amber-100 dark:bg-amber-900/40',
-                textColor: 'text-amber-600 dark:text-amber-400',
+                textColor: 'text-amber-500 dark:text-amber-400',
             },
             {
                 title: 'Received',
@@ -75,7 +75,7 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                 icon: 'received',
                 bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
                 iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
-                textColor: 'text-emerald-600 dark:text-emerald-400',
+                textColor: 'text-emerald-500 dark:text-emerald-400',
             },
             {
                 title: 'Cancelled',
@@ -83,7 +83,7 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                 icon: 'cancelled',
                 bgColor: 'bg-red-50 dark:bg-red-900/20',
                 iconBgColor: 'bg-red-100 dark:bg-red-900/40',
-                textColor: 'text-red-600 dark:text-red-400',
+                textColor: 'text-red-500 dark:text-red-400',
             },
         ];
     }, [purchaseOrders, totalRows]);
@@ -135,7 +135,7 @@ const PurchaseOrderManagement: FunctionComponent = () => {
         <AppLayout>
             <div className="max-w-full">
                 <PageHeader
-                    icon={<ShoppingCart className="w-7 h-7 sm:w-8 sm:h-8 text-sky-600 dark:text-sky-400" />}
+                    icon={<ShoppingCart className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                     title="Purchase Orders"
                     description="Manage purchase orders and receive inventory"
                     action={
@@ -173,7 +173,7 @@ const PurchaseOrderManagement: FunctionComponent = () => {
 
                             {selectedRows.length > 0 && !isMobile && (
                                 <div className="flex items-center gap-2 px-4 py-2 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-md">
-                                    <Settings2 className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                                    <Settings2 className="w-4 h-4 text-sky-500 dark:text-sky-400" />
                                     <span className="text-sm font-medium text-sky-900 dark:text-sky-100">
                                         {selectedRows.length} selected
                                     </span>
@@ -183,7 +183,7 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                             {hasActiveFilters && (
                                 <button
                                     onClick={handleClearFilters}
-                                    className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
+                                    className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-500 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
                                 >
                                     <HiOutlineFilter className="w-4 h-4" />
                                     <span>Clear</span>
@@ -239,7 +239,7 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                                     {hasActiveFilters && (
                                         <button
                                             onClick={handleClearFilters}
-                                            className="mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
+                                            className="mt-4 text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
                                         >
                                             Clear filters
                                         </button>

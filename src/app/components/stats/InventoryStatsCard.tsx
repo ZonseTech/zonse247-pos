@@ -23,7 +23,7 @@ const InventoryStatsCard: FunctionComponent<InventoryStatsCardProps> = ({ invent
                 </h3>
                 <button
                     onClick={() => navigate('/inventory')}
-                    className="flex items-center gap-1 text-sky-600 dark:text-sky-400 text-sm font-medium active:scale-95 transition-transform"
+                    className="flex items-center gap-1 text-sky-500 dark:text-sky-400 text-sm font-medium active:scale-95 transition-transform"
                 >
                     <HiArrowRight className="w-5 h-5" />
                 </button>

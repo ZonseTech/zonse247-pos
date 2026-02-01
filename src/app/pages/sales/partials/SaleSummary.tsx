@@ -119,7 +119,7 @@ const SaleSummary: FunctionComponent<{
                             label="Tax"
                             value={formatCurrency(tax)}
                             icon={<Receipt className={compact ? "w-2.5 h-2.5 text-amber-500" : "w-4 h-4 text-amber-500"} />}
-                            valueClassName="text-amber-600 dark:text-amber-400"
+                            valueClassName="text-amber-500 dark:text-amber-400"
                             compact={compact}
                         />
                     )}
@@ -129,7 +129,7 @@ const SaleSummary: FunctionComponent<{
                             label="Discount"
                             value={`-${formatCurrency(discount)}`}
                             icon={<Percent className={compact ? "w-2.5 h-2.5 text-emerald-500" : "w-4 h-4 text-emerald-500"} />}
-                            valueClassName="text-emerald-600 dark:text-emerald-400"
+                            valueClassName="text-emerald-500 dark:text-emerald-400"
                             compact={compact}
                         />
                     )}
@@ -220,7 +220,7 @@ const SaleSummary: FunctionComponent<{
                                     label="Total Paid"
                                     value={formatCurrency(paid)}
                                     icon={<ArrowDownRight className={compact ? "w-2.5 h-2.5 text-green-500" : "w-4 h-4 text-green-500"} />}
-                                    valueClassName="text-green-600 dark:text-green-400 font-bold"
+                                    valueClassName="text-green-500 dark:text-green-400 font-bold"
                                     compact={compact}
                                 />
                             </div>
@@ -257,7 +257,7 @@ const SaleSummary: FunctionComponent<{
                                 label="Change Given"
                                 value={formatCurrency(changeAmount)}
                                 icon={<Coins className={compact ? "w-2.5 h-2.5 text-green-500" : "w-4 h-4 text-green-500"} />}
-                                valueClassName="text-green-600 dark:text-green-400 font-bold"
+                                valueClassName="text-green-500 dark:text-green-400 font-bold"
                                 compact={compact}
                             />
                         </div>

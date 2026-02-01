@@ -37,19 +37,19 @@ const PrintJobMobileCard: FunctionComponent<PrintJobMobileCardProps> = ({
                 label: 'Pending'
             },
             'PRINTING': {
-                color: 'text-sky-600 dark:text-sky-400',
+                color: 'text-sky-500 dark:text-sky-400',
                 bgColor: 'bg-sky-100 dark:bg-sky-900/30',
                 icon: <RefreshCw className="w-3.5 h-3.5 animate-spin" />,
                 label: 'Printing'
             },
             'COMPLETED': {
-                color: 'text-green-600 dark:text-green-400',
+                color: 'text-green-500 dark:text-green-400',
                 bgColor: 'bg-green-100 dark:bg-green-900/30',
                 icon: <CheckCircle className="w-3.5 h-3.5" />,
                 label: 'Completed'
             },
             'FAILED': {
-                color: 'text-red-600 dark:text-red-400',
+                color: 'text-red-500 dark:text-red-400',
                 bgColor: 'bg-red-100 dark:bg-red-900/30',
                 icon: <XCircle className="w-3.5 h-3.5" />,
                 label: 'Failed'
@@ -66,7 +66,7 @@ const PrintJobMobileCard: FunctionComponent<PrintJobMobileCardProps> = ({
 
     const getJobTypeConfig = (type: PrintJobType) => {
         const configs: Record<PrintJobType, { color: string; label: string }> = {
-            'RECEIPT': { color: 'text-sky-600 dark:text-sky-400', label: 'Receipt' },
+            'RECEIPT': { color: 'text-sky-500 dark:text-sky-400', label: 'Receipt' },
             'INVOICE': { color: 'text-purple-600 dark:text-purple-400', label: 'Invoice' },
             'REPORT': { color: 'text-indigo-600 dark:text-indigo-400', label: 'Report' },
             'LABEL': { color: 'text-teal-600 dark:text-teal-400', label: 'Label' },
@@ -141,7 +141,7 @@ const PrintJobMobileCard: FunctionComponent<PrintJobMobileCardProps> = ({
                 <div className="mb-3 p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
                     <div className="flex items-start gap-2">
                         <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-                        <p className="text-xs text-red-600 dark:text-red-400 line-clamp-2">
+                        <p className="text-xs text-red-500 dark:text-red-400 line-clamp-2">
                             {job.errorMessage}
                         </p>
                     </div>
@@ -159,7 +159,7 @@ const PrintJobMobileCard: FunctionComponent<PrintJobMobileCardProps> = ({
                     {canRetry && (
                         <button
                             onClick={() => onRetry(job.printJobId, job.jobTitle)}
-                            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-lg transition-colors"
+                            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-lg transition-colors"
                         >
                             <RotateCcw className="w-3.5 h-3.5" />
                             Retry
@@ -168,7 +168,7 @@ const PrintJobMobileCard: FunctionComponent<PrintJobMobileCardProps> = ({
                     {canCancel && (
                         <button
                             onClick={() => onCancel(job.printJobId, job.jobTitle)}
-                            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                         >
                             <X className="w-3.5 h-3.5" />
                             Cancel

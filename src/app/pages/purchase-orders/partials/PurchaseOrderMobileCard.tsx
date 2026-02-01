@@ -62,7 +62,7 @@ const PurchaseOrderMobileCard: FC<PurchaseOrderMobileCardProps> = ({
             <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-base font-bold text-sky-600 dark:text-sky-400">
+                        <h3 className="text-base font-bold text-sky-500 dark:text-sky-400">
                             {purchaseOrder.poNumber}
                         </h3>
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
@@ -111,7 +111,7 @@ const PurchaseOrderMobileCard: FC<PurchaseOrderMobileCardProps> = ({
             <div className="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
                 <button
                     onClick={() => onView(purchaseOrder)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-sky-500 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
                 >
                     <Eye className="w-4 h-4" />
                     <span>View</span>
@@ -119,7 +119,7 @@ const PurchaseOrderMobileCard: FC<PurchaseOrderMobileCardProps> = ({
                 {(purchaseOrder.status === 'PENDING' || purchaseOrder.status === 'PARTIALLY_RECEIVED') && (
                     <button
                         onClick={() => onReceive(purchaseOrder)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-green-500 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
                     >
                         <CheckCircle className="w-4 h-4" />
                         <span>Receive</span>
@@ -128,7 +128,7 @@ const PurchaseOrderMobileCard: FC<PurchaseOrderMobileCardProps> = ({
                 {purchaseOrder.status === 'PENDING' && (
                     <button
                         onClick={() => onCancel(purchaseOrder)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ml-auto"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ml-auto"
                     >
                         <XCircle className="w-4 h-4" />
                         <span>Cancel</span>

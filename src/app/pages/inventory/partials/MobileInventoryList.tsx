@@ -46,7 +46,7 @@ const ItemTile: React.FC<ItemTileProps> = ({ item, onTap, cartQuantity }) => {
             className="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 p-4 flex flex-col items-center justify-center aspect-square active:scale-95 transition-all relative"
         >
             {cartQuantity > 0 && (
-                <div className="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-sm min-w-[24px] text-center">
+                <div className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-sm min-w-[24px] text-center">
                     x{cartQuantity}
                 </div>
             )}
@@ -59,7 +59,7 @@ const ItemTile: React.FC<ItemTileProps> = ({ item, onTap, cartQuantity }) => {
                 />
             ) : (
                 <div className="w-12 h-12 rounded-full bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center mb-3">
-                    <span className="text-xl font-bold text-sky-600 dark:text-sky-400">
+                    <span className="text-xl font-bold text-sky-500 dark:text-sky-400">
                         {firstLetter}
                     </span>
                 </div>
@@ -69,7 +69,7 @@ const ItemTile: React.FC<ItemTileProps> = ({ item, onTap, cartQuantity }) => {
                 {item.name}
             </p>
 
-            <p className="text-sm font-semibold text-sky-600 dark:text-sky-400">
+            <p className="text-sm font-semibold text-sky-500 dark:text-sky-400">
                 {formatCurrency(item.sellPrice)}
             </p>
         </button>
@@ -87,7 +87,7 @@ const NewItemTile: React.FC<NewItemTileProps> = ({ onTap }) => (
     >
         <HiPlusCircle className="w-8 h-8 text-sky-500 dark:text-sky-400 mb-3" />
 
-        <p className="text-sm font-semibold text-sky-600 dark:text-sky-400 text-center">
+        <p className="text-sm font-semibold text-sky-500 dark:text-sky-400 text-center">
             NEW ITEM
         </p>
     </button>
@@ -145,7 +145,7 @@ const MobileInventoryList: React.FC<MobileInventoryListProps> = ({
             {getTotalCartCount() > 0 && (
                 <button
                     onClick={handleGoToCart}
-                    className="w-full mb-3 py-3 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-semibold rounded-sm flex items-center justify-center gap-2 transition-colors"
+                    className="w-full mb-3 py-3 bg-green-500 hover:bg-green-700 active:bg-green-800 text-white font-semibold rounded-sm flex items-center justify-center gap-2 transition-colors"
                 >
                     <ShoppingCart className="w-4 h-4" />
                     <span>Go to Cart ({getTotalCartCount()} items)</span>

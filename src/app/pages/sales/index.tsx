@@ -94,7 +94,7 @@ const SalesPage: FC = () => {
                 <PageHeader
                     title="Sales"
                     description="Manage and view all sales transactions"
-                    icon={<ReceiptEuro className="w-8 h-8 text-sky-600 dark:text-sky-400" />}
+                    icon={<ReceiptEuro className="w-8 h-8 text-sky-500 dark:text-sky-400" />}
                     action={
                         <Button
                             icon={HiOutlinePlus}
@@ -130,7 +130,7 @@ const SalesPage: FC = () => {
 
                                     <button
                                         onClick={getTodaySales}
-                                        className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 bg-sky-50 hover:bg-sky-100 dark:bg-sky-900/30 dark:hover:bg-sky-900/50 border border-sky-200 dark:border-sky-700 rounded-lg transition-colors duration-200"
+                                        className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 bg-sky-50 hover:bg-sky-100 dark:bg-sky-900/30 dark:hover:bg-sky-900/50 border border-sky-200 dark:border-sky-700 rounded-lg transition-colors duration-200"
                                     >
                                         <HiOutlineFilter className="w-4 h-4" />
                                         <span className="hidden sm:inline">Today</span>
@@ -139,7 +139,7 @@ const SalesPage: FC = () => {
                                     {(searchTerm || startDate || selectedStatus !== 'all' || selectedPaymentMethod !== 'all') && (
                                         <button
                                             onClick={clearFilters}
-                                            className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
+                                            className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-500 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
                                         >
                                             <HiOutlineFilter className="w-4 h-4" />
                                             <span className="hidden sm:inline">Clear</span>
@@ -205,7 +205,7 @@ const SalesPage: FC = () => {
                                     {(searchTerm || startDate || selectedStatus !== 'all' || selectedPaymentMethod !== 'all') && (
                                         <button
                                             onClick={clearFilters}
-                                            className="mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
+                                            className="mt-4 text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
                                         >
                                             Clear filters
                                         </button>
@@ -284,7 +284,7 @@ const SalesPage: FC = () => {
                                         {(searchTerm || startDate || selectedStatus !== 'all' || selectedPaymentMethod !== 'all') && (
                                             <button
                                                 onClick={clearFilters}
-                                                className="mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium"
+                                                className="mt-4 text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium"
                                             >
                                                 Clear filters
                                             </button>

@@ -10,9 +10,9 @@ export default {
         info: 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400',
         icon: {
             base: 'h-5 w-5',
-            success: 'text-emerald-600 dark:text-emerald-400',
-            danger: 'text-red-600 dark:text-red-400',
-            warning: 'text-amber-600 dark:text-amber-400',
+            success: 'text-emerald-500 dark:text-emerald-400',
+            danger: 'text-red-500 dark:text-red-400',
+            warning: 'text-amber-500 dark:text-amber-400',
             neutral: 'text-zinc-500 dark:text-zinc-400',
             info: 'text-blue-600 dark:text-blue-400',
         },
@@ -100,8 +100,8 @@ export default {
         base: 'block w-full text-sm rounded-md focus:outline-none bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500',
         active: 'focus:border-blue-500 dark:focus:border-blue-600 border-zinc-300 dark:border-zinc-600 focus:ring-1 focus:ring-blue-200 dark:focus:ring-blue-900',
         disabled: 'cursor-not-allowed opacity-50 bg-zinc-100 dark:bg-zinc-700',
-        valid: 'border-emerald-500 dark:border-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 dark:focus:ring-emerald-900',
-        invalid: 'border-red-500 dark:border-red-600 focus:border-red-500 dark:focus:border-red-500 focus:ring-1 focus:ring-red-200 dark:focus:ring-red-900',
+        valid: 'border-emerald-500 dark:border-emerald-500 focus:border-emerald-500 dark:focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 dark:focus:ring-emerald-900',
+        invalid: 'border-red-500 dark:border-red-500 focus:border-red-500 dark:focus:border-red-500 focus:ring-1 focus:ring-red-200 dark:focus:ring-red-900',
     },
     // Select
     select: {
@@ -109,8 +109,8 @@ export default {
         active: 'focus:border-blue-500 dark:focus:border-blue-600 border-zinc-300 dark:border-zinc-600 focus:ring-1 focus:ring-blue-200 dark:focus:ring-blue-900',
         select: 'leading-5',
         disabled: 'cursor-not-allowed opacity-50 bg-zinc-200 dark:bg-zinc-700',
-        valid: 'border-emerald-500 dark:border-emerald-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 dark:focus:ring-emerald-900',
-        invalid: 'border-red-500 dark:border-red-600 focus:border-red-500 focus:ring-1 focus:ring-red-200 dark:focus:ring-red-900',
+        valid: 'border-emerald-500 dark:border-emerald-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 dark:focus:ring-emerald-900',
+        invalid: 'border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-200 dark:focus:ring-red-900',
     },
     // Label
     label: {
@@ -123,16 +123,16 @@ export default {
         base: 'block w-full p-3 text-sm focus:outline-none text-zinc-800 dark:text-zinc-100 leading-5 rounded-sm bg-white dark:bg-zinc-800 placeholder-zinc-400 dark:placeholder-zinc-500',
         active: 'focus:border-blue-500 dark:focus:border-blue-600 border-zinc-300 dark:border-zinc-600 focus:ring-1 focus:ring-blue-200 dark:focus:ring-blue-900',
         disabled: 'cursor-not-allowed opacity-50 bg-zinc-200 dark:bg-zinc-700',
-        valid: 'border-emerald-500 dark:border-emerald-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 dark:focus:ring-emerald-900',
-        invalid: 'border-red-500 dark:border-red-600 focus:border-red-500 focus:ring-1 focus:ring-red-200 dark:focus:ring-red-900',
+        valid: 'border-emerald-500 dark:border-emerald-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 dark:focus:ring-emerald-900',
+        invalid: 'border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-200 dark:focus:ring-red-900',
         radio: 'text-blue-600 dark:text-blue-500 form-radio focus:border-blue-500 dark:focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-200 dark:focus:ring-blue-900 focus:ring-offset-0 bg-zinc-100 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600',
         checkbox: 'text-blue-600 dark:text-blue-500 form-checkbox focus:border-blue-500 dark:focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-200 dark:focus:ring-blue-900 focus:ring-offset-0 rounded bg-zinc-100 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600',
     },
     // HelperText
     helperText: {
         base: 'text-xs',
-        valid: 'text-emerald-600 dark:text-emerald-400',
-        invalid: 'text-red-600 dark:text-red-400',
+        valid: 'text-emerald-500 dark:text-emerald-400',
+        invalid: 'text-red-500 dark:text-red-400',
     },
     // Card
     card: {
@@ -160,9 +160,9 @@ export default {
             pagination: 'px-3 py-1 rounded-md text-xs',
         },
         theme: {
-            success: 'text-white bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700 dark:hover:bg-emerald-600',
-            danger: 'text-white bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600',
-            warning: 'text-white bg-amber-600 dark:bg-amber-700 hover:bg-amber-700 dark:hover:bg-amber-600',
+            success: 'text-white bg-emerald-500 dark:bg-emerald-700 hover:bg-emerald-700 dark:hover:bg-emerald-500',
+            danger: 'text-white bg-red-500 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-500',
+            warning: 'text-white bg-amber-500 dark:bg-amber-700 hover:bg-amber-700 dark:hover:bg-amber-500',
             neutral: 'text-zinc-800 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 hover:bg-zinc-200 dark:hover:bg-zinc-600 hover:border-zinc-400 dark:hover:border-zinc-500 active:bg-zinc-300 dark:active:bg-zinc-500',
             primary: 'bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-600',
         },

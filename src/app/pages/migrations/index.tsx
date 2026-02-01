@@ -27,7 +27,7 @@ const Migrations: FunctionComponent = () => {
 						{/* Header */}
 						<div className="mb-8">
 							<div className="flex items-center space-x-3 mb-2">
-								<div className="p-2.5 bg-gradient-to-r from-sky-600 to-indigo-600 rounded-lg shadow-lg">
+								<div className="p-2.5 bg-gradient-to-r from-sky-500 to-indigo-600 rounded-lg shadow-lg">
 									<HiOutlineArrowRight className="w-6 h-6 text-white" />
 								</div>
 								<div>

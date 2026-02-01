@@ -27,7 +27,7 @@ const PrinterActions: FunctionComponent<PrinterActionsProps> = ({
             {/* Test Connection Button */}
             <button
                 onClick={() => onTestConnection(printer.printerId)}
-                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                 title="Test connection"
             >
                 <Wifi className="w-4 h-4 transition-transform group-hover:scale-110" />
@@ -58,8 +58,8 @@ const PrinterActions: FunctionComponent<PrinterActionsProps> = ({
             <button
                 onClick={() => onToggleActive(printer.printerId, printer.isActive)}
                 className={`group p-2 rounded-lg transition-all duration-200 ${printer.isActive
-                    ? 'text-green-600 dark:text-green-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
+                    ? 'text-green-500 dark:text-green-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
                     } focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800`}
                 title={printer.isActive ? 'Deactivate printer' : 'Activate printer'}
             >
@@ -73,7 +73,7 @@ const PrinterActions: FunctionComponent<PrinterActionsProps> = ({
             {/* Edit Button */}
             <button
                 onClick={() => onEdit(printer)}
-                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                 title="Edit printer"
             >
                 <Edit2 className="w-4 h-4 transition-transform group-hover:scale-110" />
@@ -82,7 +82,7 @@ const PrinterActions: FunctionComponent<PrinterActionsProps> = ({
             {/* Delete Button */}
             <button
                 onClick={() => onDelete(printer.printerId, printer.printerName)}
-                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                 title="Delete printer"
             >
                 <Trash2 className="w-4 h-4 transition-transform group-hover:scale-110" />

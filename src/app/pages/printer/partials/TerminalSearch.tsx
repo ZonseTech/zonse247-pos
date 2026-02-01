@@ -138,7 +138,7 @@ const TerminalSearch: FunctionComponent<TerminalSearchProps> = ({
                 <div className="flex items-center justify-between p-3 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-700 rounded-lg">
                     <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-sky-100 dark:bg-sky-800 rounded-full flex items-center justify-center">
-                            <Monitor className="w-4 h-4 text-sky-600 dark:text-sky-300" />
+                            <Monitor className="w-4 h-4 text-sky-500 dark:text-sky-300" />
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-900 dark:text-gray-100">

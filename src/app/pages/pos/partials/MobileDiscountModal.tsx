@@ -186,7 +186,7 @@ const MobileDiscountModal: FunctionComponent<MobileDiscountModalProps> = ({
                             </div>
                         </div>
                         {error && (
-                            <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>
+                            <p className="mt-2 text-sm text-red-500 dark:text-red-400">{error}</p>
                         )}
                     </div>
 
@@ -205,7 +205,7 @@ const MobileDiscountModal: FunctionComponent<MobileDiscountModalProps> = ({
                                             className="w-full flex items-center justify-between p-3 rounded-sm border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 transition-colors"
                                         >
                                             <span className="font-medium text-gray-800 dark:text-gray-100">{preset.name}</span>
-                                            <span className="text-green-600 dark:text-green-400 font-semibold">
+                                            <span className="text-green-500 dark:text-green-400 font-semibold">
                                                 {preset.isPercentage ? `${preset.value}%` : formatCurrency(preset.value)}
                                             </span>
                                         </button>
@@ -228,7 +228,7 @@ const MobileDiscountModal: FunctionComponent<MobileDiscountModalProps> = ({
                             className={classNames(
                                 "flex-1 py-3 px-4 rounded-sm font-medium transition-colors",
                                 isValidDiscount
-                                    ? "bg-sky-500 text-white hover:bg-sky-600"
+                                    ? "bg-sky-500 text-white hover:bg-sky-500"
                                     : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
                             )}
                         >

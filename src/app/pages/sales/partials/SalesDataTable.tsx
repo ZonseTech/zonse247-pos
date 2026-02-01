@@ -59,7 +59,7 @@ const SalesDataTable: FunctionComponent = () => {
                         {(searchTerm || startDate) && (
                             <button
                                 onClick={clearFilters}
-                                className="flex items-center gap-1 px-3 py-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                                className="flex items-center gap-1 px-3 py-2 text-sm text-red-500 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
                             >
                                 <HiOutlineFilter className="w-4 h-4" />
                                 Clear Filters
@@ -123,7 +123,7 @@ const SalesDataTable: FunctionComponent = () => {
                             {(searchTerm || startDate) && (
                                 <button
                                     onClick={clearFilters}
-                                    className="mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium"
+                                    className="mt-4 text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium"
                                 >
                                     Clear filters
                                 </button>

@@ -116,7 +116,7 @@ const DiscountModal: FunctionComponent<DiscountModalProps> = ({
                 <div className="bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-xl p-4 border border-sky-100 dark:border-gray-600">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-sky-500 dark:bg-sky-600 rounded-lg flex items-center justify-center">
+                            <div className="w-10 h-10 bg-sky-500 dark:bg-sky-500 rounded-lg flex items-center justify-center">
                                 <HiOutlineCurrencyDollar className="w-5 h-5 text-white" />
                             </div>
                             <div>
@@ -216,7 +216,7 @@ const DiscountModal: FunctionComponent<DiscountModalProps> = ({
                         </div>
                     </div>
                     {error && (
-                        <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>
+                        <p className="mt-2 text-sm text-red-500 dark:text-red-400">{error}</p>
                     )}
                 </div>
 
@@ -228,8 +228,8 @@ const DiscountModal: FunctionComponent<DiscountModalProps> = ({
                             <span className="font-medium text-gray-800 dark:text-gray-100">{formatCurrency(subtotal)}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
-                            <span className="text-green-600 dark:text-green-400">Discount</span>
-                            <span className="font-medium text-green-600 dark:text-green-400">
+                            <span className="text-green-500 dark:text-green-400">Discount</span>
+                            <span className="font-medium text-green-500 dark:text-green-400">
                                 -{formatCurrency(previewDiscount)}
                                 {discountType === 'percentage' && ` (${discountValue}%)`}
                             </span>
@@ -272,7 +272,7 @@ const DiscountModal: FunctionComponent<DiscountModalProps> = ({
                         onClick={handleCloseModal}
                         type="button"
                         className={classNames(
-                            "bg-red-100 hover:bg-red-200 dark:bg-red-600 dark:hover:bg-red-500 text-red-700 dark:text-red-200 py-3 px-6 rounded-lg font-medium transition-all duration-200 border border-red-300 dark:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800",
+                            "bg-red-100 hover:bg-red-200 dark:bg-red-500 dark:hover:bg-red-500 text-red-700 dark:text-red-200 py-3 px-6 rounded-lg font-medium transition-all duration-200 border border-red-300 dark:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800",
                             discount > 0 ? "" : "flex-1"
                         )}
                     >
@@ -282,7 +282,7 @@ const DiscountModal: FunctionComponent<DiscountModalProps> = ({
                         onClick={handleApplyDiscount}
                         type="button"
                         disabled={!isValidDiscount || cart.length === 0}
-                        className="flex-1 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-3 px-6 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                        className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-3 px-6 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                     >
                         Apply Discount
                     </button>

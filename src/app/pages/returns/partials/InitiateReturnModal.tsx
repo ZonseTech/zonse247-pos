@@ -297,7 +297,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                                     <button
                                                         type="button"
                                                         onClick={() => handleRemoveItem(item.orderItemId)}
-                                                        className="text-red-600 hover:text-red-700 p-1 ml-2"
+                                                        className="text-red-500 hover:text-red-700 p-1 ml-2"
                                                     >
                                                         <HiOutlineTrash className={isEBN ? 'w-3 h-3' : 'w-4 h-4 sm:w-5 sm:h-5'} />
                                                     </button>
@@ -417,7 +417,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                         <div className={`${isEBN ? 'p-2' : 'p-3 sm:p-4'} bg-sky-50 dark:bg-sky-900/20 rounded-lg`}>
                                             <div className={`flex items-center justify-between ${isEBN ? 'text-sm' : 'text-base sm:text-lg'} font-semibold`}>
                                                 <span>Total Refund:</span>
-                                                <span className="text-sky-600 dark:text-sky-400">
+                                                <span className="text-sky-500 dark:text-sky-400">
                                                     {formatCurrency(refundAmount)}
                                                 </span>
                                             </div>

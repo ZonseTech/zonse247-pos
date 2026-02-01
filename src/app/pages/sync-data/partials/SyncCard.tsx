@@ -70,7 +70,7 @@ const SyncCard: FunctionComponent<SyncCardProps> = ({
 				<div className='flex items-start justify-between mb-4'>
 					<div className='flex items-center'>
 						<div className='p-2 bg-green-50 dark:bg-green-900/30 rounded-sm'>
-							<HiOutlineDatabase className='w-6 h-6 text-green-600 dark:text-green-400' />
+							<HiOutlineDatabase className='w-6 h-6 text-green-500 dark:text-green-400' />
 						</div>
 						<div className='ml-3'>
 							<h3 className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
@@ -105,7 +105,7 @@ const SyncCard: FunctionComponent<SyncCardProps> = ({
 					<button
 						onClick={() => handleAction(table.id, 'pull')}
 						disabled={loadingStates[`${table.id}-pull`]}
-						className='flex-1 flex items-center justify-center p-2 bg-sky-600 hover:bg-sky-700 disabled:bg-sky-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-sm transition-colors duration-200'>
+						className='flex-1 flex items-center justify-center p-2 bg-sky-500 hover:bg-sky-700 disabled:bg-sky-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-sm transition-colors duration-200'>
 						{loadingStates[`${table.id}-pull`] ? (
 							<HiOutlineRefresh className='w-4 h-4 animate-spin' />
 						) : (
@@ -118,7 +118,7 @@ const SyncCard: FunctionComponent<SyncCardProps> = ({
 					<button
 						onClick={() => handleAction(table.id, 'push')}
 						disabled={loadingStates[`${table.id}-push`]}
-						className='flex-1 flex items-center justify-center p-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-sm transition-colors duration-200'>
+						className='flex-1 flex items-center justify-center p-2 bg-green-500 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-sm transition-colors duration-200'>
 						{loadingStates[`${table.id}-push`] ? (
 							<HiOutlineRefresh className='w-4 h-4 animate-spin' />
 						) : (

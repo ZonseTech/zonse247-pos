@@ -90,7 +90,7 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
 
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm">
-                                        <span className="text-green-600 dark:text-green-400 font-medium">{item.quantity} x</span>
+                                        <span className="text-green-500 dark:text-green-400 font-medium">{item.quantity} x</span>
                                         <span className="text-gray-500 dark:text-gray-400"> {formatCurrency(item.sellPrice)}</span>
                                     </span>
                                     <span className="text-gray-900 dark:text-gray-100 font-semibold text-sm">
@@ -117,7 +117,7 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
             <div className="flex gap-2 mt-3">
                 <button
                     onClick={onAddNewItem}
-                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sky-600 dark:text-sky-400 font-medium rounded-sm transition-colors active:bg-gray-100 dark:active:bg-gray-700"
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sky-500 dark:text-sky-400 font-medium rounded-sm transition-colors active:bg-gray-100 dark:active:bg-gray-700"
                 >
                     <span>ADD NEW ITEM</span>
                 </button>
@@ -141,7 +141,7 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
                         <span className="text-gray-500 dark:text-gray-400 text-sm">
                             {taxName || 'Tax'} ({tax}%)
                         </span>
-                        <span className="text-sky-600 dark:text-sky-400 text-sm">+{formatCurrency(taxAmount)}</span>
+                        <span className="text-sky-500 dark:text-sky-400 text-sm">+{formatCurrency(taxAmount)}</span>
                     </div>
                 )}
 
@@ -150,7 +150,7 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
                         <span className="text-gray-500 dark:text-gray-400 text-sm">
                             Discount {discountIsPercentage && `(${discount}%)`}
                         </span>
-                        <span className="text-green-600 dark:text-green-400 text-sm">-{formatCurrency(discountAmount)}</span>
+                        <span className="text-green-500 dark:text-green-400 text-sm">-{formatCurrency(discountAmount)}</span>
                     </div>
                 )}
 
@@ -159,7 +159,7 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
                         <span className="text-gray-500 dark:text-gray-400 text-sm">
                             Other Charges ({otherCharges.length})
                         </span>
-                        <span className="text-amber-600 dark:text-amber-400 text-sm">+{formatCurrency(otherChargesTotal)}</span>
+                        <span className="text-amber-500 dark:text-amber-400 text-sm">+{formatCurrency(otherChargesTotal)}</span>
                     </div>
                 )}
 
@@ -175,7 +175,7 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
                         layout="link"
                         theme="primary"
                         size="small"
-                        className="underline flex-shrink-0 text-xs text-sky-600 dark:text-sky-400 px-0 pl-0 pr-0"
+                        className="underline flex-shrink-0 text-xs text-sky-500 dark:text-sky-400 px-0 pl-0 pr-0"
                         onClick={() => setIsTaxModalOpen(true)}
                     >{tax > 0 ? 'EDIT TAX' : 'ADD TAX'}</Button>
                     <span className="text-gray-500 dark:text-gray-400 text-sm">{totalItems} ITEMS | {totalUnits} UNITS</span>
@@ -186,14 +186,14 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
                         layout="link"
                         theme="primary"
                         size="small"
-                        className="underline flex-shrink-0 text-xs text-sky-600 dark:text-sky-400 px-0 pl-0 pr-0"
+                        className="underline flex-shrink-0 text-xs text-sky-500 dark:text-sky-400 px-0 pl-0 pr-0"
                         onClick={() => setIsDiscountModalOpen(true)}
                     >{discount > 0 ? 'EDIT DISCOUNT' : 'ADD DISCOUNT'}</Button>
                     <Button
                         layout="link"
                         theme="primary"
                         size="small"
-                        className="underline flex-shrink-0 text-xs text-sky-600 dark:text-sky-400 px-0 pl-0 pr-0"
+                        className="underline flex-shrink-0 text-xs text-sky-500 dark:text-sky-400 px-0 pl-0 pr-0"
                         onClick={() => setIsOtherChargesModalOpen(true)}
                     >{otherCharges.length > 0 ? 'EDIT CHARGES' : 'ADD OTHER CHARGES'}</Button>
                 </div>

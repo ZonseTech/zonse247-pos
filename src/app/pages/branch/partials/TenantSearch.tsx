@@ -160,7 +160,7 @@ const TenantSearch: FunctionComponent<TenantSearchProps> = ({
             </div>
 
             {error && touched && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
+                <p className="mt-1 text-sm text-red-500 dark:text-red-400">{error}</p>
             )}
 
             {isOpen && !selectedTenant && !disabled && (

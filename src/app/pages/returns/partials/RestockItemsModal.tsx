@@ -250,7 +250,7 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                                                 checked={isSelected}
                                                 onChange={() => handleToggleItem(item.returnItemId)}
                                                 disabled={!canRestock}
-                                                className="mt-0.5 sm:mt-1 w-4 h-4 sm:w-5 sm:h-5 rounded border-gray-300 dark:border-gray-600 text-sky-600 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                                                className="mt-0.5 sm:mt-1 w-4 h-4 sm:w-5 sm:h-5 rounded border-gray-300 dark:border-gray-600 text-sky-500 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                                             />
                                             <div className="flex-1 min-w-0">
                                                 <h4 className="font-medium text-sm sm:text-base truncate">{getProductName(item)}</h4>
@@ -276,7 +276,7 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                                                     </p>
                                                 )}
                                                 {!canRestock && (
-                                                    <p className="text-xs sm:text-sm text-red-600 dark:text-red-400 mt-1 sm:mt-2">
+                                                    <p className="text-xs sm:text-sm text-red-500 dark:text-red-400 mt-1 sm:mt-2">
                                                         Cannot restock damaged or defective items
                                                     </p>
                                                 )}
@@ -322,7 +322,7 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                                     <p className="text-xs sm:text-sm text-emerald-800 dark:text-emerald-200">
                                         Total Items Selected
                                     </p>
-                                    <p className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                                    <p className="text-xl sm:text-2xl font-bold text-emerald-500 dark:text-emerald-400">
                                         {totalItemsToRestock}
                                     </p>
                                 </div>
@@ -330,7 +330,7 @@ const RestockItemsModal: FunctionComponent<RestockItemsModalProps> = ({
                                     <p className="text-xs sm:text-sm text-emerald-800 dark:text-emerald-200">
                                         Products
                                     </p>
-                                    <p className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                                    <p className="text-xl sm:text-2xl font-bold text-emerald-500 dark:text-emerald-400">
                                         {selectedItems.length}
                                     </p>
                                 </div>

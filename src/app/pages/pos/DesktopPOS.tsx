@@ -235,7 +235,7 @@ const DesktopPOS: FunctionComponent = () => {
                                 isEBN ? "text-xs" : "text-sm lg:text-base"
                             )}>
                                 <span className="text-gray-500 dark:text-gray-400">Subtotal: MK {subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                                <span className="text-green-600 dark:text-green-400 font-semibold">Discount: -MK {discount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                <span className="text-green-500 dark:text-green-400 font-semibold">Discount: -MK {discount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                             </div>
                         )}
                     </Panel>

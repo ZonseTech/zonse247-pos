@@ -4,8 +4,8 @@ export const getRoleColor = (roleUuid: string) => {
     const roleMap: Record<string, string> = {
         'super_admin': 'text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30 border dark:border-purple-800/50',
         'admin': 'text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30 border dark:border-purple-800/50',
-        'manager': 'text-sky-600 dark:text-sky-400 bg-sky-100 dark:bg-sky-900/30 border dark:border-sky-800/50',
-        'cashier': 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 border dark:border-green-800/50',
+        'manager': 'text-sky-500 dark:text-sky-400 bg-sky-100 dark:bg-sky-900/30 border dark:border-sky-800/50',
+        'cashier': 'text-green-500 dark:text-green-400 bg-green-100 dark:bg-green-900/30 border dark:border-green-800/50',
     };
     return roleMap[roleUuid] || 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800/50 border dark:border-gray-700/50';
 };

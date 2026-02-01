@@ -83,7 +83,7 @@ const CustomerManagement: FunctionComponent = () => {
                 <PageHeader
                     title='Customers'
                     description='Manage your customer database'
-                    icon={<HiOutlineUserGroup className="w-7 h-7 sm:w-8 sm:h-8 text-sky-600 dark:text-sky-400" />}
+                    icon={<HiOutlineUserGroup className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                     action={
                         <div className='flex items-center gap-2 sm:gap-3'>
                             {!isMobile && (
@@ -122,7 +122,7 @@ const CustomerManagement: FunctionComponent = () => {
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
                         <div className="flex items-center gap-3">
                             <div className="w-9 h-9 sm:w-10 sm:h-10 bg-sky-100 dark:bg-sky-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-sky-600 dark:text-sky-400" />
+                                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-sky-500 dark:text-sky-400" />
                             </div>
                             <div className="min-w-0">
                                 <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">Total</p>
@@ -133,7 +133,7 @@ const CustomerManagement: FunctionComponent = () => {
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
                         <div className="flex items-center gap-3">
                             <div className="w-9 h-9 sm:w-10 sm:h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400" />
+                                <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 dark:text-green-400" />
                             </div>
                             <div className="min-w-0">
                                 <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">Showing</p>
@@ -144,7 +144,7 @@ const CustomerManagement: FunctionComponent = () => {
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
                         <div className="flex items-center gap-3">
                             <div className="w-9 h-9 sm:w-10 sm:h-10 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 dark:text-amber-400" />
+                                <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500 dark:text-amber-400" />
                             </div>
                             <div className="min-w-0">
                                 <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">With Email</p>
@@ -202,7 +202,7 @@ const CustomerManagement: FunctionComponent = () => {
                                 {!searchTerm && (
                                     <button
                                         onClick={handleAddCustomer}
-                                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl transition-colors font-medium shadow-lg shadow-sky-500/25"
+                                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-700 text-white rounded-xl transition-colors font-medium shadow-lg shadow-sky-500/25"
                                     >
                                         <UserPlus className="w-4 h-4" />
                                         Add Customer

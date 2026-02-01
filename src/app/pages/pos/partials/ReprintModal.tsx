@@ -313,7 +313,7 @@ const ReprintModal: FunctionComponent<ReprintModalProps> = ({
                                             "font-bold text-right",
                                             isEBN ? "text-sm" : "text-lg"
                                         )}>
-                                            <span className="text-green-600 dark:text-green-400">
+                                            <span className="text-green-500 dark:text-green-400">
                                                 {formatCurrency(sale.totalAmount)}
                                             </span>
                                             {sale.items && (

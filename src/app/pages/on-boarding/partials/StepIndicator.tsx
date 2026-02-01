@@ -26,7 +26,7 @@ const StepIndicator: FunctionComponent<PropsWithChildren<StepIndicatorProps>> = 
             ) : <div className="w-20" />}
             <div className="flex-1 flex justify-center">
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-sky-100">
-                    <span className="text-sky-600 font-semibold">{currentStep}</span>
+                    <span className="text-sky-500 font-semibold">{currentStep}</span>
                 </div>
             </div>
             <div className="w-20" />
@@ -36,7 +36,7 @@ const StepIndicator: FunctionComponent<PropsWithChildren<StepIndicatorProps>> = 
             {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
                 <div
                     key={s}
-                    className={`w-2 h-2 rounded-full ${s <= currentStep ? 'bg-sky-600' : 'bg-gray-300'
+                    className={`w-2 h-2 rounded-full ${s <= currentStep ? 'bg-sky-500' : 'bg-gray-300'
                         }`}
                 />
             ))}

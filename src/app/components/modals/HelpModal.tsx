@@ -37,7 +37,7 @@ const HelpModal: FunctionComponent<HelpModalProps> = ({ isOpen, onClose }) => {
         <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-[60]">
             <div className="bg-white dark:bg-gray-800 w-full sm:max-w-md sm:rounded-lg shadow-xl overflow-hidden animate-slide-up sm:animate-fade-in">
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 py-4 bg-sky-600 dark:bg-sky-700">
+                <div className="flex items-center justify-between px-4 py-4 bg-sky-500 dark:bg-sky-700">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-white/20 rounded-full">
                             <Headphones className="w-5 h-5 text-white" />
@@ -126,7 +126,7 @@ const HelpModal: FunctionComponent<HelpModalProps> = ({ isOpen, onClose }) => {
 
                     {/* FAQ Hint */}
                     <div className="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                        <HiOutlineSupport className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                        <HiOutlineSupport className="w-5 h-5 text-amber-500 dark:text-amber-400 flex-shrink-0" />
                         <p className="text-sm text-amber-700 dark:text-amber-300">
                             Need quick answers? Check our FAQ section in Settings for common questions.
                         </p>

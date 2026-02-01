@@ -54,7 +54,7 @@ const TerminalManagement: FunctionComponent = () => {
                 icon: 'total',
                 bgColor: 'bg-sky-50 dark:bg-sky-900/20',
                 iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
-                textColor: 'text-sky-600 dark:text-sky-400',
+                textColor: 'text-sky-500 dark:text-sky-400',
             },
             {
                 title: 'Active',
@@ -62,7 +62,7 @@ const TerminalManagement: FunctionComponent = () => {
                 icon: 'active',
                 bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
                 iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
-                textColor: 'text-emerald-600 dark:text-emerald-400',
+                textColor: 'text-emerald-500 dark:text-emerald-400',
             },
             {
                 title: 'Primary',
@@ -70,7 +70,7 @@ const TerminalManagement: FunctionComponent = () => {
                 icon: 'primary',
                 bgColor: 'bg-amber-50 dark:bg-amber-900/20',
                 iconBgColor: 'bg-amber-100 dark:bg-amber-900/40',
-                textColor: 'text-amber-600 dark:text-amber-400',
+                textColor: 'text-amber-500 dark:text-amber-400',
             },
             {
                 title: 'Blocked',
@@ -78,7 +78,7 @@ const TerminalManagement: FunctionComponent = () => {
                 icon: 'blocked',
                 bgColor: 'bg-red-50 dark:bg-red-900/20',
                 iconBgColor: 'bg-red-100 dark:bg-red-900/40',
-                textColor: 'text-red-600 dark:text-red-400',
+                textColor: 'text-red-500 dark:text-red-400',
             },
         ];
     }, [filteredTerminals, totalRows]);
@@ -178,7 +178,7 @@ const TerminalManagement: FunctionComponent = () => {
                 <PageHeader
                     title='Terminals'
                     description='Manage your terminal devices and settings'
-                    icon={<HiOutlineComputerDesktop className="w-7 h-7 sm:w-8 sm:h-8 text-sky-600 dark:text-sky-400" />}
+                    icon={<HiOutlineComputerDesktop className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                     action={
                         <div className='flex items-center justify-between gap-2'>
                             {!isMobile && (

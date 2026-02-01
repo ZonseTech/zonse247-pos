@@ -24,7 +24,7 @@ export const TenantActions: React.FC<TenantActionsProps> = ({
             disabled={tenant.tenantId === DEFAULT_SEED_KEY}
             className={`p-1 rounded transition-colors ${tenant.tenantId === DEFAULT_SEED_KEY
                 ? 'text-gray-500'
-                : 'text-sky-600 hover:text-sky-800'
+                : 'text-sky-500 hover:text-sky-800'
                 }`}
             title="Edit tenant"
         >
@@ -37,8 +37,8 @@ export const TenantActions: React.FC<TenantActionsProps> = ({
             className={`text-xs px-2 py-1 rounded transition-colors ${tenant.tenantId === DEFAULT_SEED_KEY
                 ? 'text-gray-500 bg-gray-100'
                 : tenant.status === 'active'
-                    ? 'text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100'
-                    : 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100'
+                    ? 'text-red-500 hover:text-red-800 bg-red-50 hover:bg-red-100'
+                    : 'text-green-500 hover:text-green-800 bg-green-50 hover:bg-green-100'
                 }`}
             title={tenant.status === 'active' ? 'Suspend tenant' : 'Activate tenant'}
         >
@@ -50,7 +50,7 @@ export const TenantActions: React.FC<TenantActionsProps> = ({
             disabled={tenant.tenantId === DEFAULT_SEED_KEY}
             className={`p-1 rounded transition-colors ${tenant.tenantId === DEFAULT_SEED_KEY
                 ? 'text-gray-500'
-                : 'text-red-600 hover:text-red-800'
+                : 'text-red-500 hover:text-red-800'
                 }`}
             title="Delete tenant"
         >
@@ -70,7 +70,7 @@ export const getTenantColumns = (
                 <Fragment>
                     <div className="flex items-center">
                         <div className="w-10 h-10 bg-sky-100 rounded-full flex items-center justify-center">
-                            <Building2 className="w-5 h-5 text-sky-600" />
+                            <Building2 className="w-5 h-5 text-sky-500" />
                         </div>
                         <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">

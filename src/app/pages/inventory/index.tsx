@@ -62,7 +62,7 @@ const InventoryManagement: FunctionComponent = () => {
                 icon: 'products',
                 bgColor: 'bg-sky-50 dark:bg-sky-900/20',
                 iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
-                textColor: 'text-sky-600 dark:text-sky-400',
+                textColor: 'text-sky-500 dark:text-sky-400',
             },
             {
                 title: 'Total Units',
@@ -80,7 +80,7 @@ const InventoryManagement: FunctionComponent = () => {
                 icon: 'stockValue',
                 bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
                 iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
-                textColor: 'text-emerald-600 dark:text-emerald-400',
+                textColor: 'text-emerald-500 dark:text-emerald-400',
             },
             {
                 title: 'Retail Value',
@@ -99,7 +99,7 @@ const InventoryManagement: FunctionComponent = () => {
                 icon: 'profit',
                 bgColor: 'bg-green-50 dark:bg-green-900/20',
                 iconBgColor: 'bg-green-100 dark:bg-green-900/40',
-                textColor: 'text-green-600 dark:text-green-400',
+                textColor: 'text-green-500 dark:text-green-400',
             },
             {
                 title: 'Low/Out Stock',
@@ -107,7 +107,7 @@ const InventoryManagement: FunctionComponent = () => {
                 icon: 'lowStock',
                 bgColor: hasLowStock ? 'bg-amber-50 dark:bg-amber-900/20' : 'bg-gray-50 dark:bg-gray-700/50',
                 iconBgColor: hasLowStock ? 'bg-amber-100 dark:bg-amber-900/40' : 'bg-gray-100 dark:bg-gray-600',
-                textColor: hasLowStock ? 'text-amber-600 dark:text-amber-400' : 'text-gray-600 dark:text-gray-400',
+                textColor: hasLowStock ? 'text-amber-500 dark:text-amber-400' : 'text-gray-600 dark:text-gray-400',
             },
         ];
     }, [overview]);
@@ -290,7 +290,7 @@ const InventoryManagement: FunctionComponent = () => {
         <AppLayout>
             <div className="max-w-full">
                 <PageHeader
-                    icon={<Package className="w-8 h-8 text-sky-600" />}
+                    icon={<Package className="w-8 h-8 text-sky-500" />}
                     title="Inventory"
                     description={isMobile ? undefined : "Manage your inventory items, track stock levels, and monitor expiration dates."}
                     action={
@@ -328,7 +328,7 @@ const InventoryManagement: FunctionComponent = () => {
 
                                     <button
                                         onClick={getLowStockItems}
-                                        className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-700 rounded-lg transition-colors duration-200"
+                                        className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-amber-500 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-700 rounded-lg transition-colors duration-200"
                                     >
                                         <HiOutlineFilter className="w-4 h-4" />
                                         <span className="hidden sm:inline">Low Stock</span>
@@ -337,7 +337,7 @@ const InventoryManagement: FunctionComponent = () => {
                                     {hasActiveFilters && (
                                         <button
                                             onClick={handleClearFilters}
-                                            className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
+                                            className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-500 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
                                         >
                                             <X className="w-4 h-4" />
                                             <span className="hidden sm:inline">Clear</span>
@@ -413,7 +413,7 @@ const InventoryManagement: FunctionComponent = () => {
                                     {hasActiveFilters && (
                                         <button
                                             onClick={handleClearFilters}
-                                            className="mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
+                                            className="mt-4 text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
                                         >
                                             Clear filters
                                         </button>
@@ -506,7 +506,7 @@ const InventoryManagement: FunctionComponent = () => {
                                         {hasActiveFilters && (
                                             <button
                                                 onClick={handleClearFilters}
-                                                className="mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium"
+                                                className="mt-4 text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium"
                                             >
                                                 Clear filters
                                             </button>

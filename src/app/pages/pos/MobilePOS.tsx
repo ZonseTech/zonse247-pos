@@ -113,7 +113,7 @@ const MobilePOS: FunctionComponent = () => {
         <div className="flex flex-col h-full overflow-hidden">
             <div className="fixed top-0 left-0 right-0 z-50">
                 <MobilePageHeader
-                    className='bg-sky-600 dark:bg-sky-700'
+                    className='bg-sky-500 dark:bg-sky-700'
                     noBorder
                     showLeftButton={false}
                     title={
@@ -199,7 +199,7 @@ const MobilePOS: FunctionComponent = () => {
                                 </div>
                                 <button
                                     onClick={() => { /* TODO: Navigate to pending sales page */ }}
-                                    className="flex items-center gap-1 text-sky-600 dark:text-sky-400 text-sm font-medium active:scale-95 transition-transform"
+                                    className="flex items-center gap-1 text-sky-500 dark:text-sky-400 text-sm font-medium active:scale-95 transition-transform"
                                 >
                                     <HiArrowRight className="w-5 h-5" />
                                 </button>
@@ -232,7 +232,7 @@ const MobilePOS: FunctionComponent = () => {
                                                         {sale.items.length} items • MK {sale.totalAmount?.toLocaleString() || '0'}
                                                     </p>
                                                 </div>
-                                                <span className="text-sky-600 dark:text-sky-400 text-sm font-medium">
+                                                <span className="text-sky-500 dark:text-sky-400 text-sm font-medium">
                                                     Resume
                                                 </span>
                                             </button>

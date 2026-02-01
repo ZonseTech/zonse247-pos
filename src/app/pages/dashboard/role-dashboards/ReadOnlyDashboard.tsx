@@ -43,8 +43,8 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
     const isAuditor = user?.roleId === ROLE_IDS.AUDITOR || user?.roleName === 'auditor';
 
     const [cards, setCards] = useState([
-        { key: 'totalSales', title: 'Total Sales', value: 0, icon: <HiOutlineBanknotes />, bgColor: 'bg-green-500 dark:bg-green-600' },
-        { key: 'stock', title: 'Total Products', value: 0, icon: <HiOutlineBuildingStorefront />, bgColor: 'bg-sky-500 dark:bg-sky-600' },
+        { key: 'totalSales', title: 'Total Sales', value: 0, icon: <HiOutlineBanknotes />, bgColor: 'bg-green-500 dark:bg-green-500' },
+        { key: 'stock', title: 'Total Products', value: 0, icon: <HiOutlineBuildingStorefront />, bgColor: 'bg-sky-500 dark:bg-sky-500' },
         { key: 'allCustomers', title: 'Total Customers', value: 0, icon: <HiOutlineUserGroup />, bgColor: 'bg-purple-500 dark:bg-purple-600' },
         { key: 'myTotalTransactions', title: 'Total Transactions', value: 0, icon: <FileText size={20} />, bgColor: 'bg-orange-500 dark:bg-orange-600' },
     ]);
@@ -119,7 +119,7 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
             <div className="bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/40 rounded-lg p-4 shadow-sm">
                 <div className="flex items-center">
                     <div className="p-2 bg-sky-100 dark:bg-sky-900/40 rounded-lg mr-3">
-                        {isAuditor ? <Eye className="w-5 h-5 text-sky-600 dark:text-sky-400" /> : <Lock className="w-5 h-5 text-sky-600 dark:text-sky-400" />}
+                        {isAuditor ? <Eye className="w-5 h-5 text-sky-500 dark:text-sky-400" /> : <Lock className="w-5 h-5 text-sky-500 dark:text-sky-400" />}
                     </div>
                     <div>
                         <h3 className="text-sky-900 dark:text-sky-200 font-semibold">
@@ -157,7 +157,7 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
                         headers={topProductsHeaders}
                         data={topProductsData}
                         renderRow={p => <RenderTopProductRow product={p} />}
-                        icon={<RiMedicineBottleFill className="mr-2 text-sky-600 dark:text-sky-400" />}
+                        icon={<RiMedicineBottleFill className="mr-2 text-sky-500 dark:text-sky-400" />}
                     />
                 </div>
 
@@ -171,7 +171,7 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
                                     <div className="flex items-center justify-between gap-3">
                                         <div className="flex items-center gap-2">
                                             <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-sm">
-                                                <HiOutlineCurrencyDollar className="text-green-600 dark:text-green-400 w-5 h-5" />
+                                                <HiOutlineCurrencyDollar className="text-green-500 dark:text-green-400 w-5 h-5" />
                                             </div>
                                             <div>
                                                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -211,14 +211,14 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                            <BarChart2 className="text-green-600 dark:text-green-400 w-5 h-5" />
+                            <BarChart2 className="text-green-500 dark:text-green-400 w-5 h-5" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Sales Summary</h3>
                     </div>
                     <div className="space-y-4">
                         <div className="flex justify-between items-center">
                             <span className="text-gray-600 dark:text-gray-400">Total Revenue</span>
-                            <span className="font-semibold text-green-600 dark:text-green-400">
+                            <span className="font-semibold text-green-500 dark:text-green-400">
                                 {formatCurrency(Number(dashboardCounts.totalSales) || 0)}
                             </span>
                         </div>
@@ -241,7 +241,7 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
-                            <HiOutlineBuildingStorefront className="text-sky-600 dark:text-sky-400 w-5 h-5" />
+                            <HiOutlineBuildingStorefront className="text-sky-500 dark:text-sky-400 w-5 h-5" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Inventory Summary</h3>
                     </div>
@@ -262,7 +262,7 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
                     {isAuditor && (
                         <Link
                             to={ROUTES.INVENTORY}
-                            className="block mt-4 text-center text-sky-600 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 text-sm font-medium"
+                            className="block mt-4 text-center text-sky-500 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 text-sm font-medium"
                         >
                             View Full Inventory →
                         </Link>
@@ -302,7 +302,7 @@ const ReadOnlyDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoad
                     {isAuditor && (
                         <Link
                             to={ROUTES.SALES}
-                            className="block mt-4 text-center text-sky-600 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 text-sm font-medium"
+                            className="block mt-4 text-center text-sky-500 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 text-sm font-medium"
                         >
                             View All Sales →
                         </Link>

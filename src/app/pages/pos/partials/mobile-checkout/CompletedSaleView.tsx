@@ -32,8 +32,8 @@ const CompletedSaleView: FunctionComponent<CompletedSaleViewProps> = ({
                             <CheckCircle className="w-14 h-14 text-emerald-500 animate-check-draw" strokeWidth={3} />
                         </div>
                     </div>
-                    <div className="absolute inset-0 rounded-full border-4 border-emerald-300 dark:border-emerald-600 animate-ring-expand opacity-0" />
-                    <div className="absolute inset-0 rounded-full border-4 border-emerald-300 dark:border-emerald-600 animate-ring-expand-delay opacity-0" />
+                    <div className="absolute inset-0 rounded-full border-4 border-emerald-300 dark:border-emerald-500 animate-ring-expand opacity-0" />
+                    <div className="absolute inset-0 rounded-full border-4 border-emerald-300 dark:border-emerald-500 animate-ring-expand-delay opacity-0" />
                 </div>
 
                 <p className="text-gray-500 dark:text-gray-400 mb-6">
@@ -50,7 +50,7 @@ const CompletedSaleView: FunctionComponent<CompletedSaleViewProps> = ({
                     {paymentMethodId === CHECKOUT.CASH && changeAmount > 0 && (
                         <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700">
                             <span className="text-gray-600 dark:text-gray-400">Change</span>
-                            <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                            <span className="text-xl font-bold text-emerald-500 dark:text-emerald-400">
                                 {formatCurrency(changeAmount, true)}
                             </span>
                         </div>
@@ -62,13 +62,13 @@ const CompletedSaleView: FunctionComponent<CompletedSaleViewProps> = ({
                 <button
                     onClick={onGetReceipt}
                     disabled={isPrintingReceipt}
-                    className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white font-semibold rounded-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-sky-500 hover:bg-sky-500 active:bg-sky-700 text-white font-semibold rounded-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {isPrintingReceipt ? 'Printing...' : 'PRINT RECEIPT'}
+                    {isPrintingReceipt ? 'Sharing...' : 'Get Receipt'}
                 </button>
                 <button
                     onClick={onNewTransaction}
-                    className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-semibold rounded-sm transition-all"
+                    className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-emerald-500 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold rounded-sm transition-all"
                 >
                     NEW SALE
                 </button>

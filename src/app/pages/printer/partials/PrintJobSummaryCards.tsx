@@ -80,7 +80,7 @@ export const getDefaultPrintJobSummaryCards = (
             title: 'Total',
             value: total,
             icon: <FileText className="w-4 h-4" />,
-            color: 'text-sky-600 dark:text-sky-400',
+            color: 'text-sky-500 dark:text-sky-400',
             bgColor: 'bg-sky-50 dark:bg-sky-900/20'
         },
         {
@@ -94,21 +94,21 @@ export const getDefaultPrintJobSummaryCards = (
             title: 'Printing',
             value: printing,
             icon: <Loader2 className="w-4 h-4" />,
-            color: 'text-sky-600 dark:text-sky-400',
+            color: 'text-sky-500 dark:text-sky-400',
             bgColor: 'bg-sky-50 dark:bg-sky-900/20'
         },
         {
             title: 'Completed',
             value: completed,
             icon: <CheckCircle className="w-4 h-4" />,
-            color: 'text-green-600 dark:text-green-400',
+            color: 'text-green-500 dark:text-green-400',
             bgColor: 'bg-green-50 dark:bg-green-900/20'
         },
         {
             title: 'Failed',
             value: failed,
             icon: <XCircle className="w-4 h-4" />,
-            color: 'text-red-600 dark:text-red-400',
+            color: 'text-red-500 dark:text-red-400',
             bgColor: 'bg-red-50 dark:bg-red-900/20'
         },
         {

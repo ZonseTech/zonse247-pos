@@ -42,8 +42,8 @@ const ProfileOverviewCard: FunctionComponent<Props> = ({ user }) => {
                     </div>
                     <p className="text-gray-600 dark:text-gray-400 mt-1">@{user?.username}</p>
                     <div className="flex items-center gap-2 mt-2">
-                        <BadgeCheckIcon className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-                        <span className="text-sm font-medium text-sky-600 dark:text-sky-400">
+                        <BadgeCheckIcon className="w-4 h-4 text-sky-500 dark:text-sky-400" />
+                        <span className="text-sm font-medium text-sky-500 dark:text-sky-400">
                             {formatRoleName(user?.roleName)}
                         </span>
                     </div>

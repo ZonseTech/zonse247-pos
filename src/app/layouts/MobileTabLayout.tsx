@@ -23,7 +23,7 @@ const MobileTabLayout: FunctionComponent<MobileTabLayoutProps> = ({ children }) 
     const activeTabId = useMemo(() => {
         const path = location.pathname;
         if (path === ROUTES.DASHBOARD || path.startsWith(ROUTES.DASHBOARD + '/')) return 'reports';
-        if (path === ROUTES.SALES || path.startsWith(ROUTES.SALES + '/')) return 'today';
+        if (path === ROUTES.TODAY_SALES || path.startsWith(ROUTES.TODAY_SALES + '/')) return 'today';
         if (path === ROUTES.POS || path.startsWith(ROUTES.POS + '/')) return 'counter';
         if (path === ROUTES.ITEMS || path.startsWith(ROUTES.ITEMS + '/')) return 'items';
         return '';
@@ -40,7 +40,7 @@ const MobileTabLayout: FunctionComponent<MobileTabLayoutProps> = ({ children }) 
             id: 'today',
             label: 'Today',
             icon: <FaCircleDollarToSlot className="w-6 h-6" />,
-            route: ROUTES.SALES,
+            route: ROUTES.TODAY_SALES,
         },
         {
             id: 'counter',
@@ -115,7 +115,7 @@ const MobileTabLayout: FunctionComponent<MobileTabLayoutProps> = ({ children }) 
     };
 
     return (
-        <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex flex-col h-full overflow-hidden bg-gray-100 dark:bg-gray-900">
 
             <div className="flex-1 min-h-0 overflow-hidden pb-[52px]">
                 {children || <Outlet />}

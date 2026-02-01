@@ -47,8 +47,8 @@ const MobileBottomNav: FunctionComponent<MobileBottomNavProps> = ({ items, activ
                             key={item.id}
                             onClick={() => handleItemPress(item)}
                             className={`flex-1 flex flex-col items-center justify-center py-1.5 px-2 transition-all min-h-[52px] rounded-none mx-0.5 ${active
-                                ? 'bg-sky-600 dark:bg-sky-700 text-white'
-                                : 'text-sky-600 dark:text-sky-400 active:bg-sky-50 dark:active:bg-sky-900/30'
+                                ? 'bg-sky-500 dark:bg-sky-700 text-white'
+                                : 'text-sky-500 dark:text-sky-400 active:bg-sky-50 dark:active:bg-sky-900/30'
                                 }`}
                         >
                             <div className={`relative mb-1 ${active ? 'scale-105' : ''} transition-transform`}>

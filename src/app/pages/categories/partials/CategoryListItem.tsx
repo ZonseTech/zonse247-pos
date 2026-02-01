@@ -40,7 +40,7 @@ export const CategoryListItem: FunctionComponent<CategoryListItemProps> = ({ cat
                 <div className="flex items-center gap-0.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button
                         onClick={() => onEdit(category)}
-                        className="p-1.5 sm:p-2 text-sky-600 dark:text-sky-400 sm:text-gray-400 sm:dark:text-gray-500 sm:hover:text-sky-600 sm:dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/30 rounded-lg transition-colors"
+                        className="p-1.5 sm:p-2 text-sky-500 dark:text-sky-400 sm:text-gray-400 sm:dark:text-gray-500 sm:hover:text-sky-500 sm:dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/30 rounded-lg transition-colors"
                     >
                         <Edit2 className="w-4 h-4" />
                     </button>
@@ -48,7 +48,7 @@ export const CategoryListItem: FunctionComponent<CategoryListItemProps> = ({ cat
                         onClick={() => onDelete(category.categoryId)}
                         className={`p-1.5 sm:p-2 rounded-lg transition-colors ${category.itemCount > 0
                             ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                            : 'text-red-500 dark:text-red-400 sm:text-gray-400 sm:dark:text-gray-500 sm:hover:text-red-600 sm:dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30'
+                            : 'text-red-500 dark:text-red-400 sm:text-gray-400 sm:dark:text-gray-500 sm:hover:text-red-500 sm:dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30'
                             }`}
                         disabled={category.itemCount > 0}
                     >

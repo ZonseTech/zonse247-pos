@@ -50,7 +50,7 @@ const BranchManagement: FunctionComponent = () => {
                 icon: 'total',
                 bgColor: 'bg-sky-50 dark:bg-sky-900/20',
                 iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
-                textColor: 'text-sky-600 dark:text-sky-400',
+                textColor: 'text-sky-500 dark:text-sky-400',
             },
             {
                 title: 'Active',
@@ -58,7 +58,7 @@ const BranchManagement: FunctionComponent = () => {
                 icon: 'active',
                 bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
                 iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
-                textColor: 'text-emerald-600 dark:text-emerald-400',
+                textColor: 'text-emerald-500 dark:text-emerald-400',
             },
             {
                 title: 'Inactive',
@@ -74,7 +74,7 @@ const BranchManagement: FunctionComponent = () => {
                 icon: 'pending',
                 bgColor: 'bg-amber-50 dark:bg-amber-900/20',
                 iconBgColor: 'bg-amber-100 dark:bg-amber-900/40',
-                textColor: 'text-amber-600 dark:text-amber-400',
+                textColor: 'text-amber-500 dark:text-amber-400',
             },
         ];
     }, [filteredBranches, totalRows]);
@@ -132,7 +132,7 @@ const BranchManagement: FunctionComponent = () => {
                 <PageHeader
                     title='Branches'
                     description='Manage your branch locations and settings'
-                    icon={<HiOutlineBuildingStorefront className="w-7 h-7 sm:w-8 sm:h-8 text-sky-600 dark:text-sky-400" />}
+                    icon={<HiOutlineBuildingStorefront className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                     action={
                         <div className='flex items-center justify-between gap-2'>
                             {!isMobile && (

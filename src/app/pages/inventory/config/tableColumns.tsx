@@ -57,7 +57,7 @@ export const getInventoryColumns = (
                         color=''
                         icon={
                             <HiOutlinePencilAlt
-                                className='w-5 h-5 text-green-600'
+                                className='w-5 h-5 text-green-500'
                                 onClick={() => handleEditItem(row as InventoryItem)}
                             />} />}
 
@@ -65,7 +65,7 @@ export const getInventoryColumns = (
                         color=''
                         icon={
                             <HiOutlineTrash
-                                className='w-5 h-5 text-red-600'
+                                className='w-5 h-5 text-red-500'
                                 onClick={() => handleVoidItem((row.productId.toString()))}
                             />} />
                 </Fragment>

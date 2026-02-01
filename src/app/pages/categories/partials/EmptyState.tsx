@@ -35,7 +35,7 @@ export const EmptyState: FunctionComponent<EmptyStateProps> = ({ searchTerm, onC
         {!searchTerm && (
             <button
                 onClick={onCreateCategory}
-                className="group bg-gradient-to-r from-sky-600 to-sky-700 dark:from-sky-500 dark:to-sky-600 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl hover:from-sky-700 hover:to-sky-800 dark:hover:from-sky-600 dark:hover:to-sky-700 transition-all duration-200 inline-flex items-center gap-2 shadow-lg shadow-sky-500/25 hover:shadow-xl hover:shadow-sky-500/30 active:scale-[0.98]"
+                className="group bg-gradient-to-r from-sky-500 to-sky-700 dark:from-sky-500 dark:to-sky-500 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl hover:from-sky-700 hover:to-sky-800 dark:hover:from-sky-500 dark:hover:to-sky-700 transition-all duration-200 inline-flex items-center gap-2 shadow-lg shadow-sky-500/25 hover:shadow-xl hover:shadow-sky-500/30 active:scale-[0.98]"
             >
                 <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-200" />
                 <span className="font-medium">Create Category</span>

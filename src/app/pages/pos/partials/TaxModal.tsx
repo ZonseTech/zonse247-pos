@@ -142,7 +142,7 @@ const TaxModal: FunctionComponent<TaxModalProps> = ({
                         </div>
                     </div>
                     {error && (
-                        <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>
+                        <p className="mt-2 text-sm text-red-500 dark:text-red-400">{error}</p>
                     )}
                 </div>
 
@@ -161,7 +161,7 @@ const TaxModal: FunctionComponent<TaxModalProps> = ({
                                         className="w-full flex items-center justify-between p-3 rounded-sm border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                                     >
                                         <span className="font-medium text-gray-800 dark:text-gray-100">{preset.name}</span>
-                                        <span className="text-sky-600 dark:text-sky-400 font-semibold">
+                                        <span className="text-sky-500 dark:text-sky-400 font-semibold">
                                             {preset.value}%
                                         </span>
                                     </button>
@@ -184,7 +184,7 @@ const TaxModal: FunctionComponent<TaxModalProps> = ({
                         className={classNames(
                             "flex-1 py-3 px-4 rounded-sm font-medium transition-colors",
                             isValidTax
-                                ? "bg-sky-500 text-white hover:bg-sky-600"
+                                ? "bg-sky-500 text-white hover:bg-sky-500"
                                 : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
                         )}
                     >

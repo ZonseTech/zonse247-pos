@@ -40,7 +40,7 @@ const UserMobileCard: FC<UserMobileCardProps> = ({
         <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-start gap-3">
                 {/* Avatar */}
-                {/* <div className="w-12 h-12 bg-gradient-to-br from-sky-500 to-sky-600 rounded-full flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
+                {/* <div className="w-12 h-12 bg-gradient-to-br from-sky-500 to-sky-500 rounded-full flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
                     {getInitials(user.fullname || user.username || '')}
                 </div> */}
 
@@ -84,14 +84,14 @@ const UserMobileCard: FC<UserMobileCardProps> = ({
                     <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                         <button
                             onClick={() => onEdit(user)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-sky-500 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
                         >
                             <Edit2 className="w-4 h-4" />
                             <span>Edit</span>
                         </button>
                         <button
                             onClick={() => onResetPassword(userId)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-amber-500 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
                         >
                             <Key className="w-4 h-4" />
                             <span>Reset</span>
@@ -100,7 +100,7 @@ const UserMobileCard: FC<UserMobileCardProps> = ({
                             onClick={() => onToggleStatus(userId, user.status === 'active' ? 'inactive' : 'active')}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${user.status === 'active'
                                 ? 'text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20'
-                                : 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
+                                : 'text-green-500 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
                                 }`}
                         >
                             {user.status === 'active' ? <Lock className="w-4 h-4" /> : <LockOpen className="w-4 h-4" />}
@@ -108,7 +108,7 @@ const UserMobileCard: FC<UserMobileCardProps> = ({
                         </button>
                         <button
                             onClick={() => onDelete(userId)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ml-auto"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ml-auto"
                         >
                             <Trash2 className="w-4 h-4" />
                         </button>

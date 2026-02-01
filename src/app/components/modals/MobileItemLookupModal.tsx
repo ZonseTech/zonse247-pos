@@ -1,8 +1,7 @@
 import { Package, ArrowLeft, Check, ShoppingCart } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { formatCurrency } from '../../utils';
-import { useState, useEffect, FunctionComponent, useRef } from 'react';
-import { HiSearch } from 'react-icons/hi';
+import { useState, useEffect, FunctionComponent } from 'react';
 import { BsUpcScan } from 'react-icons/bs';
 import { useAppSelector } from '../../hooks/redux';
 import { useNavigate } from 'react-router-dom';
@@ -27,7 +26,6 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
 }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredItems, setFilteredItems] = useState<InventoryItem[]>([]);
-    const inputRef = useRef<HTMLInputElement>(null);
 
     const cartItems = useAppSelector((state) => state.cart.items);
 
@@ -36,10 +34,6 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
             setSearchTerm('');
             return;
         }
-
-        setTimeout(() => {
-            inputRef.current?.focus();
-        }, 100);
 
         let filtered = inventory.filter(item => {
             if (item.expirationDate && new Date(item.expirationDate) < new Date()) {
@@ -105,7 +99,6 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
                             <ArrowLeft className="w-5 h-5" />
                         </button>
                         <input
-                            ref={inputRef}
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -147,7 +140,7 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
                                 >
                                     {multiSelect && (
                                         <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${isSelected
-                                            ? 'bg-sky-600 text-white'
+                                            ? 'bg-sky-500 text-white'
                                             : 'border-2 border-gray-300 dark:border-gray-600'
                                             }`}>
                                             {isSelected && (
@@ -178,7 +171,7 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
                                     </div>
 
                                     <div className="text-right flex-shrink-0">
-                                        <div className="font-bold text-sky-600 dark:text-sky-400">
+                                        <div className="font-bold text-sky-500 dark:text-sky-400">
                                             {formatCurrency(parseFloat((item.sellPrice || 0).toString()))}
                                         </div>
                                         <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -209,9 +202,8 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
                 <div className="fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-10">
                     <button
                         onClick={handleGoToCounter}
-                        className="w-full py-3 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-semibold rounded-sm flex items-center justify-center gap-2 transition-colors"
+                        className="w-full py-3 uppercase bg-green-500 hover:bg-green-500 active:bg-green-800 text-white font-semibold rounded-sm flex items-center justify-center gap-2 transition-colors"
                     >
-                        <ShoppingCart className="w-5 h-5" />
                         <span>Go To Counter ({getTotalCartCount()} Items)</span>
                     </button>
                 </div>

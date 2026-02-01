@@ -163,7 +163,7 @@ const SupplierForm: FunctionComponent = () => {
                     <PageHeader
                         title={isEditMode ? 'Edit Supplier' : 'Add New Supplier'}
                         description={isEditMode ? 'Update supplier information' : 'Required fields are marked with an asterisk (*)'}
-                        icon={<Truck className="w-8 h-8 text-sky-600" />}
+                        icon={<Truck className="w-8 h-8 text-sky-500" />}
                     />
                 </div>
 

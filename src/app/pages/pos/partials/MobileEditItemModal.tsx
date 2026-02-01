@@ -166,7 +166,7 @@ const MobileEditItemModal: FunctionComponent<MobileEditItemModalProps> = ({
                         <button
                             onClick={handleIncrement}
                             disabled={quantity >= getMaxStock()}
-                            className="w-14 h-14 flex items-center justify-center rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
+                            className="w-14 h-14 flex items-center justify-center rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-500 dark:text-sky-400 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
                         >
                             <Plus className="w-6 h-6" />
                         </button>
@@ -184,7 +184,7 @@ const MobileEditItemModal: FunctionComponent<MobileEditItemModalProps> = ({
                                 name="offerType"
                                 checked={offerType === 'discount'}
                                 onChange={() => setOfferType('discount')}
-                                className="w-5 h-5 text-sky-600 border-gray-300 focus:ring-sky-500"
+                                className="w-5 h-5 text-sky-500 border-gray-300 focus:ring-sky-500"
                             />
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Give Discount
@@ -196,7 +196,7 @@ const MobileEditItemModal: FunctionComponent<MobileEditItemModalProps> = ({
                                 name="offerType"
                                 checked={offerType === 'free'}
                                 onChange={() => setOfferType('free')}
-                                className="w-5 h-5 text-sky-600 border-gray-300 focus:ring-sky-500"
+                                className="w-5 h-5 text-sky-500 border-gray-300 focus:ring-sky-500"
                             />
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Give as Free
@@ -210,7 +210,7 @@ const MobileEditItemModal: FunctionComponent<MobileEditItemModalProps> = ({
                                 <button
                                     onClick={() => setDiscountType('percentage')}
                                     className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${discountType === 'percentage'
-                                        ? 'bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 border-2 border-sky-500'
+                                        ? 'bg-sky-100 dark:bg-sky-900/30 text-sky-500 dark:text-sky-400 border-2 border-sky-500'
                                         : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 border-2 border-transparent'
                                         }`}
                                 >
@@ -219,7 +219,7 @@ const MobileEditItemModal: FunctionComponent<MobileEditItemModalProps> = ({
                                 <button
                                     onClick={() => setDiscountType('price')}
                                     className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${discountType === 'price'
-                                        ? 'bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 border-2 border-sky-500'
+                                        ? 'bg-sky-100 dark:bg-sky-900/30 text-sky-500 dark:text-sky-400 border-2 border-sky-500'
                                         : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 border-2 border-transparent'
                                         }`}
                                 >

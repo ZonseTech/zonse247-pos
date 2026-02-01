@@ -86,7 +86,7 @@ const BranchSwitchModal: FunctionComponent<BranchSwitchModalProps> = ({
                                             ? "bg-sky-50 dark:bg-sky-900/20 border-2 border-sky-500"
                                             : isDisabled
                                                 ? "bg-gray-50 dark:bg-gray-800/50 opacity-60 cursor-not-allowed"
-                                                : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-sky-300 dark:hover:border-sky-600 hover:bg-sky-50/50 dark:hover:bg-sky-900/10 active:scale-[0.98]"
+                                                : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-sky-300 dark:hover:border-sky-500 hover:bg-sky-50/50 dark:hover:bg-sky-900/10 active:scale-[0.98]"
                                     )}
                                 >
                                     <div className={classNames(
@@ -98,7 +98,7 @@ const BranchSwitchModal: FunctionComponent<BranchSwitchModalProps> = ({
                                         <Building2 className={classNames(
                                             "w-5 h-5",
                                             isCurrentBranch
-                                                ? "text-sky-600 dark:text-sky-400"
+                                                ? "text-sky-500 dark:text-sky-400"
                                                 : "text-gray-500 dark:text-gray-400"
                                         )} />
                                     </div>

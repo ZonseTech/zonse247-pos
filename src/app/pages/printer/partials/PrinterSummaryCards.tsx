@@ -71,14 +71,14 @@ export const getDefaultPrinterSummaryCards = (
             title: 'Total',
             value: total,
             icon: <Printer className="w-4 h-4" />,
-            color: 'text-sky-600 dark:text-sky-400',
+            color: 'text-sky-500 dark:text-sky-400',
             bgColor: 'bg-sky-50 dark:bg-sky-900/20'
         },
         {
             title: 'Online',
             value: online,
             icon: <Wifi className="w-4 h-4" />,
-            color: 'text-green-600 dark:text-green-400',
+            color: 'text-green-500 dark:text-green-400',
             bgColor: 'bg-green-50 dark:bg-green-900/20'
         },
         {

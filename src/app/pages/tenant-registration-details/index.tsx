@@ -81,7 +81,7 @@ const TenantRegistrationDetails: FunctionComponent = () => {
                 <PageHeader
                     title='Registration Details'
                     description='View and manage tenant registration details'
-                    icon={<ClipboardList className="w-8 h-8 text-sky-600 dark:text-sky-400" />}
+                    icon={<ClipboardList className="w-8 h-8 text-sky-500 dark:text-sky-400" />}
                     action={
                         <div className="flex items-center space-x-4">
                             <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />

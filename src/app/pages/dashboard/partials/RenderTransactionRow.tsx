@@ -14,7 +14,7 @@ const RenderTransactionRow: FunctionComponent<Props> = ({ trans, setIsOpenDetail
 		<tr className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-200">
 			<td className="px-6 py-4 whitespace-nowrap">
 				<div
-					className="text-sm font-medium text-green-600 dark:text-green-400 cursor-pointer hover:text-green-700 dark:hover:text-green-300 transition-colors duration-200 hover:underline focus:outline-none focus:ring-2 focus:ring-green-500/20 dark:focus:ring-green-400/20 rounded-sm px-1 -mx-1"
+					className="text-sm font-medium text-green-500 dark:text-green-400 cursor-pointer hover:text-green-700 dark:hover:text-green-300 transition-colors duration-200 hover:underline focus:outline-none focus:ring-2 focus:ring-green-500/20 dark:focus:ring-green-400/20 rounded-sm px-1 -mx-1"
 					onClick={() => {
 						setIsOpenDetails(prev => !prev)
 						setTransaction(trans)

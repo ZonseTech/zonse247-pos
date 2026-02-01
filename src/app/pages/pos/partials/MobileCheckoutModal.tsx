@@ -114,9 +114,6 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
             setProcessingStep('validating');
             await simulateDelay(500);
 
-            setProcessingStep('processing');
-            await simulateDelay(800);
-
             setProcessingStep('saving');
 
             const refNumber = generateReferenceNumber();
@@ -154,7 +151,7 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
                 ? Math.max(0, parseFloat(values.cashTendered) - total)
                 : 0;
 
-            const completedSaleData: Transaction = {
+            const completedSaleData = {
                 id: sale.id,
                 refNumber: (sale as any).saleNumber || refNumber,
                 transactionId: sale.id,
@@ -177,6 +174,16 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
 
             setChangeAmount(calculatedChange);
             setCompletedSale(completedSaleData);
+
+            setProcessingStep('printing');
+            try {
+                await printerService.printReceipt({
+                    saleId: sale.id,
+                    transactionId: sale.id,
+                });
+            } catch (printError) {
+                Report.failure('Print Error', 'Failed to print receipt. Please try again.', 'OK');
+            }
 
             setProcessingStep('completed');
 

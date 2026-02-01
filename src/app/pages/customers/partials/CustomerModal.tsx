@@ -131,7 +131,7 @@ const CustomerModal: FunctionComponent<CustomerModalProps> = ({
                                             disabled={true}
                                             checked={values.isDefault}
                                             onChange={(e) => setFieldValue('isDefault', e.target.checked)}
-                                            className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700"
+                                            className="w-4 h-4 text-emerald-500 border-gray-300 rounded focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700"
                                         />
                                         <span className="text-sm text-gray-700 dark:text-gray-300">
                                             Set as Default Customer

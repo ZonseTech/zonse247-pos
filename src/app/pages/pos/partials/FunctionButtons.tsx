@@ -32,17 +32,17 @@ interface FunctionButtonsProps {
 const colorClasses: Record<ButtonColorType, { base: string; hover: string; active: string }> = {
     red: {
         base: 'bg-red-500',
-        hover: 'hover:bg-red-600',
+        hover: 'hover:bg-red-500',
         active: 'active:bg-red-700'
     },
     blue: {
         base: 'bg-sky-500',
-        hover: 'hover:bg-sky-600',
+        hover: 'hover:bg-sky-500',
         active: 'active:bg-sky-700'
     },
     green: {
         base: 'bg-green-500',
-        hover: 'hover:bg-green-600',
+        hover: 'hover:bg-green-500',
         active: 'active:bg-green-700'
     },
     orange: {

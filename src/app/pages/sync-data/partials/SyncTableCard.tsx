@@ -114,13 +114,13 @@ const SyncTableCard: FunctionComponent<SyncTableCardProps> = ({
                         <p className="text-xs text-slate-500 dark:text-slate-400">Total</p>
                     </div>
                     <div className="text-center border-x border-slate-200 dark:border-slate-700">
-                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                        <p className="text-2xl font-bold text-green-500 dark:text-green-400">
                             {table.syncedCount.toLocaleString()}
                         </p>
                         <p className="text-xs text-slate-500 dark:text-slate-400">Synced</p>
                     </div>
                     <div className="text-center">
-                        <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                        <p className="text-2xl font-bold text-amber-500 dark:text-amber-400">
                             {table.pendingCount.toLocaleString()}
                         </p>
                         <p className="text-xs text-slate-500 dark:text-slate-400">Pending</p>
@@ -163,7 +163,7 @@ const SyncTableCard: FunctionComponent<SyncTableCardProps> = ({
                     <button
                         onClick={() => onPull(table.name)}
                         disabled={isSyncing}
-                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-sky-600 hover:bg-sky-700 disabled:bg-sky-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-sky-500 hover:bg-sky-700 disabled:bg-sky-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
                     >
                         {isLoading[`${table.name}-pull`] ? (
                             <HiOutlineRefresh className="w-4 h-4 animate-spin" />
@@ -175,7 +175,7 @@ const SyncTableCard: FunctionComponent<SyncTableCardProps> = ({
                     <button
                         onClick={() => onPush(table.name)}
                         disabled={isSyncing}
-                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-500 hover:bg-emerald-700 disabled:bg-emerald-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
                     >
                         {isLoading[`${table.name}-push`] ? (
                             <HiOutlineRefresh className="w-4 h-4 animate-spin" />
@@ -223,7 +223,7 @@ const SyncTableCard: FunctionComponent<SyncTableCardProps> = ({
                             <HiOutlineRefresh className="w-3.5 h-3.5" />
                             Auto-sync enabled
                         </span>
-                        <span className="text-green-600 dark:text-green-500">
+                        <span className="text-green-500 dark:text-green-500">
                             Every {table.syncInterval} min
                         </span>
                     </div>

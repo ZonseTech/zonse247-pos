@@ -18,7 +18,7 @@ export const DetailActions: React.FC<DetailActionsProps> = ({
     <div className="flex items-center space-x-2">
         <button
             onClick={() => onView(detail.detailId)}
-            className="p-1 rounded transition-colors text-sky-600 hover:text-sky-800"
+            className="p-1 rounded transition-colors text-sky-500 hover:text-sky-800"
             title="View details"
         >
             <Eye className="w-4 h-4" />
@@ -27,7 +27,7 @@ export const DetailActions: React.FC<DetailActionsProps> = ({
         {!detail.isProcessed && (
             <button
                 onClick={() => onMarkProcessed(detail.detailId)}
-                className="text-xs px-2 py-1 rounded transition-colors text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100"
+                className="text-xs px-2 py-1 rounded transition-colors text-green-500 hover:text-green-800 bg-green-50 hover:bg-green-100"
                 title="Mark as processed"
             >
                 <CheckCircle className="w-4 h-4" />
@@ -36,7 +36,7 @@ export const DetailActions: React.FC<DetailActionsProps> = ({
 
         <button
             onClick={() => onDelete(detail.detailId, detail.businessName)}
-            className="p-1 rounded transition-colors text-red-600 hover:text-red-800"
+            className="p-1 rounded transition-colors text-red-500 hover:text-red-800"
             title="Delete"
         >
             <Trash2 className="w-4 h-4" />
@@ -55,7 +55,7 @@ export const getDetailColumns = (
                 <Fragment>
                     <div className="flex items-center">
                         <div className="w-10 h-10 bg-sky-100 rounded-full flex items-center justify-center">
-                            <Building2 className="w-5 h-5 text-sky-600" />
+                            <Building2 className="w-5 h-5 text-sky-500" />
                         </div>
                         <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900 dark:text-gray-100">

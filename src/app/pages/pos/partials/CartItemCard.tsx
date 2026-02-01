@@ -51,7 +51,7 @@ const CartItemCard: FunctionComponent<CartItemProps> = ({ customPriceInputs,
                                                 {formatCurrency(item.sellPrice * item.quantity)}
                                             </span>
                                             {item.discount > 0 && (
-                                                <span className="text-green-600 dark:text-green-400 text-xs">
+                                                <span className="text-green-500 dark:text-green-400 text-xs">
                                                     -{formatCurrency(item.discount)}
                                                 </span>
                                             )}

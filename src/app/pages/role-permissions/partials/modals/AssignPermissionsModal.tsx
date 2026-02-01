@@ -247,7 +247,7 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
                                         <button
                                             type="button"
                                             onClick={() => handleSelectAll(setFieldValue, values.selectedPermissions)}
-                                            className="text-sm text-green-600 hover:text-green-800 disabled:opacity-50"
+                                            className="text-sm text-green-500 hover:text-green-800 disabled:opacity-50"
                                             disabled={savingPermissions.size > 0}
                                         >
                                             Assign All
@@ -255,7 +255,7 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
                                         <button
                                             type="button"
                                             onClick={() => handleClearAll(setFieldValue, values.selectedPermissions)}
-                                            className="text-sm text-red-600 hover:text-red-800 disabled:opacity-50"
+                                            className="text-sm text-red-500 hover:text-red-800 disabled:opacity-50"
                                             disabled={savingPermissions.size > 0}
                                         >
                                             Remove All
@@ -266,7 +266,7 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
                                 {savingPermissions.size > 0 && (
                                     <div className="mb-4 p-3 bg-sky-50 border border-sky-200 rounded-lg">
                                         <div className="flex items-center">
-                                            <div className="w-4 h-4 border-2 border-sky-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                                            <div className="w-4 h-4 border-2 border-sky-500 border-t-transparent rounded-full animate-spin mr-2"></div>
                                             <span className="text-sm text-sky-800">
                                                 Updating {savingPermissions.size} permission(s)...
                                             </span>
@@ -307,11 +307,11 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
                                                                     checked={isAssigned}
                                                                     onChange={() => handlePermissionToggle(permission.permissionId, values, setFieldValue)}
                                                                     disabled={isBeingSaved}
-                                                                    className="mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500 disabled:opacity-50"
+                                                                    className="mt-1 rounded border-gray-300 text-green-500 focus:ring-green-500 disabled:opacity-50"
                                                                 />
                                                                 {isBeingSaved && (
                                                                     <div className="absolute inset-0 flex items-center justify-center">
-                                                                        <div className="w-3 h-3 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                                                                        <div className="w-3 h-3 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
                                                                     </div>
                                                                 )}
                                                             </div>
