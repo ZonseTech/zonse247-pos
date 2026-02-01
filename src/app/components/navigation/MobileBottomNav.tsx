@@ -55,7 +55,7 @@ const MobileBottomNav: FunctionComponent<MobileBottomNavProps> = ({ items, activ
                                 {item.icon}
                                 {item.badge !== undefined && item.badge > 0 && (
                                     <span className={`absolute -top-0.5 -right-5 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold rounded-full px-1 bg-emerald-500 text-white`}>
-                                        {item.badge > 99 ? '99+' : item.badge}
+                                        {item.badge > 9 ? '9+' : item.badge}
                                     </span>
                                 )}
                             </div>
