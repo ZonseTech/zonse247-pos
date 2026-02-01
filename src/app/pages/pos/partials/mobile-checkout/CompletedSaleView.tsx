@@ -9,7 +9,6 @@ interface CompletedSaleViewProps {
     total: number;
     changeAmount: number;
     paymentMethodId: PaymentMethod;
-    isPrintingReceipt: boolean;
     onGetReceipt: () => void;
     onNewTransaction: () => void;
 }
@@ -19,7 +18,6 @@ const CompletedSaleView: FunctionComponent<CompletedSaleViewProps> = ({
     total,
     changeAmount,
     paymentMethodId,
-    isPrintingReceipt,
     onGetReceipt,
     onNewTransaction,
 }) => {
@@ -61,14 +59,13 @@ const CompletedSaleView: FunctionComponent<CompletedSaleViewProps> = ({
             <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 space-y-3 safe-area-bottom">
                 <button
                     onClick={onGetReceipt}
-                    disabled={isPrintingReceipt}
-                    className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-sky-500 hover:bg-sky-500 active:bg-sky-700 text-white font-semibold rounded-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex items-center uppercase justify-center gap-3 py-4 px-6 bg-sky-500 hover:bg-sky-500 active:bg-sky-700 text-white font-semibold rounded-sm transition-all"
                 >
-                    {isPrintingReceipt ? 'Sharing...' : 'Get Receipt'}
+                    Get Receipt
                 </button>
                 <button
                     onClick={onNewTransaction}
-                    className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-emerald-500 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold rounded-sm transition-all"
+                    className="w-full flex items-center uppercase justify-center gap-3 py-4 px-6 bg-emerald-500 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold rounded-sm transition-all"
                 >
                     NEW SALE
                 </button>
