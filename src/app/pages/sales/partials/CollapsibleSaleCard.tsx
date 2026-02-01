@@ -16,6 +16,7 @@ interface CollapsibleSaleCardProps {
     onView?: (sale: Sale) => void;
     onReturn?: (sale: Sale) => void;
     onDelete?: (sale: Sale) => void;
+    showFullDate?: boolean;
 }
 
 const getPaymentName = (paymentMethodId?: string): string => {
@@ -38,9 +39,11 @@ const CollapsibleSaleCard: FunctionComponent<CollapsibleSaleCardProps> = ({
     onView,
     onReturn,
     onDelete,
+    showFullDate = false,
 }) => {
     const saleNumber = sale.saleNumber || sale.id?.slice(-8) || 'N/A';
     const itemCount = sale.items?.length || 0;
+    const dateFormat = showFullDate ? 'MMM D, YYYY h:mm A' : 'h:mm A';
 
     return (
         <div className="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -54,7 +57,7 @@ const CollapsibleSaleCard: FunctionComponent<CollapsibleSaleCardProps> = ({
                             {saleNumber}
                         </p>
                         <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                            <span>{dayjs(sale.createdAt).format('h:mm A')}</span>
+                            <span>{dayjs(sale.createdAt).format(dateFormat)}</span>
                             <span>•</span>
                             <span>{getPaymentName(sale.paymentMethodId)}</span>
                         </div>
