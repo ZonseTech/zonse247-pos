@@ -171,7 +171,7 @@ const TodaySales: FunctionComponent = () => {
                     {renderContent()}
 
                     <button
-                        onClick={() => navigate(ROUTES.SALES)}
+                        onClick={() => navigate(ROUTES.RECEIPTS)}
                         className="w-full flex items-center justify-center gap-2 py-4 text-sky-500 active:text-sky-700 bg-white dark:bg-gray-900 font-semibold rounded-sm transition-colors"
                     >
                         GET OLD RECEIPTS
