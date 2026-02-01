@@ -21,6 +21,7 @@ const Settings = lazy(() => import('../pages/settings'))
 const NotFound = lazy(() => import('../pages/errors/NotFound'))
 const SyncData = lazy(() => import('../pages/sync-data'))
 const Dashboard = lazy(() => import('../pages/dashboard'))
+const MobileReport = lazy(() => import('../pages/dashboard/MobileReport'))
 const LandingPage = lazy(() => import('../pages/landing'))
 const BranchManagement = lazy(() => import('../pages/branch'))
 const BranchForm = lazy(() => import('../pages/branch/create'));
@@ -70,17 +71,15 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 				{isNativeMobile ? (
 					<Route element={<MobileTabLayout />}>
 						<Route path={ROUTES.POS} element={<PointOfSale />} />
-						<Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
+						<Route path={ROUTES.MOBILE_REPORT} element={<MobileReport />} />
 						<Route path={ROUTES.TODAY_SALES} element={<TodaySales />} />
 						<Route path={ROUTES.ITEMS} element={<MobileInventory />} />
 					</Route>
 				) : (
-					<>
-						<Route path={ROUTES.POS} element={<PointOfSale />} />
-						<Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
-					</>
+					<Route path={ROUTES.POS} element={<PointOfSale />} />
 				)}
 
+				<Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
 				<Route path={ROUTES.RECEIPT_DETAILS} element={<MobileReceiptDetails />} />
 				<Route path={ROUTES.RECEIPTS} element={<MobileReceipt />} />
 				<Route path={ROUTES.SALES} element={<Sales />} />

@@ -22,7 +22,7 @@ const MobileTabLayout: FunctionComponent<MobileTabLayoutProps> = ({ children }) 
 
     const activeTabId = useMemo(() => {
         const path = location.pathname;
-        if (path === ROUTES.DASHBOARD || path.startsWith(ROUTES.DASHBOARD + '/')) return 'reports';
+        if (path === ROUTES.MOBILE_REPORT || path.startsWith(ROUTES.MOBILE_REPORT + '/')) return 'reports';
         if (path === ROUTES.TODAY_SALES || path.startsWith(ROUTES.TODAY_SALES + '/')) return 'today';
         if (path === ROUTES.POS || path.startsWith(ROUTES.POS + '/')) return 'counter';
         if (path === ROUTES.ITEMS || path.startsWith(ROUTES.ITEMS + '/')) return 'items';
@@ -34,7 +34,7 @@ const MobileTabLayout: FunctionComponent<MobileTabLayoutProps> = ({ children }) 
             id: 'reports',
             label: 'Reports',
             icon: <BarChart3 className="w-6 h-6" />,
-            route: ROUTES.DASHBOARD,
+            route: ROUTES.MOBILE_REPORT,
         },
         {
             id: 'today',
