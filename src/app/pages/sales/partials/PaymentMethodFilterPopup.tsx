@@ -13,7 +13,7 @@ interface PaymentMethodFilterPopupProps {
     isOpen: boolean;
     selectedPaymentMethod: string | null;
     onToggle: () => void;
-    onSelect: (methodId: string | null) => void;
+    onSelect: (methodId: string | null) => void; fabClassName?: string;
 }
 
 const paymentMethods: PaymentMethod[] = [
@@ -27,6 +27,7 @@ const PaymentMethodFilterPopup: FunctionComponent<PaymentMethodFilterPopupProps>
     selectedPaymentMethod,
     onToggle,
     onSelect,
+    fabClassName,
 }) => {
     const selectedMethod = paymentMethods.find(m => m.id === selectedPaymentMethod);
 
@@ -36,6 +37,7 @@ const PaymentMethodFilterPopup: FunctionComponent<PaymentMethodFilterPopupProps>
                 onClick={onToggle}
                 isActive={!!selectedPaymentMethod}
                 label={'Filter: ' + selectedMethod?.label}
+                className={fabClassName}
             />
 
             {isOpen ? (
