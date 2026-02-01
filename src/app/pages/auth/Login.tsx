@@ -1,7 +1,6 @@
 import * as Yup from 'yup';
 import { useState, useRef } from "react";
 import { Form, Formik } from 'formik'
-import { toast } from 'react-toastify'
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import { useNavigate } from 'react-router-dom'
@@ -14,7 +13,6 @@ import { useIsMobile, useIsEBN } from '../../hooks/useMediaQuery';
 import InputKeyboard from "../../components/InputKeyboard";
 import { useKeyboardSettings } from '../../hooks/useKeyboardSettings';
 import type { Dispatch, FunctionComponent, SetStateAction } from "react";
-import { Eye, EyeOff } from 'lucide-react';
 
 interface AuthProps {
     password: string;
@@ -93,7 +91,6 @@ const Login: FunctionComponent = () => {
     const handleSubmit = async (values: AuthProps): Promise<void> => {
         try {
             const user = await auth.signin(values)
-            toast.success('Welcome back! ' + user.user.fullname)
             navigate(ROUTES.POS);
         } catch (error: any) {
             setAuthError(error.message || 'Login failed. Please try again.');
