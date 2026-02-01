@@ -21,7 +21,7 @@ const FloatingFilterButton: FunctionComponent<FloatingFilterButtonProps> = ({
     const hasLabel = isActive && label;
 
     return (
-        <div className={`fixed bottom-16 right-4 z-40 ${className}`}>
+        <div className={`fixed bottom-20 right-4 z-40 ${className}`}>
             <button
                 onClick={onClick}
                 className={`rounded-full shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95 ${hasLabel ? 'px-4 h-12' : 'w-14 h-14'

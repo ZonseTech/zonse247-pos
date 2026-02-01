@@ -47,9 +47,6 @@ const MobilePagination: FunctionComponent<MobilePaginationProps> = ({
                 >
                     <ChevronLeft className="w-5 h-5" />
                 </button>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[60px] text-center">
-                    {currentPage} / {totalPages}
-                </span>
                 <button
                     onClick={handleNext}
                     disabled={currentPage === totalPages}
@@ -58,6 +55,9 @@ const MobilePagination: FunctionComponent<MobilePaginationProps> = ({
                 >
                     <ChevronRight className="w-5 h-5" />
                 </button>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[60px] text-center">
+                    {currentPage} / {totalPages}
+                </span>
             </div>
         </div>
     );

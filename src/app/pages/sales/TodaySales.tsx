@@ -68,8 +68,7 @@ const TodaySales: FunctionComponent = () => {
     };
 
     const handleViewSale = (sale: Sale) => {
-        // TODO: Navigate to sale details or open modal
-        console.log('View sale:', sale.id);
+        navigate(`${ROUTES.RECEIPT_DETAILS.replace(':saleId', sale.id)}`);
     };
 
     const handleReturnSale = (sale: Sale) => {
@@ -87,11 +86,6 @@ const TodaySales: FunctionComponent = () => {
         setCurrentPage(1);
         setIsFilterOpen(false);
     };
-
-    const totalSalesAmount = useMemo(() =>
-        sales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0),
-        [sales]
-    );
 
     const totalPages = Math.ceil(sales.length / ITEMS_PER_PAGE);
 

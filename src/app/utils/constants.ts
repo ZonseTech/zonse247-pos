@@ -7,6 +7,8 @@ export enum ROUTES {
 	DASHBOARD = '/dashboard',
 	SALES = '/sales',
 	TODAY_SALES = '/today-sales',
+	RECEIPTS = '/receipts',
+	RECEIPT_DETAILS = '/receipts/:saleId',
 	RETURNS = '/returns',
 	CATEGORIES = '/categories',
 	CUSTOMERS = '/customers',

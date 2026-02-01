@@ -1,6 +1,7 @@
 import { FunctionComponent } from 'react';
-import { Banknote, CreditCard, Smartphone, Eye, RotateCcw, Trash2 } from 'lucide-react';
+import { Eye, RotateCcw, Trash2 } from 'lucide-react';
 import { formatCurrency, formatDate } from '../../../utils';
+import dayjs from 'dayjs';
 
 const decodeHtmlEntities = (text: string): string => {
     const textarea = document.createElement('textarea');
@@ -17,29 +18,16 @@ interface CollapsibleSaleCardProps {
     onDelete?: (sale: Sale) => void;
 }
 
-const getPaymentIcon = (paymentMethodId?: string) => {
+const getPaymentName = (paymentMethodId?: string): string => {
     switch (paymentMethodId) {
         case 'cash':
-            return <Banknote className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />;
+            return 'Cash';
         case 'mobile-money':
-            return <Smartphone className="w-5 h-5 text-sky-500 dark:text-sky-400" />;
+            return 'Mobile Money';
         case 'bank-transfer':
-            return <CreditCard className="w-5 h-5 text-purple-600 dark:text-purple-400" />;
+            return 'Bank Transfer';
         default:
-            return <Banknote className="w-5 h-5 text-gray-600 dark:text-gray-400" />;
-    }
-};
-
-const getPaymentBgColor = (paymentMethodId?: string) => {
-    switch (paymentMethodId) {
-        case 'cash':
-            return 'bg-emerald-100 dark:bg-emerald-900/30';
-        case 'mobile-money':
-            return 'bg-sky-100 dark:bg-sky-900/30';
-        case 'bank-transfer':
-            return 'bg-purple-100 dark:bg-purple-900/30';
-        default:
-            return 'bg-gray-100 dark:bg-gray-800';
+            return paymentMethodId || 'Cash';
     }
 };
 
@@ -52,7 +40,6 @@ const CollapsibleSaleCard: FunctionComponent<CollapsibleSaleCardProps> = ({
     onDelete,
 }) => {
     const saleNumber = sale.saleNumber || sale.id?.slice(-8) || 'N/A';
-    const saleDate = sale.createdAt ? formatDate(sale.createdAt.toString()) : 'N/A';
     const itemCount = sale.items?.length || 0;
 
     return (
@@ -62,15 +49,14 @@ const CollapsibleSaleCard: FunctionComponent<CollapsibleSaleCardProps> = ({
                 className="w-full flex items-center justify-between p-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
             >
                 <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full ${getPaymentBgColor(sale.paymentMethodId)} flex items-center justify-center`}>
-                        {getPaymentIcon(sale.paymentMethodId)}
-                    </div>
                     <div>
                         <p className="font-semibold text-gray-900 dark:text-white text-sm">
-                            #{saleNumber}
+                            {saleNumber}
                         </p>
                         <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                            <span>{saleDate}</span>
+                            <span>{dayjs(sale.createdAt).format('h:mm A')}</span>
+                            <span>•</span>
+                            <span>{getPaymentName(sale.paymentMethodId)}</span>
                         </div>
                     </div>
                 </div>

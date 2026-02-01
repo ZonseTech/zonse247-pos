@@ -32,6 +32,7 @@ const TenantsManagement = lazy(() => import('../pages/tenants'))
 const TenantRegistrationDetails = lazy(() => import('../pages/tenant-registration-details'))
 const Sales = lazy(() => import('../pages/sales'))
 const TodaySales = lazy(() => import('../pages/sales/TodaySales'))
+const MobileReceiptDetails = lazy(() => import('../pages/sales/MobileReceiptDetails'))
 const Returns = lazy(() => import('../pages/returns'))
 const DatabaseExporter = lazy(() => import('../pages/export-db'))
 const AccountDetails = lazy(() => import('../pages/auth/MyProfile'))
@@ -79,6 +80,7 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 					</>
 				)}
 
+				<Route path={ROUTES.RECEIPT_DETAILS} element={<MobileReceiptDetails />} />
 				<Route path={ROUTES.SALES} element={<Sales />} />
 				<Route path={ROUTES.INVENTORY} element={<Inventory />} />
 				<Route path={ROUTES.USERS} element={<Users />} />
