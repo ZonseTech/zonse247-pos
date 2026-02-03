@@ -1,8 +1,9 @@
 import { FunctionComponent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HiExclamationCircle, HiChevronRight } from 'react-icons/hi';
+import { HiExclamationCircle } from 'react-icons/hi';
 import { BsBoxSeam, BsCheckCircle, BsExclamationTriangle } from 'react-icons/bs';
 import { HiArrowRight } from 'react-icons/hi2';
+import { ROUTES } from '../../utils/constants';
 
 interface InventoryStatsCardProps {
     inventory: InventoryItem[];
@@ -22,7 +23,7 @@ const InventoryStatsCard: FunctionComponent<InventoryStatsCardProps> = ({ invent
                     Inventory Stats
                 </h3>
                 <button
-                    onClick={() => navigate('/inventory')}
+                    onClick={() => navigate(ROUTES.MOBILE_INVENTORY)}
                     className="flex items-center gap-1 text-sky-500 dark:text-sky-400 text-sm font-medium active:scale-95 transition-transform"
                 >
                     <HiArrowRight className="w-5 h-5" />

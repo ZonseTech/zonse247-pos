@@ -13,7 +13,8 @@ const Users = lazy(() => import('../pages/users/index'))
 const PointOfSale = lazy(() => import('../pages/pos'))
 const Login = lazy(() => import('../pages/auth/Login'))
 const Inventory = lazy(() => import('../pages/inventory'))
-const MobileInventory = lazy(() => import('../pages/inventory/MobileStocks'))
+const MobileInventory = lazy(() => import('../pages/inventory/MobileInventory'))
+const MobileStocks = lazy(() => import('../pages/inventory/MobileStocks'))
 const InventoryForm = lazy(() => import('../pages/inventory/create'))
 const Categories = lazy(() => import('../pages/categories'))
 const Customers = lazy(() => import('../pages/customers'))
@@ -73,12 +74,13 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 						<Route path={ROUTES.POS} element={<PointOfSale />} />
 						<Route path={ROUTES.MOBILE_REPORT} element={<MobileReport />} />
 						<Route path={ROUTES.TODAY_SALES} element={<TodaySales />} />
-						<Route path={ROUTES.ITEMS} element={<MobileInventory />} />
+						<Route path={ROUTES.ITEMS} element={<MobileStocks />} />
 					</Route>
 				) : (
 					<Route path={ROUTES.POS} element={<PointOfSale />} />
 				)}
 
+				<Route path={ROUTES.MOBILE_INVENTORY} element={<MobileInventory />} />
 				<Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
 				<Route path={ROUTES.RECEIPT_DETAILS} element={<MobileReceiptDetails />} />
 				<Route path={ROUTES.RECEIPTS} element={<MobileReceipt />} />

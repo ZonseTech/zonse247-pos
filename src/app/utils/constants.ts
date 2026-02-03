@@ -16,6 +16,7 @@ export enum ROUTES {
 	ITEMS = '/items',
 	INVENTORY = '/inventory',
 	INVENTORY_FORM = '/inventory/form',
+	MOBILE_INVENTORY = '/mobile-inventory',
 	TERMINALS = '/terminals',
 	TERMINAL_FORM = '/terminals/form',
 	PRINTERS = '/printers',

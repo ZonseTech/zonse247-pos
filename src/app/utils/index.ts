@@ -22,6 +22,10 @@ export const formatCurrency = (amount: number, addCurrency?: boolean, prefix = '
 	return addCurrency ? `${prefix}${formatted}` : formatted;
 };
 
+export const formatQuantity = (value: number): string => {
+	return new Intl.NumberFormat('en-US').format(value);
+};
+
 export const formatFileSize = (bytes: number) => {
 	if (bytes === 0) return '0 Bytes';
 	const k = 1024;
