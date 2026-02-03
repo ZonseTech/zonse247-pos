@@ -1,17 +1,10 @@
-import MobilePageHeader from '../../components/page/MobilePageHeader';
-import { HelpModal } from '../../components/modals';
+import MobileTabPageHeader from '../../components/page/MobileTabPageHeader';
 import CollapsibleSaleCard from './partials/CollapsibleSaleCard';
 import SalesEmptyState from './partials/SalesEmptyState';
 import SalesLoadingState from './partials/SalesLoadingState';
 import MobilePagination from './partials/MobilePagination';
 import PaymentMethodFilterPopup from './partials/PaymentMethodFilterPopup';
 import { FunctionComponent, useState, useEffect, useMemo } from 'react';
-import { useBranch } from '../../context/BranchContext';
-import { useMobileNav } from '../../context/MobileNavContext';
-import BranchSwitchModal from '../../navigation/components/BranchSwitchModal';
-import { HiMenu } from 'react-icons/hi';
-import { PiChatCenteredDotsFill } from "react-icons/pi";
-import { FaCaretDown } from 'react-icons/fa';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import salesService from '../../services/sales.service';
@@ -20,12 +13,8 @@ import dayjs from 'dayjs';
 const ITEMS_PER_PAGE = 10;
 
 const TodaySales: FunctionComponent = () => {
-    const { currentBranch } = useBranch();
-    const { openDrawer } = useMobileNav();
     const navigate = useNavigate();
 
-    const [isBranchSwitchModalOpen, setIsBranchSwitchModalOpen] = useState(false);
-    const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
     const [sales, setSales] = useState<Sale[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [expandedSaleId, setExpandedSaleId] = useState<string | null>(null);
@@ -133,36 +122,7 @@ const TodaySales: FunctionComponent = () => {
     return (
         <div className="flex flex-col h-full overflow-hidden">
             <div className="fixed top-0 left-0 right-0 z-50">
-                <MobilePageHeader
-                    className='bg-sky-500 dark:bg-sky-700'
-                    noBorder
-                    showLeftButton={false}
-                    title={
-                        <div className="flex items-center gap-3">
-                            <HiMenu
-                                className="w-6 h-6 text-white cursor-pointer active:scale-95 transition-transform"
-                                onClick={openDrawer}
-                            />
-                            <button
-                                onClick={() => setIsBranchSwitchModalOpen(true)}
-                                className="flex items-center gap-1 rounded-sm active:scale-95 transition-all"
-                            >
-                                <span className="text-base font-semibold text-white truncate max-w-[180px]">
-                                    {currentBranch?.branchName || 'Select Branch'}
-                                </span>
-                                <FaCaretDown className="w-4 h-4 text-sky-100 flex-shrink-0" />
-                            </button>
-                        </div>
-                    }
-                    rightContent={
-                        <div className="flex gap-4 items-center">
-                            <PiChatCenteredDotsFill
-                                className="w-6 h-6 text-white cursor-pointer active:scale-95 transition-transform"
-                                onClick={() => setIsHelpModalOpen(true)}
-                            />
-                        </div>
-                    }
-                />
+                <MobileTabPageHeader />
             </div>
 
             <div className="flex-1 min-h-0 overflow-hidden pt-[52px]">
@@ -184,16 +144,6 @@ const TodaySales: FunctionComponent = () => {
                 selectedPaymentMethod={selectedPaymentMethod}
                 onToggle={() => setIsFilterOpen(!isFilterOpen)}
                 onSelect={handlePaymentMethodFilter}
-            />
-
-            <BranchSwitchModal
-                isOpen={isBranchSwitchModalOpen}
-                onClose={() => setIsBranchSwitchModalOpen(false)}
-            />
-
-            <HelpModal
-                isOpen={isHelpModalOpen}
-                onClose={() => setIsHelpModalOpen(false)}
             />
         </div>
     );

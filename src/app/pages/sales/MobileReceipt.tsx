@@ -235,6 +235,7 @@ const MobileReceipt: FunctionComponent = () => {
                 selectedPaymentMethod={selectedPaymentMethod}
                 onToggle={() => setIsFilterOpen(!isFilterOpen)}
                 onSelect={handlePaymentMethodFilter}
+                fabClassName='bottom-6'
             />
         </div>
     );

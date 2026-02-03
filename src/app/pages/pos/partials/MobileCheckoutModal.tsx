@@ -239,7 +239,8 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
             (completedSale as Sale).id ||
             completedSale.id;
 
-        // Navigate to receipt details
+        handleNewTransaction()
+
         navigate(ROUTES.RECEIPT_DETAILS.replace(':saleId', saleId));
     };
 

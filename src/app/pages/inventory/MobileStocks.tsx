@@ -1,15 +1,11 @@
-import MobilePageHeader from '../../components/page/MobilePageHeader';
-import MobileInventoryList from './partials/MobileInventoryList';
+import MobileTabPageHeader from '../../components/page/MobileTabPageHeader';
+import MobileItemTile from './partials/MobileItemTile';
 import CustomerSelector from '../customers/partials/CustomerSelector';
 import { CameraBarcodeScanner } from '../../components';
-import { HelpModal, MobileItemLookupModal } from '../../components/modals';
+import { MobileItemLookupModal } from '../../components/modals';
 import { FunctionComponent, useState, useEffect } from 'react';
-import { useBranch } from '../../context/BranchContext';
-import { useMobileNav } from '../../context/MobileNavContext';
 import { useInventory } from '../../hooks/useInventory';
-import BranchSwitchModal from '../../navigation/components/BranchSwitchModal';
-import { HiOutlineChatAlt2, HiSearch, HiMenu } from 'react-icons/hi';
-import { FaCaretDown } from 'react-icons/fa';
+import { HiSearch } from 'react-icons/hi';
 import { TbLayoutGrid } from 'react-icons/tb';
 import { RiUserAddLine } from 'react-icons/ri';
 import { BsUpcScan } from 'react-icons/bs';
@@ -19,15 +15,11 @@ import { ROUTES } from '../../utils/constants';
 import { Package } from 'lucide-react';
 
 const MobileStocks: FunctionComponent = () => {
-    const { currentBranch } = useBranch();
-    const { openDrawer } = useMobileNav();
     const { inventory, addToCart } = useInventory();
     const navigate = useNavigate();
 
-    const [isBranchSwitchModalOpen, setIsBranchSwitchModalOpen] = useState(false);
     const [isCameraScannerOpen, setIsCameraScannerOpen] = useState(false);
     const [isLookupModalOpen, setIsLookupModalOpen] = useState(false);
-    const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedItems, setSelectedItems] = useState<InventoryItem[]>([]);
 
@@ -43,7 +35,6 @@ const MobileStocks: FunctionComponent = () => {
         loadInventory();
     }, []);
 
-    // Handle search with debounce
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             if (searchTerm) {
@@ -96,27 +87,7 @@ const MobileStocks: FunctionComponent = () => {
     return (
         <div className="flex flex-col h-full overflow-hidden">
             <div className="fixed top-0 left-0 right-0 z-50">
-                <MobilePageHeader
-                    className='bg-sky-500 dark:bg-sky-700'
-                    noBorder
-                    showLeftButton={false}
-                    title={
-                        <div className="flex items-center gap-3">
-                            <HiMenu
-                                className="w-6 h-6 text-white cursor-pointer active:scale-95 transition-transform"
-                                onClick={openDrawer}
-                            />
-                            <button
-                                onClick={() => setIsBranchSwitchModalOpen(true)}
-                                className="flex items-center gap-1 rounded-sm active:scale-95 transition-all"
-                            >
-                                <span className="text-base font-semibold text-white truncate max-w-[180px]">
-                                    {currentBranch?.branchName || 'Select Branch'}
-                                </span>
-                                <FaCaretDown className="w-4 h-4 text-sky-100 flex-shrink-0" />
-                            </button>
-                        </div>
-                    }
+                <MobileTabPageHeader
                     rightContent={
                         <div className="flex gap-4 items-center">
                             <TbLayoutGrid
@@ -127,10 +98,6 @@ const MobileStocks: FunctionComponent = () => {
                                 trigger={
                                     <RiUserAddLine className="w-6 h-6 text-white active:scale-95 transition-transform" />
                                 }
-                            />
-                            <HiOutlineChatAlt2
-                                className="w-6 h-6 text-white cursor-pointer active:scale-95 transition-transform"
-                                onClick={() => setIsHelpModalOpen(true)}
                             />
                         </div>
                     }
@@ -148,10 +115,10 @@ const MobileStocks: FunctionComponent = () => {
                             className="p-2.5 bg-white dark:bg-gray-800 rounded-sm transition-colors border border-gray-200 dark:border-gray-700"
                             aria-label="Open camera scanner"
                         >
-                            <BsUpcScan className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                            <BsUpcScan className="w-6 h-6 text-sky-500 dark:text-sky-400" />
                         </button>
                     </div>
-                </MobilePageHeader>
+                </MobileTabPageHeader>
             </div>
 
             <div className="flex-1 min-h-0 overflow-hidden pt-[108px]">
@@ -169,7 +136,7 @@ const MobileStocks: FunctionComponent = () => {
                             </p>
                         </div>
                     ) : (
-                        <MobileInventoryList
+                        <MobileItemTile
                             data={data}
                             isLoading={isLoading}
                             searchTerm={searchTerm}
@@ -184,11 +151,6 @@ const MobileStocks: FunctionComponent = () => {
                     )}
                 </div>
             </div>
-
-            <BranchSwitchModal
-                isOpen={isBranchSwitchModalOpen}
-                onClose={() => setIsBranchSwitchModalOpen(false)}
-            />
 
             <CameraBarcodeScanner
                 isOpen={isCameraScannerOpen}
@@ -205,11 +167,6 @@ const MobileStocks: FunctionComponent = () => {
                 onAddToCart={handleAddToCartFromLookup}
                 onOpenScanner={() => setIsCameraScannerOpen(true)}
                 multiSelect
-            />
-
-            <HelpModal
-                isOpen={isHelpModalOpen}
-                onClose={() => setIsHelpModalOpen(false)}
             />
         </div>
     );
