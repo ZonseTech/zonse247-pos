@@ -54,4 +54,6 @@ export interface TopBarProps {
     isMenuOpen: boolean;
 }
 
-export const GROUP_ORDER: NavGroup[] = ['operations', 'inventory', 'management', 'settings', 'admin', 'system'];
+export const GROUP_ORDER: NavGroup[] = ['operations', 'inventory', 'management', 'misc', 'settings', 'admin', 'system'];
+
+export const MOBILE_GROUP_ORDER: NavGroup[] = ['management', 'misc', 'admin', 'settings'];

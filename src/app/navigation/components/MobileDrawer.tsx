@@ -11,7 +11,7 @@ import Button from '../../components/Button';
 import BranchSwitchModal from './BranchSwitchModal';
 import { ROUTES } from '../../utils/constants';
 import type { MobileDrawerProps } from './types';
-import { GROUP_ORDER } from './types';
+import { MOBILE_GROUP_ORDER } from './types';
 import { FaCaretDown } from 'react-icons/fa';
 
 const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
@@ -56,7 +56,7 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
         <>
             <div
                 className={classNames(
-                    "fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-all duration-300 md:hidden",
+                    "fixed inset-0 bg-black/40 backdrop-blur-sm z-50 transition-all duration-300 ",
                     isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
                 )}
                 onClick={onClose}
@@ -64,7 +64,7 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
 
             <div
                 className={classNames(
-                    "fixed top-0 left-0 h-full w-[85%] max-w-sm bg-gray-100 dark:bg-gray-900 shadow-2xl z-50 transition-transform duration-300 ease-out md:hidden",
+                    "fixed top-0 left-0 h-full w-[85%] max-w-sm bg-gray-100 dark:bg-gray-900 shadow-2xl z-50 transition-transform duration-300 ease-out ",
                     isMobile && "safe-area-top-android",
                     isOpen ? "translate-x-0" : "-translate-x-full"
                 )}
@@ -169,9 +169,9 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
 
                     <div className="flex-1 overflow-y-auto py-3 px-2 bg-white dark:bg-gray-800">
                         <div className="flex flex-col gap-4">
-                            {GROUP_ORDER.map((groupKey) => {
+                            {MOBILE_GROUP_ORDER.map((groupKey) => {
                                 const items = groupedNavItems[groupKey];
-                                if (items.length === 0) return null;
+                                if (!items || items.length === 0) return null;
 
                                 return (
                                     <div key={groupKey}>
@@ -196,12 +196,7 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
                                                                 : "text-gray-700 dark:text-gray-300"
                                                         )}
                                                     >
-                                                        <div className={classNames(
-                                                            "flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-150",
-                                                            isActive
-                                                                ? "text-sky-500 dark:text-sky-400"
-                                                                : "text-gray-500 dark:text-gray-400"
-                                                        )}>
+                                                        <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-150 text-sky-500 dark:text-sky-400">
                                                             {item.icon}
                                                         </div>
                                                         <span className={classNames(

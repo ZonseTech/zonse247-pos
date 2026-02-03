@@ -12,8 +12,11 @@ import {
     HiOutlineFolderDownload,
     HiOutlineUserGroup,
     HiOutlineCreditCard,
+    HiOutlineChat,
+    HiOutlineDocumentText,
+    HiOutlineReceiptRefund,
 } from 'react-icons/hi';
-import { RotateCcw, Package, Users as SuppliersIcon, ShoppingCart as POIcon, ArrowRightLeft, ClipboardList } from 'lucide-react';
+import { RotateCcw, Package, Users as SuppliersIcon, ShoppingCart as POIcon, ArrowRightLeft, ClipboardList, Settings, FileText, Store } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useAuth } from '../../context/AuthProvider';
@@ -38,6 +41,7 @@ export const NAV_GROUP_LABELS: Record<NavGroup, string> = {
     admin: 'Administration',
     settings: 'Settings',
     system: 'System',
+    misc: 'Misc',
 };
 
 const useNavItems = (): Array<NavItem> => {
@@ -347,6 +351,168 @@ const useNavItems = (): Array<NavItem> => {
             signout(() => navigate(ROUTES.LOGIN));
         }
     });
+
+    return items;
+};
+
+export const useMobileNavItems = (): Array<NavItem> => {
+    const navigate = useNavigate();
+    const { signout } = useAuth();
+
+    const icons = {
+        inventory: <Package className="h-5 w-5" />,
+        receipts: <HiOutlineDocumentText className="h-5 w-5" />,
+        customers: <HiOutlineUserGroup className="h-5 w-5" />,
+        staff: <HiOutlineUsers className="h-5 w-5" />,
+        returns: <HiOutlineReceiptRefund className="h-5 w-5" />,
+        procurement: <POIcon className="h-5 w-5" />,
+        subscription: <LucideSubscript className="h-5 w-5" />,
+        tenants: <RiGroup3Line className="h-5 w-5" />,
+        registrations: <ClipboardList className="h-5 w-5" />,
+        receiptSettings: <FileText className="h-5 w-5" />,
+        businessSettings: <Store className="h-5 w-5" />,
+        generalSettings: <Settings className="h-5 w-5" />,
+        printerSetup: <HiOutlinePrinter className="h-5 w-5" />,
+        logout: <HiOutlineLogout className="h-5 w-5" />,
+    };
+
+    const items: NavItem[] = [
+        // Management Group
+        {
+            type: 'button',
+            color: 'bg-indigo-500 hover:bg-indigo-600',
+            iconColor: 'bg-indigo-600',
+            text: 'Inventory Management',
+            icon: icons.inventory,
+            group: 'management',
+            onClick: () => navigate(ROUTES.MOBILE_INVENTORY),
+        },
+        {
+            type: 'button',
+            color: 'bg-emerald-500 hover:bg-emerald-600',
+            iconColor: 'bg-emerald-600',
+            text: 'Receipts',
+            icon: icons.receipts,
+            group: 'management',
+            onClick: () => navigate(ROUTES.RECEIPTS),
+        },
+        {
+            type: 'button',
+            color: 'bg-teal-500 hover:bg-teal-600',
+            iconColor: 'bg-teal-600',
+            text: 'Customers Management',
+            icon: icons.customers,
+            group: 'management',
+            onClick: () => navigate(ROUTES.CUSTOMERS),
+        },
+        {
+            type: 'button',
+            color: 'bg-orange-500 hover:bg-orange-600',
+            iconColor: 'bg-orange-600',
+            text: 'Staff Management',
+            icon: icons.staff,
+            group: 'management',
+            onClick: () => navigate(ROUTES.USERS),
+        },
+
+        // Misc Group
+        {
+            type: 'button',
+            color: 'bg-rose-500 hover:bg-rose-600',
+            iconColor: 'bg-rose-600',
+            text: 'Returned Receipt',
+            icon: icons.returns,
+            group: 'misc',
+            onClick: () => navigate(ROUTES.RETURNS),
+        },
+        {
+            type: 'button',
+            color: 'bg-violet-500 hover:bg-violet-600',
+            iconColor: 'bg-violet-600',
+            text: 'Procurement Management',
+            icon: icons.procurement,
+            group: 'misc',
+            onClick: () => navigate(ROUTES.PURCHASE_ORDERS),
+        },
+
+        // Administration Group
+        {
+            type: 'button',
+            color: 'bg-purple-500 hover:bg-purple-600',
+            iconColor: 'bg-purple-600',
+            text: 'Subscription',
+            icon: icons.subscription,
+            group: 'admin',
+            onClick: () => navigate(ROUTES.SUBSCRIPTIONS),
+        },
+        {
+            type: 'button',
+            color: 'bg-cyan-500 hover:bg-cyan-600',
+            iconColor: 'bg-cyan-600',
+            text: 'Tenants',
+            icon: icons.tenants,
+            group: 'admin',
+            onClick: () => navigate(ROUTES.TENANTS),
+        },
+        {
+            type: 'button',
+            color: 'bg-teal-500 hover:bg-teal-600',
+            iconColor: 'bg-teal-600',
+            text: 'Registrations',
+            icon: icons.registrations,
+            group: 'admin',
+            onClick: () => navigate(ROUTES.TENANT_REGISTRATION_DETAILS),
+        },
+
+        // Settings Group
+        {
+            type: 'button',
+            color: 'bg-amber-500 hover:bg-amber-600',
+            iconColor: 'bg-amber-600',
+            text: 'Receipt Settings',
+            icon: icons.receiptSettings,
+            group: 'settings',
+            onClick: () => navigate(ROUTES.SETTINGS),
+        },
+        {
+            type: 'button',
+            color: 'bg-blue-500 hover:bg-blue-600',
+            iconColor: 'bg-blue-600',
+            text: 'Business Settings',
+            icon: icons.businessSettings,
+            group: 'settings',
+            onClick: () => navigate(ROUTES.BRANCHES),
+        },
+        {
+            type: 'button',
+            color: 'bg-green-500 hover:bg-green-600',
+            iconColor: 'bg-green-600',
+            text: 'General Settings',
+            icon: icons.generalSettings,
+            group: 'settings',
+            onClick: () => navigate(ROUTES.SETTINGS),
+        },
+        {
+            type: 'button',
+            color: 'bg-slate-500 hover:bg-slate-600',
+            iconColor: 'bg-slate-600',
+            text: 'Printer Setup',
+            icon: icons.printerSetup,
+            group: 'settings',
+            onClick: () => navigate(ROUTES.PRINTERS),
+        },
+        {
+            type: 'button',
+            color: 'bg-red-600 hover:bg-red-700',
+            iconColor: 'bg-red-700',
+            text: 'Logout',
+            icon: icons.logout,
+            group: 'settings',
+            onClick: async () => {
+                signout(() => navigate(ROUTES.LOGIN));
+            }
+        },
+    ];
 
     return items;
 };

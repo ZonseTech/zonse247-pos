@@ -1,14 +1,12 @@
 import { FunctionComponent, ReactNode, useMemo, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { BarChart3, MoreHorizontal } from 'lucide-react';
-import { FaCircleDollarToSlot, FaCashRegister, FaListCheck } from 'react-icons/fa6';
-import MobileBottomNav, { BottomNavItem } from '../components/navigation/MobileBottomNav';
+import MobileBottomNav from '../components/navigation/MobileBottomNav';
 import { MobileDrawer } from '../navigation/components';
-import useNavItems from '../navigation/partials/navItems';
+import { useMobileNavItems } from '../navigation/partials/navItems';
 import type { NavItem, NavGroup } from '../navigation/partials/RenderNavItem';
 import { ROUTES } from '../utils/constants';
-import { useInventory } from '../hooks/useInventory';
 import { MobileNavProvider, useMobileNav } from '../context/MobileNavContext';
+import { useMobileBottomNav } from '../hooks/useMobileBottomNav';
 
 interface MobileTabLayoutProps {
     children?: ReactNode;
@@ -16,52 +14,9 @@ interface MobileTabLayoutProps {
 
 const MobileTabLayout: FunctionComponent<MobileTabLayoutProps> = ({ children }) => {
     const location = useLocation();
-    const navItems = useNavItems();
-    const { cart } = useInventory();
-    const { isDrawerOpen: isNavDrawerOpen, openDrawer, closeDrawer } = useMobileNav();
-
-    const activeTabId = useMemo(() => {
-        const path = location.pathname;
-        if (path === ROUTES.MOBILE_REPORT || path.startsWith(ROUTES.MOBILE_REPORT + '/')) return 'reports';
-        if (path === ROUTES.TODAY_SALES || path.startsWith(ROUTES.TODAY_SALES + '/')) return 'today';
-        if (path === ROUTES.POS || path.startsWith(ROUTES.POS + '/')) return 'counter';
-        if (path === ROUTES.ITEMS || path.startsWith(ROUTES.ITEMS + '/')) return 'items';
-        return '';
-    }, [location.pathname]);
-
-    const bottomNavItems: BottomNavItem[] = useMemo(() => [
-        {
-            id: 'reports',
-            label: 'Reports',
-            icon: <BarChart3 className="w-6 h-6" />,
-            route: ROUTES.MOBILE_REPORT,
-        },
-        {
-            id: 'today',
-            label: 'Today',
-            icon: <FaCircleDollarToSlot className="w-6 h-6" />,
-            route: ROUTES.TODAY_SALES,
-        },
-        {
-            id: 'counter',
-            label: 'Counter',
-            icon: <FaCashRegister className="w-6 h-6" />,
-            route: ROUTES.POS,
-            badge: cart.length,
-        },
-        {
-            id: 'items',
-            label: 'Items',
-            icon: <FaListCheck className="w-6 h-6" />,
-            route: ROUTES.ITEMS,
-        },
-        {
-            id: 'more',
-            label: 'More',
-            icon: <MoreHorizontal className="w-6 h-6" />,
-            onClick: () => openDrawer(),
-        },
-    ], [cart.length, openDrawer]);
+    const mobileNavItems = useMobileNavItems();
+    const { isDrawerOpen: isNavDrawerOpen, closeDrawer } = useMobileNav();
+    const { bottomNavItems, activeTabId } = useMobileBottomNav();
 
     const groupedNavItems = useMemo(() => {
         const groups: Record<NavGroup, NavItem[]> = {
@@ -71,13 +26,14 @@ const MobileTabLayout: FunctionComponent<MobileTabLayoutProps> = ({ children }) 
             admin: [],
             settings: [],
             system: [],
+            misc: [],
         };
-        navItems.forEach((item) => {
-            const group = item.group || 'operations';
+        mobileNavItems.forEach((item) => {
+            const group = item.group || 'management';
             groups[group].push(item);
         });
         return groups;
-    }, [navItems]);
+    }, [mobileNavItems]);
 
     useEffect(() => {
         if (isNavDrawerOpen) {
