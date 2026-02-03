@@ -17,7 +17,7 @@ import StockStatusFilter from './partials/StockStatusFilter';
 import CategoryFilter from './partials/CategoryFilter';
 import BulkActionsModal from './partials/BulkActionsModal';
 import AdjustQuantityModal from './partials/AdjustQuantityModal';
-import MobileInventoryList from './partials/MobileInventoryList';
+import MobileInventoryList from './partials/MobileItemTile';
 import { useInventoryManagement } from '../../hooks/useInventoryManagement';
 import { useInventorySummary } from '../../hooks/useInventorySummary';
 import { ROUTES } from '../../utils/constants';
