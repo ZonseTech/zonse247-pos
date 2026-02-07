@@ -5,8 +5,7 @@ import MobileCheckoutModal, { CHECKOUT, PaymentMethod } from './partials/MobileC
 import MobileTabPageHeader from '../../components/page/MobileTabPageHeader';
 import CustomerSelector from '../customers/partials/CustomerSelector';
 import MultiplePaymentModal from './partials/MultiplePaymentModal';
-import { CameraBarcodeScanner } from '../../components';
-import { MobileItemLookupModal } from '../../components/modals';
+import { MobileItemLookupModal, MobileCameraScannerModal } from '../../components/modals';
 import { FunctionComponent, useState, useEffect } from 'react';
 import { useInventory } from '../../hooks/useInventory';
 import { useFocusManager } from '../../hooks/useFocusManager';
@@ -71,12 +70,6 @@ const MobilePOS: FunctionComponent = () => {
             case 'split':
                 setIsMultiplePaymentModalOpen(true);
                 break;
-        }
-    };
-
-    const handleCameraScan = (result: { barcode: string }) => {
-        if (result.barcode) {
-            setIsCameraScannerOpen(false);
         }
     };
 
@@ -210,12 +203,11 @@ const MobilePOS: FunctionComponent = () => {
                 </div>
             </div>
 
-            <CameraBarcodeScanner
+            <MobileCameraScannerModal
                 isOpen={isCameraScannerOpen}
                 onClose={() => setIsCameraScannerOpen(false)}
-                onScan={handleCameraScan}
-                title="Scan Product"
-                subtitle="Point camera at product barcode"
+                inventory={inventory}
+                onAddToCart={handleAddToCartFromLookup}
             />
 
             <MobileItemLookupModal
