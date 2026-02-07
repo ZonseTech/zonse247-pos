@@ -34,10 +34,10 @@ const ReportBarChart: React.FC<ReportBarChartProps> = ({
     const formatTooltip = tooltipFormatter || ((value: number) => value.toLocaleString())
 
     return (
-        <div className={`bg-white dark:bg-gray-800 rounded-sm p-4 shadow-sm ${className}`}>
+        <div className={`bg-white dark:bg-gray-800 rounded-sm p-4 shadow-none ${className}`}>
             <div style={{ height }}>
                 <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 50 }}>
+                    <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                         <XAxis
                             dataKey="label"
