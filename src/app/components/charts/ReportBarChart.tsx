@@ -46,7 +46,7 @@ const ReportBarChart: React.FC<ReportBarChartProps> = ({
                             tickLine={false}
                             angle={-45}
                             textAnchor="end"
-                            height={60}
+                            height={72}
                             interval={0}
                         />
                         <YAxis
