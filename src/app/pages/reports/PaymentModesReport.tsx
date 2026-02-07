@@ -1,5 +1,4 @@
 import React from 'react'
-import MobileReportDetailLayout from './MobileReportDetailLayout'
 import { formatCurrency } from '../../utils'
 import { HiCash, HiCreditCard, HiOfficeBuilding, HiSwitchHorizontal } from 'react-icons/hi'
 
@@ -44,54 +43,52 @@ const paymentMethods: PaymentMethod[] = [
 
 const PaymentModesReport: React.FC = () => {
     return (
-        <MobileReportDetailLayout title="Payment Modes">
-            <div className="px-4 space-y-4">
-                {/* Summary Card */}
-                <div className="bg-white rounded-lg p-4 shadow-sm">
-                    <p className="text-gray-500 text-sm">Payment Methods Used</p>
-                    <p className="text-3xl font-bold text-primary-600">4 methods</p>
-                    <p className="text-gray-400 text-xs mt-1">Cash, E-Pay, Bank, Split payments</p>
-                </div>
+        <div className="px-4 py-4 space-y-4">
+            {/* Summary Card */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <p className="text-gray-500 dark:text-gray-400 text-sm">Payment Methods Used</p>
+                <p className="text-3xl font-bold text-primary-600 dark:text-primary-400">4 methods</p>
+                <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">Cash, E-Pay, Bank, Split payments</p>
+            </div>
 
-                {/* Payment Methods List */}
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <h3 className="font-semibold text-gray-800 p-4 border-b">Payment Breakdown</h3>
-                    <div className="divide-y">
-                        {paymentMethods.map((method, index) => (
-                            <div key={index} className="p-4">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <div className="w-10 h-10 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center">
-                                        {method.icon}
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="font-medium text-gray-800">{method.name}</p>
-                                        <p className="text-xs text-gray-500">{method.transactions} transactions</p>
-                                    </div>
-                                    <span className="font-semibold text-gray-800">{method.amount}</span>
+            {/* Payment Methods List */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <h3 className="font-semibold text-gray-800 dark:text-gray-200 p-4 border-b dark:border-gray-700">Payment Breakdown</h3>
+                <div className="divide-y dark:divide-gray-700">
+                    {paymentMethods.map((method, index) => (
+                        <div key={index} className="p-4">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400 flex items-center justify-center">
+                                    {method.icon}
                                 </div>
-                                <div className="flex items-center gap-3 ml-13">
-                                    <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-primary-500 rounded-full"
-                                            style={{ width: `${method.percentage}%` }}
-                                        />
-                                    </div>
-                                    <span className="text-xs text-gray-500 w-10">{method.percentage}%</span>
+                                <div className="flex-1">
+                                    <p className="font-medium text-gray-800 dark:text-gray-200">{method.name}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">{method.transactions} transactions</p>
                                 </div>
+                                <span className="font-semibold text-gray-800 dark:text-gray-200">{method.amount}</span>
                             </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Chart Placeholder */}
-                <div className="bg-white rounded-lg p-4 shadow-sm">
-                    <h3 className="font-semibold text-gray-800 mb-3">Payment Distribution</h3>
-                    <div className="h-48 bg-gray-100 rounded flex items-center justify-center text-gray-400">
-                        Pie chart placeholder
-                    </div>
+                            <div className="flex items-center gap-3 ml-13">
+                                <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-primary-500 rounded-full"
+                                        style={{ width: `${method.percentage}%` }}
+                                    />
+                                </div>
+                                <span className="text-xs text-gray-500 dark:text-gray-400 w-10">{method.percentage}%</span>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
-        </MobileReportDetailLayout>
+
+            {/* Chart Placeholder */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">Payment Distribution</h3>
+                <div className="h-48 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center text-gray-400 dark:text-gray-500">
+                    Pie chart placeholder
+                </div>
+            </div>
+        </div>
     )
 }
 

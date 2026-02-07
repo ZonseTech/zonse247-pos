@@ -1,5 +1,4 @@
 import React from 'react'
-import MobileReportDetailLayout from './MobileReportDetailLayout'
 
 interface CategoryData {
     name: string
@@ -18,41 +17,39 @@ const categories: CategoryData[] = [
 
 const TopCategoryReport: React.FC = () => {
     return (
-        <MobileReportDetailLayout title="Top Category">
-            <div className="px-4 space-y-4">
-                {/* Summary Card */}
-                <div className="bg-white rounded-lg p-4 shadow-sm">
-                    <p className="text-gray-500 text-sm">Highest Selling Category</p>
-                    <p className="text-3xl font-bold text-primary-600">Electronics</p>
-                    <p className="text-gray-400 text-xs mt-1">45% of total sales</p>
-                </div>
+        <div className="px-4 py-4 space-y-4">
+            {/* Summary Card */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <p className="text-gray-500 dark:text-gray-400 text-sm">Highest Selling Category</p>
+                <p className="text-3xl font-bold text-primary-600 dark:text-primary-400">Electronics</p>
+                <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">45% of total sales</p>
+            </div>
 
-                {/* Categories List */}
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <h3 className="font-semibold text-gray-800 p-4 border-b">Category Performance</h3>
-                    <div className="divide-y">
-                        {categories.map((category, index) => (
-                            <div key={index} className="p-4">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="font-medium text-gray-800">{category.name}</span>
-                                    <span className="font-semibold text-primary-600">{category.sales}</span>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-primary-500 rounded-full"
-                                            style={{ width: `${category.percentage}%` }}
-                                        />
-                                    </div>
-                                    <span className="text-xs text-gray-500 w-10">{category.percentage}%</span>
-                                </div>
-                                <p className="text-xs text-gray-500 mt-1">{category.items} items sold</p>
+            {/* Categories List */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <h3 className="font-semibold text-gray-800 dark:text-gray-200 p-4 border-b dark:border-gray-700">Category Performance</h3>
+                <div className="divide-y dark:divide-gray-700">
+                    {categories.map((category, index) => (
+                        <div key={index} className="p-4">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="font-medium text-gray-800 dark:text-gray-200">{category.name}</span>
+                                <span className="font-semibold text-primary-600 dark:text-primary-400">{category.sales}</span>
                             </div>
-                        ))}
-                    </div>
+                            <div className="flex items-center gap-3">
+                                <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-primary-500 rounded-full"
+                                        style={{ width: `${category.percentage}%` }}
+                                    />
+                                </div>
+                                <span className="text-xs text-gray-500 dark:text-gray-400 w-10">{category.percentage}%</span>
+                            </div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{category.items} items sold</p>
+                        </div>
+                    ))}
                 </div>
             </div>
-        </MobileReportDetailLayout>
+        </div>
     )
 }
 
