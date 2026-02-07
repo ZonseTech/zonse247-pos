@@ -20,6 +20,7 @@ type ReportType = 'total-sales' | 'gross-profit' | 'top-stocks' | 'top-category'
 interface ReportData extends Omit<ReportCardProps, 'onClick'> {
     id: ReportType;
     title: string;
+    description?: string;
 }
 
 const defaultSummary: ReportSummary = {
@@ -116,9 +117,9 @@ const MobileReport: React.FC = () => {
         {
             id: 'receipt-count',
             name: 'Total Receipt Count',
-            title: 'Receipt Count Report',
+            title: 'Sales count',
             value: String(summary?.receiptCount ?? 0),
-            description: 'Number of completed transactions',
+            description: '',
         },
         {
             id: 'payment-modes',

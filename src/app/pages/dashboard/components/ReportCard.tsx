@@ -4,7 +4,7 @@ import { HiChevronRight } from 'react-icons/hi';
 export interface ReportCardProps {
     name: string;
     value: string;
-    description: string;
+    description?: string;
     onClick?: () => void;
 }
 
@@ -20,9 +20,11 @@ const ReportCard: React.FC<ReportCardProps> = ({ name, value, description, onCli
             <span className="text-lg font-semibold text-sky-600 dark:text-sky-400">
                 {value}
             </span>
-            <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                {description}
-            </span>
+            {description && (
+                <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {description}
+                </span>
+            )}
         </div>
         <HiChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500 flex-shrink-0 ml-3" />
     </div>
