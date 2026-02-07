@@ -203,7 +203,7 @@ const MobileReport: React.FC = () => {
             case 'total-sales':
                 return <TotalSalesReport startDate={startDate} endDate={endDate} />;
             case 'gross-profit':
-                return <GrossProfitReport />;
+                return <GrossProfitReport startDate={startDate} endDate={endDate} />;
             case 'top-stocks':
                 return <TopStocksReport />;
             case 'top-category':
