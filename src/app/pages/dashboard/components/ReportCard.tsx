@@ -14,7 +14,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ name, value, description, onCli
         className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-sm p-3.5 shadow-sm border border-gray-100 dark:border-gray-700 active:scale-[0.98] transition-transform cursor-pointer"
     >
         <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+            <span className="text-sm uppercase font-medium text-gray-900 dark:text-gray-100 truncate">
                 {name}
             </span>
             <span className="text-lg font-semibold text-sky-600 dark:text-sky-400">

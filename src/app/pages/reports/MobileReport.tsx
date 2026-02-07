@@ -94,8 +94,8 @@ const MobileReport: React.FC = () => {
         },
         {
             id: 'gross-profit',
-            name: 'Gross Profit',
-            title: 'Gross Profit Report',
+            name: 'Gross Profit (Selling Price - Cost Price)',
+            title: 'Profit',
             value: formatCurrency(summary?.grossProfit ?? 0, true),
             description: 'Selling price minus cost price',
         },
@@ -172,7 +172,7 @@ const MobileReport: React.FC = () => {
     };
 
     const renderDetailHeader = () => (
-        <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center uppercase justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-3">
                 <button
                     onClick={handleCloseDetail}
