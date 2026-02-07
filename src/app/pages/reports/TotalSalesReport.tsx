@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { formatCurrency } from '../../utils'
 import reportsService, { TotalSalesDataPoint, TotalSalesResponse } from '../../services/reports.service'
 import { toast } from 'react-toastify'
 import dayjs from 'dayjs'
+import { ReportBarChart, ReportProgressBar } from '../../components'
 
 type TabType = 'hourly' | 'weekly' | 'monthly'
 
@@ -88,61 +88,21 @@ const TotalSalesReport: React.FC<TotalSalesReportProps> = ({ startDate, endDate 
             </div>
 
             <div className="px-4 space-y-4">
-                <div className="bg-white dark:bg-gray-800 rounded-sm p-4 shadow-sm">
-                    <div className="h-48">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={currentData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                                <XAxis
-                                    dataKey="label"
-                                    tick={{ fontSize: 11, fill: '#9ca3af' }}
-                                    axisLine={{ stroke: '#e5e7eb' }}
-                                    tickLine={false}
-                                />
-                                <YAxis
-                                    tick={{ fontSize: 10, fill: '#9ca3af' }}
-                                    axisLine={{ stroke: '#e5e7eb' }}
-                                    tickLine={false}
-                                    tickFormatter={(value) => value.toLocaleString()}
-                                />
-                                <Tooltip
-                                    formatter={formatTooltipValue}
-                                    contentStyle={{
-                                        backgroundColor: '#1f2937',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        color: '#fff',
-                                        fontSize: '12px',
-                                    }}
-                                    labelStyle={{ color: '#9ca3af' }}
-                                />
-                                <Bar dataKey="value" name="Sales" fill="#0ea5e9" radius={[0, 0, 0, 0]} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
+                <ReportBarChart
+                    data={currentData}
+                    tooltipFormatter={formatTooltipValue}
+                />
 
                 <div className="space-y-3">
                     {currentData.map((item) => {
                         const percentage = grandTotal > 0 ? Math.round((item.value / grandTotal) * 100) : 0
                         return (
-                            <div key={item.label} className="bg-white dark:bg-gray-800 rounded-sm p-4 shadow-sm">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.label}</span>
-                                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                                        {formatCurrency(item.value, true)}
-                                    </span>
-                                </div>
-                                <div className="relative h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                                    <div
-                                        className="h-full bg-sky-500 rounded-full transition-all duration-300"
-                                        style={{ width: `${percentage}%` }}
-                                    />
-                                    <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-700 dark:text-gray-300">
-                                        {percentage}%
-                                    </span>
-                                </div>
-                            </div>
+                            <ReportProgressBar
+                                key={item.label}
+                                label={item.label}
+                                value={formatCurrency(item.value, true)}
+                                percentage={percentage}
+                            />
                         )
                     })}
                 </div>
