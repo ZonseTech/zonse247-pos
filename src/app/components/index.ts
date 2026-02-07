@@ -34,5 +34,5 @@ export { default as FormTextArea } from './form/FormTextArea';
 export { CameraBarcodeScanner, ScannerModeButton, BarcodeScannerInput } from './scanner';
 
 // Chart components
-export { ReportBarChart, ReportProgressBar } from './charts';
-export type { ChartDataPoint, ReportBarChartProps, ReportProgressBarProps } from './charts';
+export { ReportBarChart, ReportProgressBar, ReportPieChart } from './charts';
+export type { ChartDataPoint, ReportBarChartProps, ReportProgressBarProps, PieChartDataPoint, ReportPieChartProps } from './charts';
