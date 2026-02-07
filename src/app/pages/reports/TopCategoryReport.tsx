@@ -1,52 +1,114 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { formatCurrency } from '../../utils'
+import reportsService, { TopCategoryItem, TopCategoryResponse } from '../../services/reports.service'
+import { toast } from 'react-toastify'
+import dayjs from 'dayjs'
+import { ReportPieChart } from '../../components'
 
-interface CategoryData {
-    name: string
-    sales: string
-    items: number
-    percentage: number
+interface TopCategoryReportProps {
+    startDate?: Date | null
+    endDate?: Date | null
 }
 
-const categories: CategoryData[] = [
-    { name: 'Electronics', sales: 'KES 8.2M', items: 156, percentage: 45 },
-    { name: 'Accessories', sales: 'KES 3.1M', items: 234, percentage: 22 },
-    { name: 'Wearables', sales: 'KES 2.4M', items: 89, percentage: 15 },
-    { name: 'Home & Office', sales: 'KES 1.8M', items: 67, percentage: 10 },
-    { name: 'Gaming', sales: 'KES 1.2M', items: 45, percentage: 8 },
-]
+const PIE_COLORS = ['#0ea5e9', '#22c55e', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6']
 
-const TopCategoryReport: React.FC = () => {
+const TopCategoryReport: React.FC<TopCategoryReportProps> = ({ startDate, endDate }) => {
+    const [loading, setLoading] = useState(true)
+    const [data, setData] = useState<TopCategoryResponse | null>(null)
+
+    useEffect(() => {
+        fetchTopCategory()
+    }, [startDate, endDate])
+
+    const fetchTopCategory = async () => {
+        try {
+            setLoading(true)
+            const query: { startDate?: string; endDate?: string } = {}
+            if (startDate) {
+                query.startDate = dayjs(startDate).format('YYYY-MM-DD')
+                query.endDate = endDate ? dayjs(endDate).format('YYYY-MM-DD') : dayjs(startDate).format('YYYY-MM-DD')
+            }
+            const response = await reportsService.getTopCategory(query)
+            setData(response)
+        } catch (err: any) {
+            const axiosError = err?.error || err
+            const serverMessage = axiosError?.response?.data?.message || axiosError?.message || 'Failed to fetch top category data'
+            console.error('Error fetching top category:', axiosError?.response?.data || axiosError)
+            toast.error(serverMessage)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const currentData: TopCategoryItem[] = data?.data || []
+    const grandTotal = currentData.reduce((acc, item) => acc + item.totalPrice, 0)
+
+    // Top 5 for pie chart
+    const pieChartData = currentData.slice(0, 5).map((item) => ({
+        label: item.name,
+        value: item.totalPrice,
+    }))
+
+    const formatTooltipValue = (value: number) => formatCurrency(value, true)
+
+    if (loading) {
+        return (
+            <div className="space-y-4 px-4 py-4">
+                <div className="bg-white dark:bg-gray-800 rounded-sm p-4 shadow-sm">
+                    <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                </div>
+                {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="bg-white dark:bg-gray-800 rounded-sm p-4 shadow-sm">
+                        <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                    </div>
+                ))}
+            </div>
+        )
+    }
+
     return (
-        <div className="px-4 py-4 space-y-4">
-            {/* Summary Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <p className="text-gray-500 dark:text-gray-400 text-sm">Highest Selling Category</p>
-                <p className="text-3xl font-bold text-primary-600 dark:text-primary-400">Electronics</p>
-                <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">45% of total sales</p>
+        <div className="flex flex-col h-full">
+            <div className="flex-shrink-0 px-4 pt-4">
+                <ReportPieChart
+                    data={pieChartData}
+                    height={220}
+                    colors={PIE_COLORS}
+                    tooltipFormatter={formatTooltipValue}
+                />
             </div>
 
-            {/* Categories List */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
-                <h3 className="font-semibold text-gray-800 dark:text-gray-200 p-4 border-b dark:border-gray-700">Category Performance</h3>
-                <div className="divide-y dark:divide-gray-700">
-                    {categories.map((category, index) => (
-                        <div key={index} className="p-4">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="font-medium text-gray-800 dark:text-gray-200">{category.name}</span>
-                                <span className="font-semibold text-primary-600 dark:text-primary-400">{category.sales}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                                    <div
-                                        className="h-full bg-primary-500 rounded-full"
-                                        style={{ width: `${category.percentage}%` }}
-                                    />
+            <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
+                <div className="space-y-3">
+                    {currentData.map((item) => {
+                        const percentage = grandTotal > 0 ? Math.round((item.totalPrice / grandTotal) * 100) : 0;
+
+                        return (
+                            <div key={item.name} className="bg-white dark:bg-gray-800 rounded-sm p-4 shadow-sm">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span>
+                                        <span className="font-medium text-gray-800 dark:text-gray-200 block">{item.name}</span>
+                                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                                            {item.count} orders
+                                        </span>
+                                    </span>
+                                    <span className="text-sm font-semibold text-sky-600 dark:text-sky-400">
+                                        {formatCurrency(item.totalPrice, true)}
+                                    </span>
                                 </div>
-                                <span className="text-xs text-gray-500 dark:text-gray-400 w-10">{category.percentage}%</span>
+                                <div className="relative h-3.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-sky-500 rounded-full transition-all duration-300"
+                                        style={{ width: `${percentage}%` }}
+                                    />
+                                    <span
+                                        className={`absolute inset-0 flex items-center justify-center text-xs font-bold ${percentage > 49 ? 'text-white' : 'text-sky-600'}`}
+                                    >
+                                        {percentage}%
+                                    </span>
+                                </div>
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{category.items} items sold</p>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             </div>
         </div>
