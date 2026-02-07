@@ -1,10 +1,8 @@
-import { HiShare } from 'react-icons/hi';
-import { HiArrowLeft } from 'react-icons/hi2';
+import { HiShare, HiX } from 'react-icons/hi';
 import { formatCurrency } from '../../utils';
 import React, { useState, useCallback, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
 import { MobileDateFilter, ReportCard, ReportCardProps } from '../dashboard/components';
 import MobileTabPageHeader from '../../components/page/MobileTabPageHeader';
-import MobilePageHeader from '../../components/page/MobilePageHeader';
 import LoadingState from '../../components/loader/LoadingState';
 import reportsService, { ReportSummary } from '../../services/reports.service';
 import { toast } from 'react-toastify';
@@ -90,7 +88,7 @@ const MobileReport: React.FC = () => {
         {
             id: 'total-sales',
             name: 'Total Sales',
-            title: 'Total Sales Report',
+            title: 'REVENUE',
             value: formatCurrency(summary?.totalSales ?? 0, true),
             description: 'Revenue from all transactions',
         },
@@ -164,10 +162,46 @@ const MobileReport: React.FC = () => {
         return report?.title || 'Report Details';
     };
 
+    const getFormattedDateRange = (): string => {
+        if (!startDate) return '';
+        const startStr = dayjs(startDate).format('DD MMM YYYY');
+        if (!endDate || dayjs(startDate).isSame(endDate, 'day')) {
+            return startStr;
+        }
+        return `${startStr} - ${dayjs(endDate).format('DD MMM YYYY')}`;
+    };
+
+    const renderDetailHeader = () => (
+        <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-3">
+                <button
+                    onClick={handleCloseDetail}
+                    className="p-1.5 -ml-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95 transition-all"
+                >
+                    <HiX className="w-6 h-6 text-sky-600 dark:text-sky-300" />
+                </button>
+                <div>
+                    <h1 className="text-lg font-semibold text-sky-500 dark:text-white">
+                        {getActiveReportTitle()}
+                    </h1>
+                    <p className="text-xs text-sky-500 dark:text-sky-400">
+                        {getFormattedDateRange()}
+                    </p>
+                </div>
+            </div>
+            <button
+                onClick={handleShare}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95 transition-all"
+            >
+                <HiShare className="w-5 h-5 text-sky-600 dark:text-sky-300" />
+            </button>
+        </div>
+    );
+
     const renderDetailContent = () => {
         switch (activeReport) {
             case 'total-sales':
-                return <TotalSalesReport />;
+                return <TotalSalesReport startDate={startDate} endDate={endDate} />;
             case 'gross-profit':
                 return <GrossProfitReport />;
             case 'top-stocks':
@@ -224,11 +258,7 @@ const MobileReport: React.FC = () => {
 
             {activeReport && (
                 <div className="fixed inset-0 z-[100] bg-gray-100 dark:bg-gray-900 flex flex-col animate-slide-in-right">
-                    <MobilePageHeader
-                        title={getActiveReportTitle()}
-                        leftIcon={<HiArrowLeft className="w-6 h-6" />}
-                        onLeftPress={handleCloseDetail}
-                    />
+                    {renderDetailHeader()}
                     <div className="flex-1 overflow-y-auto">
                         <Suspense fallback={<LoadingState />}>
                             {renderDetailContent()}
