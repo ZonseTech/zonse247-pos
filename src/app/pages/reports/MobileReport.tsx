@@ -103,7 +103,7 @@ const MobileReport: React.FC = () => {
         {
             id: 'top-stocks',
             name: 'Top Stocks',
-            title: 'Top Stocks Report',
+            title: 'Top Stocks',
             value: `${summary?.topStocks ?? 0} items`,
             description: 'Best performing inventory items',
         },
@@ -126,7 +126,6 @@ const MobileReport: React.FC = () => {
             name: 'Payment Modes',
             title: 'Payment Modes Report',
             value: `${summary?.paymentModes ?? 0} methods`,
-            description: 'Cash, E-Pay, Bank, Split payments',
         },
     ], [summary]);
 
@@ -206,9 +205,9 @@ const MobileReport: React.FC = () => {
             case 'gross-profit':
                 return <GrossProfitReport startDate={startDate} endDate={endDate} />;
             case 'top-stocks':
-                return <TopStocksReport />;
+                return <TopStocksReport startDate={startDate} endDate={endDate} />;
             case 'top-category':
-                return <TopCategoryReport />;
+                return <TopCategoryReport startDate={startDate} endDate={endDate} />;
             case 'receipt-count':
                 return <ReceiptCountReport startDate={startDate} endDate={endDate} />;
             case 'payment-modes':
