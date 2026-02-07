@@ -210,9 +210,9 @@ const MobileReport: React.FC = () => {
             case 'top-category':
                 return <TopCategoryReport />;
             case 'receipt-count':
-                return <ReceiptCountReport />;
+                return <ReceiptCountReport startDate={startDate} endDate={endDate} />;
             case 'payment-modes':
-                return <PaymentModesReport />;
+                return <PaymentModesReport startDate={startDate} endDate={endDate} />;
             default:
                 return null;
         }
