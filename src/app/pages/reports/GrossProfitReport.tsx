@@ -1,47 +1,117 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { formatCurrency } from '../../utils'
+import reportsService, { GrossProfitDataPoint, GrossProfitResponse } from '../../services/reports.service'
+import { toast } from 'react-toastify'
+import dayjs from 'dayjs'
+import { ReportBarChart, ReportProgressBar } from '../../components'
+import { HiInformationCircle } from 'react-icons/hi'
 
-const GrossProfitReport: React.FC = () => {
-    return (
-        <div className="px-4 py-4 space-y-4">
-            {/* Summary Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <p className="text-gray-500 dark:text-gray-400 text-sm">Gross Profit</p>
-                <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-                    {formatCurrency(450000, true)}
-                </p>
-                <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">Selling price minus cost price</p>
-            </div>
+type TabType = 'hourly' | 'weekly' | 'monthly'
 
-            {/* Profit Margin */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">Profit Analysis</h3>
-                <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                        <span className="text-gray-600 dark:text-gray-400">Total Revenue</span>
-                        <span className="font-medium dark:text-gray-200">{formatCurrency(1250000, true)}</span>
+interface GrossProfitReportProps {
+    startDate?: Date | null
+    endDate?: Date | null
+}
+
+const GrossProfitReport: React.FC<GrossProfitReportProps> = ({ startDate, endDate }) => {
+    const [activeTab, setActiveTab] = useState<TabType>('hourly')
+    const [loading, setLoading] = useState(true)
+    const [data, setData] = useState<GrossProfitResponse | null>(null)
+
+    useEffect(() => {
+        fetchGrossProfit()
+    }, [startDate, endDate])
+
+    const fetchGrossProfit = async () => {
+        try {
+            setLoading(true)
+            const query: { startDate?: string; endDate?: string } = {}
+            if (startDate) {
+                query.startDate = dayjs(startDate).format('YYYY-MM-DD')
+                query.endDate = endDate ? dayjs(endDate).format('YYYY-MM-DD') : dayjs(startDate).format('YYYY-MM-DD')
+            }
+            const response = await reportsService.getGrossProfit(query)
+            setData(response)
+        } catch (err: any) {
+            const axiosError = err?.error || err
+            const serverMessage = axiosError?.response?.data?.message || axiosError?.message || 'Failed to fetch gross profit data'
+            console.error('Error fetching gross profit:', axiosError?.response?.data || axiosError)
+            toast.error(serverMessage)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const currentData: GrossProfitDataPoint[] = data?.[activeTab]?.data || []
+    const grandTotal = currentData.reduce((acc, item) => acc + item.value, 0)
+
+    const formatTooltipValue = (value: number) => formatCurrency(value, true)
+
+    if (loading) {
+        return (
+            <div className="space-y-4">
+                <div className="flex bg-white dark:bg-gray-800 rounded-none shadow-none">
+                    {(['hourly', 'weekly', 'monthly'] as TabType[]).map((tab) => (
+                        <div key={tab} className="flex-1 py-3 px-3">
+                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                        </div>
+                    ))}
+                </div>
+                <div className="px-4 space-y-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-sm p-4 shadow-sm">
+                        <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
                     </div>
-                    <div className="flex justify-between items-center">
-                        <span className="text-gray-600 dark:text-gray-400">Cost of Goods</span>
-                        <span className="font-medium text-red-500">-{formatCurrency(800000, true)}</span>
-                    </div>
-                    <hr className="dark:border-gray-700" />
-                    <div className="flex justify-between items-center">
-                        <span className="text-gray-800 dark:text-gray-200 font-semibold">Gross Profit</span>
-                        <span className="font-bold text-green-600 dark:text-green-400">{formatCurrency(450000, true)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                        <span className="text-gray-600 dark:text-gray-400">Profit Margin</span>
-                        <span className="font-medium text-green-600 dark:text-green-400">36%</span>
-                    </div>
+                    {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="bg-white dark:bg-gray-800 rounded-sm p-4 shadow-sm">
+                            <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                        </div>
+                    ))}
                 </div>
             </div>
+        )
+    }
 
-            {/* Placeholder for chart */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">Profit Trend</h3>
-                <div className="h-48 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center text-gray-400">
-                    Chart placeholder
+    return (
+        <div className="space-y-4">
+            <div className="px-4 flex items-center gap-1.5">
+                <HiInformationCircle className="w-4 h-4 text-sky-500 dark:text-sky-400 flex-shrink-0" />
+                <p className="text-xs text-sky-600 dark:text-sky-400">
+                    Profits after giving discount
+                </p>
+            </div>
+            <div className="flex bg-white dark:bg-gray-800 rounded-none shadow-none">
+                {(['hourly', 'weekly', 'monthly'] as TabType[]).map((tab) => (
+                    <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`flex-1 py-3 px-3 text-sm font-medium uppercase transition-colors ${activeTab === tab
+                            ? 'text-sky-600 dark:text-sky-400 border-b-2 border-sky-600 dark:border-sky-400'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border-b-2 border-transparent'
+                            }`}
+                    >
+                        {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    </button>
+                ))}
+            </div>
+
+            <div className="px-4 space-y-4">
+                <ReportBarChart
+                    data={currentData}
+                    tooltipFormatter={formatTooltipValue}
+                />
+
+                <div className="space-y-3">
+                    {currentData.map((item) => {
+                        const percentage = grandTotal > 0 ? Math.round((item.value / grandTotal) * 100) : 0
+                        return (
+                            <ReportProgressBar
+                                key={item.label}
+                                label={item.label}
+                                value={formatCurrency(item.value, true)}
+                                percentage={percentage}
+                            />
+                        )
+                    })}
                 </div>
             </div>
         </div>
