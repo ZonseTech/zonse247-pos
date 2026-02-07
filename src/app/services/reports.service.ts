@@ -57,10 +57,49 @@ export interface GrossProfitQuery {
     branchId?: string;
 }
 
+export interface ReceiptCountDataPoint {
+    label: string;
+    value: number;
+}
+
+export interface ReceiptCountTabData {
+    data: ReceiptCountDataPoint[];
+}
+
+export interface ReceiptCountResponse {
+    hourly: ReceiptCountTabData;
+    weekly: ReceiptCountTabData;
+    monthly: ReceiptCountTabData;
+}
+
+export interface ReceiptCountQuery {
+    startDate?: string;
+    endDate?: string;
+    branchId?: string;
+}
+
+export interface PaymentModeDataPoint {
+    label: string;
+    value: number;
+    transactions: number;
+}
+
+export interface PaymentModesResponse {
+    data: PaymentModeDataPoint[];
+}
+
+export interface PaymentModesQuery {
+    startDate?: string;
+    endDate?: string;
+    branchId?: string;
+}
+
 const endpoints = {
     summary: 'reports/summary',
     totalSales: 'reports/total-sales',
     grossProfit: 'reports/gross-profit',
+    receiptCount: 'reports/receipt-count',
+    paymentModes: 'reports/payment-modes',
 };
 
 const reportsService = {
@@ -99,6 +138,32 @@ const reportsService = {
     async getGrossProfit(query: GrossProfitQuery = {}): Promise<GrossProfitResponse> {
         return api
             .get<ApiResponse<GrossProfitResponse>>(endpoints.grossProfit, query)
+            .then((res) => res.data.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * GET /api/v1/reports/receipt-count
+     * Fetches the receipt count data for the sales count report
+     */
+    async getReceiptCount(query: ReceiptCountQuery = {}): Promise<ReceiptCountResponse> {
+        return api
+            .get<ApiResponse<ReceiptCountResponse>>(endpoints.receiptCount, query)
+            .then((res) => res.data.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * GET /api/v1/reports/payment-modes
+     * Fetches the payment modes breakdown data
+     */
+    async getPaymentModes(query: PaymentModesQuery = {}): Promise<PaymentModesResponse> {
+        return api
+            .get<ApiResponse<PaymentModesResponse>>(endpoints.paymentModes, query)
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
