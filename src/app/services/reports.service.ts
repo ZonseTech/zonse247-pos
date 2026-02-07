@@ -94,12 +94,46 @@ export interface PaymentModesQuery {
     branchId?: string;
 }
 
+export interface TopStockItem {
+    name: string;
+    quantity: number;
+    pricing: number;
+}
+
+export interface TopStocksResponse {
+    data: TopStockItem[];
+}
+
+export interface TopStocksQuery {
+    startDate?: string;
+    endDate?: string;
+    branchId?: string;
+}
+
+export interface TopCategoryItem {
+    name: string;
+    count: number;
+    totalPrice: number;
+}
+
+export interface TopCategoryResponse {
+    data: TopCategoryItem[];
+}
+
+export interface TopCategoryQuery {
+    startDate?: string;
+    endDate?: string;
+    branchId?: string;
+}
+
 const endpoints = {
     summary: 'reports/summary',
     totalSales: 'reports/total-sales',
     grossProfit: 'reports/gross-profit',
     receiptCount: 'reports/receipt-count',
     paymentModes: 'reports/payment-modes',
+    topStocks: 'reports/top-stocks',
+    topCategory: 'reports/top-categories',
 };
 
 const reportsService = {
@@ -164,6 +198,32 @@ const reportsService = {
     async getPaymentModes(query: PaymentModesQuery = {}): Promise<PaymentModesResponse> {
         return api
             .get<ApiResponse<PaymentModesResponse>>(endpoints.paymentModes, query)
+            .then((res) => res.data.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * GET /api/v1/reports/top-stocks
+     * Fetches the top 10 selling stocks data
+     */
+    async getTopStocks(query: TopStocksQuery = {}): Promise<TopStocksResponse> {
+        return api
+            .get<ApiResponse<TopStocksResponse>>(endpoints.topStocks, query)
+            .then((res) => res.data.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * GET /api/v1/reports/top-category
+     * Fetches the top category data with order count and total price
+     */
+    async getTopCategory(query: TopCategoryQuery = {}): Promise<TopCategoryResponse> {
+        return api
+            .get<ApiResponse<TopCategoryResponse>>(endpoints.topCategory, query)
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
