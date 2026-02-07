@@ -1,6 +1,7 @@
 export { PublicAuthRoutes, ProtectedAuthRoutes } from './auth.routes'
 export { DashboardRoutes } from './dashboard.routes'
 export { MobileTabRoutes, DesktopPosRoute } from './pos.routes'
+export { MobileReportRoutes } from './mobile-reports.routes'
 export { SalesRoutes } from './sales.routes'
 export { InventoryRoutes } from './inventory.routes'
 export { ProductRoutes } from './products.routes'
