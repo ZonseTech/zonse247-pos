@@ -26,10 +26,7 @@ const VariantCard: FunctionComponent<VariantCardProps> = ({ variant, index, onCl
         <FormFieldCard onClick={onClick} className="cursor-pointer active:bg-gray-50 dark:active:bg-gray-700/50 transition-colors !p-3">
             <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {variant.variantName || `Variant ${index + 1}`}
-                </span>
-                <span className="text-[10px] text-gray-400 dark:text-gray-500">
-                    #{index + 1}
+                    {variant.variantName || `Enter Variant Name`}
                 </span>
             </div>
             <div className="grid grid-cols-3 gap-2 mt-2 py-2 border-y border-gray-200 dark:border-gray-700">
