@@ -159,15 +159,18 @@ const FormInput: React.FC<TextInputProps & React.InputHTMLAttributes<HTMLInputEl
 	const [field, meta, helpers] = useField({ ...props, name });
 	const [showPassword, setShowPassword] = useState(false);
 
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		let value = e.target.value;
-
-		if (value.length > 0) {
-			value = value.charAt(0).toUpperCase() + value.slice(1);
+	// For number inputs, show empty string when value is 0 to display placeholder instead
+	const getDisplayValue = () => {
+		if (field.value === null || field.value === undefined) {
+			return '';
 		}
-
-		helpers.setValue(value);
+		if (type === 'number' && (field.value === 0 || field.value === '0')) {
+			return '';
+		}
+		return field.value;
 	};
+
+	const fieldValue = { ...field, value: getDisplayValue() };
 
 	const isPasswordType = type === 'password';
 	const inputType = isPasswordType && showPassword ? 'text' : type;
@@ -179,8 +182,7 @@ const FormInput: React.FC<TextInputProps & React.InputHTMLAttributes<HTMLInputEl
 			</Label>
 			<div className="relative">
 				<Input
-					{...field}
-					// onChange={handleChange}
+					{...fieldValue}
 					{...props}
 					type={inputType}
 					step={step as string}
