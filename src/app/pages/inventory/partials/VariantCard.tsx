@@ -18,7 +18,7 @@ interface VariantCardProps {
 }
 
 const VariantCard: FunctionComponent<VariantCardProps> = ({ variant, index, onClick }) => {
-    const sellPrice = Number(variant.sellPrice) || 0;
+    const sellingPrice = Number(variant.sellingPrice) || 0;
     const costPrice = Number(variant.costPrice) || 0;
     const quantity = Number(variant.quantity) || 0;
 
@@ -33,7 +33,7 @@ const VariantCard: FunctionComponent<VariantCardProps> = ({ variant, index, onCl
                 <div>
                     <span className="text-[10px] text-gray-500 dark:text-gray-400">Selling Price <span>*</span></span>
                     <p className="text-xs font-medium text-gray-900 dark:text-gray-100">
-                        {formatCurrency(sellPrice, true)}
+                        {formatCurrency(sellingPrice, true)}
                     </p>
                 </div>
                 <div>

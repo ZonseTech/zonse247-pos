@@ -47,12 +47,12 @@ const VariantModal: FunctionComponent<VariantModalProps> = ({
 }) => {
     const { values, setFieldValue } = useFormikContext<InventoryFormValues>();
     const [isBarcodeScannerOpen, setIsBarcodeScannerOpen] = useState(false);
-    const [sellPriceError, setSellPriceError] = useState<string | null>(null);
+    const [sellingPriceError, setSellingPriceError] = useState<string | null>(null);
     const { triggerFeedback } = useScannerFeedback();
 
     const fieldPrefix = `variants.${variantIndex}`;
     const variant = isNewVariant ? newVariantData : values.variants?.[variantIndex];
-    const isVariantEmpty = !variant?.sellPrice || Number(variant.sellPrice) === 0;
+    const isVariantEmpty = !variant?.sellingPrice || Number(variant.sellingPrice) === 0;
     const canDelete = !isNewVariant && !isVariantEmpty && values.variants && values.variants.length > 1;
 
     const updateField = (field: keyof Variant, value: unknown) => {
@@ -61,8 +61,8 @@ const VariantModal: FunctionComponent<VariantModalProps> = ({
         } else {
             setFieldValue(`${fieldPrefix}.${field}`, value);
         }
-        if (field === 'sellPrice') {
-            setSellPriceError(null);
+        if (field === 'sellingPrice') {
+            setSellingPriceError(null);
         }
     };
 
@@ -98,9 +98,9 @@ const VariantModal: FunctionComponent<VariantModalProps> = ({
     };
 
     const validateVariant = (): boolean => {
-        const sellPrice = isNewVariant ? newVariantData?.sellPrice : variant?.sellPrice;
-        if (!sellPrice || Number(sellPrice) <= 0) {
-            setSellPriceError('Selling price cannot be 0');
+        const sellingPrice = isNewVariant ? newVariantData?.sellingPrice : variant?.sellingPrice;
+        if (!sellingPrice || Number(sellingPrice) <= 0) {
+            setSellingPriceError('Selling price cannot be 0');
             return false;
         }
         return true;
@@ -181,16 +181,16 @@ const VariantModal: FunctionComponent<VariantModalProps> = ({
                             <div className="space-y-1">
                                 <Label>Selling Price <span className="text-red-500">*</span></Label>
                                 <Input
-                                    value={getNumberValue('sellPrice')}
-                                    onChange={(e) => handleNumberChange('sellPrice', e.target.value)}
+                                    value={getNumberValue('sellingPrice')}
+                                    onChange={(e) => handleNumberChange('sellingPrice', e.target.value)}
                                     type="number"
                                     placeholder="0.00"
                                     min={0}
                                     step={0.01}
-                                    valid={sellPriceError ? false : undefined}
+                                    valid={sellingPriceError ? false : undefined}
                                 />
-                                {sellPriceError && (
-                                    <p className="text-sm text-red-500">{sellPriceError}</p>
+                                {sellingPriceError && (
+                                    <p className="text-sm text-red-500">{sellingPriceError}</p>
                                 )}
                             </div>
                             <div className="space-y-1">

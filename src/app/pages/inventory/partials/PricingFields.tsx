@@ -20,12 +20,12 @@ const PricingFields: FunctionComponent<PricingFieldsProps> = ({
         return fieldPrefix ? getIn(values, name) : values[field];
     };
 
-    const sellPriceName = getFieldName('sellPrice');
+    const sellingPriceName = getFieldName('sellingPrice');
     const costPriceName = getFieldName('costPrice');
     const marginName = getFieldName('margin');
 
     const costPrice = getFieldValue('costPrice') as number | string;
-    const sellPrice = getFieldValue('sellPrice') as number | string;
+    const sellingPrice = getFieldValue('sellingPrice') as number | string;
     const margin = getFieldValue('margin');
 
     const handleTrackProfitClick = () => {
@@ -46,7 +46,7 @@ const PricingFields: FunctionComponent<PricingFieldsProps> = ({
 
     useEffect(() => {
         if (trackingCost) {
-            const sell = Number(sellPrice) || 0;
+            const sell = Number(sellingPrice) || 0;
             const cost = Number(costPrice) || 0;
             if (sell > 0 && cost > 0) {
                 const marginValue = ((sell - cost) / sell) * 100;
@@ -55,7 +55,7 @@ const PricingFields: FunctionComponent<PricingFieldsProps> = ({
                 setFieldValue(marginName, '0');
             }
         }
-    }, [sellPrice, costPrice, trackingCost, setFieldValue, marginName]);
+    }, [sellingPrice, costPrice, trackingCost, setFieldValue, marginName]);
 
     useEffect(() => {
         const cost = Number(costPrice) || 0;
@@ -69,7 +69,7 @@ const PricingFields: FunctionComponent<PricingFieldsProps> = ({
             <div className={`grid gap-3 ${showTrackProfit && trackingCost ? 'grid-cols-3' : showTrackProfit ? 'grid-cols-2' : 'grid-cols-1'}`}>
                 <FormInput
                     label="Selling Price"
-                    name={sellPriceName}
+                    name={sellingPriceName}
                     type="number"
                     required
                     placeholder="0.00"

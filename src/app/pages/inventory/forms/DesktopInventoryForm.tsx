@@ -72,7 +72,7 @@ const DesktopInventoryForm: FunctionComponent<DesktopInventoryFormProps> = ({
         weight: 0,
         categoryId: '',
         costPrice: 0,
-        sellPrice: 0,
+        sellingPrice: 0,
         promoPrice: 0,
         promoStart: '',
         promoEnd: '',
@@ -111,7 +111,7 @@ const DesktopInventoryForm: FunctionComponent<DesktopInventoryFormProps> = ({
             .max(100, 'Barcode is too long'),
         costPrice: Yup.number()
             .min(0, 'Cost price must be 0 or higher'),
-        sellPrice: Yup.number()
+        sellingPrice: Yup.number()
             .required('Sell price is required')
             .min(0, 'Sell price must be 0 or higher'),
         quantity: Yup.number()
@@ -139,7 +139,7 @@ const DesktopInventoryForm: FunctionComponent<DesktopInventoryFormProps> = ({
         weight: Yup.number().min(0, 'Weight must be 0 or higher'),
         costPrice: Yup.number()
             .min(0, 'Cost price must be 0 or higher'),
-        sellPrice: Yup.number()
+        sellingPrice: Yup.number()
             .required('Sell price is required')
             .min(0, 'Sell price must be 0 or higher'),
         promoPrice: Yup.number().min(0, 'Promo price must be 0 or higher'),
@@ -377,7 +377,7 @@ const DesktopInventoryForm: FunctionComponent<DesktopInventoryFormProps> = ({
 
                                         <FormInput
                                             label="Sell Price"
-                                            name="sellPrice"
+                                            name="sellingPrice"
                                             type="number"
                                             placeholder="0.00"
                                             required

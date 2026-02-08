@@ -42,7 +42,6 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
     unitOptions,
     onSubmit,
 }) => {
-    const navigate = useNavigate();
     const [isVariantModalOpen, setIsVariantModalOpen] = useState(false);
     const [editingVariantIndex, setEditingVariantIndex] = useState<number>(0);
     const [isNewVariant, setIsNewVariant] = useState(false);
@@ -60,6 +59,7 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                     id: item.productId || crypto.randomUUID(),
                     variantName: '',
                     barcode: item.barcode || '',
+                    primaryBarcode: item.barcode || '',
                     sku: item.sku || '',
                     brand: item.brand || '',
                     description: item.description || '',
@@ -68,7 +68,7 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                     dimensions: item.dimensions || '',
                     weight: item.weight || 0,
                     costPrice: item.costPrice || 0,
-                    sellPrice: item.sellPrice || 0,
+                    sellingPrice: item.sellingPrice || 0,
                     promoPrice: item.promoPrice || 0,
                     promoStart: item.promoStart ? new Date(item.promoStart).toISOString().split('T')[0] : '',
                     promoEnd: item.promoEnd ? new Date(item.promoEnd).toISOString().split('T')[0] : '',
@@ -82,10 +82,13 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                     trackInventory: item.trackInventory ?? true,
                     allowNegativeStock: item.allowNegativeStock ?? false,
                     isTaxable: item.isTaxable ?? true,
+                    isDefault: true,
+                    isActive: item.status !== 'inactive',
                     expirationDate: item.expirationDate ? new Date(item.expirationDate).toISOString().split('T')[0] : '',
                     manufactureDate: item.manufactureDate ? new Date(item.manufactureDate).toISOString().split('T')[0] : '',
                     supplierName: item.supplierName || '',
                     supplierCode: item.supplierCode || '',
+                    additionalBarcodes: [],
                 }],
             };
         }
@@ -96,9 +99,9 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
         variantName: Yup.string().max(100, 'Variant name is too long'),
         barcode: Yup.string().max(100, 'Barcode is too long'),
         sku: Yup.string().max(50, 'SKU is too long'),
-        sellPrice: Yup.number()
-            .required('Sell price is required')
-            .min(0, 'Sell price must be 0 or higher'),
+        sellingPrice: Yup.number()
+            .required('Selling price is required')
+            .min(0, 'Selling price must be 0 or higher'),
         costPrice: Yup.number().min(0, 'Cost price must be 0 or higher'),
         quantity: Yup.number().min(0, 'Quantity cannot be negative'),
     });

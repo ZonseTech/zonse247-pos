@@ -11,6 +11,10 @@ import {
 } from '../../utils/api-error-handler';
 import DesktopInventoryForm from './forms/DesktopInventoryForm';
 import MobileInventoryForm from './forms/MobileInventoryForm';
+import {
+    InventoryFormValues,
+    validateStockLevels,
+} from './types/variant.types';
 
 const InventoryForm: FunctionComponent = () => {
     const navigate = useNavigate();
@@ -79,7 +83,104 @@ const InventoryForm: FunctionComponent = () => {
         { label: 'Centimeter (cm)', value: 'cm' }
     ];
 
-    const handleSubmit = async (
+    /**
+     * Handle Mobile Form submission (with variants structure)
+     * Sends the InventoryFormValues object directly - API handles field mapping
+     */
+    const handleMobileSubmit = async (
+        values: InventoryFormValues,
+        { resetForm, setErrors, setFieldError }: FormikHelpers<InventoryFormValues>
+    ) => {
+        setLoading(true);
+        try {
+            // Validate stock levels for the primary variant
+            const primaryVariant = values.variants[0];
+            if (primaryVariant) {
+                const stockValidationError = validateStockLevels(primaryVariant);
+                if (stockValidationError) {
+                    setFieldError(`variants.0.${stockValidationError.field}`, stockValidationError.message);
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            const inventoryRoute = ROUTES.MOBILE_INVENTORY;
+
+            if (productId) {
+                // Update existing item - send the form values directly
+                await inventoryService.update(productId, values as unknown as Partial<InventoryItem>);
+                await reloadInventory();
+                Report.success('Success', 'Inventory item updated successfully', 'Okay', () => {
+                    navigate(inventoryRoute);
+                });
+            } else {
+                // Create new item - send the form values directly
+                await inventoryService.store(values as unknown as InventoryItem);
+                await reloadInventory();
+                Confirm.show(
+                    'Item Saved',
+                    'Inventory item created successfully. What would you like to do?',
+                    'Add Another',
+                    'Go to Inventory',
+                    () => {
+                        resetForm();
+                    },
+                    () => {
+                        navigate(inventoryRoute);
+                    }
+                );
+            }
+        } catch (error: any) {
+            console.error('Error saving inventory item:', error);
+
+            const responseData = error?.error?.response?.data || error?.response?.data;
+            const mainMessage = responseData?.message || error?.message || 'Failed to save inventory item';
+            const detailedError = responseData?.error;
+            const fieldErrors = responseData?.data;
+
+            let fieldErrorsMessage = '';
+            if (fieldErrors && typeof fieldErrors === 'object' && !Array.isArray(fieldErrors)) {
+                fieldErrorsMessage = Object.entries(fieldErrors)
+                    .map(([field, message]) => `• ${field}: ${message}`)
+                    .join('\n');
+
+                // Map API field errors to form field paths for mobile form
+                const formErrors: Record<string, string> = {};
+                Object.entries(fieldErrors).forEach(([field, message], index) => {
+                    const fieldMapping: Record<string, string> = {
+                        'sellingPrice': `variants.${index}.sellingPrice`,
+                        'costPrice': `variants.${index}.costPrice`,
+                        'barcode': `variants.${index}.barcode`,
+                        'primaryBarcode': `variants.${index}.barcode`,
+                        'sku': `variants.${index}.sku`,
+                        'quantity': `variants.${index}.quantity`,
+                        'minStock': `variants.${index}.minStock`,
+                        'maxStock': `variants.${index}.maxStock`,
+                        'reorderLevel': `variants.${index}.reorderLevel`,
+                    };
+                    const formField = fieldMapping[field] || field;
+                    formErrors[formField] = message as string;
+                });
+                setErrors(formErrors);
+            }
+
+            let fullErrorMessage = mainMessage;
+            if (detailedError) {
+                fullErrorMessage += `:\n${detailedError}`;
+            } else if (fieldErrorsMessage) {
+                fullErrorMessage += `:\n${fieldErrorsMessage}`;
+            }
+
+            Report.failure('Error', fullErrorMessage, 'Okay');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    /**
+     * Handle Desktop Form submission (flat InventoryItem structure)
+     */
+    const handleDesktopSubmit = async (
         values: Partial<InventoryItem>,
         { resetForm, setErrors, setFieldError }: FormikHelpers<Partial<InventoryItem>>
     ) => {
@@ -101,10 +202,11 @@ const InventoryForm: FunctionComponent = () => {
                 return;
             }
 
+            // Transform to API format with sellingPrice
             const data = {
                 ...values,
                 costPrice: Number(values.costPrice),
-                sellPrice: Number(values.sellPrice),
+                sellingPrice: Number(values.sellingPrice), // API expects sellingPrice
                 promoPrice: Number(values.promoPrice) || 0,
                 weight: Number(values.weight) || 0,
                 minStock: minStock,
@@ -115,7 +217,7 @@ const InventoryForm: FunctionComponent = () => {
                 originalQuantity: values.originalQuantity?.toString() || values.quantity?.toString() || '0',
             } as InventoryItem;
 
-            const inventoryRoute = isMobile ? ROUTES.MOBILE_INVENTORY : ROUTES.INVENTORY;
+            const inventoryRoute = ROUTES.INVENTORY;
 
             if (productId) {
                 await inventoryService.update(productId, data);
@@ -164,11 +266,7 @@ const InventoryForm: FunctionComponent = () => {
                 fullErrorMessage = error?.message || 'An unknown error occurred';
             }
 
-            Report.failure(
-                'Error',
-                fullErrorMessage,
-                'Okay'
-            );
+            Report.failure('Error', fullErrorMessage, 'Okay');
         } finally {
             setLoading(false);
         }
@@ -182,7 +280,7 @@ const InventoryForm: FunctionComponent = () => {
                 loading={loading}
                 statusOptions={statusOptions}
                 unitOptions={unitOptions}
-                onSubmit={handleSubmit}
+                onSubmit={handleMobileSubmit}
             />
         );
     }
@@ -194,7 +292,7 @@ const InventoryForm: FunctionComponent = () => {
             loading={loading}
             statusOptions={statusOptions}
             unitOptions={unitOptions}
-            onSubmit={handleSubmit}
+            onSubmit={handleDesktopSubmit}
         />
     );
 };
