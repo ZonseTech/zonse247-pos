@@ -16,7 +16,7 @@ interface InventoryItem {
     weight?: number;
     properties?: Record<string, any>;
     costPrice: number;
-    sellPrice: number;
+    sellingPrice: number;
     promoPrice?: number;
     promoStart?: Date | string;
     promoEnd?: Date | string;

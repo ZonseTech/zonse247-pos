@@ -18,7 +18,7 @@ interface ParkedSaleItem {
     categoryId: string;
     quantity: number;
     unitPrice: number;
-    sellPrice: number;
+    sellingPrice: number;
     purchasePrice: number;
     discount: number;
     taxAmount?: number;
@@ -96,7 +96,7 @@ interface CreateParkedSalePayload {
         categoryId: string;
         quantity: number;
         unitPrice: number;
-        sellPrice: number;
+        sellingPrice: number;
         purchasePrice: number;
         discount: number;
         taxAmount?: number;

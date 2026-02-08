@@ -5,7 +5,7 @@ interface OrderItem {
     productId: string;
     quantity: number;
     purchasePrice: number;
-    sellPrice: number;
+    sellingPrice: number;
     createdAt?: string;
     updatedAt?: string;
     synced?: number;
@@ -16,7 +16,7 @@ interface OrderSummary {
     itemCount: number;
     totalQuantity: number;
     totalPurchasePrice: number;
-    totalSellPrice: number;
+    totalSellingPrice: number;
     totalProfit: number;
     items: OrderItem[];
 }
@@ -38,7 +38,7 @@ interface CartItem {
     productId: string;
     name: string;
     categoryId: string;
-    sellPrice: number;
+    sellingPrice: number;
     discount: number;
     discountIsPercentage?: boolean;
     purchasePrice: number;

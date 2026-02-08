@@ -7,7 +7,7 @@ interface TopProduct {
     productId: string;
     name: string;
     quantity: number;
-    summedSellPrice: number;
+    summedSellingPrice: number;
     categoryName: string;
 }
 
@@ -29,6 +29,6 @@ type TopProduct = {
     uuid: string;
     name: string;
     quantity: number;
-    summedSellPrice: number;
+    summedSellingPrice: number;
     categoryName: string;
 };
