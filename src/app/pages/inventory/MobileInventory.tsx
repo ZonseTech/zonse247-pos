@@ -11,7 +11,6 @@ import { useCategories } from '../../hooks/useCategories';
 import { ROUTES } from '../../utils/constants';
 
 type TabType = 'items' | 'category';
-const ITEMS_PER_PAGE = 15;
 
 const MobileInventory: React.FC = () => {
     const navigate = useNavigate();
@@ -32,7 +31,6 @@ const MobileInventory: React.FC = () => {
         handlePageChange,
     } = useInventoryManagement();
 
-    // Track accumulated items for infinite scroll
     const [accumulatedItems, setAccumulatedItems] = useState<InventoryItem[]>([]);
 
     const {
@@ -42,18 +40,14 @@ const MobileInventory: React.FC = () => {
     } = useCategories();
 
     useEffect(() => {
-        loadInventory();
         loadCategories();
     }, []);
 
-    // Handle inventory data changes for infinite scroll
     useEffect(() => {
         if (inventoryData.length > 0) {
             if (page === 1) {
-                // Reset accumulated items on first page (new search/filter)
                 setAccumulatedItems(inventoryData);
             } else {
-                // Append new items for subsequent pages
                 setAccumulatedItems(prev => {
                     const existingIds = new Set(prev.map(item => item.productId));
                     const newItems = inventoryData.filter(item => !existingIds.has(item.productId));
@@ -68,7 +62,6 @@ const MobileInventory: React.FC = () => {
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             if (activeTab === 'items') {
-                // Reset to page 1 when search changes
                 handlePageChange(1);
                 setAccumulatedItems([]);
                 if (searchTerm) {

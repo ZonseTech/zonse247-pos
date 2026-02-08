@@ -46,6 +46,7 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
     const [isVariantModalOpen, setIsVariantModalOpen] = useState(false);
     const [editingVariantIndex, setEditingVariantIndex] = useState<number>(0);
     const [isNewVariant, setIsNewVariant] = useState(false);
+    const [newVariantData, setNewVariantData] = useState(createDefaultVariant());
     const [formMode, setFormMode] = useState<FormMode>('simple');
 
     const initialFormValues: InventoryFormValues = useMemo(() => {
@@ -118,15 +119,16 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
         setIsVariantModalOpen(true);
     };
 
-    const handleAddVariant = (setFieldValue: (field: string, value: unknown) => void, variants: InventoryFormValues['variants']) => {
-        const newVariant = createDefaultVariant();
-        const newVariants = [...variants, newVariant];
-        const newIndex = newVariants.length - 1;
-
-        setFieldValue('variants', newVariants);
-        setEditingVariantIndex(newIndex);
+    const handleOpenAddVariantModal = () => {
+        setNewVariantData(createDefaultVariant());
         setIsNewVariant(true);
         setIsVariantModalOpen(true);
+    };
+
+    const handleSaveNewVariant = (setFieldValue: (field: string, value: unknown) => void, variants: InventoryFormValues['variants']) => {
+        const newVariants = [...variants, newVariantData];
+        setFieldValue('variants', newVariants);
+        setEditingVariantIndex(newVariants.length - 1);
     };
 
     const handleDeleteVariant = (setFieldValue: (field: string, value: unknown) => void, variants: InventoryFormValues['variants'], index: number) => {
@@ -245,7 +247,7 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                                             <div className='flex items-center justify-center'>
                                                 <Button
                                                     type="button"
-                                                    onClick={() => handleAddVariant(setFieldValue, values.variants)}
+                                                    onClick={handleOpenAddVariantModal}
                                                     className='uppercase'
                                                 >
                                                     <span>Add Variant</span>
@@ -257,12 +259,23 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
 
                                     <VariantModal
                                         isOpen={isVariantModalOpen}
-                                        onClose={() => setIsVariantModalOpen(false)}
+                                        onClose={() => {
+                                            setIsVariantModalOpen(false);
+                                            if (isNewVariant) {
+                                                setNewVariantData(createDefaultVariant());
+                                            }
+                                        }}
                                         variantIndex={editingVariantIndex}
                                         statusOptions={statusOptions}
-                                        onSave={() => { }}
+                                        onSave={() => {
+                                            if (isNewVariant) {
+                                                handleSaveNewVariant(setFieldValue, values.variants);
+                                            }
+                                        }}
                                         onDelete={() => handleDeleteVariant(setFieldValue, values.variants, editingVariantIndex)}
                                         isNewVariant={isNewVariant}
+                                        newVariantData={isNewVariant ? newVariantData : undefined}
+                                        onNewVariantChange={isNewVariant ? setNewVariantData : undefined}
                                     />
                                 </div>
                             </div>
