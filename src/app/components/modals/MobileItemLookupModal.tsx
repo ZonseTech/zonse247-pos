@@ -172,7 +172,7 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
 
                                     <div className="text-right flex-shrink-0">
                                         <div className="font-bold text-sky-500 dark:text-sky-400">
-                                            {formatCurrency(parseFloat((item.sellPrice || 0).toString()))}
+                                            {formatCurrency(parseFloat((item.sellingPrice || 0).toString()))}
                                         </div>
                                         <div className="text-xs text-gray-500 dark:text-gray-400">
                                             {quantity} in stock

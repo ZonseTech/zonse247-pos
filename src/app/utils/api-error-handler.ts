@@ -136,7 +136,6 @@ const fieldNameMap: Record<string, string> = {
 	unique_product_barcode: 'Product Barcode',
 	sellingPrice: 'Selling Price',
 	costPrice: 'Cost Price',
-	sellPrice: 'Sell Price',
 	quantity: 'Quantity',
 	minStock: 'Minimum Stock',
 	maxStock: 'Maximum Stock',
@@ -245,8 +244,8 @@ export function parseApiError(error: unknown): ParsedApiError {
 		const apiErrors =
 			responseData.errors ||
 			(responseData.data &&
-			typeof responseData.data === 'object' &&
-			!Array.isArray(responseData.data)
+				typeof responseData.data === 'object' &&
+				!Array.isArray(responseData.data)
 				? responseData.data
 				: undefined);
 

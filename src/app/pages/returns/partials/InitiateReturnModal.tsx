@@ -99,7 +99,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
             returnReason: '',
             condition: 'good',
             notes: '',
-            price: typeof item.sellPrice === 'string' ? parseFloat(item.sellPrice) : item.sellPrice,
+            price: typeof item.sellingPrice === 'string' ? parseFloat(item.sellingPrice) : item.sellingPrice,
         };
 
         setSelectedItems([...selectedItems, newItem]);
@@ -249,8 +249,8 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
 
                                         // Get item name - supports Sale items (product.name) and Transaction items (productDetails.name)
                                         const itemName = item.product?.name || item.productDetails?.name || item.name || 'Unknown Product';
-                                        // Get item price - supports Sale items (unitPrice) and Transaction items (sellPrice)
-                                        const itemPrice = item.unitPrice || item.sellPrice || 0;
+                                        // Get item price - supports Sale items (unitPrice) and Transaction items (sellingPrice)
+                                        const itemPrice = item.unitPrice || item.sellingPrice || 0;
 
                                         return (
                                             <div
@@ -266,7 +266,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                                 <Button
                                                     type="button"
                                                     size="small"
-                                                    onClick={() => handleAddItem({ ...item, orderId: orderItemId, sellPrice: itemPrice, productDetails: { name: itemName } })}
+                                                    onClick={() => handleAddItem({ ...item, orderId: orderItemId, sellingPrice: itemPrice, productDetails: { name: itemName } })}
                                                     disabled={isAdded}
                                                     className="w-full sm:w-auto text-xs sm:text-sm"
                                                 >

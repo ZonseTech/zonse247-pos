@@ -30,7 +30,7 @@ const RenderTopProductRow: FunctionComponent<Props> = ({ product }) => {
 					{product.quantity}
 				</td>
 				<td className="px-6 py-4 text-sm text-right text-gray-500 dark:text-gray-400 whitespace-nowrap font-medium">
-					{formatCurrency(product.summedSellPrice)}
+					{formatCurrency(product.summedSellingPrice)}
 				</td>
 			</tr>
 		</Fragment>
