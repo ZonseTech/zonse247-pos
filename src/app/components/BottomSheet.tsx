@@ -2,6 +2,7 @@ import { FunctionComponent, ReactNode, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
+import { X } from 'lucide-react';
 
 interface BottomSheetProps {
     isOpen: boolean;
@@ -10,6 +11,8 @@ interface BottomSheetProps {
     title?: string;
     className?: string;
     showDragHandle?: boolean;
+    leftContent?: ReactNode;
+    rightContent?: ReactNode;
 }
 
 const BottomSheet: FunctionComponent<BottomSheetProps> = ({
@@ -19,6 +22,8 @@ const BottomSheet: FunctionComponent<BottomSheetProps> = ({
     title,
     className = '',
     showDragHandle = true,
+    leftContent,
+    rightContent,
 }) => {
     useEffect(() => {
         if (isOpen) {
@@ -32,7 +37,7 @@ const BottomSheet: FunctionComponent<BottomSheetProps> = ({
     }, [isOpen]);
 
     const sheetClass = classNames(
-        'absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-2xl shadow-2xl z-50 max-h-[85%] overflow-auto safe-area-bottom',
+        'absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-sm shadow-2xl z-50 max-h-[85%] flex flex-col safe-area-bottom',
         className
     );
 
@@ -71,21 +76,42 @@ const BottomSheet: FunctionComponent<BottomSheetProps> = ({
                             }
                         }}
                     >
-                        {showDragHandle && (
-                            <div className="flex justify-center py-3">
-                                <div className="w-12 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full" />
-                            </div>
-                        )}
+                        {/* Fixed Header */}
+                        <div className="flex-shrink-0">
+                            {showDragHandle && (
+                                <div className="flex justify-center py-3">
+                                    <div className="w-12 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full" />
+                                </div>
+                            )}
 
-                        {title && (
-                            <div className="px-4 pb-2 border-b border-gray-200 dark:border-gray-700">
-                                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-                                    {title}
-                                </h3>
-                            </div>
-                        )}
+                            {(title || leftContent || rightContent) && (
+                                <div className="flex items-center justify-between px-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                                    {leftContent ? (
+                                        leftContent
+                                    ) : title ? (
+                                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                                            {title}
+                                        </h3>
+                                    ) : (
+                                        <div />
+                                    )}
+                                    {rightContent ? (
+                                        rightContent
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={onClose}
+                                            className="p-1 rounded-full text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                        >
+                                            <X className="w-5 h-5" />
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
 
-                        <div className="p-4">
+                        {/* Scrollable Content */}
+                        <div className="flex-1 overflow-auto p-4">
                             {children}
                         </div>
                     </motion.div>

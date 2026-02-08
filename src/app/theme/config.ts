@@ -105,12 +105,12 @@ export default {
     },
     // Select
     select: {
-        base: 'block w-full text-sm focus:outline-none rounded-sm bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100',
-        active: 'focus:border-blue-500 dark:focus:border-blue-600 border-zinc-300 dark:border-zinc-600 focus:ring-1 focus:ring-blue-200 dark:focus:ring-blue-900',
+        base: 'block w-full px-3 py-2 md:p-3 text-sm focus:outline-none rounded-md md:rounded-sm bg-gray-100 md:bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 border-0 md:border md:border-zinc-300 md:dark:border-zinc-600',
+        active: 'focus:ring-0 md:focus:ring-1 md:focus:ring-blue-200 md:dark:focus:ring-blue-900 md:focus:border-blue-500 md:dark:focus:border-blue-600',
         select: 'leading-5',
         disabled: 'cursor-not-allowed opacity-50 bg-zinc-200 dark:bg-zinc-700',
-        valid: 'border-emerald-500 dark:border-emerald-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 dark:focus:ring-emerald-900',
-        invalid: 'border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-200 dark:focus:ring-red-900',
+        valid: 'border-emerald-500 dark:border-emerald-500 focus:ring-0 md:focus:ring-1 md:focus:ring-emerald-200 md:dark:focus:ring-emerald-900 md:focus:border-emerald-500',
+        invalid: 'border-red-500 dark:border-red-500 focus:ring-0 md:focus:ring-1 md:focus:ring-red-200 md:dark:focus:ring-red-900 md:focus:border-red-500',
     },
     // Label
     label: {
@@ -120,13 +120,13 @@ export default {
     },
     // Input
     input: {
-        base: 'block w-full p-3 text-sm focus:outline-none text-zinc-800 dark:text-zinc-100 leading-5 rounded-sm bg-white dark:bg-zinc-800 placeholder-zinc-400 dark:placeholder-zinc-500',
-        active: 'focus:border-blue-500 dark:focus:border-blue-600 border-zinc-300 dark:border-zinc-600 focus:ring-1 focus:ring-blue-200 dark:focus:ring-blue-900',
+        base: 'block w-full px-3 py-2 md:p-3 text-sm focus:outline-none text-zinc-800 dark:text-zinc-100 leading-5 rounded-sm md:rounded-sm bg-gray-100 md:bg-white dark:bg-zinc-800 placeholder-zinc-400 dark:placeholder-zinc-500 border-0 md:border md:border-zinc-300 md:dark:border-zinc-600',
+        active: 'focus:ring-0 md:focus:ring-1 md:focus:ring-blue-200 md:dark:focus:ring-blue-900 md:focus:border-blue-500 md:dark:focus:border-blue-600',
         disabled: 'cursor-not-allowed opacity-50 bg-zinc-200 dark:bg-zinc-700',
-        valid: 'border-emerald-500 dark:border-emerald-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 dark:focus:ring-emerald-900',
-        invalid: 'border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-200 dark:focus:ring-red-900',
-        radio: 'text-blue-600 dark:text-blue-500 form-radio focus:border-blue-500 dark:focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-200 dark:focus:ring-blue-900 focus:ring-offset-0 bg-zinc-100 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600',
-        checkbox: 'text-blue-600 dark:text-blue-500 form-checkbox focus:border-blue-500 dark:focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-200 dark:focus:ring-blue-900 focus:ring-offset-0 rounded bg-zinc-100 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600',
+        valid: 'border-emerald-500 dark:border-emerald-500 focus:ring-0 md:focus:ring-1 md:focus:ring-emerald-200 md:dark:focus:ring-emerald-900 md:focus:border-emerald-500',
+        invalid: 'border-red-500 dark:border-red-500 focus:ring-0 md:focus:ring-1 md:focus:ring-red-200 md:dark:focus:ring-red-900 md:focus:border-red-500',
+        radio: 'text-blue-600 dark:text-blue-500 form-radio focus:outline-none focus:ring-0 md:focus:ring-1 md:focus:ring-blue-200 md:dark:focus:ring-blue-900 focus:ring-offset-0 bg-zinc-100 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600',
+        checkbox: 'text-blue-600 dark:text-blue-500 form-checkbox focus:outline-none focus:ring-0 md:focus:ring-1 md:focus:ring-blue-200 md:dark:focus:ring-blue-900 focus:ring-offset-0 rounded bg-zinc-100 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600',
     },
     // HelperText
     helperText: {
