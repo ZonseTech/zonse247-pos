@@ -221,7 +221,7 @@ const InventoryManagement: FunctionComponent = () => {
             item.quantity,
             item.unit || 'pc',
             item.costPrice,
-            item.sellPrice,
+            item.sellingPrice,
             item.minStock || 0,
             Number(item.quantity) <= 0 ? 'Out of Stock' : Number(item.quantity) <= Number(item.minStock || 0) ? 'Low Stock' : 'In Stock'
         ]);

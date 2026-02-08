@@ -28,7 +28,7 @@ export const getInventoryColumns = (
         {
             name: "Sell Price",
             selector: (row) => {
-                const price = Number(row.sellPrice);
+                const price = Number(row.sellingPrice);
                 return isNaN(price) ? "0.00" : formatCurrency(price);
             },
         },

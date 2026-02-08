@@ -30,7 +30,7 @@ const MobileInventoryCard: React.FC<MobileInventoryCardProps> = ({ item, onTap }
                         {item.name}
                     </p>
                     <p className="text-sm font-semibold text-sky-500 dark:text-sky-400 mt-0.5">
-                        {formatCurrency(item.sellPrice, true)}
+                        {formatCurrency(item.sellingPrice, true)}
                     </p>
                 </div>
 

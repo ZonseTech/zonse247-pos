@@ -148,7 +148,7 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
                         <div>
                             <span className="text-xs text-gray-500 dark:text-gray-400 block">Sell</span>
                             <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                                {formatCurrency(Number(item.sellPrice) || 0)}
+                                {formatCurrency(Number(item.sellingPrice) || 0)}
                             </span>
                         </div>
                     </div>

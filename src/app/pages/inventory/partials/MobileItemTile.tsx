@@ -70,7 +70,7 @@ const ItemTile: React.FC<ItemTileProps> = ({ item, onTap, cartQuantity }) => {
             </p>
 
             <p className="text-sm font-semibold text-sky-500 dark:text-sky-400">
-                {formatCurrency(item.sellPrice)}
+                {formatCurrency(item.sellingPrice)}
             </p>
         </button>
     );
