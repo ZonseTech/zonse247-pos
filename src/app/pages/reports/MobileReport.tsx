@@ -172,7 +172,7 @@ const MobileReport: React.FC = () => {
     };
 
     const renderDetailHeader = () => (
-        <div className="flex items-center uppercase justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center uppercase justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 safe-area-top-android">
             <div className="flex items-center gap-3">
                 <button
                     onClick={handleCloseDetail}
