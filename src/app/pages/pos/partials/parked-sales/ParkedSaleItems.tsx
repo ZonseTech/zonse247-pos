@@ -22,11 +22,11 @@ const ParkedSaleItems: FunctionComponent<ParkedSaleItemsProps> = ({
                                 {item.name}
                             </p>
                             <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {item.quantity} × {formatCurrency(item.sellPrice || item.unitPrice)}
+                                {item.quantity} × {formatCurrency(item.sellingPrice || item.unitPrice)}
                             </p>
                         </div>
                         <p className="font-medium text-gray-800 dark:text-gray-100">
-                            {formatCurrency((item.sellPrice || item.unitPrice) * item.quantity)}
+                            {formatCurrency((item.sellingPrice || item.unitPrice) * item.quantity)}
                         </p>
                     </div>
                 ))}

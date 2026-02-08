@@ -48,7 +48,7 @@ const CartItemCard: FunctionComponent<CartItemProps> = ({ customPriceInputs,
                                         </h3>
                                         <div className="flex items-center gap-2">
                                             <span className="text-gray-900 dark:text-gray-100 font-semibold">
-                                                {formatCurrency(item.sellPrice * item.quantity)}
+                                                {formatCurrency(item.sellingPrice * item.quantity)}
                                             </span>
                                             {item.discount > 0 && (
                                                 <span className="text-green-500 dark:text-green-400 text-xs">
@@ -59,7 +59,7 @@ const CartItemCard: FunctionComponent<CartItemProps> = ({ customPriceInputs,
                                     </div>
                                     <div className="text-right ml-2">
                                         <PriceControl
-                                            sellPrice={item.sellPrice}
+                                            sellingPrice={item.sellingPrice}
                                             categoryId={item.categoryId}
                                             productId={item.productId}
                                             customPriceInput={customPriceInputs[item.productId] || ''}

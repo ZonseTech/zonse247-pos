@@ -136,7 +136,7 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
                 items: cart.map(item => ({
                     productId: item.productId,
                     quantity: item.quantity,
-                    unitPrice: item.sellPrice,
+                    unitPrice: item.sellingPrice,
                     taxAmount: 0,
                     discountAmount: item.discount || 0,
                 })),

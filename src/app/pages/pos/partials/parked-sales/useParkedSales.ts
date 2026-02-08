@@ -79,7 +79,7 @@ export const useParkedSales = (
                                 const itemToAdd = {
                                     ...inventoryItem,
                                     orderItems: item.quantity,
-                                    sellPrice: item.sellPrice || item.unitPrice,
+                                    sellingPrice: item.sellingPrice || item.unitPrice,
                                     variancePrice: item.variancePrice,
                                 };
                                 addToCart(itemToAdd as InventoryItem);
@@ -90,7 +90,7 @@ export const useParkedSales = (
                                     name: item.name,
                                     categoryId: item.categoryId,
                                     quantity: item.quantity,
-                                    sellPrice: item.sellPrice || item.unitPrice,
+                                    sellingPrice: item.sellingPrice || item.unitPrice,
                                     purchasePrice: item.purchasePrice,
                                     discount: item.discount || 0,
                                     variancePrice: item.variancePrice,
