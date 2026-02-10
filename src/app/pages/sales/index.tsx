@@ -66,7 +66,6 @@ const SalesPage: FC = () => {
         selectedPaymentMethod,
     });
 
-    // Use union type for both Sale and Transaction data
     type SaleOrTransaction = (Sale | Transaction) & {
         saleNumber?: string;
         refNumber?: string;
@@ -153,7 +152,6 @@ const SalesPage: FC = () => {
                                 />
                             </div>
 
-                            {/* Status and Payment Filters */}
                             <div className="flex flex-col gap-3">
                                 <StatusFilter
                                     selectedStatus={selectedStatus}
@@ -178,7 +176,6 @@ const SalesPage: FC = () => {
                         isLoading={isLoadingSummary}
                     />
 
-                    {/* Mobile View - Card List */}
                     {isMobile ? (
                         <div className="overflow-hidden">
                             {isLoading ? (
