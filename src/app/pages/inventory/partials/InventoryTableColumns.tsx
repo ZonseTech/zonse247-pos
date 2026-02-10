@@ -5,16 +5,21 @@ import { formatCurrency } from '../../../utils';
 import dayjs from 'dayjs';
 
 interface InventoryTableColumnsProps {
-    onEdit: (item: InventoryItem) => void;
+    onEdit: (item: ApiProduct) => void;
     onDelete: (productId: string) => void;
-    onView?: (item: InventoryItem) => void;
-    onAdjustQuantity?: (item: InventoryItem) => void;
+    onView?: (item: ApiProduct) => void;
+    onAdjustQuantity?: (item: ApiProduct) => void;
     compact?: boolean;
 }
 
-const getStockStatusColor = (quantity: number, minStock: number) => {
+// Helper to get default variant from ApiProduct
+const getDefaultVariant = (row: ApiProduct): ProductVariant | undefined => {
+    return row.variants?.find(v => v.isDefault) || row.variants?.[0];
+};
+
+const getStockStatusColor = (quantity: number, reorderPoint: number) => {
     if (quantity <= 0) return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-    if (quantity <= minStock) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
+    if (quantity <= reorderPoint) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
     return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
 };
 
@@ -42,20 +47,23 @@ export const getInventoryTableColumns = ({
     onView,
     onAdjustQuantity,
     compact = false,
-}: InventoryTableColumnsProps): TableColumn<InventoryItem>[] => {
+}: InventoryTableColumnsProps): TableColumn<ApiProduct>[] => {
     // Compact columns for EBN terminals - optimized with better visibility
     if (compact) {
         return [
             {
                 name: 'Barcode',
-                selector: (row) => row.barcode || '-',
+                selector: (row) => getDefaultVariant(row)?.primaryBarcode || '-',
                 sortable: true,
                 width: '110px',
-                cell: (row) => (
-                    <span className="font-mono text-xs text-gray-600 dark:text-gray-400">
-                        {row.barcode || '-'}
-                    </span>
-                ),
+                cell: (row) => {
+                    const variant = getDefaultVariant(row);
+                    return (
+                        <span className="font-mono text-xs text-gray-600 dark:text-gray-400">
+                            {variant?.primaryBarcode || '-'}
+                        </span>
+                    );
+                },
             },
             {
                 name: 'Item',
@@ -76,42 +84,49 @@ export const getInventoryTableColumns = ({
             },
             {
                 name: 'Cost',
-                selector: (row) => Number(row.costPrice) || 0,
+                selector: (row) => getDefaultVariant(row)?.costPrice || 0,
                 sortable: true,
                 width: '85px',
-                cell: (row) => (
-                    <span className="text-xs text-gray-600 dark:text-gray-400">
-                        {formatCurrency(Number(row.costPrice) || 0)}
-                    </span>
-                ),
+                cell: (row) => {
+                    const variant = getDefaultVariant(row);
+                    return (
+                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                            {formatCurrency(variant?.costPrice || 0)}
+                        </span>
+                    );
+                },
             },
             {
                 name: 'Sell',
-                selector: (row) => Number(row.sellingPrice) || 0,
+                selector: (row) => getDefaultVariant(row)?.sellingPrice || 0,
                 sortable: true,
                 width: '85px',
-                cell: (row) => (
-                    <span className="text-xs font-semibold text-gray-900 dark:text-gray-100">
-                        {formatCurrency(Number(row.sellingPrice) || 0)}
-                    </span>
-                ),
+                cell: (row) => {
+                    const variant = getDefaultVariant(row);
+                    return (
+                        <span className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                            {formatCurrency(variant?.sellingPrice || 0)}
+                        </span>
+                    );
+                },
             },
             {
                 name: 'Qty',
-                selector: (row) => Number(row.quantity) || 0,
+                selector: (row) => getDefaultVariant(row)?.inventory?.availableQuantity || 0,
                 sortable: true,
                 width: '75px',
                 cell: (row) => {
-                    const qty = Number(row.quantity) || 0;
-                    const minStock = Number(row.minStock) || 0;
-                    const colorClass = getStockStatusColor(qty, minStock);
+                    const variant = getDefaultVariant(row);
+                    const qty = variant?.inventory?.availableQuantity ?? 0;
+                    const reorderPoint = variant?.inventory?.reorderPoint ?? 0;
+                    const colorClass = getStockStatusColor(qty, reorderPoint);
 
                     return (
                         <div className="flex items-center gap-1">
                             <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${colorClass}`}>
                                 {qty}
                             </span>
-                            {qty <= minStock && qty > 0 && (
+                            {qty <= reorderPoint && qty > 0 && (
                                 <AlertTriangle className="w-3 h-3 text-yellow-500" />
                             )}
                         </div>
@@ -120,22 +135,26 @@ export const getInventoryTableColumns = ({
             },
             {
                 name: 'Min',
-                selector: (row) => Number(row.minStock) || 0,
+                selector: (row) => getDefaultVariant(row)?.inventory?.reorderPoint || 0,
                 sortable: true,
                 width: '55px',
-                cell: (row) => (
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {row.minStock || 0}
-                    </span>
-                ),
+                cell: (row) => {
+                    const variant = getDefaultVariant(row);
+                    return (
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {variant?.inventory?.reorderPoint || 0}
+                        </span>
+                    );
+                },
             },
             {
                 name: 'Expiry',
-                selector: (row) => row.expirationDate ? new Date(row.expirationDate).getTime() : 0,
+                selector: (row) => getDefaultVariant(row)?.expirationDate ? new Date(getDefaultVariant(row)!.expirationDate!).getTime() : 0,
                 sortable: true,
                 width: '80px',
                 cell: (row) => {
-                    const status = getExpirationStatus(row.expirationDate);
+                    const variant = getDefaultVariant(row);
+                    const status = getExpirationStatus(variant?.expirationDate);
                     if (!status) return <span className="text-xs text-gray-400">-</span>;
 
                     return (
@@ -144,7 +163,7 @@ export const getInventoryTableColumns = ({
                                 {status.label}
                             </span>
                             <span className="text-[9px] text-gray-400 mt-0.5">
-                                {dayjs(row.expirationDate).format('DD/MM')}
+                                {dayjs(variant?.expirationDate).format('DD/MM')}
                             </span>
                         </div>
                     );
@@ -152,16 +171,14 @@ export const getInventoryTableColumns = ({
             },
             {
                 name: 'Status',
-                selector: (row) => row.status || 'active',
+                selector: (row) => row.isActive ? 'active' : 'inactive',
                 sortable: true,
                 width: '70px',
                 cell: (row) => {
-                    const status = row.status || 'active';
+                    const status = row.isActive ? 'active' : 'inactive';
                     const colorClass = status === 'active'
                         ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                        : status === 'inactive'
-                            ? 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
-                            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+                        : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
 
                     return (
                         <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium capitalize ${colorClass}`}>
@@ -173,7 +190,7 @@ export const getInventoryTableColumns = ({
             {
                 name: '',
                 cell: (row) => {
-                    const productId = row.productId?.toString() || '';
+                    const productId = row.id?.toString() || '';
                     return (
                         <div className="flex items-center space-x-0.5">
                             {onAdjustQuantity && (
@@ -212,13 +229,16 @@ export const getInventoryTableColumns = ({
     return [
         {
             name: 'Barcode',
-            selector: (row) => row.barcode || '-',
+            selector: (row) => getDefaultVariant(row)?.primaryBarcode || '-',
             sortable: true,
-            cell: (row) => (
-                <span className="font-mono text-sm text-gray-600 dark:text-gray-400">
-                    {row.barcode || '-'}
-                </span>
-            ),
+            cell: (row) => {
+                const variant = getDefaultVariant(row);
+                return (
+                    <span className="font-mono text-sm text-gray-600 dark:text-gray-400">
+                        {variant?.primaryBarcode || '-'}
+                    </span>
+                );
+            },
         },
         {
             name: 'Item Name',
@@ -242,64 +262,54 @@ export const getInventoryTableColumns = ({
             selector: (row) => row.categoryDetails?.name || '-',
             sortable: true,
             cell: (row) => (
-                <div className="flex items-center gap-2">
-                    {row.categoryDetails?.color && (
-                        <div
-                            className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: row.categoryDetails.color }}
-                        />
-                    )}
-                    <span className="text-gray-700 dark:text-gray-300">
-                        {row.categoryDetails?.name || '-'}
-                    </span>
-                </div>
+                <span className="text-gray-700 dark:text-gray-300">
+                    {row.categoryDetails?.name || '-'}
+                </span>
             ),
         },
         {
             name: 'Cost Price',
-            selector: (row) => Number(row.costPrice) || 0,
+            selector: (row) => getDefaultVariant(row)?.costPrice || 0,
             sortable: true,
-            cell: (row) => (
-                <span className="text-gray-600 dark:text-gray-400">
-                    {formatCurrency(Number(row.costPrice) || 0)}
-                </span>
-            ),
+            cell: (row) => {
+                const variant = getDefaultVariant(row);
+                return (
+                    <span className="text-gray-600 dark:text-gray-400">
+                        {formatCurrency(variant?.costPrice || 0)}
+                    </span>
+                );
+            },
         },
         {
             name: 'Sell Price',
-            selector: (row) => Number(row.sellingPrice) || 0,
+            selector: (row) => getDefaultVariant(row)?.sellingPrice || 0,
             sortable: true,
-            cell: (row) => (
-                <span className="font-semibold text-gray-900 dark:text-gray-100">
-                    {formatCurrency(Number(row.sellingPrice) || 0)}
-                </span>
-            ),
-        },
-        {
-            name: 'Original Quantity',
-            selector: (row) => Number(row.originalQuantity) || 0,
-            sortable: true,
-            cell: (row) => (
-                <span className="font-semibold text-gray-900 dark:text-gray-100">
-                    {Number(row.originalQuantity) || 0}
-                </span>
-            ),
+            cell: (row) => {
+                const variant = getDefaultVariant(row);
+                return (
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">
+                        {formatCurrency(variant?.sellingPrice || 0)}
+                    </span>
+                );
+            },
         },
         {
             name: 'Quantity',
-            selector: (row) => Number(row.quantity) || 0,
+            selector: (row) => getDefaultVariant(row)?.inventory?.availableQuantity || 0,
             sortable: true,
             cell: (row) => {
-                const qty = Number(row.quantity) || 0;
-                const minStock = Number(row.minStock) || 0;
-                const colorClass = getStockStatusColor(qty, minStock);
+                const variant = getDefaultVariant(row);
+                const qty = variant?.inventory?.availableQuantity ?? 0;
+                const reorderPoint = variant?.inventory?.reorderPoint ?? 0;
+                const unit = variant?.unit || row.defaultUnit || 'pc';
+                const colorClass = getStockStatusColor(qty, reorderPoint);
 
                 return (
                     <div className="flex items-center gap-2">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${colorClass}`}>
-                            {qty} {row.unit || 'pc'}
+                            {qty} {unit}
                         </span>
-                        {qty <= minStock && qty > 0 && (
+                        {qty <= reorderPoint && qty > 0 && (
                             <AlertTriangle className="w-4 h-4 text-yellow-500" />
                         )}
                     </div>
@@ -307,21 +317,25 @@ export const getInventoryTableColumns = ({
             },
         },
         {
-            name: 'Min Stock',
-            selector: (row) => Number(row.minStock) || 0,
+            name: 'Reorder Point',
+            selector: (row) => getDefaultVariant(row)?.inventory?.reorderPoint || 0,
             sortable: true,
-            cell: (row) => (
-                <span className="text-gray-500 dark:text-gray-400">
-                    {row.minStock || 0}
-                </span>
-            ),
+            cell: (row) => {
+                const variant = getDefaultVariant(row);
+                return (
+                    <span className="text-gray-500 dark:text-gray-400">
+                        {variant?.inventory?.reorderPoint || 0}
+                    </span>
+                );
+            },
         },
         {
             name: 'Expiry',
-            selector: (row) => row.expirationDate ? new Date(row.expirationDate).getTime() : 0,
+            selector: (row) => getDefaultVariant(row)?.expirationDate ? new Date(getDefaultVariant(row)!.expirationDate!).getTime() : 0,
             sortable: true,
             cell: (row) => {
-                const status = getExpirationStatus(row.expirationDate);
+                const variant = getDefaultVariant(row);
+                const status = getExpirationStatus(variant?.expirationDate);
                 if (!status) return <span className="text-gray-400">-</span>;
 
                 return (
@@ -330,7 +344,7 @@ export const getInventoryTableColumns = ({
                             {status.label}
                         </span>
                         <span className="text-xs text-gray-400 mt-0.5">
-                            {dayjs(row.expirationDate).format('DD/MM/YY')}
+                            {dayjs(variant?.expirationDate).format('DD/MM/YY')}
                         </span>
                     </div>
                 );
@@ -338,15 +352,13 @@ export const getInventoryTableColumns = ({
         },
         {
             name: 'Status',
-            selector: (row) => row.status || 'active',
+            selector: (row) => row.isActive ? 'active' : 'inactive',
             sortable: true,
             cell: (row) => {
-                const status = row.status || 'active';
+                const status = row.isActive ? 'active' : 'inactive';
                 const colorClass = status === 'active'
                     ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                    : status === 'inactive'
-                        ? 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
-                        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+                    : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
 
                 return (
                     <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${colorClass}`}>
@@ -358,7 +370,7 @@ export const getInventoryTableColumns = ({
         {
             name: 'Actions',
             cell: (row) => {
-                const productId = row.productId?.toString() || '';
+                const productId = row.id?.toString() || '';
                 return (
                     <div className="flex items-center space-x-1">
                         {onView && (

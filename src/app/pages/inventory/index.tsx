@@ -112,12 +112,12 @@ const InventoryManagement: FunctionComponent = () => {
         ];
     }, [overview]);
 
-    const [selectedRows, setSelectedRows] = useState<InventoryItem[]>([]);
+    const [selectedRows, setSelectedRows] = useState<ApiProduct[]>([]);
     const [toggleCleared, setToggleCleared] = useState(false);
     const [isBulkActionsOpen, setIsBulkActionsOpen] = useState(false);
 
     const [isAdjustQuantityOpen, setIsAdjustQuantityOpen] = useState(false);
-    const [selectedItemForAdjust, setSelectedItemForAdjust] = useState<InventoryItem | null>(null);
+    const [selectedItemForAdjust, setSelectedItemForAdjust] = useState<ApiProduct | null>(null);
 
     const {
         isLoading,
@@ -174,8 +174,8 @@ const InventoryManagement: FunctionComponent = () => {
         navigate(ROUTES.INVENTORY_FORM);
     }, [navigate]);
 
-    const handleEdit = useCallback((item: InventoryItem) => {
-        navigate(ROUTES.INVENTORY_FORM, { state: { productId: item.productId } });
+    const handleEdit = useCallback((item: ApiProduct) => {
+        navigate(ROUTES.INVENTORY_FORM, { state: { productId: item.id } });
     }, [navigate]);
 
     const handleDelete = useCallback((productId: string) => {
@@ -213,18 +213,23 @@ const InventoryManagement: FunctionComponent = () => {
 
     const exportData = useCallback(() => {
         // Export inventory data to CSV
-        const headers = ['Name', 'Barcode', 'Category', 'Quantity', 'Unit', 'Cost Price', 'Sell Price', 'Min Stock', 'Status'];
-        const csvData = data.map(item => [
-            item.name,
-            item.barcode || '',
-            item.categoryDetails?.name || '',
-            item.quantity,
-            item.unit || 'pc',
-            item.costPrice,
-            item.sellingPrice,
-            item.minStock || 0,
-            Number(item.quantity) <= 0 ? 'Out of Stock' : Number(item.quantity) <= Number(item.minStock || 0) ? 'Low Stock' : 'In Stock'
-        ]);
+        const headers = ['Name', 'Barcode', 'Category', 'Quantity', 'Unit', 'Cost Price', 'Sell Price', 'Reorder Point', 'Status'];
+        const csvData = data.map(item => {
+            const defaultVariant = item.variants?.find(v => v.isDefault) || item.variants?.[0];
+            const quantity = defaultVariant?.inventory?.availableQuantity ?? 0;
+            const reorderPoint = defaultVariant?.inventory?.reorderPoint ?? 0;
+            return [
+                item.name,
+                defaultVariant?.primaryBarcode || '',
+                item.categoryDetails?.name || '',
+                quantity,
+                defaultVariant?.unit || item.defaultUnit || 'pc',
+                defaultVariant?.costPrice || 0,
+                defaultVariant?.sellingPrice || 0,
+                reorderPoint,
+                quantity <= 0 ? 'Out of Stock' : quantity <= reorderPoint ? 'Low Stock' : 'In Stock'
+            ];
+        });
 
         const csvContent = [headers.join(','), ...csvData.map(row => row.join(','))].join('\n');
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -243,11 +248,11 @@ const InventoryManagement: FunctionComponent = () => {
         return activeFilter !== 'all' || !!categoryId || !!startDate || !!endDate || !!searchTerm;
     }, [activeFilter, categoryId, startDate, endDate, searchTerm]);
 
-    const handleRowSelected = useCallback((state: { selectedRows: InventoryItem[] }) => {
+    const handleRowSelected = useCallback((state: { selectedRows: ApiProduct[] }) => {
         setSelectedRows(state.selectedRows);
     }, []);
 
-    const handleAdjustQuantity = useCallback((item: InventoryItem) => {
+    const handleAdjustQuantity = useCallback((item: ApiProduct) => {
         setSelectedItemForAdjust(item);
         setIsAdjustQuantityOpen(true);
     }, []);
@@ -266,11 +271,11 @@ const InventoryManagement: FunctionComponent = () => {
         fetchOverview(statsQuery);
     }, [loadInventory, loadSummary, fetchOverview, statsQuery]);
 
-    const handleMobileSelectItem = useCallback((item: InventoryItem, selected: boolean) => {
+    const handleMobileSelectItem = useCallback((item: ApiProduct, selected: boolean) => {
         if (selected) {
             setSelectedRows(prev => [...prev, item]);
         } else {
-            setSelectedRows(prev => prev.filter(i => i.productId !== item.productId));
+            setSelectedRows(prev => prev.filter(i => i.id !== item.id));
         }
     }, []);
 

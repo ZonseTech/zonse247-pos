@@ -9,9 +9,14 @@ import type { AdjustInventoryPayload } from '../../../services/inventory.service
 interface AdjustQuantityModalProps {
     isOpen: boolean;
     onClose: () => void;
-    item: InventoryItem | null;
+    item: ApiProduct | null;
     onSuccess: () => void;
 }
+
+// Helper to get default variant from ApiProduct
+const getDefaultVariant = (item: ApiProduct): ProductVariant | undefined => {
+    return item.variants?.find(v => v.isDefault) || item.variants?.[0];
+};
 
 const AdjustQuantityModal: React.FC<AdjustQuantityModalProps> = ({
     isOpen,
@@ -42,7 +47,7 @@ const AdjustQuantityModal: React.FC<AdjustQuantityModalProps> = ({
         try {
             if (adjustmentType === 'set') {
                 // Use direct quantity update for 'set' operation
-                await updateQuantity(item.productId, value);
+                await updateQuantity(item.id, value);
             } else {
                 // Use adjust endpoint for add/subtract
                 const payload: AdjustInventoryPayload = {
@@ -50,7 +55,7 @@ const AdjustQuantityModal: React.FC<AdjustQuantityModalProps> = ({
                     type: adjustmentType,
                     reason: adjustmentReason || undefined
                 };
-                await adjustInventory(item.productId, payload);
+                await adjustInventory(item.id, payload);
             }
 
             onSuccess();
@@ -60,7 +65,8 @@ const AdjustQuantityModal: React.FC<AdjustQuantityModalProps> = ({
         }
     };
 
-    const currentQuantity = parseInt((item?.quantity || '0').toString());
+    const defaultVariant = item ? getDefaultVariant(item) : undefined;
+    const currentQuantity = defaultVariant?.inventory?.availableQuantity ?? 0;
 
     const getNewQuantity = () => {
         const value = parseInt(adjustmentValue) || 0;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Loader2, PlusCircle, ShoppingCart } from 'lucide-react';
+import { Loader2, ShoppingCart } from 'lucide-react';
 import { formatCurrency } from '../../../utils';
 import { useAppSelector } from '../../../hooks/redux';
 import { useNavigate } from 'react-router-dom';
