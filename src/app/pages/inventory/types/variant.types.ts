@@ -5,7 +5,6 @@
 export interface Variant {
     id: string;
     variantName: string;
-    barcode: string;
     primaryBarcode?: string;
     sku: string;
     brand: string;
@@ -48,7 +47,7 @@ export interface Variant {
     supplierCode: string;
 
     // Additional barcodes
-    additionalBarcodes?: Array<{
+    barcodes?: Array<{
         barcode: string;
         type?: string;
         source?: string;
@@ -73,7 +72,6 @@ export interface InventoryFormValues {
 export const createDefaultVariant = (): Variant => ({
     id: '',
     variantName: '',
-    barcode: '',
     primaryBarcode: '',
     sku: '',
     brand: '',
@@ -104,7 +102,7 @@ export const createDefaultVariant = (): Variant => ({
     manufactureDate: '',
     supplierName: '',
     supplierCode: '',
-    additionalBarcodes: [],
+    barcodes: [],
 });
 
 /**

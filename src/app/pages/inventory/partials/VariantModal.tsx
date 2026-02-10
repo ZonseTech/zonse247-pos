@@ -183,7 +183,7 @@ const VariantModal: FunctionComponent<VariantModalProps> = ({
                     isNewVariant={isNewVariant}
                     getValue={getStringValue}
                     onChange={handleStringChange}
-                    hasData={Boolean(getStringValue('barcode'))}
+                    hasData={Boolean(getStringValue('primaryBarcode'))}
                 />
 
                 <ExpiryFields
