@@ -23,7 +23,7 @@ const formModeOptions: ToggleOption<FormMode>[] = [
 
 interface MobileInventoryFormProps {
     productId?: string;
-    item: InventoryItem | null;
+    item: ApiProduct | null;
     loading: boolean;
     unitOptions: { label: string; value: string }[];
     onSubmit: (
@@ -43,51 +43,52 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
     const [editingVariantIndex, setEditingVariantIndex] = useState<number>(0);
     const [isNewVariant, setIsNewVariant] = useState(false);
     const [newVariantData, setNewVariantData] = useState(createDefaultVariant());
-    const [formMode, setFormMode] = useState<FormMode>('simple');
+    const [formMode, setFormMode] = useState<FormMode>(productId ? 'advance' : 'simple');
 
     const initialFormValues: InventoryFormValues = useMemo(() => {
         if (item) {
+            const mappedVariants = item.variants?.map((v) => ({
+                id: v.id || '',
+                variantName: v.variantName || '',
+                primaryBarcode: v.primaryBarcode || '',
+                sku: v.sku || '',
+                brand: v.brand || '',
+                description: v.description || '',
+                color: '',
+                size: v.size || '',
+                dimensions: v.dimensions || '',
+                weight: v.weight || 0,
+                costPrice: v.costPrice || 0,
+                sellingPrice: v.sellingPrice || 0,
+                promoPrice: v.promoPrice || 0,
+                promoStart: v.promoStart ? new Date(v.promoStart).toISOString().split('T')[0] : '',
+                promoEnd: v.promoEnd ? new Date(v.promoEnd).toISOString().split('T')[0] : '',
+                quantity: String(v.inventory?.availableQuantity ?? 0),
+                originalQuantity: String(v.inventory?.availableQuantity ?? 0),
+                reservedQuantity: v.inventory?.reservedQuantity || 0,
+                minStock: v.inventory?.reorderPoint || 0,
+                maxStock: v.inventory?.maxStock || 100000,
+                reorderLevel: v.inventory?.reorderPoint || 5,
+                status: v.isActive ? 'active' : 'inactive',
+                trackInventory: v.inventory?.trackInventory ?? true,
+                allowNegativeStock: v.inventory?.allowNegativeStock ?? false,
+                isTaxable: v.isTaxable ?? true,
+                isDefault: v.isDefault ?? false,
+                isActive: v.isActive ?? true,
+                expiryDateAlert: '',
+                expirationDate: v.expirationDate ? new Date(v.expirationDate).toISOString().split('T')[0] : '',
+                manufactureDate: v.manufactureDate ? new Date(v.manufactureDate).toISOString().split('T')[0] : '',
+                supplierName: v.supplierName || '',
+                supplierCode: v.supplierCode || '',
+                barcodes: v.barcodes?.map(b => ({ barcode: b })) || [],
+            })) || [createDefaultVariant()];
+
             return {
-                productId: item.productId || '',
+                productId: item.id || '',
                 name: item.name || '',
                 categoryId: item.categoryId || '',
-                unit: item.unit || 'pc',
-                variants: [{
-                    id: item.productId || '',
-                    variantName: '',
-                    barcode: item.barcode || '',
-                    primaryBarcode: item.barcode || '',
-                    sku: item.sku || '',
-                    brand: item.brand || '',
-                    description: item.description || '',
-                    color: item.color || '',
-                    size: item.size || '',
-                    dimensions: item.dimensions || '',
-                    weight: item.weight || 0,
-                    costPrice: item.costPrice || 0,
-                    sellingPrice: item.sellingPrice || 0,
-                    promoPrice: item.promoPrice || 0,
-                    promoStart: item.promoStart ? new Date(item.promoStart).toISOString().split('T')[0] : '',
-                    promoEnd: item.promoEnd ? new Date(item.promoEnd).toISOString().split('T')[0] : '',
-                    quantity: item.quantity || '0',
-                    originalQuantity: item.originalQuantity || '0',
-                    reservedQuantity: item.reservedQuantity || 0,
-                    minStock: item.minStock || 0,
-                    maxStock: item.maxStock || 100000,
-                    reorderLevel: item.reorderLevel || 5,
-                    status: item.status || 'active',
-                    trackInventory: item.trackInventory ?? true,
-                    allowNegativeStock: item.allowNegativeStock ?? false,
-                    isTaxable: item.isTaxable ?? true,
-                    isDefault: true,
-                    isActive: item.status !== 'inactive',
-                    expiryDateAlert: item.expiryDateAlert || '',
-                    expirationDate: item.expirationDate ? new Date(item.expirationDate).toISOString().split('T')[0] : '',
-                    manufactureDate: item.manufactureDate ? new Date(item.manufactureDate).toISOString().split('T')[0] : '',
-                    supplierName: item.supplierName || '',
-                    supplierCode: item.supplierCode || '',
-                    additionalBarcodes: [],
-                }],
+                unit: item.defaultUnit || 'pc',
+                variants: mappedVariants.length > 0 ? mappedVariants : [createDefaultVariant()],
             };
         }
         return createDefaultFormValues();
@@ -222,6 +223,7 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                                         />
                                     </FormFieldCard>
 
+                                    {/* Show toggle only for new products */}
                                     {!productId && (
                                         <ToggleButtonGroup<FormMode>
                                             options={formModeOptions}

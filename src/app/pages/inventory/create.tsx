@@ -20,7 +20,7 @@ const InventoryForm: FunctionComponent = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [loading, setLoading] = useState(false);
-    const [item, setItem] = useState<InventoryItem | null>(null);
+    const [item, setItem] = useState<ApiProduct | null>(null);
     const { reloadInventory } = useInventory();
     const isMobile = useIsMobile();
 
@@ -45,8 +45,8 @@ const InventoryForm: FunctionComponent = () => {
                         Report.failure(
                             'Item Not Found',
                             'The inventory item you are trying to edit was not found.',
-                            'Go Back',
-                            () => navigate(isMobile ? ROUTES.MOBILE_INVENTORY : ROUTES.INVENTORY)
+                            'Ok',
+                            () => { }
                         );
                     } else {
                         const fullErrorMessage = detailedError

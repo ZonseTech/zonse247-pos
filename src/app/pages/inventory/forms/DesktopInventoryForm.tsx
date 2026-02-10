@@ -34,7 +34,7 @@ type FormMode = 'quick' | 'full';
 
 interface DesktopInventoryFormProps {
     productId?: string;
-    item: InventoryItem | null;
+    item: ApiProduct | null;
     loading: boolean;
     statusOptions: { label: string; value: string }[];
     unitOptions: { label: string; value: string }[];
@@ -92,14 +92,45 @@ const DesktopInventoryForm: FunctionComponent<DesktopInventoryFormProps> = ({
         supplierCode: '',
     };
 
-    const initialItemValues = item ? {
-        ...defaultItemValues,
-        ...item,
-        expirationDate: item.expirationDate ? new Date(item.expirationDate).toISOString().split('T')[0] : '',
-        manufactureDate: item.manufactureDate ? new Date(item.manufactureDate).toISOString().split('T')[0] : '',
-        promoStart: item.promoStart ? new Date(item.promoStart).toISOString().split('T')[0] : '',
-        promoEnd: item.promoEnd ? new Date(item.promoEnd).toISOString().split('T')[0] : '',
-    } : defaultItemValues;
+    // Map ApiProduct to flat InventoryItem structure for desktop form
+    const initialItemValues: Partial<InventoryItem> = item ? (() => {
+        const defaultVariant = item.variants?.find(v => v.isDefault) || item.variants?.[0];
+        return {
+            ...defaultItemValues,
+            productId: item.id,
+            name: item.name,
+            description: item.description || '',
+            brand: item.brand || defaultVariant?.brand || '',
+            unit: item.defaultUnit || 'pc',
+            categoryId: item.categoryId || '',
+            isTaxable: item.isTaxable ?? true,
+            supplierName: item.supplierName || defaultVariant?.supplierName || '',
+            supplierCode: item.supplierCode || defaultVariant?.supplierCode || '',
+            // From default variant
+            barcode: defaultVariant?.primaryBarcode || '',
+            sku: defaultVariant?.sku || '',
+            size: defaultVariant?.size || '',
+            dimensions: defaultVariant?.dimensions || '',
+            weight: defaultVariant?.weight || 0,
+            costPrice: defaultVariant?.costPrice || 0,
+            sellingPrice: defaultVariant?.sellingPrice || 0,
+            promoPrice: defaultVariant?.promoPrice || 0,
+            promoStart: defaultVariant?.promoStart ? new Date(defaultVariant.promoStart).toISOString().split('T')[0] : '',
+            promoEnd: defaultVariant?.promoEnd ? new Date(defaultVariant.promoEnd).toISOString().split('T')[0] : '',
+            expirationDate: defaultVariant?.expirationDate ? new Date(defaultVariant.expirationDate).toISOString().split('T')[0] : '',
+            manufactureDate: defaultVariant?.manufactureDate ? new Date(defaultVariant.manufactureDate).toISOString().split('T')[0] : '',
+            // From inventory
+            quantity: String(defaultVariant?.inventory?.availableQuantity ?? 0),
+            originalQuantity: String(defaultVariant?.inventory?.availableQuantity ?? 0),
+            reservedQuantity: defaultVariant?.inventory?.reservedQuantity || 0,
+            minStock: defaultVariant?.inventory?.reorderPoint || 1,
+            maxStock: defaultVariant?.inventory?.maxStock || 1000,
+            reorderLevel: defaultVariant?.inventory?.reorderPoint || 5,
+            trackInventory: defaultVariant?.inventory?.trackInventory ?? true,
+            allowNegativeStock: defaultVariant?.inventory?.allowNegativeStock ?? false,
+            status: defaultVariant?.isActive ? 'active' : 'inactive',
+        };
+    })() : defaultItemValues;
 
     const quickValidationSchema = Yup.object().shape({
         categoryId: Yup.string(),
