@@ -15,7 +15,7 @@ export const RolesTab: React.FC<RoleTabProps> = ({
                 <h2 className="text-xl font-semibold text-gray-900">Roles ({roles.length})</h2>
                 <button
                     onClick={onCreateRole}
-                    className="bg-green-600 text-white dark:text-gray-100 px-4 py-2 rounded-sm hover:bg-green-700 flex items-center gap-2"
+                    className="bg-green-500 text-white dark:text-gray-100 px-4 py-2 rounded-sm hover:bg-green-700 flex items-center gap-2"
                 >
                     <Plus className="w-4 h-4" />
                     Create Role
@@ -78,7 +78,7 @@ export const RolesTab: React.FC<RoleTabProps> = ({
                                     <button
                                         onClick={() => onAssignPermissions(role)}
                                         disabled={role.isSystemRole}
-                                        className={`${role.isSystemRole ? 'text-gray-400' : 'text-green-600 hover:text-green-900'} mr-3`}
+                                        className={`${role.isSystemRole ? 'text-gray-400' : 'text-green-500 hover:text-green-900'} mr-3`}
                                         title="Assign Permissions"
                                     >
                                         <Settings className="w-4 h-4" />
@@ -96,7 +96,7 @@ export const RolesTab: React.FC<RoleTabProps> = ({
                                     <button
                                         onClick={() => onDeleteRole(role.roleId)}
                                         disabled={role.isSystemRole}
-                                        className={`${role.isSystemRole ? 'text-gray-400' : 'text-red-600 hover:text-red-900'}`}
+                                        className={`${role.isSystemRole ? 'text-gray-400' : 'text-red-500 hover:text-red-900'}`}
                                         title="Delete Role"
                                     >
                                         <Trash2 className="w-4 h-4" />

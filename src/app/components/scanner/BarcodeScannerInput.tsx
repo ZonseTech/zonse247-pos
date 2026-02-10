@@ -143,7 +143,7 @@ const BarcodeScannerInput: FunctionComponent<BarcodeScannerInputProps> = ({
                     <button
                         type="button"
                         onClick={handleOpenScanner}
-                        className="mb-1 px-3 py-2.5 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-sm"
+                        className="mb-1 px-3 py-2.5 bg-sky-500 hover:bg-sky-700 active:bg-sky-800 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-sm"
                         title="Scan barcode with camera"
                         aria-label="Open camera barcode scanner"
                     >

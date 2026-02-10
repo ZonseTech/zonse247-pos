@@ -115,7 +115,7 @@ const CustomerSelector: FunctionComponent<CustomerSelectorProps> = ({ compact = 
                         >
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-full bg-sky-100 dark:bg-sky-900 flex items-center justify-center">
-                                    <HiOutlineUser className="w-6 h-6 text-sky-600 dark:text-sky-400" />
+                                    <HiOutlineUser className="w-6 h-6 text-sky-500 dark:text-sky-400" />
                                 </div>
                                 <div>
                                     <div className="font-semibold text-gray-900 dark:text-white">{defaultCustomer.name}</div>
@@ -131,7 +131,7 @@ const CustomerSelector: FunctionComponent<CustomerSelectorProps> = ({ compact = 
                     >
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center">
-                                <HiOutlinePlus className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                                <HiOutlinePlus className="w-6 h-6 text-emerald-500 dark:text-emerald-400" />
                             </div>
                             <div>
                                 <div className="font-semibold text-gray-900 dark:text-white">Add New Customer</div>
@@ -160,7 +160,7 @@ const CustomerSelector: FunctionComponent<CustomerSelectorProps> = ({ compact = 
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center">
-                                                <HiOutlineUserGroup className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                                <HiOutlineUserGroup className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="font-medium text-gray-900 dark:text-white">{customer.name}</div>

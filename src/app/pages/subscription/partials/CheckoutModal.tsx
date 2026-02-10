@@ -66,7 +66,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
             <div className="bg-white rounded-2xl max-w-3xl w-full shadow-2xl my-8">
-                <div className="relative rounded-t-2xl bg-gradient-to-br from-sky-600 via-sky-700 to-indigo-700 text-white px-8 pt-6 pb-0.5">
+                <div className="relative rounded-t-2xl bg-gradient-to-br from-sky-500 via-sky-700 to-indigo-700 text-white px-8 pt-6 pb-0.5">
                     <button
                         onClick={onClose}
                         className="absolute top-6 right-6 text-white/80 hover:text-white transition-colors"
@@ -97,7 +97,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                         <div className="space-y-6 animate-fadeIn">
                             <div className="bg-amber-50 border-l-4 border-amber-400 rounded-lg p-4 mb-6">
                                 <div className="flex items-start gap-3">
-                                    <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                                    <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
                                     <div className="text-sm text-amber-900">
                                         <p className="font-semibold mb-2">Payment Instructions:</p>
                                         <ol className="list-decimal ml-4 space-y-2">
@@ -156,7 +156,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                                             </div>
                                             <div className="flex justify-between items-center pt-3 border-t border-sky-200">
                                                 <span className="text-gray-600">Amount:</span>
-                                                <span className="text-2xl font-bold text-sky-600">
+                                                <span className="text-2xl font-bold text-sky-500">
                                                     {getPrice(selectedPlan)}
                                                     <span className="text-sm text-gray-600">/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>
                                                 </span>
@@ -220,7 +220,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                             type="submit"
                             disabled={!canProceed()}
                             className={`flex items-center gap-2 px-8 py-3 font-semibold transition-all ${canProceed()
-                                ? 'bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white shadow-none'
+                                ? 'bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white shadow-none'
                                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                 }`}
                         >

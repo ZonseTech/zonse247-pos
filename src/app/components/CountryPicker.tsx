@@ -154,7 +154,7 @@ export default function CountryPicker({
                                                     {value.title}
                                                 </span>
                                                 {value.value === selectedValue.value ? (
-                                                    <span className="text-sky-600 dark:text-sky-400 absolute inset-y-0 right-0 flex items-center pr-8">
+                                                    <span className="text-sky-500 dark:text-sky-400 absolute inset-y-0 right-0 flex items-center pr-8">
                                                         <svg
                                                             className="h-5 w-5"
                                                             xmlns="http://www.w3.org/2000/svg"

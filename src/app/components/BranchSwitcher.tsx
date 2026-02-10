@@ -140,7 +140,7 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
 
                     {/* Error State */}
                     {error && (
-                        <div className="px-4 py-3 bg-red-50 dark:bg-red-900/20 flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
+                        <div className="px-4 py-3 bg-red-50 dark:bg-red-900/20 flex items-center gap-2 text-red-500 dark:text-red-400 text-sm">
                             <AlertCircle className="w-4 h-4" />
                             <span>{error}</span>
                         </div>
@@ -187,7 +187,7 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
                                                 <div className={`
                                                     w-8 h-8 rounded-lg flex items-center justify-center
                                                     ${isActive
-                                                        ? 'bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400'
+                                                        ? 'bg-sky-100 dark:bg-sky-900/50 text-sky-500 dark:text-sky-400'
                                                         : isInactive
                                                             ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
                                                             : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
@@ -215,7 +215,7 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
                                                         )}
                                                         {isInactive && (
                                                             <span className={`px-1.5 py-0.5 text-xs rounded ${branch.status === 'suspended'
-                                                                ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+                                                                ? 'bg-red-100 dark:bg-red-900/30 text-red-500 dark:text-red-400'
                                                                 : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'
                                                                 }`}>
                                                                 {branch.status === 'suspended' ? 'Suspended' : 'Inactive'}
@@ -228,7 +228,7 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
                                                     </span>
                                                 </div>
                                                 {isActive && (
-                                                    <Check className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                                                    <Check className="w-5 h-5 text-sky-500 dark:text-sky-400" />
                                                 )}
                                             </button>
                                         </li>

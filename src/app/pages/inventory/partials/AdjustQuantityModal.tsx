@@ -95,7 +95,7 @@ const AdjustQuantityModal: React.FC<AdjustQuantityModalProps> = ({
                         ? "p-1.5 bg-sky-100 dark:bg-sky-900/30 rounded"
                         : "p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg"
                     }>
-                        <Package className={isEBN ? "w-4 h-4 text-sky-600 dark:text-sky-400" : "w-5 h-5 text-sky-600 dark:text-sky-400"} />
+                        <Package className={isEBN ? "w-4 h-4 text-sky-500 dark:text-sky-400" : "w-5 h-5 text-sky-500 dark:text-sky-400"} />
                     </div>
                     <div>
                         <p className={isEBN

@@ -2,25 +2,20 @@ import MobileCartItemCard from './partials/MobileCartItemCard';
 import MobilePaymentModal, { PaymentMode } from './partials/MobilePaymentModal';
 import MobileEditItemModal from './partials/MobileEditItemModal';
 import MobileCheckoutModal, { CHECKOUT, PaymentMethod } from './partials/MobileCheckoutModal';
-import MobilePageHeader from '../../components/page/MobilePageHeader';
+import MobileTabPageHeader from '../../components/page/MobileTabPageHeader';
 import CustomerSelector from '../customers/partials/CustomerSelector';
 import MultiplePaymentModal from './partials/MultiplePaymentModal';
-import { CameraBarcodeScanner } from '../../components';
-import { HelpModal, MobileItemLookupModal } from '../../components/modals';
+import { MobileItemLookupModal, MobileCameraScannerModal } from '../../components/modals';
 import { FunctionComponent, useState, useEffect } from 'react';
 import { useInventory } from '../../hooks/useInventory';
 import { useFocusManager } from '../../hooks/useFocusManager';
 import { formatCurrency } from '../../utils';
 import { useParkedSales } from '../../hooks/useParkedSales';
-import { useBranch } from '../../context/BranchContext';
-import BranchSwitchModal from '../../navigation/components/BranchSwitchModal';
-import { HiOutlineChatAlt2, HiSearch, HiShoppingCart, HiPlusCircle, HiMenu } from 'react-icons/hi';
+import { HiSearch, HiShoppingCart, HiPlusCircle } from 'react-icons/hi';
 import { RiUserAddLine } from 'react-icons/ri';
-import { FaCaretDown } from 'react-icons/fa';
 import { BsUpcScan } from 'react-icons/bs';
 import InventoryStatsCard from '../../components/stats/InventoryStatsCard';
 import { HiArrowRight } from 'react-icons/hi2';
-import { useMobileNav } from '../../context/MobileNavContext';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 
@@ -33,16 +28,11 @@ const MobilePOS: FunctionComponent = () => {
         setSelectedCustomer,
         total
     } = useInventory();
-    const { currentBranch } = useBranch();
     const { parkedSales, fetchParkedSales, resumeParkedSale, isLoading: isLoadingParked } = useParkedSales();
-    const { openDrawer } = useMobileNav();
     const navigate = useNavigate();
     const focusManager = useFocusManager();
-
-    const [isBranchSwitchModalOpen, setIsBranchSwitchModalOpen] = useState(false);
     const [isCameraScannerOpen, setIsCameraScannerOpen] = useState(false);
     const [isLookupModalOpen, setIsLookupModalOpen] = useState(false);
-    const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
     const [isMultiplePaymentModalOpen, setIsMultiplePaymentModalOpen] = useState(false);
@@ -83,12 +73,6 @@ const MobilePOS: FunctionComponent = () => {
         }
     };
 
-    const handleCameraScan = (result: { barcode: string }) => {
-        if (result.barcode) {
-            setIsCameraScannerOpen(false);
-        }
-    };
-
     const handleAddToCartFromLookup = (item: InventoryItem) => {
         addToCart(item);
     };
@@ -112,39 +96,13 @@ const MobilePOS: FunctionComponent = () => {
     return (
         <div className="flex flex-col h-full overflow-hidden">
             <div className="fixed top-0 left-0 right-0 z-50">
-                <MobilePageHeader
-                    className='bg-sky-600 dark:bg-sky-700'
-                    noBorder
-                    showLeftButton={false}
-                    title={
-                        <div className="flex items-center gap-3">
-                            <HiMenu
-                                className="w-6 h-6 text-white cursor-pointer active:scale-95 transition-transform"
-                                onClick={openDrawer}
-                            />
-                            <button
-                                onClick={() => setIsBranchSwitchModalOpen(true)}
-                                className="flex items-center gap-1 rounded-sm active:scale-95 transition-all"
-                            >
-                                <span className="text-base font-semibold text-white truncate max-w-[180px]">
-                                    {currentBranch?.branchName || 'Select Branch'}
-                                </span>
-                                <FaCaretDown className="w-4 h-4 text-sky-100 flex-shrink-0" />
-                            </button>
-                        </div>
-                    }
+                <MobileTabPageHeader
                     rightContent={
-                        <div className="flex gap-4 items-center">
-                            <CustomerSelector
-                                trigger={
-                                    <RiUserAddLine className="w-6 h-6 text-white active:scale-95 transition-transform" />
-                                }
-                            />
-                            <HiOutlineChatAlt2
-                                className="w-6 h-6 text-white cursor-pointer active:scale-95 transition-transform"
-                                onClick={() => setIsHelpModalOpen(true)}
-                            />
-                        </div>
+                        <CustomerSelector
+                            trigger={
+                                <RiUserAddLine className="w-6 h-6 text-white active:scale-95 transition-transform" />
+                            }
+                        />
                     }
                 >
                     {!hasCartItems ? (
@@ -165,7 +123,7 @@ const MobilePOS: FunctionComponent = () => {
                             </button>
                         </div>
                     ) : null}
-                </MobilePageHeader>
+                </MobileTabPageHeader>
             </div>
 
             <div className={`flex-1 min-h-0 overflow-hidden ${hasCartItems ? 'pt-[52px]' : 'pt-[108px]'}`}>
@@ -199,7 +157,7 @@ const MobilePOS: FunctionComponent = () => {
                                 </div>
                                 <button
                                     onClick={() => { /* TODO: Navigate to pending sales page */ }}
-                                    className="flex items-center gap-1 text-sky-600 dark:text-sky-400 text-sm font-medium active:scale-95 transition-transform"
+                                    className="flex items-center gap-1 text-sky-500 dark:text-sky-400 text-sm font-medium active:scale-95 transition-transform"
                                 >
                                     <HiArrowRight className="w-5 h-5" />
                                 </button>
@@ -232,7 +190,7 @@ const MobilePOS: FunctionComponent = () => {
                                                         {sale.items.length} items • MK {sale.totalAmount?.toLocaleString() || '0'}
                                                     </p>
                                                 </div>
-                                                <span className="text-sky-600 dark:text-sky-400 text-sm font-medium">
+                                                <span className="text-sky-500 dark:text-sky-400 text-sm font-medium">
                                                     Resume
                                                 </span>
                                             </button>
@@ -245,17 +203,11 @@ const MobilePOS: FunctionComponent = () => {
                 </div>
             </div>
 
-            <BranchSwitchModal
-                isOpen={isBranchSwitchModalOpen}
-                onClose={() => setIsBranchSwitchModalOpen(false)}
-            />
-
-            <CameraBarcodeScanner
+            <MobileCameraScannerModal
                 isOpen={isCameraScannerOpen}
                 onClose={() => setIsCameraScannerOpen(false)}
-                onScan={handleCameraScan}
-                title="Scan Product"
-                subtitle="Point camera at product barcode"
+                inventory={inventory}
+                onAddToCart={handleAddToCartFromLookup}
             />
 
             <MobileItemLookupModal
@@ -265,11 +217,6 @@ const MobilePOS: FunctionComponent = () => {
                 onAddToCart={handleAddToCartFromLookup}
                 onOpenScanner={() => setIsCameraScannerOpen(true)}
                 multiSelect
-            />
-
-            <HelpModal
-                isOpen={isHelpModalOpen}
-                onClose={() => setIsHelpModalOpen(false)}
             />
 
             <MobilePaymentModal

@@ -85,9 +85,9 @@ const AuthLayout: FunctionComponent<PropsWithChildren<AuthLayoutProps>> = ({
     keyboard
 }) => {
     return (
-        <div className="flex flex-col bg-gray-50 dark:bg-gray-900 min-h-screen">
+        <div className="flex flex-col bg-gray-100 dark:bg-gray-900 min-h-screen">
             <motion.header
-                className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-none"
+                className="border-b border-gray-200 dark:border-gray-700 shadow-none"
                 initial={{ y: -80 }}
                 animate={{ y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}

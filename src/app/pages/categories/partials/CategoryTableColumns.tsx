@@ -88,7 +88,7 @@ export const getCategoryColumns = (
                 <div className="flex items-center justify-center gap-1">
                     <button
                         onClick={() => onEdit(row)}
-                        className="p-2 text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-all"
+                        className="p-2 text-gray-500 hover:text-sky-500 dark:text-gray-400 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-all"
                         title="Edit category"
                     >
                         <HiOutlinePencil className="w-4.5 h-4.5" />
@@ -97,7 +97,7 @@ export const getCategoryColumns = (
                         onClick={() => onDelete(row.categoryId, row.name)}
                         className={`p-2 rounded-lg transition-all ${row.itemCount > 0
                             ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                            : 'text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                            : 'text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
                             }`}
                         title={row.itemCount > 0 ? "Can't delete category with products" : "Delete category"}
                         disabled={row.itemCount > 0}
@@ -157,7 +157,7 @@ export const getMobileCategoryColumns = (
                 <div className="flex items-center gap-0.5">
                     <button
                         onClick={() => onEdit(row)}
-                        className="p-2 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
+                        className="p-2 text-sky-500 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
                     >
                         <Edit2 className="w-4 h-4" />
                     </button>

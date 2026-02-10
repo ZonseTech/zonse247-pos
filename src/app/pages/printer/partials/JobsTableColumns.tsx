@@ -105,17 +105,17 @@ export const getJobsTableColumns = (
             cell: row => (
                 <div className="flex items-center gap-2">
                     {row.status === 'PENDING' && (
-                        <button onClick={() => onCancel(row.printJobId, row.jobTitle)} className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20" title="Cancel">
+                        <button onClick={() => onCancel(row.printJobId, row.jobTitle)} className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20" title="Cancel">
                             <X className="w-4 h-4" />
                         </button>
                     )}
                     {row.status === 'FAILED' && (
                         <>
-                            <button onClick={() => onRetry(row.printJobId, row.jobTitle)} className="p-1.5 rounded-lg text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20" title="Retry">
+                            <button onClick={() => onRetry(row.printJobId, row.jobTitle)} className="p-1.5 rounded-lg text-sky-500 hover:bg-sky-50 dark:hover:bg-sky-900/20" title="Retry">
                                 <RotateCcw className="w-4 h-4" />
                             </button>
                             {row.errorMessage && (
-                                <button onClick={() => Notify.info(row.errorMessage || 'Unknown error')} className="p-1.5 rounded-lg text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20" title="View Error">
+                                <button onClick={() => Notify.info(row.errorMessage || 'Unknown error')} className="p-1.5 rounded-lg text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20" title="View Error">
                                     <AlertCircle className="w-4 h-4" />
                                 </button>
                             )}

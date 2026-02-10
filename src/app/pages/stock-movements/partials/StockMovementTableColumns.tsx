@@ -50,7 +50,7 @@ export const getStockMovementTableColumns = (): TableColumn<StockMovement>[] => 
         cell: (row) => {
             const isIncrease = row.direction === 'IN';
             const Icon = isIncrease ? TrendingUp : row.direction === 'OUT' ? TrendingDown : RefreshCw;
-            const colorClass = isIncrease ? 'text-green-600' : row.direction === 'OUT' ? 'text-red-600' : 'text-yellow-600';
+            const colorClass = isIncrease ? 'text-green-500' : row.direction === 'OUT' ? 'text-red-500' : 'text-yellow-600';
 
             return (
                 <div className={`flex items-center gap-2 font-medium ${colorClass}`}>

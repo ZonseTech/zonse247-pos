@@ -330,7 +330,7 @@ const ProductForm: FunctionComponent = () => {
                     <PageHeader
                         title={isEditMode ? 'Edit Product' : 'Add New Product'}
                         description={isEditMode ? 'Update product information' : 'Required fields are marked with an asterisk (*)'}
-                        icon={<Package className="w-8 h-8 text-sky-600" />}
+                        icon={<Package className="w-8 h-8 text-sky-500" />}
                     />
                 </div>
 
@@ -344,10 +344,10 @@ const ProductForm: FunctionComponent = () => {
                         <Form>
                             <FormWrapper>
                                 <div className="py-6 relative">
-                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-sky-500 to-sky-200 dark:from-sky-600 dark:to-sky-900"></div>
+                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-sky-500 to-sky-200 dark:from-sky-500 dark:to-sky-900"></div>
 
                                     <div className="flex items-center gap-3 mb-6 relative">
-                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-sky-100 dark:bg-sky-900/50 border-2 border-sky-500 dark:border-sky-600 text-sky-600 dark:text-sky-400 font-semibold text-sm shadow-sm">
+                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-sky-100 dark:bg-sky-900/50 border-2 border-sky-500 dark:border-sky-500 text-sky-500 dark:text-sky-400 font-semibold text-sm shadow-sm">
                                             <Tag className="w-4 h-4" />
                                         </div>
                                         <div>
@@ -403,10 +403,10 @@ const ProductForm: FunctionComponent = () => {
                                 </div>
 
                                 <div className="pb-8 relative">
-                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-green-500 to-green-200 dark:from-green-600 dark:to-green-900"></div>
+                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-green-500 to-green-200 dark:from-green-500 dark:to-green-900"></div>
 
                                     <div className="flex items-center gap-3 mb-6 relative">
-                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/50 border-2 border-green-500 dark:border-green-600 text-green-600 dark:text-green-400 font-semibold text-sm shadow-sm">
+                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/50 border-2 border-green-500 dark:border-green-500 text-green-500 dark:text-green-400 font-semibold text-sm shadow-sm">
                                             <DollarSign className="w-4 h-4" />
                                         </div>
                                         <div>
@@ -481,7 +481,7 @@ const ProductForm: FunctionComponent = () => {
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setIsPrimaryBarcodeScannerOpen(true)}
-                                                                className="flex-shrink-0 px-4 py-3 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white rounded-lg font-medium text-sm transition-colors duration-150 flex items-center justify-center gap-2 touch-manipulation"
+                                                                className="flex-shrink-0 px-4 py-3 bg-sky-500 hover:bg-sky-700 active:bg-sky-800 text-white rounded-lg font-medium text-sm transition-colors duration-150 flex items-center justify-center gap-2 touch-manipulation"
                                                                 title="Scan barcode with camera"
                                                                 aria-label="Open camera barcode scanner"
                                                             >
@@ -535,7 +535,7 @@ const ProductForm: FunctionComponent = () => {
                                                             type="checkbox"
                                                             checked={values.trackInventory}
                                                             onChange={(e) => setFieldValue('trackInventory', e.target.checked)}
-                                                            className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-gray-300 rounded"
+                                                            className="h-4 w-4 text-sky-500 focus:ring-sky-500 border-gray-300 rounded"
                                                         />
                                                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                                             Track Inventory
@@ -546,7 +546,7 @@ const ProductForm: FunctionComponent = () => {
                                                             type="checkbox"
                                                             checked={values.allowNegativeStock}
                                                             onChange={(e) => setFieldValue('allowNegativeStock', e.target.checked)}
-                                                            className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-gray-300 rounded"
+                                                            className="h-4 w-4 text-sky-500 focus:ring-sky-500 border-gray-300 rounded"
                                                         />
                                                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                                             Allow Negative Stock

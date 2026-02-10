@@ -15,9 +15,9 @@ interface PrintAgentCardProps {
 
 const getAgentStatusColor = (status?: string) => {
     const colors: Record<string, { bg: string; text: string }> = {
-        RUNNING: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-600 dark:text-green-400' },
+        RUNNING: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-500 dark:text-green-400' },
         STOPPED: { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-600 dark:text-gray-400' },
-        ERROR: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-600 dark:text-red-400' },
+        ERROR: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-500 dark:text-red-400' },
         STARTING: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-600 dark:text-yellow-400' },
         STOPPING: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-600 dark:text-yellow-400' },
     };
@@ -79,11 +79,11 @@ export const PrintAgentCard = ({
             {permissions?.missingPermissions?.length > 0 && (
                 <div className="mt-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
                     <div className="flex items-start gap-2">
-                        <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                        <AlertCircle className="w-5 h-5 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                         <div>
                             <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Missing Permissions</p>
                             <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">{permissions.missingPermissions.join(', ')}</p>
-                            {permissions.instructions && <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">{permissions.instructions}</p>}
+                            {permissions.instructions && <p className="text-xs text-amber-500 dark:text-amber-400 mt-1">{permissions.instructions}</p>}
                         </div>
                     </div>
                 </div>

@@ -384,7 +384,7 @@ const SyncData: FunctionComponent = () => {
 				<div className="min-h-[60vh] flex flex-col items-center justify-center">
 					<div className="relative">
 						<div className="w-16 h-16 border-4 border-sky-200 dark:border-sky-900 rounded-full" />
-						<div className="absolute top-0 left-0 w-16 h-16 border-4 border-sky-600 border-t-transparent rounded-full animate-spin" />
+						<div className="absolute top-0 left-0 w-16 h-16 border-4 border-sky-500 border-t-transparent rounded-full animate-spin" />
 					</div>
 					<p className="mt-4 text-slate-600 dark:text-slate-400 font-medium">Loading sync data...</p>
 				</div>
@@ -411,7 +411,7 @@ const SyncData: FunctionComponent = () => {
 								<button
 									onClick={() => setViewMode('grid')}
 									className={`p-2 rounded-md transition-colors ${viewMode === 'grid'
-										? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm'
+										? 'bg-white dark:bg-slate-700 text-sky-500 dark:text-sky-400 shadow-sm'
 										: 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
 										}`}
 								>
@@ -420,7 +420,7 @@ const SyncData: FunctionComponent = () => {
 								<button
 									onClick={() => setViewMode('list')}
 									className={`p-2 rounded-md transition-colors ${viewMode === 'list'
-										? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm'
+										? 'bg-white dark:bg-slate-700 text-sky-500 dark:text-sky-400 shadow-sm'
 										: 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
 										}`}
 								>
@@ -504,7 +504,7 @@ const SyncData: FunctionComponent = () => {
 						</p>
 						<button
 							onClick={fetchTables}
-							className="inline-flex items-center gap-2 px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-medium rounded-lg transition-colors"
+							className="inline-flex items-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-700 text-white font-medium rounded-lg transition-colors"
 						>
 							<HiOutlineRefresh className="w-4 h-4" />
 							Refresh

@@ -59,7 +59,7 @@ const MobilePageHeader: React.FC<PropsWithChildren<MobilePageHeaderProps>> = ({
 
         if (typeof title === 'string') {
             return (
-                <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-100 truncate">
+                <h1 className="text-lg font-semibold text-sky-500 dark:text-sky-100 truncate">
                     {title}
                 </h1>
             );
@@ -81,10 +81,10 @@ const MobilePageHeader: React.FC<PropsWithChildren<MobilePageHeaderProps>> = ({
                     {showLeftButton && (
                         <button
                             onClick={handleLeftPress}
-                            className="flex-shrink-0 p-1.5 -ml-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all"
+                            className="flex-shrink-0 p-1.5 -ml-1.5 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all"
                             aria-label={leftIcon ? "Menu" : "Go back"}
                         >
-                            {leftIcon || <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />}
+                            {leftIcon || <ArrowLeft className="w-5 h-5 text-sky-500 dark:text-sky-400" />}
                         </button>
                     )}
                     <div className="flex-1 min-w-0">

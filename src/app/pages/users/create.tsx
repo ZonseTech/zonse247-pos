@@ -350,7 +350,7 @@ const UserForm: FunctionComponent = () => {
                         <PageHeader
                             title={userId ? 'Edit User' : 'Add User'}
                             description='Required fields are marked with an asterisk (*)'
-                            icon={<UserCog className="w-7 h-7 sm:w-8 sm:h-8 text-sky-600 dark:text-sky-400" />}
+                            icon={<UserCog className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                             action={
                                 <Button
                                     type="button"
@@ -376,10 +376,10 @@ const UserForm: FunctionComponent = () => {
                                 <FormWrapper>
                                     {/* Section 1: Basic Information */}
                                     <div className="py-4 sm:py-6 relative">
-                                        <div className="absolute left-3 sm:left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-sky-500 to-sky-200 dark:from-sky-600 dark:to-sky-900"></div>
+                                        <div className="absolute left-3 sm:left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-sky-500 to-sky-200 dark:from-sky-500 dark:to-sky-900"></div>
 
                                         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 relative">
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-sky-100 dark:bg-sky-900/50 border-2 border-sky-500 dark:border-sky-600 text-sky-600 dark:text-sky-400 shadow-sm">
+                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-sky-100 dark:bg-sky-900/50 border-2 border-sky-500 dark:border-sky-500 text-sky-500 dark:text-sky-400 shadow-sm">
                                                 <User className="w-4 h-4" />
                                             </div>
                                             <div>
@@ -430,10 +430,10 @@ const UserForm: FunctionComponent = () => {
 
                                     {/* Section 2: Tenant & Branch Assignment */}
                                     <div className="pb-6 sm:pb-8 relative">
-                                        <div className="absolute left-3 sm:left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-emerald-500 to-emerald-200 dark:from-emerald-600 dark:to-emerald-900"></div>
+                                        <div className="absolute left-3 sm:left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-emerald-500 to-emerald-200 dark:from-emerald-500 dark:to-emerald-900"></div>
 
                                         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 relative">
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 border-2 border-emerald-500 dark:border-emerald-600 text-emerald-600 dark:text-emerald-400 shadow-sm">
+                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 border-2 border-emerald-500 dark:border-emerald-500 text-emerald-500 dark:text-emerald-400 shadow-sm">
                                                 <Building2 className="w-4 h-4" />
                                             </div>
                                             <div>
@@ -517,7 +517,7 @@ const UserForm: FunctionComponent = () => {
                                     {/* Section 4: Security Settings */}
                                     <div className="pb-6 sm:pb-8 relative">
                                         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 relative">
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/50 border-2 border-amber-500 dark:border-amber-600 text-amber-600 dark:text-amber-400 shadow-sm">
+                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/50 border-2 border-amber-500 dark:border-amber-500 text-amber-500 dark:text-amber-400 shadow-sm">
                                                 <Lock className="w-4 h-4" />
                                             </div>
                                             <div>
@@ -552,7 +552,7 @@ const UserForm: FunctionComponent = () => {
                                                             onChange={(e: ChangeEvent<HTMLInputElement>) =>
                                                                 setFieldValue('forcePasswordChange', e.target.checked)
                                                             }
-                                                            className="h-5 w-5 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                                                            className="h-5 w-5 text-amber-500 focus:ring-amber-500 border-gray-300 rounded"
                                                         />
                                                         <div>
                                                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">

@@ -158,7 +158,7 @@ const PurchaseOrderForm: FunctionComponent = () => {
                     <PageHeader
                         title={isEditMode ? 'Edit Purchase Order' : 'Add New Purchase Order'}
                         description={isEditMode ? 'Update purchase order information' : 'Required fields are marked with an asterisk (*)'}
-                        icon={<ShoppingCart className="w-8 h-8 text-sky-600" />}
+                        icon={<ShoppingCart className="w-8 h-8 text-sky-500" />}
                     />
                 </div>
 

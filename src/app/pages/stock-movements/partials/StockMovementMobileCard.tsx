@@ -25,9 +25,9 @@ const StockMovementMobileCard: FC<StockMovementMobileCardProps> = ({ movement })
     const isDecrease = movement.direction === 'OUT';
     const Icon = isIncrease ? TrendingUp : isDecrease ? TrendingDown : RefreshCw;
     const colorClass = isIncrease
-        ? 'text-green-600 dark:text-green-400'
+        ? 'text-green-500 dark:text-green-400'
         : isDecrease
-            ? 'text-red-600 dark:text-red-400'
+            ? 'text-red-500 dark:text-red-400'
             : 'text-yellow-600 dark:text-yellow-400';
 
     return (

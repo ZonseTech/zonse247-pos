@@ -17,10 +17,10 @@ const SyncButton: FunctionComponent<SyncButtonProps> = ({ isCompact = false }) =
                 "relative flex items-center gap-2 rounded-xl transition-all duration-200",
                 isEBN ? "p-1.5" : "p-2.5",
                 isSyncing
-                    ? "text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-500/10 cursor-wait"
+                    ? "text-sky-500 dark:text-sky-400 bg-sky-50 dark:bg-sky-500/10 cursor-wait"
                     : pendingCount > 0
-                        ? "text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10"
-                        : "text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10"
+                        ? "text-amber-500 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10"
+                        : "text-emerald-500 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10"
             )}
             aria-label={isSyncing ? "Syncing..." : `${pendingCount} documents pending sync`}
             title={isSyncing ? "Syncing in progress..." : pendingCount > 0 ? `${pendingCount} documents need syncing` : "All synced"}

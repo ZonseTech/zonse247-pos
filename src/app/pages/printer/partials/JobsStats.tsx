@@ -29,8 +29,8 @@ interface JobsStatsProps {
 export const JobsStats = ({ pendingCount, printingCount, failedCount, totalCount }: JobsStatsProps) => (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 px-4 md:px-0">
         <StatsCard label="Pending" value={pendingCount} colorClass="bg-yellow-100 dark:bg-yellow-900/30" icon={<Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />} />
-        <StatsCard label="Printing" value={printingCount} colorClass="bg-sky-100 dark:bg-sky-900/30" icon={<Loader2 className="w-5 h-5 text-sky-600 dark:text-sky-400" />} />
-        <StatsCard label="Failed" value={failedCount} colorClass="bg-red-100 dark:bg-red-900/30" icon={<XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />} />
+        <StatsCard label="Printing" value={printingCount} colorClass="bg-sky-100 dark:bg-sky-900/30" icon={<Loader2 className="w-5 h-5 text-sky-500 dark:text-sky-400" />} />
+        <StatsCard label="Failed" value={failedCount} colorClass="bg-red-100 dark:bg-red-900/30" icon={<XCircle className="w-5 h-5 text-red-500 dark:text-red-400" />} />
         <StatsCard label="Total" value={totalCount} colorClass="bg-gray-100 dark:bg-gray-700" icon={<FileText className="w-5 h-5 text-gray-600 dark:text-gray-400" />} />
     </div>
 );

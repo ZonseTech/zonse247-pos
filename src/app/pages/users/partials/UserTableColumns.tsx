@@ -39,7 +39,7 @@ export const getUserTableColumns = ({
             name: 'User',
             cell: (row: User) => (
                 <div className="flex items-center gap-3 py-2">
-                    <div className="w-10 h-10 bg-gradient-to-br from-sky-500 to-sky-600 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                    <div className="w-10 h-10 bg-gradient-to-br from-sky-500 to-sky-500 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
                         {getInitials(row.fullname || row.username || '')}
                     </div>
                     <div className="min-w-0">
@@ -110,7 +110,7 @@ export const getUserTableColumns = ({
                     <div className="flex items-center space-x-1">
                         <button
                             onClick={() => onEdit(row)}
-                            className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20"
+                            className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20"
                             title="Edit User"
                         >
                             <Edit2 className="w-4 h-4" />
@@ -129,7 +129,7 @@ export const getUserTableColumns = ({
                             )}
                             className={`group p-2 rounded-lg transition-all duration-200 ${row.status === 'active'
                                 ? 'text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20'
-                                : 'text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
+                                : 'text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
                                 }`}
                             title={row.status === 'active' ? 'Deactivate' : 'Activate'}
                         >
@@ -137,7 +137,7 @@ export const getUserTableColumns = ({
                         </button>
                         <button
                             onClick={() => onDelete(userId)}
-                            className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                             title="Delete User"
                         >
                             <Trash2 className="w-4 h-4" />

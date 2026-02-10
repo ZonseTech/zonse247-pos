@@ -86,7 +86,7 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
                 disabled={isMinimum}
                 className={classNames(
                     "flex items-center justify-center text-gray-600 dark:text-gray-300",
-                    "bg-white dark:bg-gray-700 hover:bg-sky-50 dark:hover:bg-sky-900/30 hover:text-sky-600 dark:hover:text-sky-400",
+                    "bg-white dark:bg-gray-700 hover:bg-sky-50 dark:hover:bg-sky-900/30 hover:text-sky-500 dark:hover:text-sky-400",
                     "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-700 disabled:hover:text-gray-600",
                     "focus:outline-none active:scale-95 transition-all duration-200",
                     compact ? "w-6 h-6" : "w-10 h-10"
@@ -109,7 +109,7 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
                     "bg-white dark:bg-gray-800 border-x border-gray-200 dark:border-gray-700",
                     "focus:outline-none transition-all duration-200",
                     "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
-                    isActive ? 'bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400' : '',
+                    isActive ? 'bg-sky-50 dark:bg-sky-900/30 text-sky-500 dark:text-sky-400' : '',
                     compact ? "w-10 h-6 text-xs" : "w-14 h-10 text-base"
                 )}
                 min="0"
@@ -120,7 +120,7 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
                 disabled={isAtMaxStock}
                 className={classNames(
                     "flex items-center justify-center text-gray-600 dark:text-gray-300",
-                    "bg-white dark:bg-gray-700 hover:bg-sky-50 dark:hover:bg-sky-900/30 hover:text-sky-600 dark:hover:text-sky-400",
+                    "bg-white dark:bg-gray-700 hover:bg-sky-50 dark:hover:bg-sky-900/30 hover:text-sky-500 dark:hover:text-sky-400",
                     "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-700 disabled:hover:text-gray-600",
                     "focus:outline-none active:scale-95 transition-all duration-200",
                     compact ? "w-6 h-6" : "w-10 h-10"

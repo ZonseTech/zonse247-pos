@@ -10,10 +10,10 @@ const getProcessingMessage = (step: ProcessingStep) => {
     switch (step) {
         case 'validating':
             return 'Validating transaction...';
-        case 'processing':
-            return 'Processing payment...';
         case 'saving':
             return 'Saving transaction...';
+        case 'printing':
+            return 'Printing receipt...';
         case 'completed':
             return 'Transaction complete!';
         default:
@@ -51,20 +51,20 @@ const ProcessingView: FunctionComponent<ProcessingViewProps> = ({ processingStep
                             />
                         </div>
                         <ProcessingStepIndicator
-                            step="processing"
+                            step="saving"
                             currentStep={processingStep}
-                            label="Process"
+                            label="Save"
                         />
                         <div className="flex-1 h-0.5 bg-gray-200 dark:bg-gray-700 mx-2">
                             <div
-                                className={`h-full bg-sky-500 transition-all duration-500 ${processingStep === 'validating' || processingStep === 'processing' ? 'w-0' : 'w-full'
+                                className={`h-full bg-sky-500 transition-all duration-500 ${processingStep === 'validating' || processingStep === 'saving' ? 'w-0' : 'w-full'
                                     }`}
                             />
                         </div>
                         <ProcessingStepIndicator
-                            step="saving"
+                            step="printing"
                             currentStep={processingStep}
-                            label="Save"
+                            label="Print"
                         />
                     </div>
                 </div>

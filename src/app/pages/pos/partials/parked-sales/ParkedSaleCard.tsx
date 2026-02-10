@@ -36,7 +36,7 @@ const ParkedSaleCard: FunctionComponent<ParkedSaleCardProps> = ({
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
-                            <HiOutlineUser className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                            <HiOutlineUser className="w-5 h-5 text-amber-500 dark:text-amber-400" />
                         </div>
                         <div>
                             <p className="font-semibold text-gray-800 dark:text-gray-100">
@@ -55,7 +55,7 @@ const ParkedSaleCard: FunctionComponent<ParkedSaleCardProps> = ({
                             <button
                                 onClick={handleResume}
                                 disabled={isLoading}
-                                className="flex items-center gap-1 bg-amber-500 hover:bg-amber-600 disabled:bg-gray-400 text-white py-1.5 px-3 rounded-lg text-sm font-medium transition-colors"
+                                className="flex items-center gap-1 bg-amber-500 hover:bg-amber-500 disabled:bg-gray-400 text-white py-1.5 px-3 rounded-lg text-sm font-medium transition-colors"
                             >
                                 <HiOutlinePlay className="w-4 h-4" />
                                 Resume
@@ -63,7 +63,7 @@ const ParkedSaleCard: FunctionComponent<ParkedSaleCardProps> = ({
                             <button
                                 onClick={handleDelete}
                                 disabled={isLoading}
-                                className="flex items-center gap-1 bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white py-1.5 px-3 rounded-lg text-sm font-medium transition-colors"
+                                className="flex items-center gap-1 bg-red-500 hover:bg-red-500 disabled:bg-gray-400 text-white py-1.5 px-3 rounded-lg text-sm font-medium transition-colors"
                             >
                                 <HiOutlineTrash className="w-4 h-4" />
                                 Delete

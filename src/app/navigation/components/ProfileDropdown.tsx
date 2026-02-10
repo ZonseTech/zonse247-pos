@@ -78,7 +78,7 @@ const ProfileDropdown: FunctionComponent<ProfileDropdownProps> = ({ isOpen, setI
                         className={classNames(
                             "flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm transition-colors duration-150",
                             location.pathname === ROUTES.MY_PROFILE
-                                ? "bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400"
+                                ? "bg-sky-50 dark:bg-sky-500/10 text-sky-500 dark:text-sky-400"
                                 : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                         )}
                     >
@@ -91,7 +91,7 @@ const ProfileDropdown: FunctionComponent<ProfileDropdownProps> = ({ isOpen, setI
                         className={classNames(
                             "flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm transition-colors duration-150",
                             location.pathname === ROUTES.SETTINGS
-                                ? "bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400"
+                                ? "bg-sky-50 dark:bg-sky-500/10 text-sky-500 dark:text-sky-400"
                                 : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                         )}
                     >
@@ -103,7 +103,7 @@ const ProfileDropdown: FunctionComponent<ProfileDropdownProps> = ({ isOpen, setI
 
                     <button
                         onClick={handleSignOut}
-                        className="flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors duration-150"
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors duration-150"
                     >
                         <LogOut size={18} />
                         <span>Sign Out</span>

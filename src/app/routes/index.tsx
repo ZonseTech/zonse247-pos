@@ -13,7 +13,8 @@ const Users = lazy(() => import('../pages/users/index'))
 const PointOfSale = lazy(() => import('../pages/pos'))
 const Login = lazy(() => import('../pages/auth/Login'))
 const Inventory = lazy(() => import('../pages/inventory'))
-const MobileInventory = lazy(() => import('../pages/inventory/MobileStocks'))
+const MobileInventory = lazy(() => import('../pages/inventory/MobileInventory'))
+const MobileStocks = lazy(() => import('../pages/inventory/MobileStocks'))
 const InventoryForm = lazy(() => import('../pages/inventory/create'))
 const Categories = lazy(() => import('../pages/categories'))
 const Customers = lazy(() => import('../pages/customers'))
@@ -21,6 +22,7 @@ const Settings = lazy(() => import('../pages/settings'))
 const NotFound = lazy(() => import('../pages/errors/NotFound'))
 const SyncData = lazy(() => import('../pages/sync-data'))
 const Dashboard = lazy(() => import('../pages/dashboard'))
+const MobileReport = lazy(() => import('../pages/dashboard/MobileReport'))
 const LandingPage = lazy(() => import('../pages/landing'))
 const BranchManagement = lazy(() => import('../pages/branch'))
 const BranchForm = lazy(() => import('../pages/branch/create'));
@@ -31,6 +33,9 @@ const TenantForm = lazy(() => import('../pages/tenants/create'))
 const TenantsManagement = lazy(() => import('../pages/tenants'))
 const TenantRegistrationDetails = lazy(() => import('../pages/tenant-registration-details'))
 const Sales = lazy(() => import('../pages/sales'))
+const TodaySales = lazy(() => import('../pages/sales/TodaySales'))
+const MobileReceiptDetails = lazy(() => import('../pages/sales/MobileReceiptDetails'))
+const MobileReceipt = lazy(() => import('../pages/sales/MobileReceipt'))
 const Returns = lazy(() => import('../pages/returns'))
 const DatabaseExporter = lazy(() => import('../pages/export-db'))
 const AccountDetails = lazy(() => import('../pages/auth/MyProfile'))
@@ -42,7 +47,6 @@ const PrinterManagement = lazy(() => import('../pages/printer'))
 const PrinterForm = lazy(() => import('../pages/printer/create'))
 const PrintJobsManagement = lazy(() => import('../pages/printer/jobs'))
 
-// Inventory Workflow Pages
 const Products = lazy(() => import('../pages/products'))
 const ProductForm = lazy(() => import('../pages/products/create'))
 const Suppliers = lazy(() => import('../pages/suppliers'))
@@ -68,19 +72,20 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 				{isNativeMobile ? (
 					<Route element={<MobileTabLayout />}>
 						<Route path={ROUTES.POS} element={<PointOfSale />} />
-						<Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
-						<Route path={ROUTES.SALES} element={<Sales />} />
-						<Route path={ROUTES.ITEMS} element={<MobileInventory />} />
+						<Route path={ROUTES.MOBILE_REPORT} element={<MobileReport />} />
+						<Route path={ROUTES.TODAY_SALES} element={<TodaySales />} />
+						<Route path={ROUTES.ITEMS} element={<MobileStocks />} />
 					</Route>
 				) : (
-					<>
-						<Route path={ROUTES.POS} element={<PointOfSale />} />
-						<Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
-						<Route path={ROUTES.SALES} element={<Sales />} />
-						<Route path={ROUTES.INVENTORY} element={<Inventory />} />
-					</>
+					<Route path={ROUTES.POS} element={<PointOfSale />} />
 				)}
 
+				<Route path={ROUTES.MOBILE_INVENTORY} element={<MobileInventory />} />
+				<Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
+				<Route path={ROUTES.RECEIPT_DETAILS} element={<MobileReceiptDetails />} />
+				<Route path={ROUTES.RECEIPTS} element={<MobileReceipt />} />
+				<Route path={ROUTES.SALES} element={<Sales />} />
+				<Route path={ROUTES.INVENTORY} element={<Inventory />} />
 				<Route path={ROUTES.USERS} element={<Users />} />
 				<Route path={ROUTES.USER_FORM} element={<UserForm />} />
 				<Route path={ROUTES.MY_PROFILE} element={<AccountDetails />} />

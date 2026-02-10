@@ -220,7 +220,7 @@ export const CategorySearch: FunctionComponent<CategorySearchProps> = ({
                         <button
                             type="button"
                             onClick={handleAddCategoryClick}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-sky-600 dark:text-sky-400 hover:bg-sky-100 dark:hover:bg-sky-900/30 rounded-lg transition-colors"
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-sky-500 dark:text-sky-400 hover:bg-sky-100 dark:hover:bg-sky-900/30 rounded-lg transition-colors"
                         >
                             <Plus className="w-4 h-4" />
                             Add New Category

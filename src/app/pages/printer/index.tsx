@@ -133,7 +133,7 @@ const PrinterManagement: FunctionComponent = () => {
                 <PageHeader
                     title='Printers'
                     description='Manage your printer devices and print settings'
-                    icon={<HiOutlinePrinter className="w-7 h-7 sm:w-8 sm:h-8 text-sky-600 dark:text-sky-400" />}
+                    icon={<HiOutlinePrinter className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                     action={
                         <div className='flex items-center justify-between gap-2'>
                             {!isMobile && <SearchBar value={searchTerm} onChange={setSearchTerm} />}

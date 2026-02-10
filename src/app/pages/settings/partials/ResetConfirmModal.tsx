@@ -12,7 +12,7 @@ const ResetConfirmModal: React.FC<ResetConfirmModalProps> = ({ onConfirm, onCanc
                 <div className="p-6">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-100 dark:bg-red-900">
-                            <HiOutlineExclamationTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                            <HiOutlineExclamationTriangle className="w-6 h-6 text-red-500 dark:text-red-400" />
                         </div>
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                             Reset Settings
@@ -30,7 +30,7 @@ const ResetConfirmModal: React.FC<ResetConfirmModalProps> = ({ onConfirm, onCanc
                         </button>
                         <button
                             onClick={onConfirm}
-                            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white transition-colors font-medium"
+                            className="px-4 py-2 bg-red-500 hover:bg-red-500 text-white transition-colors font-medium"
                         >
                             Reset
                         </button>

@@ -26,49 +26,49 @@ interface Props {
 const statusConfig: Record<string, { icon: typeof CheckCircle; color: string; bgColor: string; label: string }> = {
 	completed: {
 		icon: CheckCircle,
-		color: 'text-emerald-600 dark:text-emerald-400',
+		color: 'text-emerald-500 dark:text-emerald-400',
 		bgColor: 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800/50',
 		label: 'Completed'
 	},
 	COMPLETED: {
 		icon: CheckCircle,
-		color: 'text-emerald-600 dark:text-emerald-400',
+		color: 'text-emerald-500 dark:text-emerald-400',
 		bgColor: 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800/50',
 		label: 'Completed'
 	},
 	pending: {
 		icon: Clock,
-		color: 'text-amber-600 dark:text-amber-400',
+		color: 'text-amber-500 dark:text-amber-400',
 		bgColor: 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800/50',
 		label: 'Pending'
 	},
 	PENDING: {
 		icon: Clock,
-		color: 'text-amber-600 dark:text-amber-400',
+		color: 'text-amber-500 dark:text-amber-400',
 		bgColor: 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800/50',
 		label: 'Pending'
 	},
 	cancelled: {
 		icon: XCircle,
-		color: 'text-red-600 dark:text-red-400',
+		color: 'text-red-500 dark:text-red-400',
 		bgColor: 'bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800/50',
 		label: 'Cancelled'
 	},
 	refunded: {
 		icon: RotateCcw,
-		color: 'text-sky-600 dark:text-sky-400',
+		color: 'text-sky-500 dark:text-sky-400',
 		bgColor: 'bg-sky-50 dark:bg-sky-950/50 border-sky-200 dark:border-sky-800/50',
 		label: 'Refunded'
 	},
 	RETURNED: {
 		icon: RotateCcw,
-		color: 'text-sky-600 dark:text-sky-400',
+		color: 'text-sky-500 dark:text-sky-400',
 		bgColor: 'bg-sky-50 dark:bg-sky-950/50 border-sky-200 dark:border-sky-800/50',
 		label: 'Returned'
 	},
 	failed: {
 		icon: AlertCircle,
-		color: 'text-red-600 dark:text-red-400',
+		color: 'text-red-500 dark:text-red-400',
 		bgColor: 'bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800/50',
 		label: 'Failed'
 	},
@@ -260,7 +260,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 		}>
 			<div className={isEBN ? "flex items-center gap-2" : "flex items-center gap-4"}>
 				<div className={isEBN ? "p-1.5 bg-sky-100 dark:bg-sky-900/50 rounded-lg" : "p-2.5 bg-sky-100 dark:bg-sky-900/50 rounded-xl"}>
-					<Receipt className={isEBN ? "w-4 h-4 text-sky-600 dark:text-sky-400" : "w-6 h-6 text-sky-600 dark:text-sky-400"} />
+					<Receipt className={isEBN ? "w-4 h-4 text-sky-500 dark:text-sky-400" : "w-6 h-6 text-sky-500 dark:text-sky-400"} />
 				</div>
 				<div>
 					<div className="flex items-center gap-2">
@@ -388,7 +388,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 								<div className="flex items-start justify-between gap-2">
 									<div className="flex items-start gap-2">
 										<div className={isEBN ? "p-1 bg-sky-100 dark:bg-sky-800/50 rounded mt-0.5" : "p-2 bg-sky-100 dark:bg-sky-800/50 rounded-lg mt-0.5"}>
-											<RotateCcw className={isEBN ? "w-3 h-3 text-sky-600 dark:text-sky-400" : "w-5 h-5 text-sky-600 dark:text-sky-400"} />
+											<RotateCcw className={isEBN ? "w-3 h-3 text-sky-500 dark:text-sky-400" : "w-5 h-5 text-sky-500 dark:text-sky-400"} />
 										</div>
 										<div>
 											<h4 className={isEBN
@@ -407,8 +407,8 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 									</div>
 									<div className="text-right">
 										<p className={isEBN
-											? "text-[8px] text-sky-600 dark:text-sky-400 uppercase font-medium tracking-wider"
-											: "text-xs text-sky-600 dark:text-sky-400 uppercase font-medium tracking-wider"
+											? "text-[8px] text-sky-500 dark:text-sky-400 uppercase font-medium tracking-wider"
+											: "text-xs text-sky-500 dark:text-sky-400 uppercase font-medium tracking-wider"
 										}>
 											Total Refunded
 										</p>
@@ -420,8 +420,8 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 										</p>
 										{!saleData.refundSummary.isFullyRefunded && (
 											<p className={isEBN
-												? "text-[10px] text-sky-600 dark:text-sky-400 mt-0.5"
-												: "text-sm text-sky-600 dark:text-sky-400 mt-1"
+												? "text-[10px] text-sky-500 dark:text-sky-400 mt-0.5"
+												: "text-sm text-sky-500 dark:text-sky-400 mt-1"
 											}>
 												Remaining: {formatCurrency(saleData.refundSummary.remainingAmount)}
 											</p>
@@ -433,7 +433,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 										? "mt-2 pt-2 border-t border-sky-200 dark:border-sky-700 flex items-center justify-center gap-1"
 										: "mt-3 pt-3 border-t border-sky-200 dark:border-sky-700 flex items-center justify-center gap-2"
 									}>
-										<CheckCircle className={isEBN ? "w-3 h-3 text-sky-600 dark:text-sky-400" : "w-4 h-4 text-sky-600 dark:text-sky-400"} />
+										<CheckCircle className={isEBN ? "w-3 h-3 text-sky-500 dark:text-sky-400" : "w-4 h-4 text-sky-500 dark:text-sky-400"} />
 										<span className={isEBN
 											? "text-[10px] font-medium text-sky-800 dark:text-sky-200"
 											: "text-sm font-medium text-sky-800 dark:text-sky-200"

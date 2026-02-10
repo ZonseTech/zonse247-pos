@@ -73,7 +73,7 @@ const Footer: FunctionComponent<FooterProps> = ({ className, compact: compactPro
                         {!compact && (
                             <span className={classNames(
                                 'text-xs hidden lg:inline',
-                                isOnline ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                                isOnline ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'
                             )}>
                                 {isOnline ? 'Online' : 'Offline'}
                             </span>
@@ -104,10 +104,10 @@ const Footer: FunctionComponent<FooterProps> = ({ className, compact: compactPro
                             <span className={classNames(
                                 'text-xs hidden lg:inline',
                                 serverChecking
-                                    ? 'text-sky-600 dark:text-sky-400'
+                                    ? 'text-sky-500 dark:text-sky-400'
                                     : isServerConnected
-                                        ? 'text-green-600 dark:text-green-400'
-                                        : 'text-red-600 dark:text-red-400'
+                                        ? 'text-green-500 dark:text-green-400'
+                                        : 'text-red-500 dark:text-red-400'
                             )}>
                                 {serverChecking ? 'Checking...' : (isServerConnected ? 'Server' : 'No Server')}
                             </span>

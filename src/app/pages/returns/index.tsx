@@ -89,7 +89,7 @@ const ReturnsPage: FC = () => {
                 displayValue: String(totalReturns),
                 bgColor: 'bg-sky-50 dark:bg-sky-900/20',
                 iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
-                textColor: 'text-sky-600 dark:text-sky-400',
+                textColor: 'text-sky-500 dark:text-sky-400',
             },
             {
                 title: 'Pending Restock',
@@ -97,7 +97,7 @@ const ReturnsPage: FC = () => {
                 displayValue: String(pendingRestock),
                 bgColor: 'bg-amber-50 dark:bg-amber-900/20',
                 iconBgColor: 'bg-amber-100 dark:bg-amber-900/40',
-                textColor: 'text-amber-600 dark:text-amber-400',
+                textColor: 'text-amber-500 dark:text-amber-400',
             },
             {
                 title: 'Restocked',
@@ -105,7 +105,7 @@ const ReturnsPage: FC = () => {
                 displayValue: String(restocked),
                 bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
                 iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
-                textColor: 'text-emerald-600 dark:text-emerald-400',
+                textColor: 'text-emerald-500 dark:text-emerald-400',
             },
             {
                 title: 'Damaged',
@@ -113,7 +113,7 @@ const ReturnsPage: FC = () => {
                 displayValue: String(damaged),
                 bgColor: 'bg-red-50 dark:bg-red-900/20',
                 iconBgColor: 'bg-red-100 dark:bg-red-900/40',
-                textColor: 'text-red-600 dark:text-red-400',
+                textColor: 'text-red-500 dark:text-red-400',
             },
         ];
     }, [summaryData]);
@@ -124,7 +124,7 @@ const ReturnsPage: FC = () => {
         <AppLayout>
             <div className="max-w-full">
                 <PageHeader
-                    icon={<RotateCcw className={isEBN ? "w-5 h-5 text-sky-600 dark:text-sky-400" : "w-8 h-8 text-sky-600 dark:text-sky-400"} />}
+                    icon={<RotateCcw className={isEBN ? "w-5 h-5 text-sky-500 dark:text-sky-400" : "w-8 h-8 text-sky-500 dark:text-sky-400"} />}
                     title="Returns"
                     description={(isMobile || isEBN) ? undefined : "Manage product returns, process refunds, and track restock status"}
                     compact={isEBN}
@@ -150,7 +150,7 @@ const ReturnsPage: FC = () => {
                             {hasActiveFilters && (
                                 <button
                                     onClick={handleClearFilters}
-                                    className="flex items-center gap-1 px-2 py-1 text-[10px] text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded border border-red-200 dark:border-red-700"
+                                    className="flex items-center gap-1 px-2 py-1 text-[10px] text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded border border-red-200 dark:border-red-700"
                                 >
                                     <HiOutlineFilter className="w-3 h-3" />
                                     Clear
@@ -174,7 +174,7 @@ const ReturnsPage: FC = () => {
                                         {hasActiveFilters && (
                                             <button
                                                 onClick={handleClearFilters}
-                                                className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
+                                                className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-500 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
                                             >
                                                 <HiOutlineFilter className="w-4 h-4" />
                                                 <span className="hidden sm:inline">Clear</span>
@@ -234,7 +234,7 @@ const ReturnsPage: FC = () => {
                                     {hasActiveFilters && (
                                         <button
                                             onClick={handleClearFilters}
-                                            className="mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
+                                            className="mt-4 text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
                                         >
                                             Clear filters
                                         </button>
@@ -324,8 +324,8 @@ const ReturnsPage: FC = () => {
                                             <button
                                                 onClick={handleClearFilters}
                                                 className={isEBN
-                                                    ? "mt-2 text-xs text-sky-600 dark:text-sky-400 font-medium"
-                                                    : "mt-4 text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium"
+                                                    ? "mt-2 text-xs text-sky-500 dark:text-sky-400 font-medium"
+                                                    : "mt-4 text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium"
                                                 }
                                             >
                                                 Clear filters

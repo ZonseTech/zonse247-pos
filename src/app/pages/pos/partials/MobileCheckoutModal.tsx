@@ -1,5 +1,6 @@
 import { Report } from 'notiflix';
 import { FunctionComponent, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useInventory } from '../../../hooks/useInventory';
 import { useAuth } from '../../../context/AuthProvider';
@@ -8,6 +9,7 @@ import salesService from '../../../services/sales.service';
 import printerService from '../../../services/printer.service';
 import { generateReferenceNumber } from '../../../utils';
 import { DEFAULT_SEED_KEY } from '../../../constants';
+import { ROUTES } from '../../../utils/constants';
 import { ProcessingStep } from './mobile-checkout/ProcessingStepIndicator';
 import { ProcessingView, CompletedSaleView, PaymentFormView } from './mobile-checkout';
 
@@ -43,6 +45,7 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
     paymentMethodId,
     focusManager
 }) => {
+    const navigate = useNavigate();
     const {
         discount,
         tax,
@@ -62,7 +65,6 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
     const [activeInput, setActiveInput] = useState<ActiveInputType>(null);
     const [completedSale, setCompletedSale] = useState<Sale | Transaction | null>(null);
     const [changeAmount, setChangeAmount] = useState<number>(0);
-    const [isPrintingReceipt, setIsPrintingReceipt] = useState<boolean>(false);
 
     const initialFormValues: SaleFormValues = {
         paymentMethodId,
@@ -114,9 +116,6 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
             setProcessingStep('validating');
             await simulateDelay(500);
 
-            setProcessingStep('processing');
-            await simulateDelay(800);
-
             setProcessingStep('saving');
 
             const refNumber = generateReferenceNumber();
@@ -154,7 +153,7 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
                 ? Math.max(0, parseFloat(values.cashTendered) - total)
                 : 0;
 
-            const completedSaleData: Transaction = {
+            const completedSaleData = {
                 id: sale.id,
                 refNumber: (sale as any).saleNumber || refNumber,
                 transactionId: sale.id,
@@ -177,6 +176,16 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
 
             setChangeAmount(calculatedChange);
             setCompletedSale(completedSaleData);
+
+            setProcessingStep('printing');
+            try {
+                await printerService.printReceipt({
+                    saleId: sale.id,
+                    transactionId: sale.id,
+                });
+            } catch (printError) {
+                Report.failure('Print Error', 'Failed to print receipt. Please try again.', 'OK');
+            }
 
             setProcessingStep('completed');
 
@@ -223,28 +232,16 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
         onClose();
     };
 
-    const handleGetReceipt = async () => {
-        if (!completedSale || isPrintingReceipt) return;
+    const handleGetReceipt = () => {
+        if (!completedSale) return;
 
-        try {
-            setIsPrintingReceipt(true);
+        const saleId = (completedSale as Transaction).transactionId ||
+            (completedSale as Sale).id ||
+            completedSale.id;
 
-            const saleId = (completedSale as Transaction).transactionId ||
-                (completedSale as Sale).id ||
-                completedSale.id;
+        handleNewTransaction()
 
-            await printerService.printReceipt({
-                saleId: saleId,
-                transactionId: saleId,
-            });
-
-            Report.success('Receipt', 'Receipt sent to printer', 'OK');
-        } catch (error) {
-            console.error('Failed to print receipt:', error);
-            Report.failure('Print Error', 'Failed to print receipt. Please try again.', 'OK');
-        } finally {
-            setIsPrintingReceipt(false);
-        }
+        navigate(ROUTES.RECEIPT_DETAILS.replace(':saleId', saleId));
     };
 
     if (!isOpen) return null;
@@ -256,7 +253,6 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
                 total={total}
                 changeAmount={changeAmount}
                 paymentMethodId={paymentMethodId}
-                isPrintingReceipt={isPrintingReceipt}
                 onGetReceipt={handleGetReceipt}
                 onNewTransaction={handleNewTransaction}
             />

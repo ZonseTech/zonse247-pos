@@ -5,7 +5,7 @@ import IconLabelButton from "../../components/IconLabelButton";
 
 type NavItemType = 'button' | 'split' | 'spacer' | 'icon';
 
-export type NavGroup = 'operations' | 'inventory' | 'management' | 'admin' | 'settings' | 'system';
+export type NavGroup = 'operations' | 'inventory' | 'management' | 'admin' | 'settings' | 'system' | 'misc';
 
 export type NavItem = {
     type: NavItemType;

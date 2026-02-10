@@ -49,7 +49,7 @@ const PageHeader: React.FC<PropsWithChildren<PageHeaderProps>> = ({
                     ? "flex items-center gap-2 flex-1 min-w-0"
                     : "flex items-center gap-2 sm:gap-4 flex-1 min-w-0"
                 }>
-                    {showBackButton && (
+                    {(showBackButton || isMobile) && (
                         <button
                             onClick={handleBack}
                             className={compact
@@ -61,7 +61,7 @@ const PageHeader: React.FC<PropsWithChildren<PageHeaderProps>> = ({
                             <ArrowLeft className={compact ? "w-5 h-5 text-gray-600 dark:text-gray-400" : "w-6 h-6 text-gray-600 dark:text-gray-400"} />
                         </button>
                     )}
-                    {icon && (
+                    {(icon && !isMobile) && (
                         <div className={compact
                             ? "flex-shrink-0 [&>svg]:w-5 [&>svg]:h-5"
                             : "flex-shrink-0 [&>svg]:w-6 [&>svg]:h-6 sm:[&>svg]:w-8 sm:[&>svg]:h-8"

@@ -64,7 +64,7 @@ const BarcodeManager: FunctionComponent<BarcodeManagerProps> = ({ barcodes, onBa
                         <button
                             type="button"
                             onClick={() => setIsScannerOpen(true)}
-                            className="mb-1 px-3 py-2.5 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white rounded-lg font-medium text-sm transition-colors duration-150 flex items-center justify-center gap-1.5 touch-manipulation"
+                            className="mb-1 px-3 py-2.5 bg-sky-500 hover:bg-sky-700 active:bg-sky-800 text-white rounded-lg font-medium text-sm transition-colors duration-150 flex items-center justify-center gap-1.5 touch-manipulation"
                             title="Scan barcode with camera"
                             aria-label="Open camera barcode scanner"
                         >
@@ -93,7 +93,7 @@ const BarcodeManager: FunctionComponent<BarcodeManagerProps> = ({ barcodes, onBa
                     <button
                         type="button"
                         onClick={addBarcode}
-                        className="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-lg font-medium text-sm transition-colors duration-150 flex items-center justify-center gap-1.5 touch-manipulation"
+                        className="w-full sm:w-auto px-4 py-2.5 bg-emerald-500 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-lg font-medium text-sm transition-colors duration-150 flex items-center justify-center gap-1.5 touch-manipulation"
                     >
                         <Plus className="w-4 h-4" />
                         Add Barcode
@@ -114,7 +114,7 @@ const BarcodeManager: FunctionComponent<BarcodeManagerProps> = ({ barcodes, onBa
                                 <button
                                     type="button"
                                     onClick={() => removeBarcode(index)}
-                                    className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors touch-manipulation flex-shrink-0"
+                                    className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors touch-manipulation flex-shrink-0"
                                     aria-label={`Remove barcode ${barcode.barcode}`}
                                 >
                                     <X className="w-5 h-5 sm:w-4 sm:h-4" />

@@ -200,7 +200,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                                         <div className="md:hidden px-4 py-3 space-y-2">
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="flex-1 min-w-0">
-                                                    <div className="font-medium text-slate-800 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400 truncate">
+                                                    <div className="font-medium text-slate-800 dark:text-gray-100 group-hover:text-sky-500 dark:group-hover:text-sky-400 truncate">
                                                         {item.name}
                                                     </div>
                                                     {item.categoryDetails?.name && (
@@ -209,7 +209,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                                                         </div>
                                                     )}
                                                 </div>
-                                                <div className="font-bold text-lg text-slate-900 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400 whitespace-nowrap">
+                                                <div className="font-bold text-lg text-slate-900 dark:text-gray-100 group-hover:text-sky-500 dark:group-hover:text-sky-400 whitespace-nowrap">
                                                     {formatCurrency(parseFloat((item.sellPrice || 0).toString()))}
                                                 </div>
                                             </div>
@@ -223,14 +223,14 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                                             isEBN ? "px-3 py-2" : "px-6 py-4"
                                         )}>
                                             <div className={classNames(
-                                                "col-span-3 font-mono text-slate-600 dark:text-gray-400 flex items-center group-hover:text-sky-600 dark:group-hover:text-sky-400",
+                                                "col-span-3 font-mono text-slate-600 dark:text-gray-400 flex items-center group-hover:text-sky-500 dark:group-hover:text-sky-400",
                                                 isEBN ? "text-xs" : "text-sm"
                                             )}>
                                                 {item.barcode}
                                             </div>
                                             <div className="col-span-6 flex flex-col justify-center">
                                                 <div className={classNames(
-                                                    "font-medium text-slate-800 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400",
+                                                    "font-medium text-slate-800 dark:text-gray-100 group-hover:text-sky-500 dark:group-hover:text-sky-400",
                                                     isEBN && "text-sm"
                                                 )}>
                                                     {item.name}
@@ -245,7 +245,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                                                 )}
                                             </div>
                                             <div className={classNames(
-                                                "col-span-3 text-right font-bold flex items-center justify-end text-slate-900 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400",
+                                                "col-span-3 text-right font-bold flex items-center justify-end text-slate-900 dark:text-gray-100 group-hover:text-sky-500 dark:group-hover:text-sky-400",
                                                 isEBN ? "text-sm" : "text-lg"
                                             )}>
                                                 {formatCurrency(parseFloat((item.sellPrice || 0).toString()))}

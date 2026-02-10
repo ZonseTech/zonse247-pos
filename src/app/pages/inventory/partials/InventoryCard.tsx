@@ -80,7 +80,7 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
                                         onSelect(item, e.target.checked);
                                     }}
                                     onClick={(e) => e.stopPropagation()}
-                                    className="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-sky-600 focus:ring-sky-500"
+                                    className="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-sky-500 focus:ring-sky-500"
                                 />
                             )}
                             <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
@@ -183,7 +183,7 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
                         onEdit(item);
                     }}
                     className="flex-1 flex items-center justify-center gap-2 py-3 
-                        text-green-600 dark:text-green-400 
+                        text-green-500 dark:text-green-400 
                         hover:bg-green-50 dark:hover:bg-green-900/20 
                         active:bg-green-100 dark:active:bg-green-900/30
                         transition-colors border-r border-gray-100 dark:border-gray-700"
@@ -197,7 +197,7 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
                         onDelete(productId);
                     }}
                     className="flex-1 flex items-center justify-center gap-2 py-3 
-                        text-red-600 dark:text-red-400 
+                        text-red-500 dark:text-red-400 
                         hover:bg-red-50 dark:hover:bg-red-900/20 
                         active:bg-red-100 dark:active:bg-red-900/30
                         transition-colors"

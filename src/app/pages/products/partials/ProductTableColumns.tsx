@@ -123,14 +123,14 @@ export const getProductTableColumns = ({
                     </button>
                     <button
                         onClick={() => onEdit(row)}
-                        className="p-2 text-sky-600 hover:text-sky-800 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
+                        className="p-2 text-sky-500 hover:text-sky-800 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
                         title="Edit product"
                     >
                         <Pencil className="w-4 h-4" />
                     </button>
                     <button
                         onClick={() => onDelete(row.productId)}
-                        className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        className="p-2 text-red-500 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                         title="Delete product"
                     >
                         <Trash2 className="w-4 h-4" />

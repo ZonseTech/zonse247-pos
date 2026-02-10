@@ -87,7 +87,7 @@ const TransactionToSaleMigration: React.FC<TransactionToSaleMigrationProps> = ({
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div className="px-5 py-4 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <HiOutlineChartBar className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                        <HiOutlineChartBar className="w-5 h-5 text-sky-500 dark:text-sky-400" />
                         <h3 className="font-semibold text-gray-900 dark:text-white">Migration Status</h3>
                     </div>
                     <Button
@@ -142,7 +142,7 @@ const TransactionToSaleMigration: React.FC<TransactionToSaleMigrationProps> = ({
                                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total Transactions</p>
                                 </div>
                                 <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
-                                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                    <p className="text-2xl font-bold text-green-500 dark:text-green-400">
                                         {status.migratedCount}
                                     </p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Migrated</p>
@@ -154,7 +154,7 @@ const TransactionToSaleMigration: React.FC<TransactionToSaleMigrationProps> = ({
                                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Pending</p>
                                 </div>
                                 <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 text-center">
-                                    <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                                    <p className="text-2xl font-bold text-red-500 dark:text-red-400">
                                         {status.failedCount}
                                     </p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Failed</p>
@@ -164,7 +164,7 @@ const TransactionToSaleMigration: React.FC<TransactionToSaleMigrationProps> = ({
                             {/* Completion Badge */}
                             {status.isComplete && (
                                 <div className="flex items-center justify-center gap-2 py-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                                    <HiOutlineCheckCircle className="w-5 h-5 text-green-600" />
+                                    <HiOutlineCheckCircle className="w-5 h-5 text-green-500" />
                                     <span className="text-sm font-medium text-green-700 dark:text-green-300">
                                         Migration Complete
                                     </span>
@@ -269,7 +269,7 @@ const TransactionToSaleMigration: React.FC<TransactionToSaleMigrationProps> = ({
                             <HiOutlineXCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                             <div>
                                 <p className="text-sm font-medium text-red-800 dark:text-red-200">Error</p>
-                                <p className="text-sm text-red-600 dark:text-red-300 mt-1">{error}</p>
+                                <p className="text-sm text-red-500 dark:text-red-300 mt-1">{error}</p>
                             </div>
                         </div>
                     )}
@@ -294,7 +294,7 @@ const TransactionToSaleMigration: React.FC<TransactionToSaleMigrationProps> = ({
 
                                     <div className="grid grid-cols-3 gap-4 mt-3">
                                         <div className="text-center p-2 bg-white dark:bg-gray-800 rounded">
-                                            <p className="text-lg font-bold text-green-600">{result.migratedCount}</p>
+                                            <p className="text-lg font-bold text-green-500">{result.migratedCount}</p>
                                             <p className="text-xs text-gray-500">{result.dryRun ? 'Would Migrate' : 'Migrated'}</p>
                                         </div>
                                         <div className="text-center p-2 bg-white dark:bg-gray-800 rounded">
@@ -302,7 +302,7 @@ const TransactionToSaleMigration: React.FC<TransactionToSaleMigrationProps> = ({
                                             <p className="text-xs text-gray-500">Skipped</p>
                                         </div>
                                         <div className="text-center p-2 bg-white dark:bg-gray-800 rounded">
-                                            <p className="text-lg font-bold text-red-600">{result.failedCount}</p>
+                                            <p className="text-lg font-bold text-red-500">{result.failedCount}</p>
                                             <p className="text-xs text-gray-500">Failed</p>
                                         </div>
                                     </div>
@@ -311,7 +311,7 @@ const TransactionToSaleMigration: React.FC<TransactionToSaleMigrationProps> = ({
                                         <div className="mt-3 p-2 bg-white dark:bg-gray-800 rounded max-h-32 overflow-auto">
                                             <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Errors:</p>
                                             {result.errors.map((err, i) => (
-                                                <p key={i} className="text-xs text-red-600 dark:text-red-400">
+                                                <p key={i} className="text-xs text-red-500 dark:text-red-400">
                                                     {err.id}: {err.error}
                                                 </p>
                                             ))}

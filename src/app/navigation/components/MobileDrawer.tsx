@@ -11,7 +11,7 @@ import Button from '../../components/Button';
 import BranchSwitchModal from './BranchSwitchModal';
 import { ROUTES } from '../../utils/constants';
 import type { MobileDrawerProps } from './types';
-import { GROUP_ORDER } from './types';
+import { MOBILE_GROUP_ORDER } from './types';
 import { FaCaretDown } from 'react-icons/fa';
 
 const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
@@ -56,7 +56,7 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
         <>
             <div
                 className={classNames(
-                    "fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-all duration-300 md:hidden",
+                    "fixed inset-0 bg-black/40 backdrop-blur-sm z-50 transition-all duration-300 ",
                     isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
                 )}
                 onClick={onClose}
@@ -64,13 +64,13 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
 
             <div
                 className={classNames(
-                    "fixed top-0 left-0 h-full w-[85%] max-w-sm bg-gray-100 dark:bg-gray-900 shadow-2xl z-50 transition-transform duration-300 ease-out md:hidden",
+                    "fixed top-0 left-0 h-full w-[85%] max-w-sm bg-gray-100 dark:bg-gray-900 shadow-2xl z-50 transition-transform duration-300 ease-out ",
                     isMobile && "safe-area-top-android",
                     isOpen ? "translate-x-0" : "-translate-x-full"
                 )}
             >
                 <div className="flex flex-col h-full">
-                    <div className="bg-sky-600 dark:bg-sky-700 px-5 py-4 relative">
+                    <div className="bg-sky-500 dark:bg-sky-700 px-5 py-4 relative">
                         <button
                             onClick={onClose}
                             className="absolute top-3 right-3 p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 active:scale-95 transition-all duration-200"
@@ -87,14 +87,14 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
                     <div className="bg-white dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                         <div className="flex items-center justify-between mb-2">
                             <div className="w-10 h-10 rounded-lg bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center">
-                                <Building2 className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                                <Building2 className="w-5 h-5 text-sky-500 dark:text-sky-400" />
                             </div>
                             <Button
                                 layout="link"
                                 size="small"
                                 theme='primary'
                                 onClick={handleEditBranch}
-                                className="underline text-xs text-sky-600 dark:text-sky-400 px-0 pr-0"
+                                className="underline text-xs text-sky-500 dark:text-sky-400 px-0 pr-0"
                             >
                                 EDIT BRANCH
                             </Button>
@@ -105,14 +105,14 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
                             className="flex items-center justify-between w-full text-left -mx-1 px-1 py-1 rounded-lg transition-colors"
                         >
                             <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-sky-600 dark:text-sky-400 truncate">
+                                <p className="text-sm font-semibold text-sky-500 dark:text-sky-400 truncate">
                                     {currentBranch?.branchName || 'No Branch'}
                                 </p>
                                 <p className="text-xs text-sky-500 dark:text-sky-400/80 truncate">
                                     {currentBranch?.phoneNumber || 'No phone number'}
                                 </p>
                             </div>
-                            <FaCaretDown className="w-6 h-6 flex-shrink-0 text-sky-600 dark:text-sky-400 " />
+                            <FaCaretDown className="w-6 h-6 flex-shrink-0 text-sky-500 dark:text-sky-400 " />
                         </button>
                     </div>
 
@@ -138,7 +138,7 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
                                 size="small"
                                 theme='primary'
                                 onClick={handleEditProfile}
-                                className="underline flex-shrink-0 text-xs text-sky-600 dark:text-sky-400 px-0 pr-0"
+                                className="underline flex-shrink-0 text-xs text-sky-500 dark:text-sky-400 px-0 pr-0"
                             >
                                 EDIT PROFILE
                             </Button>
@@ -169,9 +169,9 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
 
                     <div className="flex-1 overflow-y-auto py-3 px-2 bg-white dark:bg-gray-800">
                         <div className="flex flex-col gap-4">
-                            {GROUP_ORDER.map((groupKey) => {
+                            {MOBILE_GROUP_ORDER.map((groupKey) => {
                                 const items = groupedNavItems[groupKey];
-                                if (items.length === 0) return null;
+                                if (!items || items.length === 0) return null;
 
                                 return (
                                     <div key={groupKey}>
@@ -192,16 +192,11 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
                                                         className={classNames(
                                                             "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-all duration-150 active:scale-[0.98] w-full group",
                                                             isActive
-                                                                ? "text-sky-600 dark:text-sky-400"
+                                                                ? "text-sky-500 dark:text-sky-400"
                                                                 : "text-gray-700 dark:text-gray-300"
                                                         )}
                                                     >
-                                                        <div className={classNames(
-                                                            "flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-150",
-                                                            isActive
-                                                                ? "text-sky-600 dark:text-sky-400"
-                                                                : "text-gray-500 dark:text-gray-400"
-                                                        )}>
+                                                        <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-150 text-sky-500 dark:text-sky-400">
                                                             {item.icon}
                                                         </div>
                                                         <span className={classNames(

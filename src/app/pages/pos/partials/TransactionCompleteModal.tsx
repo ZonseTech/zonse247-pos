@@ -271,7 +271,7 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                                 isEBN ? "text-[10px] mb-0.5" : "text-xs mb-1"
                             )}>Amount Paid</p>
                             <p className={classNames(
-                                "font-bold text-green-600 dark:text-green-400",
+                                "font-bold text-green-500 dark:text-green-400",
                                 isEBN ? "text-sm" : "text-xl"
                             )}>
                                 {formatCurrency(getPaid(transaction))}
@@ -295,7 +295,7 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                                         )}>Discount Applied</span>
                                         {getSubtotal(transaction) > 0 && (
                                             <p className={classNames(
-                                                "text-green-600 dark:text-green-400",
+                                                "text-green-500 dark:text-green-400",
                                                 isEBN ? "text-[10px]" : "text-xs"
                                             )}>
                                                 Subtotal: {formatCurrency(getSubtotal(transaction))}
@@ -588,7 +588,7 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                                     </div>
                                 )}
                                 {getDiscount(transaction) > 0 && (
-                                    <div className="flex justify-between text-green-600 dark:text-green-400">
+                                    <div className="flex justify-between text-green-500 dark:text-green-400">
                                         <span>Discount:</span>
                                         <span className="font-mono">-{formatCurrency(getDiscount(transaction))}</span>
                                     </div>

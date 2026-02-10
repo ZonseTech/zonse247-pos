@@ -105,7 +105,7 @@ const TerminalMobileCard: FC<TerminalMobileCardProps> = ({
                             </div>
                         )}
                         {terminal.isBlocked && terminal.blockingReason && (
-                            <div className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded">
+                            <div className="text-xs text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded">
                                 Blocked: {terminal.blockingReason}
                             </div>
                         )}
@@ -115,7 +115,7 @@ const TerminalMobileCard: FC<TerminalMobileCardProps> = ({
                     <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex-wrap">
                         <button
                             onClick={() => onSync(terminal.terminalId)}
-                            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
+                            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm text-sky-500 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
                         >
                             <RefreshCw className="w-4 h-4" />
                             <span>Sync</span>
@@ -132,8 +132,8 @@ const TerminalMobileCard: FC<TerminalMobileCardProps> = ({
                         <button
                             onClick={() => onToggleBlock(terminal.terminalId, terminal.isBlocked || false)}
                             className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm transition-colors ${terminal.isBlocked
-                                ? 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
-                                : 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                                ? 'text-green-500 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
+                                : 'text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
                                 }`}
                         >
                             {terminal.isBlocked ? <Shield className="w-4 h-4" /> : <ShieldOff className="w-4 h-4" />}
@@ -141,13 +141,13 @@ const TerminalMobileCard: FC<TerminalMobileCardProps> = ({
                         </button>
                         <button
                             onClick={() => onEdit(terminal)}
-                            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
+                            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm text-sky-500 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
                         >
                             <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                             onClick={() => onDelete(terminal.terminalId, terminal.terminalLabel)}
-                            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ml-auto"
+                            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ml-auto"
                         >
                             <Trash2 className="w-4 h-4" />
                         </button>

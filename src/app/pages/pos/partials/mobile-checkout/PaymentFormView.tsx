@@ -155,18 +155,18 @@ const PaymentFormView: FunctionComponent<PaymentFormViewProps> = ({
                             <button
                                 type="submit"
                                 disabled={isSubmitting || !canProceed(values) || processing}
-                                className={`w-full py-4 rounded-sm font-bold text-lg transition-all ${canProceed(values) && !processing
-                                    ? 'bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white'
+                                className={`w-full py-4 rounded-sm uppercase font-bold text-lg transition-all ${canProceed(values) && !processing
+                                    ? 'bg-emerald-500 hover:bg-emerald-500 active:bg-emerald-700 text-white'
                                     : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                                     }`}
                             >
-                                {isSubmitting || processing ? 'Processing...' : `Pay ${formatCurrency(total)}`}
+                                {isSubmitting || processing ? 'Processing...' : `Received ${formatCurrency(total, true)}`}
                             </button>
                             <button
                                 type="button"
                                 onClick={onClose}
                                 disabled={isSubmitting || processing}
-                                className="w-full py-3 rounded-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all disabled:opacity-50"
+                                className="w-full py-3 rounded-sm uppercase font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all disabled:opacity-50"
                             >
                                 Cancel
                             </button>

@@ -197,7 +197,7 @@ const OtherChargesModal: FunctionComponent<OtherChargesModalProps> = ({
                             <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Current Charges</span>
                             <button
                                 onClick={handleClearAllCharges}
-                                className="text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
+                                className="text-xs text-red-500 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300"
                             >
                                 Clear All
                             </button>
@@ -221,7 +221,7 @@ const OtherChargesModal: FunctionComponent<OtherChargesModalProps> = ({
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
+                                            <span className="text-sm font-semibold text-amber-500 dark:text-amber-400">
                                                 +{formatCurrency(chargeAmount)}
                                             </span>
                                             <button
@@ -237,7 +237,7 @@ const OtherChargesModal: FunctionComponent<OtherChargesModalProps> = ({
                         </div>
                         <div className="mt-3 pt-3 border-t border-amber-200 dark:border-gray-500 flex justify-between items-center">
                             <span className="font-medium text-gray-700 dark:text-gray-200">Total Charges</span>
-                            <span className="text-lg font-bold text-amber-600 dark:text-amber-400">
+                            <span className="text-lg font-bold text-amber-500 dark:text-amber-400">
                                 +{formatCurrency(totalOtherCharges)}
                             </span>
                         </div>
@@ -303,7 +303,7 @@ const OtherChargesModal: FunctionComponent<OtherChargesModalProps> = ({
                                             className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                                         >
                                             <span className="font-medium text-gray-800 dark:text-gray-100">{preset.name}</span>
-                                            <span className="text-amber-600 dark:text-amber-400 font-semibold">
+                                            <span className="text-amber-500 dark:text-amber-400 font-semibold">
                                                 {preset.isPercentage ? `${preset.value}%` : formatCurrency(preset.value)}
                                             </span>
                                         </button>
@@ -386,7 +386,7 @@ const OtherChargesModal: FunctionComponent<OtherChargesModalProps> = ({
                                 </div>
                             </div>
                             {error && (
-                                <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>
+                                <p className="mt-2 text-sm text-red-500 dark:text-red-400">{error}</p>
                             )}
                         </div>
 
@@ -415,7 +415,7 @@ const OtherChargesModal: FunctionComponent<OtherChargesModalProps> = ({
                                 className={classNames(
                                     "flex-1 py-3 px-4 rounded-lg font-medium transition-colors",
                                     isValidCharge
-                                        ? "bg-amber-500 text-white hover:bg-amber-600"
+                                        ? "bg-amber-500 text-white hover:bg-amber-500"
                                         : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
                                 )}
                             >
@@ -430,7 +430,7 @@ const OtherChargesModal: FunctionComponent<OtherChargesModalProps> = ({
                     <button
                         type="button"
                         onClick={handleCloseModal}
-                        className="w-full py-3 px-4 rounded-lg font-medium bg-sky-500 text-white hover:bg-sky-600 transition-colors"
+                        className="w-full py-3 px-4 rounded-lg font-medium bg-sky-500 text-white hover:bg-sky-500 transition-colors"
                     >
                         Done
                     </button>

@@ -99,7 +99,7 @@ const SyncActionsBar: FunctionComponent<SyncActionsBarProps> = ({
                         <button
                             onClick={onStopAutoSync}
                             disabled={isLoading['auto-sync-stop']}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-500 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isLoading['auto-sync-stop'] ? (
                                 <HiOutlineRefresh className="w-4 h-4 animate-spin" />
@@ -112,7 +112,7 @@ const SyncActionsBar: FunctionComponent<SyncActionsBarProps> = ({
                         <button
                             onClick={onStartAutoSync}
                             disabled={isLoading['auto-sync-start']}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isLoading['auto-sync-start'] ? (
                                 <HiOutlineRefresh className="w-4 h-4 animate-spin" />
@@ -132,7 +132,7 @@ const SyncActionsBar: FunctionComponent<SyncActionsBarProps> = ({
                         <span className="text-slate-600 dark:text-slate-400">
                             Syncing {tables.filter(t => t.status === 'syncing').length} of {tables.length} tables...
                         </span>
-                        <span className="text-sky-600 dark:text-sky-400 font-medium">
+                        <span className="text-sky-500 dark:text-sky-400 font-medium">
                             {Math.round((tables.filter(t => t.status === 'synced').length / tables.length) * 100)}%
                         </span>
                     </div>

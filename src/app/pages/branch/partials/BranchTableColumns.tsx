@@ -40,7 +40,7 @@ export const BranchActions: React.FC<BranchActionsProps> = ({
                 disabled={isDefaultBranch}
                 className={`group p-2 rounded-lg transition-all duration-200 ${isDefaultBranch
                     ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800'
                     }`}
                 title="Edit branch"
             >
@@ -66,7 +66,7 @@ export const BranchActions: React.FC<BranchActionsProps> = ({
                 disabled={isDefaultBranch}
                 className={`group p-2 rounded-lg transition-all duration-200 ${isDefaultBranch
                     ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800'
                     }`}
                 title="Delete branch"
             >

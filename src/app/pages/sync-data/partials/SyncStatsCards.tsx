@@ -36,7 +36,7 @@ const SyncStatsCards: FunctionComponent<SyncStatsCardsProps> = ({ tables, autoSy
             value: syncedTables,
             icon: HiOutlineCheck,
             color: 'green',
-            bgGradient: 'from-green-500 to-emerald-600',
+            bgGradient: 'from-green-500 to-emerald-500',
             lightBg: 'bg-green-50 dark:bg-green-900/20',
         },
         {
@@ -91,7 +91,7 @@ const SyncStatsCards: FunctionComponent<SyncStatsCardsProps> = ({ tables, autoSy
                             <HiOutlineChartBar className="w-5 h-5 text-sky-500" />
                             Overall Sync Progress
                         </h3>
-                        <span className="text-2xl font-bold text-sky-600 dark:text-sky-400">
+                        <span className="text-2xl font-bold text-sky-500 dark:text-sky-400">
                             {syncPercentage}%
                         </span>
                     </div>

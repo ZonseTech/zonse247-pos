@@ -1,7 +1,7 @@
 import { FunctionComponent } from 'react';
 import { Check } from 'lucide-react';
 
-export type ProcessingStep = 'validating' | 'processing' | 'saving' | 'completed';
+export type ProcessingStep = 'validating' | 'saving' | 'printing' | 'completed';
 
 interface ProcessingStepIndicatorProps {
     step: ProcessingStep;
@@ -14,7 +14,7 @@ const ProcessingStepIndicator: FunctionComponent<ProcessingStepIndicatorProps> =
     currentStep,
     label,
 }) => {
-    const stepOrder: ProcessingStep[] = ['validating', 'processing', 'saving', 'completed'];
+    const stepOrder: ProcessingStep[] = ['validating', 'saving', 'printing', 'completed'];
     const currentIndex = stepOrder.indexOf(currentStep);
     const stepIndex = stepOrder.indexOf(step);
 

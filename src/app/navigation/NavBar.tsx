@@ -1,4 +1,4 @@
-import useNavItems from './partials/navItems';
+import useNavItems, { useMobileNavItems } from './partials/navItems';
 import type { NavItem, NavGroup } from './partials/RenderNavItem';
 import { useState, useEffect, useMemo, type FunctionComponent } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -20,6 +20,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({
 }) => {
     const location = useLocation();
     const navItems = useNavItems();
+    const mobileNavItems = useMobileNavItems();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const groupedNavItems = useMemo(() => {
@@ -30,6 +31,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({
             admin: [],
             settings: [],
             system: [],
+            misc: [],
         };
 
         navItems.forEach((item) => {
@@ -39,6 +41,25 @@ const NavBar: FunctionComponent<NavBarProps> = ({
 
         return groups;
     }, [navItems]);
+
+    const groupedMobileNavItems = useMemo(() => {
+        const groups: Record<NavGroup, NavItem[]> = {
+            operations: [],
+            inventory: [],
+            management: [],
+            admin: [],
+            settings: [],
+            system: [],
+            misc: [],
+        };
+
+        mobileNavItems.forEach((item) => {
+            const group = item.group || 'management';
+            groups[group].push(item);
+        });
+
+        return groups;
+    }, [mobileNavItems]);
 
     useEffect(() => {
         if (isMenuOpen) {
@@ -100,7 +121,7 @@ const NavBar: FunctionComponent<NavBarProps> = ({
                 <MobileDrawer
                     isOpen={isMenuOpen}
                     onClose={() => setIsMenuOpen(false)}
-                    groupedNavItems={groupedNavItems}
+                    groupedNavItems={groupedMobileNavItems}
                     onItemClick={handleItemClick}
                     getRoutePath={getRoutePath}
                     isRouteActive={isRouteActive}

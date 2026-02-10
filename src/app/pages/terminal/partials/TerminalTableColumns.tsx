@@ -25,7 +25,7 @@ const TerminalActions: FunctionComponent<TerminalActionsProps> = ({
             {/* Sync Button */}
             <button
                 onClick={() => onSync(terminal.terminalId)}
-                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                 title="Sync terminal"
             >
                 <RefreshCw className="w-4 h-4 transition-transform group-hover:rotate-180 duration-300" />
@@ -47,8 +47,8 @@ const TerminalActions: FunctionComponent<TerminalActionsProps> = ({
             <button
                 onClick={() => onToggleBlock(terminal.terminalId, terminal.isBlocked || false)}
                 className={`group p-2 rounded-lg transition-all duration-200 ${terminal.isBlocked
-                    ? 'text-red-600 dark:text-red-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                    ? 'text-red-500 dark:text-red-400 hover:text-green-500 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
                     } focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800`}
                 title={terminal.isBlocked ? 'Unblock terminal' : 'Block terminal'}
             >
@@ -62,7 +62,7 @@ const TerminalActions: FunctionComponent<TerminalActionsProps> = ({
             {/* Edit Button */}
             <button
                 onClick={() => onEdit(terminal)}
-                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                 title="Edit terminal"
             >
                 <Edit2 className="w-4 h-4 transition-transform group-hover:scale-110" />
@@ -71,7 +71,7 @@ const TerminalActions: FunctionComponent<TerminalActionsProps> = ({
             {/* Delete Button */}
             <button
                 onClick={() => onDelete(terminal.terminalId, terminal.terminalLabel)}
-                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                 title="Delete terminal"
             >
                 <Trash2 className="w-4 h-4 transition-transform group-hover:scale-110" />

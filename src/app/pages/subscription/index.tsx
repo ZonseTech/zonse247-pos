@@ -75,7 +75,7 @@ const SubscriptionManagement: FunctionComponent = () => {
                 <PageHeader
                     title='Subscriptions'
                     description='Manage tenants subscriptions and billing'
-                    icon={<HiOutlineCreditCard className="w-8 h-8 text-sky-600 dark:text-sky-400" />}
+                    icon={<HiOutlineCreditCard className="w-8 h-8 text-sky-500 dark:text-sky-400" />}
                     action={
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                             <SearchBar

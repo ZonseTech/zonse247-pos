@@ -74,7 +74,7 @@ const UserFilters: React.FC<UserFiltersProps> = ({
 
                 <Button
                     onClick={onAddUser}
-                    className="flex items-center px-4 py-2 bg-green-600 dark:bg-green-700 text-white dark:text-gray-100 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-all duration-200 shadow-sm hover:shadow-md"
+                    className="flex items-center px-4 py-2 bg-green-500 dark:bg-green-700 text-white dark:text-gray-100 rounded-lg hover:bg-green-700 dark:hover:bg-green-500 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-all duration-200 shadow-sm hover:shadow-md"
                 >
                     <HiOutlinePlus className="w-4 h-4 mr-2" />
                     Add User

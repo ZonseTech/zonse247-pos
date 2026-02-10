@@ -15,7 +15,7 @@ const ErrorState: FunctionComponent<ErrorStateProps> = ({
             <p className="text-red-500 mb-4">{error}</p>
             <Button
                 onClick={onRetry}
-                className="bg-amber-500 hover:bg-amber-600 text-white py-2 px-4 rounded-lg"
+                className="bg-amber-500 hover:bg-amber-500 text-white py-2 px-4 rounded-lg"
             >
                 Try Again
             </Button>

@@ -49,7 +49,7 @@ const StockMovements: FunctionComponent = () => {
                 icon: 'total',
                 bgColor: 'bg-sky-50 dark:bg-sky-900/20',
                 iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
-                textColor: 'text-sky-600 dark:text-sky-400',
+                textColor: 'text-sky-500 dark:text-sky-400',
             },
             {
                 title: 'Stock In',
@@ -57,7 +57,7 @@ const StockMovements: FunctionComponent = () => {
                 icon: 'in',
                 bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
                 iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
-                textColor: 'text-emerald-600 dark:text-emerald-400',
+                textColor: 'text-emerald-500 dark:text-emerald-400',
             },
             {
                 title: 'Stock Out',
@@ -65,7 +65,7 @@ const StockMovements: FunctionComponent = () => {
                 icon: 'out',
                 bgColor: 'bg-red-50 dark:bg-red-900/20',
                 iconBgColor: 'bg-red-100 dark:bg-red-900/40',
-                textColor: 'text-red-600 dark:text-red-400',
+                textColor: 'text-red-500 dark:text-red-400',
             },
             {
                 title: 'Adjustments',
@@ -73,7 +73,7 @@ const StockMovements: FunctionComponent = () => {
                 icon: 'adjustment',
                 bgColor: 'bg-amber-50 dark:bg-amber-900/20',
                 iconBgColor: 'bg-amber-100 dark:bg-amber-900/40',
-                textColor: 'text-amber-600 dark:text-amber-400',
+                textColor: 'text-amber-500 dark:text-amber-400',
             },
         ];
     }, [movements, totalRows]);
@@ -83,7 +83,7 @@ const StockMovements: FunctionComponent = () => {
     return (
         <AppLayout>
             <PageHeader
-                icon={<Activity className="w-7 h-7 sm:w-8 sm:h-8 text-sky-600 dark:text-sky-400" />}
+                icon={<Activity className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                 title="Stock Movements"
                 description={productId ? 'Product stock history' : 'All stock movements audit trail'}
                 action={

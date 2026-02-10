@@ -31,7 +31,7 @@ const GeneralSettings = () => {
             </h2>
 
             <div className="mb-4 p-4 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-lg flex items-start gap-3">
-                <Info className="w-5 h-5 text-sky-600 dark:text-sky-400 flex-shrink-0 mt-0.5" />
+                <Info className="w-5 h-5 text-sky-500 dark:text-sky-400 flex-shrink-0 mt-0.5" />
                 <div>
                     <p className="text-sm font-medium text-sky-900 dark:text-sky-100">
                         Information

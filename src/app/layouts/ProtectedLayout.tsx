@@ -17,7 +17,7 @@ const ProtectedLayout: FunctionComponent = () => {
 	const showWebNav = (isNotDesktopEnv || settings?.navigationMenuType === 'web') && !isNativeMobile
 
 	return (
-		<div className="flex h-screen bg-white dark:bg-gray-900 transition-colors duration-300 relative">
+		<div className="flex h-screen transition-colors duration-300 relative">
 			{showWebNav && !isMobile && (
 				<aside
 					className={classNames(
@@ -46,7 +46,7 @@ const ProtectedLayout: FunctionComponent = () => {
 					</header>
 				)}
 
-				<main className="flex-grow overflow-hidden md:pt-2.5 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 relative z-0">
+				<main className="flex-grow overflow-hidden md:pt-2.5 text-gray-700 dark:text-gray-300 relative z-0">
 					<div className="h-full overflow-auto">
 						<div className="min-h-full md:px-4">
 							<Outlet />

@@ -31,7 +31,7 @@ export const CategoryCard: FunctionComponent<CategoryCardProps> = ({ category, o
             <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                     onClick={() => onEdit(category)}
-                    className="p-1.5 sm:p-2 text-gray-400 dark:text-gray-500 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/30 rounded-lg transition-colors"
+                    className="p-1.5 sm:p-2 text-gray-400 dark:text-gray-500 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/30 rounded-lg transition-colors"
                 >
                     <Edit2 className="w-4 h-4" />
                 </button>
@@ -39,7 +39,7 @@ export const CategoryCard: FunctionComponent<CategoryCardProps> = ({ category, o
                     onClick={() => onDelete(category.categoryId)}
                     className={`p-1.5 sm:p-2 rounded-lg transition-colors ${category.itemCount > 0
                         ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                        : 'text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30'
+                        : 'text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30'
                         }`}
                     disabled={category.itemCount > 0}
                 >

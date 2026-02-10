@@ -129,7 +129,7 @@ const ConfigureTableModal: FunctionComponent<ConfigureTableModalProps> = ({
                             <button
                                 onClick={() => setConfig({ ...config, autoSyncEnabled: !config.autoSyncEnabled })}
                                 className={`relative w-12 h-6 rounded-full transition-colors ${config.autoSyncEnabled
-                                    ? 'bg-sky-600'
+                                    ? 'bg-sky-500'
                                     : 'bg-slate-300 dark:bg-slate-600'
                                     }`}
                             >
@@ -192,7 +192,7 @@ const ConfigureTableModal: FunctionComponent<ConfigureTableModalProps> = ({
                                 max="10"
                                 value={config.priority}
                                 onChange={(e) => setConfig({ ...config, priority: Number(e.target.value) })}
-                                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-600"
+                                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-500"
                             />
                             <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
                                 <span>Low</span>
@@ -213,7 +213,7 @@ const ConfigureTableModal: FunctionComponent<ConfigureTableModalProps> = ({
                         <button
                             onClick={handleSave}
                             disabled={isLoading}
-                            className="px-4 py-2 text-sm font-medium text-white bg-sky-600 hover:bg-sky-700 disabled:bg-sky-400 disabled:cursor-not-allowed rounded-lg transition-colors flex items-center gap-2"
+                            className="px-4 py-2 text-sm font-medium text-white bg-sky-500 hover:bg-sky-700 disabled:bg-sky-400 disabled:cursor-not-allowed rounded-lg transition-colors flex items-center gap-2"
                         >
                             {isLoading && <HiOutlineRefresh className="w-4 h-4 animate-spin" />}
                             Save Configuration

@@ -264,7 +264,7 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
                                 : "p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all flex flex-col items-center gap-2"
                             }
                         >
-                            <FolderInput className={isEBN ? "w-5 h-5 text-sky-600 dark:text-sky-400" : "w-8 h-8 text-sky-600 dark:text-sky-400"} />
+                            <FolderInput className={isEBN ? "w-5 h-5 text-sky-500 dark:text-sky-400" : "w-8 h-8 text-sky-500 dark:text-sky-400"} />
                             <span className={isEBN
                                 ? "text-[10px] font-medium text-gray-900 dark:text-gray-100"
                                 : "font-medium text-gray-900 dark:text-gray-100"
@@ -294,7 +294,7 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
                                 : "p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all flex flex-col items-center gap-2"
                             }
                         >
-                            <Package className={isEBN ? "w-5 h-5 text-green-600 dark:text-green-400" : "w-8 h-8 text-green-600 dark:text-green-400"} />
+                            <Package className={isEBN ? "w-5 h-5 text-green-500 dark:text-green-400" : "w-8 h-8 text-green-500 dark:text-green-400"} />
                             <span className={isEBN
                                 ? "text-[10px] font-medium text-gray-900 dark:text-gray-100"
                                 : "font-medium text-gray-900 dark:text-gray-100"

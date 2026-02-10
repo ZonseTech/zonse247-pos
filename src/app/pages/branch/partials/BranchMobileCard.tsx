@@ -100,7 +100,7 @@ const BranchMobileCard: FC<BranchMobileCardProps> = ({
                             disabled={isDefaultBranch}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${isDefaultBranch
                                 ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                                : 'text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20'
+                                : 'text-sky-500 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20'
                                 }`}
                         >
                             <Edit2 className="w-4 h-4" />
@@ -113,7 +113,7 @@ const BranchMobileCard: FC<BranchMobileCardProps> = ({
                                 ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
                                 : branch.status === 'active'
                                     ? 'text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20'
-                                    : 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
+                                    : 'text-green-500 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
                                 }`}
                         >
                             <span>{branch.status === 'active' ? 'Deactivate' : 'Activate'}</span>
@@ -123,7 +123,7 @@ const BranchMobileCard: FC<BranchMobileCardProps> = ({
                             disabled={isDefaultBranch}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ml-auto ${isDefaultBranch
                                 ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                                : 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                                : 'text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
                                 }`}
                         >
                             <Trash2 className="w-4 h-4" />
