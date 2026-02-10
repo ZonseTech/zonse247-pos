@@ -9,7 +9,7 @@ import type { AdjustInventoryPayload } from '../../../services/inventory.service
 interface BulkActionsModalProps {
     isOpen: boolean;
     onClose: () => void;
-    selectedItems: InventoryItem[];
+    selectedItems: ApiProduct[];
     categories: Category[];
     onSuccess: () => void;
 }
@@ -48,7 +48,7 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
 
         try {
             await moveToCategory({
-                itemIds: selectedItems.map(item => item.productId),
+                itemIds: selectedItems.map(item => item.id),
                 categoryId: selectedCategoryId
             });
             onSuccess();
@@ -63,7 +63,7 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
 
         try {
             await bulkUpdate({
-                itemIds: selectedItems.map(item => item.productId),
+                itemIds: selectedItems.map(item => item.id),
                 updates: { status: bulkStatus }
             });
             onSuccess();
@@ -86,7 +86,7 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
 
             // Adjust each item sequentially
             for (const item of selectedItems) {
-                await adjustInventory(item.productId, payload);
+                await adjustInventory(item.id, payload);
             }
 
             onSuccess();
