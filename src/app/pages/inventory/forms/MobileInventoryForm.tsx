@@ -4,7 +4,6 @@ import FormSelectBox from '../../../components/FormSelectBox';
 import { CategorySearch } from '../../categories/partials/CategorySearch';
 import { useState, FunctionComponent, useMemo } from 'react';
 import MobilePageHeader from '../../../components/page/MobilePageHeader';
-import { useNavigate } from 'react-router';
 import {
     X,
     PlusIcon
@@ -26,7 +25,6 @@ interface MobileInventoryFormProps {
     productId?: string;
     item: InventoryItem | null;
     loading: boolean;
-    statusOptions: { label: string; value: string }[];
     unitOptions: { label: string; value: string }[];
     onSubmit: (
         values: InventoryFormValues,
@@ -38,7 +36,6 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
     productId,
     item,
     loading,
-    statusOptions,
     unitOptions,
     onSubmit,
 }) => {
@@ -56,7 +53,7 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                 categoryId: item.categoryId || '',
                 unit: item.unit || 'pc',
                 variants: [{
-                    id: item.productId || crypto.randomUUID(),
+                    id: item.productId || '',
                     variantName: '',
                     barcode: item.barcode || '',
                     primaryBarcode: item.barcode || '',
@@ -75,8 +72,8 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                     quantity: item.quantity || '0',
                     originalQuantity: item.originalQuantity || '0',
                     reservedQuantity: item.reservedQuantity || 0,
-                    minStock: item.minStock || 1,
-                    maxStock: item.maxStock || 1000,
+                    minStock: item.minStock || 0,
+                    maxStock: item.maxStock || 100000,
                     reorderLevel: item.reorderLevel || 5,
                     status: item.status || 'active',
                     trackInventory: item.trackInventory ?? true,
@@ -84,6 +81,7 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                     isTaxable: item.isTaxable ?? true,
                     isDefault: true,
                     isActive: item.status !== 'inactive',
+                    expiryDateAlert: item.expiryDateAlert || '',
                     expirationDate: item.expirationDate ? new Date(item.expirationDate).toISOString().split('T')[0] : '',
                     manufactureDate: item.manufactureDate ? new Date(item.manufactureDate).toISOString().split('T')[0] : '',
                     supplierName: item.supplierName || '',
@@ -101,7 +99,7 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
         sku: Yup.string().max(50, 'SKU is too long'),
         sellingPrice: Yup.number()
             .required('Selling price is required')
-            .min(0, 'Selling price must be 0 or higher'),
+            .moreThan(0, 'Selling price cannot be 0'),
         costPrice: Yup.number().min(0, 'Cost price must be 0 or higher'),
         quantity: Yup.number().min(0, 'Quantity cannot be negative'),
     });
@@ -111,7 +109,7 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
             .required('Item name is required')
             .min(2, 'Name must be at least 2 characters')
             .max(200, 'Name is too long'),
-        categoryId: Yup.string(),
+        categoryId: Yup.string().required('Category is required'),
         unit: Yup.string(),
         variants: Yup.array().of(variantSchema).min(1, 'At least one variant is required'),
     });
@@ -188,8 +186,9 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                                         onClick={submitForm}
                                         disabled={isSubmitting || loading}
                                         theme='success'
+                                        className='uppercase'
                                     >
-                                        SAVE
+                                        Submit
                                     </Button>
                                 }
                             />
@@ -269,7 +268,6 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                                             }
                                         }}
                                         variantIndex={editingVariantIndex}
-                                        statusOptions={statusOptions}
                                         onSave={() => {
                                             if (isNewVariant) {
                                                 handleSaveNewVariant(setFieldValue, values.variants);

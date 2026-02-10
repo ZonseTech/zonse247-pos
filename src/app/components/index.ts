@@ -33,7 +33,7 @@ export { default as FormSearchableSelect } from './FormSearchableSelect';
 export { default as FormInput } from './form/FormInput';
 export { default as FormSelect } from './form/FormSelect';
 export { default as FormTextArea } from './form/FormTextArea';
-export { default as PricingFields } from '../pages/inventory/partials/PricingFields';
+export { default as PricingFields } from '../pages/inventory/forms/fields/PricingFields';
 
 // Scanner components
 export { CameraBarcodeScanner, ScannerModeButton, BarcodeScannerInput } from './scanner';

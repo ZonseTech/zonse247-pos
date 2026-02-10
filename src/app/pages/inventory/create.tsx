@@ -278,7 +278,6 @@ const InventoryForm: FunctionComponent = () => {
                 productId={productId}
                 item={item}
                 loading={loading}
-                statusOptions={statusOptions}
                 unitOptions={unitOptions}
                 onSubmit={handleMobileSubmit}
             />

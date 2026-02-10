@@ -40,6 +40,7 @@ export interface Variant {
 
     // Dates
     expirationDate: string;
+    expiryDateAlert: string;
     manufactureDate: string;
 
     // Supplier info
@@ -89,8 +90,8 @@ export const createDefaultVariant = (): Variant => ({
     quantity: '0',
     originalQuantity: '0',
     reservedQuantity: 0,
-    minStock: 1,
-    maxStock: 1000,
+    minStock: 0,
+    maxStock: 100000,
     reorderLevel: 5,
     status: 'active',
     trackInventory: true,
@@ -99,6 +100,7 @@ export const createDefaultVariant = (): Variant => ({
     isDefault: true,
     isActive: true,
     expirationDate: '',
+    expiryDateAlert: '',
     manufactureDate: '',
     supplierName: '',
     supplierCode: '',

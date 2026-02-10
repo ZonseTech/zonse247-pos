@@ -31,6 +31,7 @@ interface InventoryItem {
     trackInventory?: boolean;
     allowNegativeStock?: boolean;
     isTaxable?: boolean;
+    expiryDateAlert: string;
     expirationDate?: Date | string;
     manufactureDate?: Date | string;
     imageUrls?: string[] | any;

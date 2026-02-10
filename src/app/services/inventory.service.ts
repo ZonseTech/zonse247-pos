@@ -138,8 +138,6 @@ export interface InventoryOverviewQuery {
 const inventoryService = {
 	endpoints,
 
-	// ==================== GET ENDPOINTS ====================
-
 	/**
 	 * GET /summary - Get inventory summary statistics
 	 */
@@ -203,7 +201,7 @@ const inventoryService = {
 					totalItems: number;
 					itemsPerPage: number;
 				};
-			}>>(endpoints.root, query)
+			}>>(endpoints.root, { ...query, groupByProduct: true })
 			.then((res) => ({
 				items: decodeArrayStrings<InventoryItem>(res.data.data.inventoryItems, INVENTORY_DECODE_FIELDS),
 				pagination: res.data.data.pagination
@@ -218,7 +216,7 @@ const inventoryService = {
 	 */
 	async getAll(query = {}): Promise<InventoryItem[]> {
 		return api
-			.get<ApiResponse<InventoryItem[]>>(endpoints.all, query)
+			.get<ApiResponse<InventoryItem[]>>(endpoints.all, { ...query, groupByProduct: true })
 			.then((res) => decodeArrayStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
 			.catch((err) => {
 				throw err;
