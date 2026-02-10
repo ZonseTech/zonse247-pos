@@ -7,7 +7,7 @@ import { DollarSign } from 'lucide-react';
 import classNames from 'classnames';
 
 interface PriceControlProps {
-    sellPrice: number;
+    sellingPrice: number;
     categoryId: string;
     productId: string;
     customPriceInput: string;
@@ -17,7 +17,7 @@ interface PriceControlProps {
 }
 
 const PriceControl: FunctionComponent<PriceControlProps> = ({
-    sellPrice,
+    sellingPrice,
     categoryId,
     productId,
     customPriceInput,
@@ -147,7 +147,7 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
                 "font-bold text-emerald-700 dark:text-emerald-400",
                 compact ? "text-[10px]" : "text-base"
             )}>
-                {formatCurrency(sellPrice)}
+                {formatCurrency(sellingPrice)}
             </span>
         </div>
     );

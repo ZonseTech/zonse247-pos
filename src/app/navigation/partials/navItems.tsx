@@ -357,7 +357,7 @@ const useNavItems = (): Array<NavItem> => {
 
 export const useMobileNavItems = (): Array<NavItem> => {
     const navigate = useNavigate();
-    const { signout } = useAuth();
+    const { user, signout } = useAuth();
 
     const icons = {
         inventory: <Package className="h-5 w-5" />,
@@ -376,9 +376,9 @@ export const useMobileNavItems = (): Array<NavItem> => {
         logout: <HiOutlineLogout className="h-5 w-5" />,
     };
 
-    const items: NavItem[] = [
-        // Management Group
-        {
+    const items: NavItem[] = [];
+    if (hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {
+        items.push({
             type: 'button',
             color: 'bg-indigo-500 hover:bg-indigo-600',
             iconColor: 'bg-indigo-600',
@@ -386,8 +386,11 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.inventory,
             group: 'management',
             onClick: () => navigate(ROUTES.MOBILE_INVENTORY),
-        },
-        {
+        });
+    }
+
+    if (hasAnyPermission(user, ['reports.sales.daily', 'reports.sales.detailed', 'payments.view'])) {
+        items.push({
             type: 'button',
             color: 'bg-emerald-500 hover:bg-emerald-600',
             iconColor: 'bg-emerald-600',
@@ -395,8 +398,11 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.receipts,
             group: 'management',
             onClick: () => navigate(ROUTES.RECEIPTS),
-        },
-        {
+        });
+    }
+
+    if (hasAnyPermission(user, ['products.view', 'products.create', 'sales.create'])) {
+        items.push({
             type: 'button',
             color: 'bg-teal-500 hover:bg-teal-600',
             iconColor: 'bg-teal-600',
@@ -404,8 +410,11 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.customers,
             group: 'management',
             onClick: () => navigate(ROUTES.CUSTOMERS),
-        },
-        {
+        });
+    }
+
+    if (hasAnyPermission(user, ['users.view', 'users.create', 'users.edit', 'users.delete'])) {
+        items.push({
             type: 'button',
             color: 'bg-orange-500 hover:bg-orange-600',
             iconColor: 'bg-orange-600',
@@ -413,10 +422,11 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.staff,
             group: 'management',
             onClick: () => navigate(ROUTES.USERS),
-        },
+        });
+    }
 
-        // Misc Group
-        {
+    if (hasAnyPermission(user, ['refunds.process', 'refunds.view', 'returns.manage'])) {
+        items.push({
             type: 'button',
             color: 'bg-rose-500 hover:bg-rose-600',
             iconColor: 'bg-rose-600',
@@ -424,8 +434,11 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.returns,
             group: 'misc',
             onClick: () => navigate(ROUTES.RETURNS),
-        },
-        {
+        });
+    }
+
+    if (hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {
+        items.push({
             type: 'button',
             color: 'bg-violet-500 hover:bg-violet-600',
             iconColor: 'bg-violet-600',
@@ -433,10 +446,11 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.procurement,
             group: 'misc',
             onClick: () => navigate(ROUTES.PURCHASE_ORDERS),
-        },
+        });
+    }
 
-        // Administration Group
-        {
+    if (hasRole(user, 'admin') || hasPermission(user, 'system.admin')) {
+        items.push({
             type: 'button',
             color: 'bg-purple-500 hover:bg-purple-600',
             iconColor: 'bg-purple-600',
@@ -444,8 +458,9 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.subscription,
             group: 'admin',
             onClick: () => navigate(ROUTES.SUBSCRIPTIONS),
-        },
-        {
+        });
+
+        items.push({
             type: 'button',
             color: 'bg-cyan-500 hover:bg-cyan-600',
             iconColor: 'bg-cyan-600',
@@ -453,8 +468,9 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.tenants,
             group: 'admin',
             onClick: () => navigate(ROUTES.TENANTS),
-        },
-        {
+        });
+
+        items.push({
             type: 'button',
             color: 'bg-teal-500 hover:bg-teal-600',
             iconColor: 'bg-teal-600',
@@ -462,10 +478,11 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.registrations,
             group: 'admin',
             onClick: () => navigate(ROUTES.TENANT_REGISTRATION_DETAILS),
-        },
+        });
+    }
 
-        // Settings Group
-        {
+    if (hasAnyPermission(user, ['settings.branch.manage'])) {
+        items.push({
             type: 'button',
             color: 'bg-amber-500 hover:bg-amber-600',
             iconColor: 'bg-amber-600',
@@ -473,8 +490,9 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.receiptSettings,
             group: 'settings',
             onClick: () => navigate(ROUTES.SETTINGS),
-        },
-        {
+        });
+
+        items.push({
             type: 'button',
             color: 'bg-blue-500 hover:bg-blue-600',
             iconColor: 'bg-blue-600',
@@ -482,8 +500,9 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.businessSettings,
             group: 'settings',
             onClick: () => navigate(ROUTES.BRANCHES),
-        },
-        {
+        });
+
+        items.push({
             type: 'button',
             color: 'bg-green-500 hover:bg-green-600',
             iconColor: 'bg-green-600',
@@ -491,8 +510,9 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.generalSettings,
             group: 'settings',
             onClick: () => navigate(ROUTES.SETTINGS),
-        },
-        {
+        });
+
+        items.push({
             type: 'button',
             color: 'bg-slate-500 hover:bg-slate-600',
             iconColor: 'bg-slate-600',
@@ -500,19 +520,20 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.printerSetup,
             group: 'settings',
             onClick: () => navigate(ROUTES.PRINTERS),
-        },
-        {
-            type: 'button',
-            color: 'bg-red-600 hover:bg-red-700',
-            iconColor: 'bg-red-700',
-            text: 'Logout',
-            icon: icons.logout,
-            group: 'settings',
-            onClick: async () => {
-                signout(() => navigate(ROUTES.LOGIN));
-            }
-        },
-    ];
+        });
+    }
+
+    items.push({
+        type: 'button',
+        color: 'bg-red-600 hover:bg-red-700',
+        iconColor: 'bg-red-700',
+        text: 'Logout',
+        icon: icons.logout,
+        group: 'settings',
+        onClick: async () => {
+            signout(() => navigate(ROUTES.LOGIN));
+        }
+    });
 
     return items;
 };

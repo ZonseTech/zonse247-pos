@@ -37,7 +37,7 @@ const MobileEditItemModal: FunctionComponent<MobileEditItemModalProps> = ({
 
     useEffect(() => {
         if (item && isOpen) {
-            setSellingPrice(item.sellPrice.toString());
+            setSellingPrice(item.sellingPrice.toString());
             setQuantity(item.quantity);
             setOfferType(item.discount > 0 ? 'discount' : null);
             setDiscountValue(item.discount > 0 ? item.discount.toString() : '');
@@ -123,7 +123,7 @@ const MobileEditItemModal: FunctionComponent<MobileEditItemModalProps> = ({
                         {item.name}
                     </h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Original Price: {formatCurrency(item.sellPrice)}
+                        Original Price: {formatCurrency(item.sellingPrice)}
                     </p>
                 </div>
 

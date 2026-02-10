@@ -68,7 +68,7 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
             <div className="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div className="divide-y divide-gray-200 dark:divide-gray-700">
                     {cart.map((item) => {
-                        const totalPrice = item.sellPrice * item.quantity;
+                        const totalPrice = item.sellingPrice * item.quantity;
 
                         return (
                             <div
@@ -91,7 +91,7 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm">
                                         <span className="text-green-500 dark:text-green-400 font-medium">{item.quantity} x</span>
-                                        <span className="text-gray-500 dark:text-gray-400"> {formatCurrency(item.sellPrice)}</span>
+                                        <span className="text-gray-500 dark:text-gray-400"> {formatCurrency(item.sellingPrice)}</span>
                                     </span>
                                     <span className="text-gray-900 dark:text-gray-100 font-semibold text-sm">
                                         {formatCurrency(totalPrice)}

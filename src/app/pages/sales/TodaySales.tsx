@@ -1,7 +1,7 @@
 import MobileTabPageHeader from '../../components/page/MobileTabPageHeader';
 import CollapsibleSaleCard from './partials/CollapsibleSaleCard';
 import SalesEmptyState from './partials/SalesEmptyState';
-import SalesLoadingState from './partials/SalesLoadingState';
+import SalesLoadingState from '../../components/loader/LoadingState';
 import MobilePagination from './partials/MobilePagination';
 import PaymentMethodFilterPopup from './partials/PaymentMethodFilterPopup';
 import { FunctionComponent, useState, useEffect, useMemo } from 'react';

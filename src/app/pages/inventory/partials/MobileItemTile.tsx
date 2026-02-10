@@ -1,24 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Loader2, PlusCircle, ShoppingCart } from 'lucide-react';
 import { formatCurrency } from '../../../utils';
 import { useAppSelector } from '../../../hooks/redux';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../../utils/constants';
 import { HiPlusCircle } from 'react-icons/hi2';
+import VariantSelectorModal from './VariantSelectorModal';
 
 interface MobileInventoryListProps {
-    data: InventoryItem[];
+    data: ApiProduct[];
     isLoading: boolean;
     searchTerm?: string;
-    selectedItems: InventoryItem[];
-    onEdit: (item: InventoryItem) => void;
+    selectedItems: ApiProduct[];
+    onEdit: (item: ApiProduct) => void;
     onDelete: (productId: string) => void;
-    onAdjustQuantity?: (item: InventoryItem) => void;
-    onSelectItem?: (item: InventoryItem, selected: boolean) => void;
+    onAdjustQuantity?: (item: ApiProduct) => void;
+    onSelectItem?: (item: ApiProduct, selected: boolean) => void;
     onLoadMore?: () => void;
     hasMore?: boolean;
     totalRows: number;
-    onAddToCart?: (item: InventoryItem) => void;
+    onAddToCart?: (item: ApiProduct, variant?: ProductVariant) => void;
+    onRemoveFromCart?: (item: ApiProduct, variant?: ProductVariant) => void;
+    onSetCartQuantity?: (item: ApiProduct, variant: ProductVariant, quantity: number) => void;
     onNewItem?: () => void;
 }
 
@@ -31,14 +34,16 @@ const SkeletonTile: React.FC = () => (
 );
 
 interface ItemTileProps {
-    item: InventoryItem;
-    onTap: (item: InventoryItem) => void;
+    item: ApiProduct;
+    onTap: (item: ApiProduct) => void;
     cartQuantity: number;
 }
 
 const ItemTile: React.FC<ItemTileProps> = ({ item, onTap, cartQuantity }) => {
-    const imageUrl = item.imageUrls?.[0];
+    const imageUrl = item.imageUrl || item.variants?.[0]?.imageUrl;
     const firstLetter = item.name?.charAt(0)?.toUpperCase() || '?';
+    const defaultVariant = item.variants?.find(v => v.isDefault) || item.variants?.[0];
+    const sellingPrice = defaultVariant?.sellingPrice ?? 0;
 
     return (
         <button
@@ -70,7 +75,7 @@ const ItemTile: React.FC<ItemTileProps> = ({ item, onTap, cartQuantity }) => {
             </p>
 
             <p className="text-sm font-semibold text-sky-500 dark:text-sky-400">
-                {formatCurrency(item.sellPrice)}
+                {formatCurrency(sellingPrice)}
             </p>
         </button>
     );
@@ -98,22 +103,65 @@ const MobileInventoryList: React.FC<MobileInventoryListProps> = ({
     isLoading,
     totalRows,
     onAddToCart,
+    onRemoveFromCart,
+    onSetCartQuantity,
     onNewItem,
 }) => {
     const navigate = useNavigate();
     const cartItems = useAppSelector((state) => state.cart.items);
+    const [selectedProduct, setSelectedProduct] = useState<ApiProduct | null>(null);
+    const [isVariantModalOpen, setIsVariantModalOpen] = useState(false);
 
     const getTotalCartCount = () => {
         return cartItems.reduce((sum, item) => sum + item.quantity, 0);
     };
 
-    const getCartQuantity = (productId: string): number => {
-        const cartItem = cartItems.find(item => item.productId === productId);
+    // Get total cart quantity for a product (sum of all variants)
+    const getProductCartQuantity = (product: ApiProduct): number => {
+        // Get all variant IDs for this product
+        const variantIds = product.variants?.map(v => v.id) || [];
+        // Sum up quantities for all variants in cart
+        return cartItems
+            .filter(item => variantIds.includes(item.productId))
+            .reduce((sum, item) => sum + item.quantity, 0);
+    };
+
+    // Get cart quantity for a specific variant
+    const getVariantCartQuantity = (variantId: string): number => {
+        const cartItem = cartItems.find(item => item.productId === variantId);
         return cartItem ? cartItem.quantity : 0;
     };
 
-    const handleItemTap = (item: InventoryItem) => {
-        onAddToCart?.(item);
+    const handleItemTap = (item: ApiProduct) => {
+        const variantCount = item.variants?.length || 0;
+
+        if (variantCount > 1) {
+            // Multiple variants - show modal to select
+            setSelectedProduct(item);
+            setIsVariantModalOpen(true);
+        } else {
+            // Single variant - add directly to cart
+            const defaultVariant = item.variants?.[0];
+            onAddToCart?.(item, defaultVariant);
+        }
+    };
+
+    const handleVariantSelect = (product: ApiProduct, variant: ProductVariant) => {
+        onAddToCart?.(product, variant);
+        // Don't close modal - allow user to add more of different variants
+    };
+
+    const handleVariantRemove = (product: ApiProduct, variant: ProductVariant) => {
+        onRemoveFromCart?.(product, variant);
+    };
+
+    const handleSetVariantQuantity = (product: ApiProduct, variant: ProductVariant, quantity: number) => {
+        onSetCartQuantity?.(product, variant, quantity);
+    };
+
+    const handleCloseVariantModal = () => {
+        setIsVariantModalOpen(false);
+        setSelectedProduct(null);
     };
 
     const handleNewItemTap = () => {
@@ -155,10 +203,10 @@ const MobileInventoryList: React.FC<MobileInventoryListProps> = ({
             <div className="grid grid-cols-3 gap-2">
                 {data.map((item) => (
                     <ItemTile
-                        key={item.productId}
+                        key={item.id}
                         item={item}
                         onTap={handleItemTap}
-                        cartQuantity={getCartQuantity(item.productId)}
+                        cartQuantity={getProductCartQuantity(item)}
                     />
                 ))}
 
@@ -170,6 +218,16 @@ const MobileInventoryList: React.FC<MobileInventoryListProps> = ({
                     <Loader2 className="h-6 w-6 text-sky-500 animate-spin" />
                 </div>
             )}
+
+            <VariantSelectorModal
+                isOpen={isVariantModalOpen}
+                onClose={handleCloseVariantModal}
+                product={selectedProduct}
+                onSelectVariant={handleVariantSelect}
+                onRemoveVariant={handleVariantRemove}
+                onSetVariantQuantity={handleSetVariantQuantity}
+                getVariantCartQuantity={getVariantCartQuantity}
+            />
         </div>
     );
 };

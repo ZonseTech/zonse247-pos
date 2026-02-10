@@ -46,18 +46,18 @@ const cartSlice = createSlice({
                 existingItem.quantity += quantity
             } else {
                 const isDefaultItem = item.isDefault === true
-                const sellPriceNum = parseFloat(item.sellPrice?.toString() || '0')
+                const sellingPriceNum = parseFloat(item.sellingPrice?.toString() || '0')
                 const customPriceNum = parseFloat(item.customPrice?.toString() || '0')
                 const price = isDefaultItem && customPriceNum > 0
                     ? customPriceNum
-                    : sellPriceNum
+                    : sellingPriceNum
 
                 state.items.push({
                     barcode: item.barcode,
                     productId: item.productId.toString(),
                     name: decodeHtmlEntities(item.name),
                     purchasePrice: parseFloat(item.costPrice?.toString() || '0'),
-                    sellPrice: price,
+                    sellingPrice: price,
                     discount: item.discount ?? 0,
                     quantity: isDefaultItem ? 0 : quantity,
                     categoryId: item.categoryId?.toString() || '',
@@ -82,7 +82,7 @@ const cartSlice = createSlice({
             const { productId, newPrice } = action.payload
             const item = state.items.find(item => item.productId === productId)
             if (item) {
-                item.sellPrice = newPrice
+                item.sellingPrice = newPrice
             }
         },
         updateItemDiscount: (state, action: PayloadAction<{ productId: string; discount: number; isPercentage: boolean }>) => {
@@ -125,9 +125,9 @@ const cartSlice = createSlice({
             let totalItemDiscounts = 0
             const newSubtotal = state.items.reduce((sum, item) => {
                 if (item.quantity === 0) {
-                    totalPrice = item.sellPrice
+                    totalPrice = item.sellingPrice
                 } else {
-                    totalPrice = item.sellPrice * item.quantity
+                    totalPrice = item.sellingPrice * item.quantity
                 }
                 // Calculate item-level discount
                 const itemDiscountValue = item.discount || 0

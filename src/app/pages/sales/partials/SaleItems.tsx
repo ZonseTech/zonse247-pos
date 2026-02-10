@@ -14,7 +14,7 @@ const getItemName = (item: ItemType): string => {
 };
 
 const getItemPrice = (item: ItemType): number => {
-    if ('sellPrice' in item) return item.sellPrice;
+    if ('sellingPrice' in item) return item.sellingPrice;
     if ('unitPrice' in item) return item.unitPrice;
     return 0;
 };

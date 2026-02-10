@@ -132,15 +132,14 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
                     </span>
                 </button>
 
-                {!isNextDisabled && (
-                    <button
-                        onClick={handleNextDate}
-                        className="p-4 active:scale-95 transition-transform"
-                        aria-label="Next date"
-                    >
-                        <HiChevronRight className="w-5 h-5 text-sky-500 dark:text-sky-400" />
-                    </button>
-                )}
+                <button
+                    onClick={handleNextDate}
+                    className="p-4 active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
+                    aria-label="Next date"
+                    disabled={isNextDisabled}
+                >
+                    <HiChevronRight className="w-5 h-5 text-sky-500 dark:text-sky-400" />
+                </button>
             </div>
 
             {showPicker && (

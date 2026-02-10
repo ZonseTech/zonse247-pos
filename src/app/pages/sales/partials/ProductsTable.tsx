@@ -25,7 +25,7 @@ const ProductsTable: FunctionComponent<Props> = ({ soldProducts }) => {
 		},
 		{
 			name: "Sell Price",
-			selector: (row) => formatCurrency(row.sellPrice),
+			selector: (row) => formatCurrency(row.sellingPrice),
 		},
 		{
 			name: "Cost Price",

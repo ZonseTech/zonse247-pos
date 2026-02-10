@@ -210,7 +210,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                                                     )}
                                                 </div>
                                                 <div className="font-bold text-lg text-slate-900 dark:text-gray-100 group-hover:text-sky-500 dark:group-hover:text-sky-400 whitespace-nowrap">
-                                                    {formatCurrency(parseFloat((item.sellPrice || 0).toString()))}
+                                                    {formatCurrency(parseFloat((item.sellingPrice || 0).toString()))}
                                                 </div>
                                             </div>
                                             <div className="font-mono text-xs text-slate-500 dark:text-gray-400 group-hover:text-sky-500 dark:group-hover:text-sky-400">
@@ -248,7 +248,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                                                 "col-span-3 text-right font-bold flex items-center justify-end text-slate-900 dark:text-gray-100 group-hover:text-sky-500 dark:group-hover:text-sky-400",
                                                 isEBN ? "text-sm" : "text-lg"
                                             )}>
-                                                {formatCurrency(parseFloat((item.sellPrice || 0).toString()))}
+                                                {formatCurrency(parseFloat((item.sellingPrice || 0).toString()))}
                                             </div>
                                         </div>
                                     </div>

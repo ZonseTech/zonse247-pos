@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import MobilePageHeader from '../../components/page/MobilePageHeader';
 import CollapsibleSaleCard from './partials/CollapsibleSaleCard';
 import SalesEmptyState from './partials/SalesEmptyState';
-import SalesLoadingState from './partials/SalesLoadingState';
+import SalesLoadingState from '../../components/loader/LoadingState';
 import MobilePagination from './partials/MobilePagination';
 import PaymentMethodFilterPopup from './partials/PaymentMethodFilterPopup';
 import salesService from '../../services/sales.service';

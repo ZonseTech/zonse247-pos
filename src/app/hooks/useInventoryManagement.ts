@@ -9,15 +9,15 @@ export const useInventoryManagement = () => {
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(13);
     const [totalRows, setTotalRows] = useState(0);
-    const [data, setData] = useState<InventoryItem[]>([]);
+    const [data, setData] = useState<ApiProduct[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
     const [activeFilter, setActiveFilter] = useState('all');
     const [startDate, setStartDate] = useState<string>("");
     const [endDate, setEndDate] = useState<string>("");
-    const [inventory, setInventory] = useState<InventoryItem[]>([]);
-    const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+    const [inventory, setInventory] = useState<ApiProduct[]>([]);
+    const [selectedItem, setSelectedItem] = useState<ApiProduct | null>(null);
 
     const dispatch = useAppDispatch()
     const categories = useAppSelector((state) => state.inventory.categories)
@@ -143,7 +143,7 @@ export const useInventoryManagement = () => {
         setPerPage(newPerPage);
     };
 
-    const handleEditItem = (item: InventoryItem) => {
+    const handleEditItem = (item: ApiProduct) => {
         if (item) {
             setSelectedItem(item);
         }

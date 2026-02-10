@@ -59,7 +59,7 @@ const getItemName = (item: ItemType): string => {
     return 'Unknown Product';
 };
 const getItemPrice = (item: ItemType): number => {
-    if ('sellPrice' in item) return item.sellPrice;
+    if ('sellingPrice' in item) return item.sellingPrice;
     if ('unitPrice' in item) return item.unitPrice;
     return 0;
 };
@@ -435,14 +435,14 @@ const TransactionCompleteModal: FunctionComponent<TransactionCompleteModalProps>
                                         "text-gray-500 dark:text-gray-400",
                                         isEBN ? "text-[10px]" : "text-xs"
                                     )}>
-                                        {item.quantity} × {formatCurrency(item.sellPrice)}
+                                        {item.quantity} × {formatCurrency(item.sellingPrice)}
                                     </p>
                                 </div>
                                 <span className={classNames(
                                     "font-mono font-semibold text-gray-900 dark:text-white",
                                     isEBN && "text-xs"
                                 )}>
-                                    {formatCurrency(item.sellPrice * item.quantity)}
+                                    {formatCurrency(item.sellingPrice * item.quantity)}
                                 </span>
                             </div>
                         ))}

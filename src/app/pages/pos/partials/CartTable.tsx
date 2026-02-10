@@ -248,7 +248,7 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                                     </td>
                                     <td className={classNames(compact ? "px-1 py-1" : "px-3 py-4")}>
                                         <PriceControl
-                                            sellPrice={item.sellPrice}
+                                            sellingPrice={item.sellingPrice}
                                             categoryId={item.categoryId}
                                             productId={item.productId}
                                             customPriceInput={customPriceInputs[item.productId] || ''}
@@ -263,13 +263,13 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                                                 "font-bold text-gray-900 dark:text-white",
                                                 compact ? "text-[10px]" : "text-lg"
                                             )}>
-                                                {formatCurrency(item.sellPrice * item.quantity)}
+                                                {formatCurrency(item.sellingPrice * item.quantity)}
                                             </span>
                                             <span className={classNames(
                                                 "text-gray-400 dark:text-gray-500",
                                                 compact ? "text-[8px]" : "text-xs"
                                             )}>
-                                                {item.quantity} × {formatCurrency(item.sellPrice)}
+                                                {item.quantity} × {formatCurrency(item.sellingPrice)}
                                             </span>
                                         </div>
                                     </td>

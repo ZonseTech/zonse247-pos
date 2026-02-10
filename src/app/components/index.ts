@@ -7,8 +7,12 @@ export { default as Badge } from './Badge';
 export { default as BottomSheet } from './BottomSheet';
 export { default as Button } from './Button';
 export { default as Breadcrumb } from './Breadcrumb';
+export { default as ToggleButtonGroup } from './buttons/ToggleButtonGroup';
+export type { ToggleOption } from './buttons/ToggleButtonGroup';
 export { default as Card } from './card/Card';
 export { default as CardBody } from './card/CardBody';
+export { default as CollapsibleSection } from './card/CollapsibleSection';
+export { default as FormFieldCard } from './card/FormFieldCard';
 export { default as ComponentLoader } from './ComponentLoader';
 export { DateRangeFilter } from './DateRangeFilter';
 export { default as HelperText } from './HelperText';
@@ -29,6 +33,11 @@ export { default as FormSearchableSelect } from './FormSearchableSelect';
 export { default as FormInput } from './form/FormInput';
 export { default as FormSelect } from './form/FormSelect';
 export { default as FormTextArea } from './form/FormTextArea';
+export { default as PricingFields } from '../pages/inventory/forms/fields/PricingFields';
 
 // Scanner components
 export { CameraBarcodeScanner, ScannerModeButton, BarcodeScannerInput } from './scanner';
+
+// Chart components
+export { ReportBarChart, ReportProgressBar, ReportPieChart } from './charts';
+export type { ChartDataPoint, ReportBarChartProps, ReportProgressBarProps, PieChartDataPoint, ReportPieChartProps } from './charts';

@@ -3,15 +3,22 @@ import { Tag, Loader2 } from 'lucide-react';
 import { formatCurrency, formatQuantity } from '../../../utils';
 
 interface MobileInventoryCardProps {
-    item: InventoryItem;
-    onTap: (item: InventoryItem) => void;
+    item: ApiProduct;
+    onTap: (item: ApiProduct) => void;
 }
 
 const MobileInventoryCard: React.FC<MobileInventoryCardProps> = ({ item, onTap }) => {
     const categoryName = item.categoryDetails?.name || 'Uncategorized';
     const firstLetter = categoryName.charAt(0).toUpperCase();
-    const stockValue = item.stock ?? Number(item.quantity) ?? 0;
-    const barcodes = item.barcode ? (Array.isArray(item.barcode) ? item.barcode : [item.barcode]) : [];
+
+    const stockValue = item.totalAvailableQuantity ?? 0;
+
+    const defaultVariant = item.variants?.find((v) => v.isDefault) || item.variants?.[0];
+    const sellingPrice = defaultVariant?.sellingPrice ?? 0;
+
+    const barcodes = item.variants
+        ?.map((v) => v.primaryBarcode)
+        .filter((barcode): barcode is string => !!barcode) ?? [];
 
     return (
         <button
@@ -30,7 +37,7 @@ const MobileInventoryCard: React.FC<MobileInventoryCardProps> = ({ item, onTap }
                         {item.name}
                     </p>
                     <p className="text-sm font-semibold text-sky-500 dark:text-sky-400 mt-0.5">
-                        {formatCurrency(item.sellPrice, true)}
+                        {formatCurrency(sellingPrice, true)}
                     </p>
                 </div>
 
@@ -60,7 +67,6 @@ const MobileInventoryCard: React.FC<MobileInventoryCardProps> = ({ item, onTap }
     );
 };
 
-// Skeleton Card
 export const MobileInventoryCardSkeleton: React.FC = () => (
     <div className="w-full bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 p-4 animate-pulse">
         <div className="flex items-start gap-3">
@@ -79,11 +85,10 @@ export const MobileInventoryCardSkeleton: React.FC = () => (
     </div>
 );
 
-// List Component with Infinite Scroll
 interface MobileInventoryCardListProps {
-    data: InventoryItem[];
+    data: ApiProduct[];
     isLoading: boolean;
-    onItemTap: (item: InventoryItem) => void;
+    onItemTap: (item: ApiProduct) => void;
     totalRows?: number;
     page?: number;
     perPage?: number;
@@ -104,10 +109,8 @@ export const MobileInventoryCardList: React.FC<MobileInventoryCardListProps> = (
     const observerRef = useRef<IntersectionObserver | null>(null);
     const loadMoreRef = useRef<HTMLDivElement>(null);
 
-    // Calculate if there are more items to load
     const hasMore = hasMoreProp ?? (totalRows > 0 && data.length < totalRows);
 
-    // Intersection Observer for infinite scroll
     const handleObserver = useCallback(
         (entries: IntersectionObserverEntry[]) => {
             const [entry] = entries;
@@ -167,23 +170,20 @@ export const MobileInventoryCardList: React.FC<MobileInventoryCardListProps> = (
         <div className="h-full overflow-y-auto pb-24 px-4 space-y-2">
             {data.map((item) => (
                 <MobileInventoryCard
-                    key={item.productId}
+                    key={item.id}
                     item={item}
                     onTap={onItemTap}
                 />
             ))}
 
-            {/* Load more trigger element */}
             <div ref={loadMoreRef} className="h-1" />
 
-            {/* Loading indicator for pagination */}
             {isLoading && data.length > 0 && (
                 <div className="flex items-center justify-center py-4">
                     <Loader2 className="h-6 w-6 text-sky-500 animate-spin" />
                 </div>
             )}
 
-            {/* End of list indicator */}
             {!hasMore && data.length > 0 && (
                 <div className="flex items-center justify-center py-4">
                     <p className="text-xs text-gray-400 dark:text-gray-500">

@@ -15,14 +15,14 @@ import api from './http.service';
  */
 
 const endpoints = {
-    root: 'sales/parked',
-    park: 'sales/parked',
-    list: 'sales/parked/list',
-    count: 'sales/parked/count',
-    show: 'sales/parked',
-    update: 'sales/parked',
-    resume: 'sales/parked',
-    delete: 'sales/parked',
+    root: 'parked-sales',
+    park: 'parked-sales',
+    list: 'parked-sales/list',
+    count: 'parked-sales/count',
+    show: 'parked-sales',
+    update: 'parked-sales',
+    resume: 'parked-sales',
+    delete: 'parked-sales',
 };
 
 interface ApiResponse<T> {

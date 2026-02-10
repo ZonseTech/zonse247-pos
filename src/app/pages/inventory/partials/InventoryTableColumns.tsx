@@ -87,12 +87,12 @@ export const getInventoryTableColumns = ({
             },
             {
                 name: 'Sell',
-                selector: (row) => Number(row.sellPrice) || 0,
+                selector: (row) => Number(row.sellingPrice) || 0,
                 sortable: true,
                 width: '85px',
                 cell: (row) => (
                     <span className="text-xs font-semibold text-gray-900 dark:text-gray-100">
-                        {formatCurrency(Number(row.sellPrice) || 0)}
+                        {formatCurrency(Number(row.sellingPrice) || 0)}
                     </span>
                 ),
             },
@@ -267,11 +267,11 @@ export const getInventoryTableColumns = ({
         },
         {
             name: 'Sell Price',
-            selector: (row) => Number(row.sellPrice) || 0,
+            selector: (row) => Number(row.sellingPrice) || 0,
             sortable: true,
             cell: (row) => (
                 <span className="font-semibold text-gray-900 dark:text-gray-100">
-                    {formatCurrency(Number(row.sellPrice) || 0)}
+                    {formatCurrency(Number(row.sellingPrice) || 0)}
                 </span>
             ),
         },

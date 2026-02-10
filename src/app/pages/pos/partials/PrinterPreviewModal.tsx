@@ -210,8 +210,8 @@ const PrinterPreviewModal: FunctionComponent<Props> = ({
                                             {item.quantity}
                                         </span>
                                     </div>
-                                    <div className="col-span-2 text-center font-mono">{formatCurrency(item.sellPrice)}</div>
-                                    <div className="col-span-2 text-right font-mono font-semibold">{formatCurrency(item.sellPrice * item.quantity)}</div>
+                                    <div className="col-span-2 text-center font-mono">{formatCurrency(item.sellingPrice)}</div>
+                                    <div className="col-span-2 text-right font-mono font-semibold">{formatCurrency(item.sellingPrice * item.quantity)}</div>
                                 </div>
                             ))}
                         </div>
