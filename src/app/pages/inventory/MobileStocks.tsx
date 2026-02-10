@@ -15,7 +15,7 @@ import { ROUTES } from '../../utils/constants';
 import { Package } from 'lucide-react';
 
 const MobileStocks: FunctionComponent = () => {
-    const { inventory, addToCart } = useInventory();
+    const { inventory, addToCart, removeFromCart, updateQuantity, cart } = useInventory();
     const navigate = useNavigate();
 
     const [isCameraScannerOpen, setIsCameraScannerOpen] = useState(false);
@@ -73,7 +73,7 @@ const MobileStocks: FunctionComponent = () => {
         if (result.barcode) {
             setIsCameraScannerOpen(false);
             // Find item by barcode from any variant and navigate to edit
-            const item = data.find(product => 
+            const item = data.find(product =>
                 product.variants?.some(v => v.primaryBarcode === result.barcode)
             );
             if (item) {
@@ -82,31 +82,108 @@ const MobileStocks: FunctionComponent = () => {
         }
     };
 
-    const handleAddToCartFromLookup = (item: InventoryItem | ApiProduct) => {
+    const handleAddToCartFromLookup = (item: InventoryItem | ApiProduct, variant?: ProductVariant) => {
         // Convert ApiProduct to InventoryItem format for cart
         if ('variants' in item) {
-            const defaultVariant = item.variants?.find(v => v.isDefault) || item.variants?.[0];
+            // Use provided variant or fall back to default variant
+            const selectedVariant = variant || item.variants?.find(v => v.isDefault) || item.variants?.[0];
             const cartItem: InventoryItem = {
-                productId: item.id,
+                productId: selectedVariant?.id || item.id, // Use variant ID if available for proper tracking
                 branchId: item.branchId,
                 tenantId: item.tenantId,
                 userId: '',
                 categoryId: item.categoryId || '',
-                barcode: defaultVariant?.primaryBarcode || '',
-                name: item.name,
-                description: item.description || '',
-                brand: item.brand || '',
-                unit: item.defaultUnit,
-                costPrice: defaultVariant?.costPrice || 0,
-                sellingPrice: defaultVariant?.sellingPrice || 0,
-                quantity: String(item.totalAvailableQuantity || 0),
-                originalQuantity: String(item.totalAvailableQuantity || 0),
+                barcode: selectedVariant?.primaryBarcode || '',
+                sku: selectedVariant?.sku || '',
+                name: selectedVariant?.variantName && selectedVariant.variantName !== 'Default'
+                    ? `${item.name} - ${selectedVariant.variantName}`
+                    : item.name,
+                description: selectedVariant?.description || item.description || '',
+                brand: selectedVariant?.brand || item.brand || '',
+                unit: selectedVariant?.unit || item.defaultUnit,
+                costPrice: selectedVariant?.costPrice || 0,
+                sellingPrice: selectedVariant?.sellingPrice || 0,
+                quantity: String(selectedVariant?.inventory?.availableQuantity ?? 0),
+                originalQuantity: String(selectedVariant?.inventory?.availableQuantity ?? 0),
                 expiryDateAlert: '',
                 categoryDetails: item.categoryDetails as Category | undefined,
             };
             addToCart(cartItem);
         } else {
             addToCart(item);
+        }
+    };
+
+    const handleRemoveFromCart = (item: InventoryItem | ApiProduct, variant?: ProductVariant) => {
+        // Handle removing/decrementing from cart
+        if ('variants' in item) {
+            const selectedVariant = variant || item.variants?.find(v => v.isDefault) || item.variants?.[0];
+            const variantId = selectedVariant?.id || item.id;
+
+            // Find the cart item to check current quantity
+            const cartItem = cart.find(ci => ci.productId === variantId);
+            if (cartItem) {
+                if (cartItem.quantity > 1) {
+                    // Decrement quantity
+                    updateQuantity(variantId, cartItem.quantity - 1);
+                } else {
+                    // Remove entirely
+                    removeFromCart(variantId);
+                }
+            }
+        } else {
+            const cartItem = cart.find(ci => ci.productId === item.productId);
+            if (cartItem) {
+                if (cartItem.quantity > 1) {
+                    updateQuantity(item.productId, cartItem.quantity - 1);
+                } else {
+                    removeFromCart(item.productId);
+                }
+            }
+        }
+    };
+
+    const handleSetCartQuantity = (item: ApiProduct, variant: ProductVariant, quantity: number) => {
+        const variantId = variant.id;
+        const existingCartItem = cart.find(ci => ci.productId === variantId);
+
+        if (quantity <= 0) {
+            // Remove from cart
+            if (existingCartItem) {
+                removeFromCart(variantId);
+            }
+        } else if (existingCartItem) {
+            // Update existing quantity
+            updateQuantity(variantId, quantity);
+        } else {
+            // Add new item with specified quantity - need to add multiple times or set directly
+            const cartItem: InventoryItem = {
+                productId: variantId,
+                branchId: item.branchId,
+                tenantId: item.tenantId,
+                userId: '',
+                categoryId: item.categoryId || '',
+                barcode: variant.primaryBarcode || '',
+                sku: variant.sku || '',
+                name: variant.variantName && variant.variantName !== 'Default'
+                    ? `${item.name} - ${variant.variantName}`
+                    : item.name,
+                description: variant.description || item.description || '',
+                brand: variant.brand || item.brand || '',
+                unit: variant.unit || item.defaultUnit,
+                costPrice: variant.costPrice || 0,
+                sellingPrice: variant.sellingPrice || 0,
+                quantity: String(variant.inventory?.availableQuantity ?? 0),
+                originalQuantity: String(variant.inventory?.availableQuantity ?? 0),
+                expiryDateAlert: '',
+                categoryDetails: item.categoryDetails as Category | undefined,
+            };
+            // Add to cart, then update quantity
+            addToCart(cartItem);
+            if (quantity > 1) {
+                // Need a slight delay to ensure cart state is updated
+                setTimeout(() => updateQuantity(variantId, quantity), 10);
+            }
         }
     };
 
@@ -172,6 +249,8 @@ const MobileStocks: FunctionComponent = () => {
                             onSelectItem={handleSelectItem}
                             totalRows={totalRows}
                             onAddToCart={handleAddToCartFromLookup}
+                            onRemoveFromCart={handleRemoveFromCart}
+                            onSetCartQuantity={handleSetCartQuantity}
                             onNewItem={() => navigate(ROUTES.INVENTORY_FORM)}
                         />
                     )}
