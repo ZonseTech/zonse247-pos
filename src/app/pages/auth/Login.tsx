@@ -140,7 +140,7 @@ const Login: FunctionComponent = () => {
                                 step={1}
                                 required
                                 placeholder="johnbob"
-                                className="mt-1"
+                                className="mt-1 bg-white dark:bg-gray-700"
                                 readOnly={false}
                                 onClick={() => {
                                     setActiveField('username')
@@ -149,24 +149,22 @@ const Login: FunctionComponent = () => {
                             />
 
 
-                            <div className="relative">
-                                <FormInput
-                                    inputRef={passwordInputRef}
-                                    label='Password'
-                                    id='password'
-                                    name='password'
-                                    type='password'
-                                    step={2}
-                                    required
-                                    placeholder="***************"
-                                    className="mt-1 pr-10"
-                                    readOnly={false}
-                                    onClick={() => {
-                                        setActiveField('password')
-                                        passwordInputRef.current?.focus()
-                                    }}
-                                />
-                            </div>
+                            <FormInput
+                                inputRef={passwordInputRef}
+                                label='Password'
+                                id='password'
+                                name='password'
+                                type='password'
+                                step={2}
+                                required
+                                placeholder="***************"
+                                className="mt-1 pr-10 !bg-white dark:!bg-gray-700"
+                                readOnly={false}
+                                onClick={() => {
+                                    setActiveField('password')
+                                    passwordInputRef.current?.focus()
+                                }}
+                            />
 
                             <Button type='submit' className="mt-6 mb-8" block loading={isSubmitting}>
                                 Log in
