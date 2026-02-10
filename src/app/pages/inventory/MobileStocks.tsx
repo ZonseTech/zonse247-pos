@@ -21,7 +21,7 @@ const MobileStocks: FunctionComponent = () => {
     const [isCameraScannerOpen, setIsCameraScannerOpen] = useState(false);
     const [isLookupModalOpen, setIsLookupModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedItems, setSelectedItems] = useState<InventoryItem[]>([]);
+    const [selectedItems, setSelectedItems] = useState<ApiProduct[]>([]);
 
     const {
         isLoading,
@@ -47,8 +47,8 @@ const MobileStocks: FunctionComponent = () => {
         return () => clearTimeout(timeoutId);
     }, [searchTerm]);
 
-    const handleEdit = (item: InventoryItem) => {
-        navigate(ROUTES.INVENTORY_FORM, { state: { productId: item.productId } });
+    const handleEdit = (item: ApiProduct) => {
+        navigate(ROUTES.INVENTORY_FORM, { state: { productId: item.id } });
     };
 
     const handleDelete = (productId: string) => {
@@ -56,11 +56,11 @@ const MobileStocks: FunctionComponent = () => {
         console.log('Delete item:', productId);
     };
 
-    const handleSelectItem = (item: InventoryItem, selected: boolean) => {
+    const handleSelectItem = (item: ApiProduct, selected: boolean) => {
         if (selected) {
             setSelectedItems(prev => [...prev, item]);
         } else {
-            setSelectedItems(prev => prev.filter(i => i.productId !== item.productId));
+            setSelectedItems(prev => prev.filter(i => i.id !== item.id));
         }
     };
 
@@ -72,16 +72,42 @@ const MobileStocks: FunctionComponent = () => {
     const handleCameraScan = (result: { barcode: string }) => {
         if (result.barcode) {
             setIsCameraScannerOpen(false);
-            // Find item by barcode and navigate to edit
-            const item = inventory.find(i => i.barcode === result.barcode);
+            // Find item by barcode from any variant and navigate to edit
+            const item = data.find(product => 
+                product.variants?.some(v => v.primaryBarcode === result.barcode)
+            );
             if (item) {
                 handleEdit(item);
             }
         }
     };
 
-    const handleAddToCartFromLookup = (item: InventoryItem) => {
-        addToCart(item);
+    const handleAddToCartFromLookup = (item: InventoryItem | ApiProduct) => {
+        // Convert ApiProduct to InventoryItem format for cart
+        if ('variants' in item) {
+            const defaultVariant = item.variants?.find(v => v.isDefault) || item.variants?.[0];
+            const cartItem: InventoryItem = {
+                productId: item.id,
+                branchId: item.branchId,
+                tenantId: item.tenantId,
+                userId: '',
+                categoryId: item.categoryId || '',
+                barcode: defaultVariant?.primaryBarcode || '',
+                name: item.name,
+                description: item.description || '',
+                brand: item.brand || '',
+                unit: item.defaultUnit,
+                costPrice: defaultVariant?.costPrice || 0,
+                sellingPrice: defaultVariant?.sellingPrice || 0,
+                quantity: String(item.totalAvailableQuantity || 0),
+                originalQuantity: String(item.totalAvailableQuantity || 0),
+                expiryDateAlert: '',
+                categoryDetails: item.categoryDetails as Category | undefined,
+            };
+            addToCart(cartItem);
+        } else {
+            addToCart(item);
+        }
     };
 
     return (

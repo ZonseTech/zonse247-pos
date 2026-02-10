@@ -7,18 +7,18 @@ import { ROUTES } from '../../../utils/constants';
 import { HiPlusCircle } from 'react-icons/hi2';
 
 interface MobileInventoryListProps {
-    data: InventoryItem[];
+    data: ApiProduct[];
     isLoading: boolean;
     searchTerm?: string;
-    selectedItems: InventoryItem[];
-    onEdit: (item: InventoryItem) => void;
+    selectedItems: ApiProduct[];
+    onEdit: (item: ApiProduct) => void;
     onDelete: (productId: string) => void;
-    onAdjustQuantity?: (item: InventoryItem) => void;
-    onSelectItem?: (item: InventoryItem, selected: boolean) => void;
+    onAdjustQuantity?: (item: ApiProduct) => void;
+    onSelectItem?: (item: ApiProduct, selected: boolean) => void;
     onLoadMore?: () => void;
     hasMore?: boolean;
     totalRows: number;
-    onAddToCart?: (item: InventoryItem) => void;
+    onAddToCart?: (item: ApiProduct) => void;
     onNewItem?: () => void;
 }
 
@@ -31,14 +31,16 @@ const SkeletonTile: React.FC = () => (
 );
 
 interface ItemTileProps {
-    item: InventoryItem;
-    onTap: (item: InventoryItem) => void;
+    item: ApiProduct;
+    onTap: (item: ApiProduct) => void;
     cartQuantity: number;
 }
 
 const ItemTile: React.FC<ItemTileProps> = ({ item, onTap, cartQuantity }) => {
-    const imageUrl = item.imageUrls?.[0];
+    const imageUrl = item.imageUrl || item.variants?.[0]?.imageUrl;
     const firstLetter = item.name?.charAt(0)?.toUpperCase() || '?';
+    const defaultVariant = item.variants?.find(v => v.isDefault) || item.variants?.[0];
+    const sellingPrice = defaultVariant?.sellingPrice ?? 0;
 
     return (
         <button
@@ -70,7 +72,7 @@ const ItemTile: React.FC<ItemTileProps> = ({ item, onTap, cartQuantity }) => {
             </p>
 
             <p className="text-sm font-semibold text-sky-500 dark:text-sky-400">
-                {formatCurrency(item.sellingPrice)}
+                {formatCurrency(sellingPrice)}
             </p>
         </button>
     );
@@ -112,7 +114,7 @@ const MobileInventoryList: React.FC<MobileInventoryListProps> = ({
         return cartItem ? cartItem.quantity : 0;
     };
 
-    const handleItemTap = (item: InventoryItem) => {
+    const handleItemTap = (item: ApiProduct) => {
         onAddToCart?.(item);
     };
 
@@ -155,10 +157,10 @@ const MobileInventoryList: React.FC<MobileInventoryListProps> = ({
             <div className="grid grid-cols-3 gap-2">
                 {data.map((item) => (
                     <ItemTile
-                        key={item.productId}
+                        key={item.id}
                         item={item}
                         onTap={handleItemTap}
-                        cartQuantity={getCartQuantity(item.productId)}
+                        cartQuantity={getCartQuantity(item.id)}
                     />
                 ))}
 
