@@ -5,6 +5,8 @@ export { default as AppearanceCard } from './AppearanceCard';
 export { default as LogoutCard } from './LogoutCard';
 export { default as EditProfileForm } from './EditProfileForm';
 export { default as ChangePasswordForm } from './ChangePasswordForm';
+export { default as MobileEditProfileForm } from './MobileEditProfileForm';
+export { default as MobileChangePasswordForm } from './MobileChangePasswordForm';
 export { default as PermissionsCard } from './PermissionsCard';
 export { default as InfoItem } from './InfoItem';
 export * from './utils';

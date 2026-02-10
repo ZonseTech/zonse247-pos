@@ -1,7 +1,9 @@
 import { FunctionComponent } from 'react';
 import { User2Icon } from 'lucide-react';
 import { useAuth } from '../../context/AuthProvider';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 import PageHeader from '../../components/page/PageHeader';
+import MobileMyProfile from './MobileMyProfile';
 import {
     ProfileOverviewCard,
     AccountDetailsCard,
@@ -15,7 +17,14 @@ import {
 
 const MyProfilePage: FunctionComponent = () => {
     const { user } = useAuth();
+    const isMobile = useIsMobile();
 
+    // Render mobile view
+    if (isMobile) {
+        return <MobileMyProfile />;
+    }
+
+    // Desktop view
     return (
         <div className="max-w-6xl mx-auto space-y-6">
             <PageHeader
