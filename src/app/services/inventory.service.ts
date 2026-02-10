@@ -189,12 +189,12 @@ const inventoryService = {
 	},
 
 	/**
-	 * GET / - Get paginated inventory items
+	 * GET / - Get paginated inventory items (Products with Variants)
 	 */
-	async list(query = {}): Promise<PaginatedResponse<InventoryItem>> {
+	async list(query = {}): Promise<PaginatedResponse<ApiProduct>> {
 		return api
 			.get<ApiResponse<{
-				inventoryItems: InventoryItem[];
+				products: ApiProduct[];
 				pagination: {
 					currentPage: number;
 					totalPages: number;
@@ -203,7 +203,7 @@ const inventoryService = {
 				};
 			}>>(endpoints.root, { ...query, groupByProduct: true })
 			.then((res) => ({
-				items: decodeArrayStrings<InventoryItem>(res.data.data.inventoryItems, INVENTORY_DECODE_FIELDS),
+				items: res.data.data.products,
 				pagination: res.data.data.pagination
 			}))
 			.catch((err) => {
@@ -236,12 +236,12 @@ const inventoryService = {
 	},
 
 	/**
-	 * GET /item/:itemId - Get a single inventory item
+	 * GET /item/:itemId - Get a single inventory item (Product with Variants)
 	 */
-	async show(id: string): Promise<InventoryItem> {
+	async show(id: string): Promise<ApiProduct> {
 		return api
-			.get<ApiResponse<InventoryItem>>(`${endpoints.item}/${id}`)
-			.then((res) => decodeObjectStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
+			.get<ApiResponse<ApiProduct>>(`${endpoints.item}/${id}`)
+			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
 			});
