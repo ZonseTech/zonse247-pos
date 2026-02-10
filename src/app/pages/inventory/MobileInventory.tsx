@@ -31,7 +31,7 @@ const MobileInventory: React.FC = () => {
         handlePageChange,
     } = useInventoryManagement();
 
-    const [accumulatedItems, setAccumulatedItems] = useState<InventoryItem[]>([]);
+    const [accumulatedItems, setAccumulatedItems] = useState<ApiProduct[]>([]);
 
     const {
         categories,
@@ -44,13 +44,13 @@ const MobileInventory: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (inventoryData.length > 0) {
+        if (inventoryData && inventoryData.length > 0) {
             if (page === 1) {
                 setAccumulatedItems(inventoryData);
             } else {
                 setAccumulatedItems(prev => {
-                    const existingIds = new Set(prev.map(item => item.productId));
-                    const newItems = inventoryData.filter(item => !existingIds.has(item.productId));
+                    const existingIds = new Set(prev.map((item) => item.id));
+                    const newItems = inventoryData.filter((item) => !existingIds.has(item.id));
                     return [...prev, ...newItems];
                 });
             }
@@ -103,8 +103,8 @@ const MobileInventory: React.FC = () => {
         });
     }, []);
 
-    const handleEditItem = useCallback((item: InventoryItem) => {
-        navigate(ROUTES.INVENTORY_FORM, { state: { productId: item.productId } });
+    const handleEditItem = useCallback((item: ApiProduct) => {
+        navigate(ROUTES.INVENTORY_FORM, { state: { productId: item.id } });
     }, [navigate]);
 
     const handleNewItem = useCallback(() => {
