@@ -3,7 +3,11 @@ import { createPortal } from 'react-dom';
 import { X, Phone, Mail, MessageCircle, Clock, MapPin, Globe, Headphones } from 'lucide-react';
 import { HiOutlineChatAlt2, HiOutlineSupport } from 'react-icons/hi';
 
-const HelpModal: FunctionComponent = () => {
+interface HelpModalProps {
+    iconClassName?: string;
+}
+
+const HelpModal: FunctionComponent<HelpModalProps> = ({ iconClassName }) => {
     const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
     const contactInfo = {
@@ -31,7 +35,7 @@ const HelpModal: FunctionComponent = () => {
     return (
         <>
             <HiOutlineChatAlt2
-                className="w-6 h-6 text-white cursor-pointer active:scale-95 transition-transform"
+                className={iconClassName || "w-6 h-6 text-white cursor-pointer active:scale-95 transition-transform"}
                 onClick={() => setIsHelpModalOpen(true)}
             />
 
