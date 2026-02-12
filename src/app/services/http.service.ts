@@ -272,7 +272,7 @@ export const apiUtils = {
 	},
 	getActiveRequestCount: () => activeRequests,
 	updateBaseUrl: (newBaseUrl: string) => {
-		httpInstance.defaults.baseURL = newBaseUrl;
+		// httpInstance.defaults.baseURL = newBaseUrl;
 		console.log(`API Base URL updated to: ${newBaseUrl}`);
 	},
 	getCurrentBaseUrl: () => httpInstance.defaults.baseURL,

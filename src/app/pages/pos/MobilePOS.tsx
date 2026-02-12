@@ -17,7 +17,6 @@ import InventoryStatsCard from '../../components/stats/InventoryStatsCard';
 import { HiArrowRight } from 'react-icons/hi2';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
-import { BiSolidUserPlus } from 'react-icons/bi';
 
 const MobilePOS: FunctionComponent = () => {
     const {
@@ -28,7 +27,7 @@ const MobilePOS: FunctionComponent = () => {
         setSelectedCustomer,
         total
     } = useInventory();
-    const { parkedSales, fetchParkedSales, resumeParkedSale, isLoading: isLoadingParked } = useParkedSales();
+    const { parkedSales, fetchParkedSales, resumeParkedSale } = useParkedSales();
     const navigate = useNavigate();
     const focusManager = useFocusManager();
     const [isCameraScannerOpen, setIsCameraScannerOpen] = useState(false);
