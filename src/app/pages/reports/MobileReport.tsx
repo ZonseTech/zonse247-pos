@@ -202,6 +202,11 @@ const MobileReport: React.FC = () => {
     };
 
     const handleShare = useCallback(async (): Promise<void> => {
+        if (hasNoData) {
+            toast.warning('No data to share');
+            return;
+        }
+
         setIsSharing(true);
 
         try {
@@ -288,9 +293,14 @@ const MobileReport: React.FC = () => {
         } finally {
             setIsSharing(false);
         }
-    }, [activeReport, summary, currentBranch, startDate, endDate]);
+    }, [activeReport, summary, currentBranch, startDate, endDate, hasNoData]);
 
     const handleDownload = useCallback(async (): Promise<void> => {
+        if (hasNoData) {
+            toast.warning('No data to download');
+            return;
+        }
+
         setIsSharing(true);
 
         try {
@@ -365,7 +375,7 @@ const MobileReport: React.FC = () => {
         } finally {
             setIsSharing(false);
         }
-    }, [activeReport, summary, currentBranch, startDate, endDate]);
+    }, [activeReport, summary, currentBranch, startDate, endDate, hasNoData]);
 
     const handleCardClick = useCallback((reportId: ReportType): void => {
         setActiveReport(reportId);
@@ -450,7 +460,7 @@ const MobileReport: React.FC = () => {
             <div className="fixed top-0 left-0 right-0 z-50">
                 <MobileTabPageHeader
                     rightContent={
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-x-3">
                             <Download
                                 className={`w-6 h-6 text-white cursor-pointer active:scale-95 transition-transform ${isSharing ? 'opacity-50' : ''}`}
                                 onClick={!isSharing ? handleDownload : undefined}
