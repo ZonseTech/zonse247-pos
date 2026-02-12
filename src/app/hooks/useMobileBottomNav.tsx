@@ -1,22 +1,21 @@
 import { useMemo } from 'react';
-import { BarChart3, MoreHorizontal } from 'lucide-react';
+import { IoBarChart } from "react-icons/io5";
 import { FaCircleDollarToSlot, FaCashRegister, FaListCheck } from 'react-icons/fa6';
 import { BottomNavItem } from '../components/navigation/MobileBottomNav';
 import { ROUTES } from '../utils/constants';
 import { useInventory } from './useInventory';
-import { useMobileNav } from '../context/MobileNavContext';
 import { useLocation } from 'react-router-dom';
+import { TbLayoutGridFilled } from 'react-icons/tb';
 
 export const useMobileBottomNav = () => {
     const { cart } = useInventory();
-    const { openDrawer } = useMobileNav();
     const location = useLocation();
 
     const bottomNavItems: BottomNavItem[] = useMemo(() => [
         {
             id: 'reports',
             label: 'Reports',
-            icon: <BarChart3 className="w-6 h-6" />,
+            icon: <IoBarChart className="w-6 h-6" />,
             route: ROUTES.MOBILE_REPORT,
         },
         {
@@ -41,10 +40,10 @@ export const useMobileBottomNav = () => {
         {
             id: 'more',
             label: 'More',
-            icon: <MoreHorizontal className="w-6 h-6" />,
-            onClick: () => openDrawer(),
+            icon: <TbLayoutGridFilled className="w-6 h-6" />,
+            route: ROUTES.MOBILE_MORE,
         },
-    ], [cart.length, openDrawer]);
+    ], [cart.length]);
 
     const activeTabId = useMemo(() => {
         const path = location.pathname;
@@ -52,6 +51,7 @@ export const useMobileBottomNav = () => {
         if (path === ROUTES.TODAY_SALES || path.startsWith(ROUTES.TODAY_SALES + '/')) return 'today';
         if (path === ROUTES.POS || path.startsWith(ROUTES.POS + '/')) return 'counter';
         if (path === ROUTES.ITEMS || path.startsWith(ROUTES.ITEMS + '/')) return 'items';
+        if (path === ROUTES.MOBILE_MORE || path.startsWith(ROUTES.MOBILE_MORE + '/')) return 'more';
         return '';
     }, [location.pathname]);
 

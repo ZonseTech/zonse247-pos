@@ -8,12 +8,12 @@ import { FunctionComponent, useState, useEffect, useCallback, useRef } from 'rea
 import { createPortal } from 'react-dom';
 import { HiX, HiLightningBolt, HiRefresh } from 'react-icons/hi';
 import { BsUpcScan } from 'react-icons/bs';
-import { Capacitor } from '@capacitor/core';
 import barcodeScannerService, {
     type ScannerResult,
     type ScannerStatus,
 } from '../../services/barcode-scanner.service';
 import { useScannerFeedback } from '../../hooks/useScannerSettings';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 interface CameraBarcodeScannerProps {
     isOpen: boolean;
@@ -71,16 +71,38 @@ const CameraBarcodeScanner: FunctionComponent<CameraBarcodeScannerProps> = ({
     const hasProcessedScanRef = useRef(false);
     const nativeScanInProgressRef = useRef(false);
     const { triggerFeedback } = useScannerFeedback();
+    const isMobile = useIsMobile();
 
     // Check scanner status on mount
     useEffect(() => {
         const checkStatus = async () => {
-            const scannerStatus = await barcodeScannerService.getStatus();
-            setStatus(scannerStatus);
+            // Skip scanner initialization on non-native platforms
+            if (!isMobile) {
+                setStatus({
+                    isSupported: false,
+                    isAvailable: false,
+                    hasPermission: false,
+                    isScanning: false,
+                });
+                return;
+            }
 
-            if (scannerStatus.isSupported) {
-                const torchAvail = await barcodeScannerService.isTorchAvailable();
-                setTorchAvailable(torchAvail);
+            try {
+                const scannerStatus = await barcodeScannerService.getStatus();
+                setStatus(scannerStatus);
+
+                if (scannerStatus.isSupported) {
+                    const torchAvail = await barcodeScannerService.isTorchAvailable();
+                    setTorchAvailable(torchAvail);
+                }
+            } catch (err) {
+                console.warn('Scanner status check failed:', err);
+                setStatus({
+                    isSupported: false,
+                    isAvailable: false,
+                    hasPermission: false,
+                    isScanning: false,
+                });
             }
         };
 
@@ -167,6 +189,13 @@ const CameraBarcodeScanner: FunctionComponent<CameraBarcodeScannerProps> = ({
      * This opens Google's optimized native scanner UI
      */
     const startNativeScanning = useCallback(async () => {
+        // Don't attempt to scan on non-native platforms
+        if (!isMobile) {
+            setError('Camera scanning is only available on mobile devices');
+            setIsLoading(false);
+            return;
+        }
+
         if (nativeScanInProgressRef.current) return;
         nativeScanInProgressRef.current = true;
         hasProcessedScanRef.current = false;
@@ -220,6 +249,13 @@ const CameraBarcodeScanner: FunctionComponent<CameraBarcodeScannerProps> = ({
      * Fallback WebView-based scanning (slower but more compatible)
      */
     const startWebViewScanning = useCallback(async () => {
+        // Don't attempt to scan on non-native platforms
+        if (!isMobile) {
+            setError('Camera scanning is only available on mobile devices');
+            setIsLoading(false);
+            return;
+        }
+
         if (scannerActiveRef.current) return;
         shouldCloseRef.current = false;
         hasProcessedScanRef.current = false;
@@ -328,11 +364,8 @@ const CameraBarcodeScanner: FunctionComponent<CameraBarcodeScannerProps> = ({
         return null;
     }
 
-    // Check if we're on a native platform
-    const isNative = Capacitor.isNativePlatform();
-
     // Render unsupported message for web/desktop
-    if (!isNative || !status.isSupported) {
+    if (!isMobile || !status.isSupported) {
         return createPortal(
             <div className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center">
                 <div className="text-center px-6">
@@ -343,7 +376,7 @@ const CameraBarcodeScanner: FunctionComponent<CameraBarcodeScannerProps> = ({
                         Camera Scanner Not Available
                     </h2>
                     <p className="text-gray-400 mb-6">
-                        {isNative
+                        {isMobile
                             ? 'Camera barcode scanning is not supported on this device.'
                             : 'Camera scanning is only available on mobile devices. Use a physical barcode scanner or enter the barcode manually.'}
                     </p>

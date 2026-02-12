@@ -80,6 +80,7 @@ const MobilePageHeader: React.FC<PropsWithChildren<MobilePageHeaderProps>> = ({
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                     {showLeftButton && (
                         <button
+                            type="button"
                             onClick={handleLeftPress}
                             className="flex-shrink-0 p-1.5 -ml-1.5 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all"
                             aria-label={leftIcon ? "Menu" : "Go back"}

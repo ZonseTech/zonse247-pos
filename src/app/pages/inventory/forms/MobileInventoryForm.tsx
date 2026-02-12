@@ -178,7 +178,7 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                     <>
                         <div className="fixed top-0 left-0 right-0 z-30">
                             <MobilePageHeader
-                                title={productId ? 'Edit Item' : 'Add Item'}
+                                title={productId ? 'MANAGE ITEM' : 'ADD ITEM'}
                                 className="bg-white dark:bg-gray-800"
                                 leftIcon={<X className="w-5 h-5 text-sky-500 dark:text-sky-400" />}
                                 rightContent={
@@ -223,7 +223,6 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                                         />
                                     </FormFieldCard>
 
-                                    {/* Show toggle only for new products */}
                                     {!productId && (
                                         <ToggleButtonGroup<FormMode>
                                             options={formModeOptions}

@@ -27,6 +27,15 @@ interface User {
     synced?: number;
     createdAt?: string | Date;
     updatedAt?: string | Date;
+    // Staff management fields
+    trackAttendance?: boolean;
+    allowAppAccess?: boolean;
+    calculateAs?: 'monthly' | 'daily' | 'hourly';
+    staffSalary?: string | number;
+    avgShiftHours?: string | number;
+    joiningDate?: string | Date;
+    allowSelfAttendance?: boolean;
+    attendanceType?: 'single' | 'punch';
 }
 
 interface UserQueryParams {
@@ -44,13 +53,13 @@ interface UserQueryParams {
 
 interface CreateUserRequest {
     tenantId: string;
-    branchId: string;
-    username: string;
-    password: string;
+    branchId?: string;
+    username?: string;
+    password?: string;
     fullname: string;
     email?: string;
     phone?: string;
-    roleId: string;
+    roleId?: string;
     status?: UserStatus;
     accessibleBranches?: string[];
     allowedTerminals?: string[];
@@ -58,6 +67,19 @@ interface CreateUserRequest {
     canOverridePrices?: boolean;
     pinCode?: string;
     forcePasswordChange?: boolean;
+    // Staff management fields
+    trackAttendance?: boolean;
+    allowAppAccess?: boolean;
+    calculateAs?: 'monthly' | 'daily' | 'hourly';
+    staffSalary?: string | number;
+    avgShiftHours?: string | number;
+    joiningDate?: string | Date;
+    allowSelfAttendance?: boolean;
+    attendanceType?: 'single' | 'punch';
+}
+
+interface CreateUserResponse extends User {
+    generatedPassword?: string;
 }
 
 interface UpdateUserRequest {
@@ -75,6 +97,16 @@ interface UpdateUserRequest {
     currentBranchId?: string;
     passwordChangedAt?: string | Date;
     forcePasswordChange?: boolean;
+    // Staff management fields
+    trackAttendance?: boolean;
+    allowAppAccess?: boolean;
+    calculateAs?: 'monthly' | 'daily' | 'hourly';
+    staffSalary?: string | number;
+    avgShiftHours?: string | number;
+    joiningDate?: string | Date;
+    allowSelfAttendance?: boolean;
+    attendanceType?: 'single' | 'punch';
+    branchId?: string;
 }
 
 interface PublicUser extends Omit<User, 'password'> {

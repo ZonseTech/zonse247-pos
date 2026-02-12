@@ -5,7 +5,6 @@
  */
 
 import { FunctionComponent, useState, useRef, useCallback } from 'react';
-import { Capacitor } from '@capacitor/core';
 import { BarcodeIcon } from 'lucide-react';
 import FormInput from '../FormInput';
 import CameraBarcodeScanner from './CameraBarcodeScanner';
@@ -56,9 +55,6 @@ const BarcodeScannerInput: FunctionComponent<BarcodeScannerInputProps> = ({
     const [isScannerOpen, setIsScannerOpen] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const { triggerFeedback } = useScannerFeedback();
-
-    // Check if running on native mobile platform
-    const isNative = Capacitor.isNativePlatform();
 
     /**
      * Handle camera scan result
@@ -138,8 +134,8 @@ const BarcodeScannerInput: FunctionComponent<BarcodeScannerInputProps> = ({
                     />
                 </div>
 
-                {/* Camera scan button - only show on native mobile */}
-                {isNative && !disabled && (
+                {/* Camera scan button - shows on all platforms, modal handles availability message */}
+                {!disabled && (
                     <button
                         type="button"
                         onClick={handleOpenScanner}

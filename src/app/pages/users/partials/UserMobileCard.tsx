@@ -1,21 +1,15 @@
 import { FC } from 'react';
-import { Edit2, Trash2, Key, Lock, LockOpen, User, Mail, Phone, Shield } from 'lucide-react';
+import { Clock, Calendar, Briefcase, ChevronRight } from 'lucide-react';
 import usersService from '../../../services/users.service';
 
 interface UserMobileCardProps {
     user: User;
     onEdit: (user: User) => void;
-    onDelete: (userId: string) => void;
-    onResetPassword: (userId: string) => void;
-    onToggleStatus: (userId: string, status: UserStatus) => void;
 }
 
 const UserMobileCard: FC<UserMobileCardProps> = ({
     user,
     onEdit,
-    onDelete,
-    onResetPassword,
-    onToggleStatus,
 }) => {
     const statusInfo = usersService.getStatusColor(user.status);
     const statusColorClass = statusInfo === 'green'
@@ -36,104 +30,88 @@ const UserMobileCard: FC<UserMobileCardProps> = ({
         return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
     };
 
+    // Format salary display
+    const formatSalary = () => {
+        if (!user.staffSalary) return null;
+        const salaryNum = parseFloat(String(user.staffSalary));
+        if (isNaN(salaryNum)) return null;
+        const formatted = salaryNum.toLocaleString();
+        const suffix = user.calculateAs === 'hourly' ? '/hr' : user.calculateAs === 'daily' ? '/day' : '/mo';
+        return `K${formatted}${suffix}`;
+    };
+
     return (
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
-            <div className="flex items-start gap-3">
+        <button
+            onClick={() => onEdit(user)}
+            className="w-full bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 text-left active:bg-gray-50 dark:active:bg-gray-700/50 transition-colors"
+        >
+            <div className="flex items-center gap-3">
                 {/* Avatar */}
-                {/* <div className="w-12 h-12 bg-gradient-to-br from-sky-500 to-sky-500 rounded-full flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
+                <div className="w-11 h-11 bg-gradient-to-br from-sky-500 to-sky-600 rounded-full flex items-center justify-center text-white font-semibold text-base flex-shrink-0 shadow-sm">
                     {getInitials(user.fullname || user.username || '')}
-                </div> */}
+                </div>
 
                 {/* User Info */}
                 <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-1">
-                        <div>
+                        <div className="flex-1 min-w-0">
                             <h3 className="text-base font-semibold text-gray-900 dark:text-white truncate">
                                 {user.fullname || user.username || 'Unknown User'}
                             </h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">@{user.username}</p>
+                            <div className="flex items-center gap-2 flex-wrap">
+                                {(user.roleName || user.roleId) && (
+                                    <span className="text-xs text-sky-600 dark:text-sky-400 font-medium">
+                                        {user.roleName || user.roleId}
+                                    </span>
+                                )}
+                                {user.trackAttendance && (
+                                    <span className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-0.5">
+                                        <Clock className="w-3 h-3" />
+                                        Tracked
+                                    </span>
+                                )}
+                            </div>
                         </div>
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColorClass} flex-shrink-0`}>
                             {user.status || 'unknown'}
                         </span>
                     </div>
 
-                    {/* Contact Info */}
-                    <div className="space-y-1 mt-2">
-                        {user.email && (
-                            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                <Mail className="w-3.5 h-3.5 flex-shrink-0" />
-                                <span className="truncate">{user.email}</span>
-                            </div>
-                        )}
-                        {user.phone && (
-                            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                <Phone className="w-3.5 h-3.5 flex-shrink-0" />
-                                <span>{user.phone}</span>
-                            </div>
-                        )}
-                        {(user.roleName || user.roleId) && (
-                            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                <Shield className="w-3.5 h-3.5 flex-shrink-0" />
-                                <span className="truncate">{user.roleName || user.roleId}</span>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                        <button
-                            onClick={() => onEdit(user)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-sky-500 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
-                        >
-                            <Edit2 className="w-4 h-4" />
-                            <span>Edit</span>
-                        </button>
-                        <button
-                            onClick={() => onResetPassword(userId)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-amber-500 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
-                        >
-                            <Key className="w-4 h-4" />
-                            <span>Reset</span>
-                        </button>
-                        <button
-                            onClick={() => onToggleStatus(userId, user.status === 'active' ? 'inactive' : 'active')}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${user.status === 'active'
-                                ? 'text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20'
-                                : 'text-green-500 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
-                                }`}
-                        >
-                            {user.status === 'active' ? <Lock className="w-4 h-4" /> : <LockOpen className="w-4 h-4" />}
-                            <span>{user.status === 'active' ? 'Lock' : 'Unlock'}</span>
-                        </button>
-                        <button
-                            onClick={() => onDelete(userId)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ml-auto"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </button>
-                    </div>
+                    {/* Staff Details Row */}
+                    {(user.staffSalary || user.joiningDate) && (
+                        <div className="flex items-center gap-4 flex-wrap mt-1">
+                            {formatSalary() && (
+                                <div className="flex items-center gap-1.5 text-sm text-green-600 dark:text-green-400 font-medium">
+                                    <Briefcase className="w-3.5 h-3.5 flex-shrink-0" />
+                                    <span>{formatSalary()}</span>
+                                </div>
+                            )}
+                            {user.joiningDate && (
+                                <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                                    <Calendar className="w-3 h-3 flex-shrink-0" />
+                                    <span>Joined {new Date(user.joiningDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
+
+                {/* Chevron */}
+                <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
             </div>
-        </div>
+        </button>
     );
 };
 
 interface UserMobileListProps {
     users: User[];
     onEdit: (user: User) => void;
-    onDelete: (userId: string) => void;
-    onResetPassword: (userId: string) => void;
-    onToggleStatus: (userId: string, status: UserStatus) => void;
     isLoading?: boolean;
 }
 
 export const UserMobileList: FC<UserMobileListProps> = ({
     users,
     onEdit,
-    onDelete,
-    onResetPassword,
-    onToggleStatus,
     isLoading = false,
 }) => {
     if (isLoading) {
@@ -162,9 +140,6 @@ export const UserMobileList: FC<UserMobileListProps> = ({
                     key={user.userId}
                     user={user}
                     onEdit={onEdit}
-                    onDelete={onDelete}
-                    onResetPassword={onResetPassword}
-                    onToggleStatus={onToggleStatus}
                 />
             ))}
         </div>
