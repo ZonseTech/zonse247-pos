@@ -117,10 +117,23 @@ const MobileUserForm: FunctionComponent = () => {
                     navigate(ROUTES.USERS);
                 });
             } else {
-                await usersService.store(staffData as CreateUserRequest);
-                Report.success('Success', 'Staff created successfully', 'Okay', () => {
-                    navigate(ROUTES.USERS);
-                });
+                const response = await usersService.store(staffData as CreateUserRequest);
+                const generatedPassword = response?.generatedPassword;
+
+                if (generatedPassword) {
+                    Report.success(
+                        'Account Created',
+                        `Staff account created successfully!\n\n<b>Generated Password:</b>\n<code style="background:#f3f4f6;padding:8px 12px;border-radius:6px;display:block;margin-top:8px;font-size:16px;letter-spacing:1px;">${generatedPassword}</code>\n\n<small style="color:#6b7280;">Please share this password with the staff member. They can change it after logging in.</small>`,
+                        'Got it',
+                        () => {
+                            navigate(ROUTES.USERS);
+                        }
+                    );
+                } else {
+                    Report.success('Success', 'Staff created successfully', 'Okay', () => {
+                        navigate(ROUTES.USERS);
+                    });
+                }
             }
         } catch (error: any) {
             console.error('Error saving staff:', error);

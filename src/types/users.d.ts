@@ -78,6 +78,10 @@ interface CreateUserRequest {
     attendanceType?: 'single' | 'punch';
 }
 
+interface CreateUserResponse extends User {
+    generatedPassword?: string;
+}
+
 interface UpdateUserRequest {
     username?: string;
     fullname?: string;

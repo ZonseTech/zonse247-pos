@@ -45,10 +45,10 @@ const usersService = {
 		}
 	},
 
-	async store(data: CreateUserRequest): Promise<User> {
+	async store(data: CreateUserRequest): Promise<CreateUserResponse> {
 		try {
-			const response = await api.post<ApiResponse<User>>(endpoints.store, data as any);
-			return decodeObjectStrings(response.data.data!, USER_DECODE_FIELDS);
+			const response = await api.post<ApiResponse<CreateUserResponse>>(endpoints.store, data as any);
+			return { ...decodeObjectStrings(response.data.data!, USER_DECODE_FIELDS), generatedPassword: response.data.data?.generatedPassword };
 		} catch (err) {
 			console.error('Error creating user:', err);
 			throw err;
