@@ -140,7 +140,6 @@ const Login: FunctionComponent = () => {
                                 step={1}
                                 required
                                 placeholder="johnbob"
-                                className="mt-1 bg-white dark:bg-gray-700"
                                 readOnly={false}
                                 onClick={() => {
                                     setActiveField('username')
@@ -158,7 +157,6 @@ const Login: FunctionComponent = () => {
                                 step={2}
                                 required
                                 placeholder="***************"
-                                className="mt-1 pr-10 !bg-white dark:!bg-gray-700"
                                 readOnly={false}
                                 onClick={() => {
                                     setActiveField('password')
