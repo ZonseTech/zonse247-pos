@@ -6,3 +6,6 @@ export type { ReportProgressBarProps } from './ReportProgressBar'
 
 export { default as ReportPieChart } from './ReportPieChart'
 export type { PieChartDataPoint, ReportPieChartProps } from './ReportPieChart'
+
+export { default as HealthPieChart } from './HealthPieChart'
+export type { HealthPieChartProps } from './HealthPieChart'
