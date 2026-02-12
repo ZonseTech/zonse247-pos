@@ -1,5 +1,5 @@
 import { HiShare, HiX } from 'react-icons/hi';
-import { ReceiptText } from 'lucide-react';
+import { ReceiptText, Download } from 'lucide-react';
 import { formatCurrency } from '../../utils';
 import React, { useState, useCallback, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
 import { MobileDateFilter, ReportCard, ReportCardProps } from '../dashboard/components';
@@ -8,6 +8,10 @@ import LoadingState from '../../components/loader/LoadingState';
 import reportsService, { ReportSummary } from '../../services/reports.service';
 import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+import { Capacitor } from '@capacitor/core';
+import { useBranch } from '../../context/BranchContext';
 
 const TotalSalesReport = lazy(() => import('./TotalSalesReport'));
 const GrossProfitReport = lazy(() => import('./GrossProfitReport'));
@@ -39,8 +43,12 @@ const MobileReport: React.FC = () => {
     const [summary, setSummary] = useState<ReportSummary | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [activeReport, setActiveReport] = useState<ReportType>(null);
+    const [isSharing, setIsSharing] = useState(false);
     const lastFetchKeyRef = useRef<string | null>(null);
     const isFetchingRef = useRef(false);
+    const reportContentRef = useRef<HTMLDivElement>(null);
+    const detailContentRef = useRef<HTMLDivElement>(null);
+    const { currentBranch } = useBranch();
 
     const generateFetchKey = (start: Date | null, end: Date | null): string => {
         const startStr = start ? dayjs(start).format('YYYY-MM-DD') : '';
@@ -143,19 +151,221 @@ const MobileReport: React.FC = () => {
         fetchSummary(start, end, true);
     }, [fetchSummary]);
 
-    const handleShare = useCallback(async (): Promise<void> => {
-        if (!navigator.share) return;
+    const captureReportAsImage = async (elementRef: React.RefObject<HTMLDivElement>): Promise<Blob | null> => {
+        if (!elementRef.current) return null;
 
         try {
-            await navigator.share({
-                title: 'Report',
-                text: 'Check out this report',
-                url: window.location.href,
+            const html2canvas = (await import('html2canvas')).default;
+
+            const canvas = await html2canvas(elementRef.current, {
+                backgroundColor: '#ffffff',
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                windowWidth: elementRef.current.scrollWidth,
+                windowHeight: elementRef.current.scrollHeight,
+            });
+
+            return new Promise((resolve) => {
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, 'image/png', 1.0);
             });
         } catch (error) {
-            console.error('Error sharing:', error);
+            console.error('Failed to capture report:', error);
+            return null;
         }
-    }, []);
+    };
+
+    const generateReportText = (): string => {
+        const dateRange = getFormattedDateRange();
+        const storeName = currentBranch?.branchName || 'Store';
+
+        if (activeReport) {
+            const report = reportData.find(r => r.id === activeReport);
+            return `📊 ${report?.title || 'Report'}\n\n` +
+                `🏪 ${storeName}\n` +
+                `📅 ${dateRange}\n\n` +
+                `${report?.name}: ${report?.value}\n` +
+                (report?.description ? `${report.description}` : '');
+        }
+
+        return `📊 Sales Report Summary\n\n` +
+            `🏪 ${storeName}\n` +
+            `📅 ${dateRange}\n\n` +
+            `💰 Total Sales: ${formatCurrency(summary?.totalSales ?? 0, true)}\n` +
+            `📈 Gross Profit: ${formatCurrency(summary?.grossProfit ?? 0, true)}\n` +
+            `🧾 Receipt Count: ${summary?.receiptCount ?? 0}\n` +
+            `📦 Top Stocks: ${summary?.topStocks ?? 0} items\n` +
+            `🏷️ Top Category: ${summary?.topCategory || 'N/A'}\n` +
+            `💳 Payment Methods: ${summary?.paymentModes ?? 0}`;
+    };
+
+    const handleShare = useCallback(async (): Promise<void> => {
+        setIsSharing(true);
+
+        try {
+            const elementRef = activeReport ? detailContentRef : reportContentRef;
+            const imageBlob = await captureReportAsImage(elementRef);
+            const reportTitle = activeReport ? getActiveReportTitle() : 'Sales Report Summary';
+            const dateRange = getFormattedDateRange();
+            const fileName = `report-${activeReport || 'summary'}-${dayjs().format('YYYYMMDD-HHmmss')}.png`;
+
+            if (imageBlob) {
+                const reader = new FileReader();
+                const base64Data = await new Promise<string>((resolve) => {
+                    reader.onloadend = () => {
+                        const base64 = reader.result as string;
+                        resolve(base64.split(',')[1]);
+                    };
+                    reader.readAsDataURL(imageBlob);
+                });
+
+                if (Capacitor.isNativePlatform()) {
+                    const savedFile = await Filesystem.writeFile({
+                        path: fileName,
+                        data: base64Data,
+                        directory: Directory.Cache,
+                    });
+
+                    await Share.share({
+                        title: reportTitle,
+                        text: `${reportTitle}\n${currentBranch?.branchName || 'Store'} - ${dateRange}`,
+                        files: [savedFile.uri],
+                        dialogTitle: 'Share Report',
+                    });
+
+                    toast.success('Report shared successfully');
+                    return;
+                }
+
+                if (navigator.canShare) {
+                    const file = new File([imageBlob], fileName, { type: 'image/png' });
+
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            title: reportTitle,
+                            text: `${reportTitle}\n${currentBranch?.branchName || 'Store'} - ${dateRange}`,
+                            files: [file],
+                        });
+                        toast.success('Report shared successfully');
+                        return;
+                    }
+                }
+            }
+
+            // Fallback to text sharing
+            const shareText = generateReportText();
+
+            if (Capacitor.isNativePlatform()) {
+                await Share.share({
+                    title: reportTitle,
+                    text: shareText,
+                    dialogTitle: 'Share Report',
+                });
+                toast.success('Report shared successfully');
+            } else if (navigator.share) {
+                await navigator.share({
+                    title: reportTitle,
+                    text: shareText,
+                });
+                toast.success('Report shared successfully');
+            } else {
+                await navigator.clipboard.writeText(shareText);
+                toast.success('Report copied to clipboard');
+            }
+        } catch (err: any) {
+            if (err?.name !== 'AbortError') {
+                console.error('Share failed:', err);
+                try {
+                    const shareText = generateReportText();
+                    await navigator.clipboard.writeText(shareText);
+                    toast.info('Report copied to clipboard');
+                } catch {
+                    toast.error('Unable to share report');
+                }
+            }
+        } finally {
+            setIsSharing(false);
+        }
+    }, [activeReport, summary, currentBranch, startDate, endDate]);
+
+    const handleDownload = useCallback(async (): Promise<void> => {
+        setIsSharing(true);
+
+        try {
+            const elementRef = activeReport ? detailContentRef : reportContentRef;
+            const imageBlob = await captureReportAsImage(elementRef);
+            const reportTitle = activeReport ? getActiveReportTitle() : 'Sales Summary';
+            const fileName = `report-${activeReport || 'summary'}-${dayjs().format('YYYYMMDD-HHmmss')}.png`;
+
+            if (imageBlob) {
+                if (Capacitor.isNativePlatform()) {
+                    const reader = new FileReader();
+                    const base64Data = await new Promise<string>((resolve) => {
+                        reader.onloadend = () => {
+                            const base64 = reader.result as string;
+                            resolve(base64.split(',')[1]);
+                        };
+                        reader.readAsDataURL(imageBlob);
+                    });
+
+                    await Filesystem.writeFile({
+                        path: `Downloads/${fileName}`,
+                        data: base64Data,
+                        directory: Directory.Documents,
+                        recursive: true,
+                    });
+
+                    toast.success('Report saved to Downloads folder');
+                    return;
+                }
+
+                // Web fallback
+                const url = URL.createObjectURL(imageBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                toast.success('Report downloaded');
+                return;
+            }
+
+            // Fallback to text download
+            const reportText = generateReportText();
+            const textFileName = `report-${activeReport || 'summary'}-${dayjs().format('YYYYMMDD-HHmmss')}.txt`;
+
+            if (Capacitor.isNativePlatform()) {
+                await Filesystem.writeFile({
+                    path: `Downloads/${textFileName}`,
+                    data: reportText,
+                    directory: Directory.Documents,
+                    encoding: 'utf8' as any,
+                    recursive: true,
+                });
+                toast.success('Report saved to Downloads folder');
+            } else {
+                const blob = new Blob([reportText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = textFileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                toast.success('Report downloaded');
+            }
+        } catch (error) {
+            console.error('Download failed:', error);
+            toast.error('Failed to download report');
+        } finally {
+            setIsSharing(false);
+        }
+    }, [activeReport, summary, currentBranch, startDate, endDate]);
 
     const handleCardClick = useCallback((reportId: ReportType): void => {
         setActiveReport(reportId);
@@ -197,12 +407,22 @@ const MobileReport: React.FC = () => {
                     </p>
                 </div>
             </div>
-            <button
-                onClick={handleShare}
-                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95 transition-all"
-            >
-                <HiShare className="w-5 h-5 text-sky-600 dark:text-sky-300" />
-            </button>
+            <div className="flex items-center gap-1">
+                <button
+                    onClick={handleDownload}
+                    disabled={isSharing}
+                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95 transition-all disabled:opacity-50"
+                >
+                    <Download className="w-5 h-5 text-sky-600 dark:text-sky-300" />
+                </button>
+                <button
+                    onClick={handleShare}
+                    disabled={isSharing}
+                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95 transition-all disabled:opacity-50"
+                >
+                    <HiShare className={`w-5 h-5 ${isSharing ? 'text-sky-500 animate-pulse' : 'text-sky-600 dark:text-sky-300'}`} />
+                </button>
+            </div>
         </div>
     );
 
@@ -230,10 +450,16 @@ const MobileReport: React.FC = () => {
             <div className="fixed top-0 left-0 right-0 z-50">
                 <MobileTabPageHeader
                     rightContent={
-                        <HiShare
-                            className="w-6 h-6 text-white cursor-pointer active:scale-95 transition-transform"
-                            onClick={handleShare}
-                        />
+                        <div className="flex items-center gap-1">
+                            <Download
+                                className={`w-6 h-6 text-white cursor-pointer active:scale-95 transition-transform ${isSharing ? 'opacity-50' : ''}`}
+                                onClick={!isSharing ? handleDownload : undefined}
+                            />
+                            <HiShare
+                                className={`w-6 h-6 cursor-pointer active:scale-95 transition-transform ${isSharing ? 'text-sky-300 animate-pulse' : 'text-white'}`}
+                                onClick={!isSharing ? handleShare : undefined}
+                            />
+                        </div>
                     }
                 />
             </div>
@@ -245,7 +471,7 @@ const MobileReport: React.FC = () => {
                     onChange={handleDateChange}
                 />
 
-                <div className='h-full overflow-y-auto pb-20 space-y-2 px-4'>
+                <div ref={reportContentRef} className='h-full overflow-y-auto pb-20 space-y-2 px-4'>
                     {isLoading ? (
                         <div className="flex items-center justify-center py-12">
                             <LoadingState />
@@ -279,7 +505,7 @@ const MobileReport: React.FC = () => {
             {activeReport && (
                 <div className="fixed inset-0 z-[100] bg-gray-100 dark:bg-gray-900 flex flex-col animate-slide-in-right">
                     {renderDetailHeader()}
-                    <div className="flex-1 overflow-y-auto">
+                    <div ref={detailContentRef} className="flex-1 overflow-y-auto">
                         <Suspense fallback={<LoadingState />}>
                             {renderDetailContent()}
                         </Suspense>
