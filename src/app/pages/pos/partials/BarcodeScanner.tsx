@@ -5,7 +5,6 @@ import { createPortal } from 'react-dom';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useScannerSettings, useScannerFeedback } from '../../../hooks/useScannerSettings';
 import inventoryService from '../../../services/inventory.service';
-import { Capacitor } from '@capacitor/core';
 import CameraBarcodeScanner from '../../../components/scanner/CameraBarcodeScanner';
 import { type ScannerResult } from '../../../services/barcode-scanner.service';
 import { BarcodeIcon } from 'lucide-react';
@@ -40,7 +39,6 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     const MIN_BARCODE_LENGTH = 6;
 
     const isActive = focusManager.isActive('barcode');
-    const isNative = Capacitor.isNativePlatform();
 
     const cleanBarcode = (code: string): string => {
         let cleaned = code.replace(/[$']$/, '').trim();
@@ -349,16 +347,15 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                     placeholder={compact ? "Scan barcode..." : "Scan or enter barcode..."}
                 />
 
-                {isNative && (
-                    <button
-                        type="button"
-                        onClick={handleOpenCameraScanner}
-                        className={`bg-sky-500 hover:bg-sky-700 text-white font-medium transition-colors flex items-center justify-center gap-2 border-2 border-sky-500 ${compact ? 'px-2 py-1' : 'px-4 py-2'}`}
-                        title="Open camera scanner"
-                    >
-                        <BarcodeIcon className={compact ? "w-4 h-4" : "w-6 h-6"} />
-                    </button>
-                )}
+                {/* Camera scan button - shows on all platforms, modal handles availability message */}
+                <button
+                    type="button"
+                    onClick={handleOpenCameraScanner}
+                    className={`bg-sky-500 hover:bg-sky-700 text-white font-medium transition-colors flex items-center justify-center gap-2 border-2 border-sky-500 ${compact ? 'px-2 py-1' : 'px-4 py-2'}`}
+                    title="Open camera scanner"
+                >
+                    <BarcodeIcon className={compact ? "w-4 h-4" : "w-6 h-6"} />
+                </button>
             </div>
 
             <CameraBarcodeScanner

@@ -119,6 +119,11 @@ class BarcodeScannerService {
      * Check camera permission status
      */
     async checkPermissions(): Promise<boolean> {
+        // Only check permissions on native platforms
+        if (!this.isNativePlatform()) {
+            return false;
+        }
+
         try {
             const result = await BarcodeScanner.checkPermissions();
             return result.camera === 'granted';
@@ -132,6 +137,12 @@ class BarcodeScannerService {
      * Request camera permissions
      */
     async requestPermissions(): Promise<boolean> {
+        // Only request permissions on native platforms
+        if (!this.isNativePlatform()) {
+            console.warn('Cannot request permissions on non-native platform');
+            return false;
+        }
+
         try {
             const result = await BarcodeScanner.requestPermissions();
             return result.camera === 'granted';
@@ -285,6 +296,66 @@ class BarcodeScannerService {
             console.error('Scan error:', error);
             throw error;
         }
+    }
+
+    /**
+     * Start continuous scanning using Google Barcode Scanner
+     * Opens Google's native scanner UI repeatedly for continuous scanning
+     * Returns a stop function to cancel the scanning loop
+     */
+    async startGoogleScan(config?: ScannerConfig): Promise<() => void> {
+        if (this.isScanning) {
+            console.warn('Scanner is already running');
+            return () => { };
+        }
+
+        const hasPermission = await this.checkPermissions();
+        if (!hasPermission) {
+            const granted = await this.requestPermissions();
+            if (!granted) {
+                throw new Error('Camera permission denied');
+            }
+        }
+
+        this.isScanning = true;
+        let shouldContinue = true;
+
+        const scanLoop = async () => {
+            while (shouldContinue && this.isScanning) {
+                try {
+                    const scanOptions: ScanOptions = {
+                        formats: config?.formats || DEFAULT_FORMATS,
+                    };
+                    const result = await BarcodeScanner.scan(scanOptions);
+
+                    if (result.barcodes && result.barcodes.length > 0 && shouldContinue) {
+                        const scanResult = this.transformBarcode(result.barcodes[0]);
+                        this.notifyScanListeners(scanResult);
+                    }
+                } catch (error) {
+                    // User cancelled or error occurred
+                    const errorMessage = error instanceof Error ? error.message : String(error);
+                    if (errorMessage.toLowerCase().includes('cancel')) {
+                        // User cancelled, stop the loop
+                        shouldContinue = false;
+                    } else {
+                        // Other error, notify listeners and stop
+                        this.notifyErrorListeners(error instanceof Error ? error : new Error(errorMessage));
+                        shouldContinue = false;
+                    }
+                }
+            }
+            this.isScanning = false;
+        };
+
+        // Start the scan loop
+        scanLoop();
+
+        // Return stop function
+        return () => {
+            shouldContinue = false;
+            this.isScanning = false;
+        };
     }
 
     /**
