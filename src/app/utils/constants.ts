@@ -5,6 +5,7 @@ export enum ROUTES {
 	MY_PROFILE = '/my-profile',
 	ROLES_PERMISSIONS = '/roles-and-permissions',
 	DASHBOARD = '/dashboard',
+	MOBILE_MORE = '/mobile-more',
 	MOBILE_REPORT = '/mobile-report',
 	MOBILE_REPORT_TOTAL_SALES = '/mobile-report/total-sales',
 	MOBILE_REPORT_GROSS_PROFIT = '/mobile-report/gross-profit',

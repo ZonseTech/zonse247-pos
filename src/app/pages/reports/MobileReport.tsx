@@ -1,4 +1,5 @@
 import { HiShare, HiX } from 'react-icons/hi';
+import { ReceiptText } from 'lucide-react';
 import { formatCurrency } from '../../utils';
 import React, { useState, useCallback, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
 import { MobileDateFilter, ReportCard, ReportCardProps } from '../dashboard/components';
@@ -128,7 +129,14 @@ const MobileReport: React.FC = () => {
             value: `${summary?.paymentModes ?? 0} methods`,
         },
     ], [summary]);
-
+    const hasNoData = useMemo(() => {
+        if (!summary) return true;
+        return (
+            summary.totalSales === 0 &&
+            summary.grossProfit === 0 &&
+            summary.receiptCount === 0
+        );
+    }, [summary]);
     const handleDateChange = useCallback((start: Date | null, end: Date | null): void => {
         setStartDate(start);
         setEndDate(end);
@@ -241,6 +249,18 @@ const MobileReport: React.FC = () => {
                     {isLoading ? (
                         <div className="flex items-center justify-center py-12">
                             <LoadingState />
+                        </div>
+                    ) : hasNoData ? (
+                        <div className="flex flex-col items-center justify-center py-16 text-center">
+                            <div className="w-20 h-20 rounded-full bg-sky-50 dark:bg-sky-900/20 flex items-center justify-center mb-4">
+                                <ReceiptText className="w-10 h-10 text-sky-400 dark:text-sky-500" strokeWidth={1.5} />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                No Sales Data
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+                                There are no sales recorded for the selected date range. Try selecting a different period.
+                            </p>
                         </div>
                     ) : (
                         reportData.map((item) => (
