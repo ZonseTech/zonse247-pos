@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
-import { BarChart3, MoreHorizontal } from 'lucide-react';
+import { IoBarChart } from "react-icons/io5";
 import { FaCircleDollarToSlot, FaCashRegister, FaListCheck } from 'react-icons/fa6';
 import { BottomNavItem } from '../components/navigation/MobileBottomNav';
 import { ROUTES } from '../utils/constants';
 import { useInventory } from './useInventory';
 import { useLocation } from 'react-router-dom';
+import { TbLayoutGridFilled } from 'react-icons/tb';
 
 export const useMobileBottomNav = () => {
     const { cart } = useInventory();
@@ -14,7 +15,7 @@ export const useMobileBottomNav = () => {
         {
             id: 'reports',
             label: 'Reports',
-            icon: <BarChart3 className="w-6 h-6" />,
+            icon: <IoBarChart className="w-6 h-6" />,
             route: ROUTES.MOBILE_REPORT,
         },
         {
@@ -39,7 +40,7 @@ export const useMobileBottomNav = () => {
         {
             id: 'more',
             label: 'More',
-            icon: <MoreHorizontal className="w-6 h-6" />,
+            icon: <TbLayoutGridFilled className="w-6 h-6" />,
             route: ROUTES.MOBILE_MORE,
         },
     ], [cart.length]);
