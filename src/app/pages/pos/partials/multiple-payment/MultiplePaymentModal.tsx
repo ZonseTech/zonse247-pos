@@ -29,10 +29,12 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
 }) => {
     const {
         discount,
+        discountIsPercentage,
         tax,
         total,
         subtotal,
         cart,
+        otherCharges,
         clearCart,
         reloadInventory,
         selectedCustomer,
@@ -88,6 +90,28 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
             setProcessing(true);
             const refNumber = generateReferenceNumber();
 
+            // Calculate item-level discounts
+            const totalItemDiscounts = cart.reduce((sum, item) => {
+                const itemPrice = item.quantity === 0 ? item.sellingPrice : item.sellingPrice * item.quantity;
+                const itemQty = item.quantity === 0 ? 1 : item.quantity;
+                if (item.discountIsPercentage) {
+                    return sum + (itemPrice * (item.discount || 0)) / 100;
+                }
+                return sum + (item.discount || 0) * itemQty;
+            }, 0);
+
+            // Calculate cart-level discount amount
+            const cartDiscountAmount = discountIsPercentage
+                ? (subtotal * discount) / 100
+                : discount;
+
+            // Total discount = item-level + cart-level
+            const calculatedDiscountAmount = totalItemDiscounts + cartDiscountAmount;
+
+            // Calculate tax amount (tax is always percentage, applied on discounted subtotal)
+            const taxableAmount = subtotal - calculatedDiscountAmount;
+            const calculatedTaxAmount = (taxableAmount * tax) / 100;
+
             const paymentEntries: PaymentEntry[] = validPayments.map(p => ({
                 paymentMethodId: p.paymentMethodId,
                 amount: parseFloat(p.amount),
@@ -112,17 +136,32 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
                 payments: paymentEntries,
 
                 subtotal,
-                taxAmount: tax,
-                discountAmount: discount,
+                taxAmount: calculatedTaxAmount,
+                discountAmount: calculatedDiscountAmount,
                 totalAmount: total,
 
-                items: cart.map(item => ({
-                    productId: item.productId,
-                    quantity: item.quantity,
-                    unitPrice: item.sellingPrice,
-                    taxAmount: 0,
-                    discountAmount: item.discount || 0,
-                })),
+                otherCharges: otherCharges.length > 0 ? otherCharges.map(charge => ({
+                    type: charge.type,
+                    label: charge.label,
+                    value: charge.value,
+                    isPercentage: charge.isPercentage,
+                    amount: charge.isPercentage ? (subtotal * charge.value) / 100 : charge.value,
+                })) : undefined,
+
+                items: cart.map(item => {
+                    const itemPrice = item.quantity === 0 ? item.sellingPrice : item.sellingPrice * item.quantity;
+                    const itemQty = item.quantity === 0 ? 1 : item.quantity;
+                    const itemDiscountAmount = item.discountIsPercentage
+                        ? (itemPrice * (item.discount || 0)) / 100
+                        : (item.discount || 0) * itemQty;
+                    return {
+                        productId: item.productId,
+                        quantity: item.quantity,
+                        unitPrice: item.sellingPrice,
+                        taxAmount: 0,
+                        discountAmount: itemDiscountAmount,
+                    };
+                }),
 
                 notes: paymentEntries.length > 1
                     ? `Split payment: ${paymentEntries.map(p => `${getPaymentMethodLabel(p.paymentMethodId as PaymentMethodType)}: ${formatCurrency(p.amount)}`).join(', ')}`
