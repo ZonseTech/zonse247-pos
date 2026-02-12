@@ -6,6 +6,7 @@ interface ReceiptPageHeaderProps {
     refNumber: string;
     copied: boolean;
     isPrinting: boolean;
+    isSharing?: boolean;
     isMoreMenuOpen: boolean;
     canReturn: boolean;
     isFullyRefunded: boolean;
@@ -22,6 +23,7 @@ const ReceiptPageHeader: FunctionComponent<ReceiptPageHeaderProps> = ({
     refNumber,
     copied,
     isPrinting,
+    isSharing = false,
     isMoreMenuOpen,
     canReturn,
     isFullyRefunded,
@@ -43,10 +45,11 @@ const ReceiptPageHeader: FunctionComponent<ReceiptPageHeaderProps> = ({
                     <div className="flex items-center gap-1">
                         <button
                             onClick={onShare}
-                            className="p-2 rounded-sm active:scale-95 transition-all"
+                            disabled={isSharing}
+                            className="p-2 rounded-sm active:scale-95 transition-all disabled:opacity-50"
                             aria-label="Share receipt"
                         >
-                            <Share2 className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                            <Share2 className={`w-5 h-5 ${isSharing ? 'text-sky-500 animate-pulse' : 'text-sky-600 dark:text-sky-400'}`} />
                         </button>
                         <button
                             onClick={onDownload}

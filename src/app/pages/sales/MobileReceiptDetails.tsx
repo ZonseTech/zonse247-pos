@@ -1,4 +1,4 @@
-import { FunctionComponent, useState, useEffect, useMemo, useCallback } from 'react';
+import { FunctionComponent, useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { formatCurrency, formatDate } from '../../utils';
 import { decodeHtmlEntities } from '../../utils/text-encoding';
@@ -23,6 +23,10 @@ import {
     ReceiptErrorState,
 } from './partials/receipt';
 import { CheckCircle, Copy } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+import { Capacitor } from '@capacitor/core';
 
 const getSaleRef = (sale: Sale | null): string => {
     if (!sale) return 'N/A';
@@ -48,6 +52,8 @@ const MobileReceiptDetails: FunctionComponent = () => {
     const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [isSharing, setIsSharing] = useState(false);
+    const receiptRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const fetchSaleDetails = async () => {
@@ -119,43 +125,210 @@ const MobileReceiptDetails: FunctionComponent = () => {
         }
     }, [sale]);
 
+    const captureReceiptAsImage = async (): Promise<Blob | null> => {
+        if (!receiptRef.current) return null;
+
+        try {
+            // Dynamically import html2canvas
+            const html2canvas = (await import('html2canvas')).default;
+
+            const canvas = await html2canvas(receiptRef.current, {
+                backgroundColor: '#ffffff',
+                scale: 2,
+                useCORS: true,
+                logging: false,
+            });
+
+            return new Promise((resolve) => {
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, 'image/png', 1.0);
+            });
+        } catch (error) {
+            console.error('Failed to capture receipt:', error);
+            return null;
+        }
+    };
+
     const handleShare = async () => {
         if (!sale || !saleData) return;
 
-        const shareText = `Receipt #${saleData.refNumber}\nDate: ${saleData.formattedDate}\nTotal: ${formatCurrency(sale.totalAmount)}\nPayment: ${saleData.paymentMethodName}`;
+        setIsSharing(true);
+        setIsMoreMenuOpen(false);
 
-        if (navigator.share) {
-            try {
+        try {
+            // Try to capture receipt as image first
+            const imageBlob = await captureReceiptAsImage();
+
+            if (imageBlob) {
+                // Convert blob to base64
+                const reader = new FileReader();
+                const base64Data = await new Promise<string>((resolve) => {
+                    reader.onloadend = () => {
+                        const base64 = reader.result as string;
+                        resolve(base64.split(',')[1]); // Remove data:image/png;base64, prefix
+                    };
+                    reader.readAsDataURL(imageBlob);
+                });
+
+                // Check if running on native platform (Android/iOS)
+                if (Capacitor.isNativePlatform()) {
+                    const fileName = `receipt-${saleData.refNumber}.png`;
+
+                    // Save file to cache directory first for sharing
+                    const savedFile = await Filesystem.writeFile({
+                        path: fileName,
+                        data: base64Data,
+                        directory: Directory.Cache,
+                    });
+
+                    // Use native share dialog
+                    await Share.share({
+                        title: `Receipt #${saleData.refNumber}`,
+                        text: `Receipt from ${currentBranch?.branchName || 'Store'}\nTotal: ${formatCurrency(sale.totalAmount)}`,
+                        files: [savedFile.uri],
+                        dialogTitle: 'Share Receipt',
+                    });
+
+                    toast.success('Receipt shared successfully');
+                    return;
+                }
+
+                // Web fallback - use Web Share API
+                if (navigator.canShare) {
+                    const file = new File([imageBlob], `receipt-${saleData.refNumber}.png`, { type: 'image/png' });
+
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            title: `Receipt #${saleData.refNumber}`,
+                            text: `Receipt from ${currentBranch?.branchName || 'Store'}\nTotal: ${formatCurrency(sale.totalAmount)}`,
+                            files: [file],
+                        });
+                        toast.success('Receipt shared successfully');
+                        return;
+                    }
+                }
+            }
+
+            // Fallback to text sharing
+            const shareText = `📄 Receipt #${saleData.refNumber}\n\n📅 Date: ${saleData.formattedDate}\n👤 Customer: ${saleData.customerName}\n💰 Total: ${formatCurrency(sale.totalAmount)}\n💳 Payment: ${saleData.paymentMethodName}\n\n🏪 ${currentBranch?.branchName || 'Store'}`;
+
+            if (Capacitor.isNativePlatform()) {
+                await Share.share({
+                    title: `Receipt #${saleData.refNumber}`,
+                    text: shareText,
+                    dialogTitle: 'Share Receipt',
+                });
+                toast.success('Receipt shared successfully');
+            } else if (navigator.share) {
                 await navigator.share({
                     title: `Receipt #${saleData.refNumber}`,
-                    text: shareText
+                    text: shareText,
                 });
-            } catch (err) {
-                console.error('Share failed:', err);
-                handleCopyRef();
+                toast.success('Receipt shared successfully');
+            } else {
+                // Final fallback - copy to clipboard
+                await navigator.clipboard.writeText(shareText);
+                toast.success('Receipt details copied to clipboard');
             }
-        } else {
-            handleCopyRef();
+        } catch (err: any) {
+            if (err?.name !== 'AbortError') {
+                console.error('Share failed:', err);
+                // Try copying as last resort
+                try {
+                    const shareText = `Receipt #${saleData.refNumber}\nDate: ${saleData.formattedDate}\nTotal: ${formatCurrency(sale.totalAmount)}`;
+                    await navigator.clipboard.writeText(shareText);
+                    toast.info('Receipt details copied to clipboard');
+                } catch {
+                    toast.error('Unable to share receipt');
+                }
+            }
+        } finally {
+            setIsSharing(false);
         }
-        setIsMoreMenuOpen(false);
     };
 
     const handleDownload = async () => {
         if (!sale || !saleData) return;
 
-        const receiptContent = generateReceiptText();
-        const blob = new Blob([receiptContent], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `receipt-${saleData.refNumber}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-
         setIsMoreMenuOpen(false);
+
+        try {
+            // Try to download as image first
+            const imageBlob = await captureReceiptAsImage();
+
+            if (imageBlob) {
+                const fileName = `receipt-${saleData.refNumber}.png`;
+
+                // Check if running on native platform (Android/iOS)
+                if (Capacitor.isNativePlatform()) {
+                    // Convert blob to base64
+                    const reader = new FileReader();
+                    const base64Data = await new Promise<string>((resolve) => {
+                        reader.onloadend = () => {
+                            const base64 = reader.result as string;
+                            resolve(base64.split(',')[1]); // Remove data:image/png;base64, prefix
+                        };
+                        reader.readAsDataURL(imageBlob);
+                    });
+
+                    // Save to Documents directory (accessible to user)
+                    await Filesystem.writeFile({
+                        path: `Downloads/${fileName}`,
+                        data: base64Data,
+                        directory: Directory.Documents,
+                        recursive: true,
+                    });
+
+                    toast.success('Receipt saved to Downloads folder');
+                    return;
+                }
+
+                // Web fallback - use download link
+                const url = URL.createObjectURL(imageBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                toast.success('Receipt downloaded as image');
+                return;
+            }
+
+            // Fallback to text download
+            const receiptContent = generateReceiptText();
+            const fileName = `receipt-${saleData.refNumber}.txt`;
+
+            if (Capacitor.isNativePlatform()) {
+                // Save text file on native
+                await Filesystem.writeFile({
+                    path: `Downloads/${fileName}`,
+                    data: receiptContent,
+                    directory: Directory.Documents,
+                    encoding: 'utf8' as any,
+                    recursive: true,
+                });
+                toast.success('Receipt saved to Downloads folder');
+            } else {
+                // Web fallback
+                const blob = new Blob([receiptContent], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                toast.success('Receipt downloaded');
+            }
+        } catch (error) {
+            console.error('Download failed:', error);
+            toast.error('Failed to download receipt');
+        }
     };
 
     const generateReceiptText = (): string => {
@@ -252,6 +425,7 @@ const MobileReceiptDetails: FunctionComponent = () => {
                 refNumber={saleData.refNumber}
                 copied={copied}
                 isPrinting={isPrinting}
+                isSharing={isSharing}
                 isMoreMenuOpen={isMoreMenuOpen}
                 canReturn={saleData.canReturn}
                 isFullyRefunded={saleData.refundSummary.isFullyRefunded}
@@ -265,7 +439,10 @@ const MobileReceiptDetails: FunctionComponent = () => {
             />
 
             <div className="flex-1 overflow-y-auto mt-[60px] pb-6 px-3">
-                <div className="bg-white dark:bg-gray-800 rounded-sm shadow-sm mx-auto max-w-sm font-mono text-xs text-gray-800 dark:text-gray-200">
+                <div
+                    ref={receiptRef}
+                    className="bg-white dark:bg-gray-800 rounded-sm shadow-sm mx-auto max-w-sm font-mono text-xs text-gray-800 dark:text-gray-200"
+                >
                     <ReceiptStoreHeader
                         storeName={currentBranch?.branchName || 'Store Name'}
                         addressLine1={currentBranch?.addressLine1}
