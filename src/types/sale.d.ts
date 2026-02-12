@@ -185,6 +185,15 @@ interface CreateSalePayload {
     discountAmount: number;
     totalAmount: number;
 
+    // Other charges
+    otherCharges?: {
+        type: string;
+        label: string;
+        value: number;
+        isPercentage: boolean;
+        amount: number;
+    }[];
+
     // Notes
     notes?: string;
 }
