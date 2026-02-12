@@ -38,57 +38,66 @@ const CartItemCard: FunctionComponent<CartItemProps> = ({ customPriceInputs,
                 </div>
             ) : (
                 <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {cart.map((item) => (
-                        <div key={item.productId} className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex py-3">
-                            <div className="flex-1 flex flex-col justify-between">
-                                <div className="flex justify-between items-start">
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="text-gray-900 dark:text-gray-100 font-medium text-sm leading-tight mb-1 truncate">
-                                            {item.name}
-                                        </h3>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-gray-900 dark:text-gray-100 font-semibold">
-                                                {formatCurrency(item.sellingPrice * item.quantity)}
-                                            </span>
-                                            {item.discount > 0 && (
-                                                <span className="text-green-500 dark:text-green-400 text-xs">
-                                                    -{formatCurrency(item.discount)}
+                    {cart.map((item) => {
+                        const itemPrice = item.sellingPrice * item.quantity;
+                        const itemQty = item.quantity === 0 ? 1 : item.quantity;
+                        const itemDiscountAmount = item.discountIsPercentage
+                            ? (itemPrice * (item.discount || 0)) / 100
+                            : (item.discount || 0) * itemQty;
+
+                        return (
+                            <div key={item.productId} className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex py-3">
+                                <div className="flex-1 flex flex-col justify-between">
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-gray-900 dark:text-gray-100 font-medium text-sm leading-tight mb-1 truncate">
+                                                {item.name}
+                                            </h3>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-gray-900 dark:text-gray-100 font-semibold">
+                                                    {formatCurrency(item.sellingPrice * item.quantity)}
                                                 </span>
-                                            )}
+                                                {item.discount > 0 && (
+                                                    <span className="text-green-500 dark:text-green-400 text-xs">
+                                                        -{formatCurrency(itemDiscountAmount)}
+                                                        {item.discountIsPercentage && ` (${item.discount}%)`}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="text-right ml-2">
+                                            <PriceControl
+                                                sellingPrice={item.sellingPrice}
+                                                categoryId={item.categoryId}
+                                                productId={item.productId}
+                                                customPriceInput={customPriceInputs[item.productId] || ''}
+                                                onPriceChange={onPriceChange}
+                                            />
                                         </div>
                                     </div>
-                                    <div className="text-right ml-2">
-                                        <PriceControl
-                                            sellingPrice={item.sellingPrice}
-                                            categoryId={item.categoryId}
-                                            productId={item.productId}
-                                            customPriceInput={customPriceInputs[item.productId] || ''}
-                                            onPriceChange={onPriceChange}
-                                        />
+                                    <div className="flex justify-between items-center mt-2">
+                                        <div className="flex items-center gap-2">
+                                            <QuantityControl
+                                                quantity={item.quantity}
+                                                onIncrease={() => updateQuantity(item.productId, item.quantity + 1)}
+                                                onDecrease={() => updateQuantity(item.productId, item.quantity - 1)}
+                                                onInputChange={(value) => updateQuantity(item.productId, value)}
+                                                itemId={item.productId}
+                                                maxStock={getMaxStock(item.productId, item.quantity)}
+                                                isDefaultItem={item.isDefault}
+                                            />
+                                        </div>
+                                        <button
+                                            onClick={() => removeFromCart(item.productId)}
+                                            className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full"
+                                        >
+                                            <Trash2 className="w-5 h-5" />
+                                        </button>
                                     </div>
-                                </div>
-                                <div className="flex justify-between items-center mt-2">
-                                    <div className="flex items-center gap-2">
-                                        <QuantityControl
-                                            quantity={item.quantity}
-                                            onIncrease={() => updateQuantity(item.productId, item.quantity + 1)}
-                                            onDecrease={() => updateQuantity(item.productId, item.quantity - 1)}
-                                            onInputChange={(value) => updateQuantity(item.productId, value)}
-                                            itemId={item.productId}
-                                            maxStock={getMaxStock(item.productId, item.quantity)}
-                                            isDefaultItem={item.isDefault}
-                                        />
-                                    </div>
-                                    <button
-                                        onClick={() => removeFromCart(item.productId)}
-                                        className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full"
-                                    >
-                                        <Trash2 className="w-5 h-5" />
-                                    </button>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </div>

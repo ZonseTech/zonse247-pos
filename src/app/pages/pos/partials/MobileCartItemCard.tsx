@@ -24,9 +24,26 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
     const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
     const [isOtherChargesModalOpen, setIsOtherChargesModalOpen] = useState(false);
 
-    const discountAmount = discountIsPercentage ? (subtotal * discount) / 100 : discount;
-    const taxableAmount = subtotal - discountAmount;
+    // Calculate item-level discounts
+    const totalItemDiscounts = cart.reduce((sum, item) => {
+        const itemPrice = item.quantity === 0 ? item.sellingPrice : item.sellingPrice * item.quantity;
+        const itemQty = item.quantity === 0 ? 1 : item.quantity;
+        if (item.discountIsPercentage) {
+            return sum + (itemPrice * (item.discount || 0)) / 100;
+        }
+        return sum + (item.discount || 0) * itemQty;
+    }, 0);
+
+    // Cart-level discount
+    const cartDiscountAmount = discountIsPercentage ? (subtotal * discount) / 100 : discount;
+
+    // Total discount = item-level + cart-level
+    const totalDiscountAmount = totalItemDiscounts + cartDiscountAmount;
+
+    // Tax is calculated on discounted subtotal
+    const taxableAmount = subtotal - totalDiscountAmount;
     const taxAmount = (taxableAmount * tax) / 100;
+
     const otherChargesTotal = otherCharges.reduce((sum, charge) => {
         const chargeAmount = charge.isPercentage ? (subtotal * charge.value) / 100 : charge.value;
         return sum + chargeAmount;
@@ -69,6 +86,10 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
                 <div className="divide-y divide-gray-200 dark:divide-gray-700">
                     {cart.map((item) => {
                         const totalPrice = item.sellingPrice * item.quantity;
+                        const itemQty = item.quantity === 0 ? 1 : item.quantity;
+                        const itemDiscountAmount = item.discountIsPercentage
+                            ? (totalPrice * (item.discount || 0)) / 100
+                            : (item.discount || 0) * itemQty;
 
                         return (
                             <div
@@ -101,10 +122,12 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
                                 {item.discount > 0 && (
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm">
-                                            <span className="text-gray-500 dark:text-gray-400">Discount</span>
+                                            <span className="text-gray-500 dark:text-gray-400">
+                                                Discount {item.discountIsPercentage && `(${item.discount}%)`}
+                                            </span>
                                         </span>
-                                        <span className="text-gray-900 dark:text-gray-100 text-sm">
-                                            -{formatCurrency(item.discount)}
+                                        <span className="text-green-500 dark:text-green-400 text-sm">
+                                            -{formatCurrency(itemDiscountAmount)}
                                         </span>
                                     </div>
                                 )}
@@ -136,21 +159,30 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
                     <span className="text-gray-900 dark:text-gray-100 text-sm">{formatCurrency(subtotal)}</span>
                 </div>
 
-                {tax > 0 && (
+                {totalItemDiscounts > 0 && (
                     <div className="flex justify-between items-center mt-1">
                         <span className="text-gray-500 dark:text-gray-400 text-sm">
-                            {taxName || 'Tax'} ({tax}%)
+                            Item Discounts
                         </span>
-                        <span className="text-sky-500 dark:text-sky-400 text-sm">+{formatCurrency(taxAmount)}</span>
+                        <span className="text-green-500 dark:text-green-400 text-sm">-{formatCurrency(totalItemDiscounts)}</span>
                     </div>
                 )}
 
                 {discount > 0 && (
                     <div className="flex justify-between items-center mt-1">
                         <span className="text-gray-500 dark:text-gray-400 text-sm">
-                            Discount {discountIsPercentage && `(${discount}%)`}
+                            Cart Discount {discountIsPercentage && `(${discount}%)`}
                         </span>
-                        <span className="text-green-500 dark:text-green-400 text-sm">-{formatCurrency(discountAmount)}</span>
+                        <span className="text-green-500 dark:text-green-400 text-sm">-{formatCurrency(cartDiscountAmount)}</span>
+                    </div>
+                )}
+
+                {tax > 0 && (
+                    <div className="flex justify-between items-center mt-1">
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">
+                            {taxName || 'Tax'} ({tax}%)
+                        </span>
+                        <span className="text-sky-500 dark:text-sky-400 text-sm">+{formatCurrency(taxAmount)}</span>
                     </div>
                 )}
 
