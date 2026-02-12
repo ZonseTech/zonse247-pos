@@ -43,11 +43,11 @@ export interface InventorySummary {
 }
 
 export interface InventoryCount {
-	total: number;
-	active: number;
-	inactive: number;
-	lowStock: number;
-	expired: number;
+	totalItems: number;
+	incompleteItems: number;
+	itemsInStock: number;
+	lowStockItems: number;
+	expiredItems: number;
 }
 
 export interface PaginatedResponse<T> {
@@ -194,7 +194,8 @@ const inventoryService = {
 	async list(query = {}): Promise<PaginatedResponse<ApiProduct>> {
 		return api
 			.get<ApiResponse<{
-				products: ApiProduct[];
+				inventoryItems?: ApiProduct[];
+				products?: ApiProduct[];
 				pagination: {
 					currentPage: number;
 					totalPages: number;
@@ -203,7 +204,7 @@ const inventoryService = {
 				};
 			}>>(endpoints.root, { ...query, groupByProduct: true })
 			.then((res) => ({
-				items: res.data.data.products,
+				items: res.data.data.inventoryItems || res.data.data.products || [],
 				pagination: res.data.data.pagination
 			}))
 			.catch((err) => {
