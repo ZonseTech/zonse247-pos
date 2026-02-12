@@ -73,7 +73,7 @@ export const useInventory = () => {
 
     useEffect(() => {
         dispatch(calculateTotals())
-    }, [cart, discount, dispatch])
+    }, [cart, discount, discountIsPercentage, tax, otherCharges, dispatch])
 
     const handleAddToCart = (item: InventoryItem) => {
         if (!isAuthenticated) {
