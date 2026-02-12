@@ -1,11 +1,9 @@
 import { FunctionComponent } from 'react';
 import {
     BarcodeIcon,
-    Receipt,
     Package,
     Calendar,
-    Palette,
-    Truck,
+    Tag,
 } from 'lucide-react';
 import { FormFieldCard } from '../../../components';
 import { formatCurrency } from '../../../utils';
@@ -50,23 +48,17 @@ const VariantCard: FunctionComponent<VariantCardProps> = ({ variant, index, onCl
                 </div>
             </div>
             <div className="flex items-center gap-1.5 mt-2">
-                <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-sm">
-                    <BarcodeIcon className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+                <div className={`p-1.5 rounded-sm ${variant.primaryBarcode || (variant.barcodes && variant.barcodes.length > 0) ? 'bg-sky-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                    <BarcodeIcon className="w-3 h-3 text-white" />
                 </div>
-                <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-sm">
-                    <Receipt className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+                <div className={`p-1.5 rounded-sm ${variant.expirationDate || variant.manufactureDate ? 'bg-sky-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                    <Calendar className="w-3 h-3 text-white" />
                 </div>
-                <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-sm">
-                    <Package className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+                <div className={`p-1.5 rounded-sm ${variant.description ? 'bg-sky-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                    <Tag className="w-3 h-3 text-white" />
                 </div>
-                <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-sm">
-                    <Calendar className="w-3 h-3 text-gray-500 dark:text-gray-400" />
-                </div>
-                <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-sm">
-                    <Palette className="w-3 h-3 text-gray-500 dark:text-gray-400" />
-                </div>
-                <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-sm">
-                    <Truck className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+                <div className={`p-1.5 rounded-sm ${variant.sku ? 'bg-sky-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                    <Package className="w-3 h-3 text-white" />
                 </div>
             </div>
         </FormFieldCard>
