@@ -11,13 +11,13 @@ import { useInventory } from '../../hooks/useInventory';
 import { useFocusManager } from '../../hooks/useFocusManager';
 import { formatCurrency } from '../../utils';
 import { useParkedSales } from '../../hooks/useParkedSales';
-import { HiSearch, HiShoppingCart, HiPlusCircle } from 'react-icons/hi';
-import { RiUserAddLine } from 'react-icons/ri';
+import { HiSearch, HiPlusCircle, HiUserAdd } from 'react-icons/hi';
 import { BsUpcScan } from 'react-icons/bs';
 import InventoryStatsCard from '../../components/stats/InventoryStatsCard';
 import { HiArrowRight } from 'react-icons/hi2';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
+import { BiSolidUserPlus } from 'react-icons/bi';
 
 const MobilePOS: FunctionComponent = () => {
     const {
@@ -100,7 +100,7 @@ const MobilePOS: FunctionComponent = () => {
                     rightContent={
                         <CustomerSelector
                             trigger={
-                                <RiUserAddLine className="w-6 h-6 text-white active:scale-95 transition-transform" />
+                                <HiUserAdd className="w-6 h-6 text-white active:scale-95 transition-transform" />
                             }
                         />
                     }
@@ -144,60 +144,50 @@ const MobilePOS: FunctionComponent = () => {
                                 <span className="text-lg font-semibold text-gray-700 dark:text-gray-300 ">New Sale</span>
                             </button>
 
-                            <InventoryStatsCard inventory={inventory} />
+                            <InventoryStatsCard />
 
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300 tracking-wide">Pending Sales (Park):</h3>
-                                    {parkedSales.length > 0 && (
-                                        <span className="bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 text-sm font-medium px-2.5 py-0.5 rounded-full">
-                                            {parkedSales.length}
-                                        </span>
-                                    )}
-                                </div>
-                                <button
-                                    onClick={() => { /* TODO: Navigate to pending sales page */ }}
-                                    className="flex items-center gap-1 text-sky-500 dark:text-sky-400 text-sm font-medium active:scale-95 transition-transform"
-                                >
-                                    <HiArrowRight className="w-5 h-5" />
-                                </button>
-                            </div>
+                            {parkedSales.length > 0 && (
+                                <>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300 tracking-wide">Pending Sales (Park):</h3>
+                                            <span className="bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 text-sm font-medium px-2.5 py-0.5 rounded-full">
+                                                {parkedSales.length}
+                                            </span>
+                                        </div>
+                                        <button
+                                            onClick={() => { /* TODO: Navigate to pending sales page */ }}
+                                            className="flex items-center gap-1 text-sky-500 dark:text-sky-400 text-sm font-medium active:scale-95 transition-transform"
+                                        >
+                                            <HiArrowRight className="w-5 h-5" />
+                                        </button>
+                                    </div>
 
-                            <div className="bg-white dark:bg-gray-800 rounded-sm shadow-none border border-gray-200 dark:border-gray-700">
-
-                                {isLoadingParked ? (
-                                    <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-                                        Loading...
+                                    <div className="bg-white dark:bg-gray-800 rounded-sm shadow-none border border-gray-200 dark:border-gray-700">
+                                        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                                            {parkedSales.map((sale) => (
+                                                <button
+                                                    key={sale.id}
+                                                    onClick={() => handleResumeParkedSale(sale)}
+                                                    className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left"
+                                                >
+                                                    <div>
+                                                        <p className="font-medium text-gray-900 dark:text-white">
+                                                            {sale.reference || `Sale #${sale.id.slice(-6)}`}
+                                                        </p>
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                            {sale.items.length} items • MK {sale.totalAmount?.toLocaleString() || '0'}
+                                                        </p>
+                                                    </div>
+                                                    <span className="text-sky-500 dark:text-sky-400 text-sm font-medium">
+                                                        Resume
+                                                    </span>
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
-                                ) : parkedSales.length === 0 ? (
-                                    <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-                                        <HiShoppingCart className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                                        <p>No pending sales</p>
-                                    </div>
-                                ) : (
-                                    <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                                        {parkedSales.map((sale) => (
-                                            <button
-                                                key={sale.id}
-                                                onClick={() => handleResumeParkedSale(sale)}
-                                                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left"
-                                            >
-                                                <div>
-                                                    <p className="font-medium text-gray-900 dark:text-white">
-                                                        {sale.reference || `Sale #${sale.id.slice(-6)}`}
-                                                    </p>
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                        {sale.items.length} items • MK {sale.totalAmount?.toLocaleString() || '0'}
-                                                    </p>
-                                                </div>
-                                                <span className="text-sky-500 dark:text-sky-400 text-sm font-medium">
-                                                    Resume
-                                                </span>
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
+                                </>
+                            )}
                         </div>
                     )}
                 </div>
@@ -207,7 +197,9 @@ const MobilePOS: FunctionComponent = () => {
                 isOpen={isCameraScannerOpen}
                 onClose={() => setIsCameraScannerOpen(false)}
                 inventory={inventory}
-                onAddToCart={handleAddToCartFromLookup}
+                cart={cart}
+                onAddToCart={addToCart}
+                onOpenItemLookup={() => setIsLookupModalOpen(true)}
             />
 
             <MobileItemLookupModal

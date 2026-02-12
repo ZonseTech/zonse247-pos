@@ -5,9 +5,8 @@ import { CameraBarcodeScanner } from '../../components';
 import { MobileItemLookupModal } from '../../components/modals';
 import { FunctionComponent, useState, useEffect } from 'react';
 import { useInventory } from '../../hooks/useInventory';
-import { HiSearch } from 'react-icons/hi';
+import { HiSearch, HiUserAdd } from 'react-icons/hi';
 import { TbLayoutGrid } from 'react-icons/tb';
-import { RiUserAddLine } from 'react-icons/ri';
 import { BsUpcScan } from 'react-icons/bs';
 import { useInventoryManagement } from '../../hooks/useInventoryManagement';
 import { useNavigate } from 'react-router';
@@ -115,19 +114,15 @@ const MobileStocks: FunctionComponent = () => {
     };
 
     const handleRemoveFromCart = (item: InventoryItem | ApiProduct, variant?: ProductVariant) => {
-        // Handle removing/decrementing from cart
         if ('variants' in item) {
             const selectedVariant = variant || item.variants?.find(v => v.isDefault) || item.variants?.[0];
             const variantId = selectedVariant?.id || item.id;
 
-            // Find the cart item to check current quantity
             const cartItem = cart.find(ci => ci.productId === variantId);
             if (cartItem) {
                 if (cartItem.quantity > 1) {
-                    // Decrement quantity
                     updateQuantity(variantId, cartItem.quantity - 1);
                 } else {
-                    // Remove entirely
                     removeFromCart(variantId);
                 }
             }
@@ -148,15 +143,12 @@ const MobileStocks: FunctionComponent = () => {
         const existingCartItem = cart.find(ci => ci.productId === variantId);
 
         if (quantity <= 0) {
-            // Remove from cart
             if (existingCartItem) {
                 removeFromCart(variantId);
             }
         } else if (existingCartItem) {
-            // Update existing quantity
             updateQuantity(variantId, quantity);
         } else {
-            // Add new item with specified quantity - need to add multiple times or set directly
             const cartItem: InventoryItem = {
                 productId: variantId,
                 branchId: item.branchId,
@@ -178,10 +170,8 @@ const MobileStocks: FunctionComponent = () => {
                 expiryDateAlert: '',
                 categoryDetails: item.categoryDetails as Category | undefined,
             };
-            // Add to cart, then update quantity
             addToCart(cartItem);
             if (quantity > 1) {
-                // Need a slight delay to ensure cart state is updated
                 setTimeout(() => updateQuantity(variantId, quantity), 10);
             }
         }
@@ -199,7 +189,7 @@ const MobileStocks: FunctionComponent = () => {
                             />
                             <CustomerSelector
                                 trigger={
-                                    <RiUserAddLine className="w-6 h-6 text-white active:scale-95 transition-transform" />
+                                    <HiUserAdd className="w-6 h-6 text-white active:scale-95 transition-transform" />
                                 }
                             />
                         </div>
