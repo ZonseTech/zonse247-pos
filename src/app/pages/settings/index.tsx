@@ -1,13 +1,15 @@
 import { Form, Formik } from 'formik';
 import { settingsValidationSchema } from '../../schemas/settings.schema';
-import SettingsTabs from './partials/SettingsTabs';
 import TabContent from './components/TabContent';
 import SettingsActions from './partials/SettingsActions';
 import ResetConfirmModal from './partials/ResetConfirmModal';
 import AppLayout from '../../layouts/AppLayout';
 import { useSettings } from './hooks/useSettings';
-import { SETTINGS_TABS } from './constants/config';
 import { sanitizeSettings } from './utils/settingsHelpers';
+import PageHeader from '../../components/page/PageHeader';
+import MobilePageHeader from '../../components/page/MobilePageHeader';
+import { useIsMobile } from '../../hooks/useMediaQuery';
+import { HiOutlineCog } from 'react-icons/hi2';
 
 const Index = () => {
     const {
@@ -15,22 +17,16 @@ const Index = () => {
         loading,
         activeTab,
         showResetConfirm,
-        setActiveTab,
         setShowResetConfirm,
         handleSubmit: onSubmit,
         handleResetSettings,
     } = useSettings();
 
+    const isMobile = useIsMobile();
 
-    const handleSubmit = async (values: AppSettings) => {
+    const handleSubmit = async (values: any) => {
         const sanitized = sanitizeSettings(values);
         await onSubmit(sanitized);
-
-        if (activeTab === 'terminal') {
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-        }
     };
 
     if (loading || !settings) {
@@ -46,7 +42,15 @@ const Index = () => {
     return (
         <AppLayout>
             <div className="min-h-screen pb-20 md:pb-0">
-                <SettingsTabs tabs={SETTINGS_TABS} activeTab={activeTab} setActiveTab={setActiveTab as any} />
+                {isMobile ? (
+                    <MobilePageHeader title="Settings" />
+                ) : (
+                    <PageHeader
+                        title="Settings"
+                        description="Manage your application settings and preferences"
+                        icon={<HiOutlineCog className="w-8 h-8 text-sky-500" />}
+                    />
+                )}
 
                 <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
                     <Formik
