@@ -15,13 +15,169 @@ const SalesSettings = () => {
         { label: 'Manual Entry', value: 'MANUAL' }
     ];
 
+    const complianceModeOptions = [
+        { label: 'Strict - Full MRA Compliance', value: 'STRICT' },
+        { label: 'Relaxed - Partial Compliance', value: 'RELAXED' },
+        { label: 'Test - Testing Mode', value: 'TEST' }
+    ];
+
     return (
         <div className="rounded-none">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                Sales Settings
+                Business Settings
             </h2>
 
             <FormWrapper>
+                {/* Transaction Processing */}
+                <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                        Transaction Processing
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Auto Apply Tax
+                                </label>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    Automatically apply tax to transactions
+                                </p>
+                            </div>
+                            <Field type="checkbox" name="autoApplyTax" className="w-5 h-5 rounded" />
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Tax Inclusive Pricing
+                                </label>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    Prices include tax
+                                </p>
+                            </div>
+                            <Field type="checkbox" name="taxInclusivePricing" className="w-5 h-5 rounded" />
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Round Total Amount
+                                </label>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    Round final transaction totals
+                                </p>
+                            </div>
+                            <Field type="checkbox" name="roundTotalAmount" className="w-5 h-5 rounded" />
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Save Draft Transactions
+                                </label>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    Allow saving incomplete transactions
+                                </p>
+                            </div>
+                            <Field type="checkbox" name="saveDraftTransactions" className="w-5 h-5 rounded" />
+                        </div>
+
+                        <FormInput
+                            type="number"
+                            name="roundToNearest"
+                            label="Round To Nearest"
+                            placeholder="0.05"
+                            step="0.01"
+                            min="0"
+                        />
+
+                        <FormInput
+                            type="number"
+                            name="minimumTransactionAmount"
+                            label="Minimum Transaction Amount"
+                            placeholder="0.00"
+                            step="0.01"
+                            min="0"
+                        />
+
+                        <FormInput
+                            type="number"
+                            name="maximumTransactionAmount"
+                            label="Maximum Transaction Amount"
+                            placeholder="1000000.00"
+                            step="0.01"
+                            min="0"
+                        />
+
+                        <FormInput
+                            type="number"
+                            name="holdTransactionMinutes"
+                            label="Hold Transaction Minutes"
+                            placeholder="30"
+                            min="1"
+                        />
+                    </div>
+                </div>
+
+                {/* MRA Compliance */}
+                <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                        MRA Compliance
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormSelectBox
+                            label="MRA Compliance Mode"
+                            name="mraComplianceMode"
+                            options={complianceModeOptions}
+                            required
+                        />
+
+                        <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Auto Generate Z-Report
+                                </label>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    Automatically generate daily Z-Reports
+                                </p>
+                            </div>
+                            <Field type="checkbox" name="zReportAutoGenerate" className="w-5 h-5 rounded" />
+                        </div>
+
+                        <FormInput
+                            type="time"
+                            name="zReportTime"
+                            label="Z-Report Time"
+                            placeholder="23:00"
+                        />
+
+                        <FormInput
+                            type="time"
+                            name="dailySalesReportTime"
+                            label="Daily Sales Report Time"
+                            placeholder="22:00"
+                        />
+
+                        <FormInput
+                            type="number"
+                            name="mraApiTimeoutSeconds"
+                            label="MRA API Timeout (seconds)"
+                            placeholder="10"
+                            min="5"
+                            max="60"
+                        />
+
+                        <FormInput
+                            type="number"
+                            name="mraRetryAttempts"
+                            label="MRA Retry Attempts"
+                            placeholder="3"
+                            min="1"
+                            max="10"
+                        />
+                    </div>
+                </div>
+
                 {/* Payment Methods */}
                 <div className="mb-8">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
