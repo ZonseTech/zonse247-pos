@@ -405,7 +405,24 @@ export default class MenuBuilder {
 				{
 					label: 'Settings',
 					accelerator: 'CommandOrControl+,',
-					click: () => this.navigateTo(ROUTES.SETTINGS),
+					submenu: [
+						{
+							label: 'General',
+							click: () => this.navigateTo(ROUTES.SETTINGS_GENERAL),
+						},
+						{
+							label: 'Business',
+							click: () => this.navigateTo(ROUTES.SETTINGS_SALES),
+						},
+						{
+							label: 'Receipt',
+							click: () => this.navigateTo(ROUTES.SETTINGS_RECEIPT),
+						},
+						{
+							label: 'Security',
+							click: () => this.navigateTo(ROUTES.SETTINGS_SECURITY),
+						},
+					],
 				},
 			];
 

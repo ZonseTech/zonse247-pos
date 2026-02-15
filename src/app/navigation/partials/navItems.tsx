@@ -190,16 +190,6 @@ const useNavItems = (): Array<NavItem> => {
         });
     }
 
-    // items.push({
-    //     type: 'button',
-    //     color: 'bg-emerald-500 hover:bg-emerald-500',
-    //     iconColor: 'bg-emerald-500',
-    //     text: 'Dashboard',
-    //     icon: icons.dashboard,
-    //     group: 'operations',
-    //     onClick: () => navigate(ROUTES.DASHBOARD),
-    // });
-
     if (hasAnyPermission(user, ['users.view', 'users.create', 'users.edit', 'users.delete'])) {
         items.push({
             type: 'button',
@@ -272,7 +262,7 @@ const useNavItems = (): Array<NavItem> => {
             text: "Settings",
             icon: icons.settings,
             group: 'settings',
-            onClick: () => navigate(ROUTES.SETTINGS)
+            onClick: () => navigate(ROUTES.SETTINGS_GENERAL)
         });
     }
 
@@ -369,9 +359,12 @@ export const useMobileNavItems = (): Array<NavItem> => {
         subscription: <LucideSubscript className="h-5 w-5" />,
         tenants: <RiGroup3Line className="h-5 w-5" />,
         registrations: <ClipboardList className="h-5 w-5" />,
-        receiptSettings: <FileText className="h-5 w-5" />,
-        businessSettings: <Store className="h-5 w-5" />,
         generalSettings: <Settings className="h-5 w-5" />,
+        terminalSettings: <HiOutlineBuildingOffice2 className="h-5 w-5" />,
+        salesSettings: <HiOutlinePresentationChartBar className="h-5 w-5" />,
+        receiptSettings: <HiOutlineDocumentText className="h-5 w-5" />,
+        displaySettings: <HiOutlineCog className="h-5 w-5" />,
+        securitySettings: <HiOutlineKey className="h-5 w-5" />,
         printerSetup: <HiOutlinePrinter className="h-5 w-5" />,
         logout: <HiOutlineLogout className="h-5 w-5" />,
     };
@@ -484,38 +477,48 @@ export const useMobileNavItems = (): Array<NavItem> => {
     if (hasAnyPermission(user, ['settings.branch.manage'])) {
         items.push({
             type: 'button',
-            color: 'bg-amber-500 hover:bg-amber-600',
-            iconColor: 'bg-amber-600',
-            text: 'Receipt Settings',
-            icon: icons.receiptSettings,
-            group: 'settings',
-            onClick: () => navigate(ROUTES.SETTINGS),
-        });
-
-        items.push({
-            type: 'button',
-            color: 'bg-blue-500 hover:bg-blue-600',
-            iconColor: 'bg-blue-600',
-            text: 'Business Settings',
-            icon: icons.businessSettings,
-            group: 'settings',
-            onClick: () => navigate(ROUTES.BRANCHES),
-        });
-
-        items.push({
-            type: 'button',
             color: 'bg-green-500 hover:bg-green-600',
             iconColor: 'bg-green-600',
             text: 'General Settings',
             icon: icons.generalSettings,
             group: 'settings',
-            onClick: () => navigate(ROUTES.SETTINGS),
+            onClick: () => navigate(ROUTES.SETTINGS_GENERAL),
         });
 
         items.push({
             type: 'button',
-            color: 'bg-slate-500 hover:bg-slate-600',
-            iconColor: 'bg-slate-600',
+            color: 'bg-emerald-500 hover:bg-emerald-600',
+            iconColor: 'bg-emerald-600',
+            text: 'Business Settings',
+            icon: icons.salesSettings,
+            group: 'settings',
+            onClick: () => navigate(ROUTES.SETTINGS_SALES),
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-purple-500 hover:bg-purple-600',
+            iconColor: 'bg-purple-600',
+            text: 'Receipt Settings',
+            icon: icons.receiptSettings,
+            group: 'settings',
+            onClick: () => navigate(ROUTES.SETTINGS_RECEIPT),
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-orange-500 hover:bg-orange-600',
+            iconColor: 'bg-orange-600',
+            text: 'Security Settings',
+            icon: icons.securitySettings,
+            group: 'settings',
+            onClick: () => navigate(ROUTES.SETTINGS_SECURITY),
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-violet-500 hover:bg-violet-600',
+            iconColor: 'bg-violet-600',
             text: 'Printer Setup',
             icon: icons.printerSetup,
             group: 'settings',
