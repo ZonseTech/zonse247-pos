@@ -26,9 +26,22 @@
 - support assigning of multiple branchs to a single user
 
 - improve offline mode performance and reliability
-- enhance security features with 2FA and biometric options
+- enhance security features with 2FA and biometric options- Point of Sale System
+
 - implement advanced reporting and analytics features
 - integrate with popular accounting software for seamless financial management
 - expand hardware compatibility for a wider range of devices
 - optimize receipt customization options with more templates and designs
 - develop customer management features with advanced loyalty programs and segmentation
+
+[ADS]
+
+- Product & Inventory Management
+- Customer Management
+- Point of Sale & Receipts
+- Expense Tracking
+- HR & Employee Management
+- Staff advances & Loans
+- Multi-Branch Support
+- Inventory Batching & Expiry Tracking
+- Inter-Branch Stock Transfers
