@@ -56,6 +56,10 @@ export enum ROUTES {
 	MIGRATIONS = '/migrations',
 	LOGIN = '/login',
 	SETTINGS = '/settings',
+	SETTINGS_GENERAL = '/settings/general',
+	SETTINGS_SALES = '/settings/sales',
+	SETTINGS_RECEIPT = '/settings/receipt',
+	SETTINGS_SECURITY = '/settings/security',
 	LANDING_PAGE = '/landing-page',
 	GET_STARTED = '/sign-in',
 }

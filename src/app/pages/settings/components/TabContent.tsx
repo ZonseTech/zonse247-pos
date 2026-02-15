@@ -1,11 +1,8 @@
 import { memo } from 'react';
 import GeneralSettings from '../partials/GeneralSettings';
-import TerminalSettings from '../partials/TerminalSettings';
 import SalesSettings from '../partials/SalesSettings';
-import DisplaySettings from '../partials/DisplaySettings';
-import HardwareSettings from '../partials/HardwareSettings';
+import ReceiptSettings from '../partials/ReceiptSettings';
 import SecuritySettings from '../partials/SecuritySettings';
-import BackupSettings from '../partials/BackupSettings';
 import type { SettingsTabId } from '../constants/config';
 
 interface TabContentProps {
@@ -20,18 +17,12 @@ const TabContent = memo<TabContentProps>(({ activeTab }) => {
     switch (activeTab) {
         case 'general':
             return <GeneralSettings />;
-        case 'terminal':
-            return <TerminalSettings />;
         case 'sales':
             return <SalesSettings />;
-        case 'display':
-            return <DisplaySettings />;
-        case 'hardware':
-            return <HardwareSettings />;
+        case 'receipt':
+            return <ReceiptSettings />;
         case 'security':
             return <SecuritySettings />;
-        case 'backup':
-            return <BackupSettings />;
         default:
             return <GeneralSettings />;
     }

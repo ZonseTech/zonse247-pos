@@ -7,13 +7,10 @@ import {
     HiOutlineCog,
     HiOutlineCheck,
     HiOutlineShieldCheck,
-    HiOutlineArrowPath,
-    HiOutlineCube,
-    HiOutlineComputerDesktop,
-    HiOutlineViewColumns,
+    HiOutlineDocumentText,
 } from 'react-icons/hi2';
 
-export type SettingsTabId = 'general' | 'terminal' | 'sales' | 'display' | 'hardware' | 'security' | 'backup';
+export type SettingsTabId = 'general' | 'sales' | 'receipt' | 'security';
 
 export interface SettingsTab {
     id: SettingsTabId;
@@ -27,43 +24,25 @@ export const SETTINGS_TABS: SettingsTab[] = [
         id: 'general',
         label: 'General',
         icon: HiOutlineCog,
-        description: 'Store information and basic settings',
-    },
-    {
-        id: 'terminal',
-        label: 'Terminal',
-        icon: HiOutlineComputerDesktop,
-        description: 'Terminal operations and MRA compliance',
+        description: 'Appearance, localization, and display preferences',
     },
     {
         id: 'sales',
-        label: 'Sales',
+        label: 'Business',
         icon: HiOutlineCheck,
-        description: 'Payment methods and sales configuration',
+        description: 'Transactions, compliance, and payment configuration',
     },
     {
-        id: 'display',
-        label: 'Display',
-        icon: HiOutlineViewColumns,
-        description: 'UI, localization, and display preferences',
-    },
-    {
-        id: 'hardware',
-        label: 'Hardware',
-        icon: HiOutlineCube,
-        description: 'Printers, scanners, and devices',
+        id: 'receipt',
+        label: 'Receipt',
+        icon: HiOutlineDocumentText,
+        description: 'Receipt format, printing, and display options',
     },
     {
         id: 'security',
         label: 'Security',
         icon: HiOutlineShieldCheck,
-        description: 'Access control and API integration',
-    },
-    {
-        id: 'backup',
-        label: 'Backup',
-        icon: HiOutlineArrowPath,
-        description: 'Data backup and recovery',
+        description: 'Access control, sync, and backup',
     },
 ];
 
