@@ -83,17 +83,12 @@ const InventoryForm: FunctionComponent = () => {
         { label: 'Centimeter (cm)', value: 'cm' }
     ];
 
-    /**
-     * Handle Mobile Form submission (with variants structure)
-     * Sends the InventoryFormValues object directly - API handles field mapping
-     */
     const handleMobileSubmit = async (
         values: InventoryFormValues,
         { resetForm, setErrors, setFieldError }: FormikHelpers<InventoryFormValues>
     ) => {
         setLoading(true);
         try {
-            // Validate stock levels for the primary variant
             const primaryVariant = values.variants[0];
             if (primaryVariant) {
                 const stockValidationError = validateStockLevels(primaryVariant);
@@ -107,14 +102,12 @@ const InventoryForm: FunctionComponent = () => {
             const inventoryRoute = ROUTES.MOBILE_INVENTORY;
 
             if (productId) {
-                // Update existing item - send the form values directly
                 await inventoryService.update(productId, values as unknown as Partial<InventoryItem>);
                 await reloadInventory();
                 Report.success('Success', 'Inventory item updated successfully', 'Okay', () => {
                     navigate(inventoryRoute);
                 });
             } else {
-                // Create new item - send the form values directly
                 await inventoryService.store(values as unknown as InventoryItem);
                 await reloadInventory();
                 Confirm.show(
@@ -144,7 +137,6 @@ const InventoryForm: FunctionComponent = () => {
                     .map(([field, message]) => `• ${field}: ${message}`)
                     .join('\n');
 
-                // Map API field errors to form field paths for mobile form
                 const formErrors: Record<string, string> = {};
                 Object.entries(fieldErrors).forEach(([field, message], index) => {
                     const fieldMapping: Record<string, string> = {
@@ -177,9 +169,6 @@ const InventoryForm: FunctionComponent = () => {
         }
     };
 
-    /**
-     * Handle Desktop Form submission (flat InventoryItem structure)
-     */
     const handleDesktopSubmit = async (
         values: Partial<InventoryItem>,
         { resetForm, setErrors, setFieldError }: FormikHelpers<Partial<InventoryItem>>
@@ -202,11 +191,10 @@ const InventoryForm: FunctionComponent = () => {
                 return;
             }
 
-            // Transform to API format with sellingPrice
             const data = {
                 ...values,
                 costPrice: Number(values.costPrice),
-                sellingPrice: Number(values.sellingPrice), // API expects sellingPrice
+                sellingPrice: Number(values.sellingPrice),
                 promoPrice: Number(values.promoPrice) || 0,
                 weight: Number(values.weight) || 0,
                 minStock: minStock,
