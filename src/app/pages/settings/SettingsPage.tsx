@@ -11,7 +11,7 @@ import { ROUTES } from '../../utils/constants';
 import PageHeader from '../../components/page/PageHeader';
 import MobilePageHeader from '../../components/page/MobilePageHeader';
 import { useIsMobile } from '../../hooks/useMediaQuery';
-import { HiOutlineCog, HiOutlineCheck, HiXMark } from 'react-icons/hi2';
+import { HiOutlineCog, HiXMark, HiCheckCircle } from 'react-icons/hi2';
 import { Button } from '../../components';
 
 const SETTINGS_ROUTES: Record<string, string> = {
@@ -59,21 +59,24 @@ const SettingsPage = () => {
                 validationSchema={settingsValidationSchema}
                 onSubmit={handleSubmit}
                 enableReinitialize
+                validateOnMount
             >
-                {({ isSubmitting, submitForm }) => (
+                {({ isSubmitting, submitForm, isValid, dirty }) => (
                     <div className="min-h-screen pb-20 md:pb-0">
                         {isMobile ? (
                             <MobilePageHeader
                                 title={`${currentTab.label} Settings`}
-                                leftIcon={<HiXMark className="w-5 h-5 text-sky-500 dark:text-sky-400" />}
+                                theme="sky"
+                                fixed
+                                leftIcon={<HiXMark className="w-5 h-5 text-white" />}
                                 rightContent={
                                     <Button
                                         type="button"
                                         onClick={submitForm}
-                                        disabled={isSubmitting}
+                                        disabled={isSubmitting || !isValid}
                                         theme="success"
                                     >
-                                        <HiOutlineCheck className="w-4 h-4 mr-1" />
+                                        <HiCheckCircle className="w-4 h-4 mr-1" />
                                         {isSubmitting ? 'Saving...' : 'Save'}
                                     </Button>
                                 }
@@ -87,7 +90,7 @@ const SettingsPage = () => {
                             />
                         )}
 
-                        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+                        <div className={`max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 ${isMobile ? 'pt-16' : ''}`}>
                             <Form>
                                 <Outlet />
 
