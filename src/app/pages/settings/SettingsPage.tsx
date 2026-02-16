@@ -5,7 +5,6 @@ import SettingsActions from './components/SettingsActions';
 import ResetConfirmModal from './components/ResetConfirmModal';
 import AppLayout from '../../layouts/AppLayout';
 import { useSettings } from './hooks/useSettings';
-import { sanitizeSettings } from './utils/settingsHelpers';
 import { SETTINGS_TABS } from './constants/config';
 import { ROUTES } from '../../utils/constants';
 import PageHeader from '../../components/page/PageHeader';
@@ -13,6 +12,7 @@ import MobilePageHeader from '../../components/page/MobilePageHeader';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { HiOutlineCog, HiXMark, HiCheckCircle } from 'react-icons/hi2';
 import { Button } from '../../components';
+import { sanitizeSettings } from '../../utils';
 
 const SETTINGS_ROUTES: Record<string, string> = {
     general: ROUTES.SETTINGS_GENERAL,

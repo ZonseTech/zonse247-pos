@@ -1,3 +1,5 @@
+import { SettingsAppSettings } from "../pages/settings/constants/defaultValues";
+
 /**
  * Decodes HTML entities in a string
  */
@@ -31,4 +33,23 @@ export const toNumber = (value: string | number | null | undefined, defaultValue
     if (value === null || value === undefined || value === '') return defaultValue;
     const num = typeof value === 'string' ? parseFloat(value) : value;
     return isNaN(num) ? defaultValue : num;
+};
+
+/**
+ * Sanitize settings before submission
+ * Removes empty strings, normalizes values
+ */
+export const sanitizeSettings = (settings: SettingsAppSettings): SettingsAppSettings => {
+    const sanitized = { ...settings };
+
+    Object.keys(sanitized).forEach((key) => {
+        const typedKey = key as keyof SettingsAppSettings;
+        const value = sanitized[typedKey];
+
+        if (typeof value === 'string') {
+            (sanitized as any)[typedKey] = value.trim();
+        }
+    });
+
+    return sanitized;
 };
