@@ -3,6 +3,8 @@ import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import classNames from 'classnames';
 
+type MobilePageHeaderTheme = 'default' | 'sky';
+
 interface MobilePageHeaderProps {
     /**
      * Page title - can be a string or a React component
@@ -32,6 +34,14 @@ interface MobilePageHeaderProps {
      * Whether to hide the bottom border
      */
     noBorder?: boolean;
+    /**
+     * Theme variant - 'default' or 'sky' (sky-500 background)
+     */
+    theme?: MobilePageHeaderTheme;
+    /**
+     * Whether the header should be fixed at the top
+     */
+    fixed?: boolean;
 }
 
 const MobilePageHeader: React.FC<PropsWithChildren<MobilePageHeaderProps>> = ({
@@ -43,6 +53,8 @@ const MobilePageHeader: React.FC<PropsWithChildren<MobilePageHeaderProps>> = ({
     leftIcon,
     onLeftPress,
     noBorder = false,
+    theme = 'default',
+    fixed = false,
 }) => {
     const navigate = useNavigate();
 
@@ -54,12 +66,19 @@ const MobilePageHeader: React.FC<PropsWithChildren<MobilePageHeaderProps>> = ({
         }
     };
 
+    const isSkyTheme = theme === 'sky';
+
     const renderTitle = () => {
         if (!title) return null;
 
         if (typeof title === 'string') {
             return (
-                <h1 className="text-lg font-semibold text-sky-500 dark:text-sky-100 truncate">
+                <h1 className={classNames(
+                    "text-lg font-semibold truncate",
+                    isSkyTheme
+                        ? "text-white"
+                        : "text-sky-500 dark:text-sky-100"
+                )}>
                     {title}
                 </h1>
             );
@@ -72,7 +91,11 @@ const MobilePageHeader: React.FC<PropsWithChildren<MobilePageHeaderProps>> = ({
         <div
             className={classNames(
                 'flex flex-col safe-area-top-android',
-                !noBorder && 'border-b border-gray-200 dark:border-gray-700',
+                fixed && 'fixed top-0 left-0 right-0 z-50',
+                isSkyTheme
+                    ? 'bg-sky-500 dark:bg-sky-600'
+                    : 'bg-white dark:bg-gray-900',
+                !noBorder && !isSkyTheme && 'border-b border-gray-200 dark:border-gray-700',
                 className
             )}
         >
@@ -82,10 +105,20 @@ const MobilePageHeader: React.FC<PropsWithChildren<MobilePageHeaderProps>> = ({
                         <button
                             type="button"
                             onClick={handleLeftPress}
-                            className="flex-shrink-0 p-1.5 -ml-1.5 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all"
+                            className={classNames(
+                                "flex-shrink-0 p-1.5 -ml-1.5 rounded-sm active:scale-95 transition-all",
+                                isSkyTheme
+                                    ? "hover:bg-sky-600 dark:hover:bg-sky-700"
+                                    : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                            )}
                             aria-label={leftIcon ? "Menu" : "Go back"}
                         >
-                            {leftIcon || <ArrowLeft className="w-5 h-5 text-sky-500 dark:text-sky-400" />}
+                            {leftIcon || <ArrowLeft className={classNames(
+                                "w-5 h-5",
+                                isSkyTheme
+                                    ? "text-white"
+                                    : "text-sky-500 dark:text-sky-400"
+                            )} />}
                         </button>
                     )}
                     <div className="flex-1 min-w-0">

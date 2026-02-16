@@ -44,6 +44,7 @@ const MobileTabPageHeader: FunctionComponent<MobileTabPageHeaderProps> = ({
     return (
         <>
             <MobilePageHeader
+                theme="sky"
                 className={`bg-sky-500 dark:bg-sky-700 ${className}`}
                 noBorder={noBorder}
                 showLeftButton={false}
