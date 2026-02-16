@@ -61,7 +61,7 @@ const SettingsPage = () => {
                 enableReinitialize
                 validateOnMount
             >
-                {({ isSubmitting, submitForm, isValid, dirty }) => (
+                {({ isSubmitting, submitForm }) => (
                     <div className="min-h-screen pb-20 md:pb-0">
                         {isMobile ? (
                             <MobilePageHeader
@@ -73,7 +73,7 @@ const SettingsPage = () => {
                                     <Button
                                         type="button"
                                         onClick={submitForm}
-                                        disabled={isSubmitting || !isValid}
+                                        disabled={isSubmitting}
                                         theme="success"
                                     >
                                         <HiCheckCircle className="w-4 h-4 mr-1" />
