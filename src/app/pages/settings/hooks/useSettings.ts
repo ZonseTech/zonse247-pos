@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Notify, Report } from 'notiflix';
 import settingsService from '../../../services/settings.service';
-import { getDefaultSettings } from '../constants/defaultValues';
+import { getDefaultSettings, SettingsAppSettings, SettingsApiResponse } from '../constants/defaultValues';
 import type { SettingsTabId } from '../constants/config';
 
 interface UseSettingsReturn {
-    settings: AppSettings | null;
+    settings: SettingsAppSettings | null;
     loading: boolean;
     activeTab: SettingsTabId;
     showResetConfirm: boolean;
@@ -14,16 +14,16 @@ interface UseSettingsReturn {
     setActiveTab: (tab: SettingsTabId) => void;
     setShowResetConfirm: (show: boolean) => void;
     loadSettings: () => Promise<void>;
-    handleSubmit: (values: AppSettings) => Promise<void>;
+    handleSubmit: (values: SettingsAppSettings) => Promise<void>;
     handleResetSettings: () => Promise<void>;
-    handleUpdateGroup: <K extends keyof TerminalSettingsApiResponse>(
+    handleUpdateGroup: <K extends keyof SettingsApiResponse>(
         groupName: K,
-        settings: TerminalSettingsApiResponse[K]
+        settings: SettingsApiResponse[K]
     ) => Promise<void>;
 }
 
 export const useSettings = (): UseSettingsReturn => {
-    const [settings, setSettings] = useState<AppSettings | null>(null);
+    const [settings, setSettings] = useState<SettingsAppSettings | null>(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<SettingsTabId>('general');
     const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -64,7 +64,7 @@ export const useSettings = (): UseSettingsReturn => {
      * Save settings to API
      * Uses PUT /:terminalId endpoint
      */
-    const handleSubmit = useCallback(async (values: AppSettings) => {
+    const handleSubmit = useCallback(async (values: SettingsAppSettings) => {
         try {
             await settingsService.update(values);
             Report.success('Success!', 'Settings saved successfully', 'Ok');
@@ -80,9 +80,9 @@ export const useSettings = (): UseSettingsReturn => {
      * Update a specific settings group
      * Uses PATCH /:terminalId/group/:groupName endpoint
      */
-    const handleUpdateGroup = useCallback(async <K extends keyof TerminalSettingsApiResponse>(
+    const handleUpdateGroup = useCallback(async <K extends keyof SettingsApiResponse>(
         groupName: K,
-        groupSettings: TerminalSettingsApiResponse[K]
+        groupSettings: SettingsApiResponse[K]
     ) => {
         try {
             await settingsService.updateSettingsGroup(groupName, groupSettings);

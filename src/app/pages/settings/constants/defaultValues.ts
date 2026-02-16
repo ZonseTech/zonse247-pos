@@ -72,8 +72,24 @@ export type SecuritySettingsType = {
     apiBaseUrl: string;
 };
 
-export type SettingsAppSettings = GeneralSettings & ReceiptSettingsType & BusinessSettings & SecuritySettingsType;
+export type SettingsAppSettings = {
+    terminalId: string;
+} & GeneralSettings & ReceiptSettingsType & BusinessSettings & SecuritySettingsType;
 
+// ==========================================
+// GROUPED API RESPONSE TYPE (new format)
+// ==========================================
+
+export type GroupedApiResponse = {
+    id?: string;
+    terminalId?: string;
+    general?: Partial<GeneralSettings>;
+    receipt?: Partial<ReceiptSettingsType>;
+    business?: Partial<BusinessSettings>;
+    security?: Partial<SecuritySettingsType>;
+};
+
+// Legacy flat API response type (backward compatibility)
 export type SettingsApiResponse = {
     id?: string;
     terminalId?: string;
@@ -207,17 +223,88 @@ export const DEFAULT_SECURITY_SETTINGS: SecuritySettingsType = {
         : 'https://api.example.com',
 };
 
-// ==========================================
-// MAPPING FUNCTIONS
-// ==========================================
+/**
+ * Check if response is grouped format (has general, receipt, business, security keys)
+ */
+const isGroupedResponse = (response: any): response is GroupedApiResponse => {
+    return response && ('general' in response || 'receipt' in response || 'business' in response || 'security' in response);
+};
 
 /**
- * Maps API response to flat SettingsAppSettings
+ * Maps API response (grouped or flat) to flat SettingsAppSettings
  */
-export const mapApiResponseToSettings = (apiResponse: SettingsApiResponse | null): SettingsAppSettings => {
+export const mapApiResponseToSettings = (apiResponse: GroupedApiResponse | SettingsApiResponse | null): SettingsAppSettings => {
     if (!apiResponse) return getDefaultSettings();
 
+    // Handle grouped response format
+    if (isGroupedResponse(apiResponse)) {
+        const { general, receipt, business, security } = apiResponse;
+
+        return {
+            terminalId: apiResponse.terminalId || '',
+            // General Settings
+            dateFormat: general?.dateFormat ?? DEFAULT_GENERAL_SETTINGS.dateFormat,
+            showProductImages: general?.showProductImages ?? DEFAULT_GENERAL_SETTINGS.showProductImages,
+            productDisplayMode: general?.productDisplayMode ?? DEFAULT_GENERAL_SETTINGS.productDisplayMode,
+            barcodeScanMode: general?.barcodeScanMode ?? DEFAULT_GENERAL_SETTINGS.barcodeScanMode,
+            enableStockAlerts: general?.enableStockAlerts ?? DEFAULT_GENERAL_SETTINGS.enableStockAlerts,
+            enableVirtualKeyboard: general?.enableVirtualKeyboard ?? DEFAULT_GENERAL_SETTINGS.enableVirtualKeyboard,
+            virtualKeyboardLayout: general?.virtualKeyboardLayout ?? DEFAULT_GENERAL_SETTINGS.virtualKeyboardLayout,
+            virtualKeyboardTheme: general?.virtualKeyboardTheme ?? DEFAULT_GENERAL_SETTINGS.virtualKeyboardTheme,
+            virtualKeyboardSound: general?.virtualKeyboardSound ?? DEFAULT_GENERAL_SETTINGS.virtualKeyboardSound,
+            virtualKeyboardHaptic: general?.virtualKeyboardHaptic ?? DEFAULT_GENERAL_SETTINGS.virtualKeyboardHaptic,
+            // Receipt Settings
+            storeName: receipt?.storeName ?? DEFAULT_RECEIPT_SETTINGS.storeName,
+            storePhone: receipt?.storePhone ?? DEFAULT_RECEIPT_SETTINGS.storePhone,
+            storeAddress: receipt?.storeAddress ?? DEFAULT_RECEIPT_SETTINGS.storeAddress,
+            storeWebsite: receipt?.storeWebsite ?? DEFAULT_RECEIPT_SETTINGS.storeWebsite,
+            taxTitle: receipt?.taxTitle ?? DEFAULT_RECEIPT_SETTINGS.taxTitle,
+            businessTaxId: receipt?.businessTaxId ?? DEFAULT_RECEIPT_SETTINGS.businessTaxId,
+            logoUrl: receipt?.logoUrl ?? DEFAULT_RECEIPT_SETTINGS.logoUrl,
+            receiptHeader: receipt?.receiptHeader ?? DEFAULT_RECEIPT_SETTINGS.receiptHeader,
+            showPhoneOnReceipt: receipt?.showPhoneOnReceipt ?? DEFAULT_RECEIPT_SETTINGS.showPhoneOnReceipt,
+            showAddressOnReceipt: receipt?.showAddressOnReceipt ?? DEFAULT_RECEIPT_SETTINGS.showAddressOnReceipt,
+            showTaxOnReceipt: receipt?.showTaxOnReceipt ?? DEFAULT_RECEIPT_SETTINGS.showTaxOnReceipt,
+            showWebsiteOnReceipt: receipt?.showWebsiteOnReceipt ?? DEFAULT_RECEIPT_SETTINGS.showWebsiteOnReceipt,
+            showStoreLogo: receipt?.showStoreLogo ?? DEFAULT_RECEIPT_SETTINGS.showStoreLogo,
+            showListPrice: receipt?.showListPrice ?? DEFAULT_RECEIPT_SETTINGS.showListPrice,
+            showRateInReceipt: receipt?.showRateInReceipt ?? DEFAULT_RECEIPT_SETTINGS.showRateInReceipt,
+            showTotalMoneySaved: receipt?.showTotalMoneySaved ?? DEFAULT_RECEIPT_SETTINGS.showTotalMoneySaved,
+            showCashierName: receipt?.showCashierName ?? DEFAULT_RECEIPT_SETTINGS.showCashierName,
+            showCustomerPhone: receipt?.showCustomerPhone ?? DEFAULT_RECEIPT_SETTINGS.showCustomerPhone,
+            showCustomerAddress: receipt?.showCustomerAddress ?? DEFAULT_RECEIPT_SETTINGS.showCustomerAddress,
+            thankYouNote: receipt?.thankYouNote ?? DEFAULT_RECEIPT_SETTINGS.thankYouNote,
+            useAppLanguage: receipt?.useAppLanguage ?? DEFAULT_RECEIPT_SETTINGS.useAppLanguage,
+            showTotalItemCount: receipt?.showTotalItemCount ?? DEFAULT_RECEIPT_SETTINGS.showTotalItemCount,
+            showChangeReturn: receipt?.showChangeReturn ?? DEFAULT_RECEIPT_SETTINGS.showChangeReturn,
+            showPaymentDetails: receipt?.showPaymentDetails ?? DEFAULT_RECEIPT_SETTINGS.showPaymentDetails,
+            showPoweredBy: receipt?.showPoweredBy ?? DEFAULT_RECEIPT_SETTINGS.showPoweredBy,
+            orderItemsBy: receipt?.orderItemsBy ?? DEFAULT_RECEIPT_SETTINGS.orderItemsBy,
+            messageTemplate: receipt?.messageTemplate ?? DEFAULT_RECEIPT_SETTINGS.messageTemplate,
+            whatsappShareApp: receipt?.whatsappShareApp ?? DEFAULT_RECEIPT_SETTINGS.whatsappShareApp,
+            // Business Settings
+            receiptNumberPrefix: business?.receiptNumberPrefix ?? DEFAULT_BUSINESS_SETTINGS.receiptNumberPrefix,
+            autoApplyTax: business?.autoApplyTax ?? DEFAULT_BUSINESS_SETTINGS.autoApplyTax,
+            taxInclusivePricing: business?.taxInclusivePricing ?? DEFAULT_BUSINESS_SETTINGS.taxInclusivePricing,
+            taxRate: business?.taxRate ?? DEFAULT_BUSINESS_SETTINGS.taxRate,
+            enableDiscounts: business?.enableDiscounts ?? DEFAULT_BUSINESS_SETTINGS.enableDiscounts,
+            requirePinForDiscount: business?.requirePinForDiscount ?? DEFAULT_BUSINESS_SETTINGS.requirePinForDiscount,
+            maxDiscountPercentage: business?.maxDiscountPercentage ?? DEFAULT_BUSINESS_SETTINGS.maxDiscountPercentage,
+            roundingEnabled: business?.roundingEnabled ?? DEFAULT_BUSINESS_SETTINGS.roundingEnabled,
+            tableManagementEnabled: business?.tableManagementEnabled ?? DEFAULT_BUSINESS_SETTINGS.tableManagementEnabled,
+            inventoryHealthScoreEnabled: business?.inventoryHealthScoreEnabled ?? DEFAULT_BUSINESS_SETTINGS.inventoryHealthScoreEnabled,
+            // Security Settings
+            autoSyncOnReconnect: security?.autoSyncOnReconnect ?? DEFAULT_SECURITY_SETTINGS.autoSyncOnReconnect,
+            requirePinForVoid: security?.requirePinForVoid ?? DEFAULT_SECURITY_SETTINGS.requirePinForVoid,
+            requirePinForReturn: security?.requirePinForReturn ?? DEFAULT_SECURITY_SETTINGS.requirePinForReturn,
+            enableNotifications: security?.enableNotifications ?? DEFAULT_SECURITY_SETTINGS.enableNotifications,
+            apiBaseUrl: security?.apiBaseUrl ?? DEFAULT_SECURITY_SETTINGS.apiBaseUrl,
+        };
+    }
+
+    // Handle flat response format (legacy)
     return {
+        terminalId: apiResponse.terminalId || '',
         dateFormat: decodeHtmlEntities(apiResponse.dateFormat) || DEFAULT_GENERAL_SETTINGS.dateFormat,
         showProductImages: apiResponse.showProductImages ?? DEFAULT_GENERAL_SETTINGS.showProductImages,
         productDisplayMode: apiResponse.productDisplayMode ?? DEFAULT_GENERAL_SETTINGS.productDisplayMode,
@@ -274,10 +361,90 @@ export const mapApiResponseToSettings = (apiResponse: SettingsApiResponse | null
     };
 };
 
+// ==========================================
+// GROUPED API PAYLOAD TYPE
+// ==========================================
+
+export type GroupedSettingsPayload = {
+    general: GeneralSettings;
+    receipt: ReceiptSettingsType;
+    business: BusinessSettings;
+    security: SecuritySettingsType;
+};
+
 /**
- * Maps flat SettingsAppSettings to API request payload
+ * Maps flat SettingsAppSettings to grouped API request payload
  */
-export const mapSettingsToApiPayload = (settings: SettingsAppSettings): SettingsApiResponse => {
+export const mapSettingsToApiPayload = (settings: SettingsAppSettings): GroupedSettingsPayload => {
+    return {
+        general: {
+            dateFormat: settings.dateFormat,
+            showProductImages: settings.showProductImages,
+            productDisplayMode: settings.productDisplayMode,
+            barcodeScanMode: settings.barcodeScanMode,
+            enableStockAlerts: settings.enableStockAlerts,
+            enableVirtualKeyboard: settings.enableVirtualKeyboard,
+            virtualKeyboardLayout: settings.virtualKeyboardLayout,
+            virtualKeyboardTheme: settings.virtualKeyboardTheme,
+            virtualKeyboardSound: settings.virtualKeyboardSound,
+            virtualKeyboardHaptic: settings.virtualKeyboardHaptic,
+        },
+        receipt: {
+            storeName: settings.storeName,
+            storePhone: settings.storePhone,
+            storeAddress: settings.storeAddress,
+            storeWebsite: settings.storeWebsite,
+            taxTitle: settings.taxTitle,
+            businessTaxId: settings.businessTaxId,
+            logoUrl: settings.logoUrl,
+            receiptHeader: settings.receiptHeader,
+            showPhoneOnReceipt: settings.showPhoneOnReceipt,
+            showAddressOnReceipt: settings.showAddressOnReceipt,
+            showTaxOnReceipt: settings.showTaxOnReceipt,
+            showWebsiteOnReceipt: settings.showWebsiteOnReceipt,
+            showStoreLogo: settings.showStoreLogo,
+            showListPrice: settings.showListPrice,
+            showRateInReceipt: settings.showRateInReceipt,
+            showTotalMoneySaved: settings.showTotalMoneySaved,
+            showCashierName: settings.showCashierName,
+            showCustomerPhone: settings.showCustomerPhone,
+            showCustomerAddress: settings.showCustomerAddress,
+            thankYouNote: settings.thankYouNote,
+            useAppLanguage: settings.useAppLanguage,
+            showTotalItemCount: settings.showTotalItemCount,
+            showChangeReturn: settings.showChangeReturn,
+            showPaymentDetails: settings.showPaymentDetails,
+            showPoweredBy: settings.showPoweredBy,
+            orderItemsBy: settings.orderItemsBy,
+            messageTemplate: settings.messageTemplate,
+            whatsappShareApp: settings.whatsappShareApp,
+        },
+        business: {
+            receiptNumberPrefix: settings.receiptNumberPrefix,
+            autoApplyTax: settings.autoApplyTax,
+            taxInclusivePricing: settings.taxInclusivePricing,
+            taxRate: settings.taxRate,
+            enableDiscounts: settings.enableDiscounts,
+            requirePinForDiscount: settings.requirePinForDiscount,
+            maxDiscountPercentage: settings.maxDiscountPercentage,
+            roundingEnabled: settings.roundingEnabled,
+            tableManagementEnabled: settings.tableManagementEnabled,
+            inventoryHealthScoreEnabled: settings.inventoryHealthScoreEnabled,
+        },
+        security: {
+            autoSyncOnReconnect: settings.autoSyncOnReconnect,
+            requirePinForVoid: settings.requirePinForVoid,
+            requirePinForReturn: settings.requirePinForReturn,
+            enableNotifications: settings.enableNotifications,
+            apiBaseUrl: settings.apiBaseUrl,
+        },
+    };
+};
+
+/**
+ * Maps flat SettingsAppSettings to flat API request payload (legacy)
+ */
+export const mapSettingsToFlatPayload = (settings: SettingsAppSettings): SettingsApiResponse => {
     return {
         dateFormat: settings.dateFormat,
         showProductImages: settings.showProductImages,
@@ -339,6 +506,7 @@ export const mapSettingsToApiPayload = (settings: SettingsAppSettings): Settings
  * Get complete default settings
  */
 export const getDefaultSettings = (overrides?: Partial<SettingsAppSettings>): SettingsAppSettings => ({
+    terminalId: '',
     ...DEFAULT_GENERAL_SETTINGS,
     ...DEFAULT_RECEIPT_SETTINGS,
     ...DEFAULT_BUSINESS_SETTINGS,
