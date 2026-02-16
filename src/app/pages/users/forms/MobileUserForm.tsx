@@ -11,7 +11,7 @@ import { ROUTES } from '../../../utils/constants';
 import { useAuth } from '../../../context/AuthProvider';
 import { createStaffValidationSchema, updateStaffValidationSchema } from '../../../schemas/user.schema';
 import { parseApiError, mapErrorToFormikErrors, isDuplicateError } from '../../../utils/api-error-handler';
-import { HiX, HiCheck } from 'react-icons/hi';
+import { HiCheck } from 'react-icons/hi';
 import {
     BasicInfoFields,
     StaffOptionsFields,
@@ -95,7 +95,6 @@ const MobileUserForm: FunctionComponent = () => {
                 tenantId: values.tenantId,
                 trackAttendance: values.trackAttendance,
                 allowAppAccess: values.allowAppAccess,
-                // Attendance & Salary fields (only when trackAttendance is true)
                 ...(values.trackAttendance && {
                     calculateAs: values.calculateAs,
                     staffSalary: values.staffSalary || undefined,
@@ -104,7 +103,6 @@ const MobileUserForm: FunctionComponent = () => {
                     allowSelfAttendance: values.allowSelfAttendance,
                     attendanceType: values.allowSelfAttendance ? values.attendanceType : undefined,
                 }),
-                // Branch & Role fields (only when allowAppAccess is true)
                 ...(values.allowAppAccess && {
                     branchId: values.branchId,
                     roleId: values.roleId,
@@ -114,7 +112,7 @@ const MobileUserForm: FunctionComponent = () => {
             if (userId) {
                 await usersService.update(userId, staffData as UpdateUserRequest);
                 Report.success('Success', 'Staff updated successfully', 'Okay', () => {
-                    navigate(ROUTES.USERS);
+                    // Do nothing
                 });
             } else {
                 const response = await usersService.store(staffData as CreateUserRequest);
@@ -207,7 +205,6 @@ const MobileUserForm: FunctionComponent = () => {
                     <Form className="flex flex-col h-full">
                         <div className="fixed top-0 left-0 right-0 z-50">
                             <MobilePageHeader
-                                leftIcon={<HiX className="w-6 h-6 text-white" />}
                                 onLeftPress={() => navigate(-1)}
                                 title={<span className="text-white font-semibold">{userId ? 'EDIT USER' : 'ADD USER'}</span>}
                                 rightContent={
@@ -220,7 +217,7 @@ const MobileUserForm: FunctionComponent = () => {
                                         <span className="text-white text-sm font-medium">SAVE</span>
                                     </Button>
                                 }
-                                className="bg-sky-500 dark:bg-sky-700"
+                                theme='sky'
                             />
                         </div>
 

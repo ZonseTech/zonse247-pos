@@ -108,7 +108,6 @@ const SalesPage: FC = () => {
                 >
                     <div className="p-3 md:p-6 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
                         <div className="flex flex-col gap-3 md:gap-4">
-                            {/* Search Row */}
                             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                                 <SearchBar
                                     placeholder="Search transactions..."
@@ -117,7 +116,6 @@ const SalesPage: FC = () => {
                                     className="w-full sm:flex-1 sm:max-w-xs"
                                 />
 
-                                {/* Action buttons - stack on mobile */}
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <button
                                         onClick={exportData}
@@ -217,7 +215,6 @@ const SalesPage: FC = () => {
                                         isLoading={false}
                                     />
 
-                                    {/* Mobile Pagination */}
                                     <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
                                         <span className="text-xs text-gray-600 dark:text-gray-400">
                                             Page {page} of {totalPages} ({totalRows} total)
@@ -243,7 +240,6 @@ const SalesPage: FC = () => {
                             )}
                         </div>
                     ) : (
-                        /* Desktop View - Data Table */
                         <div className="overflow-hidden">
                             <DataTable
                                 columns={columns}

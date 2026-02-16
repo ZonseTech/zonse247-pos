@@ -52,7 +52,6 @@ const MobileUserManagement: FunctionComponent = () => {
                     rightContent={
                         <HelpModal iconClassName="w-6 h-6 text-sky-500 dark:text-sky-400 cursor-pointer active:scale-95 transition-transform" />
                     }
-                    className="bg-white dark:bg-gray-700"
                 />
             </div>
 
