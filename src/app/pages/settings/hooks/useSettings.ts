@@ -31,26 +31,6 @@ export const useSettings = (): UseSettingsReturn => {
     const [isConfigured, setIsConfigured] = useState(false);
 
     /**
-     * Check terminal configuration status
-     */
-    const checkConfiguration = useCallback(async () => {
-        try {
-            const id = await settingsService.getTerminalId();
-            setTerminalId(id);
-
-            if (id) {
-                const configStatus = await settingsService.isConfigured();
-                setIsConfigured(configStatus.configured);
-            } else {
-                setIsConfigured(false);
-            }
-        } catch (error) {
-            console.error('Error checking configuration:', error);
-            setIsConfigured(false);
-        }
-    }, []);
-
-    /**
      * Load settings from API with error handling and defaults
      * The service now handles the mapping from hierarchical JSON + selective columns to flat AppSettings
      */
@@ -58,7 +38,6 @@ export const useSettings = (): UseSettingsReturn => {
         try {
             setLoading(true);
 
-            // Check if terminal is configured first
             const id = await settingsService.getTerminalId();
             setTerminalId(id);
 
@@ -69,7 +48,6 @@ export const useSettings = (): UseSettingsReturn => {
                 return;
             }
 
-            // settingsService.load() now returns AppSettings directly (already mapped and with defaults applied)
             const appSettings = await settingsService.load();
             setSettings(appSettings);
             setIsConfigured(true);
@@ -93,7 +71,7 @@ export const useSettings = (): UseSettingsReturn => {
             await loadSettings();
         } catch (error: any) {
             const errorMessage = error?.response?.data?.message || error?.message || 'Failed to save settings';
-            Notify.failure(errorMessage);
+            Notify.failure(errorMessage, { timeout: 5000 });
             throw error;
         }
     }, [loadSettings]);
@@ -112,7 +90,7 @@ export const useSettings = (): UseSettingsReturn => {
             await loadSettings();
         } catch (error: any) {
             const errorMessage = error?.response?.data?.message || error?.message || 'Failed to update settings group';
-            Notify.failure(errorMessage);
+            Notify.failure(errorMessage, { timeout: 5000 });
             throw error;
         }
     }, [loadSettings]);
@@ -128,7 +106,7 @@ export const useSettings = (): UseSettingsReturn => {
             await loadSettings();
         } catch (error: any) {
             const errorMessage = error?.response?.data?.message || error?.message || 'Failed to reset settings';
-            Notify.failure(errorMessage);
+            Notify.failure(errorMessage, { timeout: 5000 });
         }
     }, [loadSettings]);
 

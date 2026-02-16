@@ -3,7 +3,7 @@ import { Navigate, Route } from 'react-router'
 import { ROUTES } from '../../utils/constants'
 
 const GeneralSettingsPage = lazy(() => import('../../pages/settings/GeneralSettingsPage'))
-const SalesSettingsPage = lazy(() => import('../../pages/settings/SalesSettingsPage'))
+const SalesSettingsPage = lazy(() => import('../../pages/settings/BusinessSettingsPage'))
 const ReceiptSettingsPage = lazy(() => import('../../pages/settings/ReceiptSettingsPage'))
 const SecuritySettingsPage = lazy(() => import('../../pages/settings/SecuritySettingsPage'))
 const SettingsPage = lazy(() => import('../../pages/settings/SettingsPage'))
