@@ -9,6 +9,7 @@ export { default as Button } from './Button';
 export { default as Breadcrumb } from './Breadcrumb';
 export { default as ToggleButtonGroup } from './buttons/ToggleButtonGroup';
 export type { ToggleOption } from './buttons/ToggleButtonGroup';
+export { default as NavigationCard } from './buttons/NavigationCard';
 export { default as Card } from './card/Card';
 export { default as CardBody } from './card/CardBody';
 export { default as CollapsibleSection } from './card/CollapsibleSection';
@@ -29,15 +30,15 @@ export { default as Textarea } from './Textarea';
 export { default as ZonseUIKitContext } from './ZonseUIKitContext';
 export { default as FormSearchableSelect } from './FormSearchableSelect';
 
-// Form components
 export { default as FormInput } from './form/FormInput';
 export { default as FormSelect } from './form/FormSelect';
 export { default as FormTextArea } from './form/FormTextArea';
+export { default as FormSwitch } from './form/FormSwitch';
+export { default as FormCheckbox } from './form/FormCheckbox';
+export { default as FormRadioGroup } from './form/FormRadioGroup';
 export { default as PricingFields } from '../pages/inventory/forms/fields/PricingFields';
 
-// Scanner components
 export { CameraBarcodeScanner, ScannerModeButton, BarcodeScannerInput } from './scanner';
 
-// Chart components
 export { ReportBarChart, ReportProgressBar, ReportPieChart } from './charts';
 export type { ChartDataPoint, ReportBarChartProps, ReportProgressBarProps, PieChartDataPoint, ReportPieChartProps } from './charts';

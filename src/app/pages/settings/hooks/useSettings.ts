@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Notify, Report } from 'notiflix';
 import settingsService from '../../../services/settings.service';
-import { getDefaultSettings } from '../constants/defaultValues';
+import { getDefaultSettings, SettingsAppSettings, SettingsApiResponse } from '../constants/defaultValues';
 import type { SettingsTabId } from '../constants/config';
 
 interface UseSettingsReturn {
-    settings: AppSettings | null;
+    settings: SettingsAppSettings | null;
     loading: boolean;
     activeTab: SettingsTabId;
     showResetConfirm: boolean;
@@ -14,41 +14,21 @@ interface UseSettingsReturn {
     setActiveTab: (tab: SettingsTabId) => void;
     setShowResetConfirm: (show: boolean) => void;
     loadSettings: () => Promise<void>;
-    handleSubmit: (values: AppSettings) => Promise<void>;
+    handleSubmit: (values: SettingsAppSettings) => Promise<void>;
     handleResetSettings: () => Promise<void>;
-    handleUpdateGroup: <K extends keyof TerminalSettingsApiResponse>(
+    handleUpdateGroup: <K extends keyof SettingsApiResponse>(
         groupName: K,
-        settings: TerminalSettingsApiResponse[K]
+        settings: SettingsApiResponse[K]
     ) => Promise<void>;
 }
 
 export const useSettings = (): UseSettingsReturn => {
-    const [settings, setSettings] = useState<AppSettings | null>(null);
+    const [settings, setSettings] = useState<SettingsAppSettings | null>(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<SettingsTabId>('general');
     const [showResetConfirm, setShowResetConfirm] = useState(false);
     const [terminalId, setTerminalId] = useState<string | null>(null);
     const [isConfigured, setIsConfigured] = useState(false);
-
-    /**
-     * Check terminal configuration status
-     */
-    const checkConfiguration = useCallback(async () => {
-        try {
-            const id = await settingsService.getTerminalId();
-            setTerminalId(id);
-
-            if (id) {
-                const configStatus = await settingsService.isConfigured();
-                setIsConfigured(configStatus.configured);
-            } else {
-                setIsConfigured(false);
-            }
-        } catch (error) {
-            console.error('Error checking configuration:', error);
-            setIsConfigured(false);
-        }
-    }, []);
 
     /**
      * Load settings from API with error handling and defaults
@@ -58,7 +38,6 @@ export const useSettings = (): UseSettingsReturn => {
         try {
             setLoading(true);
 
-            // Check if terminal is configured first
             const id = await settingsService.getTerminalId();
             setTerminalId(id);
 
@@ -69,7 +48,6 @@ export const useSettings = (): UseSettingsReturn => {
                 return;
             }
 
-            // settingsService.load() now returns AppSettings directly (already mapped and with defaults applied)
             const appSettings = await settingsService.load();
             setSettings(appSettings);
             setIsConfigured(true);
@@ -86,14 +64,14 @@ export const useSettings = (): UseSettingsReturn => {
      * Save settings to API
      * Uses PUT /:terminalId endpoint
      */
-    const handleSubmit = useCallback(async (values: AppSettings) => {
+    const handleSubmit = useCallback(async (values: SettingsAppSettings) => {
         try {
             await settingsService.update(values);
             Report.success('Success!', 'Settings saved successfully', 'Ok');
             await loadSettings();
         } catch (error: any) {
             const errorMessage = error?.response?.data?.message || error?.message || 'Failed to save settings';
-            Notify.failure(errorMessage);
+            Notify.failure(errorMessage, { timeout: 5000 });
             throw error;
         }
     }, [loadSettings]);
@@ -102,9 +80,9 @@ export const useSettings = (): UseSettingsReturn => {
      * Update a specific settings group
      * Uses PATCH /:terminalId/group/:groupName endpoint
      */
-    const handleUpdateGroup = useCallback(async <K extends keyof TerminalSettingsApiResponse>(
+    const handleUpdateGroup = useCallback(async <K extends keyof SettingsApiResponse>(
         groupName: K,
-        groupSettings: TerminalSettingsApiResponse[K]
+        groupSettings: SettingsApiResponse[K]
     ) => {
         try {
             await settingsService.updateSettingsGroup(groupName, groupSettings);
@@ -112,7 +90,7 @@ export const useSettings = (): UseSettingsReturn => {
             await loadSettings();
         } catch (error: any) {
             const errorMessage = error?.response?.data?.message || error?.message || 'Failed to update settings group';
-            Notify.failure(errorMessage);
+            Notify.failure(errorMessage, { timeout: 5000 });
             throw error;
         }
     }, [loadSettings]);
@@ -128,7 +106,7 @@ export const useSettings = (): UseSettingsReturn => {
             await loadSettings();
         } catch (error: any) {
             const errorMessage = error?.response?.data?.message || error?.message || 'Failed to reset settings';
-            Notify.failure(errorMessage);
+            Notify.failure(errorMessage, { timeout: 5000 });
         }
     }, [loadSettings]);
 

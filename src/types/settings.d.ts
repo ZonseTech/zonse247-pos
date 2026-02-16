@@ -213,6 +213,8 @@ type WorkflowSettings = {
     enableLayaway: boolean;
     enableDiscounts: boolean;
     maxDiscountPercentage: number;
+    tableManagementEnabled: boolean;
+    inventoryHealthScoreEnabled: boolean;
 };
 
 /**
@@ -298,10 +300,16 @@ type TerminalSettingsApiResponse = {
     storeAddress: string | null;
     storePhone: string | null;
     storeEmail: string | null;
+    storeWebsite: string | null;
     currency: string;
     taxRate: number | string; // API may return as string
+    taxTitle: string | null;
     businessLicense: string | null;
     businessTaxId: string | null;
+    showPhoneOnReceipt: boolean;
+    showAddressOnReceipt: boolean;
+    showTaxOnReceipt: boolean;
+    showWebsiteOnReceipt: boolean;
 
     // Localization & Display Settings (Selective Columns)
     language: string;
@@ -364,10 +372,16 @@ type AppSettings = {
     storeAddress: string;
     storePhone: string;
     storeEmail: string;
+    storeWebsite: string;
     currency: string;
     taxRate: number;
+    taxTitle: string;
     businessLicense: string;
     businessTaxId: string;
+    showPhoneOnReceipt: boolean;
+    showAddressOnReceipt: boolean;
+    showTaxOnReceipt: boolean;
+    showWebsiteOnReceipt: boolean;
 
     // Localization & Display Settings (Selective Columns)
     language: string;
@@ -539,6 +553,8 @@ type AppSettings = {
     enableLayaway: boolean;
     enableDiscounts: boolean;
     maxDiscountPercentage: number;
+    tableManagementEnabled: boolean;
+    inventoryHealthScoreEnabled: boolean;
 
     // Backup & Recovery (from JSON)
     backupEnabled: boolean;

@@ -1,9 +1,9 @@
-import { mapSettingsToApiPayload } from '../constants/defaultValues';
+import { mapSettingsToApiPayload, SettingsAppSettings } from '../constants/defaultValues';
 
 /**
  * Check if settings have been modified from defaults
  */
-export const hasModifications = (current: AppSettings, defaults: AppSettings): boolean => {
+export const hasModifications = (current: SettingsAppSettings, defaults: SettingsAppSettings): boolean => {
     return JSON.stringify(current) !== JSON.stringify(defaults);
 };
 
@@ -11,13 +11,13 @@ export const hasModifications = (current: AppSettings, defaults: AppSettings): b
  * Get only modified fields from settings
  */
 export const getModifiedFields = (
-    current: AppSettings,
-    defaults: AppSettings
-): Partial<AppSettings> => {
-    const modified: Partial<AppSettings> = {};
+    current: SettingsAppSettings,
+    defaults: SettingsAppSettings
+): Partial<SettingsAppSettings> => {
+    const modified: Partial<SettingsAppSettings> = {};
 
     Object.keys(current).forEach((key) => {
-        const typedKey = key as keyof AppSettings;
+        const typedKey = key as keyof SettingsAppSettings;
         if (current[typedKey] !== defaults[typedKey]) {
             (modified as any)[typedKey] = current[typedKey];
         }
@@ -42,11 +42,11 @@ export const isValidUrl = (url: string): boolean => {
  * Sanitize settings before submission
  * Removes empty strings, normalizes values
  */
-export const sanitizeSettings = (settings: AppSettings): AppSettings => {
+export const sanitizeSettings = (settings: SettingsAppSettings): SettingsAppSettings => {
     const sanitized = { ...settings };
 
     Object.keys(sanitized).forEach((key) => {
-        const typedKey = key as keyof AppSettings;
+        const typedKey = key as keyof SettingsAppSettings;
         const value = sanitized[typedKey];
 
         if (typeof value === 'string') {

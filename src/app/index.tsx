@@ -12,7 +12,6 @@ const updateStatusBarStyle = async () => {
 
 	try {
 		const dark = isDarkMode()
-		// Style.Dark = light text (for dark backgrounds), Style.Light = dark text (for light backgrounds)
 		await StatusBar.setStyle({ style: dark ? Style.Dark : Style.Light })
 		await StatusBar.setBackgroundColor({ color: dark ? '#111827' : '#ffffff' })
 	} catch (error) {

@@ -3,28 +3,15 @@ import { version } from '../../../package.json';
 import {
 	mapSettingsToApiPayload,
 	mapApiResponseToSettings,
-	getDefaultSettings,
 	decodeHtmlEntities,
-	toNumber
+	toNumber,
+	SettingsAppSettings,
+	SettingsApiResponse,
+	GroupedSettingsPayload,
+	GroupedApiResponse
 } from '../pages/settings/constants/defaultValues';
 import { isElectron } from '../../helpers/index.helper';
 
-/**
- * API Endpoints for Terminal Settings
- * Base path: /terminal-settings
- * 
- * Routes:
- * - GET /                              - getAllSettings
- * - GET /configured                    - isConfigured
- * - POST /get-or-create                - getOrCreateSettings
- * - GET /:terminalId                   - getSettings
- * - POST /                             - createSettings
- * - PUT /:terminalId                   - updateSettings
- * - PATCH /:terminalId/group/:groupName - updateSettingsGroup
- * - PATCH /:terminalId/deactivate      - deactivateSettings
- * - DELETE /:terminalId                - deleteSettings
- * - POST /:terminalId /reset           - resetSettings
- */
 const BASE_PATH = 'terminal-settings';
 
 const endpoints = {
@@ -101,9 +88,9 @@ const settingsService = {
 	 * GET / - Get all terminal settings (for admin/listing purposes)
 	 * Returns array of all terminal settings
 	 */
-	async getAllSettings(query: Record<string, any> = {}): Promise<TerminalSettingsApiResponse[]> {
+	async getAllSettings(query: Record<string, any> = {}): Promise<SettingsApiResponse[]> {
 		return api
-			.get<ApiResponse<TerminalSettingsApiResponse[]>>(endpoints.base, query)
+			.get<ApiResponse<SettingsApiResponse[]>>(endpoints.base, query)
 			.then((res) => res.data.data || [])
 			.catch((err) => {
 				throw err;
@@ -131,10 +118,10 @@ const settingsService = {
 		terminalId: string;
 		tenantId?: string;
 		branchId?: string;
-		defaults?: Partial<TerminalSettingsApiResponse>;
-	}): Promise<TerminalSettingsApiResponse> {
+		defaults?: Partial<SettingsApiResponse>;
+	}): Promise<SettingsApiResponse> {
 		return api
-			.post<ApiResponse<TerminalSettingsApiResponse>>(endpoints.getOrCreate, params as any)
+			.post<ApiResponse<SettingsApiResponse>>(endpoints.getOrCreate, params as any)
 			.then((res) => res.data.data!)
 			.catch((err) => {
 				throw err;
@@ -145,10 +132,10 @@ const settingsService = {
 	 * GET /:terminalId - Get settings for specific terminal
 	 * @param terminalId - Optional, uses current terminal if not provided
 	 */
-	async getSettings(terminalId?: string): Promise<TerminalSettingsApiResponse> {
+	async getSettings(terminalId?: string): Promise<SettingsApiResponse> {
 		const id = terminalId || await requireTerminalId();
 		return api
-			.get<ApiResponse<TerminalSettingsApiResponse>>(`${endpoints.base}/${id}`)
+			.get<ApiResponse<SettingsApiResponse>>(`${endpoints.base}/${id}`)
 			.then((res) => res.data.data!)
 			.catch((err) => {
 				throw err;
@@ -158,9 +145,9 @@ const settingsService = {
 	/**
 	 * POST / - Create new terminal settings
 	 */
-	async createSettings(params: Partial<TerminalSettingsApiResponse> & { terminalId: string }): Promise<TerminalSettingsApiResponse> {
+	async createSettings(params: Partial<SettingsApiResponse> & { terminalId: string }): Promise<SettingsApiResponse> {
 		return api
-			.post<ApiResponse<TerminalSettingsApiResponse>>(endpoints.base, params as any)
+			.post<ApiResponse<SettingsApiResponse>>(endpoints.base, params as any)
 			.then((res) => res.data.data!)
 			.catch((err) => {
 				throw err;
@@ -169,24 +156,24 @@ const settingsService = {
 
 	/**
 	 * PUT /:terminalId - Update all settings for terminal
-	 * Converts flat AppSettings to hierarchical JSON format
-	 * @param params - Flat AppSettings or hierarchical TerminalSettingsApiResponse
+	 * Converts flat SettingsAppSettings to hierarchical JSON format
+	 * @param params - Flat SettingsAppSettings or hierarchical SettingsApiResponse
 	 * @param terminalId - Optional, uses current terminal if not provided
 	 */
 	async updateSettings(
-		params: AppSettings | Partial<TerminalSettingsApiResponse>,
+		params: SettingsAppSettings | Partial<SettingsApiResponse>,
 		terminalId?: string
-	): Promise<TerminalSettingsApiResponse> {
+	): Promise<SettingsApiResponse> {
 		const id = terminalId || await requireTerminalId();
 
-		// Check if it's AppSettings (flat) or already API format
-		const isAppSettings = 'storeName' in params && !('localizationSettings' in params);
-		const apiPayload = isAppSettings
-			? mapSettingsToApiPayload(params as AppSettings)
+		// Check if it's SettingsAppSettings (flat) - convert to grouped format
+		const isAppSettings = 'storeName' in params && !('general' in params);
+		const apiPayload: GroupedSettingsPayload | Partial<SettingsApiResponse> = isAppSettings
+			? mapSettingsToApiPayload(params as SettingsAppSettings)
 			: params;
 
 		return api
-			.put<ApiResponse<TerminalSettingsApiResponse>>(`${endpoints.base}/${id}`, apiPayload as any)
+			.put<ApiResponse<SettingsApiResponse>>(`${endpoints.base}/${id}`, apiPayload as any)
 			.then((res) => res.data.data!)
 			.catch((err) => {
 				throw err;
@@ -199,14 +186,14 @@ const settingsService = {
 	 * @param settings - The settings object for that group
 	 * @param terminalId - Optional, uses current terminal if not provided
 	 */
-	async updateSettingsGroup<K extends keyof TerminalSettingsApiResponse>(
+	async updateSettingsGroup<K extends keyof SettingsApiResponse>(
 		groupName: K,
-		settings: TerminalSettingsApiResponse[K],
+		settings: SettingsApiResponse[K],
 		terminalId?: string
-	): Promise<TerminalSettingsApiResponse> {
+	): Promise<SettingsApiResponse> {
 		const id = terminalId || await requireTerminalId();
 		return api
-			.patch<ApiResponse<TerminalSettingsApiResponse>>(
+			.patch<ApiResponse<SettingsApiResponse>>(
 				`${endpoints.base}/${id}/group/${String(groupName)}`,
 				settings as any
 			)
@@ -221,10 +208,10 @@ const settingsService = {
 	 * @param terminalId - Optional, uses current terminal if not provided
 	 * @param reason - Optional reason for deactivation
 	 */
-	async deactivateSettings(terminalId?: string, reason?: string): Promise<TerminalSettingsApiResponse> {
+	async deactivateSettings(terminalId?: string, reason?: string): Promise<SettingsApiResponse> {
 		const id = terminalId || await requireTerminalId();
 		return api
-			.patch<ApiResponse<TerminalSettingsApiResponse>>(
+			.patch<ApiResponse<SettingsApiResponse>>(
 				`${endpoints.base}/${id}/deactivate`,
 				{ reason } as any
 			)
@@ -249,19 +236,21 @@ const settingsService = {
 	},
 
 	/**
-	 * Load settings and map to flat AppSettings format
-	 * Converts hierarchical JSON + selective columns to flat structure
+	 * Load settings and map to flat SettingsAppSettings format
+	 * Handles both grouped and flat API response formats
 	 * Uses current terminal ID
 	 */
-	async load(): Promise<AppSettings> {
+	async load(): Promise<SettingsAppSettings> {
 		const terminalId = await requireTerminalId();
 		return api
-			.get<ApiResponse<TerminalSettingsApiResponse>>(`${endpoints.base}/${terminalId}`)
+			.get<ApiResponse<GroupedApiResponse | SettingsApiResponse>>(`${endpoints.base}/${terminalId}`)
 			.then((res) => {
 				const apiResponse = res.data.data;
 				const mappedSettings = mapApiResponseToSettings(apiResponse ?? null);
-				mappedSettings.terminalId = terminalId;
-				return getDefaultSettings(mappedSettings);
+				return {
+					...mappedSettings,
+					terminalId,
+				};
 			})
 			.catch((err) => {
 				throw err;
@@ -272,10 +261,10 @@ const settingsService = {
 	 * Load raw settings as-is from API (hierarchical format)
 	 * Uses current terminal ID
 	 */
-	async loadRaw(): Promise<TerminalSettingsApiResponse | null> {
+	async loadRaw(): Promise<SettingsApiResponse | null> {
 		const terminalId = await requireTerminalId();
 		return api
-			.get<ApiResponse<TerminalSettingsApiResponse>>(`${endpoints.base}/${terminalId}`)
+			.get<ApiResponse<SettingsApiResponse>>(`${endpoints.base}/${terminalId}`)
 			.then((res) => res.data.data ?? null)
 			.catch((err) => {
 				throw err;
@@ -283,10 +272,10 @@ const settingsService = {
 	},
 
 	/**
-	 * Update settings - converts flat AppSettings to hierarchical JSON format
+	 * Update settings - converts flat SettingsAppSettings to hierarchical JSON format
 	 * Alias for updateSettings for backward compatibility
 	 */
-	async update(params: AppSettings): Promise<TerminalSettingsApiResponse> {
+	async update(params: SettingsAppSettings): Promise<SettingsApiResponse> {
 		return this.updateSettings(params);
 	},
 
@@ -295,12 +284,12 @@ const settingsService = {
 	 * Use this for updating only specific settings groups
 	 */
 	async partialUpdate(
-		params: Partial<TerminalSettingsApiResponse>,
+		params: Partial<SettingsApiResponse>,
 		terminalId?: string
-	): Promise<TerminalSettingsApiResponse> {
+	): Promise<SettingsApiResponse> {
 		const id = terminalId || await requireTerminalId();
 		return api
-			.put<ApiResponse<TerminalSettingsApiResponse>>(`${endpoints.base}/${id}`, params as any)
+			.put<ApiResponse<SettingsApiResponse>>(`${endpoints.base}/${id}`, params as any)
 			.then((res) => res.data.data!)
 			.catch((err) => {
 				throw err;
@@ -349,10 +338,10 @@ const settingsService = {
 	 * Reset settings to defaults
 	 * Creates new settings or resets existing ones for current terminal
 	 */
-	async resetSettings(): Promise<TerminalSettingsApiResponse> {
+	async resetSettings(): Promise<SettingsApiResponse> {
 		const terminalId = await requireTerminalId();
 		return await api
-			.post<ApiResponse<TerminalSettingsApiResponse>>(`${endpoints.base}/${terminalId}/reset`)
+			.post<ApiResponse<SettingsApiResponse>>(`${endpoints.base}/${terminalId}/reset`)
 			.then((res) => res.data.data!)
 			.catch((err) => {
 				throw err;
@@ -363,7 +352,7 @@ const settingsService = {
 	 * Get a specific setting value by key from current terminal
 	 * @deprecated Use load() and access property directly
 	 */
-	async getSettingByKey(key: keyof AppSettings): Promise<any> {
+	async getSettingByKey(key: keyof SettingsAppSettings): Promise<any> {
 		const settings = await this.load();
 		return settings[key];
 	}
