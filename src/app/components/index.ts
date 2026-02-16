@@ -10,6 +10,8 @@ export { default as Breadcrumb } from './Breadcrumb';
 export { default as ToggleButtonGroup } from './buttons/ToggleButtonGroup';
 export type { ToggleOption } from './buttons/ToggleButtonGroup';
 export { default as NavigationCard } from './buttons/NavigationCard';
+export { default as TabOptionButton } from './buttons/TabOptionButton';
+export { default as TabOptionGroup } from './buttons/TabOptionGroup';
 export { default as Card } from './card/Card';
 export { default as CardBody } from './card/CardBody';
 export { default as CollapsibleSection } from './card/CollapsibleSection';
