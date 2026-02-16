@@ -1,3 +1,5 @@
+export * from './settings.helper';
+
 export const hasPermission = (user: User, permField: string): boolean => {
 	if (!user) return false;
 	return user?.permissions?.includes(permField);
@@ -196,8 +198,4 @@ export function isElectron() {
 	);
 }
 
-// Re-export API error handler utilities
 export * from './api-error-handler';
-
-// Re-export text encoding utilities
-export * from './text-encoding';
