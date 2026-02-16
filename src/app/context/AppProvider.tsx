@@ -40,7 +40,7 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
             const data = await settingsService.load();
 
             if (data) {
-                setSettings(data);
+                setSettings(data as any);
 
                 if (data.apiBaseUrl) {
                     apiUtils.updateBaseUrl(data.apiBaseUrl);
