@@ -6,7 +6,6 @@ import {
     BuildingIcon,
     ShieldIcon,
     LogOut,
-    ChevronRight,
     KeyRound,
     UserIcon,
     AtSignIcon,
@@ -18,15 +17,7 @@ import { ThemeContext } from '../../context/ThemeContext';
 import MobilePageHeader from '../../components/page/MobilePageHeader';
 import BottomSheet from '../../components/BottomSheet';
 import { ROUTES } from '../../utils/constants';
-import MobileChangePasswordForm from './profile/MobileChangePasswordForm';
-
-const formatRoleName = (role: string | null | undefined): string => {
-    if (!role) return 'User';
-    return role
-        .split('_')
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ');
-};
+import { MobileChangePasswordForm, InfoRow, ActionRow, formatRoleName } from './profile';
 
 const MobileMyProfile: FunctionComponent = () => {
     const navigate = useNavigate();
@@ -127,6 +118,7 @@ const MobileMyProfile: FunctionComponent = () => {
                             icon={<KeyRound className="w-5 h-5 text-amber-500" />}
                             label="Change Password"
                             onTap={handleChangePassword}
+                            showChevron
                         />
                         <ActionRow
                             icon={
@@ -139,6 +131,7 @@ const MobileMyProfile: FunctionComponent = () => {
                             label={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
                             onTap={toggleMode}
                             noBorder
+                            showChevron
                         />
                     </div>
                 </div>
@@ -167,48 +160,5 @@ const MobileMyProfile: FunctionComponent = () => {
         </div>
     );
 };
-
-// Info Row Component
-interface InfoRowProps {
-    icon: React.ReactNode;
-    label: string;
-    value: string;
-    noBorder?: boolean;
-}
-
-const InfoRow: FunctionComponent<InfoRowProps> = ({ icon, label, value, noBorder = false }) => (
-    <div
-        className={`flex items-center px-4 py-3 ${!noBorder ? 'border-b border-gray-100 dark:border-gray-700' : ''
-            }`}
-    >
-        <div className="flex-shrink-0 mr-3">{icon}</div>
-        <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
-            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{value}</p>
-        </div>
-    </div>
-);
-
-// Action Row Component
-interface ActionRowProps {
-    icon: React.ReactNode;
-    label: string;
-    onTap: () => void;
-    noBorder?: boolean;
-}
-
-const ActionRow: FunctionComponent<ActionRowProps> = ({ icon, label, onTap, noBorder = false }) => (
-    <button
-        onClick={onTap}
-        className={`w-full flex items-center px-4 py-3 active:bg-gray-50 dark:active:bg-gray-700 transition-colors ${!noBorder ? 'border-b border-gray-100 dark:border-gray-700' : ''
-            }`}
-    >
-        <div className="flex-shrink-0 mr-3">{icon}</div>
-        <div className="flex-1 text-left">
-            <p className="text-sm font-medium text-gray-900 dark:text-white">{label}</p>
-        </div>
-        <ChevronRight className="w-5 h-5 text-gray-400" />
-    </button>
-);
 
 export default MobileMyProfile;
