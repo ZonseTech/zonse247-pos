@@ -4,7 +4,7 @@ export enum ROUTES {
 	USER_FORM = '/users/form',
 	MY_PROFILE = '/my-profile',
 	ROLES_PERMISSIONS = '/roles-and-permissions',
-	DASHBOARD = '/dashboard',
+	REPORTS = '/reports',
 	MOBILE_MORE = '/mobile-more',
 	MOBILE_REPORT = '/mobile-report',
 	MOBILE_REPORT_TOTAL_SALES = '/mobile-report/total-sales',
