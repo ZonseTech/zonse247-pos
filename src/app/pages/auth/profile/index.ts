@@ -9,4 +9,6 @@ export { default as MobileEditProfileForm } from './MobileEditProfileForm';
 export { default as MobileChangePasswordForm } from './MobileChangePasswordForm';
 export { default as PermissionsCard } from './PermissionsCard';
 export { default as InfoItem } from './InfoItem';
+export { default as InfoRow } from './InfoRow';
+export { default as ActionRow } from './ActionRow';
 export * from './utils';
