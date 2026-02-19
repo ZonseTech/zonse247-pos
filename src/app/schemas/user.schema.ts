@@ -6,7 +6,7 @@ export const createStaffValidationSchema = Yup.object().shape({
         .required('Staff name is required')
         .min(2, 'Name must be at least 2 characters')
         .max(50, 'Name must not exceed 50 characters')
-        .matches(/^[a-zA-Z\s]+$/, 'Name must only contain letters and spaces'),
+        .matches(/^[a-zA-Z\s'.\-]+$/, 'Name can only contain letters, spaces, hyphens, apostrophes, and periods'),
     email: Yup.string()
         .required('Email is required')
         .email('Please provide a valid email address'),
@@ -49,7 +49,7 @@ export const updateStaffValidationSchema = Yup.object().shape({
     fullname: Yup.string()
         .min(2, 'Name must be at least 2 characters')
         .max(50, 'Name must not exceed 50 characters')
-        .matches(/^[a-zA-Z\s]+$/, 'Name must only contain letters and spaces'),
+        .matches(/^[a-zA-Z\s'.\-]+$/, 'Name can only contain letters, spaces, hyphens, apostrophes, and periods'),
     email: Yup.string()
         .email('Please provide a valid email address'),
     phone: Yup.string()
