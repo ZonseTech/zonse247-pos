@@ -103,12 +103,11 @@ export default class MenuBuilder {
 			fileSubmenu.push({
 				label: 'New Item',
 				accelerator: 'CommandOrControl+N',
-				click: () => this.openModal('new-product'),
+				click: () => this.navigateTo(ROUTES.INVENTORY_FORM),
 			});
 			fileSubmenu.push({ type: 'separator' });
 		}
 
-		// Add branch switcher to File menu
 		const branchSubmenu = this.buildBranchSubmenu();
 		if (branchSubmenu.length > 0) {
 			fileSubmenu.push(...branchSubmenu);
@@ -134,7 +133,6 @@ export default class MenuBuilder {
 			submenu: fileSubmenu,
 		});
 
-		// Operations menu (top-level)
 		const operationsItems: Array<MenuItemConstructorOptions> = [];
 
 		if (
@@ -174,27 +172,12 @@ export default class MenuBuilder {
 			});
 		}
 
-		if (
-			hasAnyPermission(this.user, [
-				'products.view',
-				'products.create',
-				'products.edit',
-			])
-		) {
-			operationsItems.push({
-				label: 'Customers',
-				click: () => this.navigateTo(ROUTES.CUSTOMERS),
-			});
-		}
-
 		if (operationsItems.length > 0) {
 			template.push({
 				label: 'Operations',
 				submenu: operationsItems,
 			});
 		}
-
-		// Inventory menu (top-level)
 		if (
 			hasAnyPermission(this.user, [
 				'products.view',
@@ -211,6 +194,10 @@ export default class MenuBuilder {
 					label: 'Categories',
 					click: () => this.navigateTo(ROUTES.CATEGORIES),
 				},
+				{
+					label: 'Customers',
+					click: () => this.navigateTo(ROUTES.CUSTOMERS),
+				}
 			];
 
 			template.push({
@@ -219,7 +206,6 @@ export default class MenuBuilder {
 			});
 		}
 
-		// View menu (for dev tools only)
 		const viewSubmenu: Array<MenuItemConstructorOptions> = [];
 
 		if (!app.isPackaged) {
@@ -321,29 +307,10 @@ export default class MenuBuilder {
 		}
 
 		if (hasPermission(this.user, 'settings.branch.manage')) {
-			const settingsSubmenu: Array<MenuItemConstructorOptions> = [
-				{
-					label: 'General',
-					click: () => this.navigateTo(ROUTES.SETTINGS_GENERAL),
-				},
-				{
-					label: 'Business',
-					click: () => this.navigateTo(ROUTES.SETTINGS_SALES),
-				},
-				{
-					label: 'Receipt',
-					click: () => this.navigateTo(ROUTES.SETTINGS_RECEIPT),
-				},
-				{
-					label: 'Security',
-					click: () => this.navigateTo(ROUTES.SETTINGS_SECURITY),
-				},
-			];
-
 			template.push({
 				label: 'Settings',
 				accelerator: 'CommandOrControl+,',
-				submenu: settingsSubmenu,
+				click: () => this.navigateTo(ROUTES.SETTINGS_GENERAL),
 			});
 		}
 
