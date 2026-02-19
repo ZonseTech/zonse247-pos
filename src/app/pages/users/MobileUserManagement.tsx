@@ -1,6 +1,6 @@
 import { FunctionComponent, useCallback, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { Users, Search, X } from 'lucide-react';
+import { Users } from 'lucide-react';
 import MobilePageHeader from '../../components/page/MobilePageHeader';
 import FloatingFilterButton from '../../components/buttons/FloatingFilterButton';
 import { HelpModal } from '../../components/modals';
@@ -12,7 +12,6 @@ import { ROUTES } from '../../utils/constants';
 const MobileUserManagement: FunctionComponent = () => {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
-    const [showSearch, setShowSearch] = useState(false);
 
     const {
         isLoading,
