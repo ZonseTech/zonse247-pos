@@ -3,14 +3,14 @@ import { Form, Formik } from 'formik';
 import { settingsValidationSchema } from '../../schemas/settings.schema';
 import SettingsActions from './components/SettingsActions';
 import ResetConfirmModal from './components/ResetConfirmModal';
+import SettingsSidebar from './components/SettingsSidebar';
 import AppLayout from '../../layouts/AppLayout';
 import { useSettings } from './hooks/useSettings';
 import { SETTINGS_TABS } from './constants/config';
 import { ROUTES } from '../../utils/constants';
-import PageHeader from '../../components/page/PageHeader';
 import MobilePageHeader from '../../components/page/MobilePageHeader';
 import { useIsMobile } from '../../hooks/useMediaQuery';
-import { HiOutlineCog, HiXMark, HiCheckCircle } from 'react-icons/hi2';
+import { HiXMark, HiCheckCircle } from 'react-icons/hi2';
 import { Button } from '../../components';
 import { sanitizeSettings } from '../../utils';
 
@@ -40,6 +40,8 @@ const SettingsPage = () => {
     const handleSubmit = async (values: any) => {
         const sanitized = sanitizeSettings(values);
         await onSubmit(sanitized);
+
+        setTimeout(() => { window.location.reload(), 200 })
     };
 
     if (loading || !settings) {
@@ -63,7 +65,7 @@ const SettingsPage = () => {
             >
                 {({ isSubmitting, submitForm }) => (
                     <div className="min-h-screen pb-20 md:pb-0">
-                        {isMobile ? (
+                        {isMobile && (
                             <MobilePageHeader
                                 title={`${currentTab.label} Settings`}
                                 theme="sky"
@@ -81,26 +83,42 @@ const SettingsPage = () => {
                                     </Button>
                                 }
                             />
-                        ) : (
-                            <PageHeader
-                                title="Settings"
-                                description="Manage your application settings and preferences"
-                                icon={<HiOutlineCog className="w-8 h-8 text-sky-500" />}
-                                compact
-                            />
                         )}
 
                         <div className={`max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 ${isMobile ? 'pt-16' : ''}`}>
-                            <Form>
-                                <Outlet />
-
-                                {!isMobile && (
-                                    <SettingsActions
-                                        isSubmitting={isSubmitting}
-                                        onReset={() => setShowResetConfirm(true)}
-                                    />
-                                )}
-                            </Form>
+                            {isMobile ? (
+                                <Form>
+                                    <Outlet />
+                                </Form>
+                            ) : (
+                                <div className="flex gap-8">
+                                    <SettingsSidebar />
+                                    <div className="flex-1 min-w-0">
+                                        <div className="mb-6">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
+                                                    <currentTab.icon className="w-6 h-6 text-sky-600 dark:text-sky-400" />
+                                                </div>
+                                                <div>
+                                                    <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+                                                        {currentTab.label} Settings
+                                                    </h1>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                        {currentTab.description}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <Form>
+                                            <Outlet />
+                                            <SettingsActions
+                                                isSubmitting={isSubmitting}
+                                                onReset={() => setShowResetConfirm(true)}
+                                            />
+                                        </Form>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {showResetConfirm && (
