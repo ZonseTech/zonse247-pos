@@ -5,13 +5,14 @@ import { createPortal } from 'react-dom';
 import EPayment from './EPayment';
 import CashPayment from './CashPayment';
 import BankTransfer from './BankTransfer';
-import TransactionCompleteModal from './TransactionCompleteModal';
+import { DesktopProcessingView, TransactionSuccessModal, ProcessingStep } from './desktop-checkout';
 import { FunctionComponent, useState, useEffect } from 'react';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useInventory } from '../../../hooks/useInventory';
 import { useAuth } from '../../../context/AuthProvider';
 import { useApp } from '../../../context/AppProvider';
 import salesService from '../../../services/sales.service';
+import printerService from '../../../services/printer.service';
 import { generateReferenceNumber } from '../../../utils';
 import { DEFAULT_SEED_KEY } from '../../../constants';
 import { useIsEBN } from '../../../hooks/useMediaQuery';
@@ -76,9 +77,16 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     const isEBN = useIsEBN();
 
     const [processing, setProcessing] = useState<boolean>(false);
+    const [processingStep, setProcessingStep] = useState<ProcessingStep | null>(null);
     const [activeInput, setActiveInput] = useState<ActiveInputType>(null);
-    const [completedSale, setCompletedSale] = useState<Sale | Transaction | null>(null);
-    const [showCompleteModal, setShowCompleteModal] = useState<boolean>(false);
+    const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
+    const [successData, setSuccessData] = useState<{
+        total: number;
+        changeAmount: number;
+        refNumber: string;
+    } | null>(null);
+
+    const simulateDelay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
     const newSaleValidationSchema = Yup.object({
         paymentMethodId: Yup.string().required('Payment method is required'),
@@ -129,6 +137,13 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
         try {
             setProcessing(true);
+
+            // Step 1: Validating
+            setProcessingStep('validating');
+            await simulateDelay(500);
+
+            // Step 2: Saving
+            setProcessingStep('saving');
 
             // Calculate item-level discounts
             const totalItemDiscounts = cart.reduce((sum, item) => {
@@ -193,36 +208,40 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
             const sale = await salesService.store(salePayload);
 
-            const saleDate = typeof sale.createdAt === 'string'
-                ? sale.createdAt
-                : sale.createdAt?.toISOString?.() || new Date().toISOString();
+            const saleRefNumber = (sale as any).saleNumber || refNumber;
+            const saleChangeAmount = sale.changeAmount || (values.cashTendered ? Math.max(0, parseFloat(values.cashTendered) - total) : 0);
 
-            const completedSaleData: Transaction = {
-                id: sale.id,
-                refNumber: (sale as any).saleNumber || refNumber,
-                transactionId: sale.id,
+            // Step 3: Printing
+            setProcessingStep('printing');
+            try {
+                await printerService.printReceipt({
+                    saleId: sale.id,
+                    transactionId: sale.id,
+                    copies: settings?.receiptCopies || 1,
+                    includeHeader: true,
+                    includeFooter: true,
+                    includeLogo: settings?.showStoreLogo || false,
+                });
+            } catch (printError) {
+                console.error('Print failed:', printError);
+                // Continue even if print fails - sale is already saved
+            }
+
+            // Step 4: Completed - Show success modal
+            setProcessingStep('completed');
+            await simulateDelay(300);
+
+            setProcessingStep(null);
+            setSuccessData({
                 total: (sale as any).totalAmount || total,
-                paid: (sale as any).amountPaid || (values.cashTendered ? parseFloat(values.cashTendered) : total),
-                changeAmount: sale.changeAmount || (values.cashTendered ? Math.max(0, parseFloat(values.cashTendered) - total) : 0),
-                date: saleDate,
-                discount,
-                subtotal,
-                tax,
-                phoneNumber: values.phoneNumber,
-                userId: user.userId,
-                terminalId: (settings as any)?.terminalId || 'default',
-                paymentMethodId: values.paymentMethodId,
-                items: cart,
-                user,
-                customer: selectedCustomer,
-                status: sale.status || 'COMPLETED',
-            };
-
-            setCompletedSale(completedSaleData);
-            setShowCompleteModal(true);
+                changeAmount: saleChangeAmount,
+                refNumber: saleRefNumber,
+            });
+            setShowSuccessModal(true);
 
         } catch (error: any) {
             setProcessing(false);
+            setProcessingStep(null);
 
             const responseData = error?.error?.response?.data || error?.response?.data;
             const mainMessage = responseData?.message || 'Failed to complete sale';
@@ -253,20 +272,14 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
         }
     };
 
-    const handleNewTransaction = () => {
-        setShowCompleteModal(false);
-        setCompletedSale(null);
+    const handleTransactionComplete = () => {
+        setShowSuccessModal(false);
+        setSuccessData(null);
         clearCart();
         reloadInventory();
         setProcessing(false);
         focusManager.clearFocus();
         onClose();
-    };
-
-    const handleCloseCompleteModal = () => {
-        setShowCompleteModal(false);
-        setCompletedSale(null);
-        setProcessing(false);
     };
 
     const canProceed = (values: SaleFormValues) => {
@@ -401,24 +414,6 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                                 )}
                             </div>
 
-                            {processing && (
-                                <div className={classNames(
-                                    "bg-sky-100 border border-sky-400 text-sky-700 rounded",
-                                    isEBN ? "px-2 py-1.5 mx-2 mb-2" : "px-3 md:px-4 py-2 md:py-3 mx-3 md:mx-6 mb-3 md:mb-0"
-                                )}>
-                                    <div className="flex items-center gap-2">
-                                        <div className={classNames(
-                                            "animate-spin rounded-full border-b-2 border-sky-700",
-                                            isEBN ? "h-3 w-3" : "h-4 w-4"
-                                        )}></div>
-                                        <span className={classNames(
-                                            "font-bold",
-                                            isEBN ? "text-xs" : "text-sm md:text-base"
-                                        )}>Processing payment...</span>
-                                    </div>
-                                </div>
-                            )}
-
                             <div className={classNames(
                                 "flex flex-row justify-center items-center border-t flex-shrink-0",
                                 isEBN ? "space-x-2 p-2" : "space-x-3 md:space-x-4 p-3 md:p-6"
@@ -453,12 +448,20 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 </Formik>
             </div>
 
-            <TransactionCompleteModal
-                isOpen={showCompleteModal}
-                transaction={completedSale}
-                onClose={handleCloseCompleteModal}
-                onNewTransaction={handleNewTransaction}
-            />
+            {showSuccessModal && successData && (
+                <TransactionSuccessModal
+                    isOpen={showSuccessModal}
+                    total={successData.total}
+                    changeAmount={successData.changeAmount}
+                    refNumber={successData.refNumber}
+                    onComplete={handleTransactionComplete}
+                    autoCloseDelay={3000}
+                />
+            )}
+
+            {processingStep && (
+                <DesktopProcessingView processingStep={processingStep} />
+            )}
         </div>,
         document.body
     );
