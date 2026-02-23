@@ -24,6 +24,20 @@ export const formatCurrency = (amount: number, addCurrency?: boolean, prefix = '
 	return addCurrency ? `${prefix}${formatted}` : formatted;
 };
 
+export const formatCurrencyShort = (value: number, prefix = 'MK'): string => {
+	if (value >= 1000000) {
+		return `${prefix} ${(value / 1000000).toFixed(1)}M`;
+	}
+	if (value >= 1000) {
+		return `${prefix} ${(value / 1000).toFixed(1)}K`;
+	}
+	return `${prefix} ${value.toFixed(0)}`;
+};
+
+export const formatCurrencyFull = (value: number, prefix = 'MK'): string => {
+	return `${prefix} ${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
 export const formatQuantity = (value: number): string => {
 	return new Intl.NumberFormat('en-US').format(value);
 };

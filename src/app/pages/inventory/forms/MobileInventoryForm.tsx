@@ -81,7 +81,7 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                 manufactureDate: v.manufactureDate ? new Date(v.manufactureDate).toISOString().split('T')[0] : '',
                 supplierName: v.supplierName || '',
                 supplierCode: v.supplierCode || '',
-                barcodes: v.barcodes?.map(b => ({ barcode: b })) || [],
+                additionalBarcodes: v.barcodes?.map(b => ({ barcode: b })) || [],
             })) || [createDefaultVariant()];
 
             return {
@@ -97,7 +97,7 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
 
     const variantSchema = Yup.object().shape({
         variantName: Yup.string().max(100, 'Variant name is too long'),
-        barcode: Yup.string().max(100, 'Barcode is too long'),
+        primaryBarcode: Yup.string().max(100, 'Barcode is too long'),
         sku: Yup.string().max(50, 'SKU is too long'),
         sellingPrice: Yup.number()
             .required('Selling price is required')

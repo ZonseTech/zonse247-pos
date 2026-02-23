@@ -7,7 +7,9 @@ import { HiOutlinePlus, HiOutlineDownload, HiOutlineFilter, HiOutlineMenuAlt4, H
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import Loader from '../../components/Loader';
+import TableSkeleton from '../../components/skeleton/TableSkeleton';
 import { getTableStyles } from '../../utils/table-styles';
+import { formatCurrencyShort, formatCurrencyFull } from '../../utils';
 import { useInventoryStats } from '../../hooks/useInventoryStats';
 import InventorySummaryCards, { InventorySummaryCard } from './partials/InventorySummaryCards';
 import { Button, ZonseThemeContext, DateRangeFilter } from '../../components';
@@ -22,22 +24,6 @@ import { useInventoryManagement } from '../../hooks/useInventoryManagement';
 import { useInventorySummary } from '../../hooks/useInventorySummary';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
-
-// Format currency for display (abbreviated)
-const formatCurrencyShort = (value: number): string => {
-    if (value >= 1000000) {
-        return `MK ${(value / 1000000).toFixed(1)}M`;
-    }
-    if (value >= 1000) {
-        return `MK ${(value / 1000).toFixed(1)}K`;
-    }
-    return `MK ${value.toFixed(0)}`;
-};
-
-// Format currency for display (full value)
-const formatCurrencyFull = (value: number): string => {
-    return `MK ${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-};
 
 const InventoryManagement: FunctionComponent = () => {
     const isMobile = useIsMobile();
@@ -440,7 +426,6 @@ const InventoryManagement: FunctionComponent = () => {
                                         />
                                     </div>
 
-                                    {/* Mobile Pagination */}
                                     <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
                                         <span className="text-xs text-gray-600 dark:text-gray-400">
                                             Page {page} of {totalPages} ({totalRows} total)
@@ -476,7 +461,7 @@ const InventoryManagement: FunctionComponent = () => {
                                 data={data}
                                 theme={mode as Themes}
                                 progressPending={isLoading}
-                                progressComponent={<Loader isLoading={isLoading} />}
+                                progressComponent={<TableSkeleton rows={perPage} columns={6} showCheckbox showActions />}
                                 highlightOnHover
                                 striped
                                 responsive
