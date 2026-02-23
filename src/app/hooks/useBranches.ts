@@ -28,7 +28,6 @@ export const useBranches = () => {
                 branch.branchCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 branch.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 branch.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                branch.district?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 branch.status.toLowerCase().includes(searchTerm.toLowerCase())
             );
             setFilteredBranches(filtered);

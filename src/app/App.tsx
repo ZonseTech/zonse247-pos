@@ -71,6 +71,12 @@ const App: FunctionComponent = () => {
                         <LayoutProvider>
                             <AppProvider>
                                 <DataManager />
+                                {CLIENT_TYPE === 'mobile' && (
+                                    <div
+                                        className="fixed top-0 left-0 right-0 bg-sky-500 z-[9999]"
+                                        style={{ height: 'max(var(--safe-area-inset-top), var(--status-bar-height))' }}
+                                    />
+                                )}
                                 <div className="app-container bg-gray-100 dark:bg-gray-900">
                                     <HashRouter>
                                         <NavigationProgress />

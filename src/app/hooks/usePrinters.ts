@@ -67,8 +67,7 @@ export const usePrinters = (): UsePrintersReturn => {
 
     useEffect(() => {
         loadPrinters();
-        loadPendingJobs();
-    }, [loadPrinters, loadPendingJobs]);
+    }, [loadPrinters]);
 
     const filterPrinters = useCallback((term: string): Printer[] => {
         if (!term.trim()) {
@@ -191,7 +190,6 @@ export const usePrinters = (): UsePrintersReturn => {
 
     const discoverPrinters = useCallback(async (connectionType?: PrinterConnectionType): Promise<DiscoveredPrinter[]> => {
         try {
-            Notify.info('Discovering printers...');
             const result = await printerService.discover(connectionType);
             if (result.count > 0) {
                 Notify.success(`Found ${result.count} printer(s)`);

@@ -13,25 +13,11 @@ type PrintJobStatus = 'PENDING' | 'PRINTING' | 'COMPLETED' | 'FAILED' | 'CANCELL
 type PrintJobType = 'RECEIPT' | 'INVOICE' | 'REPORT' | 'LABEL' | 'BARCODE' | 'KITCHEN_ORDER' | 'TEST_PAGE';
 
 interface PrinterConfiguration {
-    paperWidth?: number;          // in mm (e.g., 58, 80)
-    paperHeight?: number;         // in mm (for labels)
-    dpi?: number;                 // dots per inch
-    fontSize?: number;            // default font size
-    encoding?: string;            // character encoding (e.g., 'UTF-8', 'CP437')
-    cutPaper?: boolean;           // auto-cut after printing
-    openCashDrawer?: boolean;     // open drawer after receipt
-    printLogo?: boolean;          // print store logo
-    logoUrl?: string;             // URL or path to logo
-    headerLines?: string[];       // custom header text
-    footerLines?: string[];       // custom footer text
-    printSpeed?: number;          // print speed setting
-    darkness?: number;            // print darkness/density (1-10)
-    marginTop?: number;           // top margin in mm
-    marginBottom?: number;        // bottom margin in mm
-    marginLeft?: number;          // left margin in mm
-    marginRight?: number;         // right margin in mm
-    beepAfterPrint?: boolean;     // beep sound after print
-    copies?: number;              // default number of copies
+    paperWidth?: number;          // in mm (e.g., 58, 80, 110)
+    fontSize?: number;            // default font size (8, 10, 12, 14, 16)
+    lineSpacing?: number;         // line spacing (1, 1.5, 2, 2.5)
+    printMode?: 'normal' | 'draft' | 'high';  // print quality mode
+    autoPrintOnSale?: boolean;    // auto print on sale completion
 }
 
 interface Printer {

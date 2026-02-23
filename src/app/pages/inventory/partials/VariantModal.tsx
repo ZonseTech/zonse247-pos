@@ -5,7 +5,7 @@ import {
     Trash2,
 } from 'lucide-react';
 import FormInput from '../../../components/FormInput';
-import { BottomSheet, Button, FormFieldCard } from '../../../components';
+import { BottomSheet, Button, FormFieldCard, Modal } from '../../../components';
 import Input from '../../../components/Input';
 import Label from '../../../components/Label';
 import PricingFields from '../forms/fields/PricingFields';
@@ -15,6 +15,7 @@ import ExpiryFields from '../forms/fields/ExpiryFields';
 import NotesFields from '../forms/fields/NotesFields';
 import SkuFields from '../forms/fields/SkuFields';
 import { InventoryFormValues, Variant } from '../types/variant.types';
+import { useIsMobile } from '../../../hooks/useMediaQuery';
 
 interface VariantModalProps {
     isOpen: boolean;
@@ -102,117 +103,156 @@ const VariantModal: FunctionComponent<VariantModalProps> = ({
         }
     };
 
+    const isMobile = useIsMobile();
+
+    const modalContent = (
+        <>
+            <FormFieldCard>
+                {isNewVariant ? (
+                    <div className="space-y-1">
+                        <Label>Variant Name</Label>
+                        <Input
+                            value={getStringValue('variantName')}
+                            onChange={(e) => updateField('variantName', e.target.value)}
+                            placeholder="e.g., Red / Large"
+                        />
+                    </div>
+                ) : (
+                    <FormInput
+                        label="Variant Name"
+                        name={`${fieldPrefix}.variantName`}
+                        placeholder="e.g., Red / Large"
+                    />
+                )}
+            </FormFieldCard>
+
+            <FormFieldCard>
+                <PricingFields
+                    isNewVariant={isNewVariant}
+                    fieldPrefix={fieldPrefix}
+                    pricingError={sellingPriceError ? false : undefined}
+                    getPrice={getNumberValue}
+                    onChange={handleNumberChange}
+                />
+            </FormFieldCard>
+
+            <FormFieldCard>
+                <StockFields
+                    fieldPrefix={fieldPrefix}
+                    isNewVariant={isNewVariant}
+                    getStock={getNumberValue}
+                    onChange={handleNumberChange}
+                    trackInventory={Boolean(variant?.trackInventory)}
+                    allowNegativeStock={Boolean(variant?.allowNegativeStock)}
+                    onCheckboxChange={(field, value) => updateField(field as keyof Variant, value)}
+                />
+            </FormFieldCard>
+
+            <BarcodeFields
+                fieldPrefix={fieldPrefix}
+                isNewVariant={isNewVariant}
+                getValue={getStringValue}
+                onChange={handleStringChange}
+                hasData={Boolean(getStringValue('primaryBarcode'))}
+            />
+
+            <ExpiryFields
+                fieldPrefix={fieldPrefix}
+                isNewVariant={isNewVariant}
+                getStringValue={getStringValue}
+                getNumberValue={getNumberValue}
+                onStringChange={handleStringChange}
+                onNumberChange={handleNumberChange}
+                hasData={Boolean(getStringValue('expirationDate') || getNumberValue('expiryDateAlert'))}
+            />
+
+            <NotesFields
+                fieldPrefix={fieldPrefix}
+                isNewVariant={isNewVariant}
+                getValue={getStringValue}
+                onChange={handleStringChange}
+                hasData={Boolean(getStringValue('description'))}
+            />
+
+            <SkuFields
+                fieldPrefix={fieldPrefix}
+                isNewVariant={isNewVariant}
+                getValue={getStringValue}
+                onChange={handleStringChange}
+                hasData={Boolean(getStringValue('sku'))}
+            />
+        </>
+    );
+
+    const headerActions = (
+        <div className="flex items-center gap-2">
+            {canDelete && (
+                <Button
+                    type="button"
+                    onClick={handleDelete}
+                >
+                    <Trash2 className="w-5 h-5" />
+                </Button>
+            )}
+            <Button
+                type="button"
+                onClick={handleSave}
+                theme="success"
+            >
+                SAVE
+            </Button>
+        </div>
+    );
+
+    const closeButton = (
+        <button
+            type="button"
+            onClick={onClose}
+            className="p-2 rounded-full text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        >
+            <X className="w-5 h-5" />
+        </button>
+    );
+
+    if (isMobile) {
+        return (
+            <BottomSheet
+                isOpen={isOpen}
+                onClose={onClose}
+                leftContent={closeButton}
+                rightContent={headerActions}
+            >
+                {modalContent}
+            </BottomSheet>
+        );
+    }
+
     return (
-        <BottomSheet
+        <Modal
             isOpen={isOpen}
             onClose={onClose}
-            leftContent={
-                <button
-                    type="button"
-                    onClick={onClose}
-                    className="p-2 rounded-full text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                >
-                    <X className="w-5 h-5" />
-                </button>
-            }
-            rightContent={
-                <div className="flex items-center gap-2">
-                    {canDelete && (
+            title={isNewVariant ? 'Add New Variant' : `Edit: ${variant?.variantName || 'Variant'}`}
+            size="xl"
+            header={
+                <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+                        {isNewVariant ? 'Add New Variant' : `Edit: ${variant?.variantName || 'Variant'}`}
+                    </h2>
+                    <div className="flex items-center gap-2">
+                        {headerActions}
                         <button
-                            type="button"
-                            onClick={handleDelete}
-                            className="p-2 rounded-full text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                            onClick={onClose}
+                            className="p-2 -mr-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                            aria-label="Close modal"
                         >
-                            <Trash2 className="w-5 h-5" />
+                            <X className="w-5 h-5" />
                         </button>
-                    )}
-                    <Button
-                        type="button"
-                        onClick={handleSave}
-                        theme="success"
-                    >
-                        SAVE
-                    </Button>
+                    </div>
                 </div>
             }
         >
-            <div className="space-y-2.5 pb-6 -mx-4 -mb-4 px-1.5 pt-4 bg-gray-100 dark:bg-gray-900">
-                <FormFieldCard>
-                    {isNewVariant ? (
-                        <div className="space-y-1">
-                            <Label>Variant Name</Label>
-                            <Input
-                                value={getStringValue('variantName')}
-                                onChange={(e) => updateField('variantName', e.target.value)}
-                                placeholder="e.g., Red / Large"
-                            />
-                        </div>
-                    ) : (
-                        <FormInput
-                            label="Variant Name"
-                            name={`${fieldPrefix}.variantName`}
-                            placeholder="e.g., Red / Large"
-                        />
-                    )}
-                </FormFieldCard>
-
-                <FormFieldCard>
-                    <PricingFields
-                        isNewVariant={isNewVariant}
-                        fieldPrefix={fieldPrefix}
-                        pricingError={sellingPriceError ? false : undefined}
-                        getPrice={getNumberValue}
-                        onChange={handleNumberChange}
-                    />
-                </FormFieldCard>
-
-                <FormFieldCard>
-                    <StockFields
-                        fieldPrefix={fieldPrefix}
-                        isNewVariant={isNewVariant}
-                        getStock={getNumberValue}
-                        onChange={handleNumberChange}
-                        trackInventory={Boolean(variant?.trackInventory)}
-                        allowNegativeStock={Boolean(variant?.allowNegativeStock)}
-                        onCheckboxChange={(field, value) => updateField(field as keyof Variant, value)}
-                    />
-                </FormFieldCard>
-
-                <BarcodeFields
-                    fieldPrefix={fieldPrefix}
-                    isNewVariant={isNewVariant}
-                    getValue={getStringValue}
-                    onChange={handleStringChange}
-                    hasData={Boolean(getStringValue('primaryBarcode'))}
-                />
-
-                <ExpiryFields
-                    fieldPrefix={fieldPrefix}
-                    isNewVariant={isNewVariant}
-                    getStringValue={getStringValue}
-                    getNumberValue={getNumberValue}
-                    onStringChange={handleStringChange}
-                    onNumberChange={handleNumberChange}
-                    hasData={Boolean(getStringValue('expirationDate') || getNumberValue('expiryDateAlert'))}
-                />
-
-                <NotesFields
-                    fieldPrefix={fieldPrefix}
-                    isNewVariant={isNewVariant}
-                    getValue={getStringValue}
-                    onChange={handleStringChange}
-                    hasData={Boolean(getStringValue('description'))}
-                />
-
-                <SkuFields
-                    fieldPrefix={fieldPrefix}
-                    isNewVariant={isNewVariant}
-                    getValue={getStringValue}
-                    onChange={handleStringChange}
-                    hasData={Boolean(getStringValue('sku'))}
-                />
-            </div>
-        </BottomSheet>
+            {modalContent}
+        </Modal>
     );
 };
 

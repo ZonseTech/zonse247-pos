@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
 import { Notify, Report } from 'notiflix';
+import { useState, useEffect, useCallback } from 'react';
+import type { SettingsTabId } from '../constants/config';
 import settingsService from '../../../services/settings.service';
 import { getDefaultSettings, SettingsAppSettings, SettingsApiResponse } from '../constants/defaultValues';
-import type { SettingsTabId } from '../constants/config';
 
 interface UseSettingsReturn {
     settings: SettingsAppSettings | null;
@@ -30,10 +30,6 @@ export const useSettings = (): UseSettingsReturn => {
     const [terminalId, setTerminalId] = useState<string | null>(null);
     const [isConfigured, setIsConfigured] = useState(false);
 
-    /**
-     * Load settings from API with error handling and defaults
-     * The service now handles the mapping from hierarchical JSON + selective columns to flat AppSettings
-     */
     const loadSettings = useCallback(async () => {
         try {
             setLoading(true);
@@ -60,10 +56,6 @@ export const useSettings = (): UseSettingsReturn => {
         }
     }, []);
 
-    /**
-     * Save settings to API
-     * Uses PUT /:terminalId endpoint
-     */
     const handleSubmit = useCallback(async (values: SettingsAppSettings) => {
         try {
             await settingsService.update(values);
@@ -76,10 +68,6 @@ export const useSettings = (): UseSettingsReturn => {
         }
     }, [loadSettings]);
 
-    /**
-     * Update a specific settings group
-     * Uses PATCH /:terminalId/group/:groupName endpoint
-     */
     const handleUpdateGroup = useCallback(async <K extends keyof SettingsApiResponse>(
         groupName: K,
         groupSettings: SettingsApiResponse[K]
@@ -95,9 +83,6 @@ export const useSettings = (): UseSettingsReturn => {
         }
     }, [loadSettings]);
 
-    /**
-     * Reset settings to defaults
-     */
     const handleResetSettings = useCallback(async () => {
         try {
             await settingsService.resetSettings();

@@ -6,9 +6,6 @@ import { ROUTES } from '../../utils/constants';
 import { useInventory } from '../../hooks/useInventory';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { FormikHelpers } from 'formik';
-import {
-    InventoryErrorMessages,
-} from '../../utils/api-error-handler';
 import DesktopInventoryForm from './forms/DesktopInventoryForm';
 import MobileInventoryForm from './forms/MobileInventoryForm';
 import {
@@ -83,7 +80,7 @@ const InventoryForm: FunctionComponent = () => {
         { label: 'Centimeter (cm)', value: 'cm' }
     ];
 
-    const handleMobileSubmit = async (
+    const handleSubmit = async (
         values: InventoryFormValues,
         { resetForm, setErrors, setFieldError }: FormikHelpers<InventoryFormValues>
     ) => {
@@ -99,7 +96,7 @@ const InventoryForm: FunctionComponent = () => {
                 }
             }
 
-            const inventoryRoute = ROUTES.MOBILE_INVENTORY;
+            const inventoryRoute = isMobile ? ROUTES.MOBILE_INVENTORY : ROUTES.INVENTORY;
 
             if (productId) {
                 await inventoryService.update(productId, values as unknown as Partial<InventoryItem>);
@@ -169,97 +166,6 @@ const InventoryForm: FunctionComponent = () => {
         }
     };
 
-    const handleDesktopSubmit = async (
-        values: Partial<InventoryItem>,
-        { resetForm, setErrors, setFieldError }: FormikHelpers<Partial<InventoryItem>>
-    ) => {
-        setLoading(true);
-        try {
-            const minStock = Number(values.minStock) || 0;
-            const maxStock = Number(values.maxStock) || 1000;
-            const reorderLevel = Number(values.reorderLevel) || 5;
-
-            if (minStock > maxStock) {
-                setFieldError('minStock', InventoryErrorMessages.MIN_EXCEEDS_MAX(minStock, maxStock));
-                setLoading(false);
-                return;
-            }
-
-            if (reorderLevel > maxStock) {
-                setFieldError('reorderLevel', InventoryErrorMessages.REORDER_EXCEEDS_MAX(reorderLevel, maxStock));
-                setLoading(false);
-                return;
-            }
-
-            const data = {
-                ...values,
-                costPrice: Number(values.costPrice),
-                sellingPrice: Number(values.sellingPrice),
-                promoPrice: Number(values.promoPrice) || 0,
-                weight: Number(values.weight) || 0,
-                minStock: minStock,
-                maxStock: maxStock,
-                reorderLevel: reorderLevel,
-                reservedQuantity: Number(values.reservedQuantity) || 0,
-                quantity: values.quantity?.toString() || '0',
-                originalQuantity: values.originalQuantity?.toString() || values.quantity?.toString() || '0',
-            } as InventoryItem;
-
-            const inventoryRoute = ROUTES.INVENTORY;
-
-            if (productId) {
-                await inventoryService.update(productId, data);
-                await reloadInventory();
-                Report.success('Success', 'Inventory item updated successfully', 'Okay', () => {
-                    navigate(inventoryRoute);
-                });
-            } else {
-                await inventoryService.store(data);
-                await reloadInventory();
-                Confirm.show(
-                    'Item Saved',
-                    'Inventory item created successfully. What would you like to do?',
-                    'Add Another',
-                    'Go to Inventory',
-                    () => {
-                        resetForm();
-                    },
-                    () => {
-                        navigate(inventoryRoute);
-                    }
-                );
-            }
-        } catch (error: any) {
-            console.error('Error saving inventory item:', error);
-
-            const responseData = error?.error?.response?.data || error?.response?.data;
-            const mainMessage = responseData?.message || 'Failed to save inventory item';
-            const detailedError = responseData?.error;
-            const fieldErrors = responseData?.data;
-
-            let fieldErrorsMessage = '';
-            if (fieldErrors && typeof fieldErrors === 'object' && !Array.isArray(fieldErrors)) {
-                fieldErrorsMessage = Object.entries(fieldErrors)
-                    .map(([field, message]) => `• ${field}: ${message}`)
-                    .join('\n');
-                setErrors(fieldErrors as Record<string, string>);
-            }
-
-            let fullErrorMessage = mainMessage;
-            if (detailedError) {
-                fullErrorMessage += `:\n${detailedError}`;
-            } else if (fieldErrorsMessage) {
-                fullErrorMessage += `:\n${fieldErrorsMessage}`;
-            } else if (!responseData) {
-                fullErrorMessage = error?.message || 'An unknown error occurred';
-            }
-
-            Report.failure('Error', fullErrorMessage, 'Okay');
-        } finally {
-            setLoading(false);
-        }
-    };
-
     if (isMobile) {
         return (
             <MobileInventoryForm
@@ -267,7 +173,7 @@ const InventoryForm: FunctionComponent = () => {
                 item={item}
                 loading={loading}
                 unitOptions={unitOptions}
-                onSubmit={handleMobileSubmit}
+                onSubmit={handleSubmit}
             />
         );
     }
@@ -279,7 +185,7 @@ const InventoryForm: FunctionComponent = () => {
             loading={loading}
             statusOptions={statusOptions}
             unitOptions={unitOptions}
-            onSubmit={handleDesktopSubmit}
+            onSubmit={handleSubmit}
         />
     );
 };

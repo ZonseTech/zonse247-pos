@@ -6,6 +6,7 @@ import { Button, CollapsibleSection } from '../../../../components';
 import CameraBarcodeScanner from '../../../../components/scanner/CameraBarcodeScanner';
 import { type ScannerResult } from '../../../../services/barcode-scanner.service';
 import { useScannerFeedback } from '../../../../hooks/useScannerSettings';
+import { useIsMobile } from '../../../../hooks/useMediaQuery';
 
 interface BarcodeFieldsProps {
     fieldPrefix: string;
@@ -22,12 +23,13 @@ const BarcodeFields: FunctionComponent<BarcodeFieldsProps> = ({
     onChange,
     hasData = false,
 }) => {
+    const isMobile = useIsMobile();
     const [isBarcodeScannerOpen, setIsBarcodeScannerOpen] = useState(false);
     const { triggerFeedback } = useScannerFeedback();
 
     const handleBarcodeChange = (value: string) => {
         const cleanedValue = value.endsWith('$') ? value.slice(0, -1) : value;
-        onChange('barcode', cleanedValue);
+        onChange('primaryBarcode', cleanedValue);
     };
 
     const handleBarcodeKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -48,9 +50,9 @@ const BarcodeFields: FunctionComponent<BarcodeFieldsProps> = ({
                         {isNewVariant ? (
                             <div className="space-y-1">
                                 <Input
-                                    value={getValue('barcode')}
+                                    value={getValue('primaryBarcode')}
                                     onChange={(e) => {
-                                        onChange('barcode', e.target.value);
+                                        onChange('primaryBarcode', e.target.value);
                                         handleBarcodeChange(e.target.value);
                                     }}
                                     placeholder="Scan or enter"
@@ -59,7 +61,7 @@ const BarcodeFields: FunctionComponent<BarcodeFieldsProps> = ({
                             </div>
                         ) : (
                             <FormInput
-                                name={`${fieldPrefix}.barcode`}
+                                name={`${fieldPrefix}.primaryBarcode`}
                                 placeholder="Scan or enter"
                                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                                     handleBarcodeChange(e.target.value);
@@ -68,12 +70,12 @@ const BarcodeFields: FunctionComponent<BarcodeFieldsProps> = ({
                             />
                         )}
                     </div>
-                    <Button
+                    {isMobile && <Button
                         type="button"
                         onClick={() => setIsBarcodeScannerOpen(true)}
                     >
                         Scan
-                    </Button>
+                    </Button>}
                 </div>
 
                 <CameraBarcodeScanner
@@ -81,7 +83,7 @@ const BarcodeFields: FunctionComponent<BarcodeFieldsProps> = ({
                     onClose={() => setIsBarcodeScannerOpen(false)}
                     onScan={(result: ScannerResult) => {
                         triggerFeedback();
-                        onChange('barcode', result.barcode);
+                        onChange('primaryBarcode', result.barcode);
                         setIsBarcodeScannerOpen(false);
                     }}
                     continuous={false}
