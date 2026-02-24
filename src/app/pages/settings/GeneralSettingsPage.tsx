@@ -98,7 +98,7 @@ const GeneralSettingsPage: FunctionComponent = () => {
                             />
                         </div>
 
-                        {values.enableVirtualKeyboard && (
+                        {values.enableVirtualKeyboard ? (
                             <>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <FormSearchableSelect
@@ -132,7 +132,7 @@ const GeneralSettingsPage: FunctionComponent = () => {
                                     />
                                 </div>
                             </>
-                        )}
+                        ) : null}
                     </div>
                 </FormFieldCard>
             </div>

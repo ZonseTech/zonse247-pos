@@ -179,6 +179,7 @@ const DesktopInventoryForm: FunctionComponent<DesktopInventoryFormProps> = ({
                                             name="name"
                                             placeholder="Enter item name"
                                             required
+                                            className='uppercase'
                                         />
 
                                         <CategorySearch
