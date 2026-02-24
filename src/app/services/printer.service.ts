@@ -1,8 +1,17 @@
 import api from './http.service';
-import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
+import {
+	decodeObjectStrings,
+	decodeArrayStrings,
+} from '../utils/text-encoding';
 
 // Fields to decode for printer items
-const PRINTER_DECODE_FIELDS = ['printerName', 'description', 'location', 'branchName', 'terminalName'] as const;
+const PRINTER_DECODE_FIELDS = [
+	'printerName',
+	'description',
+	'location',
+	'branchName',
+	'terminalName',
+] as const;
 
 /**
  * Printer Service
@@ -83,7 +92,9 @@ const printerService = {
 
 		return api
 			.get<PrinterListResponse>(endpoints.all, params)
-			.then((res) => decodeArrayStrings<Printer>(res.data.data || [], PRINTER_DECODE_FIELDS))
+			.then((res) =>
+				decodeArrayStrings<Printer>(res.data.data || [], PRINTER_DECODE_FIELDS),
+			)
 			.catch((err) => {
 				console.error('Error fetching printers:', err);
 				throw err;
@@ -93,14 +104,19 @@ const printerService = {
 	/**
 	 * GET /printers/all - Get all printers with pagination
 	 */
-	async getAllPaginated(query: PrinterQueryParams = {}): Promise<PrinterPaginatedResponse['data']> {
+	async getAllPaginated(
+		query: PrinterQueryParams = {},
+	): Promise<PrinterPaginatedResponse['data']> {
 		const params: Record<string, any> = { ...query, paginated: true };
 
 		return api
 			.get<PrinterPaginatedResponse>(endpoints.all, params)
 			.then((res) => ({
 				...res.data.data,
-				printers: decodeArrayStrings<Printer>(res.data.data.printers || [], PRINTER_DECODE_FIELDS)
+				printers: decodeArrayStrings<Printer>(
+					res.data.data.printers || [],
+					PRINTER_DECODE_FIELDS,
+				),
 			}))
 			.catch((err) => {
 				console.error('Error fetching paginated printers:', err);
@@ -112,7 +128,9 @@ const printerService = {
 	 * GET /printers/default - Get default printer
 	 * Optionally specify printer use type: 'receipt', 'label', 'kitchen', 'report'
 	 */
-	async getDefault(printerUse?: 'receipt' | 'label' | 'kitchen' | 'report'): Promise<Printer | null> {
+	async getDefault(
+		printerUse?: 'receipt' | 'label' | 'kitchen' | 'report',
+	): Promise<Printer | null> {
 		const params: Record<string, any> = {};
 		if (printerUse) {
 			params.use = printerUse;
@@ -120,7 +138,11 @@ const printerService = {
 
 		return api
 			.get<PrinterResponse>(endpoints.default, params)
-			.then((res) => res.data.data ? decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS) : null)
+			.then((res) =>
+				res.data.data
+					? decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS)
+					: null,
+			)
 			.catch((err) => {
 				// Return null if no default printer found
 				if (err?.response?.status === 404) {
@@ -135,7 +157,9 @@ const printerService = {
 	 * GET /printers/discover - Discover available printers
 	 * Scans for available printers on the network and USB
 	 */
-	async discover(connectionType?: PrinterConnectionType): Promise<DiscoveryResult> {
+	async discover(
+		connectionType?: PrinterConnectionType,
+	): Promise<DiscoveryResult> {
 		const params: Record<string, any> = {};
 		if (connectionType) {
 			params.connectionType = connectionType;
@@ -143,7 +167,14 @@ const printerService = {
 
 		return api
 			.get<DiscoveredPrinterResponse>(endpoints.discover, params)
-			.then((res) => res.data.data || { count: 0, printers: [], discoveredAt: new Date().toISOString() })
+			.then(
+				(res) =>
+					res.data.data || {
+						count: 0,
+						printers: [],
+						discoveredAt: new Date().toISOString(),
+					},
+			)
 			.catch((err) => {
 				console.error('Error discovering printers:', err);
 				throw err;
@@ -158,7 +189,8 @@ const printerService = {
 		const queryParams: Record<string, any> = {
 			baseIP: params.baseIP,
 		};
-		if (params.startHost !== undefined) queryParams.startHost = params.startHost;
+		if (params.startHost !== undefined)
+			queryParams.startHost = params.startHost;
 		if (params.endHost !== undefined) queryParams.endHost = params.endHost;
 		if (params.port !== undefined) queryParams.port = params.port;
 
@@ -200,7 +232,9 @@ const printerService = {
 	/**
 	 * POST /printers/discover/validate - Validate printer configuration
 	 */
-	async validatePrinter(data: ValidatePrinterRequest): Promise<ValidatePrinterResult> {
+	async validatePrinter(
+		data: ValidatePrinterRequest,
+	): Promise<ValidatePrinterResult> {
 		return api
 			.post<ValidatePrinterResponse>(endpoints.validatePrinter, data as any)
 			.then((res) => res.data.data)
@@ -242,7 +276,9 @@ const printerService = {
 	async getByTerminal(terminalId: string): Promise<Printer[]> {
 		return api
 			.get<PrinterListResponse>(`${endpoints.byTerminal}/${terminalId}`)
-			.then((res) => decodeArrayStrings<Printer>(res.data.data || [], PRINTER_DECODE_FIELDS))
+			.then((res) =>
+				decodeArrayStrings<Printer>(res.data.data || [], PRINTER_DECODE_FIELDS),
+			)
 			.catch((err) => {
 				console.error('Error fetching printers by terminal:', err);
 				throw err;
@@ -255,7 +291,9 @@ const printerService = {
 	async getById(printerId: string): Promise<Printer> {
 		return api
 			.get<PrinterResponse>(`${endpoints.get}/${printerId}`)
-			.then((res) => decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS))
+			.then((res) =>
+				decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS),
+			)
 			.catch((err) => {
 				console.error('Error fetching printer:', err);
 				throw err;
@@ -268,7 +306,9 @@ const printerService = {
 	async create(data: CreatePrinterRequest): Promise<Printer> {
 		return api
 			.post<PrinterResponse>(endpoints.create, data as any)
-			.then((res) => decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS))
+			.then((res) =>
+				decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS),
+			)
 			.catch((err) => {
 				console.error('Error creating printer:', err);
 				throw err;
@@ -278,10 +318,15 @@ const printerService = {
 	/**
 	 * PUT /printers/update/:id - Update printer
 	 */
-	async update(printerId: string, data: UpdatePrinterRequest): Promise<Printer> {
+	async update(
+		printerId: string,
+		data: UpdatePrinterRequest,
+	): Promise<Printer> {
 		return api
 			.put<PrinterResponse>(`${endpoints.update}/${printerId}`, data as any)
-			.then((res) => decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS))
+			.then((res) =>
+				decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS),
+			)
 			.catch((err) => {
 				console.error('Error updating printer:', err);
 				throw err;
@@ -294,7 +339,9 @@ const printerService = {
 	async setDefault(printerId: string): Promise<Printer> {
 		return api
 			.put<PrinterResponse>(`${endpoints.setDefault}/${printerId}`, {} as any)
-			.then((res) => decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS))
+			.then((res) =>
+				decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS),
+			)
 			.catch((err) => {
 				console.error('Error setting default printer:', err);
 				throw err;
@@ -304,10 +351,18 @@ const printerService = {
 	/**
 	 * PUT /printers/status/:id - Update printer status
 	 */
-	async updateStatus(printerId: string, data: PrinterStatusUpdateRequest): Promise<Printer> {
+	async updateStatus(
+		printerId: string,
+		data: PrinterStatusUpdateRequest,
+	): Promise<Printer> {
 		return api
-			.put<PrinterResponse>(`${endpoints.updateStatus}/${printerId}`, data as any)
-			.then((res) => decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS))
+			.put<PrinterResponse>(
+				`${endpoints.updateStatus}/${printerId}`,
+				data as any,
+			)
+			.then((res) =>
+				decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS),
+			)
 			.catch((err) => {
 				console.error('Error updating printer status:', err);
 				throw err;
@@ -317,9 +372,15 @@ const printerService = {
 	/**
 	 * PUT /printers/configuration/:id - Update printer configuration
 	 */
-	async updateConfiguration(printerId: string, configuration: Partial<PrinterConfiguration>): Promise<Printer> {
+	async updateConfiguration(
+		printerId: string,
+		configuration: Partial<PrinterConfiguration>,
+	): Promise<Printer> {
 		return api
-			.put<PrinterResponse>(`${endpoints.updateConfiguration}/${printerId}`, configuration as any)
+			.put<PrinterResponse>(
+				`${endpoints.updateConfiguration}/${printerId}`,
+				configuration as any,
+			)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				console.error('Error updating printer configuration:', err);
@@ -332,7 +393,9 @@ const printerService = {
 	 */
 	async delete(printerId: string): Promise<{ status: boolean }> {
 		return api
-			.delete<ApiResponse<{ status: boolean }>>(`${endpoints.delete}/${printerId}`)
+			.delete<ApiResponse<{ status: boolean }>>(
+				`${endpoints.delete}/${printerId}`,
+			)
 			.then((res) => res.data.data || { status: true })
 			.catch((err) => {
 				console.error('Error deleting printer:', err);
@@ -435,7 +498,10 @@ const printerService = {
 	 */
 	async cancelJob(jobId: string): Promise<PrintJob> {
 		return api
-			.post<PrintJobResponse>(`${endpoints.cancelJob}/${jobId}/cancel`, {} as any)
+			.post<PrintJobResponse>(
+				`${endpoints.cancelJob}/${jobId}/cancel`,
+				{} as any,
+			)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				console.error('Error cancelling print job:', err);
@@ -589,7 +655,9 @@ const printerService = {
 	/**
 	 * POST /printers/discover/register - Register a discovered printer
 	 */
-	async registerDiscoveredPrinter(data: RegisterPrinterRequest): Promise<Printer> {
+	async registerDiscoveredPrinter(
+		data: RegisterPrinterRequest,
+	): Promise<Printer> {
 		return api
 			.post<PrinterResponse>(endpoints.discoverRegister, data as any)
 			.then((res) => res.data.data)
@@ -641,7 +709,9 @@ const printerService = {
 	/**
 	 * Get printers by connection type
 	 */
-	async getByConnectionType(connectionType: PrinterConnectionType): Promise<Printer[]> {
+	async getByConnectionType(
+		connectionType: PrinterConnectionType,
+	): Promise<Printer[]> {
 		return this.getAll({ connectionType, isActive: true });
 	},
 
@@ -676,7 +746,10 @@ const printerService = {
 	/**
 	 * Search printers by name
 	 */
-	async search(searchTerm: string, filters: Omit<PrinterQueryParams, 'search'> = {}): Promise<Printer[]> {
+	async search(
+		searchTerm: string,
+		filters: Omit<PrinterQueryParams, 'search'> = {},
+	): Promise<Printer[]> {
 		return this.getAll({
 			...filters,
 			search: searchTerm,
@@ -686,7 +759,10 @@ const printerService = {
 	/**
 	 * Quick print receipt using default printer
 	 */
-	async quickPrintReceipt(saleId: string, copies: number = 1): Promise<PrintJob> {
+	async quickPrintReceipt(
+		saleId: string,
+		copies: number = 1,
+	): Promise<PrintJob> {
 		return this.printReceipt({
 			saleId,
 			copies,
@@ -699,7 +775,10 @@ const printerService = {
 	/**
 	 * Quick print labels for a product
 	 */
-	async quickPrintLabels(productId: string, quantity: number): Promise<PrintJob> {
+	async quickPrintLabels(
+		productId: string,
+		quantity: number,
+	): Promise<PrintJob> {
 		return this.printLabel({
 			productId,
 			quantity,
