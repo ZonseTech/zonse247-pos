@@ -1,4 +1,5 @@
 export enum ROUTES {
+	DASHBOARD = '/dashboard',
 	POS = '/pos',
 	USERS = '/users',
 	USER_FORM = '/users/form',
