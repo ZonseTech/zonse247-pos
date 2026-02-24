@@ -11,6 +11,7 @@ const SyncData = lazy(() => import('../../pages/sync-data'))
 const Migrations = lazy(() => import('../../pages/migrations'))
 const DatabaseExporter = lazy(() => import('../../pages/export-db'))
 const NotFound = lazy(() => import('../../pages/errors/NotFound'))
+const UnderConstruction = lazy(() => import('../../pages/errors/UnderConstruction'))
 
 export const SystemRoutes = (
     <>
@@ -28,5 +29,8 @@ export const SystemRoutes = (
 )
 
 export const ErrorRoutes = (
-    <Route path="/not-found" element={<NotFound />} />
+    <>
+        <Route path="/not-found" element={<NotFound />} />
+        <Route path="/under-construction" element={<UnderConstruction />} />
+    </>
 )

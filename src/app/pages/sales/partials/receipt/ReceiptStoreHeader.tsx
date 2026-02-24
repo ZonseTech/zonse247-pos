@@ -22,40 +22,38 @@ const ReceiptStoreHeader: FunctionComponent<ReceiptStoreHeaderProps> = ({
 }) => {
     return (
         <>
-            {/* Store Info */}
             <div className="text-center px-4 pt-4 pb-2">
-                {showLogo && logoUrl && (
+                {(showLogo && logoUrl) ? (
                     <img
                         src={logoUrl}
                         alt="Store Logo"
                         className="h-12 mx-auto mb-2 grayscale"
                     />
-                )}
+                ) : null}
                 <h2 className="text-sm font-bold uppercase tracking-wide">
                     {storeName}
                 </h2>
-                {addressLine1 && (
+                {addressLine1 ? (
                     <p className="text-[10px] mt-0.5">{addressLine1}</p>
-                )}
-                {phoneNumber && (
+                ) : null}
+                {phoneNumber ? (
                     <p className="text-[10px]">Tel: {phoneNumber}</p>
-                )}
-                {receiptHeader && (
+                ) : null}
+                {receiptHeader ? (
                     <p className="text-[10px] mt-1">{receiptHeader}</p>
-                )}
+                ) : null}
             </div>
 
             <DashedDivider />
 
-            {/* Receipt Title */}
             <div className="text-center py-1">
                 <p className="text-sm font-bold">SALES RECEIPT</p>
-                {status === 'RETURNED' && (
+                {status === 'RETURNED' ? (
                     <p className="text-[10px] font-bold">*** RETURNED ***</p>
-                )}
-                {status === 'VOIDED' && (
+                ) : null}
+                {status === 'VOIDED' ? (
                     <p className="text-[10px] font-bold">*** VOIDED ***</p>
-                )}
+                ) : null}
             </div>
 
             <DashedDivider />
