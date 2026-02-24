@@ -17,7 +17,6 @@ import ParkedSalesModal from './partials/ParkedSalesModal';
 import { useIsEBN } from '../../hooks/useMediaQuery';
 import { useKeyboardSettings } from '../../hooks/useKeyboardSettings';
 import { useLayout } from '../../context/LayoutContext';
-import { useApp } from '../../context/AppProvider';
 import { isElectron } from '../../../helpers/index.helper';
 import classNames from 'classnames';
 
@@ -36,7 +35,6 @@ const DesktopPOS: FunctionComponent = () => {
 
     const isEBN = useIsEBN();
     const { isSidebarHidden } = useLayout();
-    const { settings } = useApp();
     const focusManager = useFocusManager();
     const keyboardSettings = useKeyboardSettings();
     const barcodeScannerInputRef = useRef<HTMLInputElement>(null);
@@ -51,9 +49,8 @@ const DesktopPOS: FunctionComponent = () => {
     const [paymentMethodId, setPaymentMethodId] = useState<PaymentMethod>(CHECKOUT.CASH);
     const [customPriceInputs, setCustomPriceInputs] = useState<Record<string, string>>({});
 
-    // Check if sidebar is actually visible (web nav enabled AND not hidden by toggle)
-    const showWebNav = !isElectron() || settings?.navigationMenuType === 'web';
-    const isSidebarVisible = showWebNav && !isSidebarHidden;
+    // Only web browsers should have dynamic sidebar positioning (not Electron or EBN)
+    const isSidebarVisible = !isElectron() && !isEBN && !isSidebarHidden;
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -267,7 +264,7 @@ const DesktopPOS: FunctionComponent = () => {
                         </div>
                     </Panel>
 
-                    {keyboardSettings.enabled && (
+                    {keyboardSettings.enabled ? (
                         <Panel size={isEBN ? '1/3' : '1/4'} className='flex flex-shrink-0'>
                             <InputKeyboard
                                 variant="numpad"
@@ -281,7 +278,7 @@ const DesktopPOS: FunctionComponent = () => {
                                 compact={isEBN}
                             />
                         </Panel>
-                    )}
+                    ) : null}
                 </div>
             </div>
 
