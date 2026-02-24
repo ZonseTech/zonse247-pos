@@ -66,8 +66,9 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
     useEffect(() => {
         if (isOpen) {
             setProcessing(false);
-            setCompletedSale(null);
-            setShowCompleteModal(false);
+            setProcessingStep(null);
+            setShowSuccessModal(false);
+            setSuccessData(null);
         }
     }, [isOpen]);
 
