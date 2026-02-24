@@ -4,7 +4,7 @@ import { HiOutlineMenuAlt4, HiOutlineDownload, HiOutlineFilter, HiOutlinePlus, H
 import { ReceiptEuro } from "lucide-react";
 import AppLayout from "../../layouts/AppLayout";
 import PageHeader from "../../components/page/PageHeader";
-import Loader from "../../components/Loader";
+import TableSkeleton from "../../components/skeleton/TableSkeleton";
 import { Button, ZonseThemeContext, DateRangeFilter } from "../../components";
 import { SearchBar } from "../../components/SearchBar";
 import { getTableStyles } from "../../utils/table-styles";
@@ -26,6 +26,7 @@ const SalesPage: FC = () => {
     const navigate = useNavigate();
     const isMobile = useIsMobile();
     const { mode } = useContext(ZonseThemeContext);
+    // Modal state for mobile view only
     const [isOpenDetails, setIsOpenDetails] = useState<boolean>(false);
     const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
     const [isReturnModalOpen, setIsReturnModalOpen] = useState<boolean>(false);
@@ -73,9 +74,16 @@ const SalesPage: FC = () => {
     };
 
     const handleViewDetails = useCallback((sale: SaleOrTransaction) => {
-        setSelectedSale(sale as Sale);
-        setIsOpenDetails(true);
-    }, []);
+        const saleId = sale.id || (sale as Sale).saleNumber;
+        if (!isMobile && saleId) {
+            // Desktop: Navigate to details page
+            navigate(ROUTES.SALE_DETAILS.replace(':saleId', saleId));
+        } else {
+            // Mobile: Use modal
+            setSelectedSale(sale as Sale);
+            setIsOpenDetails(true);
+        }
+    }, [isMobile, navigate]);
 
     const handleInitiateReturn = useCallback((sale: SaleOrTransaction) => {
         setSaleForReturn(sale as Sale);
@@ -247,7 +255,7 @@ const SalesPage: FC = () => {
                                 theme={mode as Themes}
                                 customStyles={getTableStyles(mode)}
                                 progressPending={isLoading}
-                                progressComponent={<Loader isLoading={isLoading} />}
+                                progressComponent={<TableSkeleton rows={perPage} columns={8} showCheckbox={false} showActions />}
                                 highlightOnHover
                                 striped
                                 responsive
@@ -288,11 +296,14 @@ const SalesPage: FC = () => {
                         </div>
                     )}
 
-                    <SaleDetailsModal
-                        sale={selectedSale}
-                        isOpenDetails={isOpenDetails}
-                        setIsOpenDetails={setIsOpenDetails}
-                    />
+                    {/* Modal only for mobile view */}
+                    {isMobile && (
+                        <SaleDetailsModal
+                            sale={selectedSale}
+                            isOpenDetails={isOpenDetails}
+                            setIsOpenDetails={setIsOpenDetails}
+                        />
+                    )}
 
                     {saleForReturn && (
                         <InitiateReturnModal
