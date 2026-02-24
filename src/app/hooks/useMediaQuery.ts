@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Capacitor } from '@capacitor/core';
+import { isElectron } from '../../helpers/index.helper';
 
 /**
  * Custom hook to track media query matches
@@ -36,12 +37,17 @@ export const useMediaQuery = (query: string): boolean => {
  * 1. Capacitor native platform detection (Android/iOS)
  * 2. Environment variable (VITE_APP_CLIENT_TYPE=mobile)
  * 3. CSS media query for mobile screen size (below 768px)
+ * Excludes Electron desktop apps
  * @returns boolean indicating if the app is on a mobile platform
  */
 export const useIsMobile = (): boolean => {
     const isMediaQueryMobile = useMediaQuery('(max-width: 767px)');
 
     const isMobilePlatform = useMemo(() => {
+        // Exclude Electron from being treated as mobile
+        if (isElectron()) {
+            return false;
+        }
         const isNativePlatform = Capacitor.isNativePlatform();
         const isEnvMobile = import.meta.env.VITE_APP_CLIENT_TYPE === 'mobile';
         return isNativePlatform || isEnvMobile;
@@ -53,10 +59,15 @@ export const useIsMobile = (): boolean => {
 /**
  * Hook to check if the app is running on a native mobile platform (Capacitor)
  * or if the environment is configured as mobile
+ * Excludes Electron desktop apps
  * @returns boolean indicating if running on native mobile or configured as mobile
  */
 export const useIsNativeMobile = (): boolean => {
     return useMemo(() => {
+        // Exclude Electron from being treated as mobile
+        if (isElectron()) {
+            return false;
+        }
         const isNativePlatform = Capacitor.isNativePlatform();
         const isEnvMobile = import.meta.env.VITE_APP_CLIENT_TYPE === 'mobile';
         return isNativePlatform || isEnvMobile;

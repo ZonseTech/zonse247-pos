@@ -182,6 +182,7 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                                             name="name"
                                             placeholder="Enter item name"
                                             required
+                                            className='uppercase'
                                         />
                                     </FormFieldCard>
 

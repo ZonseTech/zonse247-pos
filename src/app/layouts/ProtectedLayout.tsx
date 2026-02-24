@@ -5,7 +5,7 @@ import { type FunctionComponent } from "react"
 import { isElectron } from "../../helpers/index.helper"
 import { useApp } from "../context/AppProvider"
 import { useLayout } from "../context/LayoutContext"
-import { useIsMobile, useIsNativeMobile } from "../hooks/useMediaQuery"
+import { useIsMobile, useIsNativeMobile, useIsEBN } from "../hooks/useMediaQuery"
 import classNames from "classnames"
 
 const ProtectedLayout: FunctionComponent = () => {
@@ -13,8 +13,9 @@ const ProtectedLayout: FunctionComponent = () => {
 	const { isSidebarHidden, toggleSidebar } = useLayout();
 	const isMobile = useIsMobile();
 	const isNativeMobile = useIsNativeMobile();
+	const isEBN = useIsEBN();
 	const isNotDesktopEnv = !isElectron()
-	const showWebNav = (isNotDesktopEnv || settings?.navigationMenuType === 'web') && !isNativeMobile
+	const showWebNav = isNotDesktopEnv && !isNativeMobile && !isEBN
 
 	return (
 		<div className="flex h-screen transition-colors duration-300 relative">
