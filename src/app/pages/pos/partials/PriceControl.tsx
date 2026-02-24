@@ -3,7 +3,6 @@ import { DEFAULT_SEED_KEY } from '../../../constants';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import type { FunctionComponent } from 'react';
 import { useRef, useEffect } from 'react';
-import { DollarSign } from 'lucide-react';
 import classNames from 'classnames';
 
 interface PriceControlProps {
@@ -139,15 +138,14 @@ const PriceControl: FunctionComponent<PriceControlProps> = ({
 
     return (
         <div className={classNames(
-            "inline-flex items-center gap-0.5 bg-emerald-50 dark:bg-emerald-500/10 ring-1 ring-emerald-200 dark:ring-emerald-500/30",
+            "inline-flex items-center gap-0.5 ",
             compact ? "px-1 py-0.5 rounded" : "px-3 py-2 rounded-xl"
         )}>
-            <DollarSign size={compact ? 10 : 16} className="text-emerald-500 dark:text-emerald-400" />
             <span className={classNames(
                 "font-bold text-emerald-700 dark:text-emerald-400",
                 compact ? "text-[10px]" : "text-base"
             )}>
-                {formatCurrency(sellingPrice)}
+                {formatCurrency(sellingPrice, true)}
             </span>
         </div>
     );

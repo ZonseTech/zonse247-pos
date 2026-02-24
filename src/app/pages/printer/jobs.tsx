@@ -170,7 +170,7 @@ const PrintJobsManagement: FunctionComponent = () => {
                 <PageHeader
                     title="Print Jobs"
                     description="Monitor and manage print job queue"
-                    icon={<HiOutlineQueueList className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
+                    showBackButton
                     action={
                         <div className="flex items-center gap-2">
                             {!isMobile && <SearchBar value={searchTerm} onChange={setSearchTerm} placeholder="Search jobs..." />}

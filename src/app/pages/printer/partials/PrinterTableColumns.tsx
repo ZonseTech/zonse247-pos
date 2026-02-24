@@ -24,25 +24,7 @@ const PrinterActions: FunctionComponent<PrinterActionsProps> = ({
 }) => {
     return (
         <div className="flex items-center space-x-1">
-            {/* Test Connection Button */}
-            <button
-                onClick={() => onTestConnection(printer.printerId)}
-                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
-                title="Test connection"
-            >
-                <Wifi className="w-4 h-4 transition-transform group-hover:scale-110" />
-            </button>
 
-            {/* Print Test Page Button */}
-            <button
-                onClick={() => onPrintTestPage(printer.printerId)}
-                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
-                title="Print test page"
-            >
-                <FileText className="w-4 h-4 transition-transform group-hover:scale-110" />
-            </button>
-
-            {/* Set Default Button */}
             <button
                 onClick={() => onSetDefault(printer.printerId)}
                 className={`group p-2 rounded-lg transition-all duration-200 ${printer.isDefault
@@ -54,23 +36,6 @@ const PrinterActions: FunctionComponent<PrinterActionsProps> = ({
                 <Star className={`w-4 h-4 transition-transform group-hover:scale-110 ${printer.isDefault ? 'fill-current' : ''}`} />
             </button>
 
-            {/* Active/Inactive Toggle Button */}
-            <button
-                onClick={() => onToggleActive(printer.printerId, printer.isActive)}
-                className={`group p-2 rounded-lg transition-all duration-200 ${printer.isActive
-                    ? 'text-green-500 dark:text-green-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
-                    } focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800`}
-                title={printer.isActive ? 'Deactivate printer' : 'Activate printer'}
-            >
-                {printer.isActive ? (
-                    <Power className="w-4 h-4 transition-transform group-hover:scale-110" />
-                ) : (
-                    <PowerOff className="w-4 h-4 transition-transform group-hover:scale-110" />
-                )}
-            </button>
-
-            {/* Edit Button */}
             <button
                 onClick={() => onEdit(printer)}
                 className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
@@ -79,14 +44,6 @@ const PrinterActions: FunctionComponent<PrinterActionsProps> = ({
                 <Edit2 className="w-4 h-4 transition-transform group-hover:scale-110" />
             </button>
 
-            {/* Delete Button */}
-            <button
-                onClick={() => onDelete(printer.printerId, printer.printerName)}
-                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
-                title="Delete printer"
-            >
-                <Trash2 className="w-4 h-4 transition-transform group-hover:scale-110" />
-            </button>
         </div>
     );
 };

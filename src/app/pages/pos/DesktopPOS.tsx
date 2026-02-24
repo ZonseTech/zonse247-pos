@@ -325,7 +325,7 @@ const DesktopPOS: FunctionComponent = () => {
                         </label>
                         <div className={classNames(
                             "bg-gray-800 text-white font-bold text-center",
-                            isEBN ? "text-sm py-1" : "text-lg lg:text-xl py-2 lg:py-2.5"
+                            isEBN ? "text-sm py-2" : "text-lg lg:text-xl py-2 lg:py-2.5"
                         )}>
                             {cart.length}
                         </div>
