@@ -7,6 +7,7 @@ import { useAuth } from '../../../../context/AuthProvider';
 import { useApp } from '../../../../context/AppProvider';
 import { useIsEBN } from '../../../../hooks/useMediaQuery';
 import salesService from '../../../../services/sales.service';
+import printerService from '../../../../services/printer.service';
 import { generateReferenceNumber, formatCurrency } from '../../../../utils';
 import { DEFAULT_SEED_KEY } from '../../../../constants';
 import {
@@ -21,7 +22,7 @@ import {
     PaymentMethodButtons,
     PaymentEntriesList,
 } from './index';
-import TransactionCompleteModal from '../TransactionCompleteModal';
+import { DesktopProcessingView, TransactionSuccessModal, ProcessingStep } from '../desktop-checkout';
 
 const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
     isOpen,
@@ -43,8 +44,13 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
     const { settings } = useApp();
     const isEBN = useIsEBN();
     const [processing, setProcessing] = useState(false);
-    const [completedSale, setCompletedSale] = useState<Sale | Transaction | null>(null);
-    const [showCompleteModal, setShowCompleteModal] = useState(false);
+    const [processingStep, setProcessingStep] = useState<ProcessingStep | null>(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [successData, setSuccessData] = useState<{
+        total: number;
+        changeAmount: number;
+        refNumber: string;
+    } | null>(null);
     const {
         payments,
         totalPaid,
@@ -77,6 +83,8 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, processing, onClose]);
 
+    const simulateDelay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
     const handleCompleteSale = async () => {
         if (!isFullyPaid || processing) return;
 
@@ -88,6 +96,14 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
 
         try {
             setProcessing(true);
+
+            // Step 1: Validating
+            setProcessingStep('validating');
+            await simulateDelay(500);
+
+            // Step 2: Saving
+            setProcessingStep('saving');
+
             const refNumber = generateReferenceNumber();
 
             // Calculate item-level discounts
@@ -170,66 +186,53 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
 
             const sale = await salesService.store(salePayload);
 
-            const saleDate = typeof sale.createdAt === 'string'
-                ? sale.createdAt
-                : sale.createdAt?.toISOString?.() || new Date().toISOString();
+            const saleRefNumber = (sale as any).saleNumber || refNumber;
+            const saleChangeAmount = change;
 
-            const completedSaleData = {
-                id: sale.id,
-                refNumber: (sale as any).saleNumber || refNumber,
-                transactionId: sale.id,
-                total: (sale as any).totalAmount || total,
-                paid: totalPaid,
-                changeAmount: change,
-                date: saleDate,
-                discount,
-                subtotal,
-                tax,
-                phoneNumber: paymentEntries.find(p => p.phoneNumber)?.phoneNumber || '',
-                userId: user.userId,
-                terminalId: (settings as any)?.terminalId || 'default',
-                paymentMethodId: paymentEntries.length > 1 ? 'multiple' : paymentEntries[0].paymentMethodId,
-                items: cart,
-                user,
-                customer: selectedCustomer,
-                status: sale.status || 'COMPLETED',
-                payments: paymentEntries.map(p => ({
-                    id: generatePaymentId(),
+            // Step 3: Printing
+            setProcessingStep('printing');
+            try {
+                await printerService.printReceipt({
                     saleId: sale.id,
-                    paymentMethodId: p.paymentMethodId,
-                    amount: p.amount,
-                    reference: p.reference,
-                    status: 'completed',
-                    processedAt: new Date().toISOString(),
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                })),
-            };
+                    transactionId: sale.id,
+                    copies: settings?.receiptCopies || 1,
+                    includeHeader: true,
+                    includeFooter: true,
+                    includeLogo: settings?.showStoreLogo || false,
+                });
+            } catch (printError) {
+                console.error('Print failed:', printError);
+                // Continue even if print fails - sale is already saved
+            }
 
-            setCompletedSale(completedSaleData);
-            setShowCompleteModal(true);
+            // Step 4: Completed - Show success modal
+            setProcessingStep('completed');
+            await simulateDelay(300);
+
+            setProcessingStep(null);
+            setSuccessData({
+                total: (sale as any).totalAmount || total,
+                changeAmount: saleChangeAmount,
+                refNumber: saleRefNumber,
+            });
+            setShowSuccessModal(true);
 
         } catch (error) {
             console.error('Sale failed:', error);
             Notify.failure('Failed to process sale. Please try again.');
+            setProcessingStep(null);
             setProcessing(false);
         }
     };
 
-    const handleNewTransaction = () => {
-        setShowCompleteModal(false);
-        setCompletedSale(null);
+    const handleTransactionComplete = () => {
+        setShowSuccessModal(false);
+        setSuccessData(null);
         resetPayments();
         clearCart();
         reloadInventory();
         setProcessing(false);
         onClose();
-    };
-
-    const handleCloseCompleteModal = () => {
-        setShowCompleteModal(false);
-        setCompletedSale(null);
-        setProcessing(false);
     };
 
     if (!isOpen) return null;
@@ -309,12 +312,20 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
                 />
             </div>
 
-            <TransactionCompleteModal
-                isOpen={showCompleteModal}
-                transaction={completedSale}
-                onClose={handleCloseCompleteModal}
-                onNewTransaction={handleNewTransaction}
-            />
+            {showSuccessModal && successData && (
+                <TransactionSuccessModal
+                    isOpen={showSuccessModal}
+                    total={successData.total}
+                    changeAmount={successData.changeAmount}
+                    refNumber={successData.refNumber}
+                    onComplete={handleTransactionComplete}
+                    autoCloseDelay={3000}
+                />
+            )}
+
+            {processingStep && (
+                <DesktopProcessingView processingStep={processingStep} />
+            )}
         </div>,
         document.body
     );

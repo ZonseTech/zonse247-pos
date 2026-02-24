@@ -277,7 +277,6 @@ export default class MenuBuilder {
 			});
 		}
 
-		// Management group (Users/Staffs)
 		const managementItems: Array<MenuItemConstructorOptions> = [];
 
 		if (
@@ -295,7 +294,6 @@ export default class MenuBuilder {
 		}
 
 		if (managementItems.length > 0) {
-			managementSubmenu.push({ type: 'separator' });
 			managementSubmenu.push(...managementItems);
 		}
 

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { HiChevronRight, HiChevronLeft } from 'react-icons/hi';
 import { HiOutlineCalendarDateRange } from 'react-icons/hi2';
-import { DateRangePicker, RangeKeyDict } from 'react-date-range';
+import { DateRangePicker, RangeKeyDict, createStaticRanges } from 'react-date-range';
 import dayjs from 'dayjs';
 
 import 'react-date-range/dist/styles.css';
@@ -33,6 +33,65 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
             key: 'selection',
         },
     ]);
+
+    const staticRanges = useMemo(() => createStaticRanges([
+        {
+            label: 'Today',
+            range: () => ({
+                startDate: dayjs().startOf('day').toDate(),
+                endDate: dayjs().endOf('day').toDate(),
+            }),
+        },
+        {
+            label: 'Yesterday',
+            range: () => ({
+                startDate: dayjs().subtract(1, 'day').startOf('day').toDate(),
+                endDate: dayjs().subtract(1, 'day').endOf('day').toDate(),
+            }),
+        },
+        {
+            label: 'This Week',
+            range: () => ({
+                startDate: dayjs().startOf('week').toDate(),
+                endDate: dayjs().endOf('day').toDate(),
+            }),
+        },
+        {
+            label: 'Last Week',
+            range: () => ({
+                startDate: dayjs().subtract(1, 'week').startOf('week').toDate(),
+                endDate: dayjs().subtract(1, 'week').endOf('week').toDate(),
+            }),
+        },
+        {
+            label: 'This Month',
+            range: () => ({
+                startDate: dayjs().startOf('month').toDate(),
+                endDate: dayjs().endOf('day').toDate(),
+            }),
+        },
+        {
+            label: 'Last Month',
+            range: () => ({
+                startDate: dayjs().subtract(1, 'month').startOf('month').toDate(),
+                endDate: dayjs().subtract(1, 'month').endOf('month').toDate(),
+            }),
+        },
+        {
+            label: 'This Year',
+            range: () => ({
+                startDate: dayjs().startOf('year').toDate(),
+                endDate: dayjs().endOf('day').toDate(),
+            }),
+        },
+        {
+            label: 'Last Year',
+            range: () => ({
+                startDate: dayjs().subtract(1, 'year').startOf('year').toDate(),
+                endDate: dayjs().subtract(1, 'year').endOf('year').toDate(),
+            }),
+        },
+    ]), []);
 
     const getDisplayText = (): string => {
         if (!startDate) return 'Select Date';
@@ -169,7 +228,7 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
                                 months={1}
                                 ranges={dateRange}
                                 direction="vertical"
-                                staticRanges={undefined}
+                                staticRanges={staticRanges}
                                 inputRanges={[]}
                                 rangeColors={['#0ea5e9']}
                                 maxDate={new Date()}
