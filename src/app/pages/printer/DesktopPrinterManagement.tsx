@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import printerService from '../../services/printer.service';
 import { DiscoveryModal, DiscoveryFilterType } from './partials/DiscoveryModal';
+import EditPrinterModal from './partials/EditPrinterModal';
 
 const DesktopPrinterManagement: FunctionComponent = () => {
     const navigate = useNavigate();
@@ -25,6 +26,8 @@ const DesktopPrinterManagement: FunctionComponent = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [selectedConnectionType, setSelectedConnectionType] = useState<DiscoveryFilterType>('USB');
     const [discoveryFilter, setDiscoveryFilter] = useState<DiscoveryFilterType>('USB');
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [printerToEdit, setPrinterToEdit] = useState<Printer | null>(null);
 
     const {
         isLoading, searchTerm, setSearchTerm, totalRows, setPage, setPerPage, getPaginatedData,
@@ -82,7 +85,19 @@ const DesktopPrinterManagement: FunctionComponent = () => {
         setDiscoveredPrinters([]);
     };
 
-    const handleEdit = (printer: Printer) => navigate(ROUTES.PRINTER_FORM, { state: { printerId: printer.printerId } });
+    const handleEdit = (printer: Printer) => {
+        setPrinterToEdit(printer);
+        setShowEditModal(true);
+    };
+
+    const handleCloseEditModal = () => {
+        setShowEditModal(false);
+        setPrinterToEdit(null);
+    };
+
+    const handleSaveEditModal = async () => {
+        await refreshPrinters();
+    };
 
     const handleDelete = (printerId: string, printerName: string) => {
         Confirm.show('Delete Printer', `Delete "${printerName}"?`, 'Yes', 'Cancel',
@@ -166,6 +181,14 @@ const DesktopPrinterManagement: FunctionComponent = () => {
                             }
                         />
                     </div>
+
+                    <EditPrinterModal
+                        isOpen={showEditModal}
+                        printer={printerToEdit}
+                        onClose={handleCloseEditModal}
+                        onSave={handleSaveEditModal}
+                        onDelete={deletePrinter}
+                    />
                 </div>
             </div>
 
