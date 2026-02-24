@@ -14,6 +14,7 @@ export enum ROUTES {
 	MOBILE_REPORT_RECEIPT_COUNT = '/mobile-report/receipt-count',
 	MOBILE_REPORT_PAYMENT_MODES = '/mobile-report/payment-modes',
 	SALES = '/sales',
+	SALE_DETAILS = '/sales/:saleId',
 	TODAY_SALES = '/today-sales',
 	RECEIPTS = '/receipts',
 	RECEIPT_DETAILS = '/receipts/:saleId',
