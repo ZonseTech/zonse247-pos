@@ -316,6 +316,10 @@ export default class MenuBuilder {
 					click: () => this.navigateTo(ROUTES.PRINTERS),
 				},
 				{
+					label: 'Branch Settings',
+					click: () => this.navigateTo(ROUTES.BRANCHES),
+				},
+				{
 					label: 'Terminals',
 					click: () => this.navigateTo(ROUTES.TERMINALS),
 				},
