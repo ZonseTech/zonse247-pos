@@ -77,16 +77,15 @@ const InitApp: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings })
                 return { success: false, error: errorMessage }
             }
         },
-        []
+        [appSettings]
     )
 
     const validateSettingsResponse = (settings: any) => {
         if (!settings) return false;
 
-        const requiredFields = ['verificationToken'];
-
         if (typeof settings === 'object' && !Array.isArray(settings)) {
-            return requiredFields.every((field) => settings.hasOwnProperty(field));
+            const hasTerminalId = settings.terminalId && typeof settings.terminalId === 'string' && settings.terminalId.length > 0;
+            return hasTerminalId;
         }
 
         return false;

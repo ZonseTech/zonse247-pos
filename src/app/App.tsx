@@ -23,8 +23,8 @@ const isWebOrMobile = CLIENT_TYPE === 'web' || CLIENT_TYPE === 'mobile'
 
 Modal.setAppElement('#root')
 const App: FunctionComponent = () => {
-    const { setup, loading, hasSetup, saveSetup } = useSettings();
     const [showOnboarding, setShowOnboarding] = useState(false);
+    const { setup, loading, hasSetup, saveSetup } = useSettings();
     const [saveError, setSaveError] = useState<string | null>(null);
 
     useEffect(() => {
