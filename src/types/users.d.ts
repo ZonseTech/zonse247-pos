@@ -27,7 +27,6 @@ interface User {
     synced?: number;
     createdAt?: string | Date;
     updatedAt?: string | Date;
-    // Staff management fields
     trackAttendance?: boolean;
     allowAppAccess?: boolean;
     calculateAs?: 'monthly' | 'daily' | 'hourly';
@@ -36,6 +35,7 @@ interface User {
     joiningDate?: string | Date;
     allowSelfAttendance?: boolean;
     attendanceType?: 'single' | 'punch';
+    branch?: (Branch & { branchSubscription?: BranchSubscription }) | null;
 }
 
 interface UserQueryParams {
