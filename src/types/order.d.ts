@@ -35,7 +35,8 @@ interface HoldOrder {
 
 interface CartItem {
     barcode: number | string;
-    productId: string;
+    variantId?: string;         // Variant ID (preferred for API v1.6.0+)
+    productId: string;          // Product ID (parent)
     name: string;
     categoryId: string;
     sellingPrice: number;
