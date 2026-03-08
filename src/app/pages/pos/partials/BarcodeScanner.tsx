@@ -4,10 +4,12 @@ import { Confirm } from 'notiflix';
 import { createPortal } from 'react-dom';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useScannerSettings, useScannerFeedback } from '../../../hooks/useScannerSettings';
-import inventoryService from '../../../services/inventory.service';
+import productService from '../../../services/product.service';
+import { mapProductToInventoryItem } from '../../../utils/product-mapper';
 import CameraBarcodeScanner from '../../../components/scanner/CameraBarcodeScanner';
 import { type ScannerResult } from '../../../services/barcode-scanner.service';
 import { BarcodeIcon } from 'lucide-react';
+import { useAuth } from '../../../context/AuthProvider';
 
 interface BarcodeScannerProps {
     externalInput?: string;
@@ -26,6 +28,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
 }) => {
     const [barcode, setBarcode] = useState('');
     const { inventory, addToCart } = useInventory();
+    const { user } = useAuth();
     const scannerSettings = useScannerSettings();
     const { triggerFeedback } = useScannerFeedback();
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -50,13 +53,22 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
 
 
     /**
-     * Search for item by barcode using API if not found locally
+     * Search for item by barcode/SKU/name using Products API
+     * GET /products/search/:term
      */
     const searchByBarcodeAPI = async (barcodeValue: string): Promise<InventoryItem | null> => {
         try {
             setIsSearching(true);
-            const item = await inventoryService.findByBarcode(barcodeValue);
-            return item;
+            const tenantId = user?.tenantId || '-1';
+            const branchId = user?.branchId || '';
+
+            const result = await productService.searchProduct(barcodeValue, tenantId, branchId);
+
+            if (result?.product) {
+                // Map ProductWithInventory to InventoryItem for cart compatibility
+                return mapProductToInventoryItem(result.product);
+            }
+            return null;
         } catch (error) {
             console.error('Error searching by barcode:', error);
             return null;
@@ -72,11 +84,15 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
 
         const cleanedCode = cleanBarcode(code);
         if (cleanedCode.length >= MIN_BARCODE_LENGTH) {
-            const exactMatch = inventory.find(p =>
-                p.barcode.toString() === cleanedCode &&
-                parseFloat(p.quantity) > 0 &&
-                (!p.status || p.status.toLowerCase() === 'active')
-            );
+            // Search by barcode, primaryBarcode, or sku
+            const exactMatch = inventory.find(p => {
+                const barcodeMatch = (p.barcode?.toString() === cleanedCode) ||
+                    (p.primaryBarcode?.toString() === cleanedCode) ||
+                    (p.sku?.toString() === cleanedCode);
+                const quantityOk = parseFloat((p.quantity || p.availableQuantity || 0).toString()) > 0;
+                const statusOk = !p.status || p.status.toLowerCase() === 'active';
+                return barcodeMatch && quantityOk && statusOk;
+            });
             if (exactMatch) {
                 triggerFeedback();
                 addToCart(exactMatch);
@@ -118,22 +134,30 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
         const cleanedBarcode = cleanBarcode(scannedBarcode);
         if (cleanedBarcode === '') return;
 
-        let item = inventory.find(p =>
-            p.barcode.toString() === cleanedBarcode &&
-            parseFloat(p.quantity) > 0 &&
-            (!p.status || p.status.toLowerCase() === 'active')
-        );
+        // Search locally first - check barcode, primaryBarcode, and sku
+        let item = inventory.find(p => {
+            const barcodeMatch = (p.barcode?.toString() === cleanedBarcode) ||
+                (p.primaryBarcode?.toString() === cleanedBarcode) ||
+                (p.sku?.toString() === cleanedBarcode);
+            const quantityOk = parseFloat((p.quantity || p.availableQuantity || 0).toString()) > 0;
+            const statusOk = !p.status || p.status.toLowerCase() === 'active';
+            return barcodeMatch && quantityOk && statusOk;
+        });
 
         if (!item) {
             item = await searchByBarcodeAPI(cleanedBarcode);
             // Check if the API result is available
-            if (item && (parseFloat(item.quantity) <= 0 || (item.status && item.status.toLowerCase() !== 'active'))) {
-                Confirm.show(
-                    'Product unavailable',
-                    `Product "${item.name}" is out of stock or inactive`,
-                    'OK'
-                );
-                return;
+            if (item) {
+                const quantity = parseFloat((item.quantity || item.availableQuantity || 0).toString());
+                const isInactive = item.status && item.status.toLowerCase() !== 'active';
+                if (quantity <= 0 || isInactive) {
+                    Confirm.show(
+                        'Product unavailable',
+                        `Product "${item.name || item.displayName}" is out of stock or inactive`,
+                        'OK'
+                    );
+                    return;
+                }
             }
         }
 
@@ -247,19 +271,23 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
         // Frontend filtering is intentional for POS performance
         // Real-time barcode scanning requires instant filtering without API delays
         // Only show available products (quantity > 0 and active status)
-        const availableInventory = inventory.filter(item =>
-            parseFloat(item.quantity) > 0 &&
-            (!item.status || item.status.toLowerCase() === 'active')
-        );
+        const availableInventory = inventory.filter(item => {
+            const quantity = parseFloat((item.quantity || item.availableQuantity || 0).toString());
+            const statusOk = !item.status || item.status.toLowerCase() === 'active';
+            return quantity > 0 && statusOk;
+        });
 
         if (barcode.trim() === '') {
             setFilteredItems(availableInventory);
         } else {
             const cleanedInput = cleanBarcode(barcode);
-            const filtered = availableInventory.filter(item =>
-                item.barcode.toString().includes(cleanedInput) ||
-                item.name.toLowerCase().includes(cleanedInput.toLowerCase())
-            );
+            const filtered = availableInventory.filter(item => {
+                const barcodeMatch = (item.barcode?.toString() || '').includes(cleanedInput) ||
+                    (item.primaryBarcode?.toString() || '').includes(cleanedInput) ||
+                    (item.sku?.toString() || '').includes(cleanedInput);
+                const nameMatch = (item.name || item.displayName || '').toLowerCase().includes(cleanedInput.toLowerCase());
+                return barcodeMatch || nameMatch;
+            });
             setFilteredItems(filtered);
         }
     }, [barcode, inventory]);
@@ -374,27 +402,31 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                         className={`border border-gray-200 dark:border-gray-700 rounded-none overflow-y-auto bg-white dark:bg-gray-900 shadow-sm dark:shadow-lg ${compact ? 'max-h-40' : 'max-h-60'}`}
                         data-dropdown="true"
                     >
-                        {filteredItems.map(item => (
-                            <div
-                                key={item.productId}
-                                className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer flex justify-between items-center border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors ${compact ? 'p-2' : 'p-3'}`}
-                                onClick={() => {
-                                    triggerFeedback();
-                                    addToCart(item);
-                                    setBarcode('');
-                                    if (barcodeScannerInputRef.current) {
-                                        barcodeScannerInputRef.current.focus();
-                                    }
-                                }}
-                            >
-                                <span className={`font-medium text-gray-900 dark:text-gray-100 truncate pr-4 ${compact ? 'text-xs' : ''}`}>
-                                    {item.name}
-                                </span>
-                                <span className={`text-gray-500 dark:text-gray-400 font-mono flex-shrink-0 ${compact ? 'text-[10px]' : 'text-sm'}`}>
-                                    {item.barcode}
-                                </span>
-                            </div>
-                        ))}
+                        {filteredItems.map(item => {
+                            const displayItemName = item.displayName || item.name;
+                            const displayBarcode = item.barcode || item.primaryBarcode || item.sku || '-';
+                            return (
+                                <div
+                                    key={item.productId || item.id}
+                                    className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer flex justify-between items-center border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors ${compact ? 'p-2' : 'p-3'}`}
+                                    onClick={() => {
+                                        triggerFeedback();
+                                        addToCart(item);
+                                        setBarcode('');
+                                        if (barcodeScannerInputRef.current) {
+                                            barcodeScannerInputRef.current.focus();
+                                        }
+                                    }}
+                                >
+                                    <span className={`font-medium text-gray-900 dark:text-gray-100 truncate pr-4 ${compact ? 'text-xs' : ''}`}>
+                                        {displayItemName}
+                                    </span>
+                                    <span className={`text-gray-500 dark:text-gray-400 font-mono flex-shrink-0 ${compact ? 'text-[10px]' : 'text-sm'}`}>
+                                        {displayBarcode}
+                                    </span>
+                                </div>
+                            );
+                        })}
                     </div>,
                     document.body
                 )

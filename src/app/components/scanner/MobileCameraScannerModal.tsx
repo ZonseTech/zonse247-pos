@@ -65,7 +65,15 @@ const MobileCameraScannerModal: FunctionComponent<MobileCameraScannerModalProps>
     const findItemByBarcode = useCallback((barcode: string): InventoryItem | undefined => {
         return inventory.find(item => {
             const itemBarcode = item.barcode?.toString() || '';
-            return itemBarcode === barcode || itemBarcode.includes(barcode) || barcode.includes(itemBarcode);
+            const primaryBarcode = item.primaryBarcode?.toString() || '';
+            const sku = item.sku?.toString() || '';
+            return itemBarcode === barcode ||
+                primaryBarcode === barcode ||
+                sku === barcode ||
+                itemBarcode.includes(barcode) ||
+                primaryBarcode.includes(barcode) ||
+                barcode.includes(itemBarcode) ||
+                barcode.includes(primaryBarcode);
         });
     }, [inventory]);
 
