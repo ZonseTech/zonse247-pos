@@ -111,6 +111,14 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
                     sessionStorage.setItem('tenantId', result.user.tenantId);
                 }
 
+                if (isElectron() && window.electronAPI?.session?.setToken) {
+                    try {
+                        await window.electronAPI.session.setToken(result.token);
+                    } catch (err) {
+                        console.warn('Failed to set session token:', err);
+                    }
+                }
+
                 if (!isElectron()) {
                     await settingsService.load();
                 }
@@ -171,11 +179,20 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
             async () => {
                 try {
                     await api.get('auth/logout/' + user?.userId)
-                        .then((() => {
+                        .then((async () => {
                             setUser(null);
                             setAuth(null);
                             sessionStorage.removeItem('user');
                             sessionStorage.removeItem('token');
+
+                            // Clear session token on logout
+                            if (isElectron() && window.electronAPI?.session?.clear) {
+                                try {
+                                    await window.electronAPI.session.clear();
+                                } catch (err) {
+                                    console.warn('Failed to clear session:', err);
+                                }
+                            }
 
                             if (callback) {
                                 callback();
