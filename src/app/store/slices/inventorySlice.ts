@@ -1,12 +1,20 @@
 import { Notify } from 'notiflix'
-import inventoryService from '../../services/inventory.service'
+import productService from '../../services/product.service'
 import categoriesService from '../../services/category.service'
 import paymentMethodService from '../../services/payment-method.service'
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import paymentServiceProviderService from '../../services/payment-service-provider.service'
+import { mapProductsToInventoryItems } from '../../utils/product-mapper'
 
 interface InventoryState {
     inventory: InventoryItem[]
+    products: ProductWithInventory[]
+    pagination: {
+        currentPage: number
+        totalPages: number
+        totalItems: number
+        itemsPerPage: number
+    } | null
     categories: Category[]
     paymentMethods: PaymentMethod[]
     paymentServiceProvider: PaymentServiceProvider[]
@@ -18,6 +26,8 @@ interface InventoryState {
 
 const initialState: InventoryState = {
     inventory: [],
+    products: [],
+    pagination: null,
     categories: [],
     paymentMethods: [],
     paymentServiceProvider: [],
@@ -27,14 +37,67 @@ const initialState: InventoryState = {
     cacheTimeout: 5 * 60 * 1000,
 }
 
+// Query parameters for fetching products
+interface FetchProductsParams {
+    page?: number
+    perPage?: number
+    search?: string
+    filter?: string
+    status?: string
+    categoryId?: string
+    includeInactive?: boolean
+}
+
 export const fetchInventory = createAsyncThunk(
     'inventory/fetchInventory',
-    async (_, { rejectWithValue }) => {
+    async (params: FetchProductsParams = {}, { rejectWithValue }) => {
         try {
-            const data = await inventoryService.index()
-            return data
-        } catch (error) {
-            const message = 'Error fetching inventory: ' + error?.error?.response?.data?.message
+            // Fetch products with max allowed perPage (100)
+            // For POS, we fetch all pages to get complete product list
+            const perPage = Math.min(params.perPage || 100, 100) // API max is 100
+
+            const baseParams: ListProductsOptions = {
+                page: 1,
+                perPage,
+                search: params.search,
+                filter: params.filter as ListProductsOptions['filter'] || 'active',
+                status: params.status,
+                categoryId: params.categoryId,
+                includeInactive: params.includeInactive || false,
+            }
+
+            // Fetch first page
+            const firstResponse = await productService.listProducts(baseParams)
+            let allProducts = firstResponse.products || []
+
+            // If there are more pages, fetch them all for POS
+            const totalPages = firstResponse.pagination?.totalPages || 1
+            if (totalPages > 1 && !params.page) {
+                const pagePromises = []
+                for (let page = 2; page <= totalPages; page++) {
+                    pagePromises.push(productService.listProducts({ ...baseParams, page }))
+                }
+                const additionalResponses = await Promise.all(pagePromises)
+                additionalResponses.forEach(res => {
+                    allProducts = allProducts.concat(res.products || [])
+                })
+            }
+
+            // Map ProductWithInventory to InventoryItem for cart compatibility
+            const inventoryItems = mapProductsToInventoryItems(allProducts)
+
+            return {
+                items: inventoryItems,
+                products: allProducts,
+                pagination: firstResponse.pagination ? {
+                    currentPage: firstResponse.pagination.currentPage || firstResponse.pagination.page || 1,
+                    totalPages: firstResponse.pagination.totalPages || 1,
+                    totalItems: firstResponse.pagination.totalItems || firstResponse.pagination.total || 0,
+                    itemsPerPage: firstResponse.pagination.perPage || firstResponse.pagination.limit || perPage,
+                } : null,
+            }
+        } catch (error: any) {
+            const message = 'Error fetching products: ' + (error?.response?.data?.message || error?.message || 'Unknown error')
 
             Notify.failure(message)
             return rejectWithValue(message)
@@ -88,7 +151,7 @@ export const fetchAllInventoryData = createAsyncThunk(
     'inventory/fetchAllInventoryData',
     async (_, { dispatch }) => {
         await Promise.all([
-            dispatch(fetchInventory()),
+            dispatch(fetchInventory({})),
         ])
     }
 )
@@ -108,7 +171,7 @@ export const fetchAllInventoryDataWithCache = createAsyncThunk(
         }
 
         await Promise.all([
-            dispatch(fetchInventory()),
+            dispatch(fetchInventory({})),
         ])
     }
 )
@@ -132,6 +195,8 @@ const inventorySlice = createSlice({
         },
         clearInventory: (state) => {
             state.inventory = []
+            state.products = []
+            state.pagination = null
             state.categories = []
             state.paymentMethods = []
             state.paymentServiceProvider = []
@@ -145,7 +210,9 @@ const inventorySlice = createSlice({
             })
             .addCase(fetchInventory.fulfilled, (state, action) => {
                 state.loading = false
-                state.inventory = action.payload
+                state.inventory = action.payload.items
+                state.products = action.payload.products
+                state.pagination = action.payload.pagination
                 state.lastFetched = Date.now()
             })
             .addCase(fetchInventory.rejected, (state, action) => {
