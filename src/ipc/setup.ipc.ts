@@ -1,7 +1,49 @@
 import { ipcMain } from "electron";
 import { DatabaseInitializer, SecureSettingsService } from "zonse247-pos-api";
+import sessionService from "../services/session.service";
 
 export function setupIPC() {
+
+    // Session management (in-memory, not persisted)
+    ipcMain.handle('session:set-token', async (_event, token: string | null) => {
+        try {
+            sessionService.setToken(token);
+            return { success: true };
+        } catch (error: any) {
+            console.error('Failed to set session token:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('session:get-token', async () => {
+        try {
+            const token = sessionService.getToken();
+            return { success: true, data: token };
+        } catch (error: any) {
+            console.error('Failed to get session token:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('session:set', async (_event, data: { token?: string; userId?: string; tenantId?: string; branchId?: string }) => {
+        try {
+            sessionService.setSession(data);
+            return { success: true };
+        } catch (error: any) {
+            console.error('Failed to set session:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('session:clear', async () => {
+        try {
+            sessionService.clearSession();
+            return { success: true };
+        } catch (error: any) {
+            console.error('Failed to clear session:', error);
+            return { success: false, error: error.message };
+        }
+    });
 
     ipcMain.handle('settings:save-setup', async (event, setupData) => {
         try {

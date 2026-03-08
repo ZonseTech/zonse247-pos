@@ -1,6 +1,12 @@
 declare global {
     interface Window {
         electronAPI: {
+            session: {
+                setToken: (token: string | null) => Promise<ApiResponse<void>>;
+                getToken: () => Promise<ApiResponse<string | null>>;
+                set: (data: { token?: string; userId?: string; tenantId?: string; branchId?: string }) => Promise<ApiResponse<void>>;
+                clear: () => Promise<ApiResponse<void>>;
+            };
             settings: {
                 clearSetup: () => Promise<ApiResponse<void>>;
                 hasSetup: () => Promise<ApiResponse<boolean>>;
