@@ -19,6 +19,7 @@ interface SetupData {
     tenantId: string;
     branchId: string;
     terminalId: string;
+    verificationToken: string;
     encryptedVerificationToken: string;
     iv: string;
     dataSignature: string;
