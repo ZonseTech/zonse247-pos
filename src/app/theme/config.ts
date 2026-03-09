@@ -178,12 +178,12 @@ export default {
         primary: {
             base: 'text-white dark:text-zinc-100 border border-transparent',
             active: 'active:bg-blue-700 dark:active:bg-blue-800 focus:ring-1 focus:ring-blue-300 dark:focus:ring-blue-900',
-            disabled: 'opacity-50 cursor-not-allowed',
+            disabled: 'cursor-not-allowed bg-blue-300 dark:bg-blue-900 text-white',
         },
         outline: {
             base: 'text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-zinc-600 border focus:outline-none bg-transparent',
             active: 'active:bg-transparent hover:border-zinc-400 dark:hover:border-zinc-500 focus:border-zinc-400 dark:focus:border-zinc-500 active:text-zinc-500 dark:active:text-zinc-300 focus:ring-1 focus:ring-zinc-200 dark:focus:ring-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/40',
-            disabled: 'opacity-50 cursor-not-allowed bg-zinc-100 dark:bg-zinc-800',
+            disabled: 'cursor-not-allowed text-zinc-400 dark:text-zinc-500 border-zinc-200 dark:border-zinc-700',
         },
         link: {
             base: 'text-gray-600 dark:text-gray-400 focus:outline-none border border-transparent',

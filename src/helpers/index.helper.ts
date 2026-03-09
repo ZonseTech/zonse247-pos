@@ -33,15 +33,9 @@ declare global {
                     initialized: boolean;
                     version: string | null;
                     targetVersion: string;
-                    needsMigration: boolean;
                     dbPath: string;
                     backupsPath: string;
                 } | null>;
-                runMigrations: () => Promise<{
-                    success: boolean;
-                    migrationsApplied: string[];
-                    error?: string;
-                }>;
             };
             menu: {
                 rebuild: (user: User | null, branches?: Branch[], currentBranchId?: string) => void;

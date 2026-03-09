@@ -23,7 +23,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     database: {
         getStatus: () => ipcRenderer.invoke('db:status'),
-        runMigrations: () => ipcRenderer.invoke('db:run-migrations'),
     },
 
     menu: {

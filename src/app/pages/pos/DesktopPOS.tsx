@@ -191,7 +191,6 @@ const DesktopPOS: FunctionComponent = () => {
 
     const handleOpenDrawer = () => {
         console.log('Opening cash drawer...');
-        // Add drawer opening logic
     };
 
     const handleItemLookup = () => {
@@ -213,7 +212,6 @@ const DesktopPOS: FunctionComponent = () => {
 
     return (
         <div className="flex flex-col h-full overflow-hidden">
-            {/* Fixed Balance Due (compact for EBN) */}
             <div className={classNames(
                 "flex-shrink-0",
                 isEBN ? "mb-1" : "mb-2 lg:mb-3"
@@ -247,7 +245,6 @@ const DesktopPOS: FunctionComponent = () => {
                 </div>
             </div>
 
-            {/* Scrollable Cart Items Section */}
             <div className="flex-1 min-h-0 overflow-hidden">
                 <div className="h-full flex gap-x-2 lg:gap-x-4">
                     <Panel size={isEBN && keyboardSettings.enabled ? '2/3' : '3/4'} className='w-full h-full overflow-hidden'>
@@ -282,7 +279,6 @@ const DesktopPOS: FunctionComponent = () => {
                 </div>
             </div>
 
-            {/* Fixed Bottom Section (compact for EBN) */}
             <div className={classNames(
                 "fixed right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-30 transition-all duration-300",
                 isSidebarVisible ? "left-64" : "left-0",
@@ -353,7 +349,6 @@ const DesktopPOS: FunctionComponent = () => {
                 </Panel>
             </div>
 
-            {/* Modals */}
             <ParkSaleModal
                 isOpen={isParkSaleModalOpen}
                 onClose={() => setIsParkSaleModalOpen(false)}

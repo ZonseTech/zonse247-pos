@@ -5,6 +5,8 @@ import inventoryService, {
     BulkUpdatePayload,
     MoveToCategoryPayload,
     AdjustInventoryPayload,
+    ConvertToVariantPayload,
+    ConvertToVariantResult,
     InventoryCount
 } from '../services/inventory.service';
 
@@ -288,6 +290,27 @@ export const useInventoryActions = () => {
     }, []);
 
     /**
+     * Convert a variant to become a variant of a different product
+     * This allows moving an existing variant to become a variant of another product
+     */
+    const convertToVariant = useCallback(async (variantId: string, payload: ConvertToVariantPayload): Promise<ConvertToVariantResult> => {
+        setIsLoading(true);
+        try {
+            const result = await inventoryService.convertToVariant(variantId, payload);
+            Notify.success('Product converted to variant successfully');
+            if (result.warning) {
+                toast.warning(result.warning, { autoClose: 5000 });
+            }
+            return result;
+        } catch (error: any) {
+            Notify.failure('Failed to convert to variant: ' + error.message);
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    /**
      * Get all inventory items without pagination
      */
     const getAllItems = useCallback(async () => {
@@ -342,6 +365,9 @@ export const useInventoryActions = () => {
         // Validation
         checkExists,
         voidItem,
+
+        // Conversion
+        convertToVariant,
 
         // All Items
         getAllItems,

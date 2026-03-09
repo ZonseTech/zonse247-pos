@@ -24,6 +24,7 @@ interface ReportData extends Omit<ReportCardProps, 'onClick'> {
     id: ReportType;
     title: string;
     description?: string;
+    hasData?: boolean;
 }
 
 const defaultSummary: ReportSummary = {
@@ -96,6 +97,7 @@ const DesktopReports: FunctionComponent = () => {
             title: 'REVENUE',
             value: formatCurrency(summary?.totalSales ?? 0, true),
             description: 'Revenue from all transactions',
+            hasData: (summary?.totalSales ?? 0) > 0,
         },
         {
             id: 'gross-profit',
@@ -103,6 +105,7 @@ const DesktopReports: FunctionComponent = () => {
             title: 'Profit',
             value: formatCurrency(summary?.grossProfit ?? 0, true),
             description: 'Selling price minus cost price',
+            hasData: (summary?.grossProfit ?? 0) !== 0,
         },
         {
             id: 'top-stocks',
@@ -110,6 +113,7 @@ const DesktopReports: FunctionComponent = () => {
             title: 'Top Stocks',
             value: `${summary?.topStocks ?? 0} items`,
             description: 'Best performing inventory items',
+            hasData: (summary?.topStocks ?? 0) > 0,
         },
         {
             id: 'top-category',
@@ -117,6 +121,7 @@ const DesktopReports: FunctionComponent = () => {
             title: 'Top Category Report',
             value: summary?.topCategory || 'N/A',
             description: 'Highest selling category',
+            hasData: !!summary?.topCategory,
         },
         {
             id: 'receipt-count',
@@ -124,12 +129,14 @@ const DesktopReports: FunctionComponent = () => {
             title: 'Sales count',
             value: String(summary?.receiptCount ?? 0),
             description: '',
+            hasData: (summary?.receiptCount ?? 0) > 0,
         },
         {
             id: 'payment-modes',
             name: 'Payment Modes',
             title: 'Payment Modes Report',
             value: `${summary?.paymentModes ?? 0} methods`,
+            hasData: (summary?.paymentModes ?? 0) > 0,
         },
     ], [summary]);
 
@@ -178,24 +185,26 @@ const DesktopReports: FunctionComponent = () => {
                     }
                 />
 
-                <div className="flex-1 overflow-y-auto px-4 lg:px-6 py-4">
-                    {/* Date Filter */}
-                    <div className="mb-6 flex flex-wrap items-center gap-4">
+                <div className="px-4 lg:px-6 pb-2 flex flex-wrap items-center gap-4">
+                    {activeReport && (
+                        <button
+                            onClick={() => setActiveReport(null)}
+                            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                        >
+                            ← Back to Summary
+                        </button>
+                    )}
+
+                    <div className="ml-auto">
                         <MobileDateFilter
                             startDate={startDate}
                             endDate={endDate}
                             onChange={handleDateChange}
                         />
-                        {activeReport && (
-                            <button
-                                onClick={() => setActiveReport(null)}
-                                className="ml-auto px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                            >
-                                ← Back to Summary
-                            </button>
-                        )}
                     </div>
+                </div>
 
+                <div className="flex-1 overflow-y-auto px-4 lg:px-6 pb-4">
                     {isLoading ? (
                         <LoadingState />
                     ) : activeReport ? (
@@ -209,13 +218,16 @@ const DesktopReports: FunctionComponent = () => {
                             {reportData.map((report) => (
                                 <div
                                     key={report.id}
-                                    onClick={() => setActiveReport(report.id)}
-                                    className="cursor-pointer transition-transform hover:scale-[1.02]"
+                                    onClick={() => report.hasData && setActiveReport(report.id)}
+                                    className={`transition-transform ${report.hasData
+                                        ? 'cursor-pointer hover:scale-[1.02]'
+                                        : 'cursor-not-allowed opacity-60'
+                                        }`}
                                 >
                                     <ReportCard
                                         name={report.name}
                                         value={report.value}
-                                        onClick={() => setActiveReport(report.id)}
+                                        onClick={report.hasData ? () => setActiveReport(report.id) : undefined}
                                     />
                                     {report.description && (
                                         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 px-2">

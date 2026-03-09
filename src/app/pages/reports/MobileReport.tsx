@@ -26,6 +26,7 @@ interface ReportData extends Omit<ReportCardProps, 'onClick'> {
     id: ReportType;
     title: string;
     description?: string;
+    hasData?: boolean;
 }
 
 const defaultSummary: ReportSummary = {
@@ -101,6 +102,7 @@ const MobileReport: React.FC = () => {
             title: 'REVENUE',
             value: formatCurrency(summary?.totalSales ?? 0, true),
             description: 'Revenue from all transactions',
+            hasData: (summary?.totalSales ?? 0) > 0,
         },
         {
             id: 'gross-profit',
@@ -108,6 +110,7 @@ const MobileReport: React.FC = () => {
             title: 'Profit',
             value: formatCurrency(summary?.grossProfit ?? 0, true),
             description: 'Selling price minus cost price',
+            hasData: (summary?.grossProfit ?? 0) !== 0,
         },
         {
             id: 'top-stocks',
@@ -115,6 +118,7 @@ const MobileReport: React.FC = () => {
             title: 'Top Stocks',
             value: `${summary?.topStocks ?? 0} items`,
             description: 'Best performing inventory items',
+            hasData: (summary?.topStocks ?? 0) > 0,
         },
         {
             id: 'top-category',
@@ -122,6 +126,7 @@ const MobileReport: React.FC = () => {
             title: 'Top Category Report',
             value: summary?.topCategory || 'N/A',
             description: 'Highest selling category',
+            hasData: !!summary?.topCategory,
         },
         {
             id: 'receipt-count',
@@ -129,12 +134,14 @@ const MobileReport: React.FC = () => {
             title: 'Sales count',
             value: String(summary?.receiptCount ?? 0),
             description: '',
+            hasData: (summary?.receiptCount ?? 0) > 0,
         },
         {
             id: 'payment-modes',
             name: 'Payment Modes',
             title: 'Payment Modes Report',
             value: `${summary?.paymentModes ?? 0} methods`,
+            hasData: (summary?.paymentModes ?? 0) > 0,
         },
     ], [summary]);
     const hasNoData = useMemo(() => {
@@ -500,13 +507,17 @@ const MobileReport: React.FC = () => {
                         </div>
                     ) : (
                         reportData.map((item) => (
-                            <ReportCard
+                            <div
                                 key={item.id}
-                                name={item.name}
-                                value={item.value}
-                                description={item.description}
-                                onClick={() => handleCardClick(item.id)}
-                            />
+                                className={!item.hasData ? 'opacity-60' : ''}
+                            >
+                                <ReportCard
+                                    name={item.name}
+                                    value={item.value}
+                                    description={item.description}
+                                    onClick={item.hasData ? () => handleCardClick(item.id) : undefined}
+                                />
+                            </div>
                         ))
                     )}
                 </div>

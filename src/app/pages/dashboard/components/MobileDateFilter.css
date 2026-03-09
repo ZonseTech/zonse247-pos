@@ -102,3 +102,65 @@
 .dark .date-range-picker-mobile .rdrNextButton i {
     border-color: transparent transparent transparent #f3f4f6;
 }
+
+/* Desktop Date Range Picker Styles */
+.date-range-picker-desktop .rdrDateRangePickerWrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+.date-range-picker-desktop .rdrDefinedRangesWrapper {
+    width: 140px;
+    font-size: 12px;
+}
+
+.date-range-picker-desktop .rdrStaticRangeLabel {
+    padding: 10px 12px;
+}
+
+/* Dark mode styles for desktop */
+.dark .date-range-picker-desktop .rdrCalendarWrapper,
+.dark .date-range-picker-desktop .rdrDefinedRangesWrapper {
+    background: #1f2937;
+    color: #f3f4f6;
+}
+
+.dark .date-range-picker-desktop .rdrDayNumber span,
+.dark .date-range-picker-desktop .rdrMonthAndYearPickers select,
+.dark .date-range-picker-desktop .rdrStaticRangeLabel {
+    color: #f3f4f6;
+}
+
+.dark .date-range-picker-desktop .rdrDayPassive .rdrDayNumber span {
+    color: #6b7280;
+}
+
+.dark .date-range-picker-desktop .rdrStaticRange:hover,
+.dark .date-range-picker-desktop .rdrStaticRange:focus {
+    background: #374151;
+}
+
+.dark .date-range-picker-desktop .rdrStaticRange:hover .rdrStaticRangeLabel,
+.dark .date-range-picker-desktop .rdrStaticRange:focus .rdrStaticRangeLabel {
+    background: transparent;
+}
+
+.dark .date-range-picker-desktop .rdrDefinedRangesWrapper {
+    border-color: #374151;
+}
+
+.dark .date-range-picker-desktop .rdrStaticRange {
+    border-color: #374151;
+}
+
+.dark .date-range-picker-desktop .rdrNextPrevButton {
+    background: #374151;
+}
+
+.dark .date-range-picker-desktop .rdrPprevButton i {
+    border-color: transparent #f3f4f6 transparent transparent;
+}
+
+.dark .date-range-picker-desktop .rdrNextButton i {
+    border-color: transparent transparent transparent #f3f4f6;
+}

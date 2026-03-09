@@ -267,3 +267,12 @@ body.scanner-active .scanner-container {
     display: block !important;
     visibility: visible !important;
 }
+
+/* Fix z-index for datepicker portal to appear above sidebar */
+.react-datepicker__portal {
+    z-index: 9999 !important;
+}
+
+.react-datepicker-popper {
+    z-index: 9999 !important;
+}

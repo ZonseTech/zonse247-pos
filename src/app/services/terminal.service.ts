@@ -1,11 +1,10 @@
 import api from './http.service';
 import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
 
-// Fields to decode for terminal items
 const TERMINAL_DECODE_FIELDS = ['terminalLabel', 'terminalType', 'branchName', 'tenantName', 'location', 'notes'] as const;
 
 const endpoints: Record<string, string> = {
-    all: 'terminals/all',
+    all: 'terminals',
     store: 'terminals/post',
     update: 'terminals/update',
     show: 'terminals',

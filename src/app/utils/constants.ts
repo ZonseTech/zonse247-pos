@@ -55,7 +55,6 @@ export enum ROUTES {
 
 	SYNC_DATA = '/sync-data',
 	EXPORT_DB = '/export-db',
-	MIGRATIONS = '/migrations',
 	LOGIN = '/login',
 	SETTINGS = '/settings',
 	SETTINGS_GENERAL = '/settings/general',

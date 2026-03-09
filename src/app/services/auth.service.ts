@@ -49,11 +49,23 @@ class AuthService {
         }
     });
 
-    async login(credentials: AuthProps, onProgress?: LoginProgressCallback): Promise<LoginResponse> {
+    async login(credentials: AuthProps, onProgress?: LoginProgressCallback, isDesktop?: boolean): Promise<LoginResponse> {
         const totalSteps = 6;
         const updateProgress = (message: string, step: number) => {
             onProgress?.(message, step, totalSteps);
         };
+
+        if (!isDesktop) {
+            updateProgress('Connecting to server...', 1);
+            const liveResult = await this.tryLiveLogin(credentials);
+
+            if (liveResult.success && liveResult.data) {
+                updateProgress('Login successful!', totalSteps);
+                return liveResult.data;
+            }
+
+            throw new Error(liveResult.error || 'Authentication failed');
+        }
 
         updateProgress('Checking local database...', 1);
         const offlineResult = await this.tryOfflineLogin(credentials);

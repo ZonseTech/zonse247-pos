@@ -143,13 +143,4 @@ export function setupIPC() {
             return null;
         }
     });
-
-    ipcMain.handle('db:run-migrations', async () => {
-        try {
-            return await DatabaseInitializer.runMigrations();
-        } catch (error) {
-            console.error('Failed to run migrations:', error);
-            return { success: false, error: String(error) };
-        }
-    });
 }

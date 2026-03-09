@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react';
 import DatePicker from 'react-datepicker';
 import dayjs from 'dayjs';
 import { HiOutlineCalendarDateRange } from 'react-icons/hi2';
+import { useIsMobile } from '../hooks/useMediaQuery';
 
 interface DateRangeFilterProps {
     startDate: Date | null;
@@ -31,6 +32,8 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
     onChange,
     compact = false,
 }) => {
+    const isMobile = useIsMobile();
+    
     const formatDateDisplay = () => {
         if (!startDate) return null;
         const startFormatted = dayjs(startDate).format(compact ? 'DD/MM' : 'DD/MM/YYYY');
@@ -49,7 +52,7 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
             endDate={endDate}
             selectsRange
             dateFormat='dd/MM/yyyy'
-            withPortal
+            withPortal={isMobile}
             customInput={<DateFilterInput value={formatDateDisplay()} compact={compact} />}
             isClearable
             placeholderText="Select date range"
