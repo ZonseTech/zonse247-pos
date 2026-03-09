@@ -15,6 +15,7 @@ import {
     HiOutlineChat,
     HiOutlineDocumentText,
     HiOutlineReceiptRefund,
+    HiOutlineChartPie,
 } from 'react-icons/hi';
 import { RotateCcw, Package, Users as SuppliersIcon, ShoppingCart as POIcon, ArrowRightLeft, ClipboardList, Settings, FileText, Store } from 'lucide-react';
 import { useNavigate } from 'react-router';
@@ -26,7 +27,6 @@ import {
     HiOutlineBuildingStorefront,
     HiOutlineHomeModern,
     HiOutlineKey,
-    HiOutlineServerStack,
     HiOutlineWrenchScrewdriver
 } from 'react-icons/hi2';
 import { hasAnyPermission, hasPermission, hasRole } from '../../utils';
@@ -63,7 +63,6 @@ const useNavItems = (): Array<NavItem> => {
         tenants: <RiGroup3Line className="h-5 w-5" />,
         registration_details: <ClipboardList className="h-5 w-5" />,
         branch: <HiOutlineBuildingStorefront className="h-5 w-5" />,
-        migrations: <HiOutlineServerStack className="h-5 w-5" />,
         export_db: <HiOutlineFolderDownload className="h-5 w-5" />,
         sales: <HiOutlinePresentationChartBar className="h-5 w-5" />,
         returns: <RotateCcw className="h-5 w-5" />,
@@ -77,7 +76,9 @@ const useNavItems = (): Array<NavItem> => {
         logout: <HiOutlineLogout className="h-5 w-5" />,
         syncData: <HiOutlineArrowPath className="h-5 w-5" />,
         settings: <HiOutlineWrenchScrewdriver className="h-5 w-5" />,
-        theme: <HiOutlineCog className='h-5 w-5' />
+        theme: <HiOutlineCog className='h-5 w-5' />,
+        reports: <HiOutlineChartPie className='h-5 w-5' />,
+        myProfile: <HiOutlineUserCircle className='h-5 w-5' />,
     };
 
     const items: NavItem[] = [];
@@ -175,6 +176,16 @@ const useNavItems = (): Array<NavItem> => {
             icon: icons.sales,
             group: 'operations',
             onClick: () => navigate(ROUTES.SALES),
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-amber-500 hover:bg-amber-600',
+            iconColor: 'bg-amber-600',
+            text: 'Reports',
+            icon: icons.reports,
+            group: 'operations',
+            onClick: () => navigate(ROUTES.REPORTS),
         });
     }
 
@@ -297,16 +308,6 @@ const useNavItems = (): Array<NavItem> => {
             onClick: () => navigate(ROUTES.TENANT_REGISTRATION_DETAILS),
         });
 
-        items.push({
-            type: 'button',
-            color: 'bg-red-500 hover:bg-red-700',
-            iconColor: 'bg-red-700',
-            text: 'Migrations',
-            icon: icons.migrations,
-            group: 'system',
-            onClick: () => navigate(ROUTES.MIGRATIONS),
-        });
-
         if (hasPermission(user, 'system.backup')) {
             items.push({
                 type: 'button',
@@ -328,6 +329,16 @@ const useNavItems = (): Array<NavItem> => {
         icon: icons.syncData,
         group: 'system',
         onClick: async () => navigate(ROUTES.SYNC_DATA)
+    });
+
+    items.push({
+        type: 'button',
+        color: 'bg-sky-600 hover:bg-sky-700',
+        iconColor: 'bg-sky-700',
+        text: 'My Profile',
+        icon: icons.myProfile,
+        group: 'misc',
+        onClick: () => navigate(ROUTES.MY_PROFILE),
     });
 
     items.push({
@@ -356,6 +367,7 @@ export const useMobileNavItems = (): Array<NavItem> => {
         staff: <HiOutlineUsers className="h-5 w-5" />,
         returns: <HiOutlineReceiptRefund className="h-5 w-5" />,
         procurement: <POIcon className="h-5 w-5" />,
+        stock_movements: <ArrowRightLeft className="h-5 w-5" />,
         subscription: <LucideSubscript className="h-5 w-5" />,
         tenants: <RiGroup3Line className="h-5 w-5" />,
         registrations: <ClipboardList className="h-5 w-5" />,
@@ -439,6 +451,16 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.procurement,
             group: 'misc',
             onClick: () => navigate(ROUTES.PURCHASE_ORDERS),
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-fuchsia-500 hover:bg-fuchsia-600',
+            iconColor: 'bg-fuchsia-600',
+            text: 'Stock Movement',
+            icon: icons.stock_movements,
+            group: 'misc',
+            onClick: () => navigate(ROUTES.STOCK_MOVEMENTS),
         });
     }
 

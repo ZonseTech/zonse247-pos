@@ -1,4 +1,3 @@
-export { default as TopBar } from './TopBar';
 export { default as Sidebar } from './Sidebar';
 export { default as MobileDrawer } from './MobileDrawer';
 export { default as BranchSwitchModal } from './BranchSwitchModal';
