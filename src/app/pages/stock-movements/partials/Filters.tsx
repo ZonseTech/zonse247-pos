@@ -1,5 +1,7 @@
 import { FunctionComponent } from 'react';
-import { Select, DateRangeFilter } from '../../../components';
+import { Select } from '../../../components';
+import DatePicker from 'react-datepicker';
+import dayjs from 'dayjs';
 
 interface FiltersProps {
     movementTypeFilter: StockMovementType | '';
@@ -46,19 +48,24 @@ const Filters: FunctionComponent<FiltersProps> = ({
             </Select>
 
             <div className="flex gap-2">
-                <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => onStartDateChange(e.target.value)}
+                <DatePicker
+                    selected={startDate ? new Date(startDate) : null}
+                    onChange={((date: Date | null) => onStartDateChange(date ? dayjs(date).format('YYYY-MM-DD') : '')) as any}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="Start Date"
+                    isClearable
                     className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                    placeholder="Start Date"
+                    portalId="datepicker-portal"
                 />
-                <input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => onEndDateChange(e.target.value)}
+                <DatePicker
+                    selected={endDate ? new Date(endDate) : null}
+                    onChange={((date: Date | null) => onEndDateChange(date ? dayjs(date).format('YYYY-MM-DD') : '')) as any}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="End Date"
+                    isClearable
+                    minDate={startDate ? new Date(startDate) : undefined}
                     className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                    placeholder="End Date"
+                    portalId="datepicker-portal"
                 />
             </div>
         </div>

@@ -12,6 +12,7 @@ const endpoints = {
     // List/Query
     list: 'stock-movements',
     byProduct: 'stock-movements/product',
+    byVariant: 'stock-movements/variant',
     byBranch: 'stock-movements/branch',
 
     // Create
@@ -45,6 +46,26 @@ const stockMovementService = {
     ): Promise<StockMovement[]> {
         return api
             .get<StockMovementListResponse>(`${endpoints.byProduct}/${productId}`, { tenantId, branchId, limit, startDate, endDate })
+            .then((res) => res.data.data.movements)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * GET /stock-movements/variant/:variantId - Get variant stock history
+     * Shows complete audit trail of all stock changes for a specific variant
+     */
+    async getVariantStockHistory(
+        variantId: string,
+        tenantId: string,
+        branchId: string,
+        limit: number = 50,
+        startDate?: string,
+        endDate?: string
+    ): Promise<StockMovement[]> {
+        return api
+            .get<StockMovementListResponse>(`${endpoints.byVariant}/${variantId}`, { tenantId, branchId, limit, startDate, endDate })
             .then((res) => res.data.data.movements)
             .catch((err) => {
                 throw err;

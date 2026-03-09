@@ -32,7 +32,7 @@ const normalizeMovement = (apiMovement: any): StockMovement => {
     };
 };
 
-export const useStockMovements = (productId?: string) => {
+export const useStockMovements = (productId?: string, variantId?: string) => {
     const { setup } = useSettings();
     const [movements, setMovements] = useState<StockMovement[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -58,21 +58,32 @@ export const useStockMovements = (productId?: string) => {
                 page,
                 limit: perPage,
                 productId,
+                variantId,
                 movementType: movementTypeFilter || undefined,
                 startDate: startDate || undefined,
                 endDate: endDate || undefined,
             };
 
-            const result = productId
-                ? await stockMovementService.getProductStockHistory(
-                    productId,
+            // Priority: variantId > productId > all branch movements
+            const result = variantId
+                ? await stockMovementService.getVariantStockHistory(
+                    variantId,
                     tenantId,
                     branchId,
                     perPage,
                     startDate || undefined,
                     endDate || undefined
                 )
-                : await stockMovementService.getBranchStockMovements(query);
+                : productId
+                    ? await stockMovementService.getProductStockHistory(
+                        productId,
+                        tenantId,
+                        branchId,
+                        perPage,
+                        startDate || undefined,
+                        endDate || undefined
+                    )
+                    : await stockMovementService.getBranchStockMovements(query);
 
             // Handle case where result might be undefined or malformed
             if (!result) {
@@ -98,7 +109,7 @@ export const useStockMovements = (productId?: string) => {
         } finally {
             setIsLoading(false);
         }
-    }, [tenantId, branchId, page, perPage, productId, movementTypeFilter, startDate, endDate]);
+    }, [tenantId, branchId, page, perPage, productId, variantId, movementTypeFilter, startDate, endDate]);
 
     useEffect(() => {
         loadMovements();
