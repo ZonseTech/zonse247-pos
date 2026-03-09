@@ -2,13 +2,12 @@ import * as Yup from 'yup';
 import { Form, Formik } from 'formik';
 import { FunctionComponent, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import { Truck } from 'lucide-react';
+import { Truck, X, Loader2, CheckCircle2 } from 'lucide-react';
 import { Notify, Report, Confirm } from 'notiflix';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
-import { Button } from '../../components';
+import { Button, FormFieldCard } from '../../components';
 import FormInput from '../../components/FormInput';
-import FormWrapper from '../../components/FormWrapper';
 import FormSelectBox from '../../components/FormSelectBox';
 import { ROUTES } from '../../utils/constants';
 import { useSuppliers } from '../../hooks/useSuppliers';
@@ -147,7 +146,7 @@ const SupplierForm: FunctionComponent = () => {
     if (loading && !supplier && supplierId) {
         return (
             <AppLayout>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex items-center justify-center h-64">
                         <div className="text-gray-600 dark:text-gray-400">Loading supplier details...</div>
                     </div>
@@ -158,15 +157,7 @@ const SupplierForm: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-                <div className='sticky top-0 z-10 bg-white dark:bg-gray-800'>
-                    <PageHeader
-                        title={isEditMode ? 'Edit Supplier' : 'Add New Supplier'}
-                        description={isEditMode ? 'Update supplier information' : 'Required fields are marked with an asterisk (*)'}
-                        icon={<Truck className="w-8 h-8 text-sky-500" />}
-                    />
-                </div>
-
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <Formik
                     onSubmit={handleSubmit}
                     enableReinitialize={true}
@@ -175,19 +166,16 @@ const SupplierForm: FunctionComponent = () => {
                 >
                     {({ isSubmitting, values }) => (
                         <Form>
-                            <FormWrapper>
-                                <div className="py-6 relative">
-                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                            <PageHeader
+                                title={isEditMode ? 'Edit Supplier' : 'Add New Supplier'}
+                                description={isEditMode ? 'Update supplier information' : 'Required fields are marked with an asterisk (*)'}
+                                icon={<Truck className="w-8 h-8 text-sky-500" />}
+                                showBackButton
+                            />
 
-                                    <div className="flex items-center gap-3 mb-6 relative">
-                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                            1
-                                        </div>
-                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                            Basic Information
-                                        </h3>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
+                            <div className="mt-6 space-y-6">
+                                <FormFieldCard title="Basic Information">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <FormInput
                                             label="Supplier Name"
                                             name="name"
@@ -230,20 +218,10 @@ const SupplierForm: FunctionComponent = () => {
                                             placeholder="123456789"
                                         />
                                     </div>
-                                </div>
+                                </FormFieldCard>
 
-                                <div className="pb-8 relative">
-                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
-
-                                    <div className="flex items-center gap-3 mb-6 relative">
-                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                            2
-                                        </div>
-                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                            Payment & Terms
-                                        </h3>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
+                                <FormFieldCard title="Payment & Terms">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <FormSelectBox
                                             label="Payment Terms"
                                             name="paymentTerms"
@@ -267,36 +245,37 @@ const SupplierForm: FunctionComponent = () => {
                                             required
                                         />
                                     </div>
-                                </div>
+                                </FormFieldCard>
 
-                                <div className="flex justify-end gap-3 pt-6 border-t border-gray-300 dark:border-gray-600">
+                                <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
                                     <Button
                                         type="button"
                                         theme="danger"
                                         onClick={() => navigate(ROUTES.SUPPLIERS)}
-                                        disabled={isSubmitting}
+                                        disabled={isSubmitting || loading}
                                     >
+                                        <X className="w-4 h-4 mr-2" />
                                         Cancel
                                     </Button>
                                     <Button
                                         type="submit"
-                                        theme="primary"
+                                        theme="success"
                                         disabled={isSubmitting || loading}
                                     >
                                         {isSubmitting || loading ? (
                                             <>
-                                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
+                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                                                 Saving...
                                             </>
                                         ) : (
-                                            isEditMode ? 'Update Supplier' : 'Create Supplier'
+                                            <>
+                                                <CheckCircle2 className="w-4 h-4 mr-2" />
+                                                {isEditMode ? 'Update Supplier' : 'Create Supplier'}
+                                            </>
                                         )}
                                     </Button>
                                 </div>
-                            </FormWrapper>
+                            </div>
                         </Form>
                     )}
                 </Formik>
