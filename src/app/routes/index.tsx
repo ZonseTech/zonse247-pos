@@ -16,7 +16,6 @@ import {
 	DesktopReportRoutes,
 	SalesRoutes,
 	InventoryRoutes,
-	ProductRoutes,
 	SupplierRoutes,
 	UserRoutes,
 	BranchRoutes,
@@ -48,7 +47,6 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 					{DesktopReportRoutes}
 					{SalesRoutes}
 					{InventoryRoutes}
-					{ProductRoutes}
 					{SupplierRoutes}
 
 					{UserRoutes}
