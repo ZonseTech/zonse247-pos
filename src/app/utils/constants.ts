@@ -32,8 +32,6 @@ export enum ROUTES {
 	PRINTER_FORM = '/printers/form',
 	PRINT_JOBS = '/printers/jobs',
 
-	PRODUCTS = '/products',
-	PRODUCT_FORM = '/products/form',
 	SUPPLIERS = '/suppliers',
 	SUPPLIER_FORM = '/suppliers/form',
 	PURCHASE_ORDERS = '/purchase-orders',
@@ -53,8 +51,6 @@ export enum ROUTES {
 	BRANCHES = '/branches',
 	BRANCH_FORM = '/branches/form',
 
-	SYNC_DATA = '/sync-data',
-	EXPORT_DB = '/export-db',
 	LOGIN = '/login',
 	SETTINGS = '/settings',
 	SETTINGS_GENERAL = '/settings/general',
