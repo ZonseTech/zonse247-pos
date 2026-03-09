@@ -168,7 +168,7 @@ const DesktopInventoryForm: FunctionComponent<DesktopInventoryFormProps> = ({
                             <PageHeader
                                 title={productId ? 'Edit Inventory Item' : 'Add Inventory Item'}
                                 description="Manage product details and pricing"
-                                icon={<HiOutlineDocumentPlus className="w-8 h-8 text-sky-500" />}
+                                showBackButton
                             />
 
                             <div className="mt-6 space-y-6">
@@ -179,6 +179,7 @@ const DesktopInventoryForm: FunctionComponent<DesktopInventoryFormProps> = ({
                                             name="name"
                                             placeholder="Enter item name"
                                             required
+                                            className='uppercase'
                                         />
 
                                         <CategorySearch

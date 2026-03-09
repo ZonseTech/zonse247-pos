@@ -2,7 +2,22 @@ import { Button } from '../../components'
 import { ROUTES } from '../../utils/constants'
 import { useNavigate } from 'react-router-dom'
 import { FunctionComponent, useState, useEffect } from 'react'
-import { Home, ArrowLeft, Package, ShoppingCart, LayoutDashboard, Boxes, User, DownloadCloudIcon } from 'lucide-react'
+import {
+    Home,
+    ArrowLeft,
+    Package,
+    ShoppingCart,
+    LayoutDashboard,
+    Boxes,
+    User,
+    DownloadCloudIcon,
+    FileText,
+    Receipt,
+    FolderTree,
+    Users,
+    Settings,
+    Printer
+} from 'lucide-react'
 
 const NotFound: FunctionComponent = () => {
     const navigate = useNavigate()
@@ -16,13 +31,22 @@ const NotFound: FunctionComponent = () => {
         return () => window.removeEventListener('mousemove', handleMouseMove)
     }, [])
 
+    const handleGoBack = () => {
+        if (window.history.length > 1) {
+            navigate(-1)
+        } else {
+            navigate(ROUTES.POS)
+        }
+    }
+
     const parallaxX = (mousePosition.x - window.innerWidth / 2) / 50
     const parallaxY = (mousePosition.y - window.innerHeight / 2) / 50
 
+    // Main navigation routes from menu.ts
     const quickLinks = [
-        { label: 'Dashboard', route: ROUTES.DASHBOARD, icon: LayoutDashboard },
+        { label: 'Point of Sale', route: ROUTES.POS, icon: ShoppingCart },
         { label: 'Inventory', route: ROUTES.INVENTORY, icon: Boxes },
-        { label: 'Sync Data', route: ROUTES.SYNC_DATA, icon: DownloadCloudIcon },
+        { label: 'Reports', route: ROUTES.REPORTS, icon: FileText },
         { label: 'My Profile', route: ROUTES.MY_PROFILE, icon: User },
     ]
 
@@ -68,16 +92,16 @@ const NotFound: FunctionComponent = () => {
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
                         <Button
                             theme='primary'
-                            onClick={() => navigate('/dashboard')}
+                            onClick={() => navigate(ROUTES.POS)}
                             className="group relative flex items-center gap-2 w-full sm:w-auto"
                         >
                             <Home className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
-                            Back to Dashboard
+                            Back to Point of Sale
                         </Button>
 
                         <Button
                             theme='neutral'
-                            onClick={() => navigate(-1)}
+                            onClick={handleGoBack}
                             className="group relative flex items-center gap-2 w-full sm:w-auto"
                         >
                             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />

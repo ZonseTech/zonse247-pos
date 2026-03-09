@@ -197,7 +197,7 @@ export default class MenuBuilder {
 				{
 					label: 'Customers',
 					click: () => this.navigateTo(ROUTES.CUSTOMERS),
-				}
+				},
 			];
 
 			template.push({
@@ -305,10 +305,29 @@ export default class MenuBuilder {
 		}
 
 		if (hasPermission(this.user, 'settings.branch.manage')) {
+			const settingsSubmenu: Array<MenuItemConstructorOptions> = [
+				{
+					label: 'General Settings',
+					accelerator: 'CommandOrControl+,',
+					click: () => this.navigateTo(ROUTES.SETTINGS_GENERAL),
+				},
+				{
+					label: 'Printers',
+					click: () => this.navigateTo(ROUTES.PRINTERS),
+				},
+				{
+					label: 'Branch Settings',
+					click: () => this.navigateTo(ROUTES.BRANCHES),
+				},
+				{
+					label: 'Terminals',
+					click: () => this.navigateTo(ROUTES.TERMINALS),
+				},
+			];
+
 			template.push({
 				label: 'Settings',
-				accelerator: 'CommandOrControl+,',
-				click: () => this.navigateTo(ROUTES.SETTINGS_GENERAL),
+				submenu: settingsSubmenu,
 			});
 		}
 

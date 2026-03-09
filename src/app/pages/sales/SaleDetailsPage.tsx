@@ -1,6 +1,7 @@
 import { FunctionComponent, useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { formatCurrency, formatDate } from '../../utils';
+import { formatDate } from '../../utils';
+import { getErrorMessage } from '../../utils/api-error-handler';
 import { getSaleRef, getSaleDate, getPaymentMethodName } from '../../utils/sale.helper';
 import saleService from '../../services/sale.service';
 import printerService from '../../services/printer.service';
@@ -10,6 +11,7 @@ import { useBranch } from '../../context/BranchContext';
 import returnsService from '../../services/returns.service';
 import { Report } from 'notiflix';
 import AppLayout from '../../layouts/AppLayout';
+import PageHeader from '../../components/page/PageHeader';
 import InitiateReturnModal from '../returns/partials/InitiateReturnModal';
 import { ROUTES } from '../../utils/constants';
 import {
@@ -24,7 +26,6 @@ import {
     ReceiptErrorState,
 } from './partials/receipt';
 import {
-    ArrowLeft,
     Printer,
     Copy,
     CheckCircle,
@@ -118,8 +119,9 @@ const SaleDetailsPage: FunctionComponent = () => {
                 Report.info('No Printer', 'No default receipt printer configured', 'OK');
             }
         } catch (err) {
-            console.error('Print failed:', err);
-            Report.failure('Print Failed', 'Failed to print receipt', 'OK');
+            const actualError = (err as any)?.error || err;
+            const errorMessage = getErrorMessage(actualError, 'Failed to print receipt');
+            Report.failure('Print Failed', errorMessage, 'OK');
         } finally {
             setIsPrinting(false);
         }
@@ -141,36 +143,24 @@ const SaleDetailsPage: FunctionComponent = () => {
     return (
         <AppLayout>
             <div className="flex flex-col h-full bg-gray-100 dark:bg-gray-900">
-                <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <button
-                                onClick={handleBack}
-                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                            >
-                                <ArrowLeft className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                            </button>
-                            <div>
-                                <span className="font-semibold text-gray-900 dark:text-white">Receipt</span>
-                                <div className="flex items-center gap-1.5 mt-0.5">
-                                    <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
-                                        #{saleData.refNumber}
-                                    </span>
-                                    <button
-                                        onClick={handleCopyRef}
-                                        className="p-0.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                                    >
-                                        {copied ? (
-                                            <CheckCircle className="w-3 h-3 text-emerald-500" />
-                                        ) : (
-                                            <Copy className="w-3 h-3 text-gray-400" />
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
+                <PageHeader
+                    title="Receipt"
+                    description={`Reference: #${saleData.refNumber}`}
+                    showBackButton
+                    onBack={handleBack}
+                    action={
                         <div className="flex items-center gap-1">
+                            <button
+                                onClick={handleCopyRef}
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                aria-label="Copy reference"
+                            >
+                                {copied ? (
+                                    <CheckCircle className="w-5 h-5 text-emerald-500" />
+                                ) : (
+                                    <Copy className="w-5 h-5 text-gray-400" />
+                                )}
+                            </button>
                             <button
                                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                                 aria-label="Share receipt"
@@ -201,8 +191,8 @@ const SaleDetailsPage: FunctionComponent = () => {
                                 </button>
                             )}
                         </div>
-                    </div>
-                </div>
+                    }
+                />
 
                 <div className="flex-1 overflow-y-auto pb-6 px-4 py-4">
                     <div

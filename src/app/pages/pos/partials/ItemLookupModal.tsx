@@ -1,9 +1,12 @@
-import { X, Package } from 'lucide-react';
+import { X, Package, Plus } from 'lucide-react';
 import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router';
 import { formatCurrency } from '../../../utils';
+import { ROUTES } from '../../../utils/constants';
 import { useIsMobile, useIsEBN } from '../../../hooks/useMediaQuery';
 import InputKeyboard from '../../../components/InputKeyboard';
 import { useKeyboardSettings } from '../../../hooks/useKeyboardSettings';
+import Button from '../../../components/Button';
 import { useState, useEffect, FunctionComponent, useRef } from 'react';
 import classNames from 'classnames';
 import { Capacitor } from '@capacitor/core';
@@ -23,6 +26,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
     onAddToCart,
     barcodeScannerInputRef
 }) => {
+    const navigate = useNavigate();
     const isMobile = useIsMobile()
     const isEBN = useIsEBN();
     const isNative = Capacitor.isNativePlatform();
@@ -281,22 +285,41 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                                 "font-medium text-slate-600 dark:text-gray-300 text-center",
                                 isEBN ? "text-sm mb-1" : "text-lg md:text-xl mb-2 md:mb-3"
                             )}>
-                                No items found
+                                {!searchTerm && filteredItems.length === 0 ? 'No sellable inventory' : 'No items found'}
                             </h3>
                             <p className={classNames(
                                 "max-w-md text-center text-slate-500 dark:text-gray-400 leading-relaxed",
                                 isEBN ? "text-xs" : "text-sm md:text-base"
                             )}>
-                                {searchTerm
-                                    ? 'No items match your search criteria. Try a different search term.'
-                                    : 'Start typing to search for items by name or barcode.'
+                                {!searchTerm && filteredItems.length === 0
+                                    ? 'You have no sellable items in stock. Create inventory items or check for expired products.'
+                                    : searchTerm
+                                        ? 'No items match your search criteria. Try a different search term.'
+                                        : 'Start typing to search for items by name or barcode.'
                                 }
                             </p>
+                            {!searchTerm && filteredItems.length === 0 ? (
+                                <Button
+                                    type="button"
+                                    onClick={() => {
+                                        onClose();
+                                        navigate(ROUTES.INVENTORY_FORM);
+                                    }}
+                                    theme="primary"
+                                    className={classNames(
+                                        "flex items-center gap-2",
+                                        isEBN ? "mt-3 text-sm" : "mt-4 md:mt-6"
+                                    )}
+                                >
+                                    <Plus className={isEBN ? "w-4 h-4" : "w-5 h-5"} />
+                                    Create Inventory
+                                </Button>
+                            ) : null}
                         </div>
                     )}
                 </div>
 
-                {showKeyboard && (
+                {showKeyboard ? (
                     <div className="border-t border-gray-200 dark:border-gray-700">
                         <InputKeyboard
                             variant="full"
@@ -312,7 +335,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                             compact={isEBN}
                         />
                     </div>
-                )}
+                ) : null}
             </div>
         </div>,
         document.body

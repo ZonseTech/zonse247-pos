@@ -57,6 +57,7 @@ const PageHeader: React.FC<PropsWithChildren<PageHeaderProps>> = ({
                                 : "flex-shrink-0 p-1.5 -ml-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all"
                             }
                             aria-label="Go back"
+                            type='button'
                         >
                             <ArrowLeft className={compact ? "w-5 h-5 text-gray-600 dark:text-gray-400" : "w-6 h-6 text-gray-600 dark:text-gray-400"} />
                         </button>
