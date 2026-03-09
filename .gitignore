@@ -124,14 +124,47 @@ typings/
 # Electron-Forge
 out/
 
-# Data storage
-.data
-.backups
-exports
-.env.production
-.env.local
+# Electron Builder releases
+release/
+*.AppImage
+*.exe
+*.deb
+*.dmg
+*.rpm
+*.blockmap
+builder-debug.yml
+builder-effective-config.yaml
 
+# Build outputs
+build/
+*.log
+
+# Data storage
+data/
+.data
+.backups/
+exports/
+mapped-data/
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Sensitive files
 *.keystore
+keystore-base64.txt
 *.db
 prisma.config.tsseed.db
-data/
+
+# Android
+android/local.properties
+android/app/build/
+android/build/
+android/capacitor-cordova-android-plugins/build/
+*.apk
+*.aab
+
+# Local libs/packages (uncomment if not needed in repo)
+# libs/

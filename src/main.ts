@@ -126,6 +126,12 @@ app.whenReady().then(async () => {
 
 				await syncJob.runSyncCycle();
 			}
+
+			printAgent.start().then(() => {
+				console.log('✓ Print Agent auto-started (zonse247-pos-api)');
+			}).catch((error) => {
+				console.warn('⚠ Print Agent auto-start error:', error);
+			});
 		} else {
 			if (syncJob) {
 				stopSyncJob();
@@ -141,12 +147,6 @@ app.whenReady().then(async () => {
 	const hasSetup = await SecureSettingsService.hasAppSetup();
 
 	await createWindow(!hasSetup);
-
-	printAgent.start().then(() => {
-		console.log('✓ Print Agent auto-started (zonse247-pos-api)');
-	}).catch((error) => {
-		console.warn('⚠ Print Agent auto-start error:', error);
-	});
 });
 
 app.on('window-all-closed', () => {
