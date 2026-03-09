@@ -1,6 +1,14 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('electronAPI', {
+    session: {
+        setToken: (token: string | null) => ipcRenderer.invoke('session:set-token', token),
+        getToken: () => ipcRenderer.invoke('session:get-token'),
+        set: (data: { token?: string; userId?: string; tenantId?: string; branchId?: string }) =>
+            ipcRenderer.invoke('session:set', data),
+        clear: () => ipcRenderer.invoke('session:clear'),
+    },
+
     settings: {
         saveSetup: (setupData: any) => ipcRenderer.invoke('settings:save-setup', setupData),
         getSetup: () => ipcRenderer.invoke('settings:get-setup'),

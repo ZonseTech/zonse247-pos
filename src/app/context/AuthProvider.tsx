@@ -1,5 +1,6 @@
 import api from '../services/http.service';
-import { Confirm, Notify } from 'notiflix';
+import authService from '../services/auth.service';
+import { Confirm, Notify, Loading } from 'notiflix';
 import React, { type PropsWithChildren, createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { isElectron } from '../utils';
 import settingsService from '../services/settings.service';
@@ -89,32 +90,51 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
 
     const signin = async (data: AuthProps) => {
-        try {
-            const result = await api.post<ApiResponse<LoginResponse>>('auth/login', data as any)
-                .then((res) => res.data);
+        Loading.hourglass('Attempting login...', {
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            svgColor: '#0ea5e9',
+        });
 
-            if (result?.data.token) {
-                setUser(result?.data.user);
+        try {
+            const result = await authService.login(data, (message, step, totalSteps) => {
+                Loading.change(`${message} (${step}/${totalSteps})`);
+            });
+
+            if (result?.token) {
+                setUser(result.user);
                 setAuth({ auth: true });
 
-                sessionStorage.setItem('user', JSON.stringify(result?.data.user));
-                sessionStorage.setItem('token', JSON.stringify(result?.data.token));
+                sessionStorage.setItem('user', JSON.stringify(result.user));
+                sessionStorage.setItem('token', JSON.stringify(result.token));
 
-                if (result?.data?.user?.tenantId) {
-                    sessionStorage.setItem('tenantId', result?.data.user.tenantId);
+                if (result?.user?.tenantId) {
+                    sessionStorage.setItem('tenantId', result.user.tenantId);
+                }
+
+                if (isElectron() && window.electronAPI?.session?.setToken) {
+                    try {
+                        await window.electronAPI.session.setToken(result.token);
+                    } catch (err) {
+                        console.warn('Failed to set session token:', err);
+                    }
                 }
 
                 if (!isElectron()) {
                     await settingsService.load();
                 }
 
-                return result.data;
+                Loading.remove();
+                Notify.success('Login successful!');
+                return result;
             } else {
-                throw (result.message || 'Invalid credentials');
+                Loading.remove();
+                throw new Error('Invalid credentials');
             }
 
-        } catch (e) {
-            throw new Error(e?.error?.response?.data?.message || e?.message?.toString() as string);
+        } catch (e: any) {
+            Loading.remove();
+            Notify.failure(e?.message || 'Authentication failed');
+            throw new Error(e?.message || 'Authentication failed');
         } finally {
             setIsLoading(false);
         }
@@ -159,11 +179,20 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
             async () => {
                 try {
                     await api.get('auth/logout/' + user?.userId)
-                        .then((() => {
+                        .then((async () => {
                             setUser(null);
                             setAuth(null);
                             sessionStorage.removeItem('user');
                             sessionStorage.removeItem('token');
+
+                            // Clear session token on logout
+                            if (isElectron() && window.electronAPI?.session?.clear) {
+                                try {
+                                    await window.electronAPI.session.clear();
+                                } catch (err) {
+                                    console.warn('Failed to clear session:', err);
+                                }
+                            }
 
                             if (callback) {
                                 callback();

@@ -1,6 +1,7 @@
 /**
  * Parked Sales Types
  * For temporarily saving sales that will be completed later
+ * Updated for Product/Variant model (API v1.6.0+)
  */
 
 /**
@@ -9,17 +10,21 @@
 type ParkedSaleStatus = 'PARKED' | 'RESUMED' | 'VOIDED' | 'EXPIRED';
 
 /**
- * Parked sale item
+ * Parked sale item - now references variantId (required) and productId (optional)
  */
 interface ParkedSaleItem {
-    productId: string;
+    variantId: string;     // Required: The variant being held
+    productId?: string;    // Optional: Parent product ID
     barcode: string | number;
     name: string;
-    categoryId: string;
+    variantName?: string;
+    displayName?: string;
+    categoryId?: string;
     quantity: number;
     unitPrice: number;
     sellingPrice: number;
     purchasePrice: number;
+    costPrice?: number;
     discount: number;
     taxAmount?: number;
     taxRate?: number;
@@ -59,6 +64,7 @@ interface ParkedSale {
     subtotal: number;
     taxAmount: number;
     discountAmount: number;
+    otherCharges?: number;
     totalAmount: number;
 
     // Notes
@@ -76,7 +82,7 @@ interface ParkedSale {
 }
 
 /**
- * Create parked sale payload
+ * Create parked sale payload - now requires variantId
  */
 interface CreateParkedSalePayload {
     tenantId: string;
@@ -88,16 +94,19 @@ interface CreateParkedSalePayload {
     // Reference (customer name or order reference)
     reference: string;
 
-    // Items
+    // Items - now require variantId
     items: {
-        productId: string;
+        variantId: string;
+        productId?: string;
         barcode: string | number;
         name: string;
-        categoryId: string;
+        variantName?: string;
+        categoryId?: string;
         quantity: number;
         unitPrice: number;
         sellingPrice: number;
         purchasePrice: number;
+        costPrice?: number;
         discount: number;
         taxAmount?: number;
         variancePrice?: number;
@@ -107,6 +116,7 @@ interface CreateParkedSalePayload {
     subtotal: number;
     taxAmount: number;
     discountAmount: number;
+    otherCharges?: number;
     totalAmount: number;
 
     // Notes

@@ -85,16 +85,14 @@ export const useInventory = () => {
         const existingItem = cart.find(cartItem => cartItem.productId === item.productId)
         const isDefaultItem = item.isDefault === true
 
-        // Skip inventory validation for default items
         if (!isDefaultItem) {
-            // Get the current inventory item from Redux state (not the passed-in item which might be stale)
             const currentInventoryItem = inventory.find(p => p.productId === item.productId)
-            const availableStock = parseInt((currentInventoryItem?.quantity || '0').toString())
+            const availableStock = parseInt((currentInventoryItem?.quantity || currentInventoryItem?.availableQuantity || '0').toString())
             const currentCartQuantity = existingItem ? existingItem.quantity : 0
             const newTotalQuantity = currentCartQuantity + quantity
 
             if (availableStock <= 0) {
-                Notify.failure(`${item.name} is out of stock.`)
+                Notify.failure(`${item.displayName || item.name} is out of stock.`)
                 return
             }
 
@@ -111,7 +109,7 @@ export const useInventory = () => {
                 const currentInventoryItem = inventory.find(p => p.productId === item.productId)
                 dispatch(updateInventoryStock({
                     id: item.productId.toString(),
-                    newStock: parseInt((currentInventoryItem?.quantity || '0').toString()) - quantity
+                    newStock: parseInt((currentInventoryItem?.quantity || currentInventoryItem?.availableQuantity || '0').toString()) - quantity
                 }))
             }
         } else {
@@ -119,7 +117,7 @@ export const useInventory = () => {
                 const currentInventoryItem = inventory.find(p => p.productId === item.productId)
                 dispatch(updateInventoryStock({
                     id: item.productId.toString(),
-                    newStock: parseInt((currentInventoryItem?.quantity || '0').toString()) - quantity
+                    newStock: parseInt((currentInventoryItem?.quantity || currentInventoryItem?.availableQuantity || '0').toString()) - quantity
                 }))
             }
         }
@@ -136,7 +134,7 @@ export const useInventory = () => {
             if (inventoryItem) {
                 dispatch(updateInventoryStock({
                     id,
-                    newStock: parseInt((inventoryItem.quantity || '0').toString()) + itemToRemove.quantity
+                    newStock: parseInt((inventoryItem.quantity || inventoryItem.availableQuantity || '0').toString()) + itemToRemove.quantity
                 }))
             }
         }
@@ -153,7 +151,7 @@ export const useInventory = () => {
 
         // Skip inventory validation for default items
         if (!isDefaultItem && inventoryItem) {
-            const currentInventoryStock = parseInt((inventoryItem.quantity || '0').toString())
+            const currentInventoryStock = parseInt((inventoryItem.quantity || inventoryItem.availableQuantity || '0').toString())
             const difference = prevItem.quantity - quantity
 
             const newInventoryStock = currentInventoryStock + difference
@@ -171,7 +169,7 @@ export const useInventory = () => {
             const difference = prevItem.quantity - quantity
             dispatch(updateInventoryStock({
                 id,
-                newStock: parseInt((inventoryItem.quantity || '0').toString()) + difference
+                newStock: parseInt((inventoryItem.quantity || inventoryItem.availableQuantity || '0').toString()) + difference
             }))
         }
     }
@@ -184,7 +182,7 @@ export const useInventory = () => {
             if (inventoryItem) {
                 dispatch(updateInventoryStock({
                     id: item.productId,
-                    newStock: parseInt((inventoryItem.quantity || '0').toString()) + item.quantity
+                    newStock: parseInt((inventoryItem.quantity || inventoryItem.availableQuantity || '0').toString()) + item.quantity
                 }))
             }
         })

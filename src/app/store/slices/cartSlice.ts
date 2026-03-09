@@ -52,10 +52,16 @@ const cartSlice = createSlice({
                     ? customPriceNum
                     : sellingPriceNum
 
+                // Use displayName if available, fallback to name
+                const itemName = item.displayName || item.name || 'Unknown Item'
+                // Use barcode or primaryBarcode
+                const itemBarcode = item.barcode || item.primaryBarcode || ''
+
                 state.items.push({
-                    barcode: item.barcode,
+                    barcode: itemBarcode,
+                    variantId: item.id?.toString(),  // Variant ID for API v1.6.0+
                     productId: item.productId.toString(),
-                    name: decodeHtmlEntities(item.name),
+                    name: decodeHtmlEntities(itemName),
                     purchasePrice: parseFloat(item.costPrice?.toString() || '0'),
                     sellingPrice: price,
                     discount: item.discount ?? 0,

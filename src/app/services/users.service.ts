@@ -1,11 +1,10 @@
 import api from './http.service';
 import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
 
-// Fields to decode for users
 const USER_DECODE_FIELDS = ['fullname', 'username', 'email', 'roleName', 'branchName', 'tenantName'] as const;
 
 const endpoints: Record<string, string> = {
-	all: 'users/list',
+	all: 'users',
 	store: 'users',
 	update: 'users',
 	show: 'users',

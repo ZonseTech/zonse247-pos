@@ -1,189 +1,146 @@
-import * as Yup from 'yup';
-import ErrorAlert from './partials/ErrorAlert';
-import AuthLayout from '../../layouts/AuthLayout';
-import { FunctionComponent, useState } from 'react';
-import StepIndicator from './partials/StepIndicator';
-import BranchSelectionStep from './steps/BranchSelectionStep';
-import onboardingService from '../../services/on-boarding.service';
-import TerminalSelectionStep from './steps/TerminalSelectionStep';
-import TenantVerificationStep from './steps/TenantVerificationStep';
-import { toast } from 'react-toastify';
-import SetupTerminal from './steps/SetupTerminal';
+import { FunctionComponent, useEffect } from 'react';
+import { useOnboarding, useStepExecution } from './hooks';
+import {
+    ActivationView,
+    LoadingView,
+    StepDetailView,
+    StepListView,
+    TerminalDetailsView,
+} from './views';
+import type { OnboardingFlowProps } from './types';
 
-interface OnboardingFlowProps {
-    onComplete: (setupData: any) => void;
-    error?: string | null;
-}
+const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({
+    onComplete,
+}) => {
+    const {
+        initializing,
+        loading,
+        localError,
+        viewMode,
+        fetchedTerminal,
+        progress,
+        activeStep,
+        handleActivateTerminal,
+        handleSaveAndInitProgress,
+        handleOpenStepDetail,
+        handleCloseStepDetail,
+        handleComplete,
+        refreshProgress,
+        goToActivation,
+    } = useOnboarding({ onComplete });
 
-const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({ onComplete, error: parentError }) => {
-    const [registerProps, setRegisterProps] = useState<TerminalVerificationParams>({
-        verificationToken: '',
-        os: '',
-        hostname: '',
-        macAddress: ''
-    })
+    const {
+        executionState,
+        syncedData,
+        fetchedData,
+        selectedIds,
+        stepError,
+        isSyncable,
+        resetExecutionState,
+        fetchData,
+        toggleItem,
+        selectAll,
+        deselectAll,
+        syncSelected,
+        completeWithoutSync,
+        executeStep,
+        skipStep,
+    } = useStepExecution({
+        progress,
+        activeStep,
+        onStepComplete: handleCloseStepDetail,
+        refreshProgress,
+    });
 
-    const registerValidationSchema: Yup.ObjectSchema<{
-        verificationToken: string;
-    }, Yup.AnyObject, {
-        verificationToken: undefined;
-    }, ""> = Yup.object({
-        verificationToken: Yup.string()
-            .required('Verification token is required'),
-    })
-
-    const [localError, setLocalError] = useState('');
-    const [success, setSuccess] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [currentStep, setCurrentStep] = useState(1);
-    const [branches, setTenantBranches] = useState<Array<Branch>>([]);
-    const [selectedBranch, setSelectedBranch] = useState<Branch>(null);
-    const [verifiedTenant, setVerifiedTenant] = useState<Tenant>(null);
-    const [terminals, setTerminals] = useState<Array<Terminal>>([]);
-    const [selectedTerminal, setSelectedTerminal] = useState<Terminal>(null);
-
-    const displayError = parentError || localError;
-
-    const handleVerifyTenant = async (credentials: TerminalVerificationParams) => {
-        setLocalError('');
-
-        try {
-            const tenant = await onboardingService.verify(credentials);
-            setRegisterProps(credentials);
-            setVerifiedTenant(tenant);
-            setSuccess(`Welcome, ${tenant.businessName}!`);
-            setCurrentStep(2);
-
-            await fetchBranchesByTenantId(tenant.tenantId);
-        } catch (err) {
-            setLocalError((err as any)?.error?.response?.data?.message || 'Verification failed. Please check your credentials.');
-        }
-    };
-
-    const fetchBranchesByTenantId = async (tenantId: string) => {
-        setLoading(true);
-        try {
-            const response = await onboardingService.listByTenantId(tenantId);
-            setTenantBranches(response.data);
-        } catch (err) {
-            setLocalError('Failed to fetch branches');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleBranchSelect = async (branch: Branch) => {
-        setSelectedBranch(branch);
-        setLocalError('');
-        setLoading(true);
-
-        try {
-            const stationsList = await onboardingService.listByBranchId(branch.branchId);
-            setTerminals(stationsList);
-            setCurrentStep(3);
-        } catch (err) {
-            setLocalError('Failed to fetch terminals for the selected branch');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleTerminalSelect = (terminal: Terminal) => {
-        setSelectedTerminal(terminal);
-        setLocalError('');
-        setCurrentStep(4);
-    };
-
-    const handleSetupComplete = async () => {
-        if (!selectedTerminal) {
-            setLocalError('Please select a terminal');
-            return;
-        }
-
-        setLoading(true);
-        setLocalError('');
-
-        try {
-            const params = {
-                verificationToken: registerProps.verificationToken,
-                tenantId: verifiedTenant.tenantId,
-                branchId: selectedBranch.branchId,
-                terminalId: selectedTerminal.terminalId
+    useEffect(() => {
+        if (viewMode === 'step-detail') {
+            resetExecutionState();
+            if (isSyncable && activeStep) {
+                fetchData();
             }
+        }
+    }, [viewMode, activeStep, resetExecutionState, isSyncable, fetchData]);
 
-            await onComplete(params);
+    const displayError = localError;
 
-            toast('Machine configuration completed successfully!');
-        } catch (err) {
-            setLocalError(err?.error?.response?.data?.message || 'Configuration failed');
-        } finally {
-            setLoading(false);
+    const handleDoneAndNext = async () => {
+        if (!progress) return;
+
+        if (progress.overallStatus === 'COMPLETED') {
+            await handleComplete();
+        } else {
+            handleCloseStepDetail();
         }
     };
 
-    const handleBackToPreviousStep = () => {
-        setLocalError('');
-        setSuccess('');
+    if (initializing) {
+        return <LoadingView />;
+    }
 
-        if (currentStep === 2) {
-            setCurrentStep(1);
-        } else if (currentStep === 3) {
-            setCurrentStep(2);
-            setSelectedTerminal(null);
-        } else if (currentStep === 4) {
-            setCurrentStep(3);
-        }
-    };
+    if (viewMode === 'activation') {
+        return (
+            <ActivationView
+                error={displayError}
+                loading={loading}
+                onSubmit={handleActivateTerminal}
+            />
+        );
+    }
 
-    const canGoBack = currentStep > 1 && currentStep <= 4;
+    if (viewMode === 'fetched-details' && fetchedTerminal) {
+        return (
+            <TerminalDetailsView
+                terminal={fetchedTerminal}
+                error={displayError}
+                loading={loading}
+                onSave={handleSaveAndInitProgress}
+                onBack={goToActivation}
+            />
+        );
+    }
+
+    if (viewMode === 'step-detail' && activeStep && progress) {
+        return (
+            <StepDetailView
+                step={activeStep}
+                progress={progress}
+                executionState={executionState}
+                syncedData={syncedData}
+                fetchedData={fetchedData}
+                selectedIds={selectedIds}
+                error={stepError}
+                isSyncable={isSyncable}
+                onFetch={fetchData}
+                onToggleItem={toggleItem}
+                onSelectAll={selectAll}
+                onDeselectAll={deselectAll}
+                onSync={syncSelected}
+                onCompleteWithoutSync={completeWithoutSync}
+                onExecute={executeStep}
+                onSkip={skipStep}
+                onDone={handleDoneAndNext}
+                onBack={handleCloseStepDetail}
+            />
+        );
+    }
+
+    if (viewMode === 'list' && progress) {
+        return (
+            <StepListView
+                progress={progress}
+                error={displayError}
+                onStepClick={handleOpenStepDetail}
+                onComplete={handleComplete}
+            />
+        );
+    }
 
     return (
-        <AuthLayout className="">
-            <StepIndicator
-                currentStep={currentStep}
-                totalSteps={4}
-                onBack={canGoBack ? handleBackToPreviousStep : null}
-            >
-                {displayError && <ErrorAlert message={displayError} />}
-
-                {currentStep === 1 && (
-                    <TenantVerificationStep
-                        credentials={registerProps}
-                        credentialsValidationSchema={registerValidationSchema}
-                        onSubmit={handleVerifyTenant}
-                    />
-                )}
-
-                {currentStep === 2 && (
-                    <BranchSelectionStep
-                        branches={branches}
-                        onBranchSelect={handleBranchSelect}
-                    />
-                )}
-
-                {currentStep === 3 && (
-                    <TerminalSelectionStep
-                        terminals={terminals}
-                        selectedTerminal={selectedTerminal}
-                        selectedBranch={selectedBranch}
-                        onTerminalSelect={handleTerminalSelect}
-                    />
-                )}
-
-                {currentStep === 4 && (
-                    <SetupTerminal
-                        params={{
-                            verificationKey: registerProps.verificationToken,
-                            tenantId: verifiedTenant.tenantId,
-                            branchId: selectedBranch.branchId,
-                            terminalId: selectedTerminal.terminalId,
-                        }}
-                        loading={loading}
-                        onComplete={handleSetupComplete}
-                    />
-                )}
-            </StepIndicator>
-        </AuthLayout>
+        <ActivationView
+            error={displayError}
+            loading={loading}
+            onSubmit={handleActivateTerminal}
+        />
     );
 };
 

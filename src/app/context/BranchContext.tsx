@@ -9,12 +9,16 @@ import React, {
 import { Notify } from 'notiflix';
 import { useAuth } from './AuthProvider';
 import api from '../services/http.service';
+import { isElectron } from '../utils';
+import BranchSwitchingLoader from '../components/loader/BranchSwitchingLoader';
 
 interface BranchContextType {
     currentBranch: Branch | null;
     activeBranchId: string | null;
     accessibleBranches: Branch[];
     isLoading: boolean;
+    isSwitching: boolean;
+    switchingToBranch: Branch | null;
     error: string | null;
     switchBranch: (branchId: string) => Promise<boolean>;
     refreshBranches: () => Promise<void>;
@@ -36,9 +40,13 @@ const BranchContext = createContext<BranchContextType | undefined>(undefined);
 export const BranchProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const { user, isAuthenticated } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
+    const [isSwitching, setIsSwitching] = useState(false);
+    const [switchingToBranch, setSwitchingToBranch] = useState<Branch | null>(null);
+    const [showSwitchLoader, setShowSwitchLoader] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [currentBranch, setCurrentBranch] = useState<Branch | null>(null);
     const [accessibleBranches, setAccessibleBranches] = useState<Branch[]>([]);
+    const [pendingSwitch, setPendingSwitch] = useState<{ success: boolean; branch: Branch } | null>(null);
 
     const activeBranchId = user?.currentBranchId || user?.branchId || null;
 
@@ -112,6 +120,10 @@ export const BranchProvider: React.FC<PropsWithChildren> = ({ children }) => {
             return false;
         }
 
+        // Start switching animation
+        setSwitchingToBranch(targetBranch || null);
+        setIsSwitching(true);
+        setShowSwitchLoader(true);
         setIsLoading(true);
         setError(null);
 
@@ -129,7 +141,17 @@ export const BranchProvider: React.FC<PropsWithChildren> = ({ children }) => {
             sessionStorage.setItem('token', JSON.stringify(result.token));
             sessionStorage.setItem('user', JSON.stringify(result.user));
 
-            setCurrentBranch(result.branch);
+            // Update Electron session storage if running in Electron
+            if (isElectron() && window.electronAPI?.session?.setToken) {
+                try {
+                    await window.electronAPI.session.setToken(result.token);
+                } catch (err) {
+                    console.warn('Failed to update Electron session token:', err);
+                }
+            }
+
+            // Store pending switch data - will be applied when loader completes
+            setPendingSwitch({ success: true, branch: result.branch });
 
             window.dispatchEvent(new CustomEvent('branch-switched', {
                 detail: {
@@ -139,7 +161,6 @@ export const BranchProvider: React.FC<PropsWithChildren> = ({ children }) => {
                 }
             }));
 
-            Notify.success(`Switched to ${result.branch.branchName}`);
             return true;
         } catch (err: any) {
             const errorMessage = err?.error?.response?.data?.message ||
@@ -148,6 +169,9 @@ export const BranchProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
             console.error('Error switching branch:', err);
             setError(errorMessage);
+            setShowSwitchLoader(false);
+            setIsSwitching(false);
+            setSwitchingToBranch(null);
             Notify.failure(errorMessage);
             return false;
         } finally {
@@ -176,6 +200,32 @@ export const BranchProvider: React.FC<PropsWithChildren> = ({ children }) => {
         return accessibleBranches.some(b => b.branchId === branchId);
     }, [user, accessibleBranches]);
 
+    /**
+     * Handle loader completion - finalize the branch switch
+     */
+    const handleSwitchLoaderComplete = useCallback(() => {
+        if (pendingSwitch?.success) {
+            setCurrentBranch(pendingSwitch.branch);
+            Notify.success(`Switched to ${pendingSwitch.branch.branchName}`);
+
+            // Reset all switching states
+            setShowSwitchLoader(false);
+            setIsSwitching(false);
+            setSwitchingToBranch(null);
+            setPendingSwitch(null);
+
+            // Full page reload to ensure all data is fresh for the new branch
+            // This is the most reliable way to ensure all pages show correct data
+            window.location.reload();
+        } else {
+            // Reset all switching states on failure
+            setShowSwitchLoader(false);
+            setIsSwitching(false);
+            setSwitchingToBranch(null);
+            setPendingSwitch(null);
+        }
+    }, [pendingSwitch]);
+
     useEffect(() => {
         if (isAuthenticated && user) {
             refreshBranches();
@@ -189,7 +239,7 @@ export const BranchProvider: React.FC<PropsWithChildren> = ({ children }) => {
     useEffect(() => {
         const handleBranchSwitch = (event: CustomEvent) => {
             const { branch } = event.detail;
-            if (branch) {
+            if (branch && !isSwitching) {
                 setCurrentBranch(branch);
             }
         };
@@ -198,13 +248,15 @@ export const BranchProvider: React.FC<PropsWithChildren> = ({ children }) => {
         return () => {
             window.removeEventListener('branch-switched', handleBranchSwitch as EventListener);
         };
-    }, []);
+    }, [isSwitching]);
 
     const value: BranchContextType = {
         currentBranch,
         activeBranchId,
         accessibleBranches,
         isLoading,
+        isSwitching,
+        switchingToBranch,
         error,
         switchBranch,
         refreshBranches,
@@ -214,6 +266,12 @@ export const BranchProvider: React.FC<PropsWithChildren> = ({ children }) => {
     return (
         <BranchContext.Provider value={value}>
             {children}
+            <BranchSwitchingLoader
+                isVisible={showSwitchLoader}
+                fromBranch={currentBranch}
+                toBranch={switchingToBranch}
+                onComplete={handleSwitchLoaderComplete}
+            />
         </BranchContext.Provider>
     );
 };

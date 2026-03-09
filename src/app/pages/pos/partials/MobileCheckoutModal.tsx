@@ -145,7 +145,7 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
             const refNumber = generateReferenceNumber();
             const salePayload: CreateSalePayload = {
                 tenantId: user.tenantId,
-                branchId: user.branchId,
+                branchId: user.currentBranchId || user.branchId,
                 userId: user.userId,
                 terminalId: (settings as any)?.terminalId || 'default',
                 customerId: selectedCustomer?.customerId !== 'walk-in' && selectedCustomer?.customerId !== DEFAULT_SEED_KEY
@@ -171,8 +171,9 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
                         ? (itemPrice * (item.discount || 0)) / 100
                         : (item.discount || 0) * itemQty;
                     return {
+                        variantId: item.variantId || item.productId, // Use variantId for API v1.6.0+
                         productId: item.productId,
-                        quantity: item.quantity,
+                        quantity: itemQty,
                         unitPrice: item.sellingPrice,
                         taxAmount: 0,
                         discountAmount: itemDiscountAmount,

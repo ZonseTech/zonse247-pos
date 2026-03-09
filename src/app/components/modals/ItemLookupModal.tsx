@@ -51,13 +51,23 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
             if (item.expirationDate && new Date(item.expirationDate) < new Date()) {
                 return false;
             }
+            // Filter out items with no stock (except default items)
+            const quantity = parseFloat((item.quantity || item.availableQuantity || 0).toString());
+            if (quantity <= 0 && !item.isDefault) {
+                return false;
+            }
             return true;
         });
 
         if (searchTerm) {
             filtered = filtered.filter(item => {
-                const nameMatch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
-                const barcodeMatch = item.barcode.toString().includes(searchTerm);
+                const searchLower = searchTerm.toLowerCase();
+                const nameMatch = (item.name || '').toLowerCase().includes(searchLower) ||
+                    (item.displayName || '').toLowerCase().includes(searchLower) ||
+                    (item.variantName || '').toLowerCase().includes(searchLower);
+                const barcodeMatch = (item.barcode?.toString() || '').includes(searchTerm) ||
+                    (item.primaryBarcode?.toString() || '').includes(searchTerm) ||
+                    (item.sku?.toString() || '').includes(searchTerm);
                 return nameMatch || barcodeMatch;
             });
         }
@@ -187,13 +197,16 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                     {filteredItems.length > 0 ? (
                         <div className="divide-y divide-gray-100 dark:divide-gray-700">
                             {filteredItems.map((item) => {
-                                const quantity = parseFloat((item.quantity || 0).toString());
-                                const isOutOfStock = quantity <= 0;
+                                const quantity = parseFloat((item.quantity || item.availableQuantity || 0).toString());
+                                const isOutOfStock = quantity <= 0 && !item.isDefault;
                                 if (isOutOfStock) return null;
+
+                                const displayBarcode = item.barcode || item.primaryBarcode || item.sku || '-';
+                                const displayItemName = item.displayName || item.name;
 
                                 return (
                                     <div
-                                        key={item.productId}
+                                        key={item.productId || item.id}
                                         onClick={() => handleAddToCart(item)}
                                         className="cursor-pointer bg-white dark:bg-gray-800 hover:bg-sky-50 dark:hover:bg-sky-900/30 hover:shadow-sm transition-all duration-150 group"
                                     >
@@ -201,7 +214,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="flex-1 min-w-0">
                                                     <div className="font-medium text-slate-800 dark:text-gray-100 group-hover:text-sky-500 dark:group-hover:text-sky-400 truncate">
-                                                        {item.name}
+                                                        {displayItemName}
                                                     </div>
                                                     {item.categoryDetails?.name && (
                                                         <div className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">
@@ -214,7 +227,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                                                 </div>
                                             </div>
                                             <div className="font-mono text-xs text-slate-500 dark:text-gray-400 group-hover:text-sky-500 dark:group-hover:text-sky-400">
-                                                Code: {item.barcode}
+                                                Code: {displayBarcode}
                                             </div>
                                         </div>
 
@@ -226,14 +239,14 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
                                                 "col-span-3 font-mono text-slate-600 dark:text-gray-400 flex items-center group-hover:text-sky-500 dark:group-hover:text-sky-400",
                                                 isEBN ? "text-xs" : "text-sm"
                                             )}>
-                                                {item.barcode}
+                                                {displayBarcode}
                                             </div>
                                             <div className="col-span-6 flex flex-col justify-center">
                                                 <div className={classNames(
                                                     "font-medium text-slate-800 dark:text-gray-100 group-hover:text-sky-500 dark:group-hover:text-sky-400",
                                                     isEBN && "text-sm"
                                                 )}>
-                                                    {item.name}
+                                                    {displayItemName}
                                                 </div>
                                                 {item.categoryDetails?.name && (
                                                     <div className={classNames(

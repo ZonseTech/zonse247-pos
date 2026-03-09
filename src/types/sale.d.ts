@@ -1,6 +1,6 @@
 /**
  * Sales Types for POS Integration
- * Extends the existing order/transaction system with inventory reduction
+ * Updated for Product/Variant model (API v1.6.0+)
  */
 
 /**
@@ -13,15 +13,19 @@ type SaleStatus =
     | 'RETURNED';  // Sale returned
 
 /**
- * Sale item
+ * Sale item - now references variantId (required) and productId (optional)
  */
 interface SaleItem {
     id?: string;
     saleId?: string;
-    productId: string;
+    variantId: string;     // Required: The variant being sold
+    productId?: string;    // Optional: Parent product ID for reference
     product?: {
         id: string;
+        productId?: string;
         name: string;
+        variantName?: string;
+        displayName?: string;
         sku?: string;
         primaryBarcode?: string;
         barcodes?: { barcode: string }[];
@@ -151,7 +155,44 @@ interface PaymentEntry {
 }
 
 /**
+ * Input for a single sale item
+ */
+interface CreateSaleItemInput {
+    variantId: string;     // Required: The variant being sold
+    productId?: string;    // Optional: Parent product ID
+    quantity: number;
+    unitPrice: number;
+    taxAmount?: number;
+    discountAmount?: number;
+    notes?: string;
+}
+
+/**
+ * Input for creating a payment (split payment support)
+ */
+interface SalePaymentInput {
+    paymentMethodId: string;
+    amount: number;
+    reference?: string;
+    providerId?: string;
+    providerRef?: string;
+    notes?: string;
+}
+
+/**
+ * Input for other charges (fees, service charges, etc.)
+ */
+interface OtherChargeInput {
+    type: string;
+    label: string;
+    value: number;
+    isPercentage: boolean;
+    amount: number;
+}
+
+/**
  * Create sale payload (from POS)
+ * Updated for variant model (API v1.6.0+)
  */
 interface CreateSalePayload {
     tenantId: string;
@@ -162,31 +203,32 @@ interface CreateSalePayload {
 
     // Payment - single payment (legacy)
     amountPaid: number;
-    paymentMethodId: string;
+    paymentMethodId?: string;
 
     // Multiple payments support
-    payments?: PaymentEntry[];
+    payments?: SalePaymentInput[] | PaymentEntry[];
 
-    // Items
-    items: {
-        productId: string;
+    // Items - now require variantId
+    items: CreateSaleItemInput[] | {
+        variantId: string;
+        productId?: string;
         quantity: number;
         unitPrice: number;
         taxRate?: number;
-        taxAmount: number;
+        taxAmount?: number;
         discountRate?: number;
-        discountAmount: number;
+        discountAmount?: number;
         notes?: string;
     }[];
 
     // Totals (calculated on frontend, validated on backend)
-    subtotal: number;
-    taxAmount: number;
-    discountAmount: number;
-    totalAmount: number;
+    subtotal?: number;
+    taxAmount?: number;
+    discountAmount?: number;
+    totalAmount?: number;
 
     // Other charges
-    otherCharges?: {
+    otherCharges?: OtherChargeInput[] | number | {
         type: string;
         label: string;
         value: number;
@@ -292,4 +334,40 @@ interface DailySalesSummary {
     totalProfit: number;
     totalItems: number;
     averageOrderValue: number;
+}
+
+/**
+ * Options for sales summary
+ */
+interface SalesSummaryOptions {
+    startDate?: Date | string;
+    endDate?: Date | string;
+    status?: string;
+    paymentMethodId?: string;
+    userId?: string;
+    terminalId?: string;
+}
+
+/**
+ * Sales summary response
+ */
+interface SalesSummary {
+    totalSales: number;
+    totalRevenue: number;
+    totalProfit: number;
+    averageOrderValue: number;
+    totalItems: number;
+    topProducts?: {
+        productId: string;
+        variantId: string;
+        name: string;
+        quantity: number;
+        revenue: number;
+    }[];
+    paymentMethodBreakdown?: {
+        paymentMethodId: string;
+        name: string;
+        count: number;
+        total: number;
+    }[];
 }

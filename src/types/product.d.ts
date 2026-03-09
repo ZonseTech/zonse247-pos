@@ -1,6 +1,7 @@
 /**
  * Product Types for Inventory Management
- * Following the business flow: Products are defined first, orders show intent, receipts confirm reality
+ * Updated for Product/Variant model (API v1.6.0+)
+ * Products are parent entities, Variants are the sellable units
  */
 
 /**
@@ -14,19 +15,26 @@ type BarcodeSource = 'MANUFACTURER' | 'STORE' | 'CUSTOM';
 type BarcodeType = 'EAN13' | 'EAN8' | 'UPC' | 'CODE128' | 'CODE39' | 'QR' | 'CUSTOM';
 
 /**
- * Product barcode definition
+ * Variant barcode record
  */
-interface ProductBarcode {
-    id?: string;
-    productId?: string;
+interface VariantBarcode {
+    id: string;
+    variantId: string;
     barcode: string;
     barcodeType: BarcodeType;
     barcodeSource: BarcodeSource;
-    description?: string;
+    description?: string | null;
+    isActive: boolean;
+    createdAt: Date | string;
+    updatedAt: Date | string;
+}
+
+/**
+ * @deprecated Use VariantBarcode instead
+ */
+interface ProductBarcode extends Partial<VariantBarcode> {
+    productId?: string;
     isPrimary?: boolean;
-    isActive?: boolean;
-    createdAt?: Date | string;
-    updatedAt?: Date | string;
 }
 
 /**
@@ -35,146 +43,372 @@ interface ProductBarcode {
 type ProductStatus = 'ACTIVE' | 'INACTIVE' | 'DISCONTINUED' | 'OUT_OF_STOCK';
 
 /**
- * Main Product entity
+ * Product - the parent/master product (e.g., "Nivea Lotion")
  */
 interface Product {
     id: string;
-    productId: string;
     tenantId: string;
     branchId: string;
-    sku: string;
+    categoryId?: string | null;
     name: string;
-    description?: string;
-    unit: string; // e.g., 'bag', 'piece', 'kg', 'liter'
-
-    // Barcodes
-    primaryBarcode?: string;
-    barcodes?: ProductBarcode[];
-
-    // Pricing
-    sellingPrice: number;
-    costPrice?: number; // Base cost, actual cost tracked in inventory
-    taxRate?: number;
-
-    // Categorization
-    categoryId?: string;
-    brand?: string;
-
-    // Physical attributes
-    weight?: number;
-    dimensions?: string;
-    color?: string;
-    size?: string;
-
-    // Images
-    imageUrls?: string[];
-    thumbnailUrl?: string;
-
-    // Status and metadata
-    status: ProductStatus;
+    description?: string | null;
+    brand?: string | null;
+    isTaxable?: boolean | null;
+    supplierName?: string | null;
+    supplierCode?: string | null;
+    defaultUnit?: string | null;
+    customAttributeSchema?: string | null;
+    imageUrl?: string | null;
     isActive: boolean;
-
-    // Inventory link
-    inventory?: ProductInventory;
-    categoryDetails?: Category;
-
-    // Audit
-    createdBy: string;
-    updatedBy?: string;
     createdAt: Date | string;
     updatedAt: Date | string;
-
-    // Additional properties
-    properties?: Record<string, any>;
 }
 
 /**
- * Product inventory tracking (separate from product master)
+ * ProductVariant - the sellable unit (e.g., "Nivea 50ml", "Nivea 200ml")
  */
-interface ProductInventory {
+interface ProductVariant {
     id: string;
     productId: string;
     tenantId: string;
     branchId: string;
-
-    // Stock quantities
-    availableQuantity: number;      // Sellable stock (what customers can buy)
-    reservedQuantity: number;       // Reserved for orders/holds
-    damagedQuantity: number;        // Damaged/unusable stock
-    totalQuantity: number;          // Total = available + reserved + damaged
-
-    // Cost tracking
-    averageCost: number;            // Weighted average cost (FIFO/LIFO)
-    lastPurchaseCost: number;       // Most recent purchase price
-
-    // Stock management settings
-    trackInventory: boolean;        // Enable stock tracking
-    allowNegativeStock: boolean;    // Allow overselling
-
-    // Reorder settings
-    minStock?: number;
-    maxStock?: number;
-    reorderLevel?: number;
-    reorderQuantity?: number;
-
-    // Timestamps
-    lastPurchaseAt?: Date | string;
-    lastSoldAt?: Date | string;
-    lastStockTakeAt?: Date | string;
-
-    reorderPoint?: number;
-    reorderLevel?: number;
-
-    // Audit
+    sku?: string | null;
+    variantName: string;
+    primaryBarcode?: string | null;
+    sellingPrice: number;
+    costPrice: number;
+    unit: string;
+    description?: string | null;
+    brand?: string | null;
+    imageUrl?: string | null;
+    isTaxable?: boolean | null;
+    supplierName?: string | null;
+    supplierCode?: string | null;
+    size?: string | null;
+    weight?: number | null;
+    weightUnit?: string | null;
+    volume?: number | null;
+    volumeUnit?: string | null;
+    dimensions?: string | null;
+    customAttributes?: string | null;
+    promoPrice?: number | null;
+    promoStart?: Date | string | null;
+    promoEnd?: Date | string | null;
+    expirationDate?: Date | string | null;
+    manufactureDate?: Date | string | null;
+    isDefault: boolean;
+    isActive: boolean;
     createdAt: Date | string;
     updatedAt: Date | string;
 }
 
 /**
- * Product creation payload
+ * Inventory data for a variant
  */
-interface CreateProductPayload {
-    sku: string;
+interface InventoryInfo {
+    availableQuantity: number;
+    reservedQuantity: number;
+    damagedQuantity: number;
+    averageCost: number;
+    lastPurchaseCost: number;
+    reorderPoint?: number | null;
+    maxStock?: number | null;
+    trackInventory: boolean;
+    allowNegativeStock: boolean;
+}
+
+/**
+ * @deprecated Use InventoryInfo instead - kept for backwards compatibility
+ */
+interface ProductInventory extends InventoryInfo {
+    id: string;
+    productId: string;
+    tenantId: string;
+    branchId: string;
+    totalQuantity?: number;
+    minStock?: number;
+    reorderLevel?: number;
+    reorderQuantity?: number;
+    lastPurchaseAt?: Date | string;
+    lastSoldAt?: Date | string;
+    lastStockTakeAt?: Date | string;
+    createdAt: Date | string;
+    updatedAt: Date | string;
+}
+
+/**
+ * Category details for display
+ */
+interface CategoryDetails {
+    categoryId: string;
     name: string;
-    description?: string;
+    description?: string | null;
+    isActive?: boolean | null;
+    isDefault?: boolean | null;
+}
+
+/**
+ * Variant with inventory info
+ */
+interface VariantWithInventory extends ProductVariant {
+    inventory?: InventoryInfo;
+    barcodes?: VariantBarcode[];
+}
+
+/**
+ * Product with all its variants
+ */
+interface ProductWithVariants extends Product {
+    variants: VariantWithInventory[];
+    categoryDetails?: CategoryDetails;
+}
+
+/**
+ * Flattened view of a product+variant for POS terminal use
+ * The `id` field is the VARIANT id for POS operations
+ */
+interface ProductWithInventory {
+    id: string;            // This is the VARIANT id
+    productId: string;     // Parent product id
+    tenantId: string;
+    branchId: string;
+    categoryId?: string | null;
+    sku?: string | null;
+    name: string;          // Product name
+    variantName: string;   // Variant name
+    displayName: string;   // Combined display name
+    primaryBarcode?: string | null;
+    sellingPrice: number;
+    costPrice: number;
     unit: string;
+    description?: string | null;
+    brand?: string | null;
+    imageUrl?: string | null;
+    isTaxable?: boolean | null;
+    isActive: boolean;
+    status?: ProductStatus;
+    isDefault: boolean;
+    createdAt: Date | string;
+    updatedAt: Date | string;
+    inventory?: InventoryInfo;
+    categoryDetails?: CategoryDetails;
+    barcodes?: VariantBarcode[];
+}
+
+/**
+ * Barcode input for creating/updating
+ */
+interface BarcodeInput {
+    barcode: string;
+    barcodeType?: BarcodeType;
+    barcodeSource?: BarcodeSource;
+    description?: string;
+}
+
+/**
+ * Variant input for product creation
+ */
+interface VariantInput {
+    sku?: string;
+    variantName?: string;
+    primaryBarcode?: string;
     sellingPrice: number;
     costPrice?: number;
+    unit?: string;
+    barcodes?: BarcodeInput[];
+}
+
+/**
+ * Input for creating a new product with its default variant
+ */
+interface CreateProductInput {
+    tenantId: string;
+    branchId: string;
     categoryId?: string;
+    name: string;
+    description?: string;
     brand?: string;
+    isTaxable?: boolean;
+    supplierName?: string;
+    supplierCode?: string;
+    defaultUnit?: string;
+    imageUrl?: string;
+    variant?: VariantInput;
+    sku?: string | null;
     primaryBarcode?: string;
-    barcodes?: Omit<ProductBarcode, 'id' | 'productId' | 'createdAt' | 'updatedAt'>[];
-    imageUrls?: string[];
-    weight?: number;
-    dimensions?: string;
-    color?: string;
-    size?: string;
+    sellingPrice?: number;
+    unit?: string;
     trackInventory?: boolean;
     allowNegativeStock?: boolean;
     minStock?: number;
     maxStock?: number;
     reorderLevel?: number;
+    barcodes?: BarcodeInput[];
+}
+
+/**
+ * @deprecated Use CreateProductInput instead
+ */
+interface CreateProductPayload extends Partial<CreateProductInput> {
+    sku?: string;
+    name: string;
+    unit?: string;
+    sellingPrice?: number;
+    costPrice?: number;
+    imageUrls?: string[];
+    weight?: number;
+    dimensions?: string;
+    color?: string;
+    size?: string;
     properties?: Record<string, any>;
 }
 
 /**
- * Product update payload
+ * Input for creating a new variant of an existing product
+ */
+interface CreateVariantInput {
+    productId: string;
+    sku?: string;
+    variantName: string;
+    primaryBarcode?: string;
+    sellingPrice: number;
+    costPrice?: number;
+    unit?: string;
+    description?: string;
+    brand?: string;
+    imageUrl?: string;
+    isTaxable?: boolean;
+    supplierName?: string;
+    supplierCode?: string;
+    size?: string;
+    weight?: number;
+    weightUnit?: string;
+    volume?: number;
+    volumeUnit?: string;
+    dimensions?: string;
+    customAttributes?: Record<string, any>;
+    promoPrice?: number;
+    promoStart?: Date | string;
+    promoEnd?: Date | string;
+    expirationDate?: Date | string;
+    manufactureDate?: Date | string;
+    isDefault?: boolean;
+    trackInventory?: boolean;
+    allowNegativeStock?: boolean;
+    minStock?: number;
+    maxStock?: number;
+    reorderLevel?: number;
+    barcodes?: BarcodeInput[];
+}
+
+/**
+ * Input for updating a product (parent only)
+ */
+interface UpdateProductInput {
+    name?: string;
+    categoryId?: string;
+    description?: string;
+    brand?: string;
+    isTaxable?: boolean;
+    supplierName?: string;
+    supplierCode?: string;
+    defaultUnit?: string;
+    imageUrl?: string;
+    isActive?: boolean;
+}
+
+/**
+ * Input for updating a variant
+ */
+interface UpdateVariantInput {
+    sku?: string;
+    variantName?: string;
+    primaryBarcode?: string;
+    sellingPrice?: number;
+    costPrice?: number;
+    unit?: string;
+    description?: string;
+    brand?: string;
+    imageUrl?: string;
+    isTaxable?: boolean;
+    supplierName?: string;
+    supplierCode?: string;
+    size?: string;
+    weight?: number;
+    weightUnit?: string;
+    volume?: number;
+    volumeUnit?: string;
+    dimensions?: string;
+    customAttributes?: Record<string, any>;
+    promoPrice?: number;
+    promoStart?: Date | string;
+    promoEnd?: Date | string;
+    expirationDate?: Date | string;
+    manufactureDate?: Date | string;
+    isDefault?: boolean;
+    isActive?: boolean;
+    trackInventory?: boolean;
+    allowNegativeStock?: boolean;
+    minStock?: number;
+    maxStock?: number;
+    reorderLevel?: number;
+    barcodes?: BarcodeInput[];
+}
+
+/**
+ * @deprecated Use UpdateProductInput or UpdateVariantInput instead
  */
 interface UpdateProductPayload extends Partial<CreateProductPayload> {
     status?: ProductStatus;
 }
 
 /**
- * Product search result
+ * Search match type
  */
-interface ProductSearchResult {
-    product: Product;
-    matchedBy: 'sku' | 'barcode' | 'name' | 'id';
-    matchedValue: string;
+type SearchMatchType = 'sku' | 'primaryBarcode' | 'barcode' | 'name' | 'variantName';
+
+/**
+ * Product search result - now returns ProductWithInventory (flattened variant)
+ */
+interface SearchProductResult {
+    product: ProductWithInventory;
+    matchedBy: SearchMatchType;
 }
 
 /**
- * Product list query parameters
+ * @deprecated Use SearchProductResult instead
+ */
+interface ProductSearchResult {
+    product: ProductWithInventory;
+    matchedBy: SearchMatchType;
+    matchedValue?: string;
+}
+
+/**
+ * Duplicate barcode check result
+ */
+interface DuplicateBarcodeResult {
+    exists: boolean;
+    productName?: string;
+    variantName?: string;
+    matchType?: 'primary' | 'alternative';
+}
+
+/**
+ * List products options
+ */
+interface ListProductsOptions {
+    page?: number;
+    perPage?: number;
+    search?: string;
+    filter?: 'all' | 'active' | 'inactive' | 'new' | 'new-stock' | 'low-stock' | 'out-of-stock';
+    status?: string;
+    categoryId?: string;
+    includeInactive?: boolean;
+}
+
+/**
+ * @deprecated Use ListProductsOptions instead
  */
 interface ProductListQuery {
     page?: number;
@@ -187,12 +421,21 @@ interface ProductListQuery {
 }
 
 /**
+ * Paginated products response
+ */
+interface PaginatedProductsResponse {
+    products: ProductWithInventory[];
+    total: number;
+    totalPages: number;
+}
+
+/**
  * Product response from API
  */
 interface ProductResponse {
     success: boolean;
     message: string;
-    data: Product;
+    data: ProductWithInventory;
 }
 
 /**
@@ -202,13 +445,18 @@ interface ProductListResponse {
     success: boolean;
     message: string;
     data: {
-        products: Product[];
+        products: ProductWithInventory[];
         pagination: {
             page: number;
             limit: number;
             total: number;
             totalPages: number;
+            perPage?: number;
+            currentPage?: number;
+            totalItems?: number;
         };
+        total?: number;
+        totalPages?: number;
     };
 }
 
@@ -218,5 +466,5 @@ interface ProductListResponse {
 interface ProductSearchResponse {
     success: boolean;
     message: string;
-    data: ProductSearchResult;
+    data: SearchProductResult;
 }

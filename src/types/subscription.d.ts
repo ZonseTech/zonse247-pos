@@ -151,3 +151,23 @@ interface UpdateFeatureCategoryRequest {
 	order?: number;
 }
 
+/**
+ * Branch subscription from zonse247-pos-api
+ */
+interface BranchSubscription {
+	branchSubscriptionId: string;
+	subscriptionPlanId: string;
+	planName?: string;
+	status: 'ACTIVE' | 'CANCELLED' | 'EXPIRED' | 'PAST_DUE' | 'active' | 'cancelled' | 'expired' | 'past_due';
+	startsAt: string | Date;
+	endsAt?: string | Date | null;
+	autoRenew?: boolean;
+	paymentMethod?: string | null;
+	synced?: number;
+	lastPaymentDate?: string | Date | null;
+	nextPaymentDate?: string | Date | null;
+	createdAt?: string | Date;
+	updatedAt?: string | Date;
+	subscriptionPlan?: SubscriptionPlan | null;
+}
+

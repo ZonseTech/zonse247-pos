@@ -115,9 +115,18 @@ const branchSwitchService = {
      * Update session storage after branch switch
      * @internal
      */
-    updateSessionAfterSwitch(result: SwitchBranchResult): void {
+    async updateSessionAfterSwitch(result: SwitchBranchResult): Promise<void> {
         sessionStorage.setItem('user', JSON.stringify(result.user));
         sessionStorage.setItem('token', JSON.stringify(result.token));
+
+        // Update Electron session storage if running in Electron
+        if (isElectron() && window.electronAPI?.session?.setToken) {
+            try {
+                await window.electronAPI.session.setToken(result.token);
+            } catch (err) {
+                console.warn('Failed to update Electron session token:', err);
+            }
+        }
     },
 
     /**

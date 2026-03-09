@@ -15,7 +15,7 @@ const endpoints = {
 	topValue: 'inventory/top-value',
 	count: 'inventory/count',
 	all: 'inventory/all',
-	itemsOnly: 'inventory/items-only',
+	itemsOnly: 'products',
 	search: 'inventory/search',
 	lowStock: 'inventory/low-stock',
 
@@ -459,6 +459,7 @@ const inventoryService = {
 
 	/**
 	 * PATCH /item/:itemId/adjust - Adjust inventory (add/subtract/set)
+	 * Note: In the new variant model, the id is the variant ID
 	 */
 	async adjustInventory(id: string, payload: AdjustInventoryPayload): Promise<InventoryItem> {
 		return api
@@ -471,12 +472,12 @@ const inventoryService = {
 
 	/**
 	 * Increment inventory quantity (for returns/restocking)
-	 * @param productId Product ID to increment
+	 * @param variantId Variant ID to increment (or productId for backwards compat)
 	 * @param quantity Quantity to add
 	 * @param reason Optional reason for increment
 	 */
-	async incrementInventory(productId: string, quantity: number, reason?: string): Promise<InventoryItem> {
-		return this.adjustInventory(productId, {
+	async incrementInventory(variantId: string, quantity: number, reason?: string): Promise<InventoryItem> {
+		return this.adjustInventory(variantId, {
 			adjustment: quantity,
 			type: 'add',
 			reason: reason || 'Returned item',
@@ -485,12 +486,12 @@ const inventoryService = {
 
 	/**
 	 * Decrement inventory quantity (for reversing returns)
-	 * @param productId Product ID to decrement
+	 * @param variantId Variant ID to decrement (or productId for backwards compat)
 	 * @param quantity Quantity to subtract
 	 * @param reason Optional reason for decrement
 	 */
-	async decrementInventory(productId: string, quantity: number, reason?: string): Promise<InventoryItem> {
-		return this.adjustInventory(productId, {
+	async decrementInventory(variantId: string, quantity: number, reason?: string): Promise<InventoryItem> {
+		return this.adjustInventory(variantId, {
 			adjustment: quantity,
 			type: 'subtract',
 			reason: reason || 'Return cancelled',
@@ -515,16 +516,16 @@ const inventoryService = {
 
 	/**
 	 * Check stock availability before sale
-	 * @param productId Product ID to check
+	 * @param variantId Variant ID to check (or productId for backwards compat)
 	 * @param requiredQuantity Quantity needed
 	 * @returns Available quantity and whether sufficient stock exists
 	 */
 	async checkStockAvailability(
-		productId: string,
+		variantId: string,
 		requiredQuantity: number
 	): Promise<{ available: number; isSufficient: boolean; allowNegative: boolean }> {
-		const item = await this.show(productId);
-		const available = Number(item.quantity || 0);
+		const item = await this.show(variantId);
+		const available = Number(item.quantity || item.availableQuantity || 0);
 		const allowNegative = item.allowNegativeStock || false;
 
 		return {
@@ -536,10 +537,10 @@ const inventoryService = {
 
 	/**
 	 * Get current inventory levels
-	 * @param productId Product ID
+	 * @param variantId Variant ID (or productId for backwards compat)
 	 * @returns Current inventory quantities
 	 */
-	async getInventoryLevels(productId: string): Promise<{
+	async getInventoryLevels(variantId: string): Promise<{
 		available: number;
 		reserved: number;
 		damaged: number;
@@ -547,42 +548,42 @@ const inventoryService = {
 		averageCost: number;
 		lastPurchaseCost: number;
 	}> {
-		const item = await this.show(productId);
+		const item = await this.show(variantId);
 
 		return {
-			available: Number(item.quantity || 0),
+			available: Number(item.quantity || item.availableQuantity || 0),
 			reserved: Number(item.reservedQuantity || 0),
-			damaged: 0, // Will be tracked separately in new schema
-			total: Number(item.quantity || 0) + Number(item.reservedQuantity || 0),
-			averageCost: Number(item.costPrice || 0),
-			lastPurchaseCost: Number(item.costPrice || 0),
+			damaged: Number(item.damagedQuantity || 0),
+			total: Number(item.quantity || item.availableQuantity || 0) + Number(item.reservedQuantity || 0),
+			averageCost: Number(item.costPrice || item.averageCost || 0),
+			lastPurchaseCost: Number(item.costPrice || item.lastPurchaseCost || 0),
 		};
 	},
 
 	/**
 	 * Reserve inventory for an order
-	 * @param productId Product ID to reserve
+	 * @param variantId Variant ID to reserve (or productId for backwards compat)
 	 * @param quantity Quantity to reserve
 	 */
-	async reserveInventory(productId: string, quantity: number): Promise<InventoryItem> {
-		const item = await this.show(productId);
+	async reserveInventory(variantId: string, quantity: number): Promise<InventoryItem> {
+		const item = await this.show(variantId);
 		const currentReserved = Number(item.reservedQuantity || 0);
 
-		return this.update(productId, {
+		return this.update(variantId, {
 			reservedQuantity: currentReserved + quantity,
 		});
 	},
 
 	/**
 	 * Release reserved inventory
-	 * @param productId Product ID
+	 * @param variantId Variant ID (or productId for backwards compat)
 	 * @param quantity Quantity to release
 	 */
-	async releaseReservedInventory(productId: string, quantity: number): Promise<InventoryItem> {
-		const item = await this.show(productId);
+	async releaseReservedInventory(variantId: string, quantity: number): Promise<InventoryItem> {
+		const item = await this.show(variantId);
 		const currentReserved = Number(item.reservedQuantity || 0);
 
-		return this.update(productId, {
+		return this.update(variantId, {
 			reservedQuantity: Math.max(0, currentReserved - quantity),
 		});
 	},

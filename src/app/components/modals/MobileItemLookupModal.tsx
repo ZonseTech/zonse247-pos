@@ -36,7 +36,13 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
         }
 
         let filtered = inventory.filter(item => {
+            // Filter out expired items
             if (item.expirationDate && new Date(item.expirationDate) < new Date()) {
+                return false;
+            }
+            // Filter out items with no stock (except default items)
+            const quantity = parseFloat((item.quantity || item.availableQuantity || 0).toString());
+            if (quantity <= 0 && !item.isDefault) {
                 return false;
             }
             return true;
@@ -44,8 +50,13 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
 
         if (searchTerm) {
             filtered = filtered.filter(item => {
-                const nameMatch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
-                const barcodeMatch = item.barcode.toString().includes(searchTerm);
+                const searchLower = searchTerm.toLowerCase();
+                const nameMatch = (item.name || '').toLowerCase().includes(searchLower) ||
+                    (item.displayName || '').toLowerCase().includes(searchLower) ||
+                    (item.variantName || '').toLowerCase().includes(searchLower);
+                const barcodeMatch = (item.barcode?.toString() || '').includes(searchTerm) ||
+                    (item.primaryBarcode?.toString() || '').includes(searchTerm) ||
+                    (item.sku?.toString() || '').includes(searchTerm);
                 return nameMatch || barcodeMatch;
             });
         }
@@ -122,16 +133,18 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
                 {filteredItems.length > 0 ? (
                     <div className="divide-y divide-gray-200 dark:divide-gray-700">
                         {filteredItems.map((item) => {
-                            const quantity = parseFloat((item.quantity || 0).toString());
-                            const isOutOfStock = quantity <= 0;
+                            const quantity = parseFloat((item.quantity || item.availableQuantity || 0).toString());
+                            const isOutOfStock = quantity <= 0 && !item.isDefault;
                             if (isOutOfStock) return null;
 
                             const itemCartQuantity = getCartQuantity(item.productId);
                             const isSelected = itemCartQuantity > 0;
+                            const displayItemName = item.displayName || item.name;
+                            const displayBarcode = item.barcode || item.primaryBarcode || item.sku || '-';
 
                             return (
                                 <button
-                                    key={item.productId}
+                                    key={item.productId || item.id}
                                     onClick={() => handleAddToCart(item)}
                                     className={`w-full px-4 py-3 flex items-center gap-3 transition-colors text-left ${isSelected
                                         ? 'bg-sky-50 dark:bg-sky-900/30'
@@ -153,11 +166,11 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
 
                                     <div className="flex-1 min-w-0">
                                         <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
-                                            {item.name}
+                                            {displayItemName}
                                         </div>
                                         <div className="flex items-center gap-2 mt-0.5">
                                             <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
-                                                {item.barcode}
+                                                {displayBarcode}
                                             </span>
                                             {item.categoryDetails?.name && (
                                                 <>
@@ -175,7 +188,7 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
                                             {formatCurrency(parseFloat((item.sellingPrice || 0).toString()))}
                                         </div>
                                         <div className="text-xs text-gray-500 dark:text-gray-400">
-                                            {quantity} in stock
+                                            {item.isDefault ? 'Custom' : `${quantity} in stock`}
                                         </div>
                                     </div>
                                 </button>

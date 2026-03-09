@@ -5,7 +5,7 @@ import { useSettings } from './useSettings';
 
 export const useProducts = () => {
     const { setup } = useSettings();
-    const [products, setProducts] = useState<Product[]>([]);
+    const [products, setProducts] = useState<ProductWithInventory[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
@@ -35,7 +35,7 @@ export const useProducts = () => {
             }
 
             setProducts(result.products || []);
-            setTotalRows(result.pagination?.total || 0);
+            setTotalRows(result.pagination?.total || result.pagination?.totalItems || 0);
         } catch (error: any) {
             Notify.failure(error?.response?.data?.message || 'Failed to load products');
             console.error('Load products error:', error);
@@ -60,7 +60,7 @@ export const useProducts = () => {
         }
     }, []);
 
-    const createProduct = useCallback(async (payload: CreateProductPayload) => {
+    const createProduct = useCallback(async (payload: CreateProductInput | CreateProductPayload) => {
         try {
             const product = await productService.createProduct(payload);
             Notify.success('Product created successfully');
@@ -72,7 +72,7 @@ export const useProducts = () => {
         }
     }, [loadProducts]);
 
-    const updateProduct = useCallback(async (productId: string, payload: UpdateProductPayload) => {
+    const updateProduct = useCallback(async (productId: string, payload: UpdateProductInput | UpdateVariantInput | UpdateProductPayload) => {
         try {
             const product = await productService.updateProduct(productId, payload);
             Notify.success('Product updated successfully');

@@ -29,7 +29,7 @@ const BranchSwitchModal: FunctionComponent<BranchSwitchModalProps> = ({
     onClose,
     onBranchSwitch,
 }) => {
-    const { currentBranch, accessibleBranches, switchBranch, isLoading: isSwitching, refreshBranches } = useBranch();
+    const { currentBranch, accessibleBranches, switchBranch, isSwitching, refreshBranches, isLoading } = useBranch();
 
     const handleSelectBranch = async (branchId: string) => {
         const success = await switchBranch(branchId);

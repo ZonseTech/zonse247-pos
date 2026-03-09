@@ -2,7 +2,7 @@ import { useAuth } from './AuthProvider';
 import settingsService from '../services/settings.service';
 import { apiUtils } from '../services/http.service';
 import type { ReactNode, FunctionComponent, } from 'react';
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 interface AppContextType {
     settings: AppSettings | null;
@@ -10,6 +10,7 @@ interface AppContextType {
     isLoading: boolean;
     error: Error | null;
     updateSettings: (newSettings: Partial<AppSettings>) => void;
+    reloadSettings: () => Promise<void>;
 }
 
 interface AppProviderProps {
@@ -25,7 +26,7 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
     const [settings, setSettings] = useState<AppSettings | null>(null);
     const [printerOptions, setPrinterOptions] = useState<PrinterInfo | null>(null);
 
-    const fetchSettings = async () => {
+    const fetchSettings = useCallback(async () => {
         try {
             setIsLoading(true);
 
@@ -59,7 +60,11 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
+
+    const reloadSettings = useCallback(async () => {
+        await fetchSettings();
+    }, [fetchSettings]);
 
     const updateSettings = (newSettings: Partial<AppSettings>) => {
         setSettings(prev => {
@@ -76,13 +81,14 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
 
     useEffect(() => {
         if (auth) fetchSettings();
-    }, [auth]);
+    }, [auth, fetchSettings]);
 
     const value = {
         settings,
         isLoading,
         error,
         updateSettings,
+        reloadSettings,
         printerOptions,
     };
 
