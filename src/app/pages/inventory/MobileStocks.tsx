@@ -51,7 +51,6 @@ const MobileStocks: FunctionComponent = () => {
     };
 
     const handleDelete = (productId: string) => {
-        // TODO: Implement delete functionality
         console.log('Delete item:', productId);
     };
 
@@ -64,14 +63,12 @@ const MobileStocks: FunctionComponent = () => {
     };
 
     const handleDisplayIconClick = () => {
-        // TODO: Implement display mode toggle (grid/list view)
         console.log('Display icon clicked - to be implemented');
     };
 
     const handleCameraScan = (result: { barcode: string }) => {
         if (result.barcode) {
             setIsCameraScannerOpen(false);
-            // Find item by barcode from any variant and navigate to edit
             const item = data.find(product =>
                 product.variants?.some(v => v.primaryBarcode === result.barcode)
             );
@@ -82,12 +79,10 @@ const MobileStocks: FunctionComponent = () => {
     };
 
     const handleAddToCartFromLookup = (item: InventoryItem | ApiProduct, variant?: ProductVariant) => {
-        // Convert ApiProduct to InventoryItem format for cart
         if ('variants' in item) {
-            // Use provided variant or fall back to default variant
             const selectedVariant = variant || item.variants?.find(v => v.isDefault) || item.variants?.[0];
             const cartItem: InventoryItem = {
-                productId: selectedVariant?.id || item.id, // Use variant ID if available for proper tracking
+                productId: selectedVariant?.id || item.id,
                 branchId: item.branchId,
                 tenantId: item.tenantId,
                 userId: '',

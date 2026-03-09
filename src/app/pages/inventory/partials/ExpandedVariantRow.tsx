@@ -131,11 +131,11 @@ const ExpandedVariantRow: React.FC<ExpandedVariantRowProps> = ({ data }) => {
                                             <span className="font-semibold text-gray-900 dark:text-gray-100">
                                                 {formatCurrency(variant.sellingPrice)}
                                             </span>
-                                            {variant.promoPrice && variant.promoPrice > 0 && (
+                                            {variant.promoPrice && variant.promoPrice > 0 ? (
                                                 <span className="text-xs text-green-600 dark:text-green-400">
                                                     Promo: {formatCurrency(variant.promoPrice)}
                                                 </span>
-                                            )}
+                                            ) : null}
                                         </div>
                                     </td>
 

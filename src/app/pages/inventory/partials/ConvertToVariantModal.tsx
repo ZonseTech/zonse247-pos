@@ -20,6 +20,8 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
     const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
     const [isVariantDropdownOpen, setIsVariantDropdownOpen] = useState(false);
     const [step, setStep] = useState<'select-variant' | 'search' | 'confirm'>('select-variant');
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [errorField, setErrorField] = useState<string | null>(null);
 
     const { convertToVariant, isLoading } = useInventoryActions();
     const { data: products, handleSearch, loadInventory, isLoading: productsLoading } = useInventoryManagement();
@@ -80,6 +82,8 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
         setDeleteOrphanedProduct(true);
         setIsVariantDropdownOpen(false);
         setStep(hasMultipleVariants ? 'select-variant' : 'search');
+        setErrorMessage(null);
+        setErrorField(null);
         onClose();
     };
 
@@ -109,6 +113,9 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
     const handleSubmit = async () => {
         if (!item || !selectedProduct || !selectedVariant) return;
 
+        setErrorMessage(null);
+        setErrorField(null);
+
         try {
             await convertToVariant(selectedVariant.id, {
                 targetProductId: selectedProduct.id,
@@ -117,8 +124,14 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
             });
             onSuccess();
             resetAndClose();
-        } catch (error) {
-            console.error('Failed to convert to variant:', error);
+        } catch (error: any) {
+            const axiosError = error?.error || error;
+            const responseData = axiosError?.response?.data;
+            const apiMessage = responseData?.message || axiosError?.message || error?.message || 'An unexpected error occurred';
+            const apiErrorField = responseData?.error || axiosError?.errorField || null;
+
+            setErrorMessage(apiMessage);
+            setErrorField(apiErrorField);
         }
     };
 
@@ -238,10 +251,8 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
                         </>
                     )}
 
-                    {/* Step 2: Search for target product */}
                     {step === 'search' && (
                         <>
-                            {/* Selected Variant Info (for multi-variant products) */}
                             {hasMultipleVariants && selectedVariant && (
                                 <div className="flex items-center gap-2 p-2.5 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800">
                                     <Layers className="w-4 h-4 text-sky-500 flex-shrink-0" />
@@ -256,11 +267,9 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
                                 </div>
                             )}
 
-                            {/* Search */}
                             <div>
                                 <Label>Search Target Product</Label>
                                 <div className="relative mt-1.5">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                     <Input
                                         type="text"
                                         value={searchTerm}
@@ -271,7 +280,6 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
                                 </div>
                             </div>
 
-                            {/* Product List */}
                             <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                                 <div className="max-h-64 overflow-y-auto">
                                     {productsLoading ? (
@@ -353,16 +361,36 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
                                 <Input
                                     type="text"
                                     value={variantName}
-                                    onChange={(e) => setVariantName(e.target.value)}
+                                    onChange={(e) => {
+                                        setVariantName(e.target.value);
+                                        if (errorField === 'variantName') {
+                                            setErrorMessage(null);
+                                            setErrorField(null);
+                                        }
+                                    }}
                                     placeholder="e.g., Large, Red, 500ml..."
-                                    className="mt-1.5 w-full"
+                                    className={`mt-1.5 w-full ${errorField === 'variantName' ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                                 />
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    This name will distinguish this variant from others under the same product.
-                                </p>
+                                {errorField === 'variantName' && errorMessage ? (
+                                    <p className="text-xs text-red-500 dark:text-red-400 mt-1 flex items-center gap-1">
+                                        <AlertTriangle className="w-3 h-3" />
+                                        {errorMessage}
+                                    </p>
+                                ) : (
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        This name will distinguish this variant from others under the same product.
+                                    </p>
+                                )}
                             </div>
 
-                            {/* Delete Orphaned Product Option */}
+                            {errorMessage && errorField !== 'variantName' && (
+                                <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                                    <p className="text-sm text-red-600 dark:text-red-400">
+                                        {errorMessage}
+                                    </p>
+                                </div>
+                            )}
+
                             <div className="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
                                 <input
                                     type="checkbox"

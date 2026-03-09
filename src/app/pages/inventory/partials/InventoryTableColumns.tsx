@@ -97,7 +97,6 @@ export const getInventoryTableColumns = ({
     onViewStockMovements,
     compact = false,
 }: InventoryTableColumnsProps): TableColumn<ApiProduct>[] => {
-    // Compact columns for EBN terminals - optimized with better visibility
     if (compact) {
         return [
             {
@@ -286,7 +285,6 @@ export const getInventoryTableColumns = ({
         ];
     }
 
-    // Full columns for desktop
     return [
         {
             name: 'Product',
@@ -300,7 +298,7 @@ export const getInventoryTableColumns = ({
                 return (
                     <div className="flex flex-col py-1.5">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-medium text-gray-900 dark:text-gray-100">
+                            <span className="font-medium uppercase text-gray-900 dark:text-gray-100">
                                 {row.name}
                             </span>
                             {hasMultipleVariants && (
@@ -379,11 +377,11 @@ export const getInventoryTableColumns = ({
                         <span className="font-semibold text-gray-900 dark:text-gray-100">
                             {formatCurrency(variant?.sellingPrice || 0)}
                         </span>
-                        {hasPromo && (
+                        {hasPromo ? (
                             <span className="text-[10px] text-green-600 dark:text-green-400">
                                 Promo: {formatCurrency(variant!.promoPrice!)}
                             </span>
-                        )}
+                        ) : null}
                     </div>
                 );
             },
@@ -433,7 +431,7 @@ export const getInventoryTableColumns = ({
                                 {qty.toLocaleString()} {unit}
                             </span>
                             {qty <= reorderPoint && qty > 0 && (
-                                <AlertTriangle className="w-3.5 h-3.5 text-yellow-500" title={`Reorder at ${reorderPoint}`} />
+                                <AlertTriangle className="w-3.5 h-3.5 text-yellow-500" />
                             )}
                         </div>
                         {reserved > 0 && (
@@ -543,7 +541,7 @@ export const getInventoryTableColumns = ({
                                 <Eye className="w-4 h-4" />
                             </button>
                         )}
-                        {onViewStockMovements && (row.variantCount ?? 1) <= 1 && (
+                        {onViewStockMovements && (row.variantCount ?? 1) <= 1 ? (
                             <button
                                 onClick={(e) => { e.stopPropagation(); onViewStockMovements(row); }}
                                 className="group p-1.5 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20"
@@ -551,8 +549,8 @@ export const getInventoryTableColumns = ({
                             >
                                 <History className="w-4 h-4" />
                             </button>
-                        )}
-                        {onAdjustQuantity && (
+                        ) : null}
+                        {onAdjustQuantity ? (
                             <button
                                 onClick={(e) => { e.stopPropagation(); onAdjustQuantity(row); }}
                                 className="group p-1.5 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20"
@@ -560,8 +558,8 @@ export const getInventoryTableColumns = ({
                             >
                                 <PackagePlus className="w-4 h-4" />
                             </button>
-                        )}
-                        {onConvertToVariant && (
+                        ) : null}
+                        {onConvertToVariant ? (
                             <button
                                 onClick={(e) => { e.stopPropagation(); onConvertToVariant(row); }}
                                 className="group p-1.5 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
@@ -569,7 +567,7 @@ export const getInventoryTableColumns = ({
                             >
                                 <Layers className="w-4 h-4" />
                             </button>
-                        )}
+                        ) : null}
                         <button
                             onClick={(e) => { e.stopPropagation(); onEdit(row); }}
                             className="group p-1.5 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"

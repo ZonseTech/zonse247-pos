@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
     X,
@@ -13,6 +13,7 @@ import {
     FileText,
     ChevronLeft,
     ChevronRight,
+    ChevronDown,
     Filter,
     Download,
 } from 'lucide-react';
@@ -85,7 +86,20 @@ const StockMovementModal: React.FC<StockMovementModalProps> = ({
     } = useStockMovements(undefined, variantId);
 
     const [showFilters, setShowFilters] = useState(false);
+    const [showTypeDropdown, setShowTypeDropdown] = useState(false);
+    const typeDropdownRef = useRef<HTMLDivElement>(null);
     const isMobile = useIsMobile();
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (typeDropdownRef.current && !typeDropdownRef.current.contains(event.target as Node)) {
+                setShowTypeDropdown(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     useEffect(() => {
         if (isOpen && variantId) {
@@ -138,8 +152,8 @@ const StockMovementModal: React.FC<StockMovementModalProps> = ({
 
             {/* Modal */}
             <div className={`relative w-full bg-white dark:bg-gray-900 shadow-2xl flex flex-col ${isMobile
-                    ? 'h-full'
-                    : 'max-w-5xl max-h-[90vh] rounded-xl mx-4'
+                ? 'h-full'
+                : 'max-w-5xl max-h-[90vh] rounded-xl mx-4'
                 }`}>
                 {/* Header */}
                 <div className={`flex items-center justify-between border-b border-gray-200 dark:border-gray-700 ${isMobile ? 'px-4 py-3' : 'px-6 py-4'
@@ -233,20 +247,53 @@ const StockMovementModal: React.FC<StockMovementModalProps> = ({
                     <div className={`bg-gray-50 dark:bg-gray-800/30 border-b border-gray-200 dark:border-gray-700 ${isMobile ? 'px-3 py-3' : 'px-6 py-4'
                         }`}>
                         <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3 gap-4'}`}>
-                            <div>
+                            <div className="relative" ref={typeDropdownRef}>
                                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                                     Movement Type
                                 </label>
-                                <select
-                                    value={movementTypeFilter}
-                                    onChange={(e) => setMovementTypeFilter(e.target.value as StockMovementType | '')}
-                                    className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                                <button
+                                    type="button"
+                                    onClick={() => setShowTypeDropdown(!showTypeDropdown)}
+                                    className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent flex items-center justify-between"
                                 >
-                                    <option value="">All Types</option>
-                                    {Object.entries(typeLabels).map(([value, label]) => (
-                                        <option key={value} value={value}>{label}</option>
-                                    ))}
-                                </select>
+                                    {movementTypeFilter ? (
+                                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${typeColors[movementTypeFilter]}`}>
+                                            {typeLabels[movementTypeFilter]}
+                                        </span>
+                                    ) : (
+                                        <span className="text-gray-500 dark:text-gray-400">All Types</span>
+                                    )}
+                                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showTypeDropdown ? 'rotate-180' : ''}`} />
+                                </button>
+                                {showTypeDropdown && (
+                                    <div className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setMovementTypeFilter('');
+                                                setShowTypeDropdown(false);
+                                            }}
+                                            className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${!movementTypeFilter ? 'bg-gray-50 dark:bg-gray-700/50' : ''}`}
+                                        >
+                                            <span className="text-gray-700 dark:text-gray-300">All Types</span>
+                                        </button>
+                                        {Object.entries(typeLabels).map(([value, label]) => (
+                                            <button
+                                                key={value}
+                                                type="button"
+                                                onClick={() => {
+                                                    setMovementTypeFilter(value as StockMovementType);
+                                                    setShowTypeDropdown(false);
+                                                }}
+                                                className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${movementTypeFilter === value ? 'bg-gray-50 dark:bg-gray-700/50' : ''}`}
+                                            >
+                                                <span className={`px-2 py-0.5 rounded text-xs font-medium ${typeColors[value as StockMovementType]}`}>
+                                                    {label}
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
