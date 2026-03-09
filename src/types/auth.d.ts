@@ -47,3 +47,12 @@ interface SwitchBranchResponse {
 interface AccessibleBranchesResponse {
 	data: Branch[];
 }
+
+interface RefreshTokenRequest {
+	token: string;
+}
+
+interface RefreshTokenResponse {
+	token: string;
+	message?: string;
+}

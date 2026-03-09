@@ -655,7 +655,14 @@ const inventoryService = {
 	async convertToVariant(variantId: string, payload: ConvertToVariantPayload): Promise<ConvertToVariantResult> {
 		return api
 			.put<ApiResponse<ConvertToVariantResult>>(`${endpoints.convertToVariant}/${variantId}/convert-to-variant`, payload as any)
-			.then((res) => res.data.data)
+			.then((res) => {
+				if (!res.data.success) {
+					const error: any = new Error(res.data.message || 'Failed to convert variant');
+					error.errorField = (res.data as any).error || null;
+					throw error;
+				}
+				return res.data.data;
+			})
 			.catch((err) => {
 				throw err;
 			});

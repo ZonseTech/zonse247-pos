@@ -41,11 +41,13 @@ const stockMovementService = {
         tenantId: string,
         branchId: string,
         limit: number = 50,
+        page: number = 1,
         startDate?: string,
-        endDate?: string
+        endDate?: string,
+        movementType?: StockMovementType
     ): Promise<StockMovement[]> {
         return api
-            .get<StockMovementListResponse>(`${endpoints.byProduct}/${productId}`, { tenantId, branchId, limit, startDate, endDate })
+            .get<StockMovementListResponse>(`${endpoints.byProduct}/${productId}`, { tenantId, branchId, limit, page, startDate, endDate, movementType })
             .then((res) => res.data.data.movements)
             .catch((err) => {
                 throw err;
@@ -61,11 +63,13 @@ const stockMovementService = {
         tenantId: string,
         branchId: string,
         limit: number = 50,
+        page: number = 1,
         startDate?: string,
-        endDate?: string
+        endDate?: string,
+        movementType?: StockMovementType
     ): Promise<StockMovement[]> {
         return api
-            .get<StockMovementListResponse>(`${endpoints.byVariant}/${variantId}`, { tenantId, branchId, limit, startDate, endDate })
+            .get<StockMovementListResponse>(`${endpoints.byVariant}/${variantId}`, { tenantId, branchId, limit, page, startDate, endDate, movementType })
             .then((res) => res.data.data.movements)
             .catch((err) => {
                 throw err;

@@ -376,6 +376,75 @@ class AuthService {
             console.warn('[AuthService] Logout error:', error);
         }
     }
+
+    /**
+     * Refresh JWT token using the current token
+     * Calls LIVE API: POST /auth/refresh-token
+     * The API validates the token (ignoring expiration) and issues a new one if user is active
+     * @param currentToken - The current JWT token (can be expired)
+     * @returns New JWT token string
+     * @throws Error when token refresh fails or user is not found/inactive
+     */
+    async refreshToken(currentToken: string): Promise<string> {
+        if (!LIVE_API_URL) {
+            throw new Error('Live server URL not configured');
+        }
+
+        try {
+            const tenantSignature = await this.getTenantSignature();
+
+            const response = await this.liveApi.post<ApiResponse<RefreshTokenResponse>>(
+                'auth/refresh-token',
+                { token: currentToken },
+                {
+                    headers: {
+                        ...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
+                    }
+                }
+            );
+
+            const result = response.data;
+            if (result?.data?.token) {
+                return result.data.token;
+            }
+
+            throw new Error(result?.message || 'Token refresh failed');
+        } catch (error: any) {
+            console.error('[AuthService] Token refresh error:', error?.response?.data || error?.message);
+            throw new Error(error?.response?.data?.message || error?.message || 'Token refresh failed');
+        }
+    }
+
+    /**
+     * Verify if a JWT token is valid
+     * Calls LIVE API: POST /auth/verify-token
+     * @param token - The JWT token to verify
+     * @returns User data if token is valid
+     */
+    async verifyToken(token: string): Promise<any> {
+        if (!LIVE_API_URL) {
+            throw new Error('Live server URL not configured');
+        }
+
+        try {
+            const tenantSignature = await this.getTenantSignature();
+
+            const response = await this.liveApi.post<ApiResponse<{ user: any }>>(
+                'auth/verify-token',
+                {},
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        ...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
+                    }
+                }
+            );
+
+            return response.data?.data?.user;
+        } catch (error: any) {
+            throw new Error(error?.response?.data?.message || 'Token verification failed');
+        }
+    }
 }
 
 const authService = new AuthService();

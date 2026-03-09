@@ -303,7 +303,6 @@ export const useInventoryActions = () => {
             }
             return result;
         } catch (error: any) {
-            Notify.failure('Failed to convert to variant: ' + error.message);
             throw error;
         } finally {
             setIsLoading(false);

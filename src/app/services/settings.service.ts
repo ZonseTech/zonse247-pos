@@ -56,9 +56,9 @@ const getTerminalId = async (): Promise<string | null> => {
 				branchId,
 			}).then(res => res.data?.data);
 
-			if (terminal?.primaryTerminalId) {
-				localStorage.setItem(storageKey, terminal.primaryTerminalId);
-				return terminal.primaryTerminalId;
+			if (terminal?.terminalId) {
+				localStorage.setItem(storageKey, terminal.terminalId);
+				return terminal.terminalId;
 			}
 		}
 
