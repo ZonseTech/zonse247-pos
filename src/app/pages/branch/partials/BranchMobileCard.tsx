@@ -1,11 +1,13 @@
 import { FC } from 'react';
-import { Edit2, Trash2, Phone, Mail, MapPin, Store, Building2 } from 'lucide-react';
+import { Edit2, Trash2, Phone, Mail, MapPin, Store, Briefcase, Eye, Clock } from 'lucide-react';
+import { BranchPermissions } from '../../../hooks/useBranchPermissions';
 
 interface BranchMobileCardProps {
     branch: Branch;
     onEdit: (branch: Branch) => void;
     onStatusToggle: (branchId: string, status: string) => void;
     onDelete: (branchId: string, branchName: string) => void;
+    permissions: BranchPermissions;
 }
 
 const getStatusColor = (status: string) => {
@@ -23,13 +25,33 @@ const getStatusColor = (status: string) => {
     }
 };
 
+const getMraStatusColor = (status: string) => {
+    switch (status?.toUpperCase()) {
+        case 'APPROVED':
+            return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+        case 'REJECTED':
+            return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+        case 'PENDING':
+        default:
+            return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+    }
+};
+
+const formatBusinessType = (type: string | null) => {
+    if (!type) return 'N/A';
+    return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+};
+
 const BranchMobileCard: FC<BranchMobileCardProps> = ({
     branch,
     onEdit,
     onStatusToggle,
     onDelete,
+    permissions,
 }) => {
-    const isDefaultBranch = branch.branchId === '-1';
+    const canEdit = permissions.canEditBranch(branch.branchId);
+    const canDelete = permissions.canDeleteBranch(branch.branchId);
+    const canToggleStatus = permissions.canToggleStatus(branch.branchId);
     const statusColorClass = getStatusColor(branch.status);
 
     return (
@@ -64,70 +86,83 @@ const BranchMobileCard: FC<BranchMobileCardProps> = ({
                         </span>
                     </div>
 
-                    {/* Contact Info */}
-                    <div className="space-y-1 mt-2">
-                        {branch.addressLine1 && (
-                            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                                <span className="truncate">
-                                    {branch.addressLine1}
-                                    {branch.city && `, ${branch.city}`}
-                                </span>
-                            </div>
-                        )}
+                    {/* Branch Details */}
+                    <div className="space-y-1.5 mt-2">
+                        {/* Location & Business Type */}
+                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
+                            <span className="truncate">
+                                {branch.location || 'Location not set'}
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <Briefcase className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
+                            <span className="truncate">{formatBusinessType(branch.businessType)}</span>
+                        </div>
+                        
+                        {/* Contact Info */}
                         {branch.phoneNumber && (
                             <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                <Phone className="w-3.5 h-3.5 flex-shrink-0" />
+                                <Phone className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
                                 <span>{branch.phoneNumber}</span>
                             </div>
                         )}
                         {branch.email && (
                             <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                <Mail className="w-3.5 h-3.5 flex-shrink-0" />
+                                <Mail className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
                                 <span className="truncate">{branch.email}</span>
                             </div>
                         )}
-                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                            <Building2 className="w-3.5 h-3.5 flex-shrink-0" />
-                            <span>{branch.currencySymbol} ({branch.currencyCode}) • Tax: {branch.taxRate}%</span>
+                        
+                        {/* MRA Status */}
+                        <div className="flex items-center gap-2 text-sm">
+                            <Clock className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
+                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${getMraStatusColor(branch.mraApprovalStatus)}`}>
+                                MRA: {branch.mraApprovalStatus || 'Pending'}
+                            </span>
                         </div>
                     </div>
 
                     {/* Actions */}
                     <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                        <button
-                            onClick={() => onEdit(branch)}
-                            disabled={isDefaultBranch}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${isDefaultBranch
-                                ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                                : 'text-sky-500 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20'
-                                }`}
-                        >
-                            <Edit2 className="w-4 h-4" />
-                            <span>Edit</span>
-                        </button>
-                        <button
-                            onClick={() => onStatusToggle(branch.branchId, branch.status)}
-                            disabled={isDefaultBranch}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${isDefaultBranch
-                                ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                                : branch.status === 'active'
+                        {canEdit ? (
+                            <button
+                                onClick={() => onEdit(branch)}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors text-sky-500 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20"
+                            >
+                                <Edit2 className="w-4 h-4" />
+                                <span>Edit</span>
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => onEdit(branch)}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900/20"
+                            >
+                                <Eye className="w-4 h-4" />
+                                <span>View</span>
+                            </button>
+                        )}
+
+                        {canToggleStatus && (
+                            <button
+                                onClick={() => onStatusToggle(branch.branchId, branch.status)}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${branch.status === 'active'
                                     ? 'text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20'
                                     : 'text-green-500 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
-                                }`}
-                        >
-                            <span>{branch.status === 'active' ? 'Deactivate' : 'Activate'}</span>
-                        </button>
-                        <button
-                            onClick={() => onDelete(branch.branchId, branch.branchName)}
-                            disabled={isDefaultBranch}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ml-auto ${isDefaultBranch
-                                ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                                : 'text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
-                                }`}
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </button>
+                                    }`}
+                            >
+                                <span>{branch.status === 'active' ? 'Deactivate' : 'Activate'}</span>
+                            </button>
+                        )}
+
+                        {canDelete && (
+                            <button
+                                onClick={() => onDelete(branch.branchId, branch.branchName)}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ml-auto text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -141,6 +176,7 @@ interface BranchMobileListProps {
     onStatusToggle: (branchId: string, status: string) => void;
     onDelete: (branchId: string, branchName: string) => void;
     isLoading?: boolean;
+    permissions: BranchPermissions;
 }
 
 export const BranchMobileList: FC<BranchMobileListProps> = ({
@@ -149,6 +185,7 @@ export const BranchMobileList: FC<BranchMobileListProps> = ({
     onStatusToggle,
     onDelete,
     isLoading = false,
+    permissions,
 }) => {
     if (isLoading) {
         return (
@@ -179,6 +216,7 @@ export const BranchMobileList: FC<BranchMobileListProps> = ({
                     onEdit={onEdit}
                     onStatusToggle={onStatusToggle}
                     onDelete={onDelete}
+                    permissions={permissions}
                 />
             ))}
         </div>

@@ -2,6 +2,7 @@ import { FunctionComponent } from 'react';
 import { Store } from 'lucide-react';
 import { HiOutlineChevronLeft, HiOutlineChevronRight } from 'react-icons/hi2';
 import { BranchMobileList } from './partials/BranchMobileCard';
+import { BranchPermissions } from '../../hooks/useBranchPermissions';
 
 interface MobileBranchProps {
     isLoading: boolean;
@@ -14,6 +15,7 @@ interface MobileBranchProps {
     onStatusToggle: (branchId: string, currentStatus: string) => void;
     onDelete: (branchId: string, branchName: string) => void;
     onPageChange: (newPage: number) => void;
+    permissions: BranchPermissions;
 }
 
 const MobileBranch: FunctionComponent<MobileBranchProps> = ({
@@ -27,6 +29,7 @@ const MobileBranch: FunctionComponent<MobileBranchProps> = ({
     onStatusToggle,
     onDelete,
     onPageChange,
+    permissions,
 }) => {
     return (
         <div className="overflow-hidden">
@@ -37,6 +40,7 @@ const MobileBranch: FunctionComponent<MobileBranchProps> = ({
                     onStatusToggle={onStatusToggle}
                     onDelete={onDelete}
                     isLoading={true}
+                    permissions={permissions}
                 />
             ) : branches.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 px-4">
@@ -49,7 +53,9 @@ const MobileBranch: FunctionComponent<MobileBranchProps> = ({
                     <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm text-sm">
                         {searchTerm
                             ? "Try adjusting your search to find branches."
-                            : "Add your first branch to get started."
+                            : permissions.canCreateBranch
+                                ? "Add your first branch to get started."
+                                : "No branches are available."
                         }
                     </p>
                 </div>
@@ -61,6 +67,7 @@ const MobileBranch: FunctionComponent<MobileBranchProps> = ({
                         onStatusToggle={onStatusToggle}
                         onDelete={onDelete}
                         isLoading={false}
+                        permissions={permissions}
                     />
 
                     {/* Mobile Pagination */}

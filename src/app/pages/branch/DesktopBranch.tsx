@@ -4,6 +4,7 @@ import DataTable from 'react-data-table-component';
 import { ZonseThemeContext, ComponentLoader } from '../../components';
 import { getTableStyles } from '../../utils/table-styles';
 import { getBranchColumns } from './partials/BranchTableColumns';
+import { BranchPermissions } from '../../hooks/useBranchPermissions';
 
 interface DesktopBranchProps {
     isLoading: boolean;
@@ -17,6 +18,7 @@ interface DesktopBranchProps {
     onDelete: (branchId: string, branchName: string) => void;
     onPageChange: (newPage: number) => void;
     onPerPageChange: (newPerPage: number, newPage: number) => void;
+    permissions: BranchPermissions;
 }
 
 const DesktopBranch: FunctionComponent<DesktopBranchProps> = ({
@@ -31,9 +33,10 @@ const DesktopBranch: FunctionComponent<DesktopBranchProps> = ({
     onDelete,
     onPageChange,
     onPerPageChange,
+    permissions,
 }) => {
     const { mode } = useContext(ZonseThemeContext);
-    const columns = getBranchColumns(onEdit, onStatusToggle, onDelete);
+    const columns = getBranchColumns(onEdit, onStatusToggle, onDelete, permissions);
 
     return (
         <div className="overflow-hidden">

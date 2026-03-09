@@ -4,7 +4,7 @@ import { Button, FormFieldCard } from '../../components';
 import FormInput from '../../components/FormInput';
 import FormWrapper from '../../components/FormWrapper';
 import FormSearchableSelect from '../../components/FormSearchableSelect';
-import { Fragment, useState, useEffect } from 'react';
+import { Fragment, useState, useEffect, useMemo } from 'react';
 import type { ChangeEvent, FunctionComponent } from 'react';
 import branchService from '../../services/branch.service';
 import districtService from '../../services/district.service';
@@ -15,6 +15,7 @@ import { useNavigate, useLocation } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useAuth } from '../../context/AuthProvider';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import { useBranchPermissions } from '../../hooks/useBranchPermissions';
 import { businessTypes } from '../../utils/tenant-status';
 import { capitalizeEachWord } from '../../utils';
 import * as Yup from 'yup';
@@ -24,6 +25,7 @@ const BranchForm: FunctionComponent = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const isMobile = useIsMobile();
+    const permissions = useBranchPermissions();
     const [loading, setLoading] = useState(false);
     const [branch, setBranch] = useState<Branch | null>(null);
     const [districtOptions, setDistrictOptions] = useState<Array<{ label: string; value: string }>>([]);
@@ -31,6 +33,19 @@ const BranchForm: FunctionComponent = () => {
 
     const { branchId } = location.state || {};
     const { user: authUser } = useAuth();
+
+    // Determine if user can edit this branch
+    const canEdit = useMemo(() => {
+        if (!branchId) return permissions.canCreateBranch; // New branch
+        return permissions.canEditBranch(branchId);
+    }, [branchId, permissions]);
+
+    const canDelete = useMemo(() => {
+        if (!branchId) return false;
+        return permissions.canDeleteBranch(branchId);
+    }, [branchId, permissions]);
+
+    const isViewOnly = branchId && !canEdit;
 
     const currencyOptions = [
         { label: 'USD - $', value: 'USD' },
@@ -183,23 +198,25 @@ const BranchForm: FunctionComponent = () => {
                         <Form className="flex flex-col h-full">
                             {isMobile ? (
                                 <MobilePageHeader
-                                    title={branch ? 'EDIT' : 'NEW BRANCH'}
+                                    title={isViewOnly ? 'VIEW BRANCH' : (branch ? 'EDIT BRANCH' : 'NEW BRANCH')}
                                     className="bg-white dark:bg-gray-800"
                                     rightContent={
-                                        <Button
-                                            type="submit"
-                                            loading={isSubmitting}
-                                            theme='success'
-                                        >
-                                            {branch ? 'UPDATE' : 'SAVE'}
-                                        </Button>
+                                        !isViewOnly && (
+                                            <Button
+                                                type="submit"
+                                                loading={isSubmitting}
+                                                theme='success'
+                                            >
+                                                {branch ? 'UPDATE' : 'SAVE'}
+                                            </Button>
+                                        )
                                     }
                                 />
                             ) : (
                                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 w-full">
                                     <PageHeader
-                                        title={branch ? 'EDIT' : 'NEW BRANCH'}
-                                        description='Required fields are marked with an asterisk (*)'
+                                        title={isViewOnly ? 'VIEW BRANCH' : (branch ? 'EDIT BRANCH' : 'NEW BRANCH')}
+                                        description={isViewOnly ? 'You have view-only access to this branch' : 'Required fields are marked with an asterisk (*)'}
                                     />
                                 </div>
                             )}
@@ -212,7 +229,8 @@ const BranchForm: FunctionComponent = () => {
                                                 type="text"
                                                 name="branchName"
                                                 label="Business Name"
-                                                required
+                                                required={!isViewOnly}
+                                                disabled={isViewOnly}
                                                 placeholder="Enter business name"
                                                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                                                     handleNameChange(e.target.value, setFieldValue);
@@ -225,7 +243,8 @@ const BranchForm: FunctionComponent = () => {
                                                 <FormSearchableSelect
                                                     label="District"
                                                     name="districtId"
-                                                    required
+                                                    required={!isViewOnly}
+                                                    disabled={isViewOnly}
                                                     options={districtOptions}
                                                     placeholder="Search and select district..."
                                                     isLoading={loadingDistricts}
@@ -235,6 +254,7 @@ const BranchForm: FunctionComponent = () => {
                                                     type="text"
                                                     name="location"
                                                     label="Location"
+                                                    disabled={isViewOnly}
                                                     placeholder="Enter location"
                                                 />
                                             </div>
@@ -245,7 +265,8 @@ const BranchForm: FunctionComponent = () => {
                                                 <FormSearchableSelect
                                                     label="Business Type"
                                                     name="businessType"
-                                                    required
+                                                    required={!isViewOnly}
+                                                    disabled={isViewOnly}
                                                     options={businessTypes}
                                                     placeholder="Select business type..."
                                                 />
@@ -253,7 +274,8 @@ const BranchForm: FunctionComponent = () => {
                                                 <FormSearchableSelect
                                                     label="Currency"
                                                     name="currencyCode"
-                                                    required
+                                                    required={!isViewOnly}
+                                                    disabled={isViewOnly}
                                                     options={currencyOptions}
                                                     placeholder="Select currency..."
                                                 />
@@ -266,7 +288,8 @@ const BranchForm: FunctionComponent = () => {
                                                     type="tel"
                                                     name="phoneNumber"
                                                     label="Phone Number"
-                                                    required
+                                                    required={!isViewOnly}
+                                                    disabled={isViewOnly}
                                                     placeholder="Enter phone number"
                                                 />
 
@@ -274,13 +297,15 @@ const BranchForm: FunctionComponent = () => {
                                                     type="email"
                                                     name="email"
                                                     label="Email"
+                                                    disabled={isViewOnly}
                                                     placeholder="Enter email address"
                                                 />
                                             </div>
                                         </FormFieldCard>
                                     </div>
 
-                                    {branch && (
+                                    {/* Mobile Delete Button - Only show if user can delete */}
+                                    {branch && canDelete && (
                                         <div className="pb-4 lg:hidden">
                                             <Button
                                                 type="button"
@@ -293,8 +318,9 @@ const BranchForm: FunctionComponent = () => {
                                         </div>
                                     )}
 
+                                    {/* Desktop Actions Footer */}
                                     <div className="hidden lg:flex pt-4 border-t border-gray-200 dark:border-gray-700 items-center justify-between">
-                                        {branch ? (
+                                        {branch && canDelete ? (
                                             <Button
                                                 type="button"
                                                 theme="danger"
@@ -305,14 +331,16 @@ const BranchForm: FunctionComponent = () => {
                                         ) : (
                                             <div></div>
                                         )}
-                                        <Button
-                                            type="submit"
-                                            loading={isSubmitting}
-                                            className="px-8"
-                                            theme='success'
-                                        >
-                                            {branch ? 'Update Branch' : 'Create Branch'}
-                                        </Button>
+                                        {!isViewOnly && (
+                                            <Button
+                                                type="submit"
+                                                loading={isSubmitting}
+                                                className="px-8"
+                                                theme='success'
+                                            >
+                                                {branch ? 'Update Branch' : 'Create Branch'}
+                                            </Button>
+                                        )}
                                     </div>
                                 </FormWrapper>
                             </div>

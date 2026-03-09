@@ -3,6 +3,7 @@ import AppLayout from '../../layouts/AppLayout';
 import { HiOutlinePlus, HiOutlineBuildingStorefront } from 'react-icons/hi2';
 import { SearchBar } from '../../components/SearchBar';
 import { useBranches } from '../../hooks/useBranches';
+import { useBranchPermissions } from '../../hooks/useBranchPermissions';
 import { FunctionComponent, useMemo } from 'react';
 import PageHeader from '../../components/page/PageHeader';
 import { Button } from '../../components';
@@ -16,6 +17,7 @@ import DesktopBranch from './DesktopBranch';
 const BranchManagement: FunctionComponent = () => {
     const isMobile = useIsMobile();
     const navigate = useNavigate();
+    const permissions = useBranchPermissions();
 
     const {
         isLoading,
@@ -136,17 +138,19 @@ const BranchManagement: FunctionComponent = () => {
                                 />
                             )}
 
-                            <Button
-                                onClick={() => navigate(ROUTES.BRANCH_FORM)}
-                                icon={HiOutlinePlus}
-                                layout={isMobile ? 'outline' : 'primary'}
-                                className="!px-3 sm:!px-4 !py-2 sm:!py-2.5"
-                                theme='primary'
-                            >
-                                {!isMobile && <span className='hidden md:block'>
-                                    Add Branch
-                                </span>}
-                            </Button>
+                            {permissions.canCreateBranch && (
+                                <Button
+                                    onClick={() => navigate(ROUTES.BRANCH_FORM)}
+                                    icon={HiOutlinePlus}
+                                    layout={isMobile ? 'outline' : 'primary'}
+                                    className="!px-3 sm:!px-4 !py-2 sm:!py-2.5"
+                                    theme='primary'
+                                >
+                                    {!isMobile && <span className='hidden md:block'>
+                                        Add Branch
+                                    </span>}
+                                </Button>
+                            )}
                         </div>
                     }
                 >
@@ -182,6 +186,7 @@ const BranchManagement: FunctionComponent = () => {
                             onStatusToggle={handleStatusToggle}
                             onDelete={handleDelete}
                             onPageChange={setPage}
+                            permissions={permissions}
                         />
                     ) : (
                         <DesktopBranch
@@ -199,6 +204,7 @@ const BranchManagement: FunctionComponent = () => {
                                 setPage(newPage);
                                 setPerPage(newPerPage);
                             }}
+                            permissions={permissions}
                         />
                     )}
                 </div>
