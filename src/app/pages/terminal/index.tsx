@@ -15,11 +15,19 @@ import TerminalSummaryCards, { TerminalSummaryCard } from './partials/TerminalSu
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import { useAuth } from '../../context/AuthProvider';
+import { isAdminRole } from '../../constants/roles';
 
 const TerminalManagement: FunctionComponent = () => {
     const isMobile = useIsMobile();
     const navigate = useNavigate();
     const { mode } = useContext(ZonseThemeContext);
+    const { user: authUser } = useAuth();
+
+    // Check if user can view stats (admin roles only)
+    const canViewStats = useMemo(() => {
+        return isAdminRole(authUser?.roleId, authUser?.roleName);
+    }, [authUser?.roleId, authUser?.roleName]);
 
     const {
         isLoading,
@@ -215,11 +223,13 @@ const TerminalManagement: FunctionComponent = () => {
                 {/* Main Content Container */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
 
-                    {/* Summary Cards */}
-                    <TerminalSummaryCards
-                        cards={summaryCards}
-                        isLoading={isLoading}
-                    />
+                    {/* Summary Cards - Admin only */}
+                    {canViewStats && (
+                        <TerminalSummaryCards
+                            cards={summaryCards}
+                            isLoading={isLoading}
+                        />
+                    )}
 
                     {/* Mobile View - Card List */}
                     {isMobile ? (

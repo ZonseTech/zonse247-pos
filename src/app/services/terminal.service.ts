@@ -1,12 +1,12 @@
 import api from './http.service';
 import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
 
-const TERMINAL_DECODE_FIELDS = ['terminalLabel', 'terminalType', 'branchName', 'tenantName', 'location', 'notes'] as const;
+const TERMINAL_DECODE_FIELDS = ['terminalLabel', 'terminalType', 'branchName', 'tenantName', 'location', 'notes', 'terminalCode'] as const;
 
 const endpoints: Record<string, string> = {
     all: 'terminals',
-    store: 'terminals/post',
-    update: 'terminals/update',
+    store: 'terminals',
+    update: 'terminals',
     show: 'terminals',
     delete: 'terminals',
     sync: 'terminals/sync',
