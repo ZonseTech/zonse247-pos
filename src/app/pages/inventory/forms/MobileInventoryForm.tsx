@@ -6,13 +6,14 @@ import { useState, FunctionComponent, useMemo } from 'react';
 import MobilePageHeader from '../../../components/page/MobilePageHeader';
 import {
     X,
-    PlusIcon
+    PlusIcon,
 } from 'lucide-react';
 import * as Yup from 'yup';
 import { Button, FormFieldCard, PricingFields, ToggleButtonGroup, type ToggleOption } from '../../../components';
 import VariantModal from '../partials/VariantModal';
 import VariantCard from '../partials/VariantCard';
-import { InventoryFormValues, createDefaultFormValues, createDefaultVariant } from '../types/variant.types';
+import StockMovementModal from '../partials/StockMovementModal';
+import { InventoryFormValues, createDefaultFormValues, createDefaultVariant, Variant } from '../types/variant.types';
 import MobilePlanSkeleton from '../../../components/loader/MobilePlanSkeleton';
 
 type FormMode = 'simple' | 'advance';
@@ -45,6 +46,8 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
     const [isNewVariant, setIsNewVariant] = useState(false);
     const [newVariantData, setNewVariantData] = useState(createDefaultVariant());
     const [formMode, setFormMode] = useState<FormMode>(productId ? 'advance' : 'simple');
+    const [isStockMovementOpen, setIsStockMovementOpen] = useState(false);
+    const [selectedVariantForMovements, setSelectedVariantForMovements] = useState<{ variant: Variant; productName: string } | null>(null);
 
     const initialFormValues: InventoryFormValues = useMemo(() => {
         if (item) {
@@ -81,7 +84,6 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                 manufactureDate: v.manufactureDate ? new Date(v.manufactureDate).toISOString().split('T')[0] : '',
                 supplierName: v.supplierName || '',
                 supplierCode: v.supplierCode || '',
-                additionalBarcodes: v.barcodes?.map(b => ({ barcode: b })) || [],
             })) || [createDefaultVariant()];
 
             return {
@@ -220,10 +222,14 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                                             <div className="space-y-2">
                                                 {values.variants.map((variant, index) => (
                                                     <VariantCard
-                                                        key={variant.id}
+                                                        key={variant.id || index}
                                                         variant={variant}
                                                         index={index}
                                                         onClick={() => handleOpenVariantModal(index)}
+                                                        onViewHistory={productId && variant.id ? () => {
+                                                            setSelectedVariantForMovements({ variant, productName: values.name });
+                                                            setIsStockMovementOpen(true);
+                                                        } : undefined}
                                                     />
                                                 ))}
                                             </div>
@@ -259,6 +265,20 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                                         newVariantData={isNewVariant ? newVariantData : undefined}
                                         onNewVariantChange={isNewVariant ? setNewVariantData : undefined}
                                     />
+
+                                    {selectedVariantForMovements && (
+                                        <StockMovementModal
+                                            isOpen={isStockMovementOpen}
+                                            onClose={() => {
+                                                setIsStockMovementOpen(false);
+                                                setSelectedVariantForMovements(null);
+                                            }}
+                                            variantId={selectedVariantForMovements.variant.id}
+                                            variantName={selectedVariantForMovements.variant.variantName || 'Default'}
+                                            productName={selectedVariantForMovements.productName}
+                                            sku={selectedVariantForMovements.variant.sku}
+                                        />
+                                    )}
                                 </div>
                             </div>
                         </Form>

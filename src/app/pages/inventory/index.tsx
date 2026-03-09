@@ -2,7 +2,7 @@ import { FunctionComponent, useCallback, useContext, useEffect, useState, useMem
 import { useNavigate } from 'react-router';
 import { Confirm, Notify } from 'notiflix';
 import { Package, Settings2, X } from 'lucide-react';
-import DataTable, { type Themes } from 'react-data-table-component';
+import DataTable, { type Themes, type ExpanderComponentProps } from 'react-data-table-component';
 import { HiOutlinePlus, HiOutlineDownload, HiOutlineFilter, HiOutlineMenuAlt4, HiOutlineChevronLeft, HiOutlineChevronRight } from 'react-icons/hi';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
@@ -19,9 +19,11 @@ import StockStatusFilter from './partials/StockStatusFilter';
 import CategoryFilter from './partials/CategoryFilter';
 import BulkActionsModal from './partials/BulkActionsModal';
 import AdjustQuantityModal from './partials/AdjustQuantityModal';
+import ConvertToVariantModal from './partials/ConvertToVariantModal';
+import StockMovementModal from './partials/StockMovementModal';
 import MobileInventoryList from './partials/MobileItemTile';
+import ExpandedVariantRow from './partials/ExpandedVariantRow';
 import { useInventoryManagement } from '../../hooks/useInventoryManagement';
-import { useInventorySummary } from '../../hooks/useInventorySummary';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 
@@ -30,11 +32,9 @@ const InventoryManagement: FunctionComponent = () => {
     const navigate = useNavigate();
     const { mode } = useContext(ZonseThemeContext);
 
-    // Inventory stats
     const { stats, isLoading: statsLoading, fetchAllStats, fetchOverview } = useInventoryStats();
     const { overview } = stats;
 
-    // Calculate inventory summary cards
     const inventorySummaryCards: InventorySummaryCard[] = useMemo(() => {
         if (!overview) return [];
 
@@ -105,6 +105,12 @@ const InventoryManagement: FunctionComponent = () => {
     const [isAdjustQuantityOpen, setIsAdjustQuantityOpen] = useState(false);
     const [selectedItemForAdjust, setSelectedItemForAdjust] = useState<ApiProduct | null>(null);
 
+    const [isConvertToVariantOpen, setIsConvertToVariantOpen] = useState(false);
+    const [selectedItemForConvert, setSelectedItemForConvert] = useState<ApiProduct | null>(null);
+
+    const [isStockMovementOpen, setIsStockMovementOpen] = useState(false);
+    const [selectedItemForMovements, setSelectedItemForMovements] = useState<ApiProduct | null>(null);
+
     const {
         isLoading,
         data,
@@ -131,12 +137,8 @@ const InventoryManagement: FunctionComponent = () => {
         applyFilters
     } = useInventoryManagement();
 
-    // Calculate total pages for pagination
     const totalPages = Math.ceil(totalRows / perPage);
 
-    const { summaryData, loadSummary } = useInventorySummary(setActiveFilter, loadInventory, applyFilters);
-
-    // Build stats query from current filters
     const statsQuery = useMemo(() => ({
         search: searchTerm || undefined,
         filter: activeFilter !== 'all' ? activeFilter : undefined,
@@ -145,13 +147,11 @@ const InventoryManagement: FunctionComponent = () => {
         endDate: endDate || undefined,
     }), [searchTerm, activeFilter, categoryId, startDate, endDate]);
 
-    // Fetch stats when filters change
     useEffect(() => {
         fetchOverview(statsQuery);
     }, [statsQuery, fetchOverview]);
 
     useEffect(() => {
-        loadSummary();
         loadCategories();
         fetchAllStats(statsQuery);
     }, []);
@@ -175,7 +175,6 @@ const InventoryManagement: FunctionComponent = () => {
                     await handleVoidItem(productId);
                     Notify.success('Item deleted successfully');
                     loadInventory();
-                    loadSummary();
                 } catch (error) {
                     Notify.failure('Failed to delete item');
                 }
@@ -185,7 +184,7 @@ const InventoryManagement: FunctionComponent = () => {
                 okButtonBackground: '#ef4444',
             }
         );
-    }, [handleVoidItem, loadInventory, loadSummary]);
+    }, [handleVoidItem, loadInventory]);
 
     const handleClearFilters = useCallback(async () => {
         setActiveFilter('all');
@@ -198,21 +197,24 @@ const InventoryManagement: FunctionComponent = () => {
     }, [setActiveFilter, setCategoryId, setStartDate, setEndDate, applyFilters, fetchOverview]);
 
     const exportData = useCallback(() => {
-        // Export inventory data to CSV
-        const headers = ['Name', 'Barcode', 'Category', 'Quantity', 'Unit', 'Cost Price', 'Sell Price', 'Reorder Point', 'Status'];
+        // Export inventory data to CSV using aggregate quantities
+        const headers = ['Name', 'Barcode', 'Category', 'Total Quantity', 'Reserved', 'Unit', 'Cost Price', 'Sell Price', 'Reorder Point', 'Variants', 'Status'];
         const csvData = data.map(item => {
             const defaultVariant = item.variants?.find(v => v.isDefault) || item.variants?.[0];
-            const quantity = defaultVariant?.inventory?.availableQuantity ?? 0;
+            const quantity = item.totalAvailableQuantity ?? 0;
+            const reserved = item.totalReservedQuantity ?? 0;
             const reorderPoint = defaultVariant?.inventory?.reorderPoint ?? 0;
             return [
                 item.name,
                 defaultVariant?.primaryBarcode || '',
                 item.categoryDetails?.name || '',
                 quantity,
+                reserved,
                 defaultVariant?.unit || item.defaultUnit || 'pc',
                 defaultVariant?.costPrice || 0,
                 defaultVariant?.sellingPrice || 0,
                 reorderPoint,
+                item.variantCount || 1,
                 quantity <= 0 ? 'Out of Stock' : quantity <= reorderPoint ? 'Low Stock' : 'In Stock'
             ];
         });
@@ -243,19 +245,32 @@ const InventoryManagement: FunctionComponent = () => {
         setIsAdjustQuantityOpen(true);
     }, []);
 
+    const handleConvertToVariant = useCallback((item: ApiProduct) => {
+        setSelectedItemForConvert(item);
+        setIsConvertToVariantOpen(true);
+    }, []);
+
+    const handleViewStockMovements = useCallback((item: ApiProduct) => {
+        setSelectedItemForMovements(item);
+        setIsStockMovementOpen(true);
+    }, []);
+
     const handleBulkSuccess = useCallback(() => {
         setToggleCleared(!toggleCleared);
         setSelectedRows([]);
         loadInventory();
-        loadSummary();
         fetchOverview(statsQuery);
-    }, [toggleCleared, loadInventory, loadSummary, fetchOverview, statsQuery]);
+    }, [toggleCleared, loadInventory, fetchOverview, statsQuery]);
 
     const handleAdjustSuccess = useCallback(() => {
         loadInventory();
-        loadSummary();
         fetchOverview(statsQuery);
-    }, [loadInventory, loadSummary, fetchOverview, statsQuery]);
+    }, [loadInventory, fetchOverview, statsQuery]);
+
+    const handleConvertSuccess = useCallback(() => {
+        loadInventory();
+        fetchOverview(statsQuery);
+    }, [loadInventory, fetchOverview, statsQuery]);
 
     const handleMobileSelectItem = useCallback((item: ApiProduct, selected: boolean) => {
         if (selected) {
@@ -275,6 +290,8 @@ const InventoryManagement: FunctionComponent = () => {
         onEdit: handleEdit,
         onDelete: handleDelete,
         onAdjustQuantity: handleAdjustQuantity,
+        onConvertToVariant: handleConvertToVariant,
+        onViewStockMovements: handleViewStockMovements,
     });
 
     return (
@@ -296,9 +313,8 @@ const InventoryManagement: FunctionComponent = () => {
                         </Button>
                     }
                 >
-                    <div className="p-3 md:p-6 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
+                    <div className="sticky top-12 md:top-16 z-40 p-3 md:p-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600 shadow-sm">
                         <div className="flex flex-col gap-3 md:gap-4">
-                            {/* Search Row */}
                             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                                 <SearchBar
                                     placeholder="Search by name, barcode, SKU..."
@@ -307,7 +323,6 @@ const InventoryManagement: FunctionComponent = () => {
                                     className="w-full sm:flex-1 sm:max-w-xs"
                                 />
 
-                                {/* Action buttons - stack on mobile */}
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <button
                                         onClick={exportData}
@@ -352,7 +367,6 @@ const InventoryManagement: FunctionComponent = () => {
                                 />
                             </div>
 
-                            {/* Stock Status and Category Filters */}
                             <div className="flex flex-col gap-3">
                                 <StockStatusFilter
                                     selectedStatus={activeFilter}
@@ -454,8 +468,7 @@ const InventoryManagement: FunctionComponent = () => {
                             )}
                         </div>
                     ) : (
-                        /* Desktop View - Data Table */
-                        <div className="overflow-hidden">
+                        <div className="overflow-x-auto">
                             <DataTable
                                 columns={columns}
                                 data={data}
@@ -472,12 +485,15 @@ const InventoryManagement: FunctionComponent = () => {
                                 paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
                                 onChangeRowsPerPage={handlePerRowsChange}
                                 onChangePage={handlePageChange}
-                                fixedHeader
                                 selectableRows
                                 selectableRowsHighlight
                                 onSelectedRowsChange={handleRowSelected}
                                 clearSelectedRows={toggleCleared}
-                                fixedHeaderScrollHeight="calc(100vh - 380px)"
+                                expandableRows
+                                expandableRowsComponent={ExpandedVariantRow as React.ComponentType<ExpanderComponentProps<ApiProduct>>}
+                                expandableRowsHideExpander
+                                expandOnRowClicked
+                                expandableRowDisabled={(row) => (row.variantCount ?? 1) <= 1}
                                 customStyles={getTableStyles(mode)}
                                 noDataComponent={
                                     <div className="flex flex-col items-center justify-center py-12">
@@ -526,6 +542,30 @@ const InventoryManagement: FunctionComponent = () => {
                 item={selectedItemForAdjust}
                 onSuccess={handleAdjustSuccess}
             />
+
+            <ConvertToVariantModal
+                isOpen={isConvertToVariantOpen}
+                onClose={() => {
+                    setIsConvertToVariantOpen(false);
+                    setSelectedItemForConvert(null);
+                }}
+                item={selectedItemForConvert}
+                onSuccess={handleConvertSuccess}
+            />
+
+            {selectedItemForMovements && selectedItemForMovements.variants?.[0] && (
+                <StockMovementModal
+                    isOpen={isStockMovementOpen}
+                    onClose={() => {
+                        setIsStockMovementOpen(false);
+                        setSelectedItemForMovements(null);
+                    }}
+                    variantId={selectedItemForMovements.variants[0].id}
+                    variantName={selectedItemForMovements.variants[0].variantName || 'Default'}
+                    productName={selectedItemForMovements.name}
+                    sku={selectedItemForMovements.variants[0].sku}
+                />
+            )}
         </AppLayout>
     );
 };

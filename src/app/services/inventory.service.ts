@@ -33,6 +33,9 @@ const endpoints = {
 
 	// Legacy endpoints (kept for backwards compatibility)
 	findBySku: 'inventory/item/sku',
+
+	// Variant conversion
+	convertToVariant: 'inventory/item',
 };
 
 export interface InventorySummary {
@@ -74,6 +77,41 @@ export interface AdjustInventoryPayload {
 	adjustment: number;
 	reason?: string;
 	type: 'add' | 'subtract' | 'set';
+}
+
+/**
+ * Input for converting a variant to belong to a different product
+ */
+export interface ConvertToVariantPayload {
+	/** The target product ID that will become the new parent */
+	targetProductId: string;
+	/** Optional: New variant name (defaults to current variant name) */
+	variantName?: string;
+	/** Whether to delete the original parent product if it becomes orphaned (has no more variants) */
+	deleteOrphanedProduct?: boolean;
+}
+
+/**
+ * Result of the convert to variant operation
+ */
+export interface ConvertToVariantResult {
+	/** The updated variant */
+	variant: ProductWithInventory;
+	/** Whether the original parent product was deleted (orphaned) */
+	orphanedProductDeleted: boolean;
+	/** The ID of the original parent product if it was deleted */
+	deletedProductId?: string;
+	/** Information about historical records that still reference the old product ID */
+	affectedRecords?: {
+		/** Number of sale items that still reference the old product ID */
+		saleItems: number;
+		/** Number of stock movements associated with this variant */
+		stockMovements: number;
+		/** Number of purchase order items associated with this variant */
+		purchaseOrderItems: number;
+	};
+	/** Warning message if there are historical records affected */
+	warning?: string;
 }
 
 export interface CategoryBreakdown {
@@ -600,6 +638,27 @@ const inventoryService = {
 			const reorderLevel = Number(item.reorderLevel || 0);
 			return reorderLevel > 0 && quantity <= reorderLevel;
 		});
+	},
+
+	/**
+	 * Convert a variant to become a variant of a different product.
+	 * This allows moving an existing variant (including a standalone product's default variant)
+	 * to become a variant of another product.
+	 * 
+	 * Note: Historical records (sales, stock movements) maintain their original variant reference.
+	 * The variant ID remains the same, only the parent product changes.
+	 * 
+	 * @param variantId - The variant ID to be converted/moved
+	 * @param payload - Conversion options including target product ID
+	 * @returns The converted variant and info about orphaned product deletion
+	 */
+	async convertToVariant(variantId: string, payload: ConvertToVariantPayload): Promise<ConvertToVariantResult> {
+		return api
+			.put<ApiResponse<ConvertToVariantResult>>(`${endpoints.convertToVariant}/${variantId}/convert-to-variant`, payload as any)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				throw err;
+			});
 	},
 
 	/**

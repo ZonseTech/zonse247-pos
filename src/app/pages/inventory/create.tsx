@@ -121,8 +121,6 @@ const InventoryForm: FunctionComponent = () => {
                 );
             }
         } catch (error: any) {
-            console.error('Error saving inventory item:', error);
-
             const responseData = error?.error?.response?.data || error?.response?.data;
             const mainMessage = responseData?.message || error?.message || 'Failed to save inventory item';
             const detailedError = responseData?.error;

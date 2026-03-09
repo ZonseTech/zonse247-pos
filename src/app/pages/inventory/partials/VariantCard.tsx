@@ -4,6 +4,7 @@ import {
     Package,
     Calendar,
     Tag,
+    History,
 } from 'lucide-react';
 import { FormFieldCard } from '../../../components';
 import { formatCurrency } from '../../../utils';
@@ -13,9 +14,10 @@ interface VariantCardProps {
     variant: Variant;
     index: number;
     onClick: () => void;
+    onViewHistory?: () => void;
 }
 
-const VariantCard: FunctionComponent<VariantCardProps> = ({ variant, index, onClick }) => {
+const VariantCard: FunctionComponent<VariantCardProps> = ({ variant, index, onClick, onViewHistory }) => {
     const sellingPrice = Number(variant.sellingPrice) || 0;
     const costPrice = Number(variant.costPrice) || 0;
     const quantity = Number(variant.quantity) || 0;
@@ -26,6 +28,19 @@ const VariantCard: FunctionComponent<VariantCardProps> = ({ variant, index, onCl
                 <span className="text-xs text-gray-500 dark:text-gray-400">
                     {variant.variantName || `Enter Variant Name`}
                 </span>
+                {onViewHistory && (
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onViewHistory();
+                        }}
+                        className="p-1.5 rounded-lg bg-sky-50 dark:bg-sky-900/30 hover:bg-sky-100 dark:hover:bg-sky-900/50 transition-colors"
+                        title="View Stock Movements"
+                    >
+                        <History className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                    </button>
+                )}
             </div>
             <div className="grid grid-cols-3 gap-2 mt-2 py-2 border-y border-gray-200 dark:border-gray-700">
                 <div>

@@ -100,6 +100,17 @@ interface ProductVariant {
     isActive: boolean;
     createdAt: Date | string;
     updatedAt: Date | string;
+    inventory?: {
+        availableQuantity: number;
+        reservedQuantity?: number;
+        damagedQuantity?: number;
+        averageCost?: number;
+        lastPurchaseCost?: number;
+        reorderPoint?: number | null;
+        maxStock?: number | null;
+        trackInventory?: boolean;
+        allowNegativeStock?: boolean;
+    };
 }
 
 /**
