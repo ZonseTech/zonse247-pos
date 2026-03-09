@@ -2,15 +2,12 @@ import { FunctionComponent, useState } from 'react';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { Notify } from 'notiflix';
-import { Button, Modal } from '../../../components';
-import FormWrapper from '../../../components/FormWrapper';
+import { Button, Modal, FormFieldCard } from '../../../components';
 import FormSelectBox from '../../../components/FormSelectBox';
 import FormTextArea from '../../../components/FormTextArea';
-import FormInput from '../../../components/FormInput';
 import returnsService from '../../../services/returns.service';
 import { formatCurrency } from '../../../utils';
-import { HiOutlineTrash } from 'react-icons/hi';
-import { useIsEBN } from '../../../hooks/useMediaQuery';
+import { Trash2, Plus, X } from 'lucide-react';
 
 interface InitiateReturnModalProps {
     isOpen: boolean;
@@ -62,7 +59,6 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
     sale,
     onSuccess,
 }) => {
-    const isEBN = useIsEBN();
     const [selectedItems, setSelectedItems] = useState<ReturnItemForm[]>([]);
 
     const saleOrTransaction = sale || transaction;
@@ -192,7 +188,21 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
             isOpen={isOpen}
             onClose={onClose}
             size='full'
-            className={isEBN ? "max-w-4xl w-full mx-2" : "max-w-6xl w-full mx-4 sm:mx-auto"}
+            className="max-w-4xl w-full mx-4 sm:mx-auto"
+            header={
+                <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+                        Initiate Return/Refund
+                    </h2>
+                    <button
+                        onClick={onClose}
+                        className="p-2 -mr-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        aria-label="Close modal"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+            }
         >
             <Formik
                 initialValues={initialValues}
@@ -201,112 +211,105 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                 enableReinitialize={true}
             >
                 {({ isSubmitting }) => (
-                    <Form className={`flex flex-col ${isEBN ? 'max-h-[70vh]' : 'max-h-[80vh] sm:max-h-[75vh]'}`}>
-                        <div className="flex-1 overflow-y-auto px-1 sm:pr-2">
-                            <div className={`bg-gray-50 dark:bg-gray-700/50 rounded-lg ${isEBN ? 'p-2 mb-2' : 'p-3 sm:p-4 mb-4 sm:mb-6'}`}>
-                                <h3 className={`font-semibold ${isEBN ? 'mb-1 text-xs' : 'mb-2 text-sm sm:text-base'}`}>Transaction Details</h3>
-                                <div className={`grid grid-cols-2 ${isEBN ? 'gap-1 text-xs' : 'gap-2 sm:gap-4 text-sm'}`}>
-                                    <div className="flex flex-col sm:flex-row sm:items-center">
-                                        <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
-                                            Transaction ID:
+                    <Form className="flex flex-col max-h-[80vh] sm:max-h-[75vh]">
+                        <div className="flex-1 overflow-y-auto space-y-4">
+                            <FormFieldCard title="Transaction Details">
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div className="flex flex-col">
+                                        <span className="text-gray-500 dark:text-gray-400 text-xs">
+                                            Transaction ID
                                         </span>
-                                        <span className="font-medium text-sm sm:ml-2">{(saleOrTransaction as Sale)?.saleNumber || (saleOrTransaction as Transaction)?.refNumber || saleOrTransaction?.id}</span>
+                                        <span className="font-medium">{(saleOrTransaction as Sale)?.saleNumber || (saleOrTransaction as Transaction)?.refNumber || saleOrTransaction?.id}</span>
                                     </div>
-                                    <div className="flex flex-col sm:flex-row sm:items-center">
-                                        <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
-                                            Original Amount:
+                                    <div className="flex flex-col">
+                                        <span className="text-gray-500 dark:text-gray-400 text-xs">
+                                            Original Amount
                                         </span>
-                                        <span className="font-medium text-sm sm:ml-2">
+                                        <span className="font-medium">
                                             {formatCurrency((saleOrTransaction as Sale)?.totalAmount || (typeof (saleOrTransaction as Transaction)?.total === 'string' ? parseFloat((saleOrTransaction as Transaction).total as unknown as string) : (saleOrTransaction as Transaction)?.total) || 0)}
                                         </span>
                                     </div>
-                                    <div className="flex flex-col sm:flex-row sm:items-center">
-                                        <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
-                                            Already Refunded:
+                                    <div className="flex flex-col">
+                                        <span className="text-gray-500 dark:text-gray-400 text-xs">
+                                            Already Refunded
                                         </span>
-                                        <span className="font-medium text-sm sm:ml-2">
+                                        <span className="font-medium">
                                             {formatCurrency(typeof (saleOrTransaction as Transaction)?.refundedAmount === 'string' ? parseFloat((saleOrTransaction as Transaction).refundedAmount as unknown as string) : ((saleOrTransaction as Transaction)?.refundedAmount || 0))}
                                         </span>
                                     </div>
-                                    <div className="flex flex-col sm:flex-row sm:items-center">
-                                        <span className={`text-gray-600 dark:text-gray-400 ${isEBN ? 'text-[10px]' : 'text-xs sm:text-sm'}`}>
-                                            {isEBN ? 'Remaining:' : 'Remaining Refundable:'}
+                                    <div className="flex flex-col">
+                                        <span className="text-gray-500 dark:text-gray-400 text-xs">
+                                            Remaining Refundable
                                         </span>
-                                        <span className={`font-medium ${isEBN ? 'text-[11px]' : 'text-sm'} sm:ml-2`}>
+                                        <span className="font-medium text-sky-500">
                                             {formatCurrency(remainingRefundable)}
                                         </span>
                                     </div>
                                 </div>
-                            </div>
+                            </FormFieldCard>
 
-                            <div className={isEBN ? 'mb-2' : 'mb-4 sm:mb-6'}>
-                                <h3 className={`font-semibold ${isEBN ? 'mb-1 text-xs' : 'mb-2 sm:mb-3 text-sm sm:text-base'}`}>Available Items</h3>
-                                <div className={`space-y-1 ${isEBN ? 'max-h-24' : 'max-h-40 sm:max-h-48'} overflow-y-auto`}>
+                            <FormFieldCard title="Available Items">
+                                <div className="space-y-2 max-h-48 overflow-y-auto">
                                     {saleOrTransaction?.items?.map((item: any) => {
-                                        // Support both Sale items (id) and Transaction items (orderId)
                                         const orderItemId = item.id || item.orderId;
                                         const isAdded = selectedItems.some((i) => i.orderItemId === orderItemId);
-
-                                        // Get item name - supports Sale items (product.name) and Transaction items (productDetails.name)
                                         const itemName = item.product?.name || item.productDetails?.name || item.name || 'Unknown Product';
-                                        // Get item price - supports Sale items (unitPrice) and Transaction items (sellingPrice)
                                         const itemPrice = item.unitPrice || item.sellingPrice || 0;
 
                                         return (
                                             <div
                                                 key={orderItemId}
-                                                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+                                                className="flex items-center justify-between gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
                                             >
                                                 <div className="flex-1 min-w-0">
                                                     <p className="font-medium text-sm truncate">{itemName}</p>
-                                                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400">
                                                         Qty: {item.quantity} × {formatCurrency(typeof itemPrice === 'string' ? parseFloat(itemPrice) : itemPrice)}
                                                     </p>
                                                 </div>
                                                 <Button
                                                     type="button"
                                                     size="small"
+                                                    theme={isAdded ? 'default' : 'primary'}
                                                     onClick={() => handleAddItem({ ...item, orderId: orderItemId, sellingPrice: itemPrice, productDetails: { name: itemName } })}
                                                     disabled={isAdded}
-                                                    className="w-full sm:w-auto text-xs sm:text-sm"
                                                 >
-                                                    {isAdded ? 'Added' : 'Add to Return'}
+                                                    {isAdded ? 'Added' : <><Plus className="w-4 h-4 mr-1" /> Add</>}
                                                 </Button>
                                             </div>
                                         );
                                     })}
                                 </div>
-                            </div>
+                            </FormFieldCard>
 
                             {selectedItems.length > 0 && (
-                                <div className={isEBN ? 'mb-2' : 'mb-4 sm:mb-6'}>
-                                    <h3 className={`font-semibold ${isEBN ? 'mb-1 text-xs' : 'mb-2 sm:mb-3 text-sm sm:text-base'}`}>Items to Return</h3>
-                                    <div className={isEBN ? 'space-y-2' : 'space-y-3 sm:space-y-4'}>
+                                <FormFieldCard title="Items to Return">
+                                    <div className="space-y-3">
                                         {selectedItems.map((item, index) => (
                                             <div
                                                 key={item.orderItemId}
-                                                className={`${isEBN ? 'p-2' : 'p-3 sm:p-4'} border border-gray-200 dark:border-gray-700 rounded-lg`}
+                                                className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg"
                                             >
-                                                <div className={`flex items-start justify-between ${isEBN ? 'mb-1' : 'mb-2 sm:mb-3'}`}>
+                                                <div className="flex items-start justify-between mb-3">
                                                     <div className="flex-1 min-w-0">
-                                                        <h4 className={`font-medium ${isEBN ? 'text-[11px]' : 'text-sm sm:text-base'} truncate`}>{item.productName}</h4>
-                                                        <p className={`${isEBN ? 'text-[10px]' : 'text-xs sm:text-sm'} text-gray-600 dark:text-gray-400`}>
-                                                            Max: {item.maxQuantity}
+                                                        <h4 className="font-medium text-sm truncate">{item.productName}</h4>
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                            Max quantity: {item.maxQuantity}
                                                         </p>
                                                     </div>
                                                     <button
                                                         type="button"
                                                         onClick={() => handleRemoveItem(item.orderItemId)}
-                                                        className="text-red-500 hover:text-red-700 p-1 ml-2"
+                                                        className="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                                                     >
-                                                        <HiOutlineTrash className={isEBN ? 'w-3 h-3' : 'w-4 h-4 sm:w-5 sm:h-5'} />
+                                                        <Trash2 className="w-4 h-4" />
                                                     </button>
                                                 </div>
 
-                                                <div className={`grid ${isEBN ? 'grid-cols-3 gap-2' : 'grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'}`}>
+                                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                                     <div>
-                                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                            Return Quantity <span className="text-red-500">*</span>
+                                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                            Quantity <span className="text-red-500">*</span>
                                                         </label>
                                                         <input
                                                             type="number"
@@ -320,12 +323,12 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                                                     parseInt(e.target.value) || 1
                                                                 )
                                                             }
-                                                            className="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm px-3 py-2"
+                                                            className="block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm px-3 py-2"
                                                         />
                                                     </div>
 
                                                     <div>
-                                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                             Reason <span className="text-red-500">*</span>
                                                         </label>
                                                         <select
@@ -337,9 +340,9 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                                                     e.target.value
                                                                 )
                                                             }
-                                                            className="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm px-3 py-2"
+                                                            className="block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm px-3 py-2"
                                                         >
-                                                            <option value="">Select a reason</option>
+                                                            <option value="">Select reason</option>
                                                             {returnReasonOptions.map((option) => (
                                                                 <option key={option.value} value={option.value}>
                                                                     {option.label}
@@ -349,7 +352,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                                     </div>
 
                                                     <div>
-                                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                             Condition <span className="text-red-500">*</span>
                                                         </label>
                                                         <select
@@ -361,7 +364,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                                                     e.target.value as ReturnCondition
                                                                 )
                                                             }
-                                                            className="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm px-3 py-2"
+                                                            className="block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm px-3 py-2"
                                                         >
                                                             {conditionOptions.map((option) => (
                                                                 <option key={option.value} value={option.value}>
@@ -371,8 +374,8 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                                         </select>
                                                     </div>
 
-                                                    <div className="sm:col-span-2">
-                                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                    <div className="sm:col-span-3">
+                                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                             Notes
                                                         </label>
                                                         <textarea
@@ -386,25 +389,24 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                                                     e.target.value
                                                                 )
                                                             }
-                                                            className="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm px-3 py-2"
+                                                            className="block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm px-3 py-2"
                                                         />
                                                     </div>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
-                                </div>
+                                </FormFieldCard>
                             )}
 
                             {selectedItems.length > 0 && (
-                                <div className={isEBN ? 'mb-2' : 'mb-4 sm:mb-6'}>
-                                    <h3 className={`font-semibold ${isEBN ? 'mb-1 text-xs' : 'mb-2 sm:mb-3 text-sm sm:text-base'}`}>Refund Details</h3>
-                                    <FormWrapper>
+                                <FormFieldCard title="Refund Details">
+                                    <div className="space-y-4">
                                         <FormTextArea
                                             label="Refund Reason"
                                             name="refundReason"
                                             placeholder="Explain the reason for this refund..."
-                                            rows={isEBN ? 1 : 2}
+                                            rows={2}
                                         />
 
                                         <FormSelectBox
@@ -414,33 +416,31 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                             required
                                         />
 
-                                        <div className={`${isEBN ? 'p-2' : 'p-3 sm:p-4'} bg-sky-50 dark:bg-sky-900/20 rounded-lg`}>
-                                            <div className={`flex items-center justify-between ${isEBN ? 'text-sm' : 'text-base sm:text-lg'} font-semibold`}>
+                                        <div className="p-4 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800">
+                                            <div className="flex items-center justify-between text-lg font-semibold">
                                                 <span>Total Refund:</span>
-                                                <span className="text-sky-500 dark:text-sky-400">
+                                                <span className="text-sky-600 dark:text-sky-400">
                                                     {formatCurrency(refundAmount)}
                                                 </span>
                                             </div>
                                         </div>
-                                    </FormWrapper>
-                                </div>
+                                    </div>
+                                </FormFieldCard>
                             )}
                         </div>
 
-                        <div className={`border-t border-gray-200 dark:border-gray-700 ${isEBN ? 'mt-2 pt-2' : 'mt-4 sm:mt-6 pt-3 sm:pt-4'} flex-shrink-0`}>
-                            <div className={`flex flex-row justify-end ${isEBN ? 'gap-2' : 'gap-2 sm:gap-3'}`}>
-                                <Button type="button" layout="outline" onClick={onClose} className={isEBN ? 'text-xs px-3 py-1 h-7' : 'w-full sm:w-auto'}>
-                                    Cancel
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    loading={isSubmitting}
-                                    disabled={selectedItems.length === 0}
-                                    className={isEBN ? 'text-xs px-3 py-1 h-7' : 'w-full sm:w-auto'}
-                                >
-                                    {isEBN ? 'Process' : 'Process Return'}
-                                </Button>
-                            </div>
+                        <div className="flex justify-between items-center pt-4 mt-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+                            <Button type="button" theme="danger" onClick={onClose}>
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                theme="success"
+                                loading={isSubmitting}
+                                disabled={selectedItems.length === 0}
+                            >
+                                Process Return
+                            </Button>
                         </div>
                     </Form>
                 )}
