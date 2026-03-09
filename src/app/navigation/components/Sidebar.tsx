@@ -2,6 +2,7 @@ import type { FunctionComponent } from 'react';
 import BranchSwitcher from '../../components/BranchSwitcher';
 import logo from '../../assets/images/logo.png';
 import NavGroup from './NavGroup';
+import SidebarFooter from './SidebarFooter';
 import type { SidebarProps } from './types';
 import { GROUP_ORDER } from './types';
 
@@ -49,6 +50,9 @@ const Sidebar: FunctionComponent<SidebarProps> = ({
                     ))}
                 </div>
             </div>
+
+            {/* Footer */}
+            <SidebarFooter />
         </aside>
     );
 };

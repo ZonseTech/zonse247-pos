@@ -1,4 +1,5 @@
 export { default as Sidebar } from './Sidebar';
+export { default as SidebarFooter } from './SidebarFooter';
 export { default as MobileDrawer } from './MobileDrawer';
 export { default as BranchSwitchModal } from './BranchSwitchModal';
 export { default as ProfileDropdown } from './ProfileDropdown';
