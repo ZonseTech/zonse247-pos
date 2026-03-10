@@ -1,7 +1,46 @@
+import axios from 'axios';
 import api from './http.service';
 import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
 
+const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL;
 const USER_DECODE_FIELDS = ['fullname', 'username', 'email', 'roleName', 'branchName', 'tenantName'] as const;
+
+const liveApi = axios.create({
+	baseURL: LIVE_API_URL,
+	timeout: 30000,
+	headers: {
+		'X-Client-Type': 'web'
+	}
+});
+
+/**
+ * Get tenant signature from electron settings or session storage
+ */
+async function getTenantSignature(): Promise<string | undefined> {
+	try {
+		if (typeof window !== 'undefined' && (window as any).electronAPI?.settings) {
+			const result = await (window as any).electronAPI.settings.getSignature();
+			if (result.success && result.data) return result.data;
+		}
+
+		const user = sessionStorage?.getItem('user');
+		if (user) return JSON.parse(user).tenantId;
+	} catch (error) {
+		console.warn('[UsersService] Error getting tenant signature:', error);
+	}
+	return undefined;
+}
+
+/**
+ * Get auth token from session storage
+ */
+function getAuthToken(): string | undefined {
+	try {
+		return sessionStorage?.getItem('token') || undefined;
+	} catch {
+		return undefined;
+	}
+}
 
 const endpoints: Record<string, string> = {
 	all: 'users',
@@ -51,6 +90,42 @@ const usersService = {
 		} catch (err) {
 			console.error('Error creating user:', err);
 			throw err;
+		}
+	},
+
+	/**
+	 * Create user via Live API (for online-first scenarios)
+	 */
+	async storeLive(data: CreateUserRequest): Promise<CreateUserResponse> {
+		if (!LIVE_API_URL) {
+			throw new Error('Live server URL not configured');
+		}
+
+		try {
+			const tenantSignature = await getTenantSignature();
+			const token = getAuthToken();
+
+			const response = await liveApi.post<ApiResponse<CreateUserResponse>>(
+				endpoints.store,
+				data,
+				{
+					headers: {
+						...(token && { 'Authorization': `Bearer ${token}` }),
+						...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
+					}
+				}
+			);
+
+			return {
+				...decodeObjectStrings(response.data.data!, USER_DECODE_FIELDS),
+				generatedPassword: response.data.data?.generatedPassword
+			};
+		} catch (err: any) {
+			console.error('Error creating user via live API:', err);
+			throw {
+				error: err,
+				response: err.response
+			};
 		}
 	},
 

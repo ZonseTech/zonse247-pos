@@ -91,7 +91,7 @@ export const useStaffForm = (): UseStaffFormReturn => {
         branchId: user.branchId || '',
         roleId: user.roleId || '',
         trackAttendance: user.trackAttendance !== undefined ? user.trackAttendance : true,
-        allowAppAccess: user.allowAppAccess || false,
+        allowAppAccess: user.allowAppAccess || Boolean(user.roleId),
         calculateAs: user.calculateAs || 'monthly',
         staffSalary: String(user.staffSalary || ''),
         avgShiftHours: String(user.avgShiftHours || ''),
@@ -132,7 +132,7 @@ export const useStaffForm = (): UseStaffFormReturn => {
                     // Do nothing
                 });
             } else {
-                const response = await usersService.store(staffData as CreateUserRequest);
+                const response = await usersService.storeLive(staffData as CreateUserRequest);
                 const generatedPassword = response?.generatedPassword;
 
                 if (generatedPassword) {
