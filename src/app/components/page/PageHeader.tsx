@@ -43,8 +43,8 @@ const PageHeader: React.FC<PropsWithChildren<PageHeaderProps>> = ({
             : `flex flex-col ${children ? 'border-b border-gray-300 dark:border-gray-600' : ''} mb-4 md:pb-4 -mx-4 md:mx-0 px-3 md:px-0 gap-3 md:gap-4 ${className}`
         }>
             <div className={compact
-                ? "fixed top-0 left-0 md:left-64 right-0 z-50 bg-white dark:bg-gray-900 flex justify-between items-center gap-2 py-1 px-2 border-b border-gray-300 dark:border-gray-600"
-                : "fixed top-0 left-0 md:left-64 right-0 z-50 bg-white dark:bg-gray-900 flex justify-between items-center gap-2 sm:gap-4 py-2 md:py-3 px-3 md:px-4 border-b border-gray-300 dark:border-gray-600"
+                ? `fixed top-0 left-0 ${!isElectron ? 'md:left-64' : ''} right-0 z-50 bg-white dark:bg-gray-900 flex justify-between items-center gap-2 py-1 px-2 border-b border-gray-300 dark:border-gray-600`
+                : `fixed top-0 left-0 ${!isElectron ? 'md:left-64' : ''} right-0 z-50 bg-white dark:bg-gray-900 flex justify-between items-center gap-2 sm:gap-4 py-2 md:py-3 px-3 md:px-4 border-b border-gray-300 dark:border-gray-600`
             }>
                 <div className={compact
                     ? "flex items-center gap-2 flex-1 min-w-0"

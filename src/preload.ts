@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
         getToken: () => ipcRenderer.invoke('session:get-token'),
         set: (data: { token?: string; userId?: string; tenantId?: string; branchId?: string }) =>
             ipcRenderer.invoke('session:set', data),
+        get: () => ipcRenderer.invoke('session:get'),
         clear: () => ipcRenderer.invoke('session:clear'),
     },
 

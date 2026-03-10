@@ -5,6 +5,7 @@ declare global {
                 setToken: (token: string | null) => Promise<ApiResponse<void>>;
                 getToken: () => Promise<ApiResponse<string | null>>;
                 set: (data: { token?: string; userId?: string; tenantId?: string; branchId?: string }) => Promise<ApiResponse<void>>;
+                get: () => Promise<ApiResponse<{ token: string | null; userId: string | null; tenantId: string | null; branchId: string | null }>>;
                 clear: () => Promise<ApiResponse<void>>;
             };
             settings: {

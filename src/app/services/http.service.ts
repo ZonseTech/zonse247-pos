@@ -80,13 +80,13 @@ const getToken = async (): Promise<string | undefined> => {
 	}
 };
 
-const getTenantSignature = async (): Promise<string | undefined> => {
+const getTenantId = async (): Promise<string | undefined> => {
 	if (isElectron()) {
 		try {
-			const result = await window.electronAPI.settings.getSignature();
+			const result = await window.electronAPI.settings.getSetup();
 
-			if (result.success && result.data) {
-				return result.data;
+			if (result.success && result.data?.tenantId) {
+				return result.data.tenantId;
 			}
 		} catch (error) {
 			console.warn('Error getting tenantId from Electron:', error);
@@ -99,7 +99,7 @@ const getTenantSignature = async (): Promise<string | undefined> => {
 			return user ? JSON.parse(user).tenantId : undefined;
 		}
 	} catch (error) {
-		console.warn('Error getting tenantSignature from sessionStorage:', error);
+		console.warn('Error getting tenantId from sessionStorage:', error);
 	}
 };
 
@@ -132,17 +132,15 @@ httpInstance.interceptors.request.use(
 			startProgress();
 
 			const token = await getToken();
-			const tenantSignature = await getTenantSignature();
+			const tenantId = await getTenantId();
 			const activeBranchId = await getActiveBranchId();
 			const clientType = import.meta.env.VITE_APP_CLIENT_TYPE || 'desktop';
 
 			if (token)
 				config.headers.Authorization = `Bearer ${token}`;
 
-			if (tenantSignature) {
-				if (isElectron())
-					config.headers['X-Tenant-Signature'] = tenantSignature;
-				else config.headers['X-Tenant-Id'] = tenantSignature;
+			if (tenantId) {
+				config.headers['X-Tenant-Id'] = tenantId;
 			}
 
 			if (activeBranchId) {
@@ -202,7 +200,7 @@ const updateToken = async (newToken: string): Promise<void> => {
  */
 const refreshToken = async (currentToken: string): Promise<string> => {
 	try {
-		const tenantSignature = await getTenantSignature();
+		const tenantId = await getTenantId();
 
 		const response = await axios.post<ApiResponse<RefreshTokenResponse>>(
 			`${LIVE_API_URL}/auth/refresh-token`,
@@ -210,7 +208,7 @@ const refreshToken = async (currentToken: string): Promise<string> => {
 			{
 				headers: {
 					'Content-Type': 'application/json',
-					...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
+					...(tenantId && { 'X-Tenant-Id': tenantId })
 				},
 				timeout: 30000
 			}

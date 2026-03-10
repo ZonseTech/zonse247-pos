@@ -172,6 +172,19 @@ export default class MenuBuilder {
 			});
 		}
 
+		if (
+			hasAnyPermission(this.user, [
+				'refunds.process',
+				'refunds.view',
+				'returns.manage',
+			])
+		) {
+			operationsItems.push({
+				label: 'Returns',
+				click: () => this.navigateTo(ROUTES.RETURNS),
+			});
+		}
+
 		if (operationsItems.length > 0) {
 			template.push({
 				label: 'Operations',
@@ -193,6 +206,18 @@ export default class MenuBuilder {
 				{
 					label: 'Categories',
 					click: () => this.navigateTo(ROUTES.CATEGORIES),
+				},
+				{
+					label: 'Suppliers',
+					click: () => this.navigateTo(ROUTES.SUPPLIERS),
+				},
+				{
+					label: 'Purchase Orders',
+					click: () => this.navigateTo(ROUTES.PURCHASE_ORDERS),
+				},
+				{
+					label: 'Stock Movements',
+					click: () => this.navigateTo(ROUTES.STOCK_MOVEMENTS),
 				},
 				{
 					label: 'Customers',
@@ -288,8 +313,19 @@ export default class MenuBuilder {
 			])
 		) {
 			managementItems.push({
-				label: 'Staffs',
+				label: 'Billing',
+				click: () => this.navigateTo(ROUTES.SUBSCRIPTION_BILLING),
+			});
+			managementItems.push({
+				label: 'Staff Management',
 				click: () => this.navigateTo(ROUTES.USERS),
+			});
+		}
+
+		if (hasRole(this.user, 'admin') || hasRole(this.user, 'super-admin')) {
+			managementItems.push({
+				label: 'Security',
+				click: () => this.navigateTo(ROUTES.ROLES_PERMISSIONS),
 			});
 		}
 
@@ -328,6 +364,28 @@ export default class MenuBuilder {
 			template.push({
 				label: 'Settings',
 				submenu: settingsSubmenu,
+			});
+		}
+
+		if (hasRole(this.user, 'admin') || hasPermission(this.user, 'system.admin')) {
+			const adminSubmenu: Array<MenuItemConstructorOptions> = [
+				{
+					label: 'Subscriptions',
+					click: () => this.navigateTo(ROUTES.SUBSCRIPTIONS),
+				},
+				{
+					label: 'Tenants',
+					click: () => this.navigateTo(ROUTES.TENANTS),
+				},
+				{
+					label: 'Registrations',
+					click: () => this.navigateTo(ROUTES.TENANT_REGISTRATION_DETAILS),
+				},
+			];
+
+			template.push({
+				label: 'Admin',
+				submenu: adminSubmenu,
 			});
 		}
 

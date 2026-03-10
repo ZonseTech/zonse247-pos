@@ -75,32 +75,18 @@ class AuthService {
             return offlineResult.data;
         }
 
-        if (this.isUserNotFoundError(offlineResult.error)) {
-            updateProgress('Connecting to live server...', 2);
-            const liveResult = await this.tryLiveLogin(credentials);
+        updateProgress('Connecting to live server...', 2);
+        const liveResult = await this.tryLiveLogin(credentials);
 
-            if (liveResult.success && liveResult.data) {
-                await this.syncDataToOffline(liveResult.data, credentials, updateProgress);
+        if (liveResult.success && liveResult.data) {
+            await this.syncDataToOffline(liveResult.data, credentials, updateProgress);
 
-                updateProgress('Login successful!', totalSteps);
-                return liveResult.data;
-            }
-
-            throw new Error(liveResult.error || 'User not found');
+            updateProgress('Login successful!', totalSteps);
+            return liveResult.data;
         }
 
-        throw new Error(offlineResult.error || 'Authentication failed');
-    }
-
-    /**
-     * Check if error indicates user not found
-     */
-    private isUserNotFoundError(error?: string): boolean {
-        if (!error) return false;
-        const lowerError = error.toLowerCase();
-        return lowerError.includes('not found') ||
-            lowerError.includes('invalid') ||
-            lowerError.includes('credentials');
+        const errorMessage = liveResult.error || offlineResult.error || 'Authentication failed';
+        throw new Error(errorMessage);
     }
 
     /**
@@ -137,14 +123,14 @@ class AuthService {
         }
 
         try {
-            const tenantSignature = await this.getTenantSignature();
+            const tenantId = await this.getTenantId();
 
             const response = await this.liveApi.post<ApiResponse<LoginResponse>>('auth/login', {
                 ...credentials,
                 offlineMode: true
             }, {
                 headers: {
-                    ...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
+                    ...(tenantId && { 'X-Tenant-Id': tenantId })
                 }
             });
 
@@ -208,12 +194,12 @@ class AuthService {
      */
     private async fetchRoleFromLive(roleId: string, token: string): Promise<RoleResponse['data']['role'] | null> {
         try {
-            const tenantSignature = await this.getTenantSignature();
+            const tenantId = await this.getTenantId();
             const response = await this.liveApi.get<RoleResponse>('auth/verifying-roles', {
                 params: { roleId },
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    ...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
+                    ...(tenantId && { 'X-Tenant-Id': tenantId })
                 }
             });
             return response.data?.data?.role || null;
@@ -242,12 +228,12 @@ class AuthService {
      */
     private async fetchPermissionsFromLive(roleId: string, token: string): Promise<string[]> {
         try {
-            const tenantSignature = await this.getTenantSignature();
+            const tenantId = await this.getTenantId();
             const response = await this.liveApi.get<PrivilegesResponse>('auth/verifying-privileges', {
                 params: { roleId },
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    ...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
+                    ...(tenantId && { 'X-Tenant-Id': tenantId })
                 }
             });
             return response.data?.data?.permissions || [];
@@ -336,19 +322,19 @@ class AuthService {
     }
 
     /**
-     * Get tenant signature from electron settings or session storage
+     * Get tenant ID from electron setup or session storage
      */
-    private async getTenantSignature(): Promise<string | undefined> {
+    private async getTenantId(): Promise<string | undefined> {
         try {
             if (typeof window !== 'undefined' && window.electronAPI?.settings) {
-                const result = await window.electronAPI.settings.getSignature();
-                if (result.success && result.data) return result.data;
+                const result = await window.electronAPI.settings.getSetup();
+                if (result.success && result.data?.tenantId) return result.data.tenantId;
             }
 
             const user = sessionStorage?.getItem('user');
             if (user) return JSON.parse(user).tenantId;
         } catch (error) {
-            console.warn('[AuthService] Error getting tenant signature:', error);
+            console.warn('[AuthService] Error getting tenant ID:', error);
         }
         return undefined;
     }
@@ -391,14 +377,14 @@ class AuthService {
         }
 
         try {
-            const tenantSignature = await this.getTenantSignature();
+            const tenantId = await this.getTenantId();
 
             const response = await this.liveApi.post<ApiResponse<RefreshTokenResponse>>(
                 'auth/refresh-token',
                 { token: currentToken },
                 {
                     headers: {
-                        ...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
+                        ...(tenantId && { 'X-Tenant-Id': tenantId })
                     }
                 }
             );
@@ -427,7 +413,7 @@ class AuthService {
         }
 
         try {
-            const tenantSignature = await this.getTenantSignature();
+            const tenantId = await this.getTenantId();
 
             const response = await this.liveApi.post<ApiResponse<{ user: any }>>(
                 'auth/verify-token',
@@ -435,7 +421,7 @@ class AuthService {
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`,
-                        ...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
+                        ...(tenantId && { 'X-Tenant-Id': tenantId })
                     }
                 }
             );

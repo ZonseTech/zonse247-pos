@@ -14,19 +14,19 @@ const liveApi = axios.create({
 });
 
 /**
- * Get tenant signature from electron settings or session storage
+ * Get tenant ID from electron setup or session storage
  */
-async function getTenantSignature(): Promise<string | undefined> {
+async function getTenantId(): Promise<string | undefined> {
 	try {
 		if (typeof window !== 'undefined' && (window as any).electronAPI?.settings) {
-			const result = await (window as any).electronAPI.settings.getSignature();
-			if (result.success && result.data) return result.data;
+			const result = await (window as any).electronAPI.settings.getSetup();
+			if (result.success && result.data?.tenantId) return result.data.tenantId;
 		}
 
 		const user = sessionStorage?.getItem('user');
 		if (user) return JSON.parse(user).tenantId;
 	} catch (error) {
-		console.warn('[UsersService] Error getting tenant signature:', error);
+		console.warn('[UsersService] Error getting tenant ID:', error);
 	}
 	return undefined;
 }
@@ -102,7 +102,7 @@ const usersService = {
 		}
 
 		try {
-			const tenantSignature = await getTenantSignature();
+			const tenantId = await getTenantId();
 			const token = getAuthToken();
 
 			const response = await liveApi.post<ApiResponse<CreateUserResponse>>(
@@ -111,7 +111,7 @@ const usersService = {
 				{
 					headers: {
 						...(token && { 'Authorization': `Bearer ${token}` }),
-						...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
+						...(tenantId && { 'X-Tenant-Id': tenantId })
 					}
 				}
 			);

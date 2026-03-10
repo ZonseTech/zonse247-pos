@@ -18,29 +18,29 @@ class SubscriptionService {
 	});
 
 	/**
-	 * Get tenant signature from electron settings or session storage
+	 * Get tenant ID from electron setup or session storage
 	 */
-	private async getTenantSignature(): Promise<string | undefined> {
+	private async getTenantId(): Promise<string | undefined> {
 		try {
 			if (typeof window !== 'undefined' && window.electronAPI?.settings) {
-				const result = await window.electronAPI.settings.getSignature();
-				if (result.success && result.data) return result.data;
+				const result = await window.electronAPI.settings.getSetup();
+				if (result.success && result.data?.tenantId) return result.data.tenantId;
 			}
 
 			const user = sessionStorage?.getItem('user');
 			if (user) return JSON.parse(user).tenantId;
 		} catch (error) {
-			console.warn('[SubscriptionService] Error getting tenant signature:', error);
+			console.warn('[SubscriptionService] Error getting tenant ID:', error);
 		}
 		return undefined;
 	}
 
 	private async getAuthHeaders() {
 		const token = sessionStorage.getItem('token');
-		const tenantSignature = await this.getTenantSignature();
+		const tenantId = await this.getTenantId();
 		return {
 			...(token && { Authorization: `Bearer ${JSON.parse(token)}` }),
-			...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
+			...(tenantId && { 'X-Tenant-Id': tenantId })
 		};
 	}
 
@@ -162,7 +162,7 @@ class SubscriptionService {
 		try {
 			const response = await this.liveApi.get<SubscriptionResponse>(
 				this.endpoint,
-				{ 
+				{
 					headers: await this.getAuthHeaders(),
 					params: { status }
 				}
@@ -199,7 +199,7 @@ class SubscriptionService {
 		try {
 			const response = await this.liveApi.get<SubscriptionResponse>(
 				this.endpoint,
-				{ 
+				{
 					headers: await this.getAuthHeaders(),
 					params: { planId }
 				}

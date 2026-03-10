@@ -16,19 +16,19 @@ const liveApi = axios.create({
 });
 
 /**
- * Get tenant signature from electron settings or session storage
+ * Get tenant ID from electron setup or session storage
  */
-async function getTenantSignature(): Promise<string | undefined> {
+async function getTenantId(): Promise<string | undefined> {
 	try {
 		if (typeof window !== 'undefined' && (window as any).electronAPI?.settings) {
-			const result = await (window as any).electronAPI.settings.getSignature();
-			if (result.success && result.data) return result.data;
+			const result = await (window as any).electronAPI.settings.getSetup();
+			if (result.success && result.data?.tenantId) return result.data.tenantId;
 		}
 
 		const user = sessionStorage?.getItem('user');
 		if (user) return JSON.parse(user).tenantId;
 	} catch (error) {
-		console.warn('[InventoryService] Error getting tenant signature:', error);
+		console.warn('[InventoryService] Error getting tenant ID:', error);
 	}
 	return undefined;
 }
@@ -49,10 +49,10 @@ function getAuthToken(): string | undefined {
  */
 async function getAuthHeaders(): Promise<Record<string, string>> {
 	const token = getAuthToken();
-	const tenantSignature = await getTenantSignature();
+	const tenantId = await getTenantId();
 	return {
 		...(token && { Authorization: `Bearer ${token}` }),
-		...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
+		...(tenantId && { 'X-Tenant-Id': tenantId })
 	};
 }
 
@@ -232,9 +232,8 @@ const inventoryService = {
 	 * GET /summary - Get inventory summary statistics
 	 */
 	async getSummary(): Promise<InventorySummary> {
-		const headers = await getAuthHeaders();
-		return liveApi
-			.get<ApiResponse<InventorySummary>>(endpoints.summary, { headers })
+		return api
+			.get<ApiResponse<InventorySummary>>(endpoints.summary)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -246,9 +245,8 @@ const inventoryService = {
 	 * Includes total values, profit margins, category breakdown, and stock health
 	 */
 	async getOverview(query: InventoryOverviewQuery = {}): Promise<InventoryOverview> {
-		const headers = await getAuthHeaders();
-		return liveApi
-			.get<ApiResponse<InventoryOverview>>(endpoints.overview, { params: query, headers })
+		return api
+			.get<ApiResponse<InventoryOverview>>(endpoints.overview, query)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -260,9 +258,8 @@ const inventoryService = {
 	 * Returns items sorted by total retail value
 	 */
 	async getTopValueItems(limit: number = 10): Promise<TopValueItem[]> {
-		const headers = await getAuthHeaders();
-		return liveApi
-			.get<ApiResponse<TopValueItem[]>>(endpoints.topValue, { params: { limit }, headers })
+		return api
+			.get<ApiResponse<TopValueItem[]>>(endpoints.topValue, { limit })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -273,9 +270,8 @@ const inventoryService = {
 	 * GET /count - Get inventory counts
 	 */
 	async getCount(): Promise<InventoryCount> {
-		const headers = await getAuthHeaders();
-		return liveApi
-			.get<ApiResponse<InventoryCount>>(endpoints.count, { headers })
+		return api
+			.get<ApiResponse<InventoryCount>>(endpoints.count)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -334,9 +330,8 @@ const inventoryService = {
 	 * GET /item/:itemId - Get a single inventory item (Product with Variants)
 	 */
 	async show(id: string): Promise<ApiProduct> {
-		const headers = await getAuthHeaders();
-		return liveApi
-			.get<ApiResponse<ApiProduct>>(`${endpoints.item}/${id}`, { headers })
+		return api
+			.get<ApiResponse<ApiProduct>>(`${endpoints.item}/${id}`)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -359,9 +354,8 @@ const inventoryService = {
 	 * GET /barcode/:barcode - Find inventory item by barcode
 	 */
 	async findByBarcode(barcode: string): Promise<InventoryItem | null> {
-		const headers = await getAuthHeaders();
-		return liveApi
-			.get<ApiResponse<InventoryItem>>(`${endpoints.byBarcode}/${barcode}`, { headers })
+		return api
+			.get<ApiResponse<InventoryItem>>(`${endpoints.byBarcode}/${barcode}`)
 			.then((res) => decodeObjectStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
 			.catch((err) => {
 				if (err.response?.status === 404) {
@@ -411,9 +405,8 @@ const inventoryService = {
 	 * GET /exists/:itemId - Check if inventory item exists
 	 */
 	async checkExists(itemId: string): Promise<boolean> {
-		const headers = await getAuthHeaders();
-		return liveApi
-			.get<ApiResponse<{ exists: boolean }>>(`${endpoints.exists}/${itemId}`, { headers })
+		return api
+			.get<ApiResponse<{ exists: boolean }>>(`${endpoints.exists}/${itemId}`)
 			.then((res) => res.data.data.exists)
 			.catch((err) => {
 				if (err.response?.status === 404) {
@@ -456,12 +449,11 @@ const inventoryService = {
 	 * POST /item/sku - Find inventory item by SKU
 	 */
 	async findBySku(sku: string): Promise<InventoryItem | null> {
-		const headers = await getAuthHeaders();
-		return liveApi
-			.post<ApiResponse<InventoryItem>>(endpoints.findBySku, { sku }, { headers })
-			.then((res) => res.data.data)
+		return api
+			.post<any>(endpoints.findBySku, { sku })
+			.then((res) => res.data.data as InventoryItem)
 			.catch((err) => {
-				if (err.response?.status === 404) {
+				if (err.response?.status === 404 || err.error?.response?.status === 404) {
 					return null;
 				}
 				throw err;
