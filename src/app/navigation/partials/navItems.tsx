@@ -200,7 +200,7 @@ const useNavItems = (): Array<NavItem> => {
             type: 'button',
             color: 'bg-orange-600 hover:bg-orange-700',
             iconColor: 'bg-orange-700',
-            text: 'Users',
+            text: 'Staff Management',
             icon: icons.users,
             group: 'management',
             onClick: () => navigate(ROUTES.USERS),

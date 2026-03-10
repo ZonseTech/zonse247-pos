@@ -92,10 +92,6 @@ const NavBar: FunctionComponent<NavBarProps> = ({
         return false;
     };
 
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-    };
-
     const handleItemClick = (onClick: any) => {
         if (typeof onClick === 'function') {
             onClick();
