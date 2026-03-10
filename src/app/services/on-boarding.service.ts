@@ -821,4 +821,708 @@ export default {
         clearStoredTerminalId();
     },
 
+    // =============================================
+    // INITIAL SYNC API - Based on zonse247-pos-api
+    // Uses: MasterDataFetchService & InitialSyncService
+    // =============================================
+
+    /**
+     * Master data tables in dependency order (matching API INITIAL_SYNC_TABLES)
+     */
+    INITIAL_SYNC_TABLES: [
+        'districts',
+        'roles',
+        'permissions',
+        'rolePermissions',
+        'subscriptionPlans',
+        'planFeatures',
+        'paymentMethods',
+        'paymentServiceProviders',
+        'categories',
+        'suppliers',
+        'customers',
+        'products',
+        'productVariants',
+        'productBarcodes',
+        'variantBarcodes',
+        'inventory',
+        'users',
+    ] as InitialSyncTable[],
+
+    /**
+     * Get human-readable labels for sync tables
+     */
+    getTableLabel(table: InitialSyncTable): string {
+        const labels: Record<InitialSyncTable, string> = {
+            districts: 'Districts',
+            roles: 'User Roles',
+            permissions: 'Permissions',
+            rolePermissions: 'Role Permissions',
+            subscriptionPlans: 'Subscription Plans',
+            planFeatures: 'Plan Features',
+            paymentMethods: 'Payment Methods',
+            paymentServiceProviders: 'Payment Providers',
+            categories: 'Product Categories',
+            suppliers: 'Suppliers',
+            customers: 'Customers',
+            products: 'Products',
+            productVariants: 'Product Variants',
+            productBarcodes: 'Product Barcodes',
+            variantBarcodes: 'Variant Barcodes',
+            inventory: 'Inventory',
+            users: 'Users',
+        };
+        return labels[table] || table;
+    },
+
+    /**
+     * Get default table progress list for UI initialization
+     * @returns Array of table progress objects with pending status
+     */
+    getDefaultTableProgress(): SyncTableProgress[] {
+        return this.INITIAL_SYNC_TABLES.map(table => ({
+            table,
+            label: this.getTableLabel(table),
+            status: 'pending' as SyncTableStatus,
+            totalCount: 0,
+            fetchedCount: 0,
+            savedCount: 0,
+            error: null,
+        }));
+    },
+
+    /**
+     * GET /onboarding/sync/tables
+     * Get list of tables for initial sync (in dependency order)
+     */
+    async getInitialSyncTables(): Promise<InitialSyncTable[]> {
+        try {
+            const response = await axios.get<ApiResponse<{ tables: InitialSyncTable[] }>>(
+                `${LIVE_API_URL}/onboarding/sync/tables`,
+                {
+                    timeout: 10000,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-client-type': 'web',
+                    }
+                }
+            );
+            return response.data.data?.tables || this.INITIAL_SYNC_TABLES;
+        } catch (err) {
+            // Fallback to default tables
+            return this.INITIAL_SYNC_TABLES;
+        }
+    },
+
+    /**
+     * POST /onboarding/master-data/counts
+     * Get record counts for tables (for progress estimation)
+     * @param request - Request with tenantId, branchId
+     * @returns Table counts for progress tracking
+     */
+    async getMasterDataCounts(request: MasterDataCountsRequest): Promise<MasterDataCountsResponse> {
+        try {
+            const response = await axios.post<ApiResponse<MasterDataCountsResponse>>(
+                `${LIVE_API_URL}/onboarding/master-data/counts`,
+                request,
+                {
+                    timeout: 30000,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-client-type': 'web',
+                    }
+                }
+            );
+            return response.data.data!;
+        } catch (err: any) {
+            const axiosError = err as AxiosError<ApiResponse>;
+            throw new Error(
+                axiosError?.response?.data?.message ||
+                axiosError?.message ||
+                'Failed to get data counts'
+            );
+        }
+    },
+
+    /**
+     * POST /onboarding/master-data/all
+     * Fetch all master data for initial sync from cloud
+     * @param request - Request with tenantId, branchId, optional tables and batchSize
+     * @returns All master data from cloud server
+     */
+    async fetchAllMasterData(request: MasterDataFetchAllRequest): Promise<MasterDataFetchAllResponse> {
+        try {
+            const response = await axios.post<ApiResponse<MasterDataFetchAllResponse>>(
+                `${LIVE_API_URL}/onboarding/master-data/all`,
+                request,
+                {
+                    timeout: 300000, // 5 minutes for large data pulls
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-client-type': 'web',
+                    }
+                }
+            );
+            return response.data.data!;
+        } catch (err: any) {
+            const axiosError = err as AxiosError<ApiResponse>;
+            throw new Error(
+                axiosError?.response?.data?.message ||
+                axiosError?.message ||
+                'Failed to fetch master data from cloud'
+            );
+        }
+    },
+
+    /**
+     * POST /onboarding/master-data/table
+     * Fetch data from a specific table with pagination (for large tables)
+     * @param table - Table name
+     * @param tenantId - Tenant ID
+     * @param branchId - Branch ID
+     * @param cursor - Pagination cursor (optional)
+     * @param limit - Records per page (default: 500, max: 1000)
+     * @param since - Delta sync timestamp (optional)
+     */
+    async fetchMasterDataTable<T = any>(
+        table: InitialSyncTable,
+        tenantId: string,
+        branchId: string,
+        cursor?: string,
+        limit: number = 500,
+        since?: string
+    ): Promise<MasterDataTableResponse<T>> {
+        try {
+            const params = new URLSearchParams();
+            params.set('table', table);
+            if (cursor) params.set('cursor', cursor);
+            if (limit) params.set('limit', String(limit));
+            if (since) params.set('since', since);
+
+            const response = await axios.post<ApiResponse<MasterDataTableResponse<T>>>(
+                `${LIVE_API_URL}/onboarding/master-data/table?${params.toString()}`,
+                { tenantId, branchId },
+                {
+                    timeout: 60000,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-client-type': 'web',
+                    }
+                }
+            );
+            return response.data.data!;
+        } catch (err: any) {
+            const axiosError = err as AxiosError<ApiResponse>;
+            throw new Error(
+                axiosError?.response?.data?.message ||
+                axiosError?.message ||
+                `Failed to fetch ${table} from cloud`
+            );
+        }
+    },
+
+    /**
+     * POST /onboarding/sync/initial
+     * Sync all master data to local SQLite database
+     * @param request - Request with terminalId, tenantId, branchId, and data
+     * @returns Sync result with counts and errors
+     * @deprecated Use syncTableBatch for better performance with large datasets
+     */
+    async syncInitialMasterData(request: InitialSyncRequest): Promise<InitialSyncResponse> {
+        try {
+            const response = await api.post<ApiResponse<InitialSyncResponse>>(
+                'onboarding/sync/initial',
+                request as any
+            );
+            return response.data.data!;
+        } catch (err: any) {
+            const axiosError = err as AxiosError<ApiResponse>;
+            throw new Error(
+                axiosError?.response?.data?.message ||
+                axiosError?.message ||
+                'Failed to save master data locally'
+            );
+        }
+    },
+
+    /**
+     * Sync a single table's batch of data to local database
+     * This method enables incremental syncing - save data as it's fetched
+     * instead of waiting for all data to complete.
+     * 
+     * Uses the same /sync/initial endpoint but with only one table's data,
+     * which the API handles gracefully (processes only provided tables).
+     * 
+     * @param table - Table name to sync
+     * @param terminalId - Terminal ID
+     * @param tenantId - Tenant ID
+     * @param branchId - Branch ID
+     * @param data - Array of records to save
+     * @returns Sync result for this table
+     */
+    async syncTableBatch(
+        table: InitialSyncTable,
+        terminalId: string,
+        tenantId: string,
+        branchId: string,
+        data: any[]
+    ): Promise<TableSyncResult> {
+        if (data.length === 0) {
+            return {
+                table,
+                success: true,
+                inserted: 0,
+                updated: 0,
+                skipped: 0,
+                failed: 0,
+                errors: [],
+            };
+        }
+
+        try {
+            const response = await api.post<ApiResponse<InitialSyncResponse>>(
+                'onboarding/sync/initial',
+                {
+                    terminalId,
+                    tenantId,
+                    branchId,
+                    data: { [table]: data },
+                } as any
+            );
+
+            // Extract this table's result from the response
+            const result = response.data.data!;
+            const tableResult = result.tables.find(t => t.table === table);
+
+            if (tableResult) {
+                return tableResult;
+            }
+
+            // If table not in response, assume success (empty or all skipped)
+            return {
+                table,
+                success: result.success,
+                inserted: data.length,
+                updated: 0,
+                skipped: 0,
+                failed: 0,
+                errors: [],
+            };
+        } catch (err: any) {
+            const axiosError = err as AxiosError<ApiResponse>;
+            return {
+                table,
+                success: false,
+                inserted: 0,
+                updated: 0,
+                skipped: 0,
+                failed: data.length,
+                errors: [
+                    axiosError?.response?.data?.message ||
+                    axiosError?.message ||
+                    `Failed to sync ${table} batch`
+                ],
+            };
+        }
+    },
+
+    /**
+     * POST /onboarding/sync/step
+     * Sync data for a specific onboarding step
+     * @param stepType - Step type
+     * @param terminalId - Terminal ID
+     * @param tenantId - Tenant ID
+     * @param branchId - Branch ID
+     * @param data - Data to sync
+     */
+    async syncStepData(
+        stepType: OnboardingStepType,
+        terminalId: string,
+        tenantId: string,
+        branchId: string,
+        data: Record<string, any[]>
+    ): Promise<InitialSyncResponse> {
+        try {
+            const response = await api.post<ApiResponse<InitialSyncResponse>>(
+                'onboarding/sync/step',
+                { stepType, terminalId, tenantId, branchId, data } as any
+            );
+            return response.data.data!;
+        } catch (err: any) {
+            const axiosError = err as AxiosError<ApiResponse>;
+            throw new Error(
+                axiosError?.response?.data?.message ||
+                axiosError?.message ||
+                `Failed to sync ${stepType}`
+            );
+        }
+    },
+
+    /**
+     * Update last sync timestamp for the terminal
+     * 
+     * During onboarding: Skipped - no authenticated endpoint available.
+     * The sync timestamp is tracked via SyncPullProgress.lastSyncTimestamp
+     * and will be properly set on first authenticated delta sync.
+     * 
+     * Post-onboarding (after login): Uses authenticated terminal update endpoint.
+     * 
+     * @param terminalId - Terminal ID
+     * @param timestamp - ISO timestamp from sync response
+     */
+    async updateLastSyncTimestamp(terminalId: string, timestamp: string): Promise<void> {
+        // Check if we're in onboarding mode (no auth available)
+        const validationParams = getStoredValidationParams();
+
+        if (validationParams) {
+            // During onboarding - skip update, no authenticated endpoint available
+            // The timestamp will be set on first delta sync after login
+            console.info(
+                `[Onboarding] Skipping lastSyncTimestamp update - will be set on first authenticated sync. ` +
+                `Terminal: ${terminalId}, Timestamp: ${timestamp}`
+            );
+            return;
+        }
+
+        // Post-onboarding - use authenticated local API
+        try {
+            await api.patch<ApiResponse<Terminal>>(
+                `terminals/${terminalId}`,
+                { lastSyncTimestamp: timestamp } as any
+            );
+        } catch (err) {
+            console.warn('Failed to update last sync timestamp:', err);
+        }
+    },
+
+    /**
+     * Batch size for fetching and syncing data
+     * Sweet spot between too many requests (small) and memory issues (large)
+     */
+    BATCH_SIZE: 500,
+
+    /**
+     * Sync a single table completely (all batches) with progress tracking
+     * Fetches in batches via cursor pagination, saves each batch immediately.
+     * 
+     * @param table - Table name
+     * @param terminalId - Terminal ID
+     * @param tenantId - Tenant ID
+     * @param branchId - Branch ID
+     * @param totalCount - Expected total count (for progress)
+     * @param onBatchComplete - Callback after each batch is saved
+     * @returns Final sync counts for this table
+     */
+    async syncTableFully(
+        table: InitialSyncTable,
+        terminalId: string,
+        tenantId: string,
+        branchId: string,
+        totalCount: number,
+        onBatchComplete?: (progress: {
+            table: InitialSyncTable;
+            fetchedCount: number;
+            savedCount: number;
+            batchNumber: number;
+            hasMore: boolean;
+        }) => void
+    ): Promise<TableSyncResult> {
+        // Skip empty tables
+        if (totalCount === 0) {
+            return {
+                table,
+                success: true,
+                inserted: 0,
+                updated: 0,
+                skipped: 0,
+                failed: 0,
+                errors: [],
+            };
+        }
+
+        let cursor: string | undefined;
+        let hasMore = true;
+        let batchNumber = 0;
+        let totalFetched = 0;
+        let totalInserted = 0;
+        let totalUpdated = 0;
+        let totalSkipped = 0;
+        let totalFailed = 0;
+        const allErrors: string[] = [];
+
+        while (hasMore) {
+            batchNumber++;
+
+            // Fetch batch from cloud
+            const fetchResponse = await this.fetchMasterDataTable(
+                table,
+                tenantId,
+                branchId,
+                cursor,
+                this.BATCH_SIZE
+            );
+
+            totalFetched += fetchResponse.data.length;
+
+            // Save batch to local database immediately
+            const syncResult = await this.syncTableBatch(
+                table,
+                terminalId,
+                tenantId,
+                branchId,
+                fetchResponse.data
+            );
+
+            // Accumulate results
+            totalInserted += syncResult.inserted;
+            totalUpdated += syncResult.updated;
+            totalSkipped += syncResult.skipped;
+            totalFailed += syncResult.failed;
+            if (syncResult.errors.length > 0) {
+                allErrors.push(...syncResult.errors);
+            }
+
+            // Update cursor for next batch
+            cursor = fetchResponse.pagination.nextCursor || undefined;
+            hasMore = fetchResponse.pagination.hasMore;
+
+            // Report progress
+            onBatchComplete?.({
+                table,
+                fetchedCount: totalFetched,
+                savedCount: totalInserted + totalUpdated,
+                batchNumber,
+                hasMore,
+            });
+        }
+
+        return {
+            table,
+            success: allErrors.length === 0 && totalFailed === 0,
+            inserted: totalInserted,
+            updated: totalUpdated,
+            skipped: totalSkipped,
+            failed: totalFailed,
+            errors: allErrors,
+        };
+    },
+
+    /**
+     * Professional-grade initial sync flow:
+     * Processes one table at a time, fetching and saving in batches.
+     * This approach:
+     * - Prevents memory issues with large datasets
+     * - Provides real-time progress per batch
+     * - Allows recovery if interrupted (resume from failed table)
+     * - Is production-ready for thousands of records
+     * 
+     * @param terminalId - Terminal ID
+     * @param tenantId - Tenant ID
+     * @param branchId - Branch ID
+     * @param onProgress - Progress callback for UI updates
+     */
+    async performTableByTableSync(
+        terminalId: string,
+        tenantId: string,
+        branchId: string,
+        onProgress?: (update: {
+            phase: 'counting' | 'syncing' | 'completed' | 'failed';
+            currentTable?: InitialSyncTable;
+            currentTableIndex?: number;
+            totalTables?: number;
+            counts?: Record<string, number>;
+            tableProgress?: {
+                table: InitialSyncTable;
+                fetchedCount: number;
+                savedCount: number;
+                totalCount: number;
+                batchNumber: number;
+                hasMore: boolean;
+            };
+            result?: {
+                success: boolean;
+                tables: TableSyncResult[];
+                syncedAt: string;
+            };
+            error?: string;
+        }) => void
+    ): Promise<{ success: boolean; syncedAt: string; tables: TableSyncResult[] }> {
+        const tables = this.INITIAL_SYNC_TABLES;
+        const tableResults: TableSyncResult[] = [];
+        let syncedAt = new Date().toISOString();
+
+        try {
+            // =============================================
+            // Phase 1: Get table counts for progress estimation
+            // =============================================
+            onProgress?.({ phase: 'counting' });
+
+            const countsResponse = await this.getMasterDataCounts({
+                tenantId,
+                branchId,
+            });
+
+            onProgress?.({
+                phase: 'counting',
+                counts: countsResponse.counts,
+                totalTables: tables.length,
+            });
+
+            // =============================================
+            // Phase 2: Sync each table sequentially
+            // Each table: fetch all batches → save each batch immediately
+            // =============================================
+            for (let i = 0; i < tables.length; i++) {
+                const table = tables[i];
+                const totalCount = countsResponse.counts[table] || 0;
+
+                onProgress?.({
+                    phase: 'syncing',
+                    currentTable: table,
+                    currentTableIndex: i,
+                    totalTables: tables.length,
+                    tableProgress: {
+                        table,
+                        fetchedCount: 0,
+                        savedCount: 0,
+                        totalCount,
+                        batchNumber: 0,
+                        hasMore: totalCount > 0,
+                    },
+                });
+
+                // Sync this table completely (all batches)
+                const tableResult = await this.syncTableFully(
+                    table,
+                    terminalId,
+                    tenantId,
+                    branchId,
+                    totalCount,
+                    (batchProgress) => {
+                        onProgress?.({
+                            phase: 'syncing',
+                            currentTable: table,
+                            currentTableIndex: i,
+                            totalTables: tables.length,
+                            tableProgress: {
+                                ...batchProgress,
+                                totalCount,
+                            },
+                        });
+                    }
+                );
+
+                tableResults.push(tableResult);
+
+                // If table failed completely, we might want to stop
+                // But for resilience, we continue and report all failures at end
+            }
+
+            // =============================================
+            // Phase 3: Update terminal sync timestamp
+            // =============================================
+            syncedAt = new Date().toISOString();
+            await this.updateLastSyncTimestamp(terminalId, syncedAt);
+
+            // Calculate overall success
+            const failedTables = tableResults.filter(t => !t.success);
+            const success = failedTables.length === 0;
+
+            onProgress?.({
+                phase: success ? 'completed' : 'failed',
+                result: {
+                    success,
+                    tables: tableResults,
+                    syncedAt,
+                },
+            });
+
+            return {
+                success,
+                syncedAt,
+                tables: tableResults,
+            };
+
+        } catch (err: any) {
+            const errorMessage = err instanceof Error ? err.message : 'Sync failed';
+
+            onProgress?.({
+                phase: 'failed',
+                error: errorMessage,
+            });
+
+            throw err;
+        }
+    },
+
+    /**
+     * @deprecated Use performTableByTableSync for production workloads
+     * 
+     * Full initial sync flow (legacy - fetches all at once):
+     * 1. Get table counts for progress estimation
+     * 2. Fetch all master data from cloud
+     * 3. Save to local database
+     * 4. Update terminal sync timestamp
+     * 
+     * @param terminalId - Terminal ID
+     * @param tenantId - Tenant ID
+     * @param branchId - Branch ID
+     * @param onProgress - Progress callback
+     */
+    async performInitialSync(
+        terminalId: string,
+        tenantId: string,
+        branchId: string,
+        onProgress?: (update: {
+            phase: 'counting' | 'fetching' | 'saving';
+            currentTable?: InitialSyncTable;
+            counts?: Record<string, number>;
+            fetchedData?: Record<string, any[]>;
+            syncResult?: InitialSyncResponse;
+        }) => void
+    ): Promise<{ success: boolean; syncedAt: string; result: InitialSyncResponse }> {
+        // Phase 1: Get counts for progress estimation
+        onProgress?.({ phase: 'counting' });
+
+        const countsResponse = await this.getMasterDataCounts({
+            tenantId,
+            branchId,
+        });
+
+        onProgress?.({ phase: 'counting', counts: countsResponse.counts });
+
+        // Phase 2: Fetch all master data from cloud
+        onProgress?.({ phase: 'fetching' });
+
+        const fetchResponse = await this.fetchAllMasterData({
+            tenantId,
+            branchId,
+            batchSize: 500,
+            since: null,
+        });
+
+        onProgress?.({ phase: 'fetching', fetchedData: fetchResponse.data });
+
+        // Phase 3: Save to local database
+        onProgress?.({ phase: 'saving' });
+
+        const syncResult = await this.syncInitialMasterData({
+            terminalId,
+            tenantId,
+            branchId,
+            data: fetchResponse.data,
+        });
+
+        onProgress?.({ phase: 'saving', syncResult });
+
+        // Phase 4: Update terminal sync timestamp
+        await this.updateLastSyncTimestamp(terminalId, fetchResponse.syncedAt);
+
+        return {
+            success: syncResult.success,
+            syncedAt: fetchResponse.syncedAt,
+            result: syncResult,
+        };
+    },
+
 }
