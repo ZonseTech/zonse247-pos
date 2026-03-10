@@ -1,6 +1,6 @@
 import { Form, Formik } from 'formik';
 import { Notify, Report } from 'notiflix';
-import { Button, FormFieldCard } from '../../components';
+import { Button, FormFieldCard, OfflinePlaceholder } from '../../components';
 import FormInput from '../../components/FormInput';
 import FormWrapper from '../../components/FormWrapper';
 import FormSearchableSelect from '../../components/FormSearchableSelect';
@@ -16,25 +16,26 @@ import { useNavigate, useLocation } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useAuth } from '../../context/AuthProvider';
 import { useIsMobile } from '../../hooks/useMediaQuery';
-import { isAdminRole } from '../../constants/roles';
+import { hasRole } from '../../utils';
 import MobilePlanSkeleton from '../../components/loader/MobilePlanSkeleton';
 import * as Yup from 'yup';
 import { capitalizeEachWord } from '../../utils';
+import { useConnectivity } from '../../hooks/useConnectivity';
 
 const TerminalForm: FunctionComponent = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const isMobile = useIsMobile();
+    const { isOnline } = useConnectivity();
     const [loading, setLoading] = useState(false);
     const [terminal, setTerminal] = useState<Terminal | null>(null);
 
     const { terminalId } = location.state || {};
     const { user: authUser } = useAuth();
 
-    // Check if user can select tenant (only admin roles)
     const canSelectTenant = useMemo(() => {
-        return isAdminRole(authUser?.roleId, authUser?.roleName);
-    }, [authUser?.roleId, authUser?.roleName]);
+        return hasRole(authUser, 'admin');
+    }, [authUser]);
 
     useEffect(() => {
         const fetchTerminal = async () => {
@@ -177,6 +178,20 @@ const TerminalForm: FunctionComponent = () => {
 
     if (loading) return <MobilePlanSkeleton />;
 
+    if (!isOnline) {
+        return (
+            <AppLayout>
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                    <OfflinePlaceholder
+                        title="Terminal Management Unavailable Offline"
+                        description="Creating or editing terminals requires an internet connection to sync with the server. Please connect to the internet and try again."
+                        variant="cloud"
+                    />
+                </div>
+            </AppLayout>
+        );
+    }
+
     return (
         <Fragment>
             <AppLayout>
@@ -214,30 +229,31 @@ const TerminalForm: FunctionComponent = () => {
                             <div className="flex-1 overflow-y-auto max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                                 <FormWrapper>
                                     <div className="py-4 space-y-4">
-                                        {/* Basic Information - Admin only */}
                                         {canSelectTenant && (
-                                            <FormFieldCard title="Basic Information">
-                                                <TenantSearch
-                                                    value={values.tenantId}
-                                                    onChange={(tenantId) => {
-                                                        setFieldValue('tenantId', tenantId);
-                                                        setFieldValue('branchId', '');
-                                                    }}
-                                                    error={errors.tenantId}
-                                                    touched={touched.tenantId}
-                                                />
+                                            <FormFieldCard title="Tenant & Branch">
+                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                                    <TenantSearch
+                                                        value={values.tenantId}
+                                                        onChange={(tenantId) => {
+                                                            setFieldValue('tenantId', tenantId);
+                                                            setFieldValue('branchId', '');
+                                                        }}
+                                                        error={errors.tenantId}
+                                                        touched={touched.tenantId}
+                                                    />
 
-                                                <BranchSearch
-                                                    value={values.branchId}
-                                                    onChange={(branchId) => setFieldValue('branchId', branchId)}
-                                                    tenantId={values.tenantId}
-                                                    error={errors.branchId}
-                                                    touched={touched.branchId}
-                                                />
+                                                    <BranchSearch
+                                                        value={values.branchId}
+                                                        onChange={(branchId) => setFieldValue('branchId', branchId)}
+                                                        tenantId={values.tenantId}
+                                                        error={errors.branchId}
+                                                        touched={touched.branchId}
+                                                    />
+                                                </div>
                                             </FormFieldCard>
                                         )}
 
-                                        <FormFieldCard>
+                                        <FormFieldCard title="Terminal Information">
                                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                                 <FormInput
                                                     type="text"

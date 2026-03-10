@@ -1,6 +1,6 @@
 import { Form, Formik } from 'formik';
 import { Notify, Report } from 'notiflix';
-import { Button, FormFieldCard } from '../../components';
+import { Button, FormFieldCard, OfflinePlaceholder } from '../../components';
 import FormInput from '../../components/FormInput';
 import FormWrapper from '../../components/FormWrapper';
 import FormSearchableSelect from '../../components/FormSearchableSelect';
@@ -20,11 +20,13 @@ import { businessTypes } from '../../utils/tenant-status';
 import { capitalizeEachWord } from '../../utils';
 import * as Yup from 'yup';
 import MobilePlanSkeleton from '../../components/loader/MobilePlanSkeleton';
+import { useConnectivity } from '../../hooks/useConnectivity';
 
 const BranchForm: FunctionComponent = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const isMobile = useIsMobile();
+    const { isOnline } = useConnectivity();
     const permissions = useBranchPermissions();
     const [loading, setLoading] = useState(false);
     const [branch, setBranch] = useState<Branch | null>(null);
@@ -34,9 +36,8 @@ const BranchForm: FunctionComponent = () => {
     const { branchId } = location.state || {};
     const { user: authUser } = useAuth();
 
-    // Determine if user can edit this branch
     const canEdit = useMemo(() => {
-        if (!branchId) return permissions.canCreateBranch; // New branch
+        if (!branchId) return permissions.canCreateBranch;
         return permissions.canEditBranch(branchId);
     }, [branchId, permissions]);
 
@@ -184,6 +185,20 @@ const BranchForm: FunctionComponent = () => {
     };
 
     if (loading) return <MobilePlanSkeleton />
+
+    if (!isOnline) {
+        return (
+            <AppLayout>
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                    <OfflinePlaceholder
+                        title="Branch Management Unavailable Offline"
+                        description="Creating or editing branches requires an internet connection to sync with the server. Please connect to the internet and try again."
+                        variant="cloud"
+                    />
+                </div>
+            </AppLayout>
+        );
+    }
 
     return (
         <Fragment>

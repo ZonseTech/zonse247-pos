@@ -11,6 +11,8 @@ import BranchSummaryCards, { BranchSummaryCard } from './partials/BranchSummaryC
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import { useAuth } from '../../context/AuthProvider';
+import { hasRole } from '../../utils';
 import MobileBranch from './MobileBranch';
 import DesktopBranch from './DesktopBranch';
 
@@ -18,6 +20,11 @@ const BranchManagement: FunctionComponent = () => {
     const isMobile = useIsMobile();
     const navigate = useNavigate();
     const permissions = useBranchPermissions();
+    const { user: authUser } = useAuth();
+
+    const canViewStats = useMemo(() => {
+        return hasRole(authUser, 'admin') || hasRole(authUser, 'super-admin');
+    }, [authUser]);
 
     const {
         isLoading,
@@ -34,7 +41,6 @@ const BranchManagement: FunctionComponent = () => {
         filteredBranches
     } = useBranches();
 
-    // Calculate summary stats
     const summaryCards: BranchSummaryCard[] = useMemo(() => {
         const allBranches = filteredBranches || [];
         const activeCount = allBranches.filter(b => b.status === 'active').length;
@@ -167,11 +173,13 @@ const BranchManagement: FunctionComponent = () => {
                 {/* Main Content Container */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
 
-                    {/* Summary Cards */}
-                    <BranchSummaryCards
-                        cards={summaryCards}
-                        isLoading={isLoading}
-                    />
+                    {/* Summary Cards - Admin and Super-Admin only */}
+                    {canViewStats && (
+                        <BranchSummaryCards
+                            cards={summaryCards}
+                            isLoading={isLoading}
+                        />
+                    )}
 
                     {/* Conditional Rendering for Mobile and Desktop */}
                     {isMobile ? (

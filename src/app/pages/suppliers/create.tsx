@@ -8,7 +8,7 @@ import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import { Button, FormFieldCard } from '../../components';
 import FormInput from '../../components/FormInput';
-import FormSelectBox from '../../components/FormSelectBox';
+import FormSearchableSelect from '../../components/FormSearchableSelect';
 import { ROUTES } from '../../utils/constants';
 import { useSuppliers } from '../../hooks/useSuppliers';
 import { useSettings } from '../../hooks/useSettings';
@@ -64,6 +64,13 @@ const SupplierForm: FunctionComponent = () => {
         { label: 'Blocked', value: 'BLOCKED' }
     ];
 
+    const identifierTypeOptions = [
+        { label: 'Business Registration Number', value: 'BUSINESS_REGISTRATION' },
+        { label: 'National ID', value: 'NATIONAL_ID' },
+        { label: 'Passport Number', value: 'PASSPORT' },
+        { label: "Driver's License", value: 'DRIVERS_LICENSE' }
+    ];
+
     const defaultSupplierValues = {
         name: '',
         contactPerson: '',
@@ -74,6 +81,8 @@ const SupplierForm: FunctionComponent = () => {
         paymentTerms: 'NET_30',
         creditLimit: 0,
         status: 'ACTIVE' as SupplierStatus,
+        identifierType: '',
+        identifierNumber: '',
     };
 
     const initialSupplierValues = supplier ? {
@@ -86,6 +95,8 @@ const SupplierForm: FunctionComponent = () => {
         paymentTerms: supplier.paymentTerms || 'NET_30',
         creditLimit: supplier.creditLimit || 0,
         status: supplier.status,
+        identifierType: (supplier as any).identifierType || '',
+        identifierNumber: (supplier as any).identifierNumber || '',
     } : defaultSupplierValues;
 
     const supplierValidationSchema = Yup.object().shape({
@@ -104,7 +115,19 @@ const SupplierForm: FunctionComponent = () => {
         creditLimit: Yup.number()
             .min(0, 'Credit limit must be 0 or higher'),
         status: Yup.string().required('Status is required'),
-    });
+        identifierType: Yup.string().when('identifierNumber', {
+            is: (val: string) => val && val.length > 0,
+            then: (schema) => schema.required('Identifier type is required when identity number is provided'),
+            otherwise: (schema) => schema,
+        }),
+        identifierNumber: Yup.string()
+            .max(50, 'Identifier number is too long')
+            .when('identifierType', {
+                is: (val: string) => val && val.length > 0,
+                then: (schema) => schema.required('Identifier number is required when type is selected'),
+                otherwise: (schema) => schema,
+            }),
+    }, [['identifierType', 'identifierNumber']]);
 
     const handleSubmit = async (values: typeof defaultSupplierValues, { resetForm }: any) => {
         setLoading(true);
@@ -187,6 +210,7 @@ const SupplierForm: FunctionComponent = () => {
                                             label="Contact Person"
                                             name="contactPerson"
                                             placeholder="John Doe"
+                                            required
                                         />
 
                                         <FormInput
@@ -204,29 +228,43 @@ const SupplierForm: FunctionComponent = () => {
                                             required
                                         />
 
-                                        <div className="md:col-span-2">
-                                            <FormInput
-                                                label="Address"
-                                                name="address"
-                                                placeholder="Street address, city, country"
-                                            />
-                                        </div>
+                                        <FormInput
+                                            label="Address"
+                                            name="address"
+                                            required
+                                            placeholder="Street address, city, country"
+                                        />
 
                                         <FormInput
                                             label="Tax ID / VAT Number"
                                             name="taxId"
                                             placeholder="123456789"
                                         />
+
+                                        <FormSearchableSelect
+                                            label="Identifier Type"
+                                            name="identifierType"
+                                            options={identifierTypeOptions}
+                                            placeholder="Select identifier type"
+                                            isClearable
+                                        />
+
+                                        <FormInput
+                                            label="Supplier Identity"
+                                            name="identifierNumber"
+                                            placeholder="Enter identifier number"
+                                        />
                                     </div>
                                 </FormFieldCard>
 
                                 <FormFieldCard title="Payment & Terms">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <FormSelectBox
+                                        <FormSearchableSelect
                                             label="Payment Terms"
                                             name="paymentTerms"
                                             options={paymentTermsOptions}
                                             required
+                                            placeholder="Select payment terms"
                                         />
 
                                         <FormInput
@@ -238,11 +276,12 @@ const SupplierForm: FunctionComponent = () => {
                                             min="0"
                                         />
 
-                                        <FormSelectBox
+                                        <FormSearchableSelect
                                             label="Status"
                                             name="status"
                                             options={statusOptions}
                                             required
+                                            placeholder="Select status"
                                         />
                                     </div>
                                 </FormFieldCard>

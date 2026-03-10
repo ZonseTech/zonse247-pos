@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useAuth } from '../../context/AuthProvider';
-import { isAdminRole } from '../../constants/roles';
+import { hasRole } from '../../utils';
 
 const TerminalManagement: FunctionComponent = () => {
     const isMobile = useIsMobile();
@@ -24,10 +24,9 @@ const TerminalManagement: FunctionComponent = () => {
     const { mode } = useContext(ZonseThemeContext);
     const { user: authUser } = useAuth();
 
-    // Check if user can view stats (admin roles only)
     const canViewStats = useMemo(() => {
-        return isAdminRole(authUser?.roleId, authUser?.roleName);
-    }, [authUser?.roleId, authUser?.roleName]);
+        return hasRole(authUser, 'admin');
+    }, [authUser]);
 
     const {
         isLoading,
@@ -47,11 +46,9 @@ const TerminalManagement: FunctionComponent = () => {
         filteredTerminals
     } = useTerminals();
 
-    // Calculate summary stats
     const summaryCards: TerminalSummaryCard[] = useMemo(() => {
         const allTerminals = filteredTerminals || [];
         const activeCount = allTerminals.filter(t => t.activationStatus === 'ACTIVATED').length;
-        const inactiveCount = allTerminals.filter(t => t.activationStatus === 'DEACTIVATED' || t.activationStatus === 'PENDING').length;
         const primaryCount = allTerminals.filter(t => t.isPrimary).length;
         const blockedCount = allTerminals.filter(t => t.isBlocked).length;
 
@@ -220,18 +217,15 @@ const TerminalManagement: FunctionComponent = () => {
                     )}
                 </PageHeader>
 
-                {/* Main Content Container */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
 
-                    {/* Summary Cards - Admin only */}
-                    {canViewStats && (
+                    {canViewStats ? (
                         <TerminalSummaryCards
                             cards={summaryCards}
                             isLoading={isLoading}
                         />
-                    )}
+                    ) : null}
 
-                    {/* Mobile View - Card List */}
                     {isMobile ? (
                         <div className="overflow-hidden">
                             {isLoading ? (
