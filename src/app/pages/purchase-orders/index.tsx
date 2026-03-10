@@ -1,6 +1,6 @@
 import { FunctionComponent, useCallback, useContext, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { ShoppingCart, Settings2, X } from 'lucide-react';
+import { ShoppingCart, Settings2 } from 'lucide-react';
 import DataTable, { type Themes } from 'react-data-table-component';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
@@ -12,10 +12,10 @@ import { usePurchaseOrders } from '../../hooks/usePurchaseOrders';
 import { getPurchaseOrderTableColumns } from './partials/PurchaseOrderTableColumns';
 import { PurchaseOrderMobileList } from './partials/PurchaseOrderMobileCard';
 import PurchaseOrderSummaryCards, { PurchaseOrderSummaryCard } from './partials/PurchaseOrderSummaryCards';
-import { SearchBar } from './partials/SearchBar';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import ReceiveModal from './partials/ReceiveModal';
+import { Confirm } from 'notiflix';
 
 const PurchaseOrderManagement: FunctionComponent = () => {
     const isMobile = useIsMobile();
@@ -36,15 +36,13 @@ const PurchaseOrderManagement: FunctionComponent = () => {
         totalRows,
         statusFilter,
         setStatusFilter,
-        searchTerm,
-        setSearchTerm,
         receivePurchaseOrder,
         cancelPurchaseOrder,
     } = usePurchaseOrders();
 
     const hasActiveFilters = useMemo(() => {
-        return !!statusFilter || !!searchTerm;
-    }, [statusFilter, searchTerm]);
+        return !!statusFilter;
+    }, [statusFilter]);
 
     // Calculate summary stats
     const summaryCards: PurchaseOrderSummaryCard[] = useMemo(() => {
@@ -97,20 +95,24 @@ const PurchaseOrderManagement: FunctionComponent = () => {
     }, []);
 
     const handleCancel = useCallback(async (po: PurchaseOrder) => {
-        const reason = prompt('Enter cancellation reason:');
-        if (reason) {
-            await cancelPurchaseOrder(po.id, reason);
-        }
+        Confirm.show(
+            'Cancel Purchase Order',
+            `Are you sure you want to cancel ${po.poNumber}?`,
+            'Yes, Cancel',
+            'No',
+            async () => {
+                await cancelPurchaseOrder(po.id);
+            }
+        );
     }, [cancelPurchaseOrder]);
 
     const handleView = useCallback((po: PurchaseOrder) => {
-        navigate(ROUTES.PURCHASE_ORDER_FORM, { state: { purchaseOrderId: po.purchaseOrderId } });
+        navigate(ROUTES.PURCHASE_ORDER_FORM, { state: { purchaseOrderId: po.id } });
     }, [navigate]);
 
     const handleClearFilters = useCallback(() => {
         setStatusFilter('');
-        setSearchTerm('');
-    }, [setStatusFilter, setSearchTerm]);
+    }, [setStatusFilter]);
 
     const handleRowSelected = useCallback((state: { selectedRows: PurchaseOrder[] }) => {
         setSelectedRows(state.selectedRows);
@@ -140,12 +142,6 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                     description="Manage purchase orders and receive inventory"
                     action={
                         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                            <SearchBar
-                                searchTerm={searchTerm}
-                                onSearch={setSearchTerm}
-                                placeholder="Search by PO number, supplier..."
-                            />
-
                             <Select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value as PurchaseOrderStatus | '')}

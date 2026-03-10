@@ -40,12 +40,6 @@ const statusConfig: Record<PurchaseOrderStatus, { bg: string; text: string; dot:
         dot: 'bg-red-500',
         label: 'Cancelled'
     },
-    LOCKED: {
-        bg: 'bg-purple-100 dark:bg-purple-900/30',
-        text: 'text-purple-800 dark:text-purple-400',
-        dot: 'bg-purple-500',
-        label: 'Locked'
-    },
 };
 
 const PurchaseOrderMobileCard: FC<PurchaseOrderMobileCardProps> = ({

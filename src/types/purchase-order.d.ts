@@ -1,27 +1,31 @@
 /**
  * Purchase Order Types
+ * Aligned with zonse247-pos-api module
  * Following the principle: "Orders show intent, receipts confirm reality"
  */
 
 /**
- * Purchase order status
+ * Purchase order status (from Prisma)
  */
 type PurchaseOrderStatus =
     | 'DRAFT'              // Being created
     | 'PENDING'            // Sent to supplier, awaiting delivery
     | 'PARTIALLY_RECEIVED' // Some items received
     | 'RECEIVED'           // All items received
-    | 'CANCELLED'          // Order cancelled
-    | 'LOCKED';            // Locked for editing
+    | 'CANCELLED';         // Order cancelled
 
 /**
- * Purchase order item
+ * Purchase order item - aligned with API model
  */
 interface PurchaseOrderItem {
-    id?: string;
-    purchaseOrderId?: string;
+    id: string;
+    purchaseOrderId: string;
     productId: string;
-    product?: Product; // Populated in responses
+    product?: {
+        id: string;
+        name: string;
+        sku: string;
+    };
 
     // Quantities
     orderedQuantity: number;    // What we ordered
@@ -30,28 +34,22 @@ interface PurchaseOrderItem {
 
     // Pricing
     unitPrice: number;          // Price per unit
-    totalPrice?: number;        // orderedQuantity * unitPrice (calculated)
-
-    // Taxes and discounts
-    taxRate?: number;
-    taxAmount?: number;
-    discountRate?: number;
-    discountAmount?: number;
+    totalPrice: number;         // orderedQuantity * unitPrice (calculated)
 
     // Notes
     notes?: string;
 
     // Audit
-    createdAt?: Date | string;
-    updatedAt?: Date | string;
+    createdAt: Date | string;
+    updatedAt: Date | string;
 }
 
 /**
- * Main Purchase Order entity
+ * Main Purchase Order entity - aligned with API model
  */
 interface PurchaseOrder {
     id: string;
-    purchaseOrderId?: string; // Alias for id, some API responses may use this
+    purchaseOrderId: string; // Same as id - for compatibility
     tenantId: string;
     branchId: string;
 
@@ -60,10 +58,14 @@ interface PurchaseOrder {
 
     // Supplier
     supplierId: string;
-    supplier?: Supplier; // Populated in responses
+    supplier?: {
+        id: string;
+        name: string;
+    };
 
     // Status
     status: PurchaseOrderStatus;
+    isLocked: boolean;
 
     // Items
     items: PurchaseOrderItem[];
@@ -73,116 +75,54 @@ interface PurchaseOrder {
     expectedDeliveryDate?: Date | string;
     receivedAt?: Date | string;
 
-    // Financial totals (calculated)
-    subtotal: number;
-    taxAmount: number;
-    discountAmount: number;
-    totalAmount: number;
-
     // Notes
     notes?: string;
-    internalNotes?: string; // Not visible to supplier
-
-    // Payment
-    paymentStatus?: 'UNPAID' | 'PARTIAL' | 'PAID';
-    paidAmount?: number;
 
     // Receiving info
     receivedBy?: string; // User ID who received the order
-    receivingNotes?: string;
 
     // Audit
     createdBy: string;
-    updatedBy?: string;
     createdAt: Date | string;
     updatedAt: Date | string;
 
-    // Attachments
-    attachments?: string[]; // URLs to invoices, delivery notes, etc.
+    // Computed field for UI (calculated from items)
+    totalAmount?: number;
 }
 
 /**
- * Create purchase order payload
+ * Create purchase order input - aligned with API
  */
-interface CreatePurchaseOrderPayload {
-    tenantId: string;
-    branchId: string;
+interface CreatePurchaseOrderInput {
     supplierId: string;
-    expectedDeliveryDate?: Date | string;
+    expectedDeliveryDate?: string;
     notes?: string;
-    internalNotes?: string;
-    createdBy: string;
     items: {
         productId: string;
         orderedQuantity: number;
         unitPrice: number;
-        taxRate?: number;
-        discountRate?: number;
-        notes?: string;
     }[];
 }
 
 /**
- * Update purchase order payload
+ * Receive purchase order input - aligned with API
  */
-interface UpdatePurchaseOrderPayload {
-    tenantId: string;
-    branchId: string;
-    supplierId?: string;
-    expectedDeliveryDate?: Date | string;
-    notes?: string;
-    internalNotes?: string;
-    items?: {
-        id?: string; // Include for existing items to update
-        productId: string;
-        orderedQuantity: number;
-        unitPrice: number;
-        taxRate?: number;
-        discountRate?: number;
-        notes?: string;
-    }[];
-}
-
-/**
- * Receive purchase order payload
- * This is where inventory is actually updated
- */
-interface ReceivePurchaseOrderPayload {
-    tenantId?: string;
-    branchId?: string;
-    receivedBy: string;
-    receivingNotes?: string;
+interface ReceivePurchaseOrderInput {
     items: {
         productId: string;
-        receivedQuantity: number;  // Good stock received
-        damagedQuantity: number;   // Damaged items
-        notes?: string;
+        receivedQuantity: number;
+        damagedQuantity: number;
     }[];
-}
-
-/**
- * Cancel purchase order payload
- */
-interface CancelPurchaseOrderPayload {
-    tenantId?: string;
-    branchId?: string;
-    cancelledBy?: string;
-    cancelReason?: string;
 }
 
 /**
  * Purchase order list query
  */
 interface PurchaseOrderListQuery {
-    tenantId: string;
-    branchId: string;
-    page?: number;
-    limit?: number;
     status?: PurchaseOrderStatus;
     supplierId?: string;
-    startDate?: Date | string;
-    endDate?: Date | string;
-    search?: string; // Search by PO number
+    page?: number;
+    limit?: number;
 }
 
 /**
@@ -195,33 +135,22 @@ interface PurchaseOrderResponse {
 }
 
 /**
- * Purchase order list response
+ * Purchase order list response - aligned with API
  */
 interface PurchaseOrderListResponse {
     success: boolean;
     message: string;
     data: {
-        orders: PurchaseOrder[]; // API returns 'orders' not 'purchaseOrders'
-        purchaseOrders?: PurchaseOrder[]; // Keep for backward compatibility
+        orders: PurchaseOrder[];
         pagination: {
-            currentPage?: number;
-            page?: number;
-            limit?: number;
-            itemsPerPage?: number;
-            total?: number;
-            totalItems?: number;
-            totalPages?: number;
+            currentPage: number;
+            totalPages: number;
+            totalItems: number;
+            itemsPerPage: number;
         };
     };
 }
 
-/**
- * Purchase order statistics
- */
-interface PurchaseOrderStats {
-    totalOrders: number;
-    pendingOrders: number;
-    receivedOrders: number;
-    totalValue: number;
-    pendingValue: number;
-}
+// Legacy type aliases for backward compatibility
+type CreatePurchaseOrderPayload = CreatePurchaseOrderInput;
+type ReceivePurchaseOrderPayload = ReceivePurchaseOrderInput;

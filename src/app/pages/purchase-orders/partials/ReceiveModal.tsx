@@ -1,11 +1,10 @@
 import { FunctionComponent, useState, useEffect } from 'react';
 import { Modal, Button, FormInput } from '../../../components';
-import { useSettings } from '../../../hooks/useSettings';
 
 interface ReceiveModalProps {
     purchaseOrder: PurchaseOrder;
     onClose: () => void;
-    onReceive: (poId: string, payload: ReceivePurchaseOrderPayload) => Promise<any>;
+    onReceive: (poId: string, payload: ReceivePurchaseOrderInput) => Promise<any>;
 }
 
 const ReceiveModal: FunctionComponent<ReceiveModalProps> = ({
@@ -13,7 +12,6 @@ const ReceiveModal: FunctionComponent<ReceiveModalProps> = ({
     onClose,
     onReceive,
 }) => {
-    const { setup } = useSettings();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [items, setItems] = useState<{
         productId: string;
@@ -38,13 +36,14 @@ const ReceiveModal: FunctionComponent<ReceiveModalProps> = ({
     const handleSubmit = async () => {
         setIsSubmitting(true);
         try {
-            await onReceive(purchaseOrder.purchaseOrderId, {
+            // Use id field for the API call
+            await onReceive(purchaseOrder.id, {
                 items: items.map((item) => ({
                     productId: item.productId,
                     receivedQuantity: item.receivedQuantity,
                     damagedQuantity: item.damagedQuantity,
                 })),
-            } as any);
+            });
             onClose();
         } catch (error) {
             console.error('Receive error:', error);

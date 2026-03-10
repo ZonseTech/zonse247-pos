@@ -67,7 +67,7 @@ export const getPurchaseOrderTableColumns = ({
         {
             name: 'Status',
             cell: (row) => {
-                const statusConfig = {
+                const statusConfig: Record<PurchaseOrderStatus, { bg: string; text: string; dot: string; label: string }> = {
                     DRAFT: {
                         bg: 'bg-gray-100 dark:bg-gray-700',
                         text: 'text-gray-800 dark:text-gray-300',
@@ -97,12 +97,6 @@ export const getPurchaseOrderTableColumns = ({
                         text: 'text-red-800 dark:text-red-400',
                         dot: 'bg-red-500',
                         label: 'Cancelled'
-                    },
-                    LOCKED: {
-                        bg: 'bg-purple-100 dark:bg-purple-900/30',
-                        text: 'text-purple-800 dark:text-purple-400',
-                        dot: 'bg-purple-500',
-                        label: 'Locked'
                     },
                 };
                 const config = statusConfig[row.status] || statusConfig.DRAFT;
