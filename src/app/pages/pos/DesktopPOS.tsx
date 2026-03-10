@@ -49,7 +49,6 @@ const DesktopPOS: FunctionComponent = () => {
     const [paymentMethodId, setPaymentMethodId] = useState<PaymentMethod>(CHECKOUT.CASH);
     const [customPriceInputs, setCustomPriceInputs] = useState<Record<string, string>>({});
 
-    // Only web browsers should have dynamic sidebar positioning (not Electron or EBN)
     const isSidebarVisible = !isElectron() && !isEBN && !isSidebarHidden;
 
     useEffect(() => {

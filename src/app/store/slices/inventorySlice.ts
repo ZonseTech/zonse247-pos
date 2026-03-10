@@ -37,7 +37,6 @@ const initialState: InventoryState = {
     cacheTimeout: 5 * 60 * 1000,
 }
 
-// Query parameters for fetching products
 interface FetchProductsParams {
     page?: number
     perPage?: number
@@ -52,9 +51,7 @@ export const fetchInventory = createAsyncThunk(
     'inventory/fetchInventory',
     async (params: FetchProductsParams = {}, { rejectWithValue }) => {
         try {
-            // Fetch products with max allowed perPage (100)
-            // For POS, we fetch all pages to get complete product list
-            const perPage = Math.min(params.perPage || 100, 100) // API max is 100
+            const perPage = Math.min(params.perPage || 100, 100)
 
             const baseParams: ListProductsOptions = {
                 page: 1,
@@ -66,11 +63,9 @@ export const fetchInventory = createAsyncThunk(
                 includeInactive: params.includeInactive || false,
             }
 
-            // Fetch first page
             const firstResponse = await productService.listProducts(baseParams)
             let allProducts = firstResponse.products || []
 
-            // If there are more pages, fetch them all for POS
             const totalPages = firstResponse.pagination?.totalPages || 1
             if (totalPages > 1 && !params.page) {
                 const pagePromises = []
@@ -83,7 +78,6 @@ export const fetchInventory = createAsyncThunk(
                 })
             }
 
-            // Map ProductWithInventory to InventoryItem for cart compatibility
             const inventoryItems = mapProductsToInventoryItems(allProducts)
 
             return {

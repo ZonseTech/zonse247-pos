@@ -149,7 +149,6 @@ export const useInventory = () => {
         const inventoryItem = inventory.find(p => p.productId === id)
         const isDefaultItem = prevItem.isDefault === true
 
-        // Skip inventory validation for default items
         if (!isDefaultItem && inventoryItem) {
             const currentInventoryStock = parseInt((inventoryItem.quantity || inventoryItem.availableQuantity || '0').toString())
             const difference = prevItem.quantity - quantity
