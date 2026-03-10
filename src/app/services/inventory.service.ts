@@ -1,8 +1,60 @@
+import axios from 'axios';
 import api from './http.service';
 import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
 
+const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL;
+
 // Fields to decode for inventory items
 const INVENTORY_DECODE_FIELDS = ['name', 'description', 'brand', 'sku', 'color', 'size', 'unit', 'supplierName'] as const;
+
+const liveApi = axios.create({
+	baseURL: LIVE_API_URL,
+	timeout: 30000,
+	headers: {
+		'X-Client-Type': 'web'
+	}
+});
+
+/**
+ * Get tenant signature from electron settings or session storage
+ */
+async function getTenantSignature(): Promise<string | undefined> {
+	try {
+		if (typeof window !== 'undefined' && (window as any).electronAPI?.settings) {
+			const result = await (window as any).electronAPI.settings.getSignature();
+			if (result.success && result.data) return result.data;
+		}
+
+		const user = sessionStorage?.getItem('user');
+		if (user) return JSON.parse(user).tenantId;
+	} catch (error) {
+		console.warn('[InventoryService] Error getting tenant signature:', error);
+	}
+	return undefined;
+}
+
+/**
+ * Get auth token from session storage
+ */
+function getAuthToken(): string | undefined {
+	try {
+		return sessionStorage?.getItem('token') || undefined;
+	} catch {
+		return undefined;
+	}
+}
+
+/**
+ * Get auth headers for liveApi calls
+ */
+async function getAuthHeaders(): Promise<Record<string, string>> {
+	const token = getAuthToken();
+	const tenantSignature = await getTenantSignature();
+	return {
+		...(token && { Authorization: `Bearer ${token}` }),
+		...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
+	};
+}
 
 const endpoints = {
 	// Base endpoints
@@ -180,8 +232,9 @@ const inventoryService = {
 	 * GET /summary - Get inventory summary statistics
 	 */
 	async getSummary(): Promise<InventorySummary> {
-		return api
-			.get<ApiResponse<InventorySummary>>(endpoints.summary)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.get<ApiResponse<InventorySummary>>(endpoints.summary, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -193,8 +246,9 @@ const inventoryService = {
 	 * Includes total values, profit margins, category breakdown, and stock health
 	 */
 	async getOverview(query: InventoryOverviewQuery = {}): Promise<InventoryOverview> {
-		return api
-			.get<ApiResponse<InventoryOverview>>(endpoints.overview, query)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.get<ApiResponse<InventoryOverview>>(endpoints.overview, { params: query, headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -206,8 +260,9 @@ const inventoryService = {
 	 * Returns items sorted by total retail value
 	 */
 	async getTopValueItems(limit: number = 10): Promise<TopValueItem[]> {
-		return api
-			.get<ApiResponse<TopValueItem[]>>(endpoints.topValue, { limit })
+		const headers = await getAuthHeaders();
+		return liveApi
+			.get<ApiResponse<TopValueItem[]>>(endpoints.topValue, { params: { limit }, headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -218,8 +273,9 @@ const inventoryService = {
 	 * GET /count - Get inventory counts
 	 */
 	async getCount(): Promise<InventoryCount> {
-		return api
-			.get<ApiResponse<InventoryCount>>(endpoints.count)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.get<ApiResponse<InventoryCount>>(endpoints.count, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -278,8 +334,9 @@ const inventoryService = {
 	 * GET /item/:itemId - Get a single inventory item (Product with Variants)
 	 */
 	async show(id: string): Promise<ApiProduct> {
-		return api
-			.get<ApiResponse<ApiProduct>>(`${endpoints.item}/${id}`)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.get<ApiResponse<ApiProduct>>(`${endpoints.item}/${id}`, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -302,8 +359,9 @@ const inventoryService = {
 	 * GET /barcode/:barcode - Find inventory item by barcode
 	 */
 	async findByBarcode(barcode: string): Promise<InventoryItem | null> {
-		return api
-			.get<ApiResponse<InventoryItem>>(`${endpoints.byBarcode}/${barcode}`)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.get<ApiResponse<InventoryItem>>(`${endpoints.byBarcode}/${barcode}`, { headers })
 			.then((res) => decodeObjectStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
 			.catch((err) => {
 				if (err.response?.status === 404) {
@@ -353,8 +411,9 @@ const inventoryService = {
 	 * GET /exists/:itemId - Check if inventory item exists
 	 */
 	async checkExists(itemId: string): Promise<boolean> {
-		return api
-			.get<ApiResponse<{ exists: boolean }>>(`${endpoints.exists}/${itemId}`)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.get<ApiResponse<{ exists: boolean }>>(`${endpoints.exists}/${itemId}`, { headers })
 			.then((res) => res.data.data.exists)
 			.catch((err) => {
 				if (err.response?.status === 404) {
@@ -371,7 +430,8 @@ const inventoryService = {
 	 */
 	async store(data: InventoryItem): Promise<InventoryItem> {
 		try {
-			const res = await api.post<ApiResponse<InventoryItem>>(endpoints.item, data as any);
+			const headers = await getAuthHeaders();
+			const res = await liveApi.post<ApiResponse<InventoryItem>>(endpoints.item, data, { headers });
 			if (!res.data.success) {
 				throw new Error(res.data.message || 'Failed to create inventory item');
 			}
@@ -381,7 +441,7 @@ const inventoryService = {
 			if (err instanceof Error && err.message && err.message !== 'Failed to create inventory item') {
 				throw err;
 			}
-			// Handle API error responses - interceptor wraps errors in { error }
+			// Handle API error responses
 			const axiosError = err?.error || err;
 			const message =
 				axiosError?.response?.data?.message ||
@@ -396,8 +456,9 @@ const inventoryService = {
 	 * POST /item/sku - Find inventory item by SKU
 	 */
 	async findBySku(sku: string): Promise<InventoryItem | null> {
-		return api
-			.post<ApiResponse<InventoryItem>>(endpoints.findBySku, { sku } as any)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.post<ApiResponse<InventoryItem>>(endpoints.findBySku, { sku }, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				if (err.response?.status === 404) {
@@ -411,8 +472,9 @@ const inventoryService = {
 	 * POST /sync-category-counts - Sync category item counts
 	 */
 	async syncCategoryCounts(): Promise<{ message: string; synced: number }> {
-		return api
-			.post<ApiResponse<{ message: string; synced: number }>>(endpoints.syncCategoryCounts, {} as any)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.post<ApiResponse<{ message: string; synced: number }>>(endpoints.syncCategoryCounts, {}, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -425,8 +487,9 @@ const inventoryService = {
 	 * PUT /item/:itemId - Update an inventory item
 	 */
 	async update(id: string, data: Partial<InventoryItem>): Promise<InventoryItem> {
-		return api
-			.put<ApiResponse<InventoryItem>>(`${endpoints.item}/${id}`, data as any)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.put<ApiResponse<InventoryItem>>(`${endpoints.item}/${id}`, data, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -437,8 +500,9 @@ const inventoryService = {
 	 * PUT /item-void/:itemId - Void an inventory item
 	 */
 	async voidItem(id: string): Promise<InventoryItem> {
-		return api
-			.put<ApiResponse<InventoryItem>>(`${endpoints.void}/${id}`, { status: 'void' } as any)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.put<ApiResponse<InventoryItem>>(`${endpoints.void}/${id}`, { status: 'void' }, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -449,8 +513,9 @@ const inventoryService = {
 	 * PUT /item-void/:itemId - Update inventory item status (legacy)
 	 */
 	async updateStatus(id: string, status: string): Promise<Pick<InventoryItem, 'status'>> {
-		return api
-			.put<ApiResponse<Pick<InventoryItem, 'status'>>>(`${endpoints.void}/${id}`, { status } as any)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.put<ApiResponse<Pick<InventoryItem, 'status'>>>(`${endpoints.void}/${id}`, { status }, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -461,8 +526,9 @@ const inventoryService = {
 	 * PUT /bulk-update - Bulk update inventory items
 	 */
 	async bulkUpdate(payload: BulkUpdatePayload): Promise<{ updated: number; items: InventoryItem[] }> {
-		return api
-			.put<ApiResponse<{ updated: number; items: InventoryItem[] }>>(endpoints.bulkUpdate, payload as any)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.put<ApiResponse<{ updated: number; items: InventoryItem[] }>>(endpoints.bulkUpdate, payload, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -473,8 +539,9 @@ const inventoryService = {
 	 * PUT /move-to-category - Move items to a different category
 	 */
 	async moveToCategory(payload: MoveToCategoryPayload): Promise<{ moved: number; items: InventoryItem[] }> {
-		return api
-			.put<ApiResponse<{ moved: number; items: InventoryItem[] }>>(endpoints.moveToCategory, payload as any)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.put<ApiResponse<{ moved: number; items: InventoryItem[] }>>(endpoints.moveToCategory, payload, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -487,8 +554,9 @@ const inventoryService = {
 	 * PATCH /item/:itemId/quantity - Update inventory quantity
 	 */
 	async updateQuantity(id: string, quantity: number): Promise<InventoryItem> {
-		return api
-			.patch<ApiResponse<InventoryItem>>(`${endpoints.item}/${id}/quantity`, { quantity } as any)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.patch<ApiResponse<InventoryItem>>(`${endpoints.item}/${id}/quantity`, { quantity }, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -500,8 +568,9 @@ const inventoryService = {
 	 * Note: In the new variant model, the id is the variant ID
 	 */
 	async adjustInventory(id: string, payload: AdjustInventoryPayload): Promise<InventoryItem> {
-		return api
-			.patch<ApiResponse<InventoryItem>>(`${endpoints.item}/${id}/adjust`, payload as any)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.patch<ApiResponse<InventoryItem>>(`${endpoints.item}/${id}/adjust`, payload, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -542,8 +611,9 @@ const inventoryService = {
 	 * DELETE /item/:itemId - Delete an inventory item
 	 */
 	async delete(id: string): Promise<boolean> {
-		return api
-			.delete(`${endpoints.item}/${id}`)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.delete(`${endpoints.item}/${id}`, { headers })
 			.then(() => true)
 			.catch((err) => {
 				throw err;
@@ -653,8 +723,9 @@ const inventoryService = {
 	 * @returns The converted variant and info about orphaned product deletion
 	 */
 	async convertToVariant(variantId: string, payload: ConvertToVariantPayload): Promise<ConvertToVariantResult> {
-		return api
-			.put<ApiResponse<ConvertToVariantResult>>(`${endpoints.convertToVariant}/${variantId}/convert-to-variant`, payload as any)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.put<ApiResponse<ConvertToVariantResult>>(`${endpoints.convertToVariant}/${variantId}/convert-to-variant`, payload, { headers })
 			.then((res) => {
 				if (!res.data.success) {
 					const error: any = new Error(res.data.message || 'Failed to convert variant');
