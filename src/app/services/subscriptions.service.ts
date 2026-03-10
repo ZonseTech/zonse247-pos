@@ -1,11 +1,81 @@
-import api from './http.service';
+import axios from 'axios';
 
+const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL;
+
+/**
+ * Subscription Service
+ * Uses LIVE API for all requests
+ */
 class SubscriptionService {
 	private readonly endpoint = '/subscriptions';
 
+	private liveApi = axios.create({
+		baseURL: LIVE_API_URL,
+		timeout: 30000,
+		headers: {
+			'X-Client-Type': 'web'
+		}
+	});
+
+	/**
+	 * Get tenant signature from electron settings or session storage
+	 */
+	private async getTenantSignature(): Promise<string | undefined> {
+		try {
+			if (typeof window !== 'undefined' && window.electronAPI?.settings) {
+				const result = await window.electronAPI.settings.getSignature();
+				if (result.success && result.data) return result.data;
+			}
+
+			const user = sessionStorage?.getItem('user');
+			if (user) return JSON.parse(user).tenantId;
+		} catch (error) {
+			console.warn('[SubscriptionService] Error getting tenant signature:', error);
+		}
+		return undefined;
+	}
+
+	private async getAuthHeaders() {
+		const token = sessionStorage.getItem('token');
+		const tenantSignature = await this.getTenantSignature();
+		return {
+			...(token && { Authorization: `Bearer ${JSON.parse(token)}` }),
+			...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
+		};
+	}
+
+	/**
+	 * Normalize subscription plan data for consistency
+	 */
+	private normalizeSubscriptionPlan(plan: any): SubscriptionPlan | null {
+		if (!plan) return null;
+		return {
+			...plan,
+			subscriptionPlanId: plan.subscriptionPlanId || plan.planId,
+			planId: plan.planId || plan.subscriptionPlanId,
+			isPopular: plan.isPopular ?? plan.popular ?? false,
+			popular: plan.popular ?? plan.isPopular ?? false,
+		};
+	}
+
+	/**
+	 * Normalize branch subscription data
+	 */
+	private normalizeSubscription(subscription: any): BranchSubscription {
+		return {
+			...subscription,
+			subscriptionPlan: this.normalizeSubscriptionPlan(subscription.subscriptionPlan),
+		};
+	}
+
+	/**
+	 * List all branch subscriptions
+	 */
 	async list(): Promise<SubscriptionResponse> {
 		try {
-			const response = await api.get<SubscriptionResponse>(this.endpoint);
+			const response = await this.liveApi.get<SubscriptionResponse>(this.endpoint, {
+				headers: await this.getAuthHeaders()
+			});
 			return response.data;
 		} catch (error) {
 			console.error('Error fetching subscriptions:', error);
@@ -13,159 +83,233 @@ class SubscriptionService {
 		}
 	}
 
-	async show(id: string): Promise<TenantSubscription> {
+	/**
+	 * Get a single branch subscription by ID
+	 */
+	async show(id: string): Promise<BranchSubscription> {
 		try {
-			const response = await api.get<TenantSubscription>(
-				`${this.endpoint}/${id}`
+			const response = await this.liveApi.get<ApiResponse<BranchSubscription>>(
+				`${this.endpoint}/${id}`,
+				{ headers: await this.getAuthHeaders() }
 			);
-			return response.data;
+			return response.data.data;
 		} catch (error) {
 			console.error('Error fetching subscription:', error);
 			throw error;
 		}
 	}
 
+	/**
+	 * Create a new branch subscription
+	 */
 	async store(
-		subscriptionData: CreateSubscriptionRequest
-	): Promise<Omit<TenantSubscription, 'id' | 'created_at' | 'updated_at'>> {
+		subscriptionData: CreateBranchSubscriptionRequest
+	): Promise<BranchSubscription> {
 		try {
-			const response = await api.post(this.endpoint, subscriptionData);
-			return response.data;
+			const response = await this.liveApi.post<ApiResponse<BranchSubscription>>(
+				this.endpoint,
+				subscriptionData,
+				{ headers: await this.getAuthHeaders() }
+			);
+			return response.data.data;
 		} catch (error) {
 			console.error('Error creating subscription:', error);
 			throw error;
 		}
 	}
 
+	/**
+	 * Update an existing branch subscription
+	 */
 	async update(
 		id: string,
-		subscriptionData: Partial<TenantSubscription>
-	): Promise<TenantSubscription> {
+		subscriptionData: UpdateBranchSubscriptionRequest
+	): Promise<BranchSubscription> {
 		try {
-			const response = await api.put<TenantSubscription>(
+			const response = await this.liveApi.put<ApiResponse<BranchSubscription>>(
 				`${this.endpoint}/${id}`,
-				subscriptionData as any
+				subscriptionData,
+				{ headers: await this.getAuthHeaders() }
 			);
-			return response.data;
+			return response.data.data;
 		} catch (error) {
 			console.error('Error updating subscription:', error);
 			throw error;
 		}
 	}
 
+	/**
+	 * Delete a branch subscription
+	 */
 	async delete(id: string): Promise<void> {
 		try {
-			await api.delete(`${this.endpoint}/${id}`);
+			await this.liveApi.delete(`${this.endpoint}/${id}`, {
+				headers: await this.getAuthHeaders()
+			});
 		} catch (error) {
 			console.error('Error deleting subscription:', error);
 			throw error;
 		}
 	}
 
+	/**
+	 * Get subscriptions filtered by status
+	 * Uses query parameter: GET /subscriptions?status=active
+	 */
 	async getByStatus(
-		status: TenantSubscription['status']
-	): Promise<TenantSubscription[]> {
+		status: BranchSubscription['status']
+	): Promise<BranchSubscription[]> {
 		try {
-			const response = await api.get<Array<TenantSubscription>>(
-				`${this.endpoint}/status/${status}`
+			const response = await this.liveApi.get<SubscriptionResponse>(
+				this.endpoint,
+				{ 
+					headers: await this.getAuthHeaders(),
+					params: { status }
+				}
 			);
-			return response.data;
+			return response.data.data || [];
 		} catch (error) {
 			console.error('Error fetching subscriptions by status:', error);
 			throw error;
 		}
 	}
 
-	async getActiveSubscriptionByTenantId(tenantId: string): Promise<TenantSubscription> {
+	/**
+	 * Get subscription for current branch (from auth context)
+	 * Uses: GET /subscriptions/current
+	 */
+	async getActiveBranchSubscription(): Promise<BranchSubscription | null> {
 		try {
-			const response = await api.get<TenantSubscription>(
-				`${this.endpoint}/tenant/${tenantId}`
+			const response = await this.liveApi.get<ApiResponse<BranchSubscription>>(
+				`${this.endpoint}/current`,
+				{ headers: await this.getAuthHeaders() }
 			);
-
-			return response.data?.data;
+			return response.data.data ? this.normalizeSubscription(response.data.data) : null;
 		} catch (error) {
-			throw error;
+			console.error('Error fetching current branch subscription:', error);
+			return null;
 		}
 	}
 
-	async getByPlanId(planId: string): Promise<TenantSubscription[]> {
+	/**
+	 * Get subscriptions filtered by plan ID
+	 * Uses query parameter: GET /subscriptions?planId=xxx
+	 */
+	async getByPlanId(planId: string): Promise<BranchSubscription[]> {
 		try {
-			const response = await api.get<Array<TenantSubscription>>(
-				`${this.endpoint}/plan/${planId}`
+			const response = await this.liveApi.get<SubscriptionResponse>(
+				this.endpoint,
+				{ 
+					headers: await this.getAuthHeaders(),
+					params: { planId }
+				}
 			);
-			return response.data;
+			return response.data.data || [];
 		} catch (error) {
 			console.error('Error fetching subscriptions by plan:', error);
 			throw error;
 		}
 	}
 
-	async cancel(id: string): Promise<TenantSubscription> {
+	/**
+	 * Cancel a subscription
+	 */
+	async cancel(id: string): Promise<BranchSubscription> {
 		try {
-			const response = await api.get<TenantSubscription>(
-				`${this.endpoint}/${id}/cancel`
+			const response = await this.liveApi.post<ApiResponse<BranchSubscription>>(
+				`${this.endpoint}/${id}/cancel`,
+				{},
+				{ headers: await this.getAuthHeaders() }
 			);
-			return response.data;
+			return response.data.data;
 		} catch (error) {
 			console.error('Error cancelling subscription:', error);
 			throw error;
 		}
 	}
 
-	async reactivate(id: string): Promise<TenantSubscription> {
+	/**
+	 * Reactivate a cancelled subscription
+	 */
+	async reactivate(id: string): Promise<BranchSubscription> {
 		try {
-			const response = await api.get<TenantSubscription>(
-				`${this.endpoint}/${id}/reactivate`
+			const response = await this.liveApi.post<ApiResponse<BranchSubscription>>(
+				`${this.endpoint}/${id}/reactivate`,
+				{},
+				{ headers: await this.getAuthHeaders() }
 			);
-			return response.data;
+			return response.data.data;
 		} catch (error) {
 			console.error('Error reactivating subscription:', error);
 			throw error;
 		}
 	}
 
+	/**
+	 * Process payment for a subscription
+	 */
 	async processPayment(
 		id: string,
-		paymentData: { amount: number; paymentMethod: string }
-	): Promise<TenantSubscription> {
+		paymentData: ProcessPaymentRequest
+	): Promise<BranchSubscription> {
 		try {
-			const response = await api.post<any>(
+			const response = await this.liveApi.post<ApiResponse<BranchSubscription>>(
 				`${this.endpoint}/${id}/process-payment`,
-				paymentData
+				paymentData,
+				{ headers: await this.getAuthHeaders() }
 			);
-			return response.data;
+			return response.data.data;
 		} catch (error) {
 			console.error('Error processing payment:', error);
 			throw error;
 		}
 	}
 
-	async getExpiring(days: number = 30): Promise<TenantSubscription[]> {
+	/**
+	 * Get subscriptions expiring within the specified days
+	 */
+	async getExpiring(days: number = 30): Promise<BranchSubscription[]> {
 		try {
-			const response = await api.get<Array<TenantSubscription>>(
-				`${this.endpoint}/expiring?days=${days}`
+			const response = await this.liveApi.get<ApiResponse<BranchSubscription[]>>(
+				`${this.endpoint}/expiring?days=${days}`,
+				{ headers: await this.getAuthHeaders() }
 			);
-			return response.data;
+			return response.data.data || [];
 		} catch (error) {
 			console.error('Error fetching expiring subscriptions:', error);
 			throw error;
 		}
 	}
 
-	async getStats(): Promise<{
-		total: number;
-		active: number;
-		cancelled: number;
-		expired: number;
-		pastDue: number;
-		monthlyRevenue: number;
-		annualRevenue: number;
-	}> {
+	/**
+	 * Get subscription statistics
+	 */
+	async getStats(): Promise<SubscriptionStats> {
 		try {
-			const response = await api.get<any>(`${this.endpoint}/stats`);
-			return response.data;
+			const response = await this.liveApi.get<ApiResponse<SubscriptionStats>>(
+				`${this.endpoint}/stats`,
+				{ headers: await this.getAuthHeaders() }
+			);
+			return response.data.data;
 		} catch (error) {
 			console.error('Error fetching subscription stats:', error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Bulk update subscriptions
+	 */
+	async bulkUpdate(data: BulkUpdateRequest): Promise<BranchSubscription[]> {
+		try {
+			const response = await this.liveApi.patch<ApiResponse<BranchSubscription[]>>(
+				`${this.endpoint}/bulk-update`,
+				data,
+				{ headers: await this.getAuthHeaders() }
+			);
+			return response.data.data || [];
+		} catch (error) {
+			console.error('Error bulk updating subscriptions:', error);
 			throw error;
 		}
 	}

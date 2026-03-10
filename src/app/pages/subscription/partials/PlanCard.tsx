@@ -16,23 +16,27 @@ const PlanCard: FunctionComponent<PlanCardProps> = ({
     getPrice,
     isCurrentPlan = false,
 }) => {
+    const isPopular = plan.isPopular || plan.popular;
+    const planId = plan.subscriptionPlanId || plan.planId;
+    const isFreePlan = planId === 'free' || planId === 'offline' || Number(plan.monthlyPrice) === 0;
+
     return (
-        <div className={`p-8 text-center ${plan.isPopular
+        <div className={`p-8 text-center ${isPopular
             ? 'bg-sky-50 border-l border-r border-sky-200'
             : 'bg-white'
             }`}
         >
-            {plan.isPopular && (
+            {isPopular && (
                 <span className="bg-sky-500 text-white px-3 py-1 rounded-full text-sm font-semibold mb-4 inline-block">
                     Most Popular
                 </span>
             )}
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.displayName || plan.name}</h3>
             <div className="flex items-baseline justify-center mb-2">
                 <span className="text-4xl font-bold text-gray-900">
                     {getPrice(plan)}
                 </span>
-                {(
+                {!isFreePlan && (
                     <span className="text-lg text-gray-600 ml-1">
                         /{billingCycle === 'monthly' ? 'month' : 'year'}
                     </span>
@@ -45,14 +49,14 @@ const PlanCard: FunctionComponent<PlanCardProps> = ({
                 disabled={isCurrentPlan}
                 className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${isCurrentPlan
                     ? 'bg-gray-400 text-white cursor-not-allowed'
-                    : plan.isPopular
+                    : isPopular
                         ? 'bg-sky-500 text-white hover:bg-sky-700'
-                        : plan.subscriptionPlanId === 'free'
+                        : isFreePlan
                             ? 'bg-gray-600 text-white hover:bg-gray-700'
                             : 'bg-gray-900 text-white hover:bg-gray-800'
                     }`}
             >
-                {isCurrentPlan ? 'Current Plan' : 'Upgrade'}
+                {isCurrentPlan ? 'Current Plan' : isFreePlan ? 'Get Started' : 'Upgrade'}
             </Button>
         </div>
     );

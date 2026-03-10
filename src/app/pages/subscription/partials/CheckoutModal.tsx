@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { FunctionComponent } from 'react';
 import { Button, Input } from '../../../components';
 import { CopyButton } from '../../../components/buttons/CopyButton';
@@ -7,7 +8,7 @@ import { X, CreditCard, AlertCircle, Banknote, Check, ChevronRight, ChevronLeft 
 interface CheckoutModalProps {
     selectedPlan: SubscriptionPlan;
     billingCycle: 'monthly' | 'yearly';
-    tenantInfo: TenantInfo;
+    branchInfo: BranchInfo;
     paymentInfo: PaymentInfo;
     onClose: () => void;
     onPaymentInfoChange: (info: PaymentInfo) => void;
@@ -18,15 +19,15 @@ interface CheckoutModalProps {
 const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     selectedPlan,
     billingCycle,
-    tenantInfo,
+    branchInfo,
     paymentInfo,
     onClose,
     onPaymentInfoChange,
     onSubmit,
     getPrice,
 }) => {
-    const isFreePlan = selectedPlan.name === 'BASIC';
-    const [currentStep, setCurrentStep] = useState(1);
+    const isFreePlan = selectedPlan.name === 'BASIC' || selectedPlan.monthlyPrice === 0;
+    const [currentStep, setCurrentStep] = useState(isFreePlan ? 2 : 1);
 
     const steps = isFreePlan
         ? [{ number: 2, title: 'Review', icon: Check }]
@@ -50,7 +51,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
     const handleNext = () => {
         if (canProceed()) {
-            setCurrentStep(prev => Math.min(prev + 1, steps.length));
+            setCurrentStep(prev => Math.min(prev + 1, steps.length + 1));
         }
     };
 
@@ -60,10 +61,11 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
     const handleFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        currentStep === steps.length ? onSubmit(e) : handleNext();
+        const isLastStep = isFreePlan || currentStep === 2;
+        isLastStep ? onSubmit(e) : handleNext();
     };
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
             <div className="bg-white rounded-2xl max-w-3xl w-full shadow-2xl my-8">
                 <div className="relative rounded-t-2xl bg-gradient-to-br from-sky-500 via-sky-700 to-indigo-700 text-white px-8 pt-6 pb-0.5">
@@ -77,16 +79,16 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
                     <div className="mb-8">
                         <h2 className="text-3xl font-bold mb-2">
-                            {isFreePlan ? 'Get Started Free' : `Subscribe to ${selectedPlan.name} Plan`}
+                            {isFreePlan ? 'Get Started Free' : `Subscribe to ${selectedPlan.displayName || selectedPlan.name} Plan`}
                         </h2>
                         <p className="text-sky-100 text-lg">
-                            {isFreePlan ? 'No credit card required' : `${getPrice(selectedPlan)}/${billingCycle === 'monthly' ? 'mo' : 'yr'}`}
+                            {isFreePlan ? 'No payment required' : `${getPrice(selectedPlan)}/${billingCycle === 'monthly' ? 'mo' : 'yr'}`}
                         </p>
                     </div>
                 </div>
 
                 <form onSubmit={handleFormSubmit} className="p-8">
-                    {currentStep === 2 && (
+                    {(currentStep === 2 || isFreePlan) && (
                         <div className="mb-6">
                             <h3 className="text-xl font-semibold text-gray-900">Review & Confirm</h3>
                             <p className="text-sm text-gray-500">Please review your information before submitting</p>
@@ -139,14 +141,14 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                         </div>
                     )}
 
-                    {currentStep === steps.length && (
+                    {(currentStep === 2 || isFreePlan) && (
                         <div className="space-y-6 animate-fadeIn">
                             <div className="bg-gradient-to-br from-sky-50 to-indigo-50 rounded-xl p-6 border border-sky-200">
                                 <h4 className="font-semibold text-gray-900 mb-4">Subscription Details</h4>
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center">
                                         <span className="text-gray-600">Plan:</span>
-                                        <span className="font-semibold text-gray-900">{selectedPlan.name}</span>
+                                        <span className="font-semibold text-gray-900">{selectedPlan.displayName || selectedPlan.name}</span>
                                     </div>
                                     {!isFreePlan && (
                                         <>
@@ -167,30 +169,22 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                             </div>
 
                             <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                                <h4 className="font-semibold text-gray-900 mb-4">Business Information</h4>
+                                <h4 className="font-semibold text-gray-900 mb-4">Branch Information</h4>
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-start">
-                                        <span className="text-gray-600">Business Name:</span>
-                                        <span className="font-medium text-gray-900 text-right">{tenantInfo.businessName}</span>
+                                        <span className="text-gray-600">Branch Name:</span>
+                                        <span className="font-medium text-gray-900 text-right">{branchInfo.branchName || 'N/A'}</span>
                                     </div>
-                                    <div className="flex justify-between items-start">
-                                        <span className="text-gray-600">Email:</span>
-                                        <span className="font-medium text-gray-900 text-right">{tenantInfo.email}</span>
-                                    </div>
-                                    <div className="flex justify-between items-start">
-                                        <span className="text-gray-600">Phone:</span>
-                                        <span className="font-medium text-gray-900 text-right">{tenantInfo.phoneNumber}</span>
-                                    </div>
-                                    {tenantInfo.address && (
+                                    {branchInfo.branchCode && (
                                         <div className="flex justify-between items-start">
-                                            <span className="text-gray-600">Address:</span>
-                                            <span className="font-medium text-gray-900 text-right max-w-xs">{tenantInfo.address}</span>
+                                            <span className="text-gray-600">Branch Code:</span>
+                                            <span className="font-medium text-gray-900 text-right font-mono">{branchInfo.branchCode}</span>
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            {!isFreePlan && (
+                            {!isFreePlan && paymentInfo.referenceNumber && (
                                 <div className="bg-green-50 rounded-xl p-6 border border-green-200">
                                     <h4 className="font-semibold text-gray-900 mb-4">Payment Information</h4>
                                     <div className="flex justify-between items-center">
@@ -206,8 +200,8 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                         <button
                             type="button"
                             onClick={handleBack}
-                            disabled={currentStep === 1}
-                            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${currentStep === 1
+                            disabled={currentStep === 1 || isFreePlan}
+                            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${currentStep === 1 || isFreePlan
                                 ? 'text-gray-400 cursor-not-allowed'
                                 : 'text-gray-700 hover:bg-gray-100'
                                 }`}
@@ -224,7 +218,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                 }`}
                         >
-                            {currentStep === steps.length ? (
+                            {(currentStep === 2 || isFreePlan) ? (
                                 <>
                                     <CreditCard className="w-5 h-5" />
                                     {isFreePlan ? 'Get Started Now' : 'Confirm Subscription'}
@@ -239,7 +233,8 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                     </div>
                 </form>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

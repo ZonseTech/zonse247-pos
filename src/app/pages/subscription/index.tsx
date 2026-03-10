@@ -22,32 +22,13 @@ const SubscriptionManagement: FunctionComponent = () => {
         setPage,
         setPerPage,
         getPaginatedData,
-        deleteSubscription,
-        updateSubscriptionStatus
+        cancelSubscription,
+        reactivateSubscription
     } = useSubscriptions();
 
-    const handleDelete = (subscriptionId: string) => {
-        Confirm.show(
-            'Delete Subscription',
-            'Are you sure you want to delete this subscription? This action cannot be undone.',
-            'Yes, Delete',
-            'Cancel',
-            async () => {
-                await deleteSubscription(subscriptionId);
-            },
-            () => {
-                // do nothing
-            },
-            {
-                titleColor: '#ef4444',
-                okButtonBackground: '#ef4444',
-            }
-        );
-    };
-
     const handleStatusToggle = (subscriptionId: string, currentStatus: string) => {
-        const action = currentStatus === 'active' ? 'cancel' : 'activate';
-        const newStatus = currentStatus === 'active' ? 'cancelled' : 'active';
+        const isActive = currentStatus === 'active';
+        const action = isActive ? 'cancel' : 'reactivate';
 
         Confirm.show(
             `${action.charAt(0).toUpperCase() + action.slice(1)} Subscription`,
@@ -55,14 +36,18 @@ const SubscriptionManagement: FunctionComponent = () => {
             `Yes, ${action.charAt(0).toUpperCase() + action.slice(1)}`,
             'Cancel',
             async () => {
-                await updateSubscriptionStatus(subscriptionId, newStatus);
+                if (isActive) {
+                    await cancelSubscription(subscriptionId);
+                } else {
+                    await reactivateSubscription(subscriptionId);
+                }
             },
             () => {
                 // do nothing
             },
             {
-                titleColor: currentStatus === 'active' ? '#ef4444' : '#22c55e',
-                okButtonBackground: currentStatus === 'active' ? '#ef4444' : '#22c55e',
+                titleColor: isActive ? '#ef4444' : '#22c55e',
+                okButtonBackground: isActive ? '#ef4444' : '#22c55e',
             }
         );
     };
@@ -74,7 +59,7 @@ const SubscriptionManagement: FunctionComponent = () => {
             <div className="min-h-screen max-w-full">
                 <PageHeader
                     title='Subscriptions'
-                    description='Manage tenants subscriptions and billing'
+                    description='Manage branch subscriptions and billing'
                     icon={<HiOutlineCreditCard className="w-8 h-8 text-sky-500 dark:text-sky-400" />}
                     action={
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
