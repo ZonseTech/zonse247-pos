@@ -1,11 +1,11 @@
 import axios, { AxiosError } from "axios";
 import api from "./http.service";
+import { getLiveApiUrl } from "./live-api.service";
 
 /**
- * Live server API URL for onboarding activation
- * This bypasses the local API and calls the remote server directly
+ * Get the live API URL - uses centralized service
  */
-const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL;
+const LIVE_API_URL = getLiveApiUrl();
 
 /**
  * LocalStorage key for storing the activated terminal ID during onboarding
@@ -135,62 +135,32 @@ const STEP_TO_DATA_KEY_MAP: Record<OnboardingStepType, string | null> = {
 
 /**
  * Onboarding status response
- * Returns data from local backend - UI derives the view from progress steps
+ * Returns terminal ID from localStorage if exists
  */
 interface OnboardingStatusResponse {
-    hasProgress: boolean;
+    hasTerminal: boolean;
     terminalId?: string;
-    progress?: OnboardingProgress;
+    validationParams?: ValidationParams | null;
 }
 
 export default {
     /**
-     * Check onboarding status from local backend
-     * First checks localStorage for terminal ID, then fetches progress
-     * @returns Onboarding status with progress data if found
+     * Check onboarding status from localStorage
+     * @returns Onboarding status with terminal ID if found
      */
-    async checkOnboardingStatus(): Promise<OnboardingStatusResponse> {
-        try {
-            // Step 1: Check localStorage for stored terminal ID
-            const terminalId = getStoredTerminalId();
+    checkOnboardingStatus(): OnboardingStatusResponse {
+        const terminalId = getStoredTerminalId();
+        const validationParams = getStoredValidationParams();
 
-            if (!terminalId) {
-                // No terminal ID found - fresh start, show activation
-                return { hasProgress: false };
-            }
-
-            // Step 2: Try to get onboarding progress for this terminal
-            try {
-                const progressResponse = await api.get<ApiResponse<OnboardingProgress>>(
-                    `onboarding/progress/${terminalId}`
-                );
-                const progress = progressResponse.data.data;
-
-                if (progress) {
-                    return {
-                        hasProgress: true,
-                        terminalId,
-                        progress
-                    };
-                }
-            } catch (err: any) {
-                // Progress not found is OK - terminal ID exists but no progress yet
-                if (err.response?.status === 404) {
-                    return {
-                        hasProgress: false,
-                        terminalId
-                    };
-                }
-            }
-
-            return {
-                hasProgress: false,
-                terminalId
-            };
-        } catch (err: any) {
-            console.warn('Failed to check onboarding status:', err);
-            return { hasProgress: false };
+        if (!terminalId) {
+            return { hasTerminal: false };
         }
+
+        return {
+            hasTerminal: true,
+            terminalId,
+            validationParams,
+        };
     },
 
     /**
@@ -302,295 +272,6 @@ export default {
                 axiosError?.response?.data?.message ||
                 axiosError?.message ||
                 'Failed to set terminal as activated'
-            );
-        }
-    },
-
-    /**
-     * Initialize onboarding progress for a terminal
-     * @param request - Init request with terminal ID
-     * @returns Initialized progress
-     */
-    async initializeProgress(request: InitOnboardingProgressRequest): Promise<OnboardingProgress> {
-        try {
-            const response = await api.post<ApiResponse<OnboardingProgress>>(
-                'onboarding/progress/init',
-                request as any
-            );
-            return response.data.data!;
-        } catch (err: any) {
-            const axiosError = err as AxiosError<ApiResponse>;
-            throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to initialize onboarding progress'
-            );
-        }
-    },
-
-    /**
-     * Get onboarding progress for a terminal
-     * @param terminalId - Terminal ID
-     * @returns Progress data or null
-     */
-    async getProgress(terminalId: string): Promise<OnboardingProgress | null> {
-        try {
-            const response = await api.get<ApiResponse<OnboardingProgress>>(
-                `onboarding/progress/${terminalId}`
-            );
-            return response.data.data || null;
-        } catch (err: any) {
-            const axiosError = err as AxiosError<ApiResponse>;
-            if (axiosError?.response?.status === 404) {
-                return null;
-            }
-            throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to get onboarding progress'
-            );
-        }
-    },
-
-    /**
-     * Start an onboarding step
-     * @param terminalId - Terminal ID
-     * @param stepType - Step type to start
-     * @returns Updated progress
-     */
-    async startStep(terminalId: string, stepType: OnboardingStepType): Promise<OnboardingProgress> {
-        try {
-            const response = await api.post<ApiResponse<OnboardingProgress>>(
-                'onboarding/progress/step/start',
-                { terminalId, stepType } as any
-            );
-            return response.data.data!;
-        } catch (err: any) {
-            const axiosError = err as AxiosError<ApiResponse>;
-            throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to start step'
-            );
-        }
-    },
-
-    /**
-     * Complete an onboarding step
-     * @param terminalId - Terminal ID
-     * @param stepType - Step type to complete
-     * @param metadata - Optional metadata to store
-     * @returns Updated progress
-     */
-    async completeStep(
-        terminalId: string,
-        stepType: OnboardingStepType,
-        metadata?: Record<string, any>
-    ): Promise<OnboardingProgress> {
-        try {
-            const response = await api.post<ApiResponse<OnboardingProgress>>(
-                'onboarding/progress/step/complete',
-                { terminalId, stepType, metadata } as any
-            );
-            return response.data.data!;
-        } catch (err: any) {
-            const axiosError = err as AxiosError<ApiResponse>;
-            throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to complete step'
-            );
-        }
-    },
-
-    /**
-     * Mark an onboarding step as failed
-     * @param terminalId - Terminal ID
-     * @param stepType - Step type that failed
-     * @param errorMessage - Error description
-     * @returns Updated progress
-     */
-    async failStep(
-        terminalId: string,
-        stepType: OnboardingStepType,
-        errorMessage: string
-    ): Promise<OnboardingProgress> {
-        try {
-            const response = await api.post<ApiResponse<OnboardingProgress>>(
-                'onboarding/progress/step/fail',
-                { terminalId, stepType, errorMessage } as any
-            );
-            return response.data.data!;
-        } catch (err: any) {
-            const axiosError = err as AxiosError<ApiResponse>;
-            throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to mark step as failed'
-            );
-        }
-    },
-
-    /**
-     * Skip an onboarding step
-     * @param terminalId - Terminal ID
-     * @param stepType - Step type to skip
-     * @param reason - Optional reason for skipping
-     * @returns Updated progress
-     */
-    async skipStep(
-        terminalId: string,
-        stepType: OnboardingStepType,
-        reason?: string
-    ): Promise<OnboardingProgress> {
-        try {
-            const response = await api.post<ApiResponse<OnboardingProgress>>(
-                'onboarding/progress/step/skip',
-                { terminalId, stepType, reason } as any
-            );
-            return response.data.data!;
-        } catch (err: any) {
-            const axiosError = err as AxiosError<ApiResponse>;
-            throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to skip step'
-            );
-        }
-    },
-
-    /**
-     * Reset onboarding progress
-     * @param terminalId - Terminal ID
-     * @returns Reset progress
-     */
-    async resetProgress(terminalId: string): Promise<OnboardingProgress> {
-        try {
-            const response = await api.post<ApiResponse<OnboardingProgress>>(
-                `onboarding/progress/${terminalId}/reset`,
-                {} as any
-            );
-            return response.data.data!;
-        } catch (err: any) {
-            const axiosError = err as AxiosError<ApiResponse>;
-            throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to reset progress'
-            );
-        }
-    },
-
-    /**
-     * Get the next step to complete
-     * @param terminalId - Terminal ID
-     * @returns Next step type or null if complete
-     */
-    async getNextStep(terminalId: string): Promise<OnboardingStepType | null> {
-        try {
-            const response = await api.get<ApiResponse<{ nextStep: OnboardingStepType | null }>>(
-                `onboarding/progress/${terminalId}/next-step`
-            );
-            return response.data.data?.nextStep || null;
-        } catch (err: any) {
-            const axiosError = err as AxiosError<ApiResponse>;
-            throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to get next step'
-            );
-        }
-    },
-
-    /**
-     * Configure terminal settings
-     * POST /onboarding/settings/configure
-     * @param terminalId - Terminal ID
-     * @param settings - Settings configuration
-     * @returns Created settings
-     */
-    async configureSettings(terminalId: string, settings: any): Promise<any> {
-        try {
-            const response = await api.post<ApiResponse<any>>(
-                'onboarding/settings/configure',
-                { terminalId, ...settings }
-            );
-            return response.data.data;
-        } catch (err: any) {
-            const axiosError = err as AxiosError<ApiResponse>;
-            throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to configure settings'
-            );
-        }
-    },
-
-    /**
-     * Get all settings
-     * GET /onboarding/settings
-     * @returns All settings
-     */
-    async getAllSettings(): Promise<any[]> {
-        try {
-            const response = await api.get<ApiResponse<any[]>>('onboarding/settings');
-            return response.data.data || [];
-        } catch (err: any) {
-            const axiosError = err as AxiosError<ApiResponse>;
-            throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to get settings'
-            );
-        }
-    },
-
-    /**
-     * Update step status
-     * PUT /onboarding/progress/step
-     * @param terminalId - Terminal ID
-     * @param stepType - Step type
-     * @param status - New status
-     * @param metadata - Optional metadata
-     * @returns Updated progress
-     */
-    async updateStepStatus(
-        terminalId: string,
-        stepType: OnboardingStepType,
-        status: OnboardingStepStatus,
-        metadata?: Record<string, any>
-    ): Promise<OnboardingProgress> {
-        try {
-            const response = await api.put<ApiResponse<OnboardingProgress>>(
-                'onboarding/progress/step',
-                { terminalId, stepType, status, metadata } as any
-            );
-            return response.data.data!;
-        } catch (err: any) {
-            const axiosError = err as AxiosError<ApiResponse>;
-            throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to update step status'
-            );
-        }
-    },
-
-    /**
-     * Delete onboarding progress
-     * DELETE /onboarding/progress/:terminalId
-     * @param terminalId - Terminal ID
-     * @returns Deletion result
-     */
-    async deleteProgress(terminalId: string): Promise<void> {
-        try {
-            await api.delete<ApiResponse<void>>(`onboarding/progress/${terminalId}`);
-        } catch (err: any) {
-            const axiosError = err as AxiosError<ApiResponse>;
-            throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to delete progress'
             );
         }
     },

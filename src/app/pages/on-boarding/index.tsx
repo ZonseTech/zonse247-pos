@@ -8,7 +8,7 @@ import {
     SyncProgressView,
     TerminalDetailsView,
 } from './views';
-import type { OnboardingFlowProps, ViewMode, ActivationFormValues, OnboardingCompleteData } from './types';
+import type { OnboardingFlowProps, ViewMode, ActivationFormValues } from './types';
 
 /**
  * Simplified Onboarding Flow
@@ -44,25 +44,10 @@ const OnboardingFlow: FunctionComponent<OnboardingFlowProps> = ({
     useEffect(() => {
         const initializeOnboarding = async () => {
             try {
-                const status = await onboardingService.checkOnboardingStatus();
-
-                if (status.hasProgress && status.progress) {
-                    // If onboarding was already completed, navigate away
-                    if (status.progress.overallStatus === 'COMPLETED') {
-                        onboardingService.clearOnboardingStorage();
-                        await onComplete({
-                            terminalId: status.progress.terminalId,
-                            tenantId: status.progress.tenantId || '',
-                            branchId: status.progress.branchId || '',
-                            verificationKey: status.progress.terminalId || '',
-                        });
-                        return;
-                    }
-                }
+                const status = onboardingService.checkOnboardingStatus();
 
                 // Check if we have stored validation params (terminal was activated)
-                const validationParams = onboardingService.getValidationParams();
-                if (validationParams) {
+                if (status.hasTerminal && status.validationParams) {
                     // Try to get terminal details and resume sync
                     try {
                         const terminalData = await onboardingService.activateTerminal(

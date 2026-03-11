@@ -75,106 +75,6 @@ type OnboardingStepType =
     | 'SETTINGS_SYNC';
 
 /**
- * Status of an onboarding step
- */
-type OnboardingStepStatus =
-    | 'NOT_STARTED'
-    | 'IN_PROGRESS'
-    | 'COMPLETED'
-    | 'FAILED'
-    | 'SKIPPED';
-
-/**
- * Individual onboarding step progress
- */
-interface OnboardingStep {
-    stepType: OnboardingStepType;
-    status: OnboardingStepStatus;
-    order: number;
-    startedAt?: Date | string | null;
-    completedAt?: Date | string | null;
-    errorMessage?: string | null;
-    retryCount: number;
-    metadata?: Record<string, any> | null;
-}
-
-/**
- * Complete onboarding progress for a terminal
- */
-interface OnboardingProgress {
-    progressId: string;
-    terminalId: string;
-    tenantId?: string | null;
-    branchId?: string | null;
-    currentStep: OnboardingStepType;
-    overallStatus: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
-    steps: OnboardingStep[];
-    completedSteps: number;
-    totalSteps: number;
-    completionPercentage: number;
-    lastUpdatedAt: Date | string;
-    createdAt: Date | string;
-}
-
-/**
- * Request to update onboarding step progress
- */
-interface UpdateOnboardingStepRequest {
-    terminalId: string;
-    stepType: OnboardingStepType;
-    status: OnboardingStepStatus;
-    errorMessage?: string;
-    metadata?: Record<string, any>;
-}
-
-/**
- * Request to initialize onboarding progress
- */
-interface InitOnboardingProgressRequest {
-    terminalId: string;
-    tenantId?: string;
-    branchId?: string;
-}
-
-/**
- * Default onboarding steps configuration
- */
-type OnboardingStepConfig = {
-    stepType: OnboardingStepType;
-    order: number;
-    required: boolean;
-    label: string;
-    description: string;
-};
-
-/**
- * Legacy OnboardingStatus for backward compatibility
- */
-interface OnboardingStatus {
-    tenant: Omit<Tenant, 'verificationToken'>;
-    subscription: any;
-    branches: any[];
-    terminals: any[];
-    onboarding: {
-        steps: {
-            tenantRegistered: boolean;
-            subscriptionActive: boolean;
-            branchCreated: boolean;
-            terminalSetup: boolean;
-        };
-        completedSteps: number;
-        totalSteps: number;
-        completionPercentage: number;
-        isComplete: boolean;
-    };
-}
-
-// =============================================
-// SYNC PULL TYPES - Initial data synchronization
-// Based on zonse247-pos-api: InitialSyncService & MasterDataFetchService
-// =============================================
-
-/**
  * Master data tables in dependency order (matching API INITIAL_SYNC_TABLES)
  */
 type InitialSyncTable =
@@ -331,4 +231,47 @@ type SyncEntityStatus = SyncTableStatus;
 interface SyncEntityProgress extends SyncTableProgress {
     entity: InitialSyncTable;
     count?: number;
+}
+
+/**
+ * MRA Check Response - from GET /onboarding/mra-check/:tenantId
+ */
+interface MraCheckResponse {
+    tenantId: string;
+    isMraEnabled: boolean;
+    mraEnvironment: MraEnvironment;
+    mraSetupRequired: boolean;
+    message: string;
+}
+
+/**
+ * MRA Compliance Status Response - from GET /mra/compliance/tenants/:tenantId/status
+ */
+interface MraComplianceStatusResponse {
+    tenantId: string;
+    isMraEnabled: boolean;
+    mraEnvironment: MraEnvironment;
+    canSubmitInvoices: boolean;
+    message: string;
+}
+
+/**
+ * Onboarding steps response - from GET /onboarding/steps/:tenantId
+ */
+interface OnboardingStepsResponse {
+    steps: OnboardingStep[];
+    totalSteps: number;
+    isMraEnabled: boolean;
+    mraSetupRequired: boolean;
+}
+
+/**
+ * Individual onboarding step
+ */
+interface OnboardingStep {
+    stepType: OnboardingStepType;
+    order: number;
+    required: boolean;
+    label?: string;
+    description?: string;
 }
