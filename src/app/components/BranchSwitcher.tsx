@@ -2,6 +2,7 @@ import { FunctionComponent, useState, useEffect, useRef, Fragment } from 'react'
 import { Building2, Check, ChevronDown, RefreshCw, AlertCircle } from 'lucide-react';
 import { useBranch } from '../context/BranchContext';
 import { useAuth } from '../context/AuthProvider';
+import { isElectron } from '../utils';
 
 interface BranchSwitcherProps {
     compact?: boolean;
@@ -17,14 +18,7 @@ interface BranchSwitcherProps {
  * - POST /auth/switch-branch
  * - GET /auth/accessible-branches
  * 
- * @example
- * ```tsx
- * // In header/toolbar
- * <BranchSwitcher compact />
- * 
- * // Full size with callback
- * <BranchSwitcher onBranchSwitch={(branch) => refreshData()} />
- * ```
+ * Note: Branch switching is disabled in Electron desktop app.
  */
 const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
     compact = false,
@@ -45,6 +39,18 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
     const [isOpen, setIsOpen] = useState(false);
     const [isSwitching, setIsSwitching] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+
+    if (isElectron()) {
+        if (currentBranch) {
+            return (
+                <div className={`flex items-center gap-2 px-3 py-2.5 text-sm text-gray-600 dark:text-gray-300 ${className}`}>
+                    <Building2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                    <span className="truncate flex-1">{currentBranch.branchName}</span>
+                </div>
+            );
+        }
+        return null;
+    }
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {

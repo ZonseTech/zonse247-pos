@@ -7,6 +7,7 @@ import { NAV_GROUP_LABELS } from '../partials/navItems';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useAuth } from '../../context/AuthProvider';
 import { useBranch } from '../../context/BranchContext';
+import { isElectron } from '../../utils';
 import Button from '../../components/Button';
 import BranchSwitchModal from './BranchSwitchModal';
 import { ROUTES } from '../../utils/constants';
@@ -27,6 +28,7 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
     const { user } = useAuth();
     const { currentBranch, accessibleBranches } = useBranch();
     const [isBranchModalOpen, setIsBranchModalOpen] = useState(false);
+    const isDesktopApp = isElectron();
 
     const handleItemClick = (onClick: any) => {
         onItemClick(onClick);
@@ -101,8 +103,12 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
                         </div>
 
                         <button
-                            onClick={handleSwitchBranch}
-                            className="flex items-center justify-between w-full text-left -mx-1 px-1 py-1 rounded-lg transition-colors"
+                            onClick={!isDesktopApp ? handleSwitchBranch : undefined}
+                            disabled={isDesktopApp}
+                            className={classNames(
+                                "flex items-center justify-between w-full text-left -mx-1 px-1 py-1 rounded-lg transition-colors",
+                                isDesktopApp && "cursor-default"
+                            )}
                         >
                             <div className="flex-1 min-w-0">
                                 <p className="text-sm font-semibold text-sky-500 dark:text-sky-400 truncate">
@@ -112,7 +118,7 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
                                     {currentBranch?.phoneNumber || 'No phone number'}
                                 </p>
                             </div>
-                            <FaCaretDown className="w-6 h-6 flex-shrink-0 text-sky-500 dark:text-sky-400 " />
+                            {!isDesktopApp && <FaCaretDown className="w-6 h-6 flex-shrink-0 text-sky-500 dark:text-sky-400 " />}
                         </button>
                     </div>
 
@@ -147,15 +153,17 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
 
                     <div className="bg-white dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                         <div className="flex gap-2">
-                            <Button
-                                theme="primary"
-                                layout="primary"
-                                onClick={handleSwitchBranch}
-                                disabled={accessibleBranches.length <= 1}
-                                block
-                            >
-                                SWITCH BRANCH
-                            </Button>
+                            {!isDesktopApp && (
+                                <Button
+                                    theme="primary"
+                                    layout="primary"
+                                    onClick={handleSwitchBranch}
+                                    disabled={accessibleBranches.length <= 1}
+                                    block
+                                >
+                                    SWITCH BRANCH
+                                </Button>
+                            )}
                             <Button
                                 theme="success"
                                 layout="primary"
@@ -220,11 +228,13 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
                 </div>
             </div>
 
-            <BranchSwitchModal
-                isOpen={isBranchModalOpen}
-                onClose={() => setIsBranchModalOpen(false)}
-                onBranchSwitch={onClose}
-            />
+            {!isDesktopApp && (
+                <BranchSwitchModal
+                    isOpen={isBranchModalOpen}
+                    onClose={() => setIsBranchModalOpen(false)}
+                    onBranchSwitch={onClose}
+                />
+            )}
         </>
     );
 };

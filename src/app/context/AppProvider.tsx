@@ -1,8 +1,11 @@
 import { useAuth } from './AuthProvider';
 import settingsService from '../services/settings.service';
 import { apiUtils } from '../services/http.service';
+import { usePrinterStore } from '../store/printerStore';
+import terminalSettingsService from '../services/terminal-settings.service';
+import printerService from '../services/printer.service';
 import type { ReactNode, FunctionComponent, } from 'react';
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 
 interface AppContextType {
     settings: AppSettings | null;
@@ -25,6 +28,39 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [settings, setSettings] = useState<AppSettings | null>(null);
     const [printerOptions, setPrinterOptions] = useState<PrinterInfo | null>(null);
+    const printerInitRef = useRef(false);
+
+    // Printer store actions
+    const initializePrinterStore = usePrinterStore((state) => state.initialize);
+    const isPrinterInitialized = usePrinterStore((state) => state.isInitialized);
+
+    /**
+     * Initialize printer cache with receipt settings and default printer IDs
+     * This improves print performance by eliminating DB lookups per print
+     */
+    const initializePrinterCache = useCallback(async (terminalId: string) => {
+        if (printerInitRef.current || isPrinterInitialized) return;
+
+        try {
+            // Load terminal settings and default printers in parallel
+            const [terminalSettings, defaultReceiptPrinter] = await Promise.all([
+                terminalSettingsService.show(terminalId).catch(() => null),
+                printerService.getDefault('receipt').catch(() => null),
+            ]);
+
+            initializePrinterStore({
+                terminalId,
+                receiptSettings: terminalSettings?.receipt || null,
+                defaultReceiptPrinterId: defaultReceiptPrinter?.printerId || null,
+                printerOnline: !!defaultReceiptPrinter,
+            });
+
+            printerInitRef.current = true;
+            console.log('[AppProvider] Printer cache initialized');
+        } catch (err) {
+            console.error('[AppProvider] Failed to initialize printer cache:', err);
+        }
+    }, [initializePrinterStore, isPrinterInitialized]);
 
     const fetchSettings = useCallback(async () => {
         try {
@@ -51,6 +87,10 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
                 if (savedPrinter) {
                     setPrinterOptions(JSON.parse(savedPrinter));
                 }
+
+                // Initialize printer cache for fast printing
+                // This runs in background and doesn't block settings load
+                initializePrinterCache(terminalId);
             }
 
             setError(null);
@@ -60,7 +100,7 @@ export const AppProvider: FunctionComponent<AppProviderProps> = ({ children }) =
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [initializePrinterCache]);
 
     const reloadSettings = useCallback(async () => {
         await fetchSettings();
