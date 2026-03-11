@@ -165,6 +165,13 @@ class PrintAgentAdapter {
     }
 
     /**
+     * Open cash drawer
+     */
+    async openCashDrawer(printerId: string): Promise<{ success: boolean; message: string }> {
+        return printerService.openCashDrawer(printerId);
+    }
+
+    /**
      * Get pending print jobs
      */
     async getPendingJobs(): Promise<PrintJob[]> {

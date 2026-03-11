@@ -50,6 +50,9 @@ const endpoints = {
 	printReceipt: 'printers/print/receipt',
 	printLabel: 'printers/print/label',
 
+	// Cash Drawer
+	drawerOpen: 'printers/drawer/open',
+
 	// Print Jobs
 	pendingJobs: 'printers/jobs/pending',
 	jobHistory: 'printers/jobs',
@@ -459,6 +462,28 @@ const printerService = {
 			.then((res) => res.data.data)
 			.catch((err) => {
 				console.error('Error printing label:', err);
+				throw err;
+			});
+	},
+
+	// ============================================
+	// CASH DRAWER
+	// ============================================
+
+	/**
+	 * POST /printers/drawer/open/:id - Open cash drawer
+	 * Opens the cash drawer connected to the specified printer
+	 * Used for "No Sale" operations
+	 */
+	async openCashDrawer(printerId: string): Promise<{ success: boolean; message: string }> {
+		return api
+			.post<ApiResponse<{ success: boolean; message: string }>>(
+				`${endpoints.drawerOpen}/${printerId}`,
+				{} as any
+			)
+			.then((res) => res.data.data || { success: true, message: 'Cash drawer opened' })
+			.catch((err) => {
+				console.error('Error opening cash drawer:', err);
 				throw err;
 			});
 	},
