@@ -64,6 +64,11 @@ const MobileCameraScannerModal: FunctionComponent<MobileCameraScannerModalProps>
 
     const findItemByBarcode = useCallback((barcode: string): InventoryItem | undefined => {
         return inventory.find(item => {
+            // Check stock availability first - don't return out-of-stock items
+            const quantity = parseFloat((item.quantity || item.availableQuantity || 0).toString());
+            if (quantity <= 0) {
+                return false;
+            }
             const itemBarcode = item.barcode?.toString() || '';
             const primaryBarcode = item.primaryBarcode?.toString() || '';
             const sku = item.sku?.toString() || '';
@@ -110,8 +115,8 @@ const MobileCameraScannerModal: FunctionComponent<MobileCameraScannerModalProps>
         console.log('Camera rotation not yet implemented');
     }, []);
 
-    const getCartQuantity = (productId: string): number => {
-        const cartItem = cart.find(item => item.productId === productId);
+    const getCartQuantity = (variantId: string): number => {
+        const cartItem = cart.find(item => item.variantId === variantId);
         return cartItem ? cartItem.quantity : 0;
     };
 
@@ -121,7 +126,7 @@ const MobileCameraScannerModal: FunctionComponent<MobileCameraScannerModalProps>
 
     const getCartInventoryItems = (): InventoryItem[] => {
         return cart
-            .map(cartItem => inventory.find(inv => inv.productId === cartItem.productId))
+            .map(cartItem => inventory.find(inv => inv.id === cartItem.variantId))
             .filter((item): item is InventoryItem => item !== undefined)
             .reverse();
     };

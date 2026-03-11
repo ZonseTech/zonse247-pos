@@ -4,7 +4,7 @@ import ScannedItemCard from './ScannedItemCard';
 
 interface ScannedItemsListProps {
     items: InventoryItem[];
-    getCartQuantity: (productId: string) => number;
+    getCartQuantity: (variantId: string) => number;
 }
 
 const ScannedItemsList: FunctionComponent<ScannedItemsListProps> = ({
@@ -26,9 +26,9 @@ const ScannedItemsList: FunctionComponent<ScannedItemsListProps> = ({
             <div className="grid grid-cols-3 gap-3">
                 {items.map((item, index) => (
                     <ScannedItemCard
-                        key={item.productId}
+                        key={item.id}
                         item={item}
-                        quantity={getCartQuantity(item.productId)}
+                        quantity={getCartQuantity(item.id)}
                         animationDelay={index * 0.1}
                     />
                 ))}
