@@ -75,18 +75,24 @@ export const useInventory = () => {
         dispatch(calculateTotals())
     }, [cart, discount, discountIsPercentage, tax, otherCharges, dispatch])
 
+    /**
+     * Add item to cart using variantId (the `id` field from InventoryItem)
+     * Validates stock availability before adding
+     */
     const handleAddToCart = (item: InventoryItem) => {
         if (!isAuthenticated) {
             Notify.failure('Please log in to add items to cart')
             return
         }
 
+        const variantId = item.id?.toString() || item.productId.toString()
         const quantity = parseInt(item?.orderItems?.toString() || '0') || 1
-        const existingItem = cart.find(cartItem => cartItem.productId === item.productId)
+        const existingItem = cart.find(cartItem => cartItem.variantId === variantId)
         const isDefaultItem = item.isDefault === true
 
         if (!isDefaultItem) {
-            const currentInventoryItem = inventory.find(p => p.productId === item.productId)
+            // Find by variant ID (the `id` field)
+            const currentInventoryItem = inventory.find(p => p.id === variantId)
             const availableStock = parseInt((currentInventoryItem?.quantity || currentInventoryItem?.availableQuantity || '0').toString())
             const currentCartQuantity = existingItem ? existingItem.quantity : 0
             const newTotalQuantity = currentCartQuantity + quantity
@@ -106,47 +112,55 @@ export const useInventory = () => {
 
         if (!existingItem) {
             if (!isDefaultItem) {
-                const currentInventoryItem = inventory.find(p => p.productId === item.productId)
+                const currentInventoryItem = inventory.find(p => p.id === variantId)
                 dispatch(updateInventoryStock({
-                    id: item.productId.toString(),
+                    id: variantId,
                     newStock: parseInt((currentInventoryItem?.quantity || currentInventoryItem?.availableQuantity || '0').toString()) - quantity
                 }))
             }
         } else {
             if (!isDefaultItem) {
-                const currentInventoryItem = inventory.find(p => p.productId === item.productId)
+                const currentInventoryItem = inventory.find(p => p.id === variantId)
                 dispatch(updateInventoryStock({
-                    id: item.productId.toString(),
+                    id: variantId,
                     newStock: parseInt((currentInventoryItem?.quantity || currentInventoryItem?.availableQuantity || '0').toString()) - quantity
                 }))
             }
         }
     }
 
-    const handleRemoveFromCart = (id: string) => {
+    /**
+     * Remove item from cart by variantId
+     * Restores inventory stock when item is removed
+     */
+    const handleRemoveFromCart = (variantId: string) => {
         if (!isAuthenticated) return
 
-        const itemToRemove = cart.find(item => item.productId === id)
-        dispatch(removeFromCart(id))
+        const itemToRemove = cart.find(item => item.variantId === variantId)
+        dispatch(removeFromCart(variantId))
 
         if (itemToRemove) {
-            const inventoryItem = inventory.find(p => p.productId === id)
+            const inventoryItem = inventory.find(p => p.id === variantId)
             if (inventoryItem) {
                 dispatch(updateInventoryStock({
-                    id,
+                    id: variantId,
                     newStock: parseInt((inventoryItem.quantity || inventoryItem.availableQuantity || '0').toString()) + itemToRemove.quantity
                 }))
             }
         }
     }
 
-    const handleUpdateQuantity = (id: string, quantity: number) => {
+    /**
+     * Update cart item quantity by variantId
+     * Validates stock availability and adjusts inventory
+     */
+    const handleUpdateQuantity = (variantId: string, quantity: number) => {
         if (!isAuthenticated) return
 
-        const prevItem = cart.find(item => item.productId === id)
+        const prevItem = cart.find(item => item.variantId === variantId)
         if (!prevItem) return
 
-        const inventoryItem = inventory.find(p => p.productId === id)
+        const inventoryItem = inventory.find(p => p.id === variantId)
         const isDefaultItem = prevItem.isDefault === true
 
         if (!isDefaultItem && inventoryItem) {
@@ -162,25 +176,29 @@ export const useInventory = () => {
             }
         }
 
-        dispatch(updateQuantity({ id, quantity }))
+        dispatch(updateQuantity({ id: variantId, quantity }))
 
         if (prevItem && inventoryItem) {
             const difference = prevItem.quantity - quantity
             dispatch(updateInventoryStock({
-                id,
+                id: variantId,
                 newStock: parseInt((inventoryItem.quantity || inventoryItem.availableQuantity || '0').toString()) + difference
             }))
         }
     }
 
+    /**
+     * Clear all items from cart
+     * Restores inventory stock for all removed items
+     */
     const handleClearCart = () => {
         if (!isAuthenticated) return
 
         cart.forEach(item => {
-            const inventoryItem = inventory.find(p => p.productId === item.productId)
+            const inventoryItem = inventory.find(p => p.id === item.variantId)
             if (inventoryItem) {
                 dispatch(updateInventoryStock({
-                    id: item.productId,
+                    id: item.variantId,
                     newStock: parseInt((inventoryItem.quantity || inventoryItem.availableQuantity || '0').toString()) + item.quantity
                 }))
             }
@@ -232,10 +250,10 @@ export const useInventory = () => {
         removeOtherCharge: (id: string) => dispatch(removeOtherCharge(id)),
         clearOtherCharges: () => dispatch(clearOtherCharges()),
         reloadInventory,
-        updateCustomPrice: (productId: string, newPrice: number) =>
-            dispatch(updateCustomPrice({ productId, newPrice })),
-        updateItemDiscount: (productId: string, discount: number, isPercentage: boolean = false) =>
-            dispatch(updateItemDiscount({ productId, discount, isPercentage })),
+        updateCustomPrice: (variantId: string, newPrice: number) =>
+            dispatch(updateCustomPrice({ variantId, newPrice })),
+        updateItemDiscount: (variantId: string, discount: number, isPercentage: boolean = false) =>
+            dispatch(updateItemDiscount({ variantId, discount, isPercentage })),
         setCategories: (categories: Category[]) => dispatch(setCategories(categories)),
         setCustomers: (customers: Customer[]) => dispatch(setCustomers(customers)),
         fetchCustomers: handleFetchCustomers,

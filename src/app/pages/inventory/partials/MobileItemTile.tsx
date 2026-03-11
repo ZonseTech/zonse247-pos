@@ -122,13 +122,13 @@ const MobileInventoryList: React.FC<MobileInventoryListProps> = ({
         const variantIds = product.variants?.map(v => v.id) || [];
         // Sum up quantities for all variants in cart
         return cartItems
-            .filter(item => variantIds.includes(item.productId))
+            .filter(item => variantIds.includes(item.variantId))
             .reduce((sum, item) => sum + item.quantity, 0);
     };
 
     // Get cart quantity for a specific variant
     const getVariantCartQuantity = (variantId: string): number => {
-        const cartItem = cartItems.find(item => item.productId === variantId);
+        const cartItem = cartItems.find(item => item.variantId === variantId);
         return cartItem ? cartItem.quantity : 0;
     };
 

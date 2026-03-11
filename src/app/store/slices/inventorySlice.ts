@@ -177,11 +177,18 @@ const inventorySlice = createSlice({
         invalidateCache: (state) => {
             state.lastFetched = null
         },
+        /**
+         * Update inventory stock by variantId (the `id` field in InventoryItem)
+         */
         updateInventoryStock: (state, action: PayloadAction<{ id: string; newStock: number }>) => {
             const { id, newStock } = action.payload
-            const item = state.inventory.find(p => p.productId === id)
+            // Find by variant ID (the `id` field), not productId
+            const item = state.inventory.find(p => p.id === id)
             if (item) {
                 item.quantity = newStock.toString()
+                if (item.availableQuantity !== undefined) {
+                    item.availableQuantity = newStock
+                }
             }
         },
         setCategories: (state, action: PayloadAction<Category[]>) => {
