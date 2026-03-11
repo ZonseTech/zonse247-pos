@@ -5,6 +5,7 @@ export { default as ReceiptItemsList } from './ReceiptItemsList';
 export { default as ReceiptTotals } from './ReceiptTotals';
 export { default as ReceiptPayment } from './ReceiptPayment';
 export { default as ReceiptRefundInfo } from './ReceiptRefundInfo';
+export { default as ReceiptMraInfo } from './ReceiptMraInfo';
 export { default as ReceiptFooter } from './ReceiptFooter';
 export { default as ReceiptPageHeader } from './ReceiptPageHeader';
 export { ReceiptLoadingState, ReceiptErrorState } from './ReceiptStates';

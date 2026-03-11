@@ -11,6 +11,7 @@ import { getTableStyles } from "../../utils/table-styles";
 import { useSales } from "../../hooks/useSales";
 import { useSaleSummary } from "../../hooks/useSaleSummary";
 import { usePaymentMethods } from "../../hooks/usePaymentMethods";
+import { useMraCompliance } from "../../hooks/useMraCompliance";
 import { getSaleTableColumns } from "./partials/SaleTableColumns";
 import { StatusFilter } from "./partials/StatusFilter";
 import { PaymentMethodFilter } from "./partials/PaymentMethodFilter";
@@ -26,6 +27,7 @@ const SalesPage: FC = () => {
     const navigate = useNavigate();
     const isMobile = useIsMobile();
     const { mode } = useContext(ZonseThemeContext);
+    const { isMraEnabled } = useMraCompliance();
     // Modal state for mobile view only
     const [isOpenDetails, setIsOpenDetails] = useState<boolean>(false);
     const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
@@ -93,6 +95,7 @@ const SalesPage: FC = () => {
     const columns = getSaleTableColumns({
         onViewDetails: handleViewDetails,
         onInitiateReturn: handleInitiateReturn,
+        isMraEnabled,  // Pass MRA compliance status to show/hide MRA status column
     });
 
     return (
@@ -302,6 +305,7 @@ const SalesPage: FC = () => {
                             sale={selectedSale}
                             isOpenDetails={isOpenDetails}
                             setIsOpenDetails={setIsOpenDetails}
+                            isMraEnabled={isMraEnabled}
                         />
                     )}
 

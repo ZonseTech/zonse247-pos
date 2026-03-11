@@ -1,6 +1,7 @@
 /**
  * Sales Types for POS Integration
  * Updated for Product/Variant model (API v1.6.0+)
+ * Updated for MRA Compliance (API v1.6.0+)
  */
 
 /**
@@ -11,6 +12,19 @@ type SaleStatus =
     | 'COMPLETED'  // Sale completed successfully
     | 'VOIDED'     // Sale voided/cancelled
     | 'RETURNED';  // Sale returned
+
+/**
+ * MRA Sale Status - tracks submission to Malawi Revenue Authority
+ * Only applicable for MRA-compliant tenants
+ */
+type MraSaleStatus =
+    | 'NOT_APPLICABLE'  // Tenant is not MRA compliant
+    | 'PENDING'         // Awaiting submission to MRA
+    | 'SUBMITTED'       // Sent to MRA, awaiting verification
+    | 'VERIFIED'        // Successfully verified by MRA
+    | 'FAILED'          // Submission failed (can retry)
+    | 'REJECTED'        // Rejected by MRA (needs correction)
+    | 'CANCELLED';      // Invoice cancelled
 
 /**
  * Sale item - now references variantId (required) and productId (optional)
@@ -139,6 +153,15 @@ interface Sale {
     // Receipt info
     receiptPrinted?: boolean;
     receiptPrintedAt?: Date | string;
+
+    // MRA Compliance (only applicable for MRA-compliant tenants)
+    mraSaleStatus?: MraSaleStatus;      // Current MRA submission status
+    mraFiscalCode?: string | null;      // Fiscal code from MRA verification
+    mraVerificationUrl?: string | null; // URL for verifying the invoice
+    mraInvoiceNumber?: string | null;   // MRA fiscal invoice number
+    mraSubmittedAt?: Date | string | null;
+    mraVerifiedAt?: Date | string | null;
+    mraErrorMessage?: string | null;    // Error message if submission failed
 }
 
 /**

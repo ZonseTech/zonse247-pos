@@ -1,7 +1,7 @@
 import React from 'react';
 import { TableColumn } from 'react-data-table-component';
-import { HiOutlineEye, HiOutlineClock } from 'react-icons/hi2';
-import { RotateCcw } from 'lucide-react';
+import { HiOutlineEye, HiOutlineClock, HiOutlineCheckCircle, HiOutlineExclamationCircle, HiOutlineClock as HiOutlineClockSmall } from 'react-icons/hi2';
+import { RotateCcw, Shield, ShieldOff, ShieldAlert, ShieldCheck, ShieldX } from 'lucide-react';
 import dayjs from 'dayjs';
 import { formatCurrency } from '../../../utils';
 import returnsService from '../../../services/returns.service';
@@ -18,12 +18,15 @@ type SaleOrTransaction = (Sale | Transaction) & {
     amountPaid?: number;
     paid?: number;
     isVoided?: boolean;
+    mraSaleStatus?: MraSaleStatus;
+    mraFiscalCode?: string | null;
 };
 
 interface TransactionTableColumnsProps {
     onViewDetails: (transaction: Transaction) => void;
     onInitiateReturn: (transaction: Transaction) => void;
     compact?: boolean;
+    isMraEnabled?: boolean;  // Show MRA status column when true
 }
 
 // Helper to get sale identifier (supports both new and legacy format)
@@ -42,10 +45,88 @@ const getSaleTotal = (row: SaleOrTransaction) =>
 const getAmountPaid = (row: SaleOrTransaction) =>
     row.amountPaid || row.paid || 0;
 
+/**
+ * MRA Status Badge Component
+ * Displays the MRA submission status with appropriate icon and color
+ */
+const MraStatusBadge: React.FC<{ status?: MraSaleStatus; fiscalCode?: string | null }> = ({
+    status,
+    fiscalCode,
+}) => {
+    if (!status || status === 'NOT_APPLICABLE') {
+        return null;
+    }
+
+    const statusConfig: Record<Exclude<MraSaleStatus, 'NOT_APPLICABLE'>, {
+        label: string;
+        icon: React.ReactNode;
+        bgColor: string;
+        textColor: string;
+    }> = {
+        PENDING: {
+            label: 'Pending',
+            icon: <HiOutlineClockSmall className="w-3.5 h-3.5" />,
+            bgColor: 'bg-amber-100 dark:bg-amber-900/30',
+            textColor: 'text-amber-700 dark:text-amber-400',
+        },
+        SUBMITTED: {
+            label: 'Submitted',
+            icon: <Shield className="w-3.5 h-3.5" />,
+            bgColor: 'bg-blue-100 dark:bg-blue-900/30',
+            textColor: 'text-blue-700 dark:text-blue-400',
+        },
+        VERIFIED: {
+            label: 'Verified',
+            icon: <ShieldCheck className="w-3.5 h-3.5" />,
+            bgColor: 'bg-green-100 dark:bg-green-900/30',
+            textColor: 'text-green-700 dark:text-green-400',
+        },
+        FAILED: {
+            label: 'Failed',
+            icon: <ShieldAlert className="w-3.5 h-3.5" />,
+            bgColor: 'bg-red-100 dark:bg-red-900/30',
+            textColor: 'text-red-700 dark:text-red-400',
+        },
+        REJECTED: {
+            label: 'Rejected',
+            icon: <ShieldX className="w-3.5 h-3.5" />,
+            bgColor: 'bg-orange-100 dark:bg-orange-900/30',
+            textColor: 'text-orange-700 dark:text-orange-400',
+        },
+        CANCELLED: {
+            label: 'Cancelled',
+            icon: <ShieldOff className="w-3.5 h-3.5" />,
+            bgColor: 'bg-gray-100 dark:bg-gray-700',
+            textColor: 'text-gray-600 dark:text-gray-400',
+        },
+    };
+
+    const config = statusConfig[status];
+    if (!config) return null;
+
+    return (
+        <div className="flex flex-col gap-0.5">
+            <span
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${config.bgColor} ${config.textColor}`}
+                title={fiscalCode ? `Fiscal Code: ${fiscalCode}` : undefined}
+            >
+                {config.icon}
+                {config.label}
+            </span>
+            {fiscalCode && (
+                <span className="text-[10px] text-gray-500 dark:text-gray-400 truncate max-w-[100px]" title={fiscalCode}>
+                    {fiscalCode}
+                </span>
+            )}
+        </div>
+    );
+};
+
 export const getSaleTableColumns = ({
     onViewDetails,
     onInitiateReturn,
     compact = false,
+    isMraEnabled = false,
 }: TransactionTableColumnsProps): TableColumn<Transaction>[] => {
     // For compact mode (EBN) - optimized columns with better visibility
     if (compact) {
@@ -264,6 +345,18 @@ export const getSaleTableColumns = ({
                 </div>
             ),
         },
+        // MRA Status column - only shown when MRA is enabled for the tenant
+        ...(isMraEnabled ? [{
+            name: "MRA Status",
+            selector: (row: SaleOrTransaction) => (row as any).mraSaleStatus || 'NOT_APPLICABLE',
+            cell: (row: SaleOrTransaction) => (
+                <MraStatusBadge
+                    status={(row as any).mraSaleStatus}
+                    fiscalCode={(row as any).mraFiscalCode}
+                />
+            ),
+            width: '130px',
+        }] : []),
         {
             width: "120px",
             name: "Actions",
