@@ -39,12 +39,11 @@ declare global {
                 } | null>;
             };
             menu: {
-                rebuild: (user: User | null, branches?: Branch[], currentBranchId?: string) => void;
+                rebuild: (user: User | null) => void;
                 onLogout: (callback: () => void) => () => void;
                 onCheckUpdates: (callback: () => void) => () => void;
                 onNavigate: (callback: (route: string) => void) => () => void;
                 onOpenModal: (callback: (modalName: string) => void) => () => void;
-                onSwitchBranch: (callback: (data: { branchId: string; branchName: string }) => void) => () => void;
                 onRestoreDatabase: (callback: (filePath: string) => void) => () => void;
             };
             onOnboardingStatus: (callback: (status: any) => void) => void;

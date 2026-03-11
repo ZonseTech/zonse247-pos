@@ -113,6 +113,7 @@ app.whenReady().then(async () => {
 			await resetSyncTimestamps();
 
 			const existingJob = getSyncJob();
+
 			if (!existingJob) {
 				syncJob = initSyncJob({
 					serverUrl: liveApiUrl,
@@ -122,9 +123,9 @@ app.whenReady().then(async () => {
 					branchId: appSetup.branchId,
 					enablePull: true,
 				});
-				console.log('✓ Sync Job started (user logged in)');
 
-				await syncJob.runSyncCycle();
+				syncJob.start();
+				console.log('✓ Sync Job started (user logged in)');
 			}
 
 			printAgent.start().then(() => {

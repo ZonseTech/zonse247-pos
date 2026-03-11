@@ -3,6 +3,11 @@ type MsonkhoOnlineStatus = 'VERIFIED' | 'PENDING' | 'FAILED';
 type SubscriptionStatus = 'ACTIVE' | 'SUSPENDED' | 'CANCELLED' | 'TRIAL';
 type TenantStatus = 'pending' | 'active' | 'suspended' | 'cancelled';
 
+/**
+ * MRA Environment - Sandbox for testing, Production for live submissions
+ */
+type MraEnvironment = 'SANDBOX' | 'PRODUCTION';
+
 interface BaseTimestamps {
     createdAt?: Date | null;
     updatedAt?: Date | null;
@@ -32,6 +37,12 @@ interface Tenant extends BaseTimestamps {
     registeredAt?: Date | null;
     activatedAt?: Date | null;
     synced?: boolean;
+
+    // MRA Compliance Fields
+    isMraEnabled?: boolean;           // Whether MRA integration is enabled
+    mraEnvironment?: MraEnvironment;  // Current MRA environment (SANDBOX/PRODUCTION)
+    mraDeviceSerialNumber?: string | null;  // MRA device serial number
+    mraApiConfigured?: boolean;       // Whether MRA API credentials are set up
 }
 
 type TenantFormValues = Omit<

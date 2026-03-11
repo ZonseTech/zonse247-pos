@@ -27,8 +27,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
 
     menu: {
-        rebuild: (user: User, branches?: Branch[], currentBranchId?: string) =>
-            ipcRenderer.invoke('menu:rebuild', user, branches, currentBranchId),
+        rebuild: (user: User) =>
+            ipcRenderer.invoke('menu:rebuild', user),
         onNavigate: (callback: (route: string) => void) => {
             const listener = (_event: any, route: string) => callback(route);
             ipcRenderer.on('menu-navigate', listener);
@@ -43,11 +43,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
             const listener = () => callback();
             ipcRenderer.on('auth:logout', listener);
             return () => ipcRenderer.removeListener('auth:logout', listener);
-        },
-        onSwitchBranch: (callback: (data: { branchId: string; branchName: string }) => void) => {
-            const listener = (_event: any, data: { branchId: string; branchName: string }) => callback(data);
-            ipcRenderer.on('menu-switch-branch', listener);
-            return () => ipcRenderer.removeListener('menu-switch-branch', listener);
         },
         onRestoreDatabase: (filePath: string) =>
             ipcRenderer.invoke('menu:restore-database', filePath)
