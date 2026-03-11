@@ -30,7 +30,7 @@ const MobileEditItemModal: FunctionComponent<MobileEditItemModalProps> = ({
 
     const getMaxStock = (): number => {
         if (!item) return 999;
-        const inventoryItem = inventory.find(p => p.productId === item.productId);
+        const inventoryItem = inventory.find(p => p.id === item.variantId);
         const availableInInventory = parseInt((inventoryItem?.quantity || '0').toString());
         return item.isDefault ? 999 : availableInInventory + quantity;
     };
@@ -61,31 +61,31 @@ const MobileEditItemModal: FunctionComponent<MobileEditItemModalProps> = ({
     const handleDelete = () => {
         if (!item) return;
 
-        removeFromCart(item.productId);
+        removeFromCart(item.variantId);
         onClose();
     };
 
     const handleUpdate = () => {
         if (!item) return;
 
-        updateQuantity(item.productId, quantity);
+        updateQuantity(item.variantId, quantity);
 
         const newPrice = parseFloat(sellingPrice);
         if (!isNaN(newPrice) && newPrice >= 0) {
-            updateCustomPrice(item.productId, newPrice);
+            updateCustomPrice(item.variantId, newPrice);
         }
 
         if (offerType === 'free') {
-            updateCustomPrice(item.productId, 0);
-            updateItemDiscount(item.productId, 0, false);
+            updateCustomPrice(item.variantId, 0);
+            updateItemDiscount(item.variantId, 0, false);
         } else if (offerType === 'discount' && discountValue) {
             const discount = parseFloat(discountValue);
             if (!isNaN(discount) && discount > 0) {
                 const isPercentage = discountType === 'percentage';
-                updateItemDiscount(item.productId, discount, isPercentage);
+                updateItemDiscount(item.variantId, discount, isPercentage);
             }
         } else {
-            updateItemDiscount(item.productId, 0, false);
+            updateItemDiscount(item.variantId, 0, false);
         }
 
         onClose();

@@ -22,8 +22,8 @@ const CartItemCard: FunctionComponent<CartItemProps> = ({ customPriceInputs,
     } = useInventory();
 
     // Calculate max available stock for each cart item (current inventory + quantity in cart)
-    const getMaxStock = (productId: string, currentCartQuantity: number): number => {
-        const inventoryItem = inventory.find(p => p.productId === productId);
+    const getMaxStock = (variantId: string, currentCartQuantity: number): number => {
+        const inventoryItem = inventory.find(p => p.id === variantId);
         const availableInInventory = parseInt((inventoryItem?.quantity || '0').toString());
         return availableInInventory + currentCartQuantity;
     };
@@ -46,7 +46,7 @@ const CartItemCard: FunctionComponent<CartItemProps> = ({ customPriceInputs,
                             : (item.discount || 0) * itemQty;
 
                         return (
-                            <div key={item.productId} className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex py-3">
+                            <div key={item.variantId} className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex py-3">
                                 <div className="flex-1 flex flex-col justify-between">
                                     <div className="flex justify-between items-start">
                                         <div className="flex-1 min-w-0">
@@ -69,8 +69,8 @@ const CartItemCard: FunctionComponent<CartItemProps> = ({ customPriceInputs,
                                             <PriceControl
                                                 sellingPrice={item.sellingPrice}
                                                 categoryId={item.categoryId}
-                                                productId={item.productId}
-                                                customPriceInput={customPriceInputs[item.productId] || ''}
+                                                productId={item.variantId}
+                                                customPriceInput={customPriceInputs[item.variantId] || ''}
                                                 onPriceChange={onPriceChange}
                                             />
                                         </div>
@@ -79,16 +79,16 @@ const CartItemCard: FunctionComponent<CartItemProps> = ({ customPriceInputs,
                                         <div className="flex items-center gap-2">
                                             <QuantityControl
                                                 quantity={item.quantity}
-                                                onIncrease={() => updateQuantity(item.productId, item.quantity + 1)}
-                                                onDecrease={() => updateQuantity(item.productId, item.quantity - 1)}
-                                                onInputChange={(value) => updateQuantity(item.productId, value)}
-                                                itemId={item.productId}
-                                                maxStock={getMaxStock(item.productId, item.quantity)}
+                                                onIncrease={() => updateQuantity(item.variantId, item.quantity + 1)}
+                                                onDecrease={() => updateQuantity(item.variantId, item.quantity - 1)}
+                                                onInputChange={(value) => updateQuantity(item.variantId, value)}
+                                                itemId={item.variantId}
+                                                maxStock={getMaxStock(item.variantId, item.quantity)}
                                                 isDefaultItem={item.isDefault}
                                             />
                                         </div>
                                         <button
-                                            onClick={() => removeFromCart(item.productId)}
+                                            onClick={() => removeFromCart(item.variantId)}
                                             className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full"
                                         >
                                             <Trash2 className="w-5 h-5" />

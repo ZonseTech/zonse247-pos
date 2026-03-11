@@ -28,8 +28,8 @@ const CartTable: FunctionComponent<CartTableProps> = ({
         updateQuantity,
     } = useInventory();
 
-    const getMaxStock = (productId: string, currentCartQuantity: number): number => {
-        const inventoryItem = inventory.find(p => p.productId === productId);
+    const getMaxStock = (variantId: string, currentCartQuantity: number): number => {
+        const inventoryItem = inventory.find(p => p.id === variantId);
         const availableInInventory = parseInt((inventoryItem?.quantity || '0').toString());
         return availableInInventory + currentCartQuantity;
     };
@@ -210,7 +210,7 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                         ) : (
                             cart.map((item, index) => (
                                 <tr
-                                    key={item.productId}
+                                    key={item.variantId}
                                     className="group hover:bg-sky-50/50 dark:hover:bg-sky-500/5 transition-all duration-200"
                                 >
                                     <td className={classNames(compact ? "px-1.5 py-1" : "px-4 py-4")}>
@@ -236,12 +236,12 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                                     <td className={classNames(compact ? "px-1 py-1" : "px-3 py-4")}>
                                         <QuantityControl
                                             quantity={item.quantity}
-                                            onIncrease={() => updateQuantity(item.productId, item.quantity + 1)}
-                                            onDecrease={() => updateQuantity(item.productId, item.quantity - 1)}
-                                            onInputChange={(value) => updateQuantity(item.productId, value)}
-                                            itemId={item.productId}
+                                            onIncrease={() => updateQuantity(item.variantId, item.quantity + 1)}
+                                            onDecrease={() => updateQuantity(item.variantId, item.quantity - 1)}
+                                            onInputChange={(value) => updateQuantity(item.variantId, value)}
+                                            itemId={item.variantId}
                                             focusManager={focusManager}
-                                            maxStock={getMaxStock(item.productId, item.quantity)}
+                                            maxStock={getMaxStock(item.variantId, item.quantity)}
                                             isDefaultItem={item.isDefault}
                                             compact={compact}
                                         />
@@ -250,8 +250,8 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                                         <PriceControl
                                             sellingPrice={item.sellingPrice}
                                             categoryId={item.categoryId}
-                                            productId={item.productId}
-                                            customPriceInput={customPriceInputs[item.productId] || ''}
+                                            productId={item.variantId}
+                                            customPriceInput={customPriceInputs[item.variantId] || ''}
                                             onPriceChange={onPriceChange}
                                             focusManager={focusManager}
                                             compact={compact}
@@ -296,7 +296,7 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                                         compact ? "px-1 py-1" : "px-3 py-4"
                                     )}>
                                         <button
-                                            onClick={() => removeFromCart(item.productId)}
+                                            onClick={() => removeFromCart(item.variantId)}
                                             className={classNames(
                                                 "text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400",
                                                 "hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all duration-200",

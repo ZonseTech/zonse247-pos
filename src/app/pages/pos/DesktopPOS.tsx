@@ -123,7 +123,7 @@ const DesktopPOS: FunctionComponent = () => {
     };
 
     const handleQuantityNumpadInput = (itemId: string, value: string) => {
-        const cartItem = cart.find(item => item.productId === itemId);
+        const cartItem = cart.find(item => item.variantId === itemId);
         if (!cartItem) return;
 
         if (value === 'Del') {

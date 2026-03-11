@@ -6,7 +6,7 @@ import { useInventory } from '../../../hooks/useInventory';
 import { useAuth } from '../../../context/AuthProvider';
 import { useApp } from '../../../context/AppProvider';
 import salesService from '../../../services/sales.service';
-import printerService from '../../../services/printer.service';
+import { usePrintReceipt } from '../../../hooks/usePrintReceipt';
 import { generateReferenceNumber } from '../../../utils';
 import { DEFAULT_SEED_KEY } from '../../../constants';
 import { ROUTES } from '../../../utils/constants';
@@ -61,6 +61,9 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
 
     const { user } = useAuth();
     const { settings } = useApp();
+
+    // Use optimized fire-and-forget printing hook
+    const { printReceipt } = usePrintReceipt();
 
     const [processing, setProcessing] = useState<boolean>(false);
     const [processingStep, setProcessingStep] = useState<ProcessingStep | null>(null);
@@ -216,15 +219,10 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
             setChangeAmount(calculatedChange);
             setCompletedSale(completedSaleData);
 
+            // Fire-and-forget printing (doesn't block UI)
+            // Uses cached receipt settings for fast printing
             setProcessingStep('printing');
-            try {
-                await printerService.printReceipt({
-                    saleId: sale.id,
-                    transactionId: sale.id,
-                });
-            } catch (printError) {
-                Report.failure('Print Error', 'Failed to print receipt. Please try again.', 'OK');
-            }
+            printReceipt(sale.id);
 
             setProcessingStep('completed');
 

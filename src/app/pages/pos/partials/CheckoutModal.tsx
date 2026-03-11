@@ -12,7 +12,7 @@ import { useInventory } from '../../../hooks/useInventory';
 import { useAuth } from '../../../context/AuthProvider';
 import { useApp } from '../../../context/AppProvider';
 import salesService from '../../../services/sales.service';
-import printerService from '../../../services/printer.service';
+import { usePrintReceipt } from '../../../hooks/usePrintReceipt';
 import { generateReferenceNumber } from '../../../utils';
 import { DEFAULT_SEED_KEY } from '../../../constants';
 import { useIsEBN } from '../../../hooks/useMediaQuery';
@@ -75,6 +75,9 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     const { user } = useAuth()
     const { settings, printerOptions } = useApp()
     const isEBN = useIsEBN();
+
+    // Use optimized fire-and-forget printing hook
+    const { printReceipt } = usePrintReceipt();
 
     const [processing, setProcessing] = useState<boolean>(false);
     const [processingStep, setProcessingStep] = useState<ProcessingStep | null>(null);
@@ -212,23 +215,17 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
             const saleRefNumber = (sale as any).saleNumber || refNumber;
             const saleChangeAmount = sale.changeAmount || (values.cashTendered ? Math.max(0, parseFloat(values.cashTendered) - total) : 0);
 
-            // Step 3: Printing
+            // Step 3: Printing (Fire-and-forget - doesn't block UI)
+            // Uses cached receipt settings for fast printing
             setProcessingStep('printing');
-            try {
-                await printerService.printReceipt({
-                    saleId: sale.id,
-                    transactionId: sale.id,
-                    copies: settings?.receiptCopies || 1,
-                    includeHeader: true,
-                    includeFooter: true,
-                    includeLogo: settings?.showStoreLogo || false,
-                });
-            } catch (printError) {
-                console.error('Print failed:', printError);
-                // Continue even if print fails - sale is already saved
-            }
+            printReceipt(sale.id, {
+                copies: settings?.receiptCopies || 1,
+                includeHeader: true,
+                includeFooter: true,
+                includeLogo: settings?.showStoreLogo || false,
+            });
 
-            // Step 4: Completed - Show success modal
+            // Step 4: Completed - Show success modal immediately (don't wait for print)
             setProcessingStep('completed');
             await simulateDelay(300);
 

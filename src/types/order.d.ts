@@ -33,10 +33,15 @@ interface HoldOrder {
     till?: string;
 }
 
+/**
+ * CartItem - represents a sellable unit in the cart
+ * Uses variantId as the unique identifier (API v1.6.0+)
+ * The `id` from ProductWithInventory maps to `variantId` here
+ */
 interface CartItem {
     barcode: number | string;
-    variantId?: string;         // Variant ID (preferred for API v1.6.0+)
-    productId: string;          // Product ID (parent)
+    variantId: string;          // Required: Variant ID (the sellable unit)
+    productId?: string;         // Optional: Parent product ID for reference
     name: string;
     categoryId: string;
     sellingPrice: number;

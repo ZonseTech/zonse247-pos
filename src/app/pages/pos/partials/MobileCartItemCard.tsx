@@ -93,7 +93,7 @@ const MobileCartItemCard: FunctionComponent<MobileCartItemCardProps> = ({ onEdit
 
                         return (
                             <div
-                                key={item.productId}
+                                key={item.variantId}
                                 className="py-1.5 px-2.5"
                             >
                                 <div className="flex justify-between items-center">
