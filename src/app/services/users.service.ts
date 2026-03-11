@@ -1,46 +1,8 @@
-import axios from 'axios';
 import api from './http.service';
 import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
+import { liveApi, getTenantId, getAuthToken, isLiveApiConfigured } from './live-api.service';
 
-const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL;
 const USER_DECODE_FIELDS = ['fullname', 'username', 'email', 'roleName', 'branchName', 'tenantName'] as const;
-
-const liveApi = axios.create({
-	baseURL: LIVE_API_URL,
-	timeout: 30000,
-	headers: {
-		'X-Client-Type': 'web'
-	}
-});
-
-/**
- * Get tenant ID from electron setup or session storage
- */
-async function getTenantId(): Promise<string | undefined> {
-	try {
-		if (typeof window !== 'undefined' && (window as any).electronAPI?.settings) {
-			const result = await (window as any).electronAPI.settings.getSetup();
-			if (result.success && result.data?.tenantId) return result.data.tenantId;
-		}
-
-		const user = sessionStorage?.getItem('user');
-		if (user) return JSON.parse(user).tenantId;
-	} catch (error) {
-		console.warn('[UsersService] Error getting tenant ID:', error);
-	}
-	return undefined;
-}
-
-/**
- * Get auth token from session storage
- */
-function getAuthToken(): string | undefined {
-	try {
-		return sessionStorage?.getItem('token') || undefined;
-	} catch {
-		return undefined;
-	}
-}
 
 const endpoints: Record<string, string> = {
 	all: 'users',
@@ -97,7 +59,7 @@ const usersService = {
 	 * Create user via Live API (for online-first scenarios)
 	 */
 	async storeLive(data: CreateUserRequest): Promise<CreateUserResponse> {
-		if (!LIVE_API_URL) {
+		if (!isLiveApiConfigured()) {
 			throw new Error('Live server URL not configured');
 		}
 

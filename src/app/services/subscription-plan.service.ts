@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL;
+import { liveApi, getAuthHeaders } from './live-api.service';
 
 /**
  * Subscription Plan Service
@@ -9,41 +7,6 @@ const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL;
  */
 class SubscriptionPlanService {
 	private readonly endpoint = '/subscription-plans';
-
-	private liveApi = axios.create({
-		baseURL: LIVE_API_URL,
-		timeout: 30000,
-		headers: {
-			'X-Client-Type': 'web'
-		}
-	});
-
-	/**
-	 * Get tenant ID from electron setup or session storage
-	 */
-	private async getTenantId(): Promise<string | undefined> {
-		try {
-			if (typeof window !== 'undefined' && window.electronAPI?.settings) {
-				const result = await window.electronAPI.settings.getSetup();
-				if (result.success && result.data?.tenantId) return result.data.tenantId;
-			}
-
-			const user = sessionStorage?.getItem('user');
-			if (user) return JSON.parse(user).tenantId;
-		} catch (error) {
-			console.warn('[SubscriptionPlanService] Error getting tenant ID:', error);
-		}
-		return undefined;
-	}
-
-	private async getAuthHeaders() {
-		const token = sessionStorage.getItem('token');
-		const tenantId = await this.getTenantId();
-		return {
-			...(token && { Authorization: `Bearer ${JSON.parse(token)}` }),
-			...(tenantId && { 'X-Tenant-Id': tenantId })
-		};
-	}
 
 	/**
 	 * Normalize plan data to ensure consistent ID field usage
@@ -68,8 +31,8 @@ class SubscriptionPlanService {
 	 */
 	async list(): Promise<SubscriptionPlan[]> {
 		try {
-			const response = await this.liveApi.get<ApiResponse<SubscriptionPlan[]>>(this.endpoint, {
-				headers: await this.getAuthHeaders()
+			const response = await liveApi.get<ApiResponse<SubscriptionPlan[]>>(this.endpoint, {
+				headers: await getAuthHeaders()
 			});
 			return this.normalizePlans(response.data.data || []);
 		} catch (error) {
@@ -83,9 +46,9 @@ class SubscriptionPlanService {
 	 */
 	async show(id: string): Promise<SubscriptionPlan> {
 		try {
-			const response = await this.liveApi.get<ApiResponse<SubscriptionPlan>>(
+			const response = await liveApi.get<ApiResponse<SubscriptionPlan>>(
 				`${this.endpoint}/${id}`,
-				{ headers: await this.getAuthHeaders() }
+				{ headers: await getAuthHeaders() }
 			);
 			return this.normalizePlan(response.data.data);
 		} catch (error) {
@@ -99,10 +62,10 @@ class SubscriptionPlanService {
 	 */
 	async store(planData: CreateSubscriptionPlanRequest): Promise<SubscriptionPlan> {
 		try {
-			const response = await this.liveApi.post<ApiResponse<SubscriptionPlan>>(
+			const response = await liveApi.post<ApiResponse<SubscriptionPlan>>(
 				this.endpoint,
 				planData,
-				{ headers: await this.getAuthHeaders() }
+				{ headers: await getAuthHeaders() }
 			);
 			return this.normalizePlan(response.data.data);
 		} catch (error) {
@@ -119,10 +82,10 @@ class SubscriptionPlanService {
 		planData: Partial<SubscriptionPlan>
 	): Promise<SubscriptionPlan> {
 		try {
-			const response = await this.liveApi.put<ApiResponse<SubscriptionPlan>>(
+			const response = await liveApi.put<ApiResponse<SubscriptionPlan>>(
 				`${this.endpoint}/${id}`,
 				planData,
-				{ headers: await this.getAuthHeaders() }
+				{ headers: await getAuthHeaders() }
 			);
 			return this.normalizePlan(response.data.data);
 		} catch (error) {
@@ -136,8 +99,8 @@ class SubscriptionPlanService {
 	 */
 	async delete(id: string): Promise<void> {
 		try {
-			await this.liveApi.delete(`${this.endpoint}/${id}`, {
-				headers: await this.getAuthHeaders()
+			await liveApi.delete(`${this.endpoint}/${id}`, {
+				headers: await getAuthHeaders()
 			});
 		} catch (error) {
 			console.error('Error deleting subscription plan:', error);
@@ -150,9 +113,9 @@ class SubscriptionPlanService {
 	 */
 	async getActive(): Promise<SubscriptionPlan[]> {
 		try {
-			const response = await this.liveApi.get<ApiResponse<SubscriptionPlan[]>>(
+			const response = await liveApi.get<ApiResponse<SubscriptionPlan[]>>(
 				`${this.endpoint}/active`,
-				{ headers: await this.getAuthHeaders() }
+				{ headers: await getAuthHeaders() }
 			);
 
 			const plans = this.normalizePlans(response.data.data || []);
@@ -182,10 +145,10 @@ class SubscriptionPlanService {
 	 */
 	async toggleStatus(id: string): Promise<SubscriptionPlan> {
 		try {
-			const response = await this.liveApi.patch<ApiResponse<SubscriptionPlan>>(
+			const response = await liveApi.patch<ApiResponse<SubscriptionPlan>>(
 				`${this.endpoint}/${id}/toggle-status`,
 				{},
-				{ headers: await this.getAuthHeaders() }
+				{ headers: await getAuthHeaders() }
 			);
 			return this.normalizePlan(response.data.data);
 		} catch (error) {
@@ -199,9 +162,9 @@ class SubscriptionPlanService {
 	 */
 	async validatePlan(id: string): Promise<{ valid: boolean; message: string }> {
 		try {
-			const response = await this.liveApi.get<ApiResponse<{ valid: boolean; message: string }>>(
+			const response = await liveApi.get<ApiResponse<{ valid: boolean; message: string }>>(
 				`${this.endpoint}/${id}/validate`,
-				{ headers: await this.getAuthHeaders() }
+				{ headers: await getAuthHeaders() }
 			);
 			return response.data.data;
 		} catch (error) {

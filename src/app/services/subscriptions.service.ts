@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL;
+import { liveApi, getAuthHeaders } from './live-api.service';
 
 /**
  * Subscription Service
@@ -8,41 +6,6 @@ const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL;
  */
 class SubscriptionService {
 	private readonly endpoint = '/subscriptions';
-
-	private liveApi = axios.create({
-		baseURL: LIVE_API_URL,
-		timeout: 30000,
-		headers: {
-			'X-Client-Type': 'web'
-		}
-	});
-
-	/**
-	 * Get tenant ID from electron setup or session storage
-	 */
-	private async getTenantId(): Promise<string | undefined> {
-		try {
-			if (typeof window !== 'undefined' && window.electronAPI?.settings) {
-				const result = await window.electronAPI.settings.getSetup();
-				if (result.success && result.data?.tenantId) return result.data.tenantId;
-			}
-
-			const user = sessionStorage?.getItem('user');
-			if (user) return JSON.parse(user).tenantId;
-		} catch (error) {
-			console.warn('[SubscriptionService] Error getting tenant ID:', error);
-		}
-		return undefined;
-	}
-
-	private async getAuthHeaders() {
-		const token = sessionStorage.getItem('token');
-		const tenantId = await this.getTenantId();
-		return {
-			...(token && { Authorization: `Bearer ${JSON.parse(token)}` }),
-			...(tenantId && { 'X-Tenant-Id': tenantId })
-		};
-	}
 
 	/**
 	 * Normalize subscription plan data for consistency
@@ -73,8 +36,8 @@ class SubscriptionService {
 	 */
 	async list(): Promise<SubscriptionResponse> {
 		try {
-			const response = await this.liveApi.get<SubscriptionResponse>(this.endpoint, {
-				headers: await this.getAuthHeaders()
+			const response = await liveApi.get<SubscriptionResponse>(this.endpoint, {
+				headers: await getAuthHeaders()
 			});
 			return response.data;
 		} catch (error) {
@@ -88,9 +51,9 @@ class SubscriptionService {
 	 */
 	async show(id: string): Promise<BranchSubscription> {
 		try {
-			const response = await this.liveApi.get<ApiResponse<BranchSubscription>>(
+			const response = await liveApi.get<ApiResponse<BranchSubscription>>(
 				`${this.endpoint}/${id}`,
-				{ headers: await this.getAuthHeaders() }
+				{ headers: await getAuthHeaders() }
 			);
 			return response.data.data;
 		} catch (error) {
@@ -106,10 +69,10 @@ class SubscriptionService {
 		subscriptionData: CreateBranchSubscriptionRequest
 	): Promise<BranchSubscription> {
 		try {
-			const response = await this.liveApi.post<ApiResponse<BranchSubscription>>(
+			const response = await liveApi.post<ApiResponse<BranchSubscription>>(
 				this.endpoint,
 				subscriptionData,
-				{ headers: await this.getAuthHeaders() }
+				{ headers: await getAuthHeaders() }
 			);
 			return response.data.data;
 		} catch (error) {
@@ -126,10 +89,10 @@ class SubscriptionService {
 		subscriptionData: UpdateBranchSubscriptionRequest
 	): Promise<BranchSubscription> {
 		try {
-			const response = await this.liveApi.put<ApiResponse<BranchSubscription>>(
+			const response = await liveApi.put<ApiResponse<BranchSubscription>>(
 				`${this.endpoint}/${id}`,
 				subscriptionData,
-				{ headers: await this.getAuthHeaders() }
+				{ headers: await getAuthHeaders() }
 			);
 			return response.data.data;
 		} catch (error) {
@@ -143,8 +106,8 @@ class SubscriptionService {
 	 */
 	async delete(id: string): Promise<void> {
 		try {
-			await this.liveApi.delete(`${this.endpoint}/${id}`, {
-				headers: await this.getAuthHeaders()
+			await liveApi.delete(`${this.endpoint}/${id}`, {
+				headers: await getAuthHeaders()
 			});
 		} catch (error) {
 			console.error('Error deleting subscription:', error);
@@ -160,10 +123,10 @@ class SubscriptionService {
 		status: BranchSubscription['status']
 	): Promise<BranchSubscription[]> {
 		try {
-			const response = await this.liveApi.get<SubscriptionResponse>(
+			const response = await liveApi.get<SubscriptionResponse>(
 				this.endpoint,
 				{
-					headers: await this.getAuthHeaders(),
+					headers: await getAuthHeaders(),
 					params: { status }
 				}
 			);
@@ -180,9 +143,9 @@ class SubscriptionService {
 	 */
 	async getActiveBranchSubscription(): Promise<BranchSubscription | null> {
 		try {
-			const response = await this.liveApi.get<ApiResponse<BranchSubscription>>(
+			const response = await liveApi.get<ApiResponse<BranchSubscription>>(
 				`${this.endpoint}/current`,
-				{ headers: await this.getAuthHeaders() }
+				{ headers: await getAuthHeaders() }
 			);
 			return response.data.data ? this.normalizeSubscription(response.data.data) : null;
 		} catch (error) {
@@ -197,10 +160,10 @@ class SubscriptionService {
 	 */
 	async getByPlanId(planId: string): Promise<BranchSubscription[]> {
 		try {
-			const response = await this.liveApi.get<SubscriptionResponse>(
+			const response = await liveApi.get<SubscriptionResponse>(
 				this.endpoint,
 				{
-					headers: await this.getAuthHeaders(),
+					headers: await getAuthHeaders(),
 					params: { planId }
 				}
 			);
@@ -216,10 +179,10 @@ class SubscriptionService {
 	 */
 	async cancel(id: string): Promise<BranchSubscription> {
 		try {
-			const response = await this.liveApi.post<ApiResponse<BranchSubscription>>(
+			const response = await liveApi.post<ApiResponse<BranchSubscription>>(
 				`${this.endpoint}/${id}/cancel`,
 				{},
-				{ headers: await this.getAuthHeaders() }
+				{ headers: await getAuthHeaders() }
 			);
 			return response.data.data;
 		} catch (error) {
@@ -233,10 +196,10 @@ class SubscriptionService {
 	 */
 	async reactivate(id: string): Promise<BranchSubscription> {
 		try {
-			const response = await this.liveApi.post<ApiResponse<BranchSubscription>>(
+			const response = await liveApi.post<ApiResponse<BranchSubscription>>(
 				`${this.endpoint}/${id}/reactivate`,
 				{},
-				{ headers: await this.getAuthHeaders() }
+				{ headers: await getAuthHeaders() }
 			);
 			return response.data.data;
 		} catch (error) {
@@ -253,10 +216,10 @@ class SubscriptionService {
 		paymentData: ProcessPaymentRequest
 	): Promise<BranchSubscription> {
 		try {
-			const response = await this.liveApi.post<ApiResponse<BranchSubscription>>(
+			const response = await liveApi.post<ApiResponse<BranchSubscription>>(
 				`${this.endpoint}/${id}/process-payment`,
 				paymentData,
-				{ headers: await this.getAuthHeaders() }
+				{ headers: await getAuthHeaders() }
 			);
 			return response.data.data;
 		} catch (error) {
@@ -270,9 +233,9 @@ class SubscriptionService {
 	 */
 	async getExpiring(days: number = 30): Promise<BranchSubscription[]> {
 		try {
-			const response = await this.liveApi.get<ApiResponse<BranchSubscription[]>>(
+			const response = await liveApi.get<ApiResponse<BranchSubscription[]>>(
 				`${this.endpoint}/expiring?days=${days}`,
-				{ headers: await this.getAuthHeaders() }
+				{ headers: await getAuthHeaders() }
 			);
 			return response.data.data || [];
 		} catch (error) {
@@ -286,9 +249,9 @@ class SubscriptionService {
 	 */
 	async getStats(): Promise<SubscriptionStats> {
 		try {
-			const response = await this.liveApi.get<ApiResponse<SubscriptionStats>>(
+			const response = await liveApi.get<ApiResponse<SubscriptionStats>>(
 				`${this.endpoint}/stats`,
-				{ headers: await this.getAuthHeaders() }
+				{ headers: await getAuthHeaders() }
 			);
 			return response.data.data;
 		} catch (error) {
@@ -302,10 +265,10 @@ class SubscriptionService {
 	 */
 	async bulkUpdate(data: BulkUpdateRequest): Promise<BranchSubscription[]> {
 		try {
-			const response = await this.liveApi.patch<ApiResponse<BranchSubscription[]>>(
+			const response = await liveApi.patch<ApiResponse<BranchSubscription[]>>(
 				`${this.endpoint}/bulk-update`,
 				data,
-				{ headers: await this.getAuthHeaders() }
+				{ headers: await getAuthHeaders() }
 			);
 			return response.data.data || [];
 		} catch (error) {

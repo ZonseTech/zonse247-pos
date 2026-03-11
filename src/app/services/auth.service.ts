@@ -1,7 +1,5 @@
-import axios from 'axios';
 import api from './http.service';
-
-const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL;
+import { liveApi, getTenantId, getLiveApiUrl, isLiveApiConfigured, isLiveServerAvailable as checkLiveServerAvailable } from './live-api.service';
 
 interface OfflineFirstLoginResult {
     success: boolean;
@@ -31,24 +29,7 @@ interface PrivilegesResponse {
 
 export type LoginProgressCallback = (message: string, step: number, totalSteps: number) => void;
 
-/**
- * Authentication Service - Offline First Strategy
- * 
- * Flow:
- * 1. Try offline login first (local database)
- * 2. If not found offline, try live server
- * 3. On live success, sync to offline in order: role → permissions → user
- * 4. Return complete login response
- */
 class AuthService {
-    private liveApi = axios.create({
-        baseURL: LIVE_API_URL,
-        timeout: 30000,
-        headers: {
-            'X-Client-Type': 'web'
-        }
-    });
-
     async login(credentials: AuthProps, onProgress?: LoginProgressCallback, isDesktop?: boolean): Promise<LoginResponse> {
         const totalSteps = 6;
         const updateProgress = (message: string, step: number) => {
@@ -118,14 +99,14 @@ class AuthService {
      * Try live/remote server login
      */
     private async tryLiveLogin(credentials: AuthProps): Promise<OfflineFirstLoginResult> {
-        if (!LIVE_API_URL) {
+        if (!isLiveApiConfigured()) {
             return { success: false, source: 'live', error: 'Live server URL not configured' };
         }
 
         try {
-            const tenantId = await this.getTenantId();
+            const tenantId = await getTenantId();
 
-            const response = await this.liveApi.post<ApiResponse<LoginResponse>>('auth/login', {
+            const response = await liveApi.post<ApiResponse<LoginResponse>>('auth/login', {
                 ...credentials,
                 offlineMode: true
             }, {
@@ -194,8 +175,8 @@ class AuthService {
      */
     private async fetchRoleFromLive(roleId: string, token: string): Promise<RoleResponse['data']['role'] | null> {
         try {
-            const tenantId = await this.getTenantId();
-            const response = await this.liveApi.get<RoleResponse>('auth/verifying-roles', {
+            const tenantId = await getTenantId();
+            const response = await liveApi.get<RoleResponse>('auth/verifying-roles', {
                 params: { roleId },
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -228,8 +209,8 @@ class AuthService {
      */
     private async fetchPermissionsFromLive(roleId: string, token: string): Promise<string[]> {
         try {
-            const tenantId = await this.getTenantId();
-            const response = await this.liveApi.get<PrivilegesResponse>('auth/verifying-privileges', {
+            const tenantId = await getTenantId();
+            const response = await liveApi.get<PrivilegesResponse>('auth/verifying-privileges', {
                 params: { roleId },
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -322,34 +303,10 @@ class AuthService {
     }
 
     /**
-     * Get tenant ID from electron setup or session storage
-     */
-    private async getTenantId(): Promise<string | undefined> {
-        try {
-            if (typeof window !== 'undefined' && window.electronAPI?.settings) {
-                const result = await window.electronAPI.settings.getSetup();
-                if (result.success && result.data?.tenantId) return result.data.tenantId;
-            }
-
-            const user = sessionStorage?.getItem('user');
-            if (user) return JSON.parse(user).tenantId;
-        } catch (error) {
-            console.warn('[AuthService] Error getting tenant ID:', error);
-        }
-        return undefined;
-    }
-
-    /**
      * Check if live server is reachable
      */
     async isLiveServerAvailable(): Promise<boolean> {
-        if (!LIVE_API_URL) return false;
-        try {
-            const response = await axios.get(`${LIVE_API_URL}/health`, { timeout: 5000 });
-            return response.status === 200;
-        } catch {
-            return false;
-        }
+        return checkLiveServerAvailable();
     }
 
     /**
@@ -372,14 +329,14 @@ class AuthService {
      * @throws Error when token refresh fails or user is not found/inactive
      */
     async refreshToken(currentToken: string): Promise<string> {
-        if (!LIVE_API_URL) {
+        if (!isLiveApiConfigured()) {
             throw new Error('Live server URL not configured');
         }
 
         try {
-            const tenantId = await this.getTenantId();
+            const tenantId = await getTenantId();
 
-            const response = await this.liveApi.post<ApiResponse<RefreshTokenResponse>>(
+            const response = await liveApi.post<ApiResponse<RefreshTokenResponse>>(
                 'auth/refresh-token',
                 { token: currentToken },
                 {
@@ -408,14 +365,14 @@ class AuthService {
      * @returns User data if token is valid
      */
     async verifyToken(token: string): Promise<any> {
-        if (!LIVE_API_URL) {
+        if (!isLiveApiConfigured()) {
             throw new Error('Live server URL not configured');
         }
 
         try {
-            const tenantId = await this.getTenantId();
+            const tenantId = await getTenantId();
 
-            const response = await this.liveApi.post<ApiResponse<{ user: any }>>(
+            const response = await liveApi.post<ApiResponse<{ user: any }>>(
                 'auth/verify-token',
                 {},
                 {

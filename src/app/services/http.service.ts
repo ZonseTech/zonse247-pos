@@ -7,9 +7,10 @@ import type {
 } from 'axios';
 import { isElectron } from '../../helpers/index.helper';
 import { ROUTES } from '../utils/constants';
+import { getLiveApiUrl } from './live-api.service';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
-const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL;
+const LIVE_API_URL = getLiveApiUrl();
 
 // Token refresh state management
 let isRefreshing = false;
