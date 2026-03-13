@@ -65,7 +65,7 @@ const SettingsPage = () => {
             >
                 {({ isSubmitting, submitForm }) => (
                     <div className="min-h-screen pb-20 md:pb-0">
-                        {isMobile && (
+                        {isMobile ? (
                             <MobilePageHeader
                                 title={`${currentTab.label} Settings`}
                                 theme="sky"
@@ -83,7 +83,7 @@ const SettingsPage = () => {
                                     </Button>
                                 }
                             />
-                        )}
+                        ) : null}
 
                         <div className={`max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 ${isMobile ? 'pt-16' : ''}`}>
                             {isMobile ? (
@@ -96,7 +96,7 @@ const SettingsPage = () => {
                                     <div className="flex-1 min-w-0">
                                         <div className="mb-6">
                                             <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
+                                                <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg hidden">
                                                     <currentTab.icon className="w-6 h-6 text-sky-600 dark:text-sky-400" />
                                                 </div>
                                                 <div>

@@ -101,7 +101,7 @@ export async function getAuthHeaders(): Promise<Record<string, string>> {
 export async function isLiveServerAvailable(): Promise<boolean> {
     if (!LIVE_API_URL) return false;
     try {
-        const response = await axios.get(`${LIVE_API_URL}/health`, { timeout: 5000 });
+        const response = await liveApi.get('/health', { timeout: 5000 });
         return response.status === 200;
     } catch {
         return false;
