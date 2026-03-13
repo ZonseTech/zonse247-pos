@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../context/AuthProvider';
 import mraComplianceService from '../services/mra-compliance.service';
 
 interface UseMraComplianceReturn {
@@ -11,20 +10,7 @@ interface UseMraComplianceReturn {
     checkStatus: () => Promise<void>;
 }
 
-/**
- * Hook to check and manage MRA compliance status for the current tenant
- * 
- * Usage:
- * ```tsx
- * const { isMraEnabled, mraEnvironment, isLoading } = useMraCompliance();
- * 
- * if (isMraEnabled) {
- *   // Show MRA-specific UI elements
- * }
- * ```
- */
 export function useMraCompliance(): UseMraComplianceReturn {
-    const { user } = useAuth();
     const [isMraEnabled, setIsMraEnabled] = useState(false);
     const [mraEnvironment, setMraEnvironment] = useState<MraEnvironment | null>(null);
     const [canSubmitInvoices, setCanSubmitInvoices] = useState(false);
@@ -32,21 +18,15 @@ export function useMraCompliance(): UseMraComplianceReturn {
     const [error, setError] = useState<string | null>(null);
 
     const checkStatus = useCallback(async () => {
-        if (!user?.tenantId) {
-            return;
-        }
-
         setIsLoading(true);
         setError(null);
 
         try {
-            const status = await mraComplianceService.getComplianceStatus(user.tenantId);
+            const status = await mraComplianceService.getComplianceStatus();
             setIsMraEnabled(status.isMraEnabled);
             setMraEnvironment(status.mraEnvironment);
             setCanSubmitInvoices(status.canSubmitInvoices);
         } catch (err) {
-            console.warn('Failed to check MRA compliance status:', err);
-            // Default to non-MRA compliant on error
             setIsMraEnabled(false);
             setMraEnvironment(null);
             setCanSubmitInvoices(false);
@@ -54,7 +34,7 @@ export function useMraCompliance(): UseMraComplianceReturn {
         } finally {
             setIsLoading(false);
         }
-    }, [user?.tenantId]);
+    }, []);
 
     useEffect(() => {
         checkStatus();
