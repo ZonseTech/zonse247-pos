@@ -1,4 +1,5 @@
 import api from './http.service';
+import { isElectron } from '../../helpers/index.helper';
 import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
 import { liveApi, getTenantId, getAuthToken, isLiveApiConfigured } from './live-api.service';
 
@@ -57,33 +58,45 @@ const usersService = {
 
 	/**
 	 * Create user via Live API (for online-first scenarios)
+	 * For web/mobile: uses regular API if live API is not configured
 	 */
 	async storeLive(data: CreateUserRequest): Promise<CreateUserResponse> {
-		if (!isLiveApiConfigured()) {
+		const useLiveApi = isLiveApiConfigured();
+		const isDesktopPlatform = isElectron();
+
+		// Only require live API on desktop platform
+		if (!useLiveApi && isDesktopPlatform) {
 			throw new Error('Live server URL not configured');
 		}
 
 		try {
-			const tenantId = await getTenantId();
-			const token = getAuthToken();
+			let response: { data: ApiResponse<CreateUserResponse> };
 
-			const response = await liveApi.post<ApiResponse<CreateUserResponse>>(
-				endpoints.store,
-				data,
-				{
-					headers: {
-						...(token && { 'Authorization': `Bearer ${token}` }),
-						...(tenantId && { 'X-Tenant-Id': tenantId })
+			if (useLiveApi) {
+				const tenantId = await getTenantId();
+				const token = getAuthToken();
+
+				response = await liveApi.post<ApiResponse<CreateUserResponse>>(
+					endpoints.store,
+					data,
+					{
+						headers: {
+							...(token && { 'Authorization': `Bearer ${token}` }),
+							...(tenantId && { 'X-Tenant-Id': tenantId })
+						}
 					}
-				}
-			);
+				);
+			} else {
+				// Use regular API for web/mobile
+				response = await api.post<ApiResponse<CreateUserResponse>>(endpoints.store, data as any);
+			}
 
 			return {
 				...decodeObjectStrings(response.data.data!, USER_DECODE_FIELDS),
 				generatedPassword: response.data.data?.generatedPassword
 			};
 		} catch (err: any) {
-			console.error('Error creating user via live API:', err);
+			console.error('Error creating user via API:', err);
 			throw {
 				error: err,
 				response: err.response
