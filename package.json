@@ -9,8 +9,8 @@
     "https://us.cloudlogin.co/filemanager/#/www/vitalitymw.com/public/html"
   ],
   "author": {
-    "name": "mcleanka",
-    "email": "mcleankasambala@gmail.com"
+    "name": "Zonse247 Devs",
+    "email": "zonse247@gmail.com"
   },
   "license": "MIT",
   "website": "https://www.zonse247.com",
@@ -26,16 +26,20 @@
     "ionic:build": "npm run build",
     "ionic:serve": "npm run dev -- --open",
     "clean": "rm -rf dist",
+    "clean:native": "node scripts/clean-native-builds.js",
+    "clean:native:win": "node scripts/clean-native-builds.js --download-win-prebuilds",
+    "restore:native:linux": "node scripts/clean-native-builds.js --restore-linux && npm run rebuild:linux",
     "db:verify-template": "node -e \"const fs = require('fs'); const path = require('path'); const dbPath = path.join('node_modules', 'zonse247-pos-api', 'dist', 'databases', 'template.db'); if (fs.existsSync(dbPath)) { console.log('✓ Template database found:', dbPath); const stats = fs.statSync(dbPath); console.log('  Size:', stats.size, 'bytes'); } else { console.error('✗ Template database not found'); process.exit(1); }\"",
     "db:status": "node -e \"const Database = require('better-sqlite3'); const path = require('path'); const dbPath = path.join('node_modules', 'zonse247-pos-api', 'dist', 'databases', 'template.db'); const db = new Database(dbPath, { readonly: true }); const meta = db.prepare('SELECT * FROM db_meta').all(); console.log('Database meta:', meta); db.close();\"",
     "prebuild:electron": "npm run db:verify-template",
     "build:electron": "npm run package",
-    "dist": "electron-builder",
-    "win": "electron-builder --win",
-    "linux": "electron-builder --linux",
-    "mac": "electron-builder --mac",
-    "all": "electron-builder -mwl",
-    "postinstall": "electron-builder install-app-deps"
+    "rebuild": "node scripts/rebuild-native-modules.js",
+    "rebuild:linux": "node scripts/rebuild-native-modules.js --platform linux --arch x64",
+    "rebuild:mac": "node scripts/rebuild-native-modules.js --platform darwin --arch x64",
+    "make:win": "npm run clean:native:win && electron-forge make --platform win32 --arch x64",
+    "make:linux": "npm run rebuild:linux && electron-forge make --platform linux --arch x64",
+    "make:mac": "npm run rebuild:mac && electron-forge make --platform darwin --arch x64",
+    "postinstall": "npx @electron/rebuild --force"
   },
   "dependencies": {
     "@capacitor-mlkit/barcode-scanning": "^7.0.0",
@@ -177,58 +181,5 @@
     "typescript-eslint": "^8.24.0",
     "vite": "^6.3.5",
     "vitest": "^0.34.6"
-  },
-  "build": {
-    "appId": "com.zonse247.pos",
-    "productName": "Zonse247 POS",
-    "artifactName": "zonse247-pos-v${version}-${os}-${arch}.${ext}",
-    "directories": {
-      "output": "release",
-      "buildResources": "build"
-    },
-    "files": [
-      ".vite/**/*",
-      "node_modules/**/*",
-      "package.json"
-    ],
-    "extraResources": [
-      {
-        "from": "node_modules/zonse247-pos-api/dist/databases/template.db",
-        "to": "template.db"
-      }
-    ],
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "build/icon.png"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "Zonse247 POS"
-    },
-    "linux": {
-      "target": [
-        "deb",
-        "AppImage"
-      ],
-      "icon": "build/icon.png",
-      "category": "Office"
-    },
-    "mac": {
-      "target": [
-        "dmg"
-      ],
-      "icon": "build/icon.png",
-      "category": "public.app-category.business"
-    }
   }
 }
