@@ -37,7 +37,6 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
         return variants.find(v => v.id === selectedVariantId);
     }, [variants, selectedVariantId]);
 
-    // Set default variant when item changes
     useEffect(() => {
         if (item && variants.length > 0) {
             const defaultVariant = variants.find(v => v.isDefault) || variants[0];
@@ -71,7 +70,6 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
         if (isNaN(value) || value < 0) return;
 
         try {
-            // Use variant ID for the API call
             const variantId = selectedVariant.id;
 
             if (adjustmentType === 'set') {

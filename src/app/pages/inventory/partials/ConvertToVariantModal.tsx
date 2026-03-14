@@ -15,7 +15,7 @@ interface ConvertToVariantModalProps {
 const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose, item, onSuccess }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [variantName, setVariantName] = useState('');
-    const [deleteOrphanedProduct, setDeleteOrphanedProduct] = useState(true);
+    const [deleteOrphanedProduct, setDeleteOrphanedProduct] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<ApiProduct | null>(null);
     const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
     const [isVariantDropdownOpen, setIsVariantDropdownOpen] = useState(false);
@@ -120,7 +120,7 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
             await convertToVariant(selectedVariant.id, {
                 targetProductId: selectedProduct.id,
                 variantName: variantName || undefined,
-                deleteOrphanedProduct,
+                deleteOrphanedProduct: false,
             });
             onSuccess();
             resetAndClose();
@@ -149,7 +149,6 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
             onClick={(e) => e.target === e.currentTarget && resetAndClose()}
         >
             <div className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-xl shadow-2xl max-h-[90vh] flex flex-col">
-                {/* Header */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
@@ -174,9 +173,7 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
                     </button>
                 </div>
 
-                {/* Content */}
                 <div className="p-4 space-y-4 overflow-y-auto flex-1">
-                    {/* Source Product Info */}
                     <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                         <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
                             <Package className="w-5 h-5 text-sky-500 dark:text-sky-400" />
@@ -197,7 +194,6 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
                         </div>
                     </div>
 
-                    {/* Step 1: Variant Selection (only for multi-variant products) */}
                     {step === 'select-variant' && hasMultipleVariants && (
                         <>
                             <div>
@@ -338,7 +334,6 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
 
                     {step === 'confirm' && selectedProduct && (
                         <>
-                            {/* Target Product Info */}
                             <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                                 <span>Moving to:</span>
                                 <ArrowRight className="w-4 h-4" />
@@ -355,7 +350,6 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
                                 </div>
                             </div>
 
-                            {/* Variant Name */}
                             <div>
                                 <Label>Variant Name</Label>
                                 <Input
@@ -395,6 +389,8 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
                                 <input
                                     type="checkbox"
                                     id="deleteOrphaned"
+                                    readOnly
+                                    disabled
                                     checked={deleteOrphanedProduct}
                                     onChange={(e) => setDeleteOrphanedProduct(e.target.checked)}
                                     className="mt-1 w-4 h-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500"
@@ -409,7 +405,6 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
                                 </label>
                             </div>
 
-                            {/* Warning */}
                             <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                                 <AlertTriangle className="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" />
                                 <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -420,7 +415,6 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
                     )}
                 </div>
 
-                {/* Footer */}
                 <div className="flex items-center justify-between gap-2 px-4 py-3 border-t border-gray-200 dark:border-gray-700">
                     {step === 'select-variant' && (
                         <>

@@ -492,12 +492,14 @@ const inventoryService = {
 	// ==================== PATCH ENDPOINTS ====================
 
 	/**
-	 * PATCH /item/:itemId/quantity - Update inventory quantity
+	 * PATCH /item/:variantId/quantity - Update inventory quantity
+	 * @param variantId - The variant ID to update quantity for
+	 * @param quantity - The new quantity value
 	 */
-	async updateQuantity(id: string, quantity: number): Promise<InventoryItem> {
+	async updateQuantity(variantId: string, quantity: number): Promise<InventoryItem> {
 		const headers = await getAuthHeaders();
 		return liveApi
-			.patch<ApiResponse<InventoryItem>>(`${endpoints.item}/${id}/quantity`, { quantity }, { headers })
+			.patch<ApiResponse<InventoryItem>>(`${endpoints.item}/${variantId}/quantity`, { quantity }, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -505,13 +507,14 @@ const inventoryService = {
 	},
 
 	/**
-	 * PATCH /item/:itemId/adjust - Adjust inventory (add/subtract/set)
-	 * Note: In the new variant model, the id is the variant ID
+	 * PATCH /item/:variantId/adjust - Adjust inventory (add/subtract/set)
+	 * @param variantId - The variant ID to adjust inventory for
+	 * @param payload - Adjustment details (type: add/subtract/set, adjustment amount, reason)
 	 */
-	async adjustInventory(id: string, payload: AdjustInventoryPayload): Promise<InventoryItem> {
+	async adjustInventory(variantId: string, payload: AdjustInventoryPayload): Promise<InventoryItem> {
 		const headers = await getAuthHeaders();
 		return liveApi
-			.patch<ApiResponse<InventoryItem>>(`${endpoints.item}/${id}/adjust`, payload, { headers })
+			.patch<ApiResponse<InventoryItem>>(`${endpoints.item}/${variantId}/adjust`, payload, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;

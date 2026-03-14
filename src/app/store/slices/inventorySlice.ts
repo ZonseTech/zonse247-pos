@@ -91,7 +91,8 @@ export const fetchInventory = createAsyncThunk(
                 } : null,
             }
         } catch (error: any) {
-            const message = 'Error fetching products: ' + (error?.response?.data?.message || error?.message || 'Unknown error')
+            const apiMessage = error?.response?.data?.message || error?.error?.response?.data?.message;
+            const message = apiMessage || `Error fetching products: ${error?.message || 'Unknown error'}`;
 
             Notify.failure(message)
             return rejectWithValue(message)
@@ -105,8 +106,9 @@ export const fetchCategories = createAsyncThunk(
         try {
             const data = await categoriesService.list()
             return data
-        } catch (error) {
-            const message = 'Error fetching categories: ' + error?.error?.response?.data?.message
+        } catch (error: any) {
+            const apiMessage = error?.response?.data?.message || error?.error?.response?.data?.message;
+            const message = apiMessage || `Error fetching categories: ${error?.message || 'Unknown error'}`;
             Notify.failure(message)
             return rejectWithValue(message)
         }
@@ -119,8 +121,9 @@ export const fetchPaymentMethods = createAsyncThunk(
         try {
             const data = await paymentMethodService.list()
             return data
-        } catch (error) {
-            const message = 'Error fetching payment methods: ' + error?.error?.response?.data?.message
+        } catch (error: any) {
+            const apiMessage = error?.response?.data?.message || error?.error?.response?.data?.message;
+            const message = apiMessage || `Error fetching payment methods: ${error?.message || 'Unknown error'}`;
             Notify.failure(message)
             return rejectWithValue(message)
         }
@@ -133,8 +136,9 @@ export const fetchPaymentServiceProvider = createAsyncThunk(
         try {
             const data = await paymentServiceProviderService.list()
             return data
-        } catch (error) {
-            const message = 'Error fetching payment service providers: ' + error?.error?.response?.data?.message
+        } catch (error: any) {
+            const apiMessage = error?.response?.data?.message || error?.error?.response?.data?.message;
+            const message = apiMessage || `Error fetching payment service providers: ${error?.message || 'Unknown error'}`;
             Notify.failure(message)
             return rejectWithValue(message)
         }
