@@ -1,12 +1,13 @@
 import { Fragment } from 'react';
 import { TableColumn } from 'react-data-table-component';
-import { Building2, Globe, Mail, Phone, Edit2, Trash2 } from 'lucide-react';
-import { getSubscriptionStatusColor, getStatusColor } from '../../../utils/tenant-status';
+import { Building2, Globe, Mail, Phone, Edit2, Trash2, Eye } from 'lucide-react';
+import { getStatusColor } from '../../../utils/tenant-status';
 import { DEFAULT_SEED_KEY } from '../../../constants';
 import { HiOutlineMenuAlt4 } from 'react-icons/hi';
 
 interface TenantActionsProps {
     tenant: Tenant;
+    onView: (id: string) => void;
     onEdit: (id: string) => void;
     onStatusToggle: (id: string, status: string) => void;
     onDelete: (id: string, name: string) => void;
@@ -14,11 +15,20 @@ interface TenantActionsProps {
 
 export const TenantActions: React.FC<TenantActionsProps> = ({
     tenant,
+    onView,
     onEdit,
     onStatusToggle,
     onDelete
 }) => (
     <div className="flex items-center space-x-2">
+        <button
+            onClick={() => onView(tenant.tenantId)}
+            className="p-1 rounded transition-colors text-gray-500 hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20"
+            title="View tenant details"
+        >
+            <Eye className="w-4 h-4" />
+        </button>
+
         <button
             onClick={() => onEdit(tenant.tenantId)}
             disabled={tenant.tenantId === DEFAULT_SEED_KEY}
@@ -60,6 +70,7 @@ export const TenantActions: React.FC<TenantActionsProps> = ({
 );
 
 export const getTenantColumns = (
+    onView: (id: string) => void,
     onEdit: (id: string) => void,
     onStatusToggle: (id: string, status: string) => void,
     onDelete: (id: string, name: string) => void
@@ -123,23 +134,6 @@ export const getTenantColumns = (
             )
         },
         {
-            name: 'Subscription',
-            cell: (row) => (
-                <Fragment>
-                    <div>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSubscriptionStatusColor(row?.subscriptionStatus)}`}>
-                            {row?.subscriptionStatus?.charAt(0)?.toUpperCase() + row?.subscriptionStatus?.slice(1)}
-                        </span>
-                        {row?.subscriptionStatus === 'trial' && row?.trialEndsAt && (
-                            <div className="text-xs text-gray-500 mt-1">
-                                Ends: {new Date(row.trialEndsAt).toLocaleDateString()}
-                            </div>
-                        )}
-                    </div>
-                </Fragment>
-            )
-        },
-        {
             name: 'Status',
             cell: (row) => (
                 <Fragment>
@@ -154,6 +148,7 @@ export const getTenantColumns = (
             cell: (row) => (
                 <TenantActions
                     tenant={row}
+                    onView={onView}
                     onEdit={onEdit}
                     onStatusToggle={onStatusToggle}
                     onDelete={onDelete}
