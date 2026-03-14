@@ -16,6 +16,7 @@ const endpoints: Record<string, string> = {
     unblock: 'terminals/unblock',
     setPrimary: 'terminals/set-primary',
     stats: 'terminals/stats',
+    regenerateActivationCode: 'terminals',
 };
 
 const terminalService = {
@@ -170,6 +171,22 @@ const terminalService = {
             return decodeObjectStrings<Terminal>(response.data.data!, TERMINAL_DECODE_FIELDS);
         } catch (err) {
             console.error('Error setting primary terminal:', err);
+            throw err;
+        }
+    },
+
+    async regenerateActivationCode(id: string): Promise<{ terminal: Terminal; activationCode: string }> {
+        try {
+            const response = await api.post<ApiResponse<{ terminal: Terminal; activationCode: string }>>(
+                `${endpoints.regenerateActivationCode}/${id}/regenerate-activation-code`,
+                {} as any
+            );
+            return {
+                terminal: decodeObjectStrings<Terminal>(response.data.data!.terminal, TERMINAL_DECODE_FIELDS),
+                activationCode: response.data.data!.activationCode,
+            };
+        } catch (err) {
+            console.error('Error regenerating activation code:', err);
             throw err;
         }
     },

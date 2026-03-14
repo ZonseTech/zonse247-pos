@@ -2,6 +2,13 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Notify } from 'notiflix';
 import terminalService from '../services/terminal.service';
 
+interface UseTerminalsOptions {
+    branchId?: string;
+    tenantId?: string;
+    isAdminMode?: boolean;
+    autoLoad?: boolean;
+}
+
 interface UseTerminalsReturn {
     terminals: Terminal[];
     filteredTerminals: Terminal[];
@@ -24,7 +31,9 @@ interface UseTerminalsReturn {
     getPaginatedData: () => Terminal[];
 }
 
-export const useTerminals = (): UseTerminalsReturn => {
+export const useTerminals = (options: UseTerminalsOptions = {}): UseTerminalsReturn => {
+    const { branchId, tenantId, isAdminMode = false, autoLoad = true } = options;
+
     const [terminals, setTerminals] = useState<Terminal[]>([]);
     const [filteredTerminals, setFilteredTerminals] = useState<Terminal[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -36,7 +45,19 @@ export const useTerminals = (): UseTerminalsReturn => {
     const loadTerminals = useCallback(async () => {
         setIsLoading(true);
         try {
-            const data = await terminalService.list();
+            const query: TerminalQueryParams = {};
+
+            if (branchId) {
+                query.branchId = branchId;
+            }
+            if (isAdminMode) {
+                query.isAdminMode = true;
+                if (tenantId) {
+                    query.tenantId = tenantId;
+                }
+            }
+
+            const data = await terminalService.list(query);
             setTerminals(data);
             setFilteredTerminals(data);
             setTotalRows(data.length);
@@ -47,11 +68,13 @@ export const useTerminals = (): UseTerminalsReturn => {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [branchId, tenantId, isAdminMode]);
 
     useEffect(() => {
-        loadTerminals();
-    }, [loadTerminals]);
+        if (autoLoad) {
+            loadTerminals();
+        }
+    }, [loadTerminals, autoLoad]);
 
     const filterTerminals = useCallback((term: string): Terminal[] => {
         if (!term.trim()) {

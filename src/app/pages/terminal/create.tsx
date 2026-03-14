@@ -3,7 +3,6 @@ import { Notify, Report } from 'notiflix';
 import { Button, FormFieldCard, OfflinePlaceholder } from '../../components';
 import FormInput from '../../components/FormInput';
 import FormWrapper from '../../components/FormWrapper';
-import FormSearchableSelect from '../../components/FormSearchableSelect';
 import TenantSearch from '../branch/partials/TenantSearch';
 import BranchSearch from './partials/BranchSearch';
 import { Fragment, useState, useEffect, useMemo } from 'react';
@@ -30,8 +29,10 @@ const TerminalForm: FunctionComponent = () => {
     const [loading, setLoading] = useState(false);
     const [terminal, setTerminal] = useState<Terminal | null>(null);
 
-    const { terminalId } = location.state || {};
+    const { terminalId, tenantId: stateTenantId } = location.state || {};
     const { user: authUser } = useAuth();
+
+    const effectiveTenantId = stateTenantId || authUser?.tenantId || '';
 
     const canSelectTenant = useMemo(() => {
         return hasRole(authUser, 'admin');
@@ -57,18 +58,10 @@ const TerminalForm: FunctionComponent = () => {
         fetchTerminal();
     }, [terminalId]);
 
-    const activationStatusOptions = [
-        { label: 'Pending', value: 'PENDING' },
-        { label: 'Activated', value: 'ACTIVATED' },
-        { label: 'Deactivated', value: 'DEACTIVATED' },
-        { label: 'Suspended', value: 'SUSPENDED' },
-        { label: 'Blocked', value: 'BLOCKED' }
-    ];
-
     const defaultTerminalValues: Partial<Terminal> = {
         terminalId: '',
-        tenantId: authUser?.tenantId || '',
-        branchId: authUser?.branchId || '',
+        tenantId: effectiveTenantId,
+        branchId: stateTenantId ? '' : (authUser?.branchId || ''),
         terminalCode: '',
         terminalLabel: '',
         terminalPosition: 1,
@@ -89,11 +82,6 @@ const TerminalForm: FunctionComponent = () => {
     const initialTerminalValues = terminal ? { ...terminal } : defaultTerminalValues;
 
     const terminalValidationSchema = Yup.object().shape({
-        terminalCode: Yup.string()
-            .required('Terminal code is required')
-            .min(2, 'Code must be at least 2 characters')
-            .max(20, 'Code is too long')
-            .matches(/^[A-Za-z0-9-_]+$/, 'Code can only contain letters, numbers, hyphens, and underscores'),
         terminalLabel: Yup.string()
             .required('Terminal label is required')
             .min(3, 'Label must be at least 3 characters')
@@ -120,7 +108,6 @@ const TerminalForm: FunctionComponent = () => {
             .max(168, 'Cannot exceed 168 hours (7 days)'),
         offlineMaxCumulativeAmount: Yup.number()
             .min(0, 'Must be 0 or higher'),
-        activationStatus: Yup.string().required('Activation status is required'),
         isPrimary: Yup.boolean(),
         isBlocked: Yup.boolean()
     });
@@ -148,12 +135,6 @@ const TerminalForm: FunctionComponent = () => {
     const handleLabelChange = (label: string, setFieldValue: Function) => {
         const formattedLabel = capitalizeEachWord(label);
         setFieldValue('terminalLabel', formattedLabel);
-    };
-
-    const handleGenerateDeviceId = (setFieldValue: Function) => {
-        const deviceId = terminalService.generateDeviceId('DEVICE');
-        setFieldValue('deviceId', deviceId);
-        Notify.success('Device ID generated');
     };
 
     const handleDelete = () => {
@@ -229,7 +210,7 @@ const TerminalForm: FunctionComponent = () => {
                             <div className="flex-1 overflow-y-auto max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                                 <FormWrapper>
                                     <div className="py-4 space-y-4">
-                                        {canSelectTenant && (
+                                        {canSelectTenant && stateTenantId && (
                                             <FormFieldCard title="Tenant & Branch">
                                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                                     <TenantSearch
@@ -240,6 +221,7 @@ const TerminalForm: FunctionComponent = () => {
                                                         }}
                                                         error={errors.tenantId}
                                                         touched={touched.tenantId}
+                                                        disabled
                                                     />
 
                                                     <BranchSearch
@@ -253,17 +235,20 @@ const TerminalForm: FunctionComponent = () => {
                                             </FormFieldCard>
                                         )}
 
+                                        {!stateTenantId && (
+                                            <FormFieldCard title="Branch">
+                                                <BranchSearch
+                                                    value={values.branchId}
+                                                    onChange={(branchId) => setFieldValue('branchId', branchId)}
+                                                    tenantId={values.tenantId}
+                                                    error={errors.branchId}
+                                                    touched={touched.branchId}
+                                                />
+                                            </FormFieldCard>
+                                        )}
+
                                         <FormFieldCard title="Terminal Information">
                                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                                <FormInput
-                                                    type="text"
-                                                    name="terminalCode"
-                                                    label="Terminal Code"
-                                                    required
-                                                    placeholder="e.g., TR001, POS-01"
-                                                    maxLength={20}
-                                                />
-
                                                 <FormInput
                                                     type="text"
                                                     name="terminalLabel"
@@ -274,11 +259,7 @@ const TerminalForm: FunctionComponent = () => {
                                                         handleLabelChange(e.target.value, setFieldValue);
                                                     }}
                                                 />
-                                            </div>
-                                        </FormFieldCard>
 
-                                        <FormFieldCard>
-                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                                 <FormInput
                                                     type="number"
                                                     name="terminalPosition"
@@ -287,158 +268,10 @@ const TerminalForm: FunctionComponent = () => {
                                                     min="1"
                                                     max="99"
                                                 />
-
-                                                <FormSearchableSelect
-                                                    label="Activation Status"
-                                                    name="activationStatus"
-                                                    required
-                                                    options={activationStatusOptions}
-                                                    placeholder="Select status..."
-                                                />
-                                            </div>
-                                        </FormFieldCard>
-
-                                        <FormFieldCard>
-                                            <div className="flex items-center">
-                                                <label className="flex items-center space-x-2">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={values.isPrimary}
-                                                        name='isPrimary'
-                                                        onChange={(e) => setFieldValue('isPrimary', e.target.checked)}
-                                                        className="h-4 w-4 text-sky-500 focus:ring-sky-500 border-gray-300 rounded"
-                                                    />
-                                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                        Set as primary terminal
-                                                    </span>
-                                                </label>
-                                            </div>
-                                        </FormFieldCard>
-
-                                        {/* Device Information */}
-                                        <FormFieldCard title="Device Information">
-                                            <div className="flex items-end gap-2">
-                                                <div className="flex-1">
-                                                    <FormInput
-                                                        type="text"
-                                                        name="deviceId"
-                                                        label="Device ID"
-                                                        placeholder="Device ID (auto-generated)"
-                                                    />
-                                                </div>
-                                                {!terminal && (
-                                                    <Button
-                                                        type="button"
-                                                        theme="neutral"
-                                                        onClick={() => handleGenerateDeviceId(setFieldValue)}
-                                                        className="mb-0"
-                                                    >
-                                                        Generate
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        </FormFieldCard>
-
-                                        <FormFieldCard>
-                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                                <FormInput
-                                                    type="text"
-                                                    name="osName"
-                                                    label="OS Name"
-                                                    placeholder="e.g., Windows, Linux, Android"
-                                                />
-
-                                                <FormInput
-                                                    type="text"
-                                                    name="osVersion"
-                                                    label="OS Version"
-                                                    placeholder="e.g., 11, 22.04, 13"
-                                                />
-                                            </div>
-                                        </FormFieldCard>
-
-                                        <FormFieldCard>
-                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                                <FormInput
-                                                    type="text"
-                                                    name="osBuild"
-                                                    label="OS Build"
-                                                    placeholder="e.g., build-001"
-                                                />
-
-                                                <FormInput
-                                                    type="text"
-                                                    name="macAddress"
-                                                    label="MAC Address"
-                                                    placeholder="A4:7C:C3:49:D2:CC"
-                                                />
-                                            </div>
-                                        </FormFieldCard>
-
-                                        {/* POS Configuration */}
-                                        <FormFieldCard title="POS Configuration">
-                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                                <FormInput
-                                                    type="text"
-                                                    name="posProductId"
-                                                    label="POS Product ID"
-                                                    placeholder="POS product identifier"
-                                                />
-
-                                                <FormInput
-                                                    type="text"
-                                                    name="posProductVersion"
-                                                    label="POS Version"
-                                                    placeholder="e.g., 1.0.0"
-                                                />
-                                            </div>
-                                        </FormFieldCard>
-
-                                        <FormFieldCard>
-                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                                <FormInput
-                                                    type="number"
-                                                    name="offlineMaxTransactionAgeHours"
-                                                    label="Offline Max Transaction Age (Hours)"
-                                                    placeholder="24"
-                                                    min="0"
-                                                    max="168"
-                                                />
-
-                                                <FormInput
-                                                    type="number"
-                                                    name="offlineMaxCumulativeAmount"
-                                                    label="Offline Max Cumulative Amount"
-                                                    placeholder="10000"
-                                                    min="0"
-                                                    step="0.01"
-                                                />
-                                            </div>
-                                        </FormFieldCard>
-
-                                        {/* Security Settings */}
-                                        <FormFieldCard title="Security Settings">
-                                            <div>
-                                                <label className="flex items-center space-x-2">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={values.isBlocked}
-                                                        name='isBlocked'
-                                                        onChange={(e) => setFieldValue('isBlocked', e.target.checked)}
-                                                        className="h-4 w-4 text-red-500 focus:ring-red-500 border-gray-300 rounded"
-                                                    />
-                                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                        Block this terminal
-                                                    </span>
-                                                </label>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 ml-6">
-                                                    Blocked terminals cannot process transactions
-                                                </p>
                                             </div>
                                         </FormFieldCard>
                                     </div>
 
-                                    {/* Mobile Delete Button */}
                                     {terminal && (
                                         <div className="pb-4 lg:hidden">
                                             <Button
@@ -452,7 +285,6 @@ const TerminalForm: FunctionComponent = () => {
                                         </div>
                                     )}
 
-                                    {/* Desktop Actions Footer */}
                                     <div className="hidden lg:flex pt-4 border-t border-gray-200 dark:border-gray-700 items-center justify-between">
                                         {terminal ? (
                                             <Button
