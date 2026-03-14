@@ -3,9 +3,10 @@ import type { FunctionComponent } from 'react';
 import AppLayout from '../../../layouts/AppLayout';
 import PageHeader from '../../../components/page/PageHeader';
 import { ROUTES } from '../../../utils/constants';
-import { UserCog, User, Clock, Shield, Briefcase } from 'lucide-react';
+import { UserCog, User, Clock, Shield, Briefcase, Building2 } from 'lucide-react';
 import FormInput from '../../../components/FormInput';
 import BranchSearch from '../../terminal/partials/BranchSearch';
+import TenantSearch from '../../branch/partials/TenantSearch';
 import { RoleSearch } from '../partials/RoleSearch';
 import SectionCard from '../../../components/card/SectionCard';
 import FormSkeleton from '../../../components/skeleton/FormSkeleton';
@@ -28,6 +29,7 @@ const DesktopUserForm: FunctionComponent = () => {
         validationSchema,
         handleSubmit,
         isEditMode,
+        hasPrefilledTenant,
     } = useStaffForm();
 
     if (loading && !user && userId) {
@@ -40,7 +42,7 @@ const DesktopUserForm: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <PageHeader
                     title={isEditMode ? 'Edit Staff' : 'Add Staff'}
                     description='Manage staff information, attendance and app access'
@@ -193,6 +195,35 @@ const DesktopUserForm: FunctionComponent = () => {
                                                 }}
                                                 title="Allow App Access"
                                                 description="Staff can login and use the app"
+                                            />
+                                        </div>
+                                    </SectionCard>
+
+                                    <SectionCard
+                                        title={hasPrefilledTenant ? "Tenant & Branch" : "Branch"}
+                                        icon={Building2}
+                                        iconColor="bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400"
+                                    >
+                                        <div className="space-y-4">
+                                            {hasPrefilledTenant && (
+                                                <TenantSearch
+                                                    value={values.tenantId}
+                                                    onChange={(tenantId) => {
+                                                        setFieldValue('tenantId', tenantId);
+                                                        setFieldValue('branchId', '');
+                                                        setFieldValue('roleId', '');
+                                                    }}
+                                                    error={errors.tenantId as string}
+                                                    touched={touched.tenantId as boolean}
+                                                    disabled={hasPrefilledTenant}
+                                                />
+                                            )}
+                                            <BranchSearch
+                                                value={values.branchId}
+                                                onChange={(value) => setFieldValue('branchId', value)}
+                                                tenantId={values.tenantId}
+                                                error={errors.branchId as string}
+                                                touched={touched.branchId as boolean}
                                             />
                                         </div>
                                     </SectionCard>

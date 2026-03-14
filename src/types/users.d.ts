@@ -50,6 +50,7 @@ interface UserQueryParams {
     perPage?: number;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
+    isAdminMode?: boolean;
 }
 
 interface CreateUserRequest {

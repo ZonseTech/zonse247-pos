@@ -1,6 +1,7 @@
 import type { FunctionComponent } from 'react';
 import FormFieldCard from '../../../../components/card/FormFieldCard';
 import BranchSearch from '../../../terminal/partials/BranchSearch';
+import TenantSearch from '../../../branch/partials/TenantSearch';
 import { RoleSearch } from '../../partials/RoleSearch';
 
 interface BranchRoleFieldsProps {
@@ -13,6 +14,9 @@ interface BranchRoleFieldsProps {
     roleTouched?: boolean;
     onBranchChange: (branchId: string) => void;
     onRoleChange: (roleId: string) => void;
+    showTenant?: boolean;
+    tenantDisabled?: boolean;
+    onTenantChange?: (tenantId: string) => void;
 }
 
 const BranchRoleFields: FunctionComponent<BranchRoleFieldsProps> = ({
@@ -25,10 +29,20 @@ const BranchRoleFields: FunctionComponent<BranchRoleFieldsProps> = ({
     roleTouched,
     onBranchChange,
     onRoleChange,
+    showTenant = false,
+    tenantDisabled = false,
+    onTenantChange,
 }) => {
     return (
         <FormFieldCard>
             <div className="space-y-4">
+                {showTenant && onTenantChange && (
+                    <TenantSearch
+                        value={tenantId}
+                        onChange={onTenantChange}
+                        disabled={tenantDisabled}
+                    />
+                )}
                 <BranchSearch
                     value={branchId}
                     onChange={onBranchChange}
