@@ -63,9 +63,10 @@ const getTerminalId = async (): Promise<string | null> => {
 		}
 
 		return null;
-	} catch (error) {
-		console.error('Error getting terminal ID:', error);
-		return null;
+	} catch (error: any) {
+		const axiosError = error?.error || error;
+		const apiMessage = axiosError?.response?.data?.message || axiosError?.message || 'Error getting terminal ID';
+		throw new Error(apiMessage);
 	}
 };
 

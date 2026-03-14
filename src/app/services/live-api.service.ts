@@ -1,16 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 
-/**
- * Live API Service - Single source of truth for all live/remote API communication
- * 
- * This centralized module provides:
- * - A shared axios instance for the live server
- * - Common utility functions for authentication headers
- * - Consistent configuration across all services
- */
-
-const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL;
 const LIVE_API_TIMEOUT = 30000;
+const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL;
 
 /**
  * Shared axios instance for live API calls
