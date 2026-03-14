@@ -45,8 +45,8 @@ export enum ROUTES {
 	BILLING_CHECKOUT_FORM = '/subscriptions/billing/checkout-form',
 
 	TENANTS = '/tenants',
+	TENANT_DETAILS = '/tenants/details',
 	TENANT_FORM = '/tenants/form',
-	TENANT_REGISTRATION_DETAILS = '/tenant-registration-details',
 
 	BRANCHES = '/branches',
 	BRANCH_FORM = '/branches/form',

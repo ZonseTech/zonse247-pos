@@ -15,7 +15,7 @@ import {
     HiOutlineReceiptRefund,
     HiOutlineChartPie,
 } from 'react-icons/hi';
-import { RotateCcw, Package, Users as SuppliersIcon, ShoppingCart as POIcon, ArrowRightLeft, ClipboardList, Settings } from 'lucide-react';
+import { RotateCcw, Package, Users as SuppliersIcon, ShoppingCart as POIcon, ArrowRightLeft, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useAuth } from '../../context/AuthProvider';
@@ -58,7 +58,6 @@ const useNavItems = (): Array<NavItem> => {
         subscription: <LucideSubscript className="h-5 w-5" />,
         billing: <HiOutlineCreditCard className="h-5 w-5" />,
         tenants: <RiGroup3Line className="h-5 w-5" />,
-        registration_details: <ClipboardList className="h-5 w-5" />,
         branch: <HiOutlineBuildingStorefront className="h-5 w-5" />,
         sales: <HiOutlinePresentationChartBar className="h-5 w-5" />,
         returns: <RotateCcw className="h-5 w-5" />,
@@ -281,16 +280,6 @@ const useNavItems = (): Array<NavItem> => {
             group: 'admin',
             onClick: () => navigate(ROUTES.TENANTS),
         });
-
-        items.push({
-            type: 'button',
-            color: 'bg-teal-500 hover:bg-teal-600',
-            iconColor: 'bg-teal-600',
-            text: "Registrations",
-            icon: icons.registration_details,
-            group: 'admin',
-            onClick: () => navigate(ROUTES.TENANT_REGISTRATION_DETAILS),
-        });
     }
 
     items.push({
@@ -334,7 +323,6 @@ export const useMobileNavItems = (): Array<NavItem> => {
         stock_movements: <ArrowRightLeft className="h-5 w-5" />,
         subscription: <LucideSubscript className="h-5 w-5" />,
         tenants: <RiGroup3Line className="h-5 w-5" />,
-        registrations: <ClipboardList className="h-5 w-5" />,
         generalSettings: <Settings className="h-5 w-5" />,
         terminalSettings: <HiOutlineBuildingOffice2 className="h-5 w-5" />,
         salesSettings: <HiOutlinePresentationChartBar className="h-5 w-5" />,
@@ -447,16 +435,6 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.tenants,
             group: 'admin',
             onClick: () => navigate(ROUTES.TENANTS),
-        });
-
-        items.push({
-            type: 'button',
-            color: 'bg-teal-500 hover:bg-teal-600',
-            iconColor: 'bg-teal-600',
-            text: 'Registrations',
-            icon: icons.registrations,
-            group: 'admin',
-            onClick: () => navigate(ROUTES.TENANT_REGISTRATION_DETAILS),
         });
     }
 

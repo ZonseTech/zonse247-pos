@@ -337,10 +337,6 @@ export default class MenuBuilder {
 					label: 'Tenants',
 					click: () => this.navigateTo(ROUTES.TENANTS),
 				},
-				{
-					label: 'Registrations',
-					click: () => this.navigateTo(ROUTES.TENANT_REGISTRATION_DETAILS),
-				},
 			];
 
 			template.push({
