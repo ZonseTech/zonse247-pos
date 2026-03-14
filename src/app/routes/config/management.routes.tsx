@@ -8,7 +8,7 @@ const TerminalManagement = lazy(() => import('../../pages/terminal'))
 const TerminalForm = lazy(() => import('../../pages/terminal/create'))
 const TenantsManagement = lazy(() => import('../../pages/tenants'))
 const TenantForm = lazy(() => import('../../pages/tenants/create'))
-const TenantRegistrationDetails = lazy(() => import('../../pages/tenant-registration-details'))
+const TenantDetails = lazy(() => import('../../pages/tenants/details'))
 const PrinterManagement = lazy(() => import('../../pages/printer'))
 const PrintJobsManagement = lazy(() => import('../../pages/printer/jobs'))
 
@@ -29,8 +29,8 @@ export const TerminalRoutes = (
 export const TenantRoutes = (
     <>
         <Route path={ROUTES.TENANTS} element={<TenantsManagement />} />
+        <Route path={ROUTES.TENANT_DETAILS} element={<TenantDetails />} />
         <Route path={ROUTES.TENANT_FORM} element={<TenantForm />} />
-        <Route path={ROUTES.TENANT_REGISTRATION_DETAILS} element={<TenantRegistrationDetails />} />
     </>
 )
 

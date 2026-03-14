@@ -85,10 +85,11 @@ export const useParkedSales = (
                                 addToCart(itemToAdd as InventoryItem);
                             } else {
                                 const cartItem: CartItem = {
+                                    variantId: item.variantId,
                                     productId: item.productId,
                                     barcode: item.barcode,
                                     name: item.name,
-                                    categoryId: item.categoryId,
+                                    categoryId: item.categoryId || '',
                                     quantity: item.quantity,
                                     sellingPrice: item.sellingPrice || item.unitPrice,
                                     purchasePrice: item.purchasePrice,
@@ -100,7 +101,6 @@ export const useParkedSales = (
                         });
                     }
 
-                    // Remove from parked sales list
                     setParkedSales(prev => prev.filter(s => s.id !== sale.id));
 
                     Report.success(

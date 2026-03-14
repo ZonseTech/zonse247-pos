@@ -1,14 +1,11 @@
 import { useInventory } from '../../../hooks/useInventory';
-import { FunctionComponent, useState, useEffect, Fragment, useRef, useCallback } from 'react';
+import { FunctionComponent, useState, useEffect, Fragment, useRef } from 'react';
 import { Confirm } from 'notiflix';
 import { createPortal } from 'react-dom';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useScannerSettings, useScannerFeedback } from '../../../hooks/useScannerSettings';
 import productService from '../../../services/product.service';
 import { mapProductToInventoryItem } from '../../../utils/product-mapper';
-import CameraBarcodeScanner from '../../../components/scanner/CameraBarcodeScanner';
-import { type ScannerResult } from '../../../services/barcode-scanner.service';
-import { BarcodeIcon } from 'lucide-react';
 import { useAuth } from '../../../context/AuthProvider';
 
 interface BarcodeScannerProps {
@@ -34,7 +31,6 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [filteredItems, setFilteredItems] = useState(inventory);
     const [isSearching, setIsSearching] = useState(false);
-    const [isCameraScannerOpen, setIsCameraScannerOpen] = useState(false);
 
     const barcodeBuffer = useRef('');
     const barcodeTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -177,38 +173,6 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
             );
         }
     };
-
-    /**
-     * Handle camera scanner result
-     */
-    const handleCameraScan = useCallback((result: ScannerResult) => {
-        const scannedBarcode = result.barcode;
-        handleBarcodeEntry(scannedBarcode);
-        // Close the camera scanner after scanning (for mobile)
-        setIsCameraScannerOpen(false);
-        // Refocus the barcode input
-        if (barcodeScannerInputRef.current) {
-            barcodeScannerInputRef.current.focus();
-        }
-    }, [barcodeScannerInputRef]);
-
-    /**
-     * Open camera scanner
-     */
-    const handleOpenCameraScanner = useCallback(() => {
-        setIsCameraScannerOpen(true);
-    }, []);
-
-    /**
-     * Close camera scanner
-     */
-    const handleCloseCameraScanner = useCallback(() => {
-        setIsCameraScannerOpen(false);
-        // Refocus the barcode input after closing camera
-        if (barcodeScannerInputRef.current) {
-            barcodeScannerInputRef.current.focus();
-        }
-    }, [barcodeScannerInputRef]);
 
     useEffect(() => {
         const handleKeyPress = (e: KeyboardEvent) => {
@@ -374,26 +338,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                     onClick={handleInputClick}
                     placeholder={compact ? "Scan barcode..." : "Scan or enter barcode..."}
                 />
-
-                {/* Camera scan button - shows on all platforms, modal handles availability message */}
-                <button
-                    type="button"
-                    onClick={handleOpenCameraScanner}
-                    className={`bg-sky-500 hover:bg-sky-700 text-white font-medium transition-colors flex items-center justify-center gap-2 border-2 border-sky-500 ${compact ? 'px-2 py-1' : 'px-4 py-2'}`}
-                    title="Open camera scanner"
-                >
-                    <BarcodeIcon className={compact ? "w-4 h-4" : "w-6 h-6"} />
-                </button>
             </div>
-
-            <CameraBarcodeScanner
-                isOpen={isCameraScannerOpen}
-                onClose={handleCloseCameraScanner}
-                onScan={handleCameraScan}
-                continuous={false}
-                title="Scan Product"
-                subtitle="Point camera at barcode"
-            />
 
             {barcode.trim() !== '' && filteredItems.length > 0 &&
                 createPortal(
@@ -407,7 +352,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                             const displayBarcode = item.barcode || item.primaryBarcode || item.sku || '-';
                             return (
                                 <div
-                                    key={item.productId || item.id}
+                                    key={item.id}
                                     className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer flex justify-between items-center border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors ${compact ? 'p-2' : 'p-3'}`}
                                     onClick={() => {
                                         triggerFeedback();

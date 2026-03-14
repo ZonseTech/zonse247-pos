@@ -5,7 +5,6 @@ export { MobileReportRoutes } from './mobile-reports.routes'
 export { DesktopReportRoutes } from './desktop-reports.routes'
 export { SalesRoutes } from './sales.routes'
 export { InventoryRoutes } from './inventory.routes'
-export { ProductRoutes } from './products.routes'
 export { SupplierRoutes } from './suppliers.routes'
 export { UserRoutes } from './users.routes'
 export {

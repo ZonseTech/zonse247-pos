@@ -1,5 +1,5 @@
 import { Confirm } from 'notiflix';
-import { Building2 } from 'lucide-react';
+import { Building2, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { HiOutlinePlus, HiOutlineBuildingOffice2 } from 'react-icons/hi2';
@@ -27,6 +27,8 @@ const TenantsManagement: FunctionComponent = () => {
         deleteTenant,
         updateTenantStatus
     } = useTenants();
+
+    const handleView = (tenantId: string) => navigate(ROUTES.TENANT_DETAILS, { state: { tenantId } });
 
     const handleEdit = (tenantId: string) => navigate(ROUTES.TENANT_FORM, { state: { tenantId } });
 
@@ -71,7 +73,7 @@ const TenantsManagement: FunctionComponent = () => {
         );
     };
 
-    const columns = getTenantColumns(handleEdit, handleStatusToggle, handleDelete);
+    const columns = getTenantColumns(handleView, handleEdit, handleStatusToggle, handleDelete);
 
     return (
         <AppLayout>
@@ -85,6 +87,13 @@ const TenantsManagement: FunctionComponent = () => {
                             <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
 
                             <div className="flex items-center space-x-3">
+                                <Button
+                                    onClick={() => navigate(ROUTES.TENANT_DETAILS)}
+                                    layout='outline'
+                                >
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    {'View All'}
+                                </Button>
                                 <Button
                                     onClick={() => navigate(ROUTES.TENANT_FORM)}
                                     theme='primary'
@@ -113,7 +122,6 @@ const TenantsManagement: FunctionComponent = () => {
                     }}
                     onChangePage={setPage}
                     fixedHeader
-                    fixedHeaderScrollHeight="calc(100vh - 350px)"
                     customStyles={getTableStyles(mode)}
                     noDataComponent={
                         <div className="text-center py-8">

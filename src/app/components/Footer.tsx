@@ -1,9 +1,8 @@
-import { useState, useEffect, FunctionComponent } from 'react'
-import { useAuth } from '../context/AuthProvider';
-import { Clock, Wifi, WifiOff, Server, ServerOff, Loader2, RefreshCw } from 'lucide-react';
 import classNames from 'classnames';
 import { useConnectivity } from '../hooks/useConnectivity';
-import { useIsEBN } from '../hooks/useMediaQuery';
+import { useState, useEffect, FunctionComponent } from 'react'
+import { useIsEBN, useIsElectron } from '../hooks/useMediaQuery';
+import { Clock, Wifi, WifiOff, Server, ServerOff, Loader2, RefreshCw } from 'lucide-react';
 
 interface FooterProps {
     className?: string;
@@ -11,13 +10,12 @@ interface FooterProps {
 }
 
 const Footer: FunctionComponent<FooterProps> = ({ className, compact: compactProp }) => {
-    const { user } = useAuth();
-    const { isOnline, isServerConnected, serverChecking } = useConnectivity();
     const isEBN = useIsEBN();
-    const [currentTime, setCurrentTime] = useState(new Date())
+    const isDesktop = useIsElectron();
     const [isRefreshing, setIsRefreshing] = useState(false)
+    const [currentTime, setCurrentTime] = useState(new Date())
+    const { isOnline, isServerConnected, serverChecking } = useConnectivity();
 
-    // Use prop if provided, otherwise auto-detect EBN
     const compact = compactProp ?? isEBN;
 
     const handleRefresh = () => {
@@ -52,7 +50,7 @@ const Footer: FunctionComponent<FooterProps> = ({ className, compact: compactPro
                 <Clock className={compact ? "w-4 h-4" : "w-6 h-6"} />
                 <span>{formatTime(currentTime)}</span>
             </div>
-            <span className={compact ? "hidden lg:inline" : ""}>Zonse247 Pos @ {currentTime.getFullYear()}</span>
+            <span className={compact ? "hidden lg:inline" : ""}>Zonse247 POS @ {currentTime.getFullYear()}</span>
             <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
                     <div
@@ -80,39 +78,41 @@ const Footer: FunctionComponent<FooterProps> = ({ className, compact: compactPro
                         )}
                     </div>
 
-                    <div
-                        className="flex items-center gap-1"
-                        title={serverChecking ? 'Checking server...' : (isServerConnected ? 'Server Connected' : 'Server Disconnected')}
-                    >
-                        {serverChecking ? (
-                            <Loader2 className={classNames(
-                                "text-sky-500 animate-spin",
-                                compact ? "w-3.5 h-3.5" : "w-5 h-5"
-                            )} />
-                        ) : isServerConnected ? (
-                            <Server className={classNames(
-                                "text-green-500",
-                                compact ? "w-3.5 h-3.5" : "w-5 h-5"
-                            )} />
-                        ) : (
-                            <ServerOff className={classNames(
-                                "text-red-500",
-                                compact ? "w-3.5 h-3.5" : "w-5 h-5"
-                            )} />
-                        )}
-                        {!compact && (
-                            <span className={classNames(
-                                'text-xs hidden lg:inline',
-                                serverChecking
-                                    ? 'text-sky-500 dark:text-sky-400'
-                                    : isServerConnected
-                                        ? 'text-green-500 dark:text-green-400'
-                                        : 'text-red-500 dark:text-red-400'
-                            )}>
-                                {serverChecking ? 'Checking...' : (isServerConnected ? 'Server' : 'No Server')}
-                            </span>
-                        )}
-                    </div>
+                    {isDesktop ? (
+                        <div
+                            className="flex items-center gap-1"
+                            title={serverChecking ? 'Checking server...' : (isServerConnected ? 'Server Connected' : 'Server Disconnected')}
+                        >
+                            {serverChecking ? (
+                                <Loader2 className={classNames(
+                                    "text-sky-500 animate-spin",
+                                    compact ? "w-3.5 h-3.5" : "w-5 h-5"
+                                )} />
+                            ) : isServerConnected ? (
+                                <Server className={classNames(
+                                    "text-green-500",
+                                    compact ? "w-3.5 h-3.5" : "w-5 h-5"
+                                )} />
+                            ) : (
+                                <ServerOff className={classNames(
+                                    "text-red-500",
+                                    compact ? "w-3.5 h-3.5" : "w-5 h-5"
+                                )} />
+                            )}
+                            {!compact && (
+                                <span className={classNames(
+                                    'text-xs hidden lg:inline',
+                                    serverChecking
+                                        ? 'text-sky-500 dark:text-sky-400'
+                                        : isServerConnected
+                                            ? 'text-green-500 dark:text-green-400'
+                                            : 'text-red-500 dark:text-red-400'
+                                )}>
+                                    {serverChecking ? 'Checking...' : (isServerConnected ? 'Server' : 'No Server')}
+                                </span>
+                            )}
+                        </div>
+                    ) : null}
 
                     <button
                         onClick={handleRefresh}

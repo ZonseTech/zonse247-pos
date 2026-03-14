@@ -7,9 +7,6 @@ const SalesSettingsPage = lazy(() => import('../../pages/settings/BusinessSettin
 const ReceiptSettingsPage = lazy(() => import('../../pages/settings/ReceiptSettingsPage'))
 const SecuritySettingsPage = lazy(() => import('../../pages/settings/SecuritySettingsPage'))
 const SettingsPage = lazy(() => import('../../pages/settings/SettingsPage'))
-const SyncData = lazy(() => import('../../pages/sync-data'))
-const Migrations = lazy(() => import('../../pages/migrations'))
-const DatabaseExporter = lazy(() => import('../../pages/export-db'))
 const NotFound = lazy(() => import('../../pages/errors/NotFound'))
 const UnderConstruction = lazy(() => import('../../pages/errors/UnderConstruction'))
 
@@ -22,9 +19,6 @@ export const SystemRoutes = (
             <Route path="receipt" element={<ReceiptSettingsPage />} />
             <Route path="security" element={<SecuritySettingsPage />} />
         </Route>
-        <Route path={ROUTES.SYNC_DATA} element={<SyncData />} />
-        <Route path={ROUTES.MIGRATIONS} element={<Migrations />} />
-        <Route path={ROUTES.EXPORT_DB} element={<DatabaseExporter />} />
     </>
 )
 

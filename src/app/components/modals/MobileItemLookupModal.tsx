@@ -40,9 +40,9 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
             if (item.expirationDate && new Date(item.expirationDate) < new Date()) {
                 return false;
             }
-            // Filter out items with no stock (except default items)
+            // Filter out items with no stock - zero/negative stock items cannot be sold
             const quantity = parseFloat((item.quantity || item.availableQuantity || 0).toString());
-            if (quantity <= 0 && !item.isDefault) {
+            if (quantity <= 0) {
                 return false;
             }
             return true;
@@ -64,8 +64,8 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
         setFilteredItems(filtered);
     }, [inventory, searchTerm, isOpen]);
 
-    const getCartQuantity = (productId: string): number => {
-        const cartItem = cartItems.find(item => item.productId === productId);
+    const getCartQuantity = (variantId: string): number => {
+        const cartItem = cartItems.find(item => item.variantId === variantId);
         return cartItem ? cartItem.quantity : 0;
     };
 
@@ -76,6 +76,11 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
     const navigate = useNavigate();
 
     const handleAddToCart = (item: InventoryItem) => {
+        // Validate stock before adding to cart
+        const availableStock = parseFloat((item.quantity || item.availableQuantity || 0).toString());
+        if (availableStock <= 0) {
+            return; // Item is out of stock, don't add
+        }
         onAddToCart(item);
         if (!multiSelect) {
             onClose();
@@ -137,14 +142,14 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
                             const isOutOfStock = quantity <= 0 && !item.isDefault;
                             if (isOutOfStock) return null;
 
-                            const itemCartQuantity = getCartQuantity(item.productId);
+                            const itemCartQuantity = getCartQuantity(item.id);
                             const isSelected = itemCartQuantity > 0;
                             const displayItemName = item.displayName || item.name;
                             const displayBarcode = item.barcode || item.primaryBarcode || item.sku || '-';
 
                             return (
                                 <button
-                                    key={item.productId || item.id}
+                                    key={item.id}
                                     onClick={() => handleAddToCart(item)}
                                     className={`w-full px-4 py-3 flex items-center gap-3 transition-colors text-left ${isSelected
                                         ? 'bg-sky-50 dark:bg-sky-900/30'

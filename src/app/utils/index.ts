@@ -7,7 +7,7 @@ export const hasPermission = (user: User, permField: string): boolean => {
 
 export const hasRole = (user: User, role: string): boolean => {
 	if (!user) return false;
-	return user?.roleName === role;
+	return user?.roleId === role || user?.role?.roleId === role || user?.role?.name === role;
 };
 
 export const hasAnyPermission = (user: User, permissions: Array<string>) => {

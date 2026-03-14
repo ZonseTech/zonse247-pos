@@ -3,6 +3,7 @@ import authService from '../services/auth.service';
 import { Confirm, Notify, Loading } from 'notiflix';
 import React, { type PropsWithChildren, createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { isElectron } from '../utils';
+import { useIsElectron } from '../hooks/useMediaQuery';
 import settingsService from '../services/settings.service';
 
 type ContextProps = {
@@ -36,6 +37,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const [auth, setAuth] = useState<string | unknown>(null);
     const [user, setUser] = useState<User | null>(null);
     const isAuthenticated = !!(user && auth);
+    const isDesktop = useIsElectron();
 
     const activeBranchId = user?.currentBranchId || user?.branchId || null;
 
@@ -98,7 +100,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
         try {
             const result = await authService.login(data, (message, step, totalSteps) => {
                 Loading.change(`${message} (${step}/${totalSteps})`);
-            });
+            }, isDesktop);
 
             if (result?.token) {
                 setUser(result.user);

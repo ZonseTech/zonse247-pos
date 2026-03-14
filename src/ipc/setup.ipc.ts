@@ -4,13 +4,11 @@ import sessionService from "../services/session.service";
 
 export function setupIPC() {
 
-    // Session management (in-memory, not persisted)
     ipcMain.handle('session:set-token', async (_event, token: string | null) => {
         try {
             sessionService.setToken(token);
             return { success: true };
         } catch (error: any) {
-            console.error('Failed to set session token:', error);
             return { success: false, error: error.message };
         }
     });
@@ -20,7 +18,6 @@ export function setupIPC() {
             const token = sessionService.getToken();
             return { success: true, data: token };
         } catch (error: any) {
-            console.error('Failed to get session token:', error);
             return { success: false, error: error.message };
         }
     });
@@ -30,7 +27,6 @@ export function setupIPC() {
             sessionService.setSession(data);
             return { success: true };
         } catch (error: any) {
-            console.error('Failed to set session:', error);
             return { success: false, error: error.message };
         }
     });
@@ -40,7 +36,15 @@ export function setupIPC() {
             sessionService.clearSession();
             return { success: true };
         } catch (error: any) {
-            console.error('Failed to clear session:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('session:get', async () => {
+        try {
+            const session = sessionService.getSession();
+            return { success: true, data: session };
+        } catch (error: any) {
             return { success: false, error: error.message };
         }
     });
@@ -50,7 +54,6 @@ export function setupIPC() {
             await SecureSettingsService.saveAppSetup(setupData);
             return { success: true };
         } catch (error: any) {
-            console.error('Failed to save setup:', error);
             return { success: false, error: error.message };
         }
     });
@@ -60,7 +63,6 @@ export function setupIPC() {
             const setup = await SecureSettingsService.getAppSetup();
             return { success: true, data: setup };
         } catch (error: any) {
-            console.error('Failed to get setup:', error);
             return { success: false, error: error.message };
         }
     });
@@ -70,7 +72,6 @@ export function setupIPC() {
             const hasSetup = await SecureSettingsService.hasAppSetup();
             return { success: true, data: hasSetup };
         } catch (error: any) {
-            console.error('Failed to check setup:', error);
             return { success: false, error: error.message };
         }
     });
@@ -80,7 +81,6 @@ export function setupIPC() {
             const verificationToken = await SecureSettingsService.getTenantSignature();
             return { success: true, data: verificationToken };
         } catch (error: any) {
-            console.error('Failed to get verificationToken:', error);
             return { success: false, error: error.message };
         }
     });
@@ -90,7 +90,6 @@ export function setupIPC() {
             const activeBranch = await SecureSettingsService.getActiveBranch();
             return { success: true, data: activeBranch };
         } catch (error: any) {
-            console.error('Failed to get active branch:', error);
             return { success: false, error: error.message };
         }
     });
@@ -100,7 +99,6 @@ export function setupIPC() {
             const result = await SecureSettingsService.setActiveBranch(branchId);
             return { success: true, data: result };
         } catch (error: any) {
-            console.error('Failed to set active branch:', error);
             return { success: false, error: error.message };
         }
     });
@@ -110,7 +108,6 @@ export function setupIPC() {
             const branches = await SecureSettingsService.getAvailableBranches();
             return { success: true, data: branches };
         } catch (error: any) {
-            console.error('Failed to get available branches:', error);
             return { success: false, error: error.message };
         }
     });
@@ -120,7 +117,6 @@ export function setupIPC() {
             await SecureSettingsService.updateAppSetup(updates);
             return { success: true };
         } catch (error: any) {
-            console.error('Failed to update setup:', error);
             return { success: false, error: error.message };
         }
     });
@@ -130,7 +126,6 @@ export function setupIPC() {
             await SecureSettingsService.clearAppSetup();
             return { success: true };
         } catch (error: any) {
-            console.error('Failed to clear setup:', error);
             return { success: false, error: error.message };
         }
     });
@@ -139,17 +134,7 @@ export function setupIPC() {
         try {
             return DatabaseInitializer.getStatus();
         } catch (error) {
-            console.error('Failed to get database status:', error);
             return null;
-        }
-    });
-
-    ipcMain.handle('db:run-migrations', async () => {
-        try {
-            return await DatabaseInitializer.runMigrations();
-        } catch (error) {
-            console.error('Failed to run migrations:', error);
-            return { success: false, error: String(error) };
         }
     });
 }

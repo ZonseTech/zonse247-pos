@@ -8,6 +8,7 @@ import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
 import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import type { ForgeConfig } from '@electron-forge/shared-types';
+import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
 
 const version = process.env.npm_package_version;
 
@@ -54,7 +55,12 @@ const copyNativeModules = (buildPath: string) => {
 
 const config: ForgeConfig = {
 	packagerConfig: {
-		asar: false,
+		name: 'Zonse247 POS',
+		executableName: 'zonse247_pos',
+		icon: path.join(__dirname, 'build', 'icon'),
+		asar: {
+			unpack: '**/{*.node,*.dll,**/prebuilds/**/*,better-sqlite3/**/*,serialport/**/*,@serialport/**/*,usb/**/*,node-gyp-build/**/*}',
+		},
 		extraResource: [
 			path.join(
 				__dirname,
@@ -67,30 +73,53 @@ const config: ForgeConfig = {
 		],
 	},
 	rebuildConfig: {
-		force: false,
-		onlyModules: [], // Skip rebuild - we pre-rebuild native modules before packaging
+		force: process.env.npm_config_platform === process.platform || !process.env.npm_config_platform,
+		onlyModules: ['better-sqlite3', 'serialport', '@serialport/bindings-cpp', 'usb'],
 	},
 	hooks: {
 		packageAfterPrune: async (_config, buildPath) => {
 			copyNativeModules(buildPath);
-			// Native modules should already be built for Electron via `npx @electron/rebuild` before running make
-			// Skip rebuild here to avoid requiring Visual Studio Build Tools during packaging
 		},
 	},
 	makers: [
-		new MakerDeb({}),
-		// new MakerRpm({}),
+		new MakerDeb({
+			options: {
+				name: 'zonse247-pos',
+				productName: 'Zonse247 POS',
+				genericName: 'Point of Sale',
+				description: 'Zonse247 POS - Point of Sale System',
+				icon: path.join(__dirname, 'build', 'icon.png'),
+				categories: ['Office', 'Utility'],
+				maintainer: 'Zonse247 Devs <zonse247@gmail.com>',
+				homepage: 'https://www.zonse247.com',
+			},
+		}),
+		new MakerRpm({
+			options: {
+				name: 'zonse247-pos',
+				productName: 'Zonse247 POS',
+				genericName: 'Point of Sale',
+				description: 'Zonse247 POS - Point of Sale System',
+				icon: path.join(__dirname, 'build', 'icon.png'),
+				categories: ['Office', 'Utility'],
+				license: 'MIT',
+				homepage: 'https://www.zonse247.com',
+			},
+		}),
 		new MakerSquirrel({
 			name: 'zonse247_pos',
 			authors: 'Zonse247 Devs',
-			description: 'Zonse247 POS',
+			description: 'Zonse247 POS - Point of Sale System',
 			exe: 'zonse247_pos.exe',
-			setupExe: 'zonse247_pos_setup_v' + version + '.exe',
+			setupExe: `Zonse247_POS_Setup_v${version}.exe`,
+			setupIcon: path.join(__dirname, 'build', 'icon.ico'),
 			title: `Zonse247 POS ${version}`,
+			noMsi: true,
 		}),
-		// new MakerZIP({}, ['darwin', 'linux']),
+		new MakerZIP({}, ['darwin', 'linux']),
 	],
 	plugins: [
+		new AutoUnpackNativesPlugin({}),
 		new VitePlugin({
 			build: [
 				{

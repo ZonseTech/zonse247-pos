@@ -1,7 +1,7 @@
-import React, { useState, Fragment } from 'react';
-import { X, Package, FolderInput, Edit3, Minus, Plus, Hash } from 'lucide-react';
-import { Button, Modal, ModalFooter, Select, Label } from '../../../components';
-import FormInput from '../../../components/FormInput';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { Package, FolderInput, Edit3, Minus, Plus, Hash, ArrowLeft, X } from 'lucide-react';
+import { Button, Select, Label, Input } from '../../../components';
 import { useInventoryActions } from '../../../hooks/useInventoryActions';
 import { useIsEBN } from '../../../hooks/useMediaQuery';
 import type { AdjustInventoryPayload } from '../../../services/inventory.service';
@@ -15,6 +15,53 @@ interface BulkActionsModalProps {
 }
 
 type ActionType = 'move-category' | 'bulk-update' | 'adjust-quantity';
+
+interface ActionOption {
+    type: ActionType;
+    icon: React.ElementType;
+    label: string;
+    description: string;
+    color: string;
+    hoverBg: string;
+    hoverBorder: string;
+}
+
+const ACTION_OPTIONS: ActionOption[] = [
+    {
+        type: 'move-category',
+        icon: FolderInput,
+        label: 'Move Category',
+        description: 'Change category',
+        color: 'text-sky-500 dark:text-sky-400',
+        hoverBg: 'hover:bg-sky-50 dark:hover:bg-sky-900/20',
+        hoverBorder: 'hover:border-sky-500'
+    },
+    {
+        type: 'bulk-update',
+        icon: Edit3,
+        label: 'Update Status',
+        description: 'Change status',
+        color: 'text-purple-600 dark:text-purple-400',
+        hoverBg: 'hover:bg-purple-50 dark:hover:bg-purple-900/20',
+        hoverBorder: 'hover:border-purple-500'
+    },
+    {
+        type: 'adjust-quantity',
+        icon: Package,
+        label: 'Adjust Qty',
+        description: 'Add, subtract, or set',
+        color: 'text-green-500 dark:text-green-400',
+        hoverBg: 'hover:bg-green-50 dark:hover:bg-green-900/20',
+        hoverBorder: 'hover:border-green-500'
+    }
+];
+
+const STATUS_OPTIONS = [
+    { label: 'Active', value: 'active' },
+    { label: 'Inactive', value: 'inactive' },
+    { label: 'Discontinued', value: 'discontinued' },
+    { label: 'Out of Stock', value: 'out_of_stock' }
+];
 
 const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
     isOpen,
@@ -33,19 +80,38 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
 
     const { moveToCategory, bulkUpdate, adjustInventory, isLoading } = useInventoryActions();
 
-    const handleClose = () => {
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleEscape = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+
+        document.addEventListener('keydown', handleEscape);
+        document.body.style.overflow = 'hidden';
+
+        return () => {
+            document.removeEventListener('keydown', handleEscape);
+            document.body.style.overflow = '';
+        };
+    }, [isOpen, onClose]);
+
+    const resetForm = () => {
         setActionType(null);
         setSelectedCategoryId('');
         setAdjustmentType('add');
         setAdjustmentValue('');
         setAdjustmentReason('');
         setBulkStatus('');
+    };
+
+    const handleClose = () => {
+        resetForm();
         onClose();
     };
 
     const handleMoveToCategory = async () => {
         if (!selectedCategoryId) return;
-
         try {
             await moveToCategory({
                 itemIds: selectedItems.map(item => item.id),
@@ -60,7 +126,6 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
 
     const handleBulkUpdate = async () => {
         if (!bulkStatus) return;
-
         try {
             await bulkUpdate({
                 itemIds: selectedItems.map(item => item.id),
@@ -76,19 +141,19 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
     const handleAdjustQuantity = async () => {
         const value = parseInt(adjustmentValue);
         if (isNaN(value) || value < 0) return;
-
         try {
             const payload: AdjustInventoryPayload = {
                 adjustment: value,
                 type: adjustmentType,
                 reason: adjustmentReason || undefined
             };
-
-            // Adjust each item sequentially
             for (const item of selectedItems) {
-                await adjustInventory(item.id, payload);
+                // Use the default variant ID for quantity adjustments
+                const defaultVariant = item.variants?.find(v => v.isDefault) || item.variants?.[0];
+                if (defaultVariant) {
+                    await adjustInventory(defaultVariant.id, payload);
+                }
             }
-
             onSuccess();
             handleClose();
         } catch (error) {
@@ -96,33 +161,34 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
         }
     };
 
-    const statusOptions = [
-        { label: 'Active', value: 'active' },
-        { label: 'Inactive', value: 'inactive' },
-        { label: 'Discontinued', value: 'discontinued' },
-        { label: 'Out of Stock', value: 'out_of_stock' }
+    const itemCount = selectedItems.length;
+    const itemLabel = itemCount === 1 ? 'item' : 'items';
+
+    const adjustmentButtons = [
+        { type: 'add' as const, icon: Plus, label: 'Add', activeClass: 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' },
+        { type: 'subtract' as const, icon: Minus, label: 'Sub', activeClass: 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' },
+        { type: 'set' as const, icon: Hash, label: 'Set', activeClass: 'border-sky-500 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400' }
     ];
 
     const renderActionContent = () => {
+        const baseSpacing = isEBN ? 'space-y-3' : 'space-y-4';
+        const descriptionClass = isEBN
+            ? 'text-xs text-gray-600 dark:text-gray-400'
+            : 'text-sm text-gray-600 dark:text-gray-400';
+
         switch (actionType) {
             case 'move-category':
                 return (
-                    <div className={isEBN ? "space-y-2" : "space-y-4"}>
-                        <p className={isEBN
-                            ? "text-[10px] text-gray-600 dark:text-gray-400"
-                            : "text-sm text-gray-600 dark:text-gray-400"
-                        }>
-                            Move {selectedItems.length} item(s) to a different category.
+                    <div className={baseSpacing}>
+                        <p className={descriptionClass}>
+                            Move {itemCount} {itemLabel} to a different category.
                         </p>
                         <div>
-                            <Label className={isEBN ? "text-[10px]" : ""}>Select Category</Label>
+                            <Label className={isEBN ? 'text-xs' : ''}>Select Category</Label>
                             <Select
                                 value={selectedCategoryId}
                                 onChange={(e) => setSelectedCategoryId(e.target.value)}
-                                className={isEBN
-                                    ? "mt-1 p-2 form-select block w-full text-xs"
-                                    : "mt-1 p-3 form-select block w-full"
-                                }
+                                className={`mt-1.5 w-full ${isEBN ? 'text-xs' : ''}`}
                             >
                                 <option value="">Select category...</option>
                                 {categories.map(cat => (
@@ -137,25 +203,19 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
 
             case 'bulk-update':
                 return (
-                    <div className={isEBN ? "space-y-2" : "space-y-4"}>
-                        <p className={isEBN
-                            ? "text-[10px] text-gray-600 dark:text-gray-400"
-                            : "text-sm text-gray-600 dark:text-gray-400"
-                        }>
-                            Update status for {selectedItems.length} item(s).
+                    <div className={baseSpacing}>
+                        <p className={descriptionClass}>
+                            Update status for {itemCount} {itemLabel}.
                         </p>
                         <div>
-                            <Label className={isEBN ? "text-[10px]" : ""}>Select Status</Label>
+                            <Label className={isEBN ? 'text-xs' : ''}>Select Status</Label>
                             <Select
                                 value={bulkStatus}
                                 onChange={(e) => setBulkStatus(e.target.value)}
-                                className={isEBN
-                                    ? "mt-1 p-2 form-select block w-full text-xs"
-                                    : "mt-1 p-3 form-select block w-full"
-                                }
+                                className={`mt-1.5 w-full ${isEBN ? 'text-xs' : ''}`}
                             >
                                 <option value="">Select status...</option>
-                                {statusOptions.map(opt => (
+                                {STATUS_OPTIONS.map(opt => (
                                     <option key={opt.value} value={opt.value}>
                                         {opt.label}
                                     </option>
@@ -166,228 +226,175 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
                 );
 
             case 'adjust-quantity':
+                const multiVariantCount = selectedItems.filter(item => (item.variantCount ?? 1) > 1).length;
+
                 return (
-                    <div className={isEBN ? "space-y-2" : "space-y-4"}>
-                        <p className={isEBN
-                            ? "text-[10px] text-gray-600 dark:text-gray-400"
-                            : "text-sm text-gray-600 dark:text-gray-400"
-                        }>
-                            Adjust quantity for {selectedItems.length} item(s).
+                    <div className={baseSpacing}>
+                        <p className={descriptionClass}>
+                            Adjust quantity for {itemCount} {itemLabel} (default variant).
                         </p>
 
-                        <div className={isEBN ? "flex gap-1" : "flex gap-2"}>
-                            <button
-                                type="button"
-                                onClick={() => setAdjustmentType('add')}
-                                className={isEBN
-                                    ? `flex-1 p-2 rounded border-2 flex items-center justify-center gap-1 transition-colors text-xs ${adjustmentType === 'add'
-                                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                                        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
-                                    }`
-                                    : `flex-1 p-3 rounded-lg border-2 flex items-center justify-center gap-2 transition-colors ${adjustmentType === 'add'
-                                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                                        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
-                                    }`
-                                }
-                            >
-                                <Plus className={isEBN ? "w-3 h-3" : "w-4 h-4"} />
-                                Add
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setAdjustmentType('subtract')}
-                                className={isEBN
-                                    ? `flex-1 p-2 rounded border-2 flex items-center justify-center gap-1 transition-colors text-xs ${adjustmentType === 'subtract'
-                                        ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-                                        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
-                                    }`
-                                    : `flex-1 p-3 rounded-lg border-2 flex items-center justify-center gap-2 transition-colors ${adjustmentType === 'subtract'
-                                        ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-                                        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
-                                    }`
-                                }
-                            >
-                                <Minus className={isEBN ? "w-3 h-3" : "w-4 h-4"} />
-                                Sub
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setAdjustmentType('set')}
-                                className={isEBN
-                                    ? `flex-1 p-2 rounded border-2 flex items-center justify-center gap-1 transition-colors text-xs ${adjustmentType === 'set'
-                                        ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400'
-                                        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
-                                    }`
-                                    : `flex-1 p-3 rounded-lg border-2 flex items-center justify-center gap-2 transition-colors ${adjustmentType === 'set'
-                                        ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400'
-                                        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
-                                    }`
-                                }
-                            >
-                                <Hash className={isEBN ? "w-3 h-3" : "w-4 h-4"} />
-                                Set
-                            </button>
+                        {multiVariantCount > 0 && (
+                            <div className="p-2.5 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                                <p className="text-xs text-amber-700 dark:text-amber-300">
+                                    {multiVariantCount} product{multiVariantCount > 1 ? 's have' : ' has'} multiple variants.
+                                    Only the default variant will be adjusted.
+                                </p>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-3 gap-2">
+                            {adjustmentButtons.map(({ type, icon: Icon, label, activeClass }) => (
+                                <button
+                                    key={type}
+                                    type="button"
+                                    onClick={() => setAdjustmentType(type)}
+                                    className={`
+                                        flex items-center justify-center gap-1.5 rounded-lg border-2 transition-colors
+                                        ${isEBN ? 'py-2 text-xs' : 'py-2.5 text-sm'}
+                                        ${adjustmentType === type
+                                            ? activeClass
+                                            : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                                        }
+                                    `}
+                                >
+                                    <Icon className={isEBN ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
+                                    {label}
+                                </button>
+                            ))}
                         </div>
 
-                        <FormInput
-                            label="Quantity"
-                            name="quantity"
-                            type="number"
-                            min="0"
-                            value={adjustmentValue}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAdjustmentValue(e.target.value)}
-                            placeholder="Enter quantity"
-                            className={isEBN ? "h-7 text-xs" : ""}
-                        />
+                        <div>
+                            <Label className={isEBN ? 'text-xs' : ''}>Quantity</Label>
+                            <Input
+                                type="number"
+                                min="0"
+                                value={adjustmentValue}
+                                onChange={(e) => setAdjustmentValue(e.target.value)}
+                                placeholder="Enter quantity"
+                                className={`mt-1.5 w-full ${isEBN ? 'text-xs' : ''}`}
+                            />
+                        </div>
 
-                        <FormInput
-                            label="Reason (optional)"
-                            name="reason"
-                            value={adjustmentReason}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAdjustmentReason(e.target.value)}
-                            placeholder={isEBN ? "Reason" : "e.g., Stock count adjustment"}
-                            className={isEBN ? "h-7 text-xs" : ""}
-                        />
+                        <div>
+                            <Label className={isEBN ? 'text-xs' : ''}>Reason (optional)</Label>
+                            <Input
+                                type="text"
+                                value={adjustmentReason}
+                                onChange={(e) => setAdjustmentReason(e.target.value)}
+                                placeholder="e.g., Stock count adjustment"
+                                className={`mt-1.5 w-full ${isEBN ? 'text-xs' : ''}`}
+                            />
+                        </div>
                     </div>
                 );
 
             default:
                 return (
-                    <div className={isEBN
-                        ? "grid grid-cols-3 gap-2"
-                        : "grid grid-cols-1 sm:grid-cols-3 gap-3"
-                    }>
-                        <button
-                            onClick={() => setActionType('move-category')}
-                            className={isEBN
-                                ? "p-2 rounded border-2 border-gray-200 dark:border-gray-700 hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all flex flex-col items-center gap-1"
-                                : "p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all flex flex-col items-center gap-2"
-                            }
-                        >
-                            <FolderInput className={isEBN ? "w-5 h-5 text-sky-500 dark:text-sky-400" : "w-8 h-8 text-sky-500 dark:text-sky-400"} />
-                            <span className={isEBN
-                                ? "text-[10px] font-medium text-gray-900 dark:text-gray-100"
-                                : "font-medium text-gray-900 dark:text-gray-100"
-                            }>Move Category</span>
-                            {!isEBN && <span className="text-xs text-gray-500 dark:text-gray-400">Change category for selected items</span>}
-                        </button>
-
-                        <button
-                            onClick={() => setActionType('bulk-update')}
-                            className={isEBN
-                                ? "p-2 rounded border-2 border-gray-200 dark:border-gray-700 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all flex flex-col items-center gap-1"
-                                : "p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all flex flex-col items-center gap-2"
-                            }
-                        >
-                            <Edit3 className={isEBN ? "w-5 h-5 text-purple-600 dark:text-purple-400" : "w-8 h-8 text-purple-600 dark:text-purple-400"} />
-                            <span className={isEBN
-                                ? "text-[10px] font-medium text-gray-900 dark:text-gray-100"
-                                : "font-medium text-gray-900 dark:text-gray-100"
-                            }>Update Status</span>
-                            {!isEBN && <span className="text-xs text-gray-500 dark:text-gray-400">Change status for selected items</span>}
-                        </button>
-
-                        <button
-                            onClick={() => setActionType('adjust-quantity')}
-                            className={isEBN
-                                ? "p-2 rounded border-2 border-gray-200 dark:border-gray-700 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all flex flex-col items-center gap-1"
-                                : "p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all flex flex-col items-center gap-2"
-                            }
-                        >
-                            <Package className={isEBN ? "w-5 h-5 text-green-500 dark:text-green-400" : "w-8 h-8 text-green-500 dark:text-green-400"} />
-                            <span className={isEBN
-                                ? "text-[10px] font-medium text-gray-900 dark:text-gray-100"
-                                : "font-medium text-gray-900 dark:text-gray-100"
-                            }>Adjust Qty</span>
-                            {!isEBN && <span className="text-xs text-gray-500 dark:text-gray-400">Add, subtract, or set quantity</span>}
-                        </button>
+                    <div className="grid grid-cols-3 gap-2">
+                        {ACTION_OPTIONS.map(({ type, icon: Icon, label, description, color, hoverBg, hoverBorder }) => (
+                            <button
+                                key={type}
+                                onClick={() => setActionType(type)}
+                                className={`
+                                    flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 
+                                    border-gray-200 dark:border-gray-700 transition-all
+                                    ${hoverBorder} ${hoverBg}
+                                    ${isEBN ? 'p-3' : 'p-4'}
+                                `}
+                            >
+                                <Icon className={`${color} ${isEBN ? 'w-6 h-6' : 'w-7 h-7'}`} />
+                                <span className={`font-medium text-gray-900 dark:text-gray-100 ${isEBN ? 'text-xs' : 'text-sm'}`}>
+                                    {label}
+                                </span>
+                                {!isEBN && (
+                                    <span className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                                        {description}
+                                    </span>
+                                )}
+                            </button>
+                        ))}
                     </div>
                 );
         }
     };
 
     const getActionButton = () => {
-        switch (actionType) {
-            case 'move-category':
-                return (
-                    <Button
-                        theme="primary"
-                        onClick={handleMoveToCategory}
-                        disabled={!selectedCategoryId || isLoading}
-                        loading={isLoading}
-                        size={isEBN ? "small" : "regular"}
-                    >
-                        Move
-                    </Button>
-                );
-            case 'bulk-update':
-                return (
-                    <Button
-                        theme="primary"
-                        onClick={handleBulkUpdate}
-                        disabled={!bulkStatus || isLoading}
-                        loading={isLoading}
-                        size={isEBN ? "small" : "regular"}
-                    >
-                        Update
-                    </Button>
-                );
-            case 'adjust-quantity':
-                return (
-                    <Button
-                        theme="primary"
-                        onClick={handleAdjustQuantity}
-                        disabled={!adjustmentValue || isLoading}
-                        loading={isLoading}
-                        size={isEBN ? "small" : "regular"}
-                    >
-                        Adjust
-                    </Button>
-                );
-            default:
-                return null;
-        }
+        const buttonConfig = {
+            'move-category': { handler: handleMoveToCategory, disabled: !selectedCategoryId, label: 'Move' },
+            'bulk-update': { handler: handleBulkUpdate, disabled: !bulkStatus, label: 'Update' },
+            'adjust-quantity': { handler: handleAdjustQuantity, disabled: !adjustmentValue, label: 'Adjust' }
+        };
+
+        if (!actionType) return null;
+
+        const config = buttonConfig[actionType];
+        return (
+            <Button
+                theme="primary"
+                onClick={config.handler}
+                disabled={config.disabled || isLoading}
+                loading={isLoading}
+                size={isEBN ? 'small' : 'regular'}
+            >
+                {config.label}
+            </Button>
+        );
     };
 
     if (!isOpen) return null;
 
-    return (
-        <Modal
-            isOpen={isOpen}
-            onClose={handleClose}
-            title={isEBN
-                ? `Bulk Actions (${selectedItems.length})`
-                : `Bulk Actions (${selectedItems.length} items selected)`
-            }
-            className={isEBN ? "max-w-md" : ""}
+    return createPortal(
+        <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={(e) => e.target === e.currentTarget && handleClose()}
         >
-            <div className={isEBN ? "p-2" : "p-4"}>
-                {renderActionContent()}
-            </div>
+            <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-xl shadow-2xl">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                    <h2 className={`font-semibold text-gray-900 dark:text-white ${isEBN ? 'text-base' : 'text-lg'}`}>
+                        Bulk Actions ({itemCount} {itemLabel})
+                    </h2>
+                    <button
+                        onClick={handleClose}
+                        className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
 
-            <ModalFooter className={isEBN ? "py-2 px-2" : ""}>
-                <div className={isEBN ? "flex justify-between w-full gap-1" : "flex justify-between w-full"}>
-                    <div>
+                <div className={isEBN ? 'p-3' : 'p-4'}>
+                    {renderActionContent()}
+                </div>
+
+                <div className={`flex items-center justify-between border-t border-gray-200 dark:border-gray-700 ${isEBN ? 'px-3 py-2' : 'px-4 py-3'}`}>
+                    <div className="flex-shrink-0">
                         {actionType && (
                             <Button
                                 theme="neutral"
                                 layout="outline"
                                 onClick={() => setActionType(null)}
-                                size={isEBN ? "small" : "regular"}
+                                size={isEBN ? 'small' : 'regular'}
                             >
-                                ← Back
+                                <ArrowLeft className={isEBN ? 'w-3 h-3 mr-1' : 'w-4 h-4 mr-1.5'} />
+                                Back
                             </Button>
                         )}
                     </div>
-                    <div className={isEBN ? "flex gap-1" : "flex gap-2"}>
-                        <Button theme="neutral" layout="outline" onClick={handleClose} size={isEBN ? "small" : "regular"}>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            theme="neutral"
+                            layout="outline"
+                            onClick={handleClose}
+                            size={isEBN ? 'small' : 'regular'}
+                        >
                             Cancel
                         </Button>
                         {getActionButton()}
                     </div>
                 </div>
-            </ModalFooter>
-        </Modal>
+            </div>
+        </div>,
+        document.body
     );
 };
 

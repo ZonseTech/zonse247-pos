@@ -31,6 +31,7 @@ export { default as Select } from './Select';
 export { default as Textarea } from './Textarea';
 export { default as ZonseUIKitContext } from './ZonseUIKitContext';
 export { default as FormSearchableSelect } from './FormSearchableSelect';
+export { default as OfflinePlaceholder } from './OfflinePlaceholder';
 
 export { default as FormInput } from './form/FormInput';
 export { default as FormSelect } from './form/FormSelect';

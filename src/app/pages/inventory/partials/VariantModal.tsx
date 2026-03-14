@@ -3,7 +3,9 @@ import { useFormikContext } from 'formik';
 import {
     X,
     Trash2,
+    History,
 } from 'lucide-react';
+import StockMovementModal from './StockMovementModal';
 import FormInput from '../../../components/FormInput';
 import { BottomSheet, Button, FormFieldCard, Modal } from '../../../components';
 import Input from '../../../components/Input';
@@ -40,6 +42,7 @@ const VariantModal: FunctionComponent<VariantModalProps> = ({
 }) => {
     const { values, setFieldValue } = useFormikContext<InventoryFormValues>();
     const [sellingPriceError, setSellingPriceError] = useState<string | null>(null);
+    const [isStockMovementOpen, setIsStockMovementOpen] = useState(false);
 
     const fieldPrefix = `variants.${variantIndex}`;
     const variant = isNewVariant ? newVariantData : values.variants?.[variantIndex];
@@ -184,8 +187,19 @@ const VariantModal: FunctionComponent<VariantModalProps> = ({
         </>
     );
 
+    const canViewStockMovements = !isNewVariant && variant?.id;
+
     const headerActions = (
         <div className="flex items-center gap-2">
+            {canViewStockMovements && (
+                <Button
+                    type="button"
+                    onClick={() => setIsStockMovementOpen(true)}
+                    title="View Stock Movements"
+                >
+                    <History className="w-5 h-5" />
+                </Button>
+            )}
             {canDelete && (
                 <Button
                     type="button"
@@ -216,43 +230,69 @@ const VariantModal: FunctionComponent<VariantModalProps> = ({
 
     if (isMobile) {
         return (
-            <BottomSheet
-                isOpen={isOpen}
-                onClose={onClose}
-                leftContent={closeButton}
-                rightContent={headerActions}
-            >
-                {modalContent}
-            </BottomSheet>
+            <>
+                <BottomSheet
+                    isOpen={isOpen}
+                    onClose={onClose}
+                    leftContent={closeButton}
+                    rightContent={headerActions}
+                >
+                    {modalContent}
+                </BottomSheet>
+
+                {canViewStockMovements && variant?.id && (
+                    <StockMovementModal
+                        isOpen={isStockMovementOpen}
+                        onClose={() => setIsStockMovementOpen(false)}
+                        variantId={variant.id}
+                        variantName={variant.variantName || 'Default'}
+                        productName={values.name}
+                        sku={variant.sku}
+                    />
+                )}
+            </>
         );
     }
 
     return (
-        <Modal
-            isOpen={isOpen}
-            onClose={onClose}
-            title={isNewVariant ? 'Add New Variant' : `Edit: ${variant?.variantName || 'Variant'}`}
-            size="xl"
-            header={
-                <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
-                        {isNewVariant ? 'Add New Variant' : `Edit: ${variant?.variantName || 'Variant'}`}
-                    </h2>
-                    <div className="flex items-center gap-2">
-                        {headerActions}
-                        <button
-                            onClick={onClose}
-                            className="p-2 -mr-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                            aria-label="Close modal"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
+        <>
+            <Modal
+                isOpen={isOpen}
+                onClose={onClose}
+                title={isNewVariant ? 'Add New Variant' : `Edit: ${variant?.variantName || 'Variant'}`}
+                size="xl"
+                header={
+                    <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                        <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+                            {isNewVariant ? 'Add New Variant' : `Edit: ${variant?.variantName || 'Variant'}`}
+                        </h2>
+                        <div className="flex items-center gap-2">
+                            {headerActions}
+                            <button
+                                onClick={onClose}
+                                className="p-2 -mr-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                aria-label="Close modal"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
                     </div>
-                </div>
-            }
-        >
-            {modalContent}
-        </Modal>
+                }
+            >
+                {modalContent}
+            </Modal>
+
+            {canViewStockMovements && variant?.id && (
+                <StockMovementModal
+                    isOpen={isStockMovementOpen}
+                    onClose={() => setIsStockMovementOpen(false)}
+                    variantId={variant.id}
+                    variantName={variant.variantName || 'Default'}
+                    productName={values.name}
+                    sku={variant.sku}
+                />
+            )}
+        </>
     );
 };
 

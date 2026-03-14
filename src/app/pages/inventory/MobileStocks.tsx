@@ -51,7 +51,6 @@ const MobileStocks: FunctionComponent = () => {
     };
 
     const handleDelete = (productId: string) => {
-        // TODO: Implement delete functionality
         console.log('Delete item:', productId);
     };
 
@@ -64,14 +63,12 @@ const MobileStocks: FunctionComponent = () => {
     };
 
     const handleDisplayIconClick = () => {
-        // TODO: Implement display mode toggle (grid/list view)
         console.log('Display icon clicked - to be implemented');
     };
 
     const handleCameraScan = (result: { barcode: string }) => {
         if (result.barcode) {
             setIsCameraScannerOpen(false);
-            // Find item by barcode from any variant and navigate to edit
             const item = data.find(product =>
                 product.variants?.some(v => v.primaryBarcode === result.barcode)
             );
@@ -82,12 +79,11 @@ const MobileStocks: FunctionComponent = () => {
     };
 
     const handleAddToCartFromLookup = (item: InventoryItem | ApiProduct, variant?: ProductVariant) => {
-        // Convert ApiProduct to InventoryItem format for cart
         if ('variants' in item) {
-            // Use provided variant or fall back to default variant
             const selectedVariant = variant || item.variants?.find(v => v.isDefault) || item.variants?.[0];
             const cartItem: InventoryItem = {
-                productId: selectedVariant?.id || item.id, // Use variant ID if available for proper tracking
+                id: selectedVariant?.id || item.id,
+                productId: item.id,
                 branchId: item.branchId,
                 tenantId: item.tenantId,
                 userId: '',
@@ -118,7 +114,7 @@ const MobileStocks: FunctionComponent = () => {
             const selectedVariant = variant || item.variants?.find(v => v.isDefault) || item.variants?.[0];
             const variantId = selectedVariant?.id || item.id;
 
-            const cartItem = cart.find(ci => ci.productId === variantId);
+            const cartItem = cart.find(ci => ci.variantId === variantId);
             if (cartItem) {
                 if (cartItem.quantity > 1) {
                     updateQuantity(variantId, cartItem.quantity - 1);
@@ -127,12 +123,13 @@ const MobileStocks: FunctionComponent = () => {
                 }
             }
         } else {
-            const cartItem = cart.find(ci => ci.productId === item.productId);
+            const variantId = item.id || item.productId;
+            const cartItem = cart.find(ci => ci.variantId === variantId);
             if (cartItem) {
                 if (cartItem.quantity > 1) {
-                    updateQuantity(item.productId, cartItem.quantity - 1);
+                    updateQuantity(variantId, cartItem.quantity - 1);
                 } else {
-                    removeFromCart(item.productId);
+                    removeFromCart(variantId);
                 }
             }
         }
@@ -140,7 +137,7 @@ const MobileStocks: FunctionComponent = () => {
 
     const handleSetCartQuantity = (item: ApiProduct, variant: ProductVariant, quantity: number) => {
         const variantId = variant.id;
-        const existingCartItem = cart.find(ci => ci.productId === variantId);
+        const existingCartItem = cart.find(ci => ci.variantId === variantId);
 
         if (quantity <= 0) {
             if (existingCartItem) {
@@ -150,7 +147,8 @@ const MobileStocks: FunctionComponent = () => {
             updateQuantity(variantId, quantity);
         } else {
             const cartItem: InventoryItem = {
-                productId: variantId,
+                id: variantId,
+                productId: item.id,
                 branchId: item.branchId,
                 tenantId: item.tenantId,
                 userId: '',

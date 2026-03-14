@@ -14,14 +14,55 @@ import SaleSummary from './SaleSummary';
 import SaleItems from './SaleItems';
 import InitiateReturnModal from '../../returns/partials/InitiateReturnModal';
 import returnsService from '../../../services/returns.service';
-import { RotateCcw, Printer, X, Download, Copy, CheckCircle, Clock, XCircle, AlertCircle, Receipt } from 'lucide-react';
+import { RotateCcw, Printer, X, Download, Copy, CheckCircle, Clock, XCircle, AlertCircle, Receipt, Shield, ShieldCheck, ShieldX, ShieldAlert, ShieldOff } from 'lucide-react';
 import { useIsEBN } from '../../../hooks/useMediaQuery';
 
 interface Props {
 	isOpenDetails: boolean;
 	sale: Sale | Transaction | null;
 	setIsOpenDetails: Dispatch<SetStateAction<boolean>>;
+	isMraEnabled?: boolean;  // Whether tenant has MRA compliance enabled
 }
+
+// MRA Status configuration for display
+const mraStatusConfig: Record<Exclude<MraSaleStatus, 'NOT_APPLICABLE'>, { icon: typeof Shield; color: string; bgColor: string; label: string }> = {
+	PENDING: {
+		icon: Clock,
+		color: 'text-amber-500 dark:text-amber-400',
+		bgColor: 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800/50',
+		label: 'Pending Verification'
+	},
+	SUBMITTED: {
+		icon: Shield,
+		color: 'text-blue-500 dark:text-blue-400',
+		bgColor: 'bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800/50',
+		label: 'Submitted to MRA'
+	},
+	VERIFIED: {
+		icon: ShieldCheck,
+		color: 'text-green-500 dark:text-green-400',
+		bgColor: 'bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800/50',
+		label: 'MRA Verified'
+	},
+	FAILED: {
+		icon: ShieldAlert,
+		color: 'text-red-500 dark:text-red-400',
+		bgColor: 'bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800/50',
+		label: 'Submission Failed'
+	},
+	REJECTED: {
+		icon: ShieldX,
+		color: 'text-orange-500 dark:text-orange-400',
+		bgColor: 'bg-orange-50 dark:bg-orange-950/50 border-orange-200 dark:border-orange-800/50',
+		label: 'Rejected by MRA'
+	},
+	CANCELLED: {
+		icon: ShieldOff,
+		color: 'text-gray-500 dark:text-gray-400',
+		bgColor: 'bg-gray-50 dark:bg-gray-950/50 border-gray-200 dark:border-gray-800/50',
+		label: 'Cancelled'
+	}
+};
 
 const statusConfig: Record<string, { icon: typeof CheckCircle; color: string; bgColor: string; label: string }> = {
 	completed: {
@@ -98,7 +139,8 @@ const getStatusConfig = (status: string) => {
 const TransactionDetailsModal: FunctionComponent<Props> = ({
 	sale,
 	isOpenDetails,
-	setIsOpenDetails
+	setIsOpenDetails,
+	isMraEnabled = false,
 }) => {
 	const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
 	const [copied, setCopied] = useState(false);
@@ -228,6 +270,12 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 			? sale.payments.map(p => p.paymentMethod?.name || p.paymentMethodId).join(', ')
 			: sale.paymentMethod?.name || sale.paymentMethodId || 'Cash';
 
+		// MRA Status info
+		const mraSaleStatus = (sale as Sale).mraSaleStatus;
+		const mraStatusInfo = mraSaleStatus && mraSaleStatus !== 'NOT_APPLICABLE'
+			? mraStatusConfig[mraSaleStatus]
+			: null;
+
 		return {
 			refNumber: getSaleRef(sale),
 			customerName: sale.customer?.name || 'Walk-in Customer',
@@ -242,7 +290,13 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 			statusInfo,
 			canReturn: returnsService.canReturn(sale as unknown as Transaction),
 			refundSummary: returnsService.getRefundSummary(sale as unknown as Transaction),
-			itemCount: sale.items?.length || 0
+			itemCount: sale.items?.length || 0,
+			// MRA info
+			mraSaleStatus,
+			mraStatusInfo,
+			mraFiscalCode: (sale as Sale).mraFiscalCode,
+			mraInvoiceNumber: (sale as Sale).mraInvoiceNumber,
+			mraVerificationUrl: (sale as Sale).mraVerificationUrl,
 		};
 	}, [sale]);
 
@@ -464,6 +518,71 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 							compact={isEBN}
 							payments={sale.payments}
 						/>
+
+						{/* MRA Fiscal Information - Only shown for MRA-compliant tenants */}
+						{isMraEnabled && saleData.mraStatusInfo && (
+							<div className={isEBN
+								? "p-2 bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900/30 dark:to-gray-900/30 border border-slate-200 dark:border-slate-800 rounded-lg"
+								: "p-4 bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900/30 dark:to-gray-900/30 border border-slate-200 dark:border-slate-800 rounded-xl"
+							}>
+								<div className="flex items-start justify-between gap-2">
+									<div className="flex items-start gap-2">
+										<div className={`${isEBN ? "p-1" : "p-2"} ${saleData.mraStatusInfo.bgColor} rounded-lg mt-0.5`}>
+											<saleData.mraStatusInfo.icon className={`${isEBN ? "w-3 h-3" : "w-5 h-5"} ${saleData.mraStatusInfo.color}`} />
+										</div>
+										<div>
+											<h4 className={isEBN
+												? "text-xs font-semibold text-slate-900 dark:text-slate-100"
+												: "font-semibold text-slate-900 dark:text-slate-100"
+											}>
+												MRA Fiscal Invoice
+											</h4>
+											<p className={`${isEBN ? "text-[10px]" : "text-sm"} ${saleData.mraStatusInfo.color} mt-0.5`}>
+												{saleData.mraStatusInfo.label}
+											</p>
+										</div>
+									</div>
+									{saleData.mraFiscalCode && (
+										<div className="text-right">
+											<p className={isEBN
+												? "text-[8px] text-slate-500 dark:text-slate-400 uppercase font-medium tracking-wider"
+												: "text-xs text-slate-500 dark:text-slate-400 uppercase font-medium tracking-wider"
+											}>
+												Fiscal Code
+											</p>
+											<p className={isEBN
+												? "text-xs font-mono font-bold text-slate-900 dark:text-slate-100"
+												: "text-lg font-mono font-bold text-slate-900 dark:text-slate-100"
+											}>
+												{saleData.mraFiscalCode}
+											</p>
+										</div>
+									)}
+								</div>
+								{saleData.mraInvoiceNumber && (
+									<div className={isEBN
+										? "mt-2 pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between text-[10px]"
+										: "mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between text-sm"
+									}>
+										<span className="text-slate-500 dark:text-slate-400">MRA Invoice #:</span>
+										<span className="font-mono font-medium text-slate-800 dark:text-slate-200">
+											{saleData.mraInvoiceNumber}
+										</span>
+									</div>
+								)}
+								{saleData.mraSaleStatus === 'VERIFIED' && saleData.mraVerificationUrl && (
+									<a
+										href={saleData.mraVerificationUrl}
+										target="_blank"
+										rel="noopener noreferrer"
+										className={`${isEBN ? "mt-2 text-[10px]" : "mt-3 text-sm"} inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline`}
+									>
+										<ShieldCheck className={isEBN ? "w-3 h-3" : "w-4 h-4"} />
+										Verify on MRA Portal
+									</a>
+								)}
+							</div>
+						)}
 
 						<div className="hidden print:block footer">
 							<p>Thank you for your business!</p>

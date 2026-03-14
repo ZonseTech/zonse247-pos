@@ -32,8 +32,6 @@ export enum ROUTES {
 	PRINTER_FORM = '/printers/form',
 	PRINT_JOBS = '/printers/jobs',
 
-	PRODUCTS = '/products',
-	PRODUCT_FORM = '/products/form',
 	SUPPLIERS = '/suppliers',
 	SUPPLIER_FORM = '/suppliers/form',
 	PURCHASE_ORDERS = '/purchase-orders',
@@ -47,15 +45,12 @@ export enum ROUTES {
 	BILLING_CHECKOUT_FORM = '/subscriptions/billing/checkout-form',
 
 	TENANTS = '/tenants',
+	TENANT_DETAILS = '/tenants/details',
 	TENANT_FORM = '/tenants/form',
-	TENANT_REGISTRATION_DETAILS = '/tenant-registration-details',
 
 	BRANCHES = '/branches',
 	BRANCH_FORM = '/branches/form',
 
-	SYNC_DATA = '/sync-data',
-	EXPORT_DB = '/export-db',
-	MIGRATIONS = '/migrations',
 	LOGIN = '/login',
 	SETTINGS = '/settings',
 	SETTINGS_GENERAL = '/settings/general',

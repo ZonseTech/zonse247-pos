@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import api from '../services/http.service';
+import axios from 'axios';
+
+const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL;
 
 interface ConnectivityStatus {
     isOnline: boolean;
@@ -28,7 +30,7 @@ export function useConnectivity(checkInterval: number = 30000): ConnectivityStat
     }, []);
 
     const checkServerConnection = useCallback(async () => {
-        if (!isOnline) {
+        if (!isOnline || !LIVE_API_URL) {
             setIsServerConnected(false);
             setServerChecking(false);
             return;
@@ -37,7 +39,7 @@ export function useConnectivity(checkInterval: number = 30000): ConnectivityStat
         try {
             setServerChecking(true);
 
-            const response = await api.get('/health');
+            const response = await axios.get(`${LIVE_API_URL}/health`, { timeout: 5000 });
             setIsServerConnected(response.status >= 200 && response.status < 300);
         } catch {
             setIsServerConnected(false);

@@ -5,42 +5,37 @@ import AppLayout from '../../layouts/AppLayout';
 import CheckoutModal from './partials/CheckoutModal';
 import BillingToggle from './partials/BillingToggle';
 import { useAuth } from '../../context/AuthProvider';
-import tenantsService from '../../services/tenant.service';
 import FeatureComparison from './partials/FeatureComparison';
 import { FormEvent, FunctionComponent, useEffect, useState, useCallback, useMemo } from 'react';
 import subscriptionsService from '../../services/subscriptions.service';
 import subscriptionPlanService from '../../services/subscription-plan.service';
-import planFeaturesService from '../../services/plan-features.service';
 import PlanCardSkeleton from '../../components/loader/PlanCardSkeleton';
 import FeatureRowSkeleton from '../../components/loader/FeatureRowSkeleton';
 import MobilePlanSkeleton from '../../components/loader/MobilePlanSkeleton';
+import { OfflinePlaceholder } from '../../components';
+import { useConnectivity } from '../../hooks/useConnectivity';
 
 const SubscriptionBilling: FunctionComponent = () => {
 	const { user } = useAuth();
+	const { isOnline } = useConnectivity();
+	const branch = user?.branch;
 	const [loading, setLoading] = useState(true);
 	const [showCheckout, setShowCheckout] = useState(false);
 	const [plans, setPlans] = useState<Array<SubscriptionPlan>>([]);
-	const [featureCategories, setFeatureCategories] = useState<Array<FeatureCategory>>([]);
 	const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
 	const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
-	const [tenantInfo, setTenantInfo] = useState<TenantInfo>({} as TenantInfo);
-	const [currentSubscription, setCurrentSubscription] = useState<TenantSubscription | null>(null);
+	const [branchInfo, setBranchInfo] = useState<BranchInfo>({} as BranchInfo);
+	const [currentSubscription, setCurrentSubscription] = useState<BranchSubscription | null>(null);
 	const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>({
-		referenceNumber: '',
-		paymentMethodId: ''
+		referenceNumber: ''
 	});
 
 	useEffect(() => {
 		const loadInitialData = async () => {
 			setLoading(true);
 			try {
-				const [plansData, categoriesData] = await Promise.all([
-					subscriptionPlanService.getActive(),
-					planFeaturesService.list()
-				]);
-
+				const plansData = await subscriptionPlanService.getActive();
 				setPlans(plansData);
-				setFeatureCategories(categoriesData);
 			} catch (error) {
 				toast.error('Failed to load subscription data');
 			} finally {
@@ -52,46 +47,35 @@ const SubscriptionBilling: FunctionComponent = () => {
 	}, []);
 
 	useEffect(() => {
-		const loadTenantData = async () => {
-			if (!user.tenantId) return;
+		const loadBranchData = async () => {
+			if (!branch?.branchId) return;
 
 			try {
-				const [tenantData, activeSubscription] = await Promise.all([
-					tenantsService.show(user.tenantId),
-					subscriptionsService.getActiveSubscriptionByTenantId(user.tenantId)
-				]);
+				const activeSubscription = await subscriptionsService.getActiveBranchSubscription();
 
-				setTenantInfo({
-					tenantId: tenantData.tenantId,
-					businessName: tenantData.businessName,
-					email: tenantData.email,
-					phoneNumber: tenantData.phoneNumber,
-					address: tenantData.address,
-					subscriptionPlan: activeSubscription?.subscriptionPlanId
+				setBranchInfo({
+					branchId: branch.branchId,
+					branchName: branch.branchName,
+					branchCode: branch.branchCode,
+					subscriptionPlanId: activeSubscription?.subscriptionPlanId
 				});
 
 				setCurrentSubscription(activeSubscription);
 			} catch (error) {
-				console.error('Failed to load tenant data:', error);
+				console.error('Failed to load branch subscription data:', error);
 			}
 		};
 
-		loadTenantData();
-	}, [user.tenantId]);
+		loadBranchData();
+	}, [branch?.branchId]);
 
 	const getPrice = useCallback((plan: SubscriptionPlan) => {
 		return formatCurrency(billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice);
 	}, [billingCycle]);
 
-	const isFeatureIncluded = useCallback((plan: SubscriptionPlan, featureName: string) => {
-		return plan.features.some(feature =>
-			feature.name.toLowerCase().includes(featureName.toLowerCase()) && feature.included
-		);
-	}, []);
-
 	const isCurrentPlan = useCallback((planId: string) => {
-		return currentSubscription?.status === 'active' && planId === tenantInfo.subscriptionPlan;
-	}, [currentSubscription?.status, tenantInfo.subscriptionPlan]);
+		return currentSubscription?.status === 'active' && planId === branchInfo.subscriptionPlanId;
+	}, [currentSubscription?.status, branchInfo.subscriptionPlanId]);
 
 	const handleSelectPlan = useCallback((plan: SubscriptionPlan) => {
 		setSelectedPlan(plan);
@@ -107,7 +91,8 @@ const SubscriptionBilling: FunctionComponent = () => {
 
 		if (!selectedPlan) return;
 
-		const isFreePlan = selectedPlan.name === 'offline';
+		const isFreePlan = selectedPlan.name === 'BASIC' || selectedPlan.monthlyPrice === 0;
+		const subscriptionMonths = billingCycle === 'yearly' ? 12 : 1;
 
 		if (!paymentInfo.referenceNumber && !isFreePlan) {
 			toast.error('Please fill in all required fields');
@@ -118,36 +103,33 @@ const SubscriptionBilling: FunctionComponent = () => {
 
 		try {
 			await subscriptionsService.store({
-				tenantId: tenantInfo.tenantId,
 				subscriptionPlanId: selectedPlan.subscriptionPlanId,
-				planName: selectedPlan.name,
-				referenceNumber: paymentInfo.referenceNumber,
-				billingCycle,
-				tenantSubscriptionId: currentSubscription?.tenantSubscriptionId,
+				subscriptionMonths,
+				autoRenew: true,
+				paymentMethod: paymentInfo.referenceNumber
 			});
 
 			toast.success(
 				`Subscription ${isFreePlan ? 'Started' : 'Confirmed'}!\n\n` +
-				`Plan: ${selectedPlan.name}\n` +
-				`Business: ${tenantInfo.businessName}\n` +
+				`Plan: ${selectedPlan.displayName || selectedPlan.name}\n` +
+				`Branch: ${branchInfo.branchName}\n` +
 				`${!isFreePlan ? `Billing: ${billingCycle === 'monthly' ? 'Monthly' : 'Yearly'}\n` : ''}` +
 				`${!isFreePlan ? `Amount: ${price}${billingCycle === 'monthly' ? '/mo' : '/yr'}\n` : ''}` +
 				`\nYou will receive a confirmation email shortly.`
 			);
 
 			setShowCheckout(false);
-			setTenantInfo(prev => ({ ...prev, subscriptionPlan: selectedPlan.subscriptionPlanId }));
-			setCurrentSubscription(prev => prev ? { ...prev, subscriptionPlanId: selectedPlan.subscriptionPlanId } : null);
-			setPaymentInfo({ referenceNumber: '', paymentMethodId: '' });
-		} catch (error) {
-			if (error?.error?.response) {
-				const { data } = error.error.response;
-				toast.error(data.message);
+			setBranchInfo(prev => ({ ...prev, subscriptionPlanId: selectedPlan.subscriptionPlanId }));
+			setCurrentSubscription(prev => prev ? { ...prev, subscriptionPlanId: selectedPlan.subscriptionPlanId, status: 'active' } : null);
+			setPaymentInfo({ referenceNumber: '' });
+		} catch (error: any) {
+			if (error?.response?.data?.message) {
+				toast.error(error.response.data.message);
 			} else {
 				toast.error('Failed to process subscription');
 			}
 		}
-	}, [selectedPlan, paymentInfo, billingCycle, tenantInfo, currentSubscription, getPrice]);
+	}, [selectedPlan, paymentInfo, billingCycle, branchInfo, getPrice]);
 
 	const skeletonLoader = useMemo(() => (
 		<>
@@ -175,26 +157,37 @@ const SubscriptionBilling: FunctionComponent = () => {
 
 	const hasPlans = plans.length > 0;
 
+	// Show offline placeholder when not connected
+	if (!isOnline) {
+		return (
+			<AppLayout>
+				<div className="max-w-7xl mx-auto p-6 pt-8">
+					<OfflinePlaceholder
+						title="Billing Unavailable Offline"
+						description="The billing and subscription page requires an internet connection to load pricing plans and process payments. Please connect to the internet and try again."
+						variant="cloud"
+					/>
+				</div>
+			</AppLayout>
+		);
+	}
+
 	return (
 		<AppLayout>
-			<div className="border-b border-gray-200 bg-white sticky top-0 z-10 shadow-sm">
-				<div className="max-w-7xl mx-auto p-6">
-					<div className="text-center">
-						<h1 className="text-4xl font-bold text-gray-900 mb-3">
-							PRICING PLANS
-						</h1>
-						<p className="text-lg text-gray-600 mb-6">
-							Select the perfect subscription for your business needs
-						</p>
-						<BillingToggle
-							billingCycle={billingCycle}
-							onBillingCycleChange={setBillingCycle}
-						/>
-					</div>
-				</div>
-			</div>
-
 			<div className="max-w-7xl mx-auto p-6 pt-8">
+				<div className="text-center">
+					<h1 className="text-4xl font-bold text-gray-900 mb-3">
+						PRICING PLANS
+					</h1>
+					<p className="text-lg text-gray-600 mb-6">
+						Select the perfect subscription for your business needs
+					</p>
+					<BillingToggle
+						billingCycle={billingCycle}
+						onBillingCycleChange={setBillingCycle}
+					/>
+				</div>
+
 				{loading ? skeletonLoader : (
 					<>
 						<div className="hidden md:block">
@@ -212,11 +205,7 @@ const SubscriptionBilling: FunctionComponent = () => {
 								))}
 							</div>
 							{hasPlans && (
-								<FeatureComparison
-									plans={plans}
-									featureCategories={featureCategories}
-									isFeatureIncluded={isFeatureIncluded}
-								/>
+								<FeatureComparison plans={plans} />
 							)}
 						</div>
 
@@ -241,7 +230,7 @@ const SubscriptionBilling: FunctionComponent = () => {
 				<CheckoutModal
 					selectedPlan={selectedPlan}
 					billingCycle={billingCycle}
-					tenantInfo={tenantInfo}
+					branchInfo={branchInfo}
 					paymentInfo={paymentInfo}
 					onClose={handleCloseCheckout}
 					onPaymentInfoChange={setPaymentInfo}

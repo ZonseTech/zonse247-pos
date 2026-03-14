@@ -9,8 +9,19 @@ import purchaseOrderService from './purchase-order.service';
 import stockMovementService from './stock-movement.service';
 import saleService from './sale.service';
 import inventoryService from './inventory.service';
-import tenantRegistrationDetailService from './tenant-registration-detail.service';
 import barcodeScannerService from './barcode-scanner.service';
+import mraComplianceService from './mra-compliance.service';
+
+// Re-export live API utilities for centralized API access
+export {
+    liveApi,
+    getLiveApiUrl,
+    isLiveApiConfigured,
+    getTenantId,
+    getAuthToken,
+    getAuthHeaders,
+    isLiveServerAvailable,
+} from './live-api.service';
 
 export {
     productService,
@@ -19,8 +30,8 @@ export {
     stockMovementService,
     saleService,
     inventoryService,
-    tenantRegistrationDetailService,
-    barcodeScannerService
+    barcodeScannerService,
+    mraComplianceService,
 };
 
 // Re-export for convenience

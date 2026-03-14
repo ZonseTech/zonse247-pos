@@ -22,6 +22,7 @@ const MobileUserForm: FunctionComponent = () => {
         validationSchema,
         handleSubmit,
         isEditMode,
+        hasPrefilledTenant,
     } = useStaffForm();
 
     if (loading && !user && userId) {
@@ -137,6 +138,13 @@ const MobileUserForm: FunctionComponent = () => {
                                             roleTouched={touched.roleId as boolean}
                                             onBranchChange={(value) => setFieldValue('branchId', value)}
                                             onRoleChange={(value) => setFieldValue('roleId', value)}
+                                            showTenant={hasPrefilledTenant}
+                                            tenantDisabled={hasPrefilledTenant}
+                                            onTenantChange={(tenantId) => {
+                                                setFieldValue('tenantId', tenantId);
+                                                setFieldValue('branchId', '');
+                                                setFieldValue('roleId', '');
+                                            }}
                                         />
                                     </>
                                 )}

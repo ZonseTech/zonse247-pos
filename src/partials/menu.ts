@@ -11,14 +11,12 @@ import { hasAnyPermission, hasPermission, hasRole } from '../app/utils';
 export default class MenuBuilder {
 	mainWindow: BrowserWindow;
 	private user: User | null = null;
-	private branches: Branch[] = [];
-	private currentBranchId: string | null = null;
 
 	constructor(mainWindow: BrowserWindow) {
 		this.mainWindow = mainWindow;
 	}
 
-	buildMenu(user?: User, branches?: Branch[], currentBranchId?: string): Menu {
+	buildMenu(user?: User): Menu {
 		if (
 			process.env.NODE_ENV === 'development' ||
 			process.env.DEBUG_PROD === 'true'
@@ -27,9 +25,6 @@ export default class MenuBuilder {
 		}
 
 		this.user = user || null;
-		this.branches = branches || [];
-		this.currentBranchId =
-			currentBranchId || user?.currentBranchId || user?.branchId || null;
 		const menu = Menu.buildFromTemplate(this.buildDefaultTemplate());
 		Menu.setApplicationMenu(menu);
 		return menu;
@@ -65,36 +60,6 @@ export default class MenuBuilder {
 		this.mainWindow.webContents.send(action);
 	}
 
-	private switchBranch(branchId: string, branchName: string): void {
-		this.mainWindow.webContents.send('menu-switch-branch', {
-			branchId,
-			branchName,
-		});
-	}
-
-	private buildBranchSubmenu(): Array<MenuItemConstructorOptions> {
-		if (!this.user || this.branches.length <= 1) {
-			return [];
-		}
-
-		const branchItems: Array<MenuItemConstructorOptions> = this.branches.map(
-			(branch) => ({
-				label: branch.branchName,
-				type: 'checkbox' as const,
-				checked: branch.branchId === this.currentBranchId,
-				click: () => this.switchBranch(branch.branchId, branch.branchName),
-			}),
-		);
-
-		return [
-			{
-				label: 'Switch Branch',
-				submenu: branchItems,
-			},
-			{ type: 'separator' },
-		];
-	}
-
 	buildDefaultTemplate(): Array<MenuItemConstructorOptions> {
 		const template: Array<MenuItemConstructorOptions> = [];
 		const fileSubmenu: Array<MenuItemConstructorOptions> = [];
@@ -106,11 +71,6 @@ export default class MenuBuilder {
 				click: () => this.navigateTo(ROUTES.INVENTORY_FORM),
 			});
 			fileSubmenu.push({ type: 'separator' });
-		}
-
-		const branchSubmenu = this.buildBranchSubmenu();
-		if (branchSubmenu.length > 0) {
-			fileSubmenu.push(...branchSubmenu);
 		}
 
 		if (this.user) {
@@ -172,6 +132,19 @@ export default class MenuBuilder {
 			});
 		}
 
+		if (
+			hasAnyPermission(this.user, [
+				'refunds.process',
+				'refunds.view',
+				'returns.manage',
+			])
+		) {
+			operationsItems.push({
+				label: 'Returns',
+				click: () => this.navigateTo(ROUTES.RETURNS),
+			});
+		}
+
 		if (operationsItems.length > 0) {
 			template.push({
 				label: 'Operations',
@@ -193,6 +166,18 @@ export default class MenuBuilder {
 				{
 					label: 'Categories',
 					click: () => this.navigateTo(ROUTES.CATEGORIES),
+				},
+				{
+					label: 'Suppliers',
+					click: () => this.navigateTo(ROUTES.SUPPLIERS),
+				},
+				{
+					label: 'Purchase Orders',
+					click: () => this.navigateTo(ROUTES.PURCHASE_ORDERS),
+				},
+				{
+					label: 'Stock Movements',
+					click: () => this.navigateTo(ROUTES.STOCK_MOVEMENTS),
 				},
 				{
 					label: 'Customers',
@@ -288,8 +273,19 @@ export default class MenuBuilder {
 			])
 		) {
 			managementItems.push({
-				label: 'Staffs',
+				label: 'Billing',
+				click: () => this.navigateTo(ROUTES.SUBSCRIPTION_BILLING),
+			});
+			managementItems.push({
+				label: 'Staff Management',
 				click: () => this.navigateTo(ROUTES.USERS),
+			});
+		}
+
+		if (hasRole(this.user, 'admin') || hasRole(this.user, 'super-admin')) {
+			managementItems.push({
+				label: 'Security',
+				click: () => this.navigateTo(ROUTES.ROLES_PERMISSIONS),
 			});
 		}
 
@@ -328,6 +324,24 @@ export default class MenuBuilder {
 			template.push({
 				label: 'Settings',
 				submenu: settingsSubmenu,
+			});
+		}
+
+		if (hasRole(this.user, 'admin') || hasPermission(this.user, 'system.admin')) {
+			const adminSubmenu: Array<MenuItemConstructorOptions> = [
+				{
+					label: 'Subscriptions',
+					click: () => this.navigateTo(ROUTES.SUBSCRIPTIONS),
+				},
+				{
+					label: 'Tenants',
+					click: () => this.navigateTo(ROUTES.TENANTS),
+				},
+			];
+
+			template.push({
+				label: 'Admin',
+				submenu: adminSubmenu,
 			});
 		}
 

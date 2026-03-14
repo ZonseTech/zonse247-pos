@@ -115,7 +115,6 @@ const productService = {
      * Returns array of ProductWithInventory (flattened variants)
      */
     async listProducts(query: ListProductsOptions | ProductListQuery): Promise<ProductListResponse['data']> {
-        // Build params object, filtering out undefined/null/empty values
         const params: any = {};
         Object.keys(query).forEach(key => {
             const value = (query as any)[key];

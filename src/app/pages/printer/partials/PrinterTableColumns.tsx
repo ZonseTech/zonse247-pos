@@ -162,30 +162,30 @@ export const getPrinterColumns = (
                         <div className="ml-4 flex-1 min-w-0">
                             <div className="text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center flex-wrap gap-2">
                                 <span className="truncate">{row.printerName}</span>
-                                {row.isDefault && (
+                                {row.isDefault ? (
                                     <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-700">
                                         Default
                                     </span>
-                                )}
+                                ) : null}
                             </div>
                             <div className="text-sm text-gray-500 dark:text-gray-400">
                                 <span className="inline-flex items-center">
                                     {row.printerModel || 'No model'}
-                                    {row.serialNumber && (
+                                    {row.serialNumber ? (
                                         <>
                                             <span className="mx-1">•</span>
                                             <span className="truncate">SN: {row.serialNumber}</span>
                                         </>
-                                    )}
+                                    ) : null}
                                 </span>
                             </div>
-                            {row.connectionAddress && (
+                            {row.connectionAddress ? (
                                 <div className="text-xs text-gray-400 dark:text-gray-500 flex items-center mt-1">
                                     <span className="mr-1">{getConnectionTypeIcon(row.connectionType)}</span>
                                     {row.connectionAddress}
-                                    {row.port && `:${row.port}`}
+                                    {row.port ? `:${row.port}` : ''}
                                 </div>
-                            )}
+                            ) : null}
                         </div>
                     </div>
                 </Fragment>
@@ -206,40 +206,38 @@ export const getPrinterColumns = (
                     </div>
                 </Fragment>
             ),
-            width: '130px'
         },
         {
             name: 'Purpose',
             cell: (row) => (
                 <Fragment>
                     <div className="flex flex-wrap gap-1">
-                        {row.isReceiptPrinter && (
+                        {row.isReceiptPrinter ? (
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-sky-100 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300">
                                 Receipt
                             </span>
-                        )}
-                        {row.isLabelPrinter && (
+                        ) : null}
+                        {row.isLabelPrinter ? (
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-300">
                                 Label
                             </span>
-                        )}
-                        {row.isKitchenPrinter && (
+                        ) : null}
+                        {row.isKitchenPrinter ? (
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300">
                                 Kitchen
                             </span>
-                        )}
-                        {row.isReportPrinter && (
+                        ) : null}
+                        {row.isReportPrinter ? (
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
                                 Report
                             </span>
-                        )}
+                        ) : null}
                         {!row.isReceiptPrinter && !row.isLabelPrinter && !row.isKitchenPrinter && !row.isReportPrinter && (
                             <span className="text-xs text-gray-400 dark:text-gray-500">Not assigned</span>
                         )}
                     </div>
                 </Fragment>
             ),
-            width: '150px'
         },
         {
             name: 'Status',
@@ -250,13 +248,12 @@ export const getPrinterColumns = (
                             <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${getStatusDotColor(row.status)}`} />
                             {row.status}
                         </span>
-                        {!row.isActive && (
+                        {!row.isActive ? (
                             <div className="text-xs text-gray-500 dark:text-gray-400">Inactive</div>
-                        )}
+                        ) : null}
                     </div>
                 </Fragment>
             ),
-            width: '120px'
         },
         {
             name: 'Print Jobs',
@@ -266,20 +263,19 @@ export const getPrinterColumns = (
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                             {row.printJobCount || 0} jobs
                         </div>
-                        {row.lastPrintJob && (
+                        {row.lastPrintJob ? (
                             <div className="text-xs text-gray-500 dark:text-gray-400">
                                 Last: {formatDate(row.lastPrintJob)}
                             </div>
-                        )}
-                        {row.errorCount && row.errorCount > 0 && (
+                        ) : null}
+                        {row.errorCount && row.errorCount > 0 ? (
                             <div className="text-xs text-red-500 dark:text-red-400">
                                 {row.errorCount} error(s)
                             </div>
-                        )}
+                        ) : null}
                     </div>
                 </Fragment>
             ),
-            width: '140px'
         },
         {
             width: '300px',

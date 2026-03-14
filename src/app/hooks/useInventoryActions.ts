@@ -5,17 +5,11 @@ import inventoryService, {
     BulkUpdatePayload,
     MoveToCategoryPayload,
     AdjustInventoryPayload,
+    ConvertToVariantPayload,
+    ConvertToVariantResult,
     InventoryCount
 } from '../services/inventory.service';
 
-/**
- * Hook for advanced inventory operations including:
- * - Bulk updates
- * - Category moves
- * - Quantity adjustments
- * - Low stock management
- * - Search operations
- */
 export const useInventoryActions = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [lowStockItems, setLowStockItems] = useState<InventoryItem[]>([]);
@@ -204,11 +198,13 @@ export const useInventoryActions = () => {
 
     /**
      * Update inventory quantity directly
+     * @param variantId - The variant ID to update quantity for
+     * @param quantity - The new quantity value
      */
-    const updateQuantity = useCallback(async (itemId: string, quantity: number) => {
+    const updateQuantity = useCallback(async (variantId: string, quantity: number) => {
         setIsLoading(true);
         try {
-            const item = await inventoryService.updateQuantity(itemId, quantity);
+            const item = await inventoryService.updateQuantity(variantId, quantity);
             Notify.success('Quantity updated successfully');
             return item;
         } catch (error: any) {
@@ -221,11 +217,13 @@ export const useInventoryActions = () => {
 
     /**
      * Adjust inventory (add/subtract/set)
+     * @param variantId - The variant ID to adjust inventory for
+     * @param payload - Adjustment details (type: add/subtract/set, adjustment amount, reason)
      */
-    const adjustInventory = useCallback(async (itemId: string, payload: AdjustInventoryPayload) => {
+    const adjustInventory = useCallback(async (variantId: string, payload: AdjustInventoryPayload) => {
         setIsLoading(true);
         try {
-            const item = await inventoryService.adjustInventory(itemId, payload);
+            const item = await inventoryService.adjustInventory(variantId, payload);
             const actionText = payload.type === 'add' ? 'added' : payload.type === 'subtract' ? 'subtracted' : 'set';
             Notify.success(`Inventory ${actionText} successfully`);
             return item;
@@ -288,6 +286,26 @@ export const useInventoryActions = () => {
     }, []);
 
     /**
+     * Convert a variant to become a variant of a different product
+     * This allows moving an existing variant to become a variant of another product
+     */
+    const convertToVariant = useCallback(async (variantId: string, payload: ConvertToVariantPayload): Promise<ConvertToVariantResult> => {
+        setIsLoading(true);
+        try {
+            const result = await inventoryService.convertToVariant(variantId, payload);
+            Notify.success('Product converted to variant successfully');
+            if (result.warning) {
+                toast.warning(result.warning, { autoClose: 5000 });
+            }
+            return result;
+        } catch (error: any) {
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    /**
      * Get all inventory items without pagination
      */
     const getAllItems = useCallback(async () => {
@@ -342,6 +360,9 @@ export const useInventoryActions = () => {
         // Validation
         checkExists,
         voidItem,
+
+        // Conversion
+        convertToVariant,
 
         // All Items
         getAllItems,

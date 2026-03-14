@@ -4,6 +4,7 @@ import { FaCaretDown } from 'react-icons/fa';
 import MobilePageHeader from './MobilePageHeader';
 import { useBranch } from '../../context/BranchContext';
 import { useMobileNav } from '../../context/MobileNavContext';
+import { isElectron } from '../../utils';
 import BranchSwitchModal from '../../navigation/components/BranchSwitchModal';
 import { HelpModal } from '../modals';
 
@@ -40,6 +41,7 @@ const MobileTabPageHeader: FunctionComponent<MobileTabPageHeaderProps> = ({
     const { currentBranch } = useBranch();
     const { openDrawer } = useMobileNav();
     const [isBranchSwitchModalOpen, setIsBranchSwitchModalOpen] = useState(false);
+    const isDesktopApp = isElectron();
 
     return (
         <>
@@ -54,15 +56,22 @@ const MobileTabPageHeader: FunctionComponent<MobileTabPageHeaderProps> = ({
                             className="w-6 h-6 text-white cursor-pointer active:scale-95 transition-transform"
                             onClick={openDrawer}
                         />
-                        <button
-                            onClick={() => setIsBranchSwitchModalOpen(true)}
-                            className="flex items-center gap-1 rounded-sm active:scale-95 transition-all"
-                        >
+                        {/* Branch switching disabled in desktop app */}
+                        {isDesktopApp ? (
                             <span className="text-base font-semibold text-white truncate max-w-[180px]">
                                 {currentBranch?.branchName || 'Select Branch'}
                             </span>
-                            <FaCaretDown className="w-4 h-4 text-sky-100 flex-shrink-0" />
-                        </button>
+                        ) : (
+                            <button
+                                onClick={() => setIsBranchSwitchModalOpen(true)}
+                                className="flex items-center gap-1 rounded-sm active:scale-95 transition-all"
+                            >
+                                <span className="text-base font-semibold text-white truncate max-w-[180px]">
+                                    {currentBranch?.branchName || 'Select Branch'}
+                                </span>
+                                <FaCaretDown className="w-4 h-4 text-sky-100 flex-shrink-0" />
+                            </button>
+                        )}
                     </div>
                 }
                 rightContent={
@@ -75,10 +84,12 @@ const MobileTabPageHeader: FunctionComponent<MobileTabPageHeaderProps> = ({
                 {children}
             </MobilePageHeader>
 
-            <BranchSwitchModal
-                isOpen={isBranchSwitchModalOpen}
-                onClose={() => setIsBranchSwitchModalOpen(false)}
-            />
+            {!isDesktopApp && (
+                <BranchSwitchModal
+                    isOpen={isBranchSwitchModalOpen}
+                    onClose={() => setIsBranchSwitchModalOpen(false)}
+                />
+            )}
         </>
     );
 };

@@ -23,7 +23,6 @@ export interface SyncButtonProps {
 export interface NavGroupProps {
     groupKey: NavGroup;
     items: NavItem[];
-    isCollapsed?: boolean;
     onItemClick: (onClick: any) => void;
     getRoutePath: (onClick: any) => string;
     isRouteActive: (routePath: string) => boolean;
@@ -39,19 +38,10 @@ export interface MobileDrawerProps {
 }
 
 export interface SidebarProps {
-    isCollapsed?: boolean;
-    onToggleCollapse?: () => void;
     groupedNavItems: Record<NavGroup, NavItem[]>;
     onItemClick: (onClick: any) => void;
     getRoutePath: (onClick: any) => string;
     isRouteActive: (routePath: string) => boolean;
-}
-
-export interface TopBarProps {
-    isSidebarCollapsed?: boolean;
-    onToggleSidebar?: () => void;
-    onToggleMenu: () => void;
-    isMenuOpen: boolean;
 }
 
 export const GROUP_ORDER: NavGroup[] = ['operations', 'inventory', 'management', 'misc', 'settings', 'admin', 'system'];

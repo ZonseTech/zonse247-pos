@@ -10,7 +10,6 @@ import classNames from "classnames"
 
 const ProtectedLayout: FunctionComponent = () => {
 	const { settings } = useApp();
-	const { isSidebarHidden, toggleSidebar } = useLayout();
 	const isMobile = useIsMobile();
 	const isNativeMobile = useIsNativeMobile();
 	const isEBN = useIsEBN();
@@ -20,18 +19,9 @@ const ProtectedLayout: FunctionComponent = () => {
 	return (
 		<div className="flex h-screen transition-colors duration-300 relative">
 			{showWebNav && !isMobile && (
-				<aside
-					className={classNames(
-						"hidden md:flex flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden z-30 relative",
-						isSidebarHidden ? "w-0" : "w-64"
-					)}
-				>
+				<aside className="hidden md:flex flex-shrink-0 w-64 z-30 relative">
 					<div className="w-64 h-full">
-						<NavBar
-							variant="sidebar"
-							isCollapsed={false}
-							onToggleCollapse={toggleSidebar}
-						/>
+						<NavBar variant="sidebar" />
 					</div>
 				</aside>
 			)}
@@ -39,11 +29,7 @@ const ProtectedLayout: FunctionComponent = () => {
 			<div className="flex flex-col flex-1 min-w-0 z-10">
 				{showWebNav && (
 					<header className="flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm z-20 relative">
-						<NavBar
-							variant="topbar"
-							isSidebarCollapsed={isSidebarHidden}
-							onToggleCollapse={toggleSidebar}
-						/>
+						<NavBar variant="topbar" />
 					</header>
 				)}
 

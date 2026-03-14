@@ -37,7 +37,6 @@ const initialState: InventoryState = {
     cacheTimeout: 5 * 60 * 1000,
 }
 
-// Query parameters for fetching products
 interface FetchProductsParams {
     page?: number
     perPage?: number
@@ -52,9 +51,7 @@ export const fetchInventory = createAsyncThunk(
     'inventory/fetchInventory',
     async (params: FetchProductsParams = {}, { rejectWithValue }) => {
         try {
-            // Fetch products with max allowed perPage (100)
-            // For POS, we fetch all pages to get complete product list
-            const perPage = Math.min(params.perPage || 100, 100) // API max is 100
+            const perPage = Math.min(params.perPage || 100, 100)
 
             const baseParams: ListProductsOptions = {
                 page: 1,
@@ -66,11 +63,9 @@ export const fetchInventory = createAsyncThunk(
                 includeInactive: params.includeInactive || false,
             }
 
-            // Fetch first page
             const firstResponse = await productService.listProducts(baseParams)
             let allProducts = firstResponse.products || []
 
-            // If there are more pages, fetch them all for POS
             const totalPages = firstResponse.pagination?.totalPages || 1
             if (totalPages > 1 && !params.page) {
                 const pagePromises = []
@@ -83,7 +78,6 @@ export const fetchInventory = createAsyncThunk(
                 })
             }
 
-            // Map ProductWithInventory to InventoryItem for cart compatibility
             const inventoryItems = mapProductsToInventoryItems(allProducts)
 
             return {
@@ -97,7 +91,8 @@ export const fetchInventory = createAsyncThunk(
                 } : null,
             }
         } catch (error: any) {
-            const message = 'Error fetching products: ' + (error?.response?.data?.message || error?.message || 'Unknown error')
+            const apiMessage = error?.response?.data?.message || error?.error?.response?.data?.message;
+            const message = apiMessage || `Error fetching products: ${error?.message || 'Unknown error'}`;
 
             Notify.failure(message)
             return rejectWithValue(message)
@@ -111,8 +106,9 @@ export const fetchCategories = createAsyncThunk(
         try {
             const data = await categoriesService.list()
             return data
-        } catch (error) {
-            const message = 'Error fetching categories: ' + error?.error?.response?.data?.message
+        } catch (error: any) {
+            const apiMessage = error?.response?.data?.message || error?.error?.response?.data?.message;
+            const message = apiMessage || `Error fetching categories: ${error?.message || 'Unknown error'}`;
             Notify.failure(message)
             return rejectWithValue(message)
         }
@@ -125,8 +121,9 @@ export const fetchPaymentMethods = createAsyncThunk(
         try {
             const data = await paymentMethodService.list()
             return data
-        } catch (error) {
-            const message = 'Error fetching payment methods: ' + error?.error?.response?.data?.message
+        } catch (error: any) {
+            const apiMessage = error?.response?.data?.message || error?.error?.response?.data?.message;
+            const message = apiMessage || `Error fetching payment methods: ${error?.message || 'Unknown error'}`;
             Notify.failure(message)
             return rejectWithValue(message)
         }
@@ -139,8 +136,9 @@ export const fetchPaymentServiceProvider = createAsyncThunk(
         try {
             const data = await paymentServiceProviderService.list()
             return data
-        } catch (error) {
-            const message = 'Error fetching payment service providers: ' + error?.error?.response?.data?.message
+        } catch (error: any) {
+            const apiMessage = error?.response?.data?.message || error?.error?.response?.data?.message;
+            const message = apiMessage || `Error fetching payment service providers: ${error?.message || 'Unknown error'}`;
             Notify.failure(message)
             return rejectWithValue(message)
         }
@@ -183,11 +181,18 @@ const inventorySlice = createSlice({
         invalidateCache: (state) => {
             state.lastFetched = null
         },
+        /**
+         * Update inventory stock by variantId (the `id` field in InventoryItem)
+         */
         updateInventoryStock: (state, action: PayloadAction<{ id: string; newStock: number }>) => {
             const { id, newStock } = action.payload
-            const item = state.inventory.find(p => p.productId === id)
+            // Find by variant ID (the `id` field), not productId
+            const item = state.inventory.find(p => p.id === id)
             if (item) {
                 item.quantity = newStock.toString()
+                if (item.availableQuantity !== undefined) {
+                    item.availableQuantity = newStock
+                }
             }
         },
         setCategories: (state, action: PayloadAction<Category[]>) => {

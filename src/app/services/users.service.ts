@@ -1,5 +1,7 @@
 import api from './http.service';
+import { isElectron } from '../../helpers/index.helper';
 import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
+import { liveApi, getTenantId, getAuthToken, isLiveApiConfigured } from './live-api.service';
 
 const USER_DECODE_FIELDS = ['fullname', 'username', 'email', 'roleName', 'branchName', 'tenantName'] as const;
 
@@ -51,6 +53,54 @@ const usersService = {
 		} catch (err) {
 			console.error('Error creating user:', err);
 			throw err;
+		}
+	},
+
+	/**
+	 * Create user via Live API (for online-first scenarios)
+	 * For web/mobile: uses regular API if live API is not configured
+	 */
+	async storeLive(data: CreateUserRequest): Promise<CreateUserResponse> {
+		const useLiveApi = isLiveApiConfigured();
+		const isDesktopPlatform = isElectron();
+
+		// Only require live API on desktop platform
+		if (!useLiveApi && isDesktopPlatform) {
+			throw new Error('Live server URL not configured');
+		}
+
+		try {
+			let response: { data: ApiResponse<CreateUserResponse> };
+
+			if (useLiveApi) {
+				const tenantId = await getTenantId();
+				const token = getAuthToken();
+
+				response = await liveApi.post<ApiResponse<CreateUserResponse>>(
+					endpoints.store,
+					data,
+					{
+						headers: {
+							...(token && { 'Authorization': `Bearer ${token}` }),
+							...(tenantId && { 'X-Tenant-Id': tenantId })
+						}
+					}
+				);
+			} else {
+				// Use regular API for web/mobile
+				response = await api.post<ApiResponse<CreateUserResponse>>(endpoints.store, data as any);
+			}
+
+			return {
+				...decodeObjectStrings(response.data.data!, USER_DECODE_FIELDS),
+				generatedPassword: response.data.data?.generatedPassword
+			};
+		} catch (err: any) {
+			console.error('Error creating user via API:', err);
+			throw {
+				error: err,
+				response: err.response
+			};
 		}
 	},
 

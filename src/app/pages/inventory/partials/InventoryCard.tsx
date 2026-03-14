@@ -96,14 +96,13 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
                     <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
                 </div>
 
-                {/* Category & Barcode */}
                 <div className="flex flex-wrap items-center gap-2 mb-3">
                     {item.categoryDetails?.name && (
                         <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-md">
-                            {item.categoryDetails?.color && (
+                            {(item.categoryDetails as CategoryDetails & { color?: string })?.color && (
                                 <div
                                     className="w-2 h-2 rounded-full"
-                                    style={{ backgroundColor: item.categoryDetails.color }}
+                                    style={{ backgroundColor: (item.categoryDetails as CategoryDetails & { color?: string }).color }}
                                 />
                             )}
                             <span className="text-xs font-medium text-gray-600 dark:text-gray-300">

@@ -1,5 +1,6 @@
-import { FC } from 'react';
-import { Edit2, Trash2, Monitor, Star, Shield, ShieldOff, RefreshCw, Clock } from 'lucide-react';
+import { FC, useState } from 'react';
+import { Edit2, Trash2, Monitor, Star, Shield, ShieldOff, RefreshCw, Clock, Copy, Check } from 'lucide-react';
+import { Notify } from 'notiflix';
 
 interface TerminalMobileCardProps {
     terminal: Terminal;
@@ -36,6 +37,20 @@ const TerminalMobileCard: FC<TerminalMobileCardProps> = ({
     onSync,
 }) => {
     const statusColorClass = getActivationStatusColor(terminal.activationStatus);
+    const [codeCopied, setCodeCopied] = useState(false);
+
+    const handleCopyCode = async () => {
+        if (terminal.activationCode) {
+            try {
+                await navigator.clipboard.writeText(terminal.activationCode);
+                setCodeCopied(true);
+                Notify.success('Activation code copied');
+                setTimeout(() => setCodeCopied(false), 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+        }
+    };
 
     const formatDate = (date?: string | Date | null): string => {
         if (!date) return 'Never';
@@ -51,7 +66,6 @@ const TerminalMobileCard: FC<TerminalMobileCardProps> = ({
     return (
         <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-start gap-3">
-                {/* Terminal Icon */}
                 <div className="relative w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center ring-1 ring-gray-300 dark:ring-gray-600 flex-shrink-0">
                     <Monitor className="w-6 h-6 text-gray-500 dark:text-gray-400" />
                     {terminal.isPrimary && (
@@ -66,7 +80,6 @@ const TerminalMobileCard: FC<TerminalMobileCardProps> = ({
                     )}
                 </div>
 
-                {/* Terminal Info */}
                 <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-1">
                         <div>
@@ -90,7 +103,6 @@ const TerminalMobileCard: FC<TerminalMobileCardProps> = ({
                         </span>
                     </div>
 
-                    {/* Additional Info */}
                     <div className="space-y-1 mt-2">
                         {terminal.macAddress && (
                             <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
@@ -109,9 +121,26 @@ const TerminalMobileCard: FC<TerminalMobileCardProps> = ({
                                 Blocked: {terminal.blockingReason}
                             </div>
                         )}
+                        {terminal.activationCode && (
+                            <div className="flex items-center gap-2 mt-2">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">Code:</span>
+                                <code className="px-2 py-1 text-xs font-mono bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded border border-amber-200 dark:border-amber-700">
+                                    {terminal.activationCode}
+                                </code>
+                                <button
+                                    onClick={handleCopyCode}
+                                    className={`p-1.5 rounded-lg transition-all ${codeCopied
+                                        ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
+                                        : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400'
+                                        }`}
+                                    title={codeCopied ? 'Copied!' : 'Copy code'}
+                                >
+                                    {codeCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                                </button>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Actions */}
                     <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex-wrap">
                         <button
                             onClick={() => onSync(terminal.terminalId)}

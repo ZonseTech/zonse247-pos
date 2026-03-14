@@ -1,25 +1,54 @@
 import { Confirm } from 'notiflix';
-import { Monitor } from 'lucide-react';
+import { Monitor, Building2 } from 'lucide-react';
 import AppLayout from '../../layouts/AppLayout';
 import { HiOutlinePlus, HiOutlineComputerDesktop, HiOutlineChevronLeft, HiOutlineChevronRight } from 'react-icons/hi2';
 import { SearchBar } from '../../components/SearchBar';
 import DataTable from 'react-data-table-component';
 import { useTerminals } from '../../hooks/useTerminals';
-import { FunctionComponent, useContext, useMemo } from 'react';
+import { FunctionComponent, useContext, useMemo, useState, useEffect } from 'react';
 import { getTableStyles } from '../../utils/table-styles';
 import PageHeader from '../../components/page/PageHeader';
-import { Button, ZonseThemeContext, ComponentLoader } from '../../components';
+import { Button, ZonseThemeContext, ComponentLoader, Select } from '../../components';
 import { getTerminalColumns } from './partials/TerminalTableColumns';
 import { TerminalMobileList } from './partials/TerminalMobileCard';
 import TerminalSummaryCards, { TerminalSummaryCard } from './partials/TerminalSummaryCards';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import { useAuth } from '../../context/AuthProvider';
+import { hasRole } from '../../utils';
+import branchService from '../../services/branch.service';
 
 const TerminalManagement: FunctionComponent = () => {
     const isMobile = useIsMobile();
     const navigate = useNavigate();
     const { mode } = useContext(ZonseThemeContext);
+    const { user: authUser } = useAuth();
+
+    // Branch filter state
+    const [selectedBranchId, setSelectedBranchId] = useState<string>('');
+    const [branches, setBranches] = useState<Branch[]>([]);
+    const [loadingBranches, setLoadingBranches] = useState(false);
+
+    const canViewStats = useMemo(() => {
+        return hasRole(authUser, 'admin');
+    }, [authUser]);
+
+    // Load branches for filter dropdown
+    useEffect(() => {
+        const loadBranches = async () => {
+            setLoadingBranches(true);
+            try {
+                const data = await branchService.list();
+                setBranches(data);
+            } catch (error) {
+                console.error('Error loading branches:', error);
+            } finally {
+                setLoadingBranches(false);
+            }
+        };
+        loadBranches();
+    }, []);
 
     const {
         isLoading,
@@ -37,13 +66,11 @@ const TerminalManagement: FunctionComponent = () => {
         setPrimary,
         syncTerminal,
         filteredTerminals
-    } = useTerminals();
+    } = useTerminals({ branchId: selectedBranchId || undefined });
 
-    // Calculate summary stats
     const summaryCards: TerminalSummaryCard[] = useMemo(() => {
         const allTerminals = filteredTerminals || [];
         const activeCount = allTerminals.filter(t => t.activationStatus === 'ACTIVATED').length;
-        const inactiveCount = allTerminals.filter(t => t.activationStatus === 'DEACTIVATED' || t.activationStatus === 'PENDING').length;
         const primaryCount = allTerminals.filter(t => t.isPrimary).length;
         const blockedCount = allTerminals.filter(t => t.isBlocked).length;
 
@@ -182,10 +209,26 @@ const TerminalManagement: FunctionComponent = () => {
                     action={
                         <div className='flex items-center justify-between gap-2'>
                             {!isMobile && (
-                                <SearchBar
-                                    value={searchTerm}
-                                    onChange={setSearchTerm}
-                                />
+                                <>
+                                    <div className="relative min-w-[180px]">
+                                        <Select
+                                            value={selectedBranchId}
+                                            onChange={(e) => setSelectedBranchId(e.target.value)}
+                                            className="!py-2"
+                                        >
+                                            <option value="">All Branches</option>
+                                            {branches.map((branch) => (
+                                                <option key={branch.branchId} value={branch.branchId}>
+                                                    {branch.branchName}
+                                                </option>
+                                            ))}
+                                        </Select>
+                                    </div>
+                                    <SearchBar
+                                        value={searchTerm}
+                                        onChange={setSearchTerm}
+                                    />
+                                </>
                             )}
 
                             <Button
@@ -203,7 +246,22 @@ const TerminalManagement: FunctionComponent = () => {
                     }
                 >
                     {isMobile && (
-                        <div className='px-4 pb-4'>
+                        <div className='px-4 pb-4 space-y-3'>
+                            <div className="flex items-center gap-2">
+                                <Building2 className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                <Select
+                                    value={selectedBranchId}
+                                    onChange={(e) => setSelectedBranchId(e.target.value)}
+                                    className="flex-1"
+                                >
+                                    <option value="">All Branches</option>
+                                    {branches.map((branch) => (
+                                        <option key={branch.branchId} value={branch.branchId}>
+                                            {branch.branchName}
+                                        </option>
+                                    ))}
+                                </Select>
+                            </div>
                             <SearchBar
                                 value={searchTerm}
                                 onChange={setSearchTerm}
@@ -212,16 +270,15 @@ const TerminalManagement: FunctionComponent = () => {
                     )}
                 </PageHeader>
 
-                {/* Main Content Container */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
 
-                    {/* Summary Cards */}
-                    <TerminalSummaryCards
-                        cards={summaryCards}
-                        isLoading={isLoading}
-                    />
+                    {canViewStats ? (
+                        <TerminalSummaryCards
+                            cards={summaryCards}
+                            isLoading={isLoading}
+                        />
+                    ) : null}
 
-                    {/* Mobile View - Card List */}
                     {isMobile ? (
                         <div className="overflow-hidden">
                             {isLoading ? (
@@ -240,14 +297,22 @@ const TerminalManagement: FunctionComponent = () => {
                                         <Monitor className="w-8 h-8 text-gray-400" />
                                     </div>
                                     <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2 text-center">
-                                        {searchTerm ? 'No matching terminals' : 'No terminals yet'}
+                                        {searchTerm || selectedBranchId ? 'No matching terminals' : 'No terminals yet'}
                                     </h3>
                                     <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm text-sm">
-                                        {searchTerm
-                                            ? "Try adjusting your search to find terminals."
+                                        {searchTerm || selectedBranchId
+                                            ? "Try adjusting your filters to find terminals."
                                             : "Add your first terminal to get started."
                                         }
                                     </p>
+                                    {selectedBranchId && (
+                                        <button
+                                            onClick={() => setSelectedBranchId('')}
+                                            className="mt-4 text-sm text-sky-500 hover:text-sky-600 dark:text-sky-400 dark:hover:text-sky-300"
+                                        >
+                                            Clear branch filter
+                                        </button>
+                                    )}
                                 </div>
                             ) : (
                                 <>
@@ -318,11 +383,21 @@ const TerminalManagement: FunctionComponent = () => {
                                     <div className="text-center py-12">
                                         <Monitor className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
                                         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                                            {searchTerm ? 'No matching terminals' : 'No terminals found'}
+                                            {searchTerm || selectedBranchId ? 'No matching terminals' : 'No terminals found'}
                                         </h3>
                                         <p className="text-gray-500 dark:text-gray-400">
-                                            {searchTerm ? 'Try adjusting your search terms.' : 'Get started by adding your first terminal.'}
+                                            {searchTerm || selectedBranchId
+                                                ? 'Try adjusting your filters.'
+                                                : 'Get started by adding your first terminal.'}
                                         </p>
+                                        {selectedBranchId && (
+                                            <button
+                                                onClick={() => setSelectedBranchId('')}
+                                                className="mt-4 text-sm text-sky-500 hover:text-sky-600 dark:text-sky-400 dark:hover:text-sky-300"
+                                            >
+                                                Clear branch filter
+                                            </button>
+                                        )}
                                     </div>
                                 }
                             />

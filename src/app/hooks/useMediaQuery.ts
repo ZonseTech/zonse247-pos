@@ -97,4 +97,17 @@ export const useIsLargeScreen = (): boolean => {
     return useMediaQuery('(min-width: 1367px) or (min-height: 901px)');
 };
 
+/**
+ * Hook to check if the app is running in Electron (desktop)
+ * @returns boolean indicating if running in Electron environment
+ */
+export const useIsElectron = (): boolean => {
+    return useMemo(() => {
+        return !!(
+            (typeof process !== 'undefined' && process.versions && process.versions.electron) ||
+            (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.includes('Electron'))
+        );
+    }, []);
+};
+
 export default useMediaQuery;

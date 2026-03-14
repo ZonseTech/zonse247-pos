@@ -32,20 +32,36 @@ const normalizeMovement = (apiMovement: any): StockMovement => {
     };
 };
 
-export const useStockMovements = (productId?: string) => {
+export const useStockMovements = (productId?: string, variantId?: string) => {
     const { setup } = useSettings();
     const [movements, setMovements] = useState<StockMovement[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
     const [totalRows, setTotalRows] = useState(0);
-    const [movementTypeFilter, setMovementTypeFilter] = useState<StockMovementType | ''>('');
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
+    const [movementTypeFilter, setMovementTypeFilterInternal] = useState<StockMovementType | ''>('');
+    const [startDate, setStartDateInternal] = useState('');
+    const [endDate, setEndDateInternal] = useState('');
 
     const tenantId = setup?.tenantId || '';
     const branchId = setup?.branchId || '';
     const userId = setup?.setupId || '';
+
+    // Wrapper setters that reset page to 1 when filter changes
+    const setMovementTypeFilter = useCallback((value: StockMovementType | '') => {
+        setMovementTypeFilterInternal(value);
+        setPage(1);
+    }, []);
+
+    const setStartDate = useCallback((value: string) => {
+        setStartDateInternal(value);
+        setPage(1);
+    }, []);
+
+    const setEndDate = useCallback((value: string) => {
+        setEndDateInternal(value);
+        setPage(1);
+    }, []);
 
     const loadMovements = useCallback(async () => {
         if (!tenantId || !branchId) return;
@@ -58,21 +74,36 @@ export const useStockMovements = (productId?: string) => {
                 page,
                 limit: perPage,
                 productId,
+                variantId,
                 movementType: movementTypeFilter || undefined,
                 startDate: startDate || undefined,
                 endDate: endDate || undefined,
             };
 
-            const result = productId
-                ? await stockMovementService.getProductStockHistory(
-                    productId,
+            // Priority: variantId > productId > all branch movements
+            const result = variantId
+                ? await stockMovementService.getVariantStockHistory(
+                    variantId,
                     tenantId,
                     branchId,
                     perPage,
+                    page,
                     startDate || undefined,
-                    endDate || undefined
+                    endDate || undefined,
+                    movementTypeFilter || undefined
                 )
-                : await stockMovementService.getBranchStockMovements(query);
+                : productId
+                    ? await stockMovementService.getProductStockHistory(
+                        productId,
+                        tenantId,
+                        branchId,
+                        perPage,
+                        page,
+                        startDate || undefined,
+                        endDate || undefined,
+                        movementTypeFilter || undefined
+                    )
+                    : await stockMovementService.getBranchStockMovements(query);
 
             // Handle case where result might be undefined or malformed
             if (!result) {
@@ -98,7 +129,7 @@ export const useStockMovements = (productId?: string) => {
         } finally {
             setIsLoading(false);
         }
-    }, [tenantId, branchId, page, perPage, productId, movementTypeFilter, startDate, endDate]);
+    }, [tenantId, branchId, page, perPage, productId, variantId, movementTypeFilter, startDate, endDate]);
 
     useEffect(() => {
         loadMovements();

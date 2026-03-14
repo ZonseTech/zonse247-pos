@@ -36,6 +36,7 @@ interface User {
     allowSelfAttendance?: boolean;
     attendanceType?: 'single' | 'punch';
     branch?: (Branch & { branchSubscription?: BranchSubscription }) | null;
+    role?: Role | null;
 }
 
 interface UserQueryParams {
@@ -49,6 +50,7 @@ interface UserQueryParams {
     perPage?: number;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
+    isAdminMode?: boolean;
 }
 
 interface CreateUserRequest {

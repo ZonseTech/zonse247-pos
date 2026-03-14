@@ -34,7 +34,10 @@ interface StockMovement {
 
     // Product reference
     productId: string;
+    variantId?: string; // Variant ID for variant-level tracking
+    inventoryId?: string; // Inventory record ID
     product?: Product; // Populated in responses
+    variant?: ProductVariant; // Populated in responses
 
     // Movement details
     movementType: StockMovementType;
@@ -105,6 +108,8 @@ interface StockMovementListQuery {
     tenantId: string;
     branchId: string;
     productId?: string;
+    variantId?: string;
+    inventoryId?: string;
     movementType?: StockMovementType;
     startDate?: Date | string;
     endDate?: Date | string;

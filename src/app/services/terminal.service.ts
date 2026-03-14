@@ -1,13 +1,12 @@
 import api from './http.service';
 import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
 
-// Fields to decode for terminal items
-const TERMINAL_DECODE_FIELDS = ['terminalLabel', 'terminalType', 'branchName', 'tenantName', 'location', 'notes'] as const;
+const TERMINAL_DECODE_FIELDS = ['terminalLabel', 'terminalType', 'branchName', 'tenantName', 'location', 'notes', 'terminalCode'] as const;
 
 const endpoints: Record<string, string> = {
-    all: 'terminals/all',
-    store: 'terminals/post',
-    update: 'terminals/update',
+    all: 'terminals',
+    store: 'terminals',
+    update: 'terminals',
     show: 'terminals',
     delete: 'terminals',
     sync: 'terminals/sync',
@@ -17,6 +16,7 @@ const endpoints: Record<string, string> = {
     unblock: 'terminals/unblock',
     setPrimary: 'terminals/set-primary',
     stats: 'terminals/stats',
+    regenerateActivationCode: 'terminals',
 };
 
 const terminalService = {
@@ -171,6 +171,22 @@ const terminalService = {
             return decodeObjectStrings<Terminal>(response.data.data!, TERMINAL_DECODE_FIELDS);
         } catch (err) {
             console.error('Error setting primary terminal:', err);
+            throw err;
+        }
+    },
+
+    async regenerateActivationCode(id: string): Promise<{ terminal: Terminal; activationCode: string }> {
+        try {
+            const response = await api.post<ApiResponse<{ terminal: Terminal; activationCode: string }>>(
+                `${endpoints.regenerateActivationCode}/${id}/regenerate-activation-code`,
+                {} as any
+            );
+            return {
+                terminal: decodeObjectStrings<Terminal>(response.data.data!.terminal, TERMINAL_DECODE_FIELDS),
+                activationCode: response.data.data!.activationCode,
+            };
+        } catch (err) {
+            console.error('Error regenerating activation code:', err);
             throw err;
         }
     },

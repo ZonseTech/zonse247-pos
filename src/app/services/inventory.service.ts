@@ -1,5 +1,6 @@
 import api from './http.service';
 import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
+import { liveApi, getAuthHeaders } from './live-api.service';
 
 // Fields to decode for inventory items
 const INVENTORY_DECODE_FIELDS = ['name', 'description', 'brand', 'sku', 'color', 'size', 'unit', 'supplierName'] as const;
@@ -33,6 +34,9 @@ const endpoints = {
 
 	// Legacy endpoints (kept for backwards compatibility)
 	findBySku: 'inventory/item/sku',
+
+	// Variant conversion
+	convertToVariant: 'inventory/item',
 };
 
 export interface InventorySummary {
@@ -74,6 +78,41 @@ export interface AdjustInventoryPayload {
 	adjustment: number;
 	reason?: string;
 	type: 'add' | 'subtract' | 'set';
+}
+
+/**
+ * Input for converting a variant to belong to a different product
+ */
+export interface ConvertToVariantPayload {
+	/** The target product ID that will become the new parent */
+	targetProductId: string;
+	/** Optional: New variant name (defaults to current variant name) */
+	variantName?: string;
+	/** Whether to delete the original parent product if it becomes orphaned (has no more variants) */
+	deleteOrphanedProduct?: boolean;
+}
+
+/**
+ * Result of the convert to variant operation
+ */
+export interface ConvertToVariantResult {
+	/** The updated variant */
+	variant: ProductWithInventory;
+	/** Whether the original parent product was deleted (orphaned) */
+	orphanedProductDeleted: boolean;
+	/** The ID of the original parent product if it was deleted */
+	deletedProductId?: string;
+	/** Information about historical records that still reference the old product ID */
+	affectedRecords?: {
+		/** Number of sale items that still reference the old product ID */
+		saleItems: number;
+		/** Number of stock movements associated with this variant */
+		stockMovements: number;
+		/** Number of purchase order items associated with this variant */
+		purchaseOrderItems: number;
+	};
+	/** Warning message if there are historical records affected */
+	warning?: string;
 }
 
 export interface CategoryBreakdown {
@@ -333,7 +372,8 @@ const inventoryService = {
 	 */
 	async store(data: InventoryItem): Promise<InventoryItem> {
 		try {
-			const res = await api.post<ApiResponse<InventoryItem>>(endpoints.item, data as any);
+			const headers = await getAuthHeaders();
+			const res = await liveApi.post<ApiResponse<InventoryItem>>(endpoints.item, data, { headers });
 			if (!res.data.success) {
 				throw new Error(res.data.message || 'Failed to create inventory item');
 			}
@@ -343,7 +383,7 @@ const inventoryService = {
 			if (err instanceof Error && err.message && err.message !== 'Failed to create inventory item') {
 				throw err;
 			}
-			// Handle API error responses - interceptor wraps errors in { error }
+			// Handle API error responses
 			const axiosError = err?.error || err;
 			const message =
 				axiosError?.response?.data?.message ||
@@ -359,10 +399,10 @@ const inventoryService = {
 	 */
 	async findBySku(sku: string): Promise<InventoryItem | null> {
 		return api
-			.post<ApiResponse<InventoryItem>>(endpoints.findBySku, { sku } as any)
-			.then((res) => res.data.data)
+			.post<any>(endpoints.findBySku, { sku })
+			.then((res) => res.data.data as InventoryItem)
 			.catch((err) => {
-				if (err.response?.status === 404) {
+				if (err.response?.status === 404 || err.error?.response?.status === 404) {
 					return null;
 				}
 				throw err;
@@ -373,8 +413,9 @@ const inventoryService = {
 	 * POST /sync-category-counts - Sync category item counts
 	 */
 	async syncCategoryCounts(): Promise<{ message: string; synced: number }> {
-		return api
-			.post<ApiResponse<{ message: string; synced: number }>>(endpoints.syncCategoryCounts, {} as any)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.post<ApiResponse<{ message: string; synced: number }>>(endpoints.syncCategoryCounts, {}, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -387,8 +428,9 @@ const inventoryService = {
 	 * PUT /item/:itemId - Update an inventory item
 	 */
 	async update(id: string, data: Partial<InventoryItem>): Promise<InventoryItem> {
-		return api
-			.put<ApiResponse<InventoryItem>>(`${endpoints.item}/${id}`, data as any)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.put<ApiResponse<InventoryItem>>(`${endpoints.item}/${id}`, data, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -399,8 +441,9 @@ const inventoryService = {
 	 * PUT /item-void/:itemId - Void an inventory item
 	 */
 	async voidItem(id: string): Promise<InventoryItem> {
-		return api
-			.put<ApiResponse<InventoryItem>>(`${endpoints.void}/${id}`, { status: 'void' } as any)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.put<ApiResponse<InventoryItem>>(`${endpoints.void}/${id}`, { status: 'void' }, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -411,8 +454,9 @@ const inventoryService = {
 	 * PUT /item-void/:itemId - Update inventory item status (legacy)
 	 */
 	async updateStatus(id: string, status: string): Promise<Pick<InventoryItem, 'status'>> {
-		return api
-			.put<ApiResponse<Pick<InventoryItem, 'status'>>>(`${endpoints.void}/${id}`, { status } as any)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.put<ApiResponse<Pick<InventoryItem, 'status'>>>(`${endpoints.void}/${id}`, { status }, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -423,8 +467,9 @@ const inventoryService = {
 	 * PUT /bulk-update - Bulk update inventory items
 	 */
 	async bulkUpdate(payload: BulkUpdatePayload): Promise<{ updated: number; items: InventoryItem[] }> {
-		return api
-			.put<ApiResponse<{ updated: number; items: InventoryItem[] }>>(endpoints.bulkUpdate, payload as any)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.put<ApiResponse<{ updated: number; items: InventoryItem[] }>>(endpoints.bulkUpdate, payload, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -435,8 +480,9 @@ const inventoryService = {
 	 * PUT /move-to-category - Move items to a different category
 	 */
 	async moveToCategory(payload: MoveToCategoryPayload): Promise<{ moved: number; items: InventoryItem[] }> {
-		return api
-			.put<ApiResponse<{ moved: number; items: InventoryItem[] }>>(endpoints.moveToCategory, payload as any)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.put<ApiResponse<{ moved: number; items: InventoryItem[] }>>(endpoints.moveToCategory, payload, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -446,11 +492,14 @@ const inventoryService = {
 	// ==================== PATCH ENDPOINTS ====================
 
 	/**
-	 * PATCH /item/:itemId/quantity - Update inventory quantity
+	 * PATCH /item/:variantId/quantity - Update inventory quantity
+	 * @param variantId - The variant ID to update quantity for
+	 * @param quantity - The new quantity value
 	 */
-	async updateQuantity(id: string, quantity: number): Promise<InventoryItem> {
-		return api
-			.patch<ApiResponse<InventoryItem>>(`${endpoints.item}/${id}/quantity`, { quantity } as any)
+	async updateQuantity(variantId: string, quantity: number): Promise<InventoryItem> {
+		const headers = await getAuthHeaders();
+		return liveApi
+			.patch<ApiResponse<InventoryItem>>(`${endpoints.item}/${variantId}/quantity`, { quantity }, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -458,12 +507,14 @@ const inventoryService = {
 	},
 
 	/**
-	 * PATCH /item/:itemId/adjust - Adjust inventory (add/subtract/set)
-	 * Note: In the new variant model, the id is the variant ID
+	 * PATCH /item/:variantId/adjust - Adjust inventory (add/subtract/set)
+	 * @param variantId - The variant ID to adjust inventory for
+	 * @param payload - Adjustment details (type: add/subtract/set, adjustment amount, reason)
 	 */
-	async adjustInventory(id: string, payload: AdjustInventoryPayload): Promise<InventoryItem> {
-		return api
-			.patch<ApiResponse<InventoryItem>>(`${endpoints.item}/${id}/adjust`, payload as any)
+	async adjustInventory(variantId: string, payload: AdjustInventoryPayload): Promise<InventoryItem> {
+		const headers = await getAuthHeaders();
+		return liveApi
+			.patch<ApiResponse<InventoryItem>>(`${endpoints.item}/${variantId}/adjust`, payload, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -504,8 +555,9 @@ const inventoryService = {
 	 * DELETE /item/:itemId - Delete an inventory item
 	 */
 	async delete(id: string): Promise<boolean> {
-		return api
-			.delete(`${endpoints.item}/${id}`)
+		const headers = await getAuthHeaders();
+		return liveApi
+			.delete(`${endpoints.item}/${id}`, { headers })
 			.then(() => true)
 			.catch((err) => {
 				throw err;
@@ -600,6 +652,35 @@ const inventoryService = {
 			const reorderLevel = Number(item.reorderLevel || 0);
 			return reorderLevel > 0 && quantity <= reorderLevel;
 		});
+	},
+
+	/**
+	 * Convert a variant to become a variant of a different product.
+	 * This allows moving an existing variant (including a standalone product's default variant)
+	 * to become a variant of another product.
+	 * 
+	 * Note: Historical records (sales, stock movements) maintain their original variant reference.
+	 * The variant ID remains the same, only the parent product changes.
+	 * 
+	 * @param variantId - The variant ID to be converted/moved
+	 * @param payload - Conversion options including target product ID
+	 * @returns The converted variant and info about orphaned product deletion
+	 */
+	async convertToVariant(variantId: string, payload: ConvertToVariantPayload): Promise<ConvertToVariantResult> {
+		const headers = await getAuthHeaders();
+		return liveApi
+			.put<ApiResponse<ConvertToVariantResult>>(`${endpoints.convertToVariant}/${variantId}/convert-to-variant`, payload, { headers })
+			.then((res) => {
+				if (!res.data.success) {
+					const error: any = new Error(res.data.message || 'Failed to convert variant');
+					error.errorField = (res.data as any).error || null;
+					throw error;
+				}
+				return res.data.data;
+			})
+			.catch((err) => {
+				throw err;
+			});
 	},
 
 	/**

@@ -8,6 +8,7 @@ import printerService from '../../services/printer.service';
 import { useAuth } from '../../context/AuthProvider';
 import { useApp } from '../../context/AppProvider';
 import { useBranch } from '../../context/BranchContext';
+import { useMraCompliance } from '../../hooks/useMraCompliance';
 import returnsService from '../../services/returns.service';
 import { Report } from 'notiflix';
 import AppLayout from '../../layouts/AppLayout';
@@ -21,6 +22,7 @@ import {
     ReceiptTotals,
     ReceiptPayment,
     ReceiptRefundInfo,
+    ReceiptMraInfo,
     ReceiptFooter,
     ReceiptLoadingState,
     ReceiptErrorState,
@@ -40,6 +42,7 @@ const SaleDetailsPage: FunctionComponent = () => {
     const { user } = useAuth();
     const { settings } = useApp();
     const { currentBranch } = useBranch();
+    const { isMraEnabled } = useMraCompliance();
     const receiptRef = useRef<HTMLDivElement>(null);
 
     const [sale, setSale] = useState<Sale | null>(null);
@@ -236,6 +239,14 @@ const SaleDetailsPage: FunctionComponent = () => {
                         />
 
                         <ReceiptRefundInfo refundSummary={saleData.refundSummary} />
+
+                        <ReceiptMraInfo
+                            mraSaleStatus={sale.mraSaleStatus}
+                            mraFiscalCode={sale.mraFiscalCode}
+                            mraInvoiceNumber={sale.mraInvoiceNumber}
+                            mraVerificationUrl={sale.mraVerificationUrl}
+                            isMraEnabled={isMraEnabled}
+                        />
 
                         <ReceiptFooter footerMessage={settings?.receiptFooter} />
                     </div>

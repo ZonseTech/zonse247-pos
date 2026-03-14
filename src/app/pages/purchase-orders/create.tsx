@@ -1,20 +1,19 @@
 import * as Yup from 'yup';
 import { Form, Formik, FieldArray } from 'formik';
-import { FunctionComponent, useState, useEffect } from 'react';
+import { FunctionComponent, useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import { ShoppingCart, Plus, Trash2 } from 'lucide-react';
+import { ShoppingCart, Plus, Trash2, Eye, X, Loader2, CheckCircle2, Package } from 'lucide-react';
 import { Notify, Report, Confirm } from 'notiflix';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
-import { Button } from '../../components';
+import { Button, FormFieldCard } from '../../components';
 import FormInput from '../../components/FormInput';
-import FormWrapper from '../../components/FormWrapper';
-import FormSelectBox from '../../components/FormSelectBox';
 import FormSearchableSelect from '../../components/FormSearchableSelect';
 import { ROUTES } from '../../utils/constants';
 import { usePurchaseOrders } from '../../hooks/usePurchaseOrders';
 import { useSuppliers } from '../../hooks/useSuppliers';
 import { useProducts } from '../../hooks/useProducts';
+import FormSkeleton from '../../components/skeleton/FormSkeleton';
 
 const PurchaseOrderForm: FunctionComponent = () => {
     const navigate = useNavigate();
@@ -24,13 +23,13 @@ const PurchaseOrderForm: FunctionComponent = () => {
     const { products } = useProducts();
 
     const purchaseOrderId = (location.state as any)?.purchaseOrderId;
-    const isEditMode = !!purchaseOrderId;
+    const isViewMode = !!purchaseOrderId; // View mode for existing POs (API doesn't support update)
 
     const [loading, setLoading] = useState(false);
     const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrder | null>(null);
 
     useEffect(() => {
-        if (isEditMode) {
+        if (isViewMode) {
             loadPurchaseOrder();
         }
     }, [purchaseOrderId]);
@@ -53,8 +52,15 @@ const PurchaseOrderForm: FunctionComponent = () => {
         }
     };
 
-    const supplierOptions = suppliers.map(s => ({ label: s.name, value: s.id }));
-    const productOptions = products.map(p => ({ label: `${p.name} (${p.sku})`, value: p.id }));
+    const supplierOptions = useMemo(() =>
+        suppliers.map(s => ({ label: s.name, value: s.id })),
+        [suppliers]
+    );
+
+    const productOptions = useMemo(() =>
+        products.map(p => ({ label: `${p.name} (${p.sku})`, value: p.id })),
+        [products]
+    );
 
     const defaultPOValues = {
         supplierId: '',
@@ -99,40 +105,38 @@ const PurchaseOrderForm: FunctionComponent = () => {
     };
 
     const handleSubmit = async (values: typeof defaultPOValues, { resetForm }: any) => {
+        // Don't allow submit in view mode
+        if (isViewMode) return;
+
         setLoading(true);
         try {
-            const payload = {
-                ...values,
+            const payload: CreatePurchaseOrderInput = {
+                supplierId: values.supplierId,
+                expectedDeliveryDate: values.expectedDeliveryDate || undefined,
+                notes: values.notes || undefined,
                 items: values.items.map(item => ({
-                    ...item,
+                    productId: item.productId,
                     orderedQuantity: Number(item.orderedQuantity),
                     unitPrice: Number(item.unitPrice),
                 })),
             };
 
-            if (isEditMode) {
-                await create({ ...payload, id: purchaseOrderId } as any);
-                Report.success('Success', 'Purchase order updated successfully', 'Okay', () => {
+            await create(payload);
+            Confirm.show(
+                'Purchase Order Created',
+                'Purchase order created successfully. What would you like to do?',
+                'Add Another',
+                'Go to Purchase Orders',
+                () => {
+                    resetForm();
+                },
+                () => {
                     navigate(ROUTES.PURCHASE_ORDERS);
-                });
-            } else {
-                await create(payload as any);
-                Confirm.show(
-                    'Purchase Order Saved',
-                    'Purchase order created successfully. What would you like to do?',
-                    'Add Another',
-                    'Go to Purchase Orders',
-                    () => {
-                        resetForm();
-                    },
-                    () => {
-                        navigate(ROUTES.PURCHASE_ORDERS);
-                    }
-                );
-            }
+                }
+            );
         } catch (error: any) {
             console.error('Submit error:', error);
-            const errorMessage = error?.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} purchase order`;
+            const errorMessage = error?.response?.data?.message || 'Failed to create purchase order';
             Report.failure('Error', errorMessage, 'Okay');
         } finally {
             setLoading(false);
@@ -142,10 +146,8 @@ const PurchaseOrderForm: FunctionComponent = () => {
     if (loading && !purchaseOrder && purchaseOrderId) {
         return (
             <AppLayout>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-                    <div className="flex items-center justify-center h-64">
-                        <div className="text-gray-600 dark:text-gray-400">Loading purchase order details...</div>
-                    </div>
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                    <FormSkeleton sections={2} fieldsPerSection={3} />
                 </div>
             </AppLayout>
         );
@@ -153,47 +155,39 @@ const PurchaseOrderForm: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-                <div className='sticky top-0 z-10 bg-white dark:bg-gray-800'>
-                    <PageHeader
-                        title={isEditMode ? 'Edit Purchase Order' : 'Add New Purchase Order'}
-                        description={isEditMode ? 'Update purchase order information' : 'Required fields are marked with an asterisk (*)'}
-                        icon={<ShoppingCart className="w-8 h-8 text-sky-500" />}
-                    />
-                </div>
-
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <Formik
                     onSubmit={handleSubmit}
                     enableReinitialize={true}
                     initialValues={initialPOValues}
                     validationSchema={purchaseOrderValidationSchema}
                 >
-                    {({ isSubmitting, values, setFieldValue }) => (
+                    {({ isSubmitting, values }) => (
                         <Form>
-                            <FormWrapper>
-                                <div className="py-6 relative">
-                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                            <PageHeader
+                                title={isViewMode ? `View Purchase Order${purchaseOrder?.poNumber ? ` - ${purchaseOrder.poNumber}` : ''}` : 'Add New Purchase Order'}
+                                description={isViewMode ? 'View purchase order details (read-only)' : 'Required fields are marked with an asterisk (*)'}
+                                icon={isViewMode ? <Eye className="w-8 h-8 text-sky-500" /> : <ShoppingCart className="w-8 h-8 text-sky-500" />}
+                                showBackButton
+                            />
 
-                                    <div className="flex items-center gap-3 mb-6 relative">
-                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                            1
-                                        </div>
-                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                            Order Details
-                                        </h3>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
-                                        <FormSelectBox
+                            <div className="mt-6 space-y-6">
+                                <FormFieldCard title="Order Details">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <FormSearchableSelect
                                             label="Supplier"
                                             name="supplierId"
                                             options={supplierOptions}
+                                            placeholder="Search and select supplier..."
                                             required
+                                            disabled={isViewMode}
                                         />
 
                                         <FormInput
                                             label="Expected Delivery Date"
                                             name="expectedDeliveryDate"
                                             type="date"
+                                            disabled={isViewMode}
                                         />
 
                                         <div className="md:col-span-2">
@@ -201,131 +195,144 @@ const PurchaseOrderForm: FunctionComponent = () => {
                                                 label="Notes"
                                                 name="notes"
                                                 placeholder="Additional order notes..."
+                                                disabled={isViewMode}
                                             />
                                         </div>
                                     </div>
-                                </div>
+                                </FormFieldCard>
 
-                                <div className="pb-8 relative">
-                                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
-
-                                    <div className="flex items-center gap-3 mb-6 relative">
-                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                            2
-                                        </div>
-                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                            Order Items
-                                        </h3>
-                                    </div>
-                                    <div className="ml-11">
-                                        <FieldArray name="items">
-                                            {({ push, remove }) => (
-                                                <div className="space-y-4">
+                                <FormFieldCard title="Order Items">
+                                    <FieldArray name="items">
+                                        {({ push, remove }) => (
+                                            <div className="space-y-4">
+                                                {!isViewMode && (
                                                     <Button
                                                         type="button"
                                                         onClick={() => push({ productId: '', orderedQuantity: 1, unitPrice: 0 })}
-                                                        theme="neutral"
+                                                        theme="primary"
                                                         layout="outline"
-                                                        className="mb-4"
                                                     >
                                                         <Plus className="w-4 h-4 mr-2" />
                                                         Add Item
                                                     </Button>
+                                                )}
 
-                                                    {values.items.map((item, index) => (
-                                                        <div key={index} className="border dark:border-gray-700 rounded-lg p-4">
-                                                            <div className="flex justify-between items-start mb-4">
-                                                                <span className="font-medium text-gray-900 dark:text-white">Item #{index + 1}</span>
-                                                                {values.items.length > 1 && (
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => remove(index)}
-                                                                        className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                                                                    >
-                                                                        <Trash2 className="w-4 h-4" />
-                                                                    </button>
-                                                                )}
+                                                {values.items.length === 0 ? (
+                                                    <div className="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400">
+                                                        <Package className="w-12 h-12 mb-2 opacity-50" />
+                                                        <p>No items added yet</p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="space-y-3">
+                                                        {values.items.map((item, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600"
+                                                            >
+                                                                <div className="flex justify-between items-center mb-3">
+                                                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                                        Item #{index + 1}
+                                                                    </span>
+                                                                    {!isViewMode && values.items.length > 1 && (
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => remove(index)}
+                                                                            className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                                            title="Remove item"
+                                                                        >
+                                                                            <Trash2 className="w-4 h-4" />
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+                                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                                                    <FormSearchableSelect
+                                                                        label="Product"
+                                                                        name={`items.${index}.productId`}
+                                                                        options={productOptions}
+                                                                        placeholder="Search product..."
+                                                                        required
+                                                                        disabled={isViewMode}
+                                                                    />
+                                                                    <FormInput
+                                                                        label="Quantity"
+                                                                        name={`items.${index}.orderedQuantity`}
+                                                                        type="number"
+                                                                        min="1"
+                                                                        required
+                                                                        disabled={isViewMode}
+                                                                    />
+                                                                    <FormInput
+                                                                        label="Unit Cost"
+                                                                        name={`items.${index}.unitPrice`}
+                                                                        type="number"
+                                                                        step="0.01"
+                                                                        min="0"
+                                                                        required
+                                                                        disabled={isViewMode}
+                                                                    />
+                                                                </div>
+                                                                <div className="mt-2 text-right text-sm text-gray-600 dark:text-gray-400">
+                                                                    Subtotal: <span className="font-medium text-gray-900 dark:text-white">
+                                                                        {new Intl.NumberFormat('en-US', {
+                                                                            style: 'currency',
+                                                                            currency: 'MWK'
+                                                                        }).format((item.orderedQuantity || 0) * (item.unitPrice || 0))}
+                                                                    </span>
+                                                                </div>
                                                             </div>
-                                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                                <FormSearchableSelect
-                                                                    label="Product"
-                                                                    name={`items.${index}.productId`}
-                                                                    options={productOptions}
-                                                                    placeholder="Search for a product..."
-                                                                    required
-                                                                />
-                                                                <FormInput
-                                                                    label="Quantity"
-                                                                    name={`items.${index}.orderedQuantity`}
-                                                                    type="number"
-                                                                    min="1"
-                                                                    required
-                                                                />
-                                                                <FormInput
-                                                                    label="Unit Cost"
-                                                                    name={`items.${index}.unitPrice`}
-                                                                    type="number"
-                                                                    step="0.01"
-                                                                    min="0"
-                                                                    required
-                                                                />
-                                                            </div>
-                                                            <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                                                                Subtotal: {new Intl.NumberFormat('en-US', {
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {values.items.length > 0 && (
+                                                    <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-600">
+                                                        <div className="text-lg">
+                                                            <span className="text-gray-600 dark:text-gray-400">Total: </span>
+                                                            <span className="font-bold text-gray-900 dark:text-white">
+                                                                {new Intl.NumberFormat('en-US', {
                                                                     style: 'currency',
                                                                     currency: 'MWK'
-                                                                }).format((item.orderedQuantity || 0) * (item.unitPrice || 0))}
-                                                            </div>
+                                                                }).format(calculateTotal(values.items))}
+                                                            </span>
                                                         </div>
-                                                    ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </FieldArray>
+                                </FormFieldCard>
 
-                                                    {values.items.length > 0 && (
-                                                        <div className="border-t dark:border-gray-700 pt-4 mt-4">
-                                                            <div className="flex justify-between items-center text-lg font-bold text-gray-900 dark:text-white">
-                                                                <span>Total:</span>
-                                                                <span>
-                                                                    {new Intl.NumberFormat('en-US', {
-                                                                        style: 'currency',
-                                                                        currency: 'MWK'
-                                                                    }).format(calculateTotal(values.items))}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </FieldArray>
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-end gap-3 pt-6 border-t border-gray-300 dark:border-gray-600">
+                                <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
                                     <Button
                                         type="button"
-                                        theme="danger"
+                                        theme={isViewMode ? "primary" : "danger"}
                                         onClick={() => navigate(ROUTES.PURCHASE_ORDERS)}
-                                        disabled={isSubmitting}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        type="submit"
-                                        theme="primary"
                                         disabled={isSubmitting || loading}
                                     >
-                                        {isSubmitting || loading ? (
-                                            <>
-                                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                                Saving...
-                                            </>
-                                        ) : (
-                                            isEditMode ? 'Update Purchase Order' : 'Create Purchase Order'
-                                        )}
+                                        <X className="w-4 h-4 mr-2" />
+                                        {isViewMode ? 'Back to List' : 'Cancel'}
                                     </Button>
+                                    {!isViewMode && (
+                                        <Button
+                                            type="submit"
+                                            theme="success"
+                                            disabled={isSubmitting || loading}
+                                        >
+                                            {isSubmitting || loading ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                    Saving...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                                                    Create Purchase Order
+                                                </>
+                                            )}
+                                        </Button>
+                                    )}
                                 </div>
-                            </FormWrapper>
+                            </div>
                         </Form>
                     )}
                 </Formik>

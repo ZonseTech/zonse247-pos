@@ -80,7 +80,18 @@ const MobilePOS: FunctionComponent = () => {
         try {
             const result = await resumeParkedSale(sale.id);
             if (result) {
-                setCart(sale.items);
+                setCart(sale.items.map(item => ({
+                    variantId: item.variantId,
+                    productId: item.productId,
+                    barcode: item.barcode,
+                    name: item.name,
+                    categoryId: item.categoryId || '',
+                    quantity: item.quantity,
+                    sellingPrice: item.sellingPrice,
+                    purchasePrice: item.purchasePrice,
+                    discount: item.discount,
+                    variancePrice: item.variancePrice,
+                })));
                 if (sale.customer) {
                     setSelectedCustomer(sale.customer);
                 }

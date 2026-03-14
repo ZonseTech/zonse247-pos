@@ -37,10 +37,15 @@ const cartSlice = createSlice({
     name: 'cart',
     initialState,
     reducers: {
+        /**
+         * Add item to cart using variantId as unique identifier
+         * The item.id from InventoryItem is the variant ID
+         */
         addToCart: (state, action: PayloadAction<InventoryItem>) => {
             const item = action.payload
+            const variantId = item.id?.toString() || item.productId.toString()
             const quantity = parseInt(item?.orderItems?.toString() || '0') || 1
-            const existingItem = state.items.find(cartItem => cartItem.productId === item.productId)
+            const existingItem = state.items.find(cartItem => cartItem.variantId === variantId)
 
             if (existingItem) {
                 existingItem.quantity += quantity
@@ -59,8 +64,8 @@ const cartSlice = createSlice({
 
                 state.items.push({
                     barcode: itemBarcode,
-                    variantId: item.id?.toString(),  // Variant ID for API v1.6.0+
-                    productId: item.productId.toString(),
+                    variantId: variantId,  // Variant ID (required for API v1.6.0+)
+                    productId: item.productId?.toString(),
                     name: decodeHtmlEntities(itemName),
                     purchasePrice: parseFloat(item.costPrice?.toString() || '0'),
                     sellingPrice: price,
@@ -71,12 +76,18 @@ const cartSlice = createSlice({
                 })
             }
         },
+        /**
+         * Remove item from cart by variantId
+         */
         removeFromCart: (state, action: PayloadAction<string>) => {
-            state.items = state.items.filter(item => item.productId !== action.payload)
+            state.items = state.items.filter(item => item.variantId !== action.payload)
         },
+        /**
+         * Update quantity by variantId
+         */
         updateQuantity: (state, action: PayloadAction<{ id: string; quantity: number }>) => {
             const { id, quantity } = action.payload
-            const item = state.items.find(item => item.productId === id)
+            const item = state.items.find(item => item.variantId === id)
 
             if (item) {
                 const isDefaultItem = item.isDefault === true
@@ -84,16 +95,22 @@ const cartSlice = createSlice({
                 item.quantity = quantity
             }
         },
-        updateCustomPrice: (state, action: PayloadAction<{ productId: string; newPrice: number }>) => {
-            const { productId, newPrice } = action.payload
-            const item = state.items.find(item => item.productId === productId)
+        /**
+         * Update custom price by variantId
+         */
+        updateCustomPrice: (state, action: PayloadAction<{ variantId: string; newPrice: number }>) => {
+            const { variantId, newPrice } = action.payload
+            const item = state.items.find(item => item.variantId === variantId)
             if (item) {
                 item.sellingPrice = newPrice
             }
         },
-        updateItemDiscount: (state, action: PayloadAction<{ productId: string; discount: number; isPercentage: boolean }>) => {
-            const { productId, discount, isPercentage } = action.payload
-            const item = state.items.find(item => item.productId === productId)
+        /**
+         * Update item discount by variantId
+         */
+        updateItemDiscount: (state, action: PayloadAction<{ variantId: string; discount: number; isPercentage: boolean }>) => {
+            const { variantId, discount, isPercentage } = action.payload
+            const item = state.items.find(item => item.variantId === variantId)
             if (item) {
                 item.discount = discount
                 item.discountIsPercentage = isPercentage

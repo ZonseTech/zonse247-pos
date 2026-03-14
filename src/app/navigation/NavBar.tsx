@@ -3,20 +3,14 @@ import type { NavItem, NavGroup } from './partials/RenderNavItem';
 import { useState, useEffect, useMemo, type FunctionComponent } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ROUTES } from '../utils/constants';
-import { TopBar, Sidebar, MobileDrawer } from './components';
+import { Sidebar, MobileDrawer } from './components';
 
 interface NavBarProps {
     variant?: 'sidebar' | 'topbar';
-    isCollapsed?: boolean;
-    onToggleCollapse?: () => void;
-    isSidebarCollapsed?: boolean;
 }
 
 const NavBar: FunctionComponent<NavBarProps> = ({
     variant = 'sidebar',
-    isCollapsed = false,
-    onToggleCollapse,
-    isSidebarCollapsed = false
 }) => {
     const location = useLocation();
     const navItems = useNavItems();
@@ -98,10 +92,6 @@ const NavBar: FunctionComponent<NavBarProps> = ({
         return false;
     };
 
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-    };
-
     const handleItemClick = (onClick: any) => {
         if (typeof onClick === 'function') {
             onClick();
@@ -111,29 +101,19 @@ const NavBar: FunctionComponent<NavBarProps> = ({
 
     if (variant === 'topbar') {
         return (
-            <>
-                <TopBar
-                    isSidebarCollapsed={isSidebarCollapsed}
-                    onToggleSidebar={onToggleCollapse}
-                    onToggleMenu={toggleMenu}
-                    isMenuOpen={isMenuOpen}
-                />
-                <MobileDrawer
-                    isOpen={isMenuOpen}
-                    onClose={() => setIsMenuOpen(false)}
-                    groupedNavItems={groupedMobileNavItems}
-                    onItemClick={handleItemClick}
-                    getRoutePath={getRoutePath}
-                    isRouteActive={isRouteActive}
-                />
-            </>
+            <MobileDrawer
+                isOpen={isMenuOpen}
+                onClose={() => setIsMenuOpen(false)}
+                groupedNavItems={groupedMobileNavItems}
+                onItemClick={handleItemClick}
+                getRoutePath={getRoutePath}
+                isRouteActive={isRouteActive}
+            />
         );
     }
 
     return (
         <Sidebar
-            isCollapsed={isCollapsed}
-            onToggleCollapse={onToggleCollapse}
             groupedNavItems={groupedNavItems}
             onItemClick={handleItemClick}
             getRoutePath={getRoutePath}

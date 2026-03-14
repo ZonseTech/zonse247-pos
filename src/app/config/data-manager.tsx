@@ -23,7 +23,7 @@ export const DataManager: FunctionComponent = () => {
             dispatch(setLoading(true))
             try {
                 await Promise.all([
-                    dispatch(fetchInventory()),
+                    dispatch(fetchInventory({})),
                     dispatch(fetchCustomers()),
                 ])
 

@@ -7,7 +7,7 @@ import { useAuth } from '../../../../context/AuthProvider';
 import { useApp } from '../../../../context/AppProvider';
 import { useIsEBN } from '../../../../hooks/useMediaQuery';
 import salesService from '../../../../services/sales.service';
-import printerService from '../../../../services/printer.service';
+import { usePrintReceipt } from '../../../../hooks/usePrintReceipt';
 import { generateReferenceNumber, formatCurrency } from '../../../../utils';
 import { DEFAULT_SEED_KEY } from '../../../../constants';
 import {
@@ -43,6 +43,10 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
     const { user } = useAuth();
     const { settings } = useApp();
     const isEBN = useIsEBN();
+
+    // Use optimized fire-and-forget printing hook
+    const { printReceipt } = usePrintReceipt();
+
     const [processing, setProcessing] = useState(false);
     const [processingStep, setProcessingStep] = useState<ProcessingStep | null>(null);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -191,23 +195,17 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
             const saleRefNumber = (sale as any).saleNumber || refNumber;
             const saleChangeAmount = change;
 
-            // Step 3: Printing
+            // Step 3: Printing (Fire-and-forget - doesn't block UI)
+            // Uses cached receipt settings for fast printing
             setProcessingStep('printing');
-            try {
-                await printerService.printReceipt({
-                    saleId: sale.id,
-                    transactionId: sale.id,
-                    copies: settings?.receiptCopies || 1,
-                    includeHeader: true,
-                    includeFooter: true,
-                    includeLogo: settings?.showStoreLogo || false,
-                });
-            } catch (printError) {
-                console.error('Print failed:', printError);
-                // Continue even if print fails - sale is already saved
-            }
+            printReceipt(sale.id, {
+                copies: settings?.receiptCopies || 1,
+                includeHeader: true,
+                includeFooter: true,
+                includeLogo: settings?.showStoreLogo || false,
+            });
 
-            // Step 4: Completed - Show success modal
+            // Step 4: Completed - Show success modal immediately (don't wait for print)
             setProcessingStep('completed');
             await simulateDelay(300);
 

@@ -50,6 +50,9 @@ const endpoints = {
 	printReceipt: 'printers/print/receipt',
 	printLabel: 'printers/print/label',
 
+	// Cash Drawer
+	drawerOpen: 'printers/drawer/open',
+
 	// Print Jobs
 	pendingJobs: 'printers/jobs/pending',
 	jobHistory: 'printers/jobs',
@@ -93,7 +96,7 @@ const printerService = {
 		return api
 			.get<PrinterListResponse>(endpoints.all, params)
 			.then((res) =>
-				decodeArrayStrings<Printer>(res.data.data || [], PRINTER_DECODE_FIELDS),
+				decodeArrayStrings<Printer>(res.data.data?.printers || [], PRINTER_DECODE_FIELDS),
 			)
 			.catch((err) => {
 				console.error('Error fetching printers:', err);
@@ -138,11 +141,14 @@ const printerService = {
 
 		return api
 			.get<PrinterResponse>(endpoints.default, params)
-			.then((res) =>
-				res.data.data
-					? decodeObjectStrings<Printer>(res.data.data, PRINTER_DECODE_FIELDS)
-					: null,
-			)
+			.then((res) => {
+				// Handle both response formats: { data: Printer } and { data: { printer: Printer } }
+				const responseData = res.data.data;
+				if (!responseData) return null;
+
+				const printerData = (responseData as any).printer || responseData;
+				return decodeObjectStrings<Printer>(printerData, PRINTER_DECODE_FIELDS);
+			})
 			.catch((err) => {
 				// Return null if no default printer found
 				if (err?.response?.status === 404) {
@@ -464,6 +470,28 @@ const printerService = {
 	},
 
 	// ============================================
+	// CASH DRAWER
+	// ============================================
+
+	/**
+	 * POST /printers/drawer/open/:id - Open cash drawer
+	 * Opens the cash drawer connected to the specified printer
+	 * Used for "No Sale" operations
+	 */
+	async openCashDrawer(printerId: string): Promise<{ success: boolean; message: string }> {
+		return api
+			.post<ApiResponse<{ success: boolean; message: string }>>(
+				`${endpoints.drawerOpen}/${printerId}`,
+				{} as any
+			)
+			.then((res) => res.data.data || { success: true, message: 'Cash drawer opened' })
+			.catch((err) => {
+				console.error('Error opening cash drawer:', err);
+				throw err;
+			});
+	},
+
+	// ============================================
 	// PRINT JOBS
 	// ============================================
 
@@ -473,10 +501,15 @@ const printerService = {
 	async getPendingJobs(): Promise<PrintJob[]> {
 		return api
 			.get<PrintJobListResponse>(endpoints.pendingJobs)
-			.then((res) => res.data.data || [])
+			.then((res) => {
+				const data = res.data.data;
+				if (Array.isArray(data)) return data;
+				if (data && Array.isArray(data.jobs)) return data.jobs;
+				return [];
+			})
 			.catch((err) => {
 				console.error('Error fetching pending print jobs:', err);
-				throw err;
+				return [];
 			});
 	},
 
@@ -486,10 +519,15 @@ const printerService = {
 	async getJobHistory(printerId: string): Promise<PrintJob[]> {
 		return api
 			.get<PrintJobListResponse>(`${endpoints.jobHistory}/${printerId}/history`)
-			.then((res) => res.data.data || [])
+			.then((res) => {
+				const data = res.data.data;
+				if (Array.isArray(data)) return data;
+				if (data && Array.isArray(data.jobs)) return data.jobs;
+				return [];
+			})
 			.catch((err) => {
 				console.error('Error fetching print job history:', err);
-				throw err;
+				return [];
 			});
 	},
 

@@ -146,22 +146,137 @@ tasks:
     cmds:
       - npm run lint
 
+  preview:
+    desc: Preview production build
+    cmds:
+      - npm run preview
+
+  package:
+    desc: Package Electron app
+    cmds:
+      - task: env:setup
+        vars: { PLATFORM: desktop }
+      - npm run package
+      - task: env:restore
+
+  make:
+    desc: Make distributable Electron app
+    cmds:
+      - task: env:setup
+        vars: { PLATFORM: desktop }
+      - npm run make
+      - task: env:restore
+
+  publish:
+    desc: Publish Electron app
+    cmds:
+      - task: env:setup
+        vars: { PLATFORM: desktop }
+      - npm run publish
+      - task: env:restore
+
+  # ===================
+  # Native Module Tasks
+  # ===================
+
+  rebuild:
+    desc: Rebuild native modules
+    cmds:
+      - npm run rebuild
+
+  rebuild:linux:
+    desc: Rebuild native modules for Linux
+    cmds:
+      - npm run rebuild:linux
+
+  rebuild:mac:
+    desc: Rebuild native modules for macOS
+    cmds:
+      - npm run rebuild:mac
+
+  clean:native:
+    desc: Clean native builds
+    cmds:
+      - npm run clean:native
+
+  clean:native:win:
+    desc: Clean native builds and download Windows prebuilds
+    cmds:
+      - npm run clean:native:win
+
+  restore:native:linux:
+    desc: Restore native Linux builds
+    cmds:
+      - npm run restore:native:linux
+
+  # ===================
+  # Platform Make Tasks
+  # ===================
+
+  make:win:
+    desc: Build Windows distributable
+    cmds:
+      - task: env:setup
+        vars: { PLATFORM: desktop }
+      - npm run make:win
+      - task: env:restore
+
+  make:linux:
+    desc: Build Linux distributable
+    cmds:
+      - task: env:setup
+        vars: { PLATFORM: desktop }
+      - npm run make:linux
+      - task: env:restore
+
+  make:mac:
+    desc: Build macOS distributable
+    cmds:
+      - task: env:setup
+        vars: { PLATFORM: desktop }
+      - npm run make:mac
+      - task: env:restore
+
+  # ===================
+  # Ionic Tasks
+  # ===================
+
+  ionic:build:
+    desc: Build for Ionic
+    cmds:
+      - task: env:setup
+        vars: { PLATFORM: android }
+      - npm run ionic:build
+      - task: env:restore
+
+  ionic:serve:
+    desc: Serve Ionic app in browser
+    cmds:
+      - task: env:setup
+        vars: { PLATFORM: android }
+      - npm run ionic:serve
+      - task: env:restore
+
   # ===================
   # Android-specific Tasks
   # ===================
 
   android:apk:
     desc: Build Android APK (release)
-    dir: android
     cmds:
-      - ./gradlew assembleRelease
+      - task: env:setup
+        vars: { PLATFORM: android }
+      - cd android && ./gradlew assembleRelease
+      - task: env:restore
       - echo "[SUCCESS] APK built at android/app/build/outputs/apk/release/"
 
   android:aab:
     desc: Build Android App Bundle (release)
-    dir: android
     cmds:
-      - ./gradlew bundleRelease
+      - task: env:setup
+        vars: { PLATFORM: android }
+      - cd android && ./gradlew bundleRelease
+      - task: env:restore
       - echo "[SUCCESS] AAB built at android/app/build/outputs/bundle/release/"
 
   android:clean:

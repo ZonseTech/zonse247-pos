@@ -1,7 +1,9 @@
 import { Fragment, FunctionComponent } from 'react';
 import { TableColumn } from 'react-data-table-component';
-import { Edit2, Trash2, Monitor, Star, Shield, ShieldOff, RefreshCw } from 'lucide-react';
+import { Edit2, Trash2, Monitor, Star, Shield, ShieldOff, RefreshCw, Copy, Check } from 'lucide-react';
 import { HiOutlineMenuAlt4 } from 'react-icons/hi';
+import { useState } from 'react';
+import { Notify } from 'notiflix';
 
 interface TerminalActionsProps {
     terminal: Terminal;
@@ -22,7 +24,6 @@ const TerminalActions: FunctionComponent<TerminalActionsProps> = ({
 }) => {
     return (
         <div className="flex items-center space-x-1">
-            {/* Sync Button */}
             <button
                 onClick={() => onSync(terminal.terminalId)}
                 className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
@@ -31,7 +32,6 @@ const TerminalActions: FunctionComponent<TerminalActionsProps> = ({
                 <RefreshCw className="w-4 h-4 transition-transform group-hover:rotate-180 duration-300" />
             </button>
 
-            {/* Primary Toggle Button */}
             <button
                 onClick={() => onSetPrimary(terminal.terminalId, terminal.branchId)}
                 className={`group p-2 rounded-lg transition-all duration-200 ${terminal.isPrimary
@@ -43,7 +43,6 @@ const TerminalActions: FunctionComponent<TerminalActionsProps> = ({
                 <Star className={`w-4 h-4 transition-transform group-hover:scale-110 ${terminal.isPrimary ? 'fill-current' : ''}`} />
             </button>
 
-            {/* Block/Unblock Button */}
             <button
                 onClick={() => onToggleBlock(terminal.terminalId, terminal.isBlocked || false)}
                 className={`group p-2 rounded-lg transition-all duration-200 ${terminal.isBlocked
@@ -59,7 +58,6 @@ const TerminalActions: FunctionComponent<TerminalActionsProps> = ({
                 )}
             </button>
 
-            {/* Edit Button */}
             <button
                 onClick={() => onEdit(terminal)}
                 className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
@@ -68,7 +66,6 @@ const TerminalActions: FunctionComponent<TerminalActionsProps> = ({
                 <Edit2 className="w-4 h-4 transition-transform group-hover:scale-110" />
             </button>
 
-            {/* Delete Button */}
             <button
                 onClick={() => onDelete(terminal.terminalId, terminal.terminalLabel)}
                 className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
@@ -124,6 +121,44 @@ const formatDate = (date?: string | Date | null): string => {
         hour: '2-digit',
         minute: '2-digit'
     });
+};
+
+// Component to display activation code with copy button - Compact style for table column
+const ActivationCodeCell: FunctionComponent<{ code: string | null | undefined }> = ({ code }) => {
+    const [copied, setCopied] = useState(false);
+
+    if (!code) {
+        return <span className="text-xs text-gray-400 dark:text-gray-500">—</span>;
+    }
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(code);
+            setCopied(true);
+            Notify.success('Activation code copied');
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy:', err);
+        }
+    };
+
+    return (
+        <div className="flex items-center gap-2">
+            <code className="px-2 py-1 text-xs font-mono bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded border border-amber-200 dark:border-amber-700 truncate max-w-[120px]" title={code}>
+                {code}
+            </code>
+            <button
+                onClick={handleCopy}
+                className={`p-1.5 rounded-lg transition-all ${copied
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600'
+                    }`}
+                title={copied ? 'Copied!' : 'Copy code'}
+            >
+                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+            </button>
+        </div>
+    );
 };
 
 export const getTerminalColumns = (
@@ -199,6 +234,11 @@ export const getTerminalColumns = (
                     </span>
                 </Fragment>
             )
+        },
+        {
+            name: 'Activation Code',
+            cell: (row) => <ActivationCodeCell code={row.activationCode} />,
+            minWidth: '180px'
         },
         {
             name: 'Position',

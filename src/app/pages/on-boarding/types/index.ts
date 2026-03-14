@@ -2,21 +2,9 @@
  * View modes for the onboarding flow
  * - 'activation': Show terminal activation form
  * - 'fetched-details': Show fetched terminal details with save button
- * - 'list': Main view showing all steps
- * - 'step-detail': Detailed view for executing a specific step
+ * - 'sync-progress': Show sync pull progress (loading/saving data)
  */
-export type ViewMode = 'activation' | 'fetched-details' | 'list' | 'step-detail';
-
-/**
- * Step execution state for sync operations
- * - 'idle': Ready to start
- * - 'fetching': Loading data from LIVE API
- * - 'preview': Data fetched, showing checklist for user selection
- * - 'syncing': Syncing selected data to local
- * - 'success': Sync completed successfully
- * - 'error': An error occurred
- */
-export type StepExecutionState = 'idle' | 'fetching' | 'preview' | 'syncing' | 'success' | 'error';
+export type ViewMode = 'activation' | 'fetched-details' | 'sync-progress';
 
 /**
  * Props for OnboardingFlow component
@@ -64,42 +52,11 @@ export interface TerminalDetailsViewProps {
 }
 
 /**
- * Props for StepListView component
+ * Props for SyncProgressView component
  */
-export interface StepListViewProps {
-    progress: OnboardingProgress;
-    error?: string | null;
-    onStepClick: (step: OnboardingStep) => void;
+export interface SyncProgressViewProps {
+    terminal: TerminalWithRelations;
+    progress: SyncPullProgress;
     onComplete: () => void;
-}
-
-/**
- * Props for StepDetailView component
- */
-export interface StepDetailViewProps {
-    step: OnboardingStep;
-    progress: OnboardingProgress;
-    executionState: StepExecutionState;
-    syncedData: unknown;
-    fetchedData: any[];
-    selectedIds: Set<string>;
-    error: string;
-    isSyncable: boolean;
-    onFetch: () => Promise<void>;
-    onToggleItem: (id: string) => void;
-    onSelectAll: () => void;
-    onDeselectAll: () => void;
-    onSync: () => Promise<void>;
-    onCompleteWithoutSync: () => Promise<void>;
-    onExecute: () => Promise<void>;
-    onSkip: () => Promise<void>;
-    onDone: () => void;
-    onBack: () => void;
-}
-
-/**
- * Props for SyncedDataPreview component
- */
-export interface SyncedDataPreviewProps {
-    data: unknown;
+    onRetry: () => void;
 }

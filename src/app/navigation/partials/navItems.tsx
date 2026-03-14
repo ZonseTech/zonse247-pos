@@ -9,27 +9,24 @@ import {
     HiOutlineQrcode,
     HiOutlinePresentationChartBar,
     HiOutlinePrinter,
-    HiOutlineFolderDownload,
     HiOutlineUserGroup,
     HiOutlineCreditCard,
-    HiOutlineChat,
     HiOutlineDocumentText,
     HiOutlineReceiptRefund,
+    HiOutlineChartPie,
 } from 'react-icons/hi';
-import { RotateCcw, Package, Users as SuppliersIcon, ShoppingCart as POIcon, ArrowRightLeft, ClipboardList, Settings, FileText, Store } from 'lucide-react';
+import { RotateCcw, Package, Users as SuppliersIcon, ShoppingCart as POIcon, ArrowRightLeft, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useAuth } from '../../context/AuthProvider';
 import {
-    HiOutlineArrowPath,
     HiOutlineBuildingOffice2,
     HiOutlineBuildingStorefront,
     HiOutlineHomeModern,
     HiOutlineKey,
-    HiOutlineServerStack,
     HiOutlineWrenchScrewdriver
 } from 'react-icons/hi2';
-import { hasAnyPermission, hasPermission, hasRole } from '../../utils';
+import { hasAnyPermission, hasPermission, hasRole, isElectron } from '../../utils';
 import { LucideSubscript } from 'lucide-react';
 import { RiGroup3Line } from 'react-icons/ri';
 import { NavItem, NavGroup } from './RenderNavItem';
@@ -61,13 +58,9 @@ const useNavItems = (): Array<NavItem> => {
         subscription: <LucideSubscript className="h-5 w-5" />,
         billing: <HiOutlineCreditCard className="h-5 w-5" />,
         tenants: <RiGroup3Line className="h-5 w-5" />,
-        registration_details: <ClipboardList className="h-5 w-5" />,
         branch: <HiOutlineBuildingStorefront className="h-5 w-5" />,
-        migrations: <HiOutlineServerStack className="h-5 w-5" />,
-        export_db: <HiOutlineFolderDownload className="h-5 w-5" />,
         sales: <HiOutlinePresentationChartBar className="h-5 w-5" />,
         returns: <RotateCcw className="h-5 w-5" />,
-        inventory_products: <Package className="h-5 w-5" />,
         suppliers: <SuppliersIcon className="h-5 w-5" />,
         purchase_orders: <POIcon className="h-5 w-5" />,
         stock_movements: <ArrowRightLeft className="h-5 w-5" />,
@@ -75,9 +68,10 @@ const useNavItems = (): Array<NavItem> => {
         role_permissions: <HiOutlineKey className="h-5 w-5" />,
         admin: <HiOutlineUserCircle className="h-5 w-5" />,
         logout: <HiOutlineLogout className="h-5 w-5" />,
-        syncData: <HiOutlineArrowPath className="h-5 w-5" />,
         settings: <HiOutlineWrenchScrewdriver className="h-5 w-5" />,
-        theme: <HiOutlineCog className='h-5 w-5' />
+        theme: <HiOutlineCog className='h-5 w-5' />,
+        reports: <HiOutlineChartPie className='h-5 w-5' />,
+        myProfile: <HiOutlineUserCircle className='h-5 w-5' />,
     };
 
     const items: NavItem[] = [];
@@ -104,16 +98,6 @@ const useNavItems = (): Array<NavItem> => {
         });
 
         if (hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {
-            items.push({
-                type: 'button',
-                color: 'bg-indigo-600 hover:bg-indigo-700',
-                iconColor: 'bg-indigo-700',
-                text: 'Products',
-                icon: icons.inventory_products,
-                group: 'inventory',
-                onClick: () => navigate(ROUTES.PRODUCTS),
-            });
-
             items.push({
                 type: 'button',
                 color: 'bg-purple-600 hover:bg-purple-700',
@@ -176,6 +160,16 @@ const useNavItems = (): Array<NavItem> => {
             group: 'operations',
             onClick: () => navigate(ROUTES.SALES),
         });
+
+        items.push({
+            type: 'button',
+            color: 'bg-amber-500 hover:bg-amber-600',
+            iconColor: 'bg-amber-600',
+            text: 'Reports',
+            icon: icons.reports,
+            group: 'operations',
+            onClick: () => navigate(ROUTES.REPORTS),
+        });
     }
 
     if (hasAnyPermission(user, ['refunds.process', 'refunds.view', 'returns.manage'])) {
@@ -205,7 +199,7 @@ const useNavItems = (): Array<NavItem> => {
             type: 'button',
             color: 'bg-orange-600 hover:bg-orange-700',
             iconColor: 'bg-orange-700',
-            text: 'Users',
+            text: 'Staff Management',
             icon: icons.users,
             group: 'management',
             onClick: () => navigate(ROUTES.USERS),
@@ -286,61 +280,31 @@ const useNavItems = (): Array<NavItem> => {
             group: 'admin',
             onClick: () => navigate(ROUTES.TENANTS),
         });
-
-        items.push({
-            type: 'button',
-            color: 'bg-teal-500 hover:bg-teal-600',
-            iconColor: 'bg-teal-600',
-            text: "Registrations",
-            icon: icons.registration_details,
-            group: 'admin',
-            onClick: () => navigate(ROUTES.TENANT_REGISTRATION_DETAILS),
-        });
-
-        items.push({
-            type: 'button',
-            color: 'bg-red-500 hover:bg-red-700',
-            iconColor: 'bg-red-700',
-            text: 'Migrations',
-            icon: icons.migrations,
-            group: 'system',
-            onClick: () => navigate(ROUTES.MIGRATIONS),
-        });
-
-        if (hasPermission(user, 'system.backup')) {
-            items.push({
-                type: 'button',
-                color: 'bg-red-500 hover:bg-red-500',
-                iconColor: 'bg-red-500',
-                text: 'Export DB',
-                icon: icons.export_db,
-                group: 'system',
-                onClick: () => navigate(ROUTES.EXPORT_DB),
-            });
-        }
     }
 
     items.push({
         type: 'button',
-        color: 'bg-green-500 hover:bg-green-500',
-        iconColor: 'bg-green-500',
-        text: "Sync Data",
-        icon: icons.syncData,
-        group: 'system',
-        onClick: async () => navigate(ROUTES.SYNC_DATA)
+        color: 'bg-sky-600 hover:bg-sky-700',
+        iconColor: 'bg-sky-700',
+        text: 'My Profile',
+        icon: icons.myProfile,
+        group: 'misc',
+        onClick: () => navigate(ROUTES.MY_PROFILE),
     });
 
-    items.push({
-        type: 'button',
-        color: 'bg-red-700 hover:bg-red-800',
-        iconColor: 'bg-red-800',
-        text: 'Logout',
-        icon: icons.logout,
-        group: 'system',
-        onClick: async () => {
-            signout(() => navigate(ROUTES.LOGIN));
-        }
-    });
+    if (isElectron()) {
+        items.push({
+            type: 'button',
+            color: 'bg-red-700 hover:bg-red-800',
+            iconColor: 'bg-red-800',
+            text: 'Logout',
+            icon: icons.logout,
+            group: 'system',
+            onClick: async () => {
+                signout(() => navigate(ROUTES.LOGIN));
+            }
+        });
+    }
 
     return items;
 };
@@ -356,9 +320,9 @@ export const useMobileNavItems = (): Array<NavItem> => {
         staff: <HiOutlineUsers className="h-5 w-5" />,
         returns: <HiOutlineReceiptRefund className="h-5 w-5" />,
         procurement: <POIcon className="h-5 w-5" />,
+        stock_movements: <ArrowRightLeft className="h-5 w-5" />,
         subscription: <LucideSubscript className="h-5 w-5" />,
         tenants: <RiGroup3Line className="h-5 w-5" />,
-        registrations: <ClipboardList className="h-5 w-5" />,
         generalSettings: <Settings className="h-5 w-5" />,
         terminalSettings: <HiOutlineBuildingOffice2 className="h-5 w-5" />,
         salesSettings: <HiOutlinePresentationChartBar className="h-5 w-5" />,
@@ -440,6 +404,16 @@ export const useMobileNavItems = (): Array<NavItem> => {
             group: 'misc',
             onClick: () => navigate(ROUTES.PURCHASE_ORDERS),
         });
+
+        items.push({
+            type: 'button',
+            color: 'bg-fuchsia-500 hover:bg-fuchsia-600',
+            iconColor: 'bg-fuchsia-600',
+            text: 'Stock Movement',
+            icon: icons.stock_movements,
+            group: 'misc',
+            onClick: () => navigate(ROUTES.STOCK_MOVEMENTS),
+        });
     }
 
     if (hasRole(user, 'admin') || hasPermission(user, 'system.admin')) {
@@ -461,16 +435,6 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.tenants,
             group: 'admin',
             onClick: () => navigate(ROUTES.TENANTS),
-        });
-
-        items.push({
-            type: 'button',
-            color: 'bg-teal-500 hover:bg-teal-600',
-            iconColor: 'bg-teal-600',
-            text: 'Registrations',
-            icon: icons.registrations,
-            group: 'admin',
-            onClick: () => navigate(ROUTES.TENANT_REGISTRATION_DETAILS),
         });
     }
 

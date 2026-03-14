@@ -1,6 +1,9 @@
 import { Notify, Report, Confirm } from 'notiflix';
 import { useState, useEffect, FunctionComponent } from 'react';
 import inventoryService from '../../services/inventory.service';
+import { OfflinePlaceholder } from '../../components';
+import { useConnectivity } from '../../hooks/useConnectivity';
+import AppLayout from '../../layouts/AppLayout';
 import { useNavigate, useLocation } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useInventory } from '../../hooks/useInventory';
@@ -20,6 +23,7 @@ const InventoryForm: FunctionComponent = () => {
     const [item, setItem] = useState<ApiProduct | null>(null);
     const { reloadInventory } = useInventory();
     const isMobile = useIsMobile();
+    const { isOnline } = useConnectivity();
 
     const { productId } = location.state || {};
 
@@ -121,8 +125,6 @@ const InventoryForm: FunctionComponent = () => {
                 );
             }
         } catch (error: any) {
-            console.error('Error saving inventory item:', error);
-
             const responseData = error?.error?.response?.data || error?.response?.data;
             const mainMessage = responseData?.message || error?.message || 'Failed to save inventory item';
             const detailedError = responseData?.error;
@@ -165,6 +167,20 @@ const InventoryForm: FunctionComponent = () => {
             setLoading(false);
         }
     };
+
+    if (!isOnline) {
+        return (
+            <AppLayout>
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                    <OfflinePlaceholder
+                        title="Inventory Management Unavailable Offline"
+                        description="Creating or editing inventory items requires an internet connection to sync with the server. Please connect to the internet and try again."
+                        variant="cloud"
+                    />
+                </div>
+            </AppLayout>
+        );
+    }
 
     if (isMobile) {
         return (

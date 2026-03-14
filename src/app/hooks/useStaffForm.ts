@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { Notify, Report } from 'notiflix';
 import type { FormikHelpers } from 'formik';
@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthProvider';
 import { createStaffValidationSchema, updateStaffValidationSchema } from '../schemas/user.schema';
 import { parseApiError, mapErrorToFormikErrors, isDuplicateError } from '../utils/api-error-handler';
 import { ROUTES } from '../utils/constants';
+import { hasRole } from '../utils';
 
 export interface StaffFormValues {
     fullname: string;
@@ -35,6 +36,8 @@ export interface UseStaffFormReturn {
     validationSchema: typeof createStaffValidationSchema | typeof updateStaffValidationSchema;
     handleSubmit: (values: StaffFormValues, helpers: FormikHelpers<StaffFormValues>) => Promise<void>;
     isEditMode: boolean;
+    canSelectTenant: boolean;
+    hasPrefilledTenant: boolean;
 }
 
 export const useStaffForm = (): UseStaffFormReturn => {
@@ -43,8 +46,14 @@ export const useStaffForm = (): UseStaffFormReturn => {
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState<User | null>(null);
 
-    const { userId } = (location.state as { userId?: string }) || {};
+    const { userId, tenantId: stateTenantId } = (location.state as { userId?: string; tenantId?: string }) || {};
     const { user: authUser } = useAuth();
+
+    const effectiveTenantId = stateTenantId || authUser?.tenantId || '';
+
+    const canSelectTenant = useMemo(() => {
+        return hasRole(authUser, 'admin');
+    }, [authUser]);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -70,8 +79,8 @@ export const useStaffForm = (): UseStaffFormReturn => {
         fullname: '',
         email: '',
         phone: '',
-        tenantId: authUser?.tenantId || '',
-        branchId: '',
+        tenantId: effectiveTenantId,
+        branchId: stateTenantId ? '' : (authUser?.branchId || ''),
         roleId: '',
         trackAttendance: true,
         allowAppAccess: false,
@@ -91,7 +100,7 @@ export const useStaffForm = (): UseStaffFormReturn => {
         branchId: user.branchId || '',
         roleId: user.roleId || '',
         trackAttendance: user.trackAttendance !== undefined ? user.trackAttendance : true,
-        allowAppAccess: user.allowAppAccess || false,
+        allowAppAccess: user.allowAppAccess || Boolean(user.roleId),
         calculateAs: user.calculateAs || 'monthly',
         staffSalary: String(user.staffSalary || ''),
         avgShiftHours: String(user.avgShiftHours || ''),
@@ -132,7 +141,7 @@ export const useStaffForm = (): UseStaffFormReturn => {
                     // Do nothing
                 });
             } else {
-                const response = await usersService.store(staffData as CreateUserRequest);
+                const response = await usersService.storeLive(staffData as CreateUserRequest);
                 const generatedPassword = response?.generatedPassword;
 
                 if (generatedPassword) {
@@ -195,5 +204,7 @@ export const useStaffForm = (): UseStaffFormReturn => {
         validationSchema,
         handleSubmit,
         isEditMode: !!userId,
+        canSelectTenant,
+        hasPrefilledTenant: !!stateTenantId,
     };
 };

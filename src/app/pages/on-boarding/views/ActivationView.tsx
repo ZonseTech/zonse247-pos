@@ -1,6 +1,5 @@
 import { FunctionComponent } from 'react';
 import AuthLayout from '../../../layouts/AuthLayout';
-import StepIndicator from '../partials/StepIndicator';
 import ErrorAlert from '../partials/ErrorAlert';
 import TerminalActivationStep from '../steps/TerminalActivationStep';
 import type { ActivationViewProps } from '../types';
@@ -12,10 +11,10 @@ const ActivationView: FunctionComponent<ActivationViewProps> = ({
 }) => {
     return (
         <AuthLayout className="">
-            <StepIndicator currentStep={1} totalSteps={8} onBack={null}>
+            <div className="space-y-4">
                 {error && <ErrorAlert message={error} />}
                 <TerminalActivationStep onSubmit={onSubmit} loading={loading} />
-            </StepIndicator>
+            </div>
         </AuthLayout>
     );
 };

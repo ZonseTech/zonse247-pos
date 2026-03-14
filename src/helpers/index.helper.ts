@@ -5,6 +5,7 @@ declare global {
                 setToken: (token: string | null) => Promise<ApiResponse<void>>;
                 getToken: () => Promise<ApiResponse<string | null>>;
                 set: (data: { token?: string; userId?: string; tenantId?: string; branchId?: string }) => Promise<ApiResponse<void>>;
+                get: () => Promise<ApiResponse<{ token: string | null; userId: string | null; tenantId: string | null; branchId: string | null }>>;
                 clear: () => Promise<ApiResponse<void>>;
             };
             settings: {
@@ -33,23 +34,16 @@ declare global {
                     initialized: boolean;
                     version: string | null;
                     targetVersion: string;
-                    needsMigration: boolean;
                     dbPath: string;
                     backupsPath: string;
                 } | null>;
-                runMigrations: () => Promise<{
-                    success: boolean;
-                    migrationsApplied: string[];
-                    error?: string;
-                }>;
             };
             menu: {
-                rebuild: (user: User | null, branches?: Branch[], currentBranchId?: string) => void;
+                rebuild: (user: User | null) => void;
                 onLogout: (callback: () => void) => () => void;
                 onCheckUpdates: (callback: () => void) => () => void;
                 onNavigate: (callback: (route: string) => void) => () => void;
                 onOpenModal: (callback: (modalName: string) => void) => () => void;
-                onSwitchBranch: (callback: (data: { branchId: string; branchName: string }) => void) => () => void;
                 onRestoreDatabase: (callback: (filePath: string) => void) => () => void;
             };
             onOnboardingStatus: (callback: (status: any) => void) => void;

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { HiChevronRight, HiChevronLeft } from 'react-icons/hi';
 import { HiOutlineCalendarDateRange } from 'react-icons/hi2';
 import { DateRangePicker, RangeKeyDict, createStaticRanges } from 'react-date-range';
@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import './MobileDateFilter.css';
+import { useIsMobile } from '../../../hooks/useMediaQuery';
 
 interface DateRange {
     startDate: Date;
@@ -33,6 +34,8 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
             key: 'selection',
         },
     ]);
+    const isMobile = useIsMobile();
+    const pickerRef = useRef<HTMLDivElement>(null);
 
     const staticRanges = useMemo(() => createStaticRanges([
         {
@@ -159,7 +162,6 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
         const newStart = dayjs(startDate).add(daysDiff, 'day').toDate();
         const newEnd = dayjs(endDate).add(daysDiff, 'day').toDate();
 
-        // Don't allow navigating to future dates
         if (dayjs(newEnd).isAfter(dayjs(), 'day')) return;
 
         setDateRange([{ startDate: newStart, endDate: newEnd, key: 'selection' }]);
@@ -171,21 +173,21 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
         : false;
 
     return (
-        <div className="w-full px-0 py-2">
-            <div className="w-full flex items-center justify-between bg-white dark:bg-gray-800 border-y border-gray-200 dark:border-gray-700">
+        <div className="relative w-full md:w-auto px-0 py-2" ref={pickerRef}>
+            <div className="w-full flex items-center justify-between bg-white dark:bg-gray-800 border-y md:border md:rounded-lg border-gray-200 dark:border-gray-700">
                 <button
                     onClick={handlePrevDate}
-                    className="p-4 active:scale-95 transition-transform"
+                    className="p-4 md:p-2 active:scale-95 transition-transform"
                     aria-label="Previous date"
                 >
-                    <HiChevronLeft className="w-5 h-5 text-sky-500 dark:text-sky-400" />
+                    <HiChevronLeft className="w-5 h-5 md:w-4 md:h-4 text-sky-500 dark:text-sky-400" />
                 </button>
 
                 <button
                     onClick={() => setShowPicker(true)}
-                    className="flex-1 flex items-center justify-center gap-2 py-4"
+                    className="flex-1 flex items-center justify-center gap-2 py-4 md:py-2 md:px-4"
                 >
-                    <HiOutlineCalendarDateRange className="w-5 h-5 text-sky-500 dark:text-sky-400" />
+                    <HiOutlineCalendarDateRange className="w-5 h-5 md:w-4 md:h-4 text-sky-500 dark:text-sky-400" />
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                         {getDisplayText()}
                     </span>
@@ -193,16 +195,16 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
 
                 <button
                     onClick={handleNextDate}
-                    className="p-4 active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
+                    className="p-4 md:p-2 active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
                     aria-label="Next date"
                     disabled={isNextDisabled}
                 >
-                    <HiChevronRight className="w-5 h-5 text-sky-500 dark:text-sky-400" />
+                    <HiChevronRight className="w-5 h-5 md:w-4 md:h-4 text-sky-500 dark:text-sky-400" />
                 </button>
             </div>
 
-            {showPicker && (
-                <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50">
+            {showPicker && isMobile && (
+                <div className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/50">
                     <div className="bg-white dark:bg-gray-800 rounded-sm w-full max-h-[90vh] overflow-hidden animate-slide-up">
                         <div className="flex justify-between items-center px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                             <button
@@ -228,6 +230,50 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
                                 months={1}
                                 ranges={dateRange}
                                 direction="vertical"
+                                staticRanges={staticRanges}
+                                inputRanges={[]}
+                                rangeColors={['#0ea5e9']}
+                                maxDate={new Date()}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showPicker && !isMobile && (
+                <div className="fixed inset-0 z-[9999]" onClick={handleCancel}>
+                    <div
+                        className="absolute bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+                        style={{
+                            top: pickerRef.current?.getBoundingClientRect().bottom ?? 0 + 8,
+                            right: window.innerWidth - (pickerRef.current?.getBoundingClientRect().right ?? 0),
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex justify-between items-center px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                            <button
+                                onClick={handleCancel}
+                                className="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                            >
+                                Cancel
+                            </button>
+                            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                Select Date Range
+                            </h3>
+                            <button
+                                onClick={handleApply}
+                                className="text-sm font-medium text-sky-500 dark:text-sky-400 hover:text-sky-600 dark:hover:text-sky-300"
+                            >
+                                Apply
+                            </button>
+                        </div>
+                        <div className="date-range-picker-desktop">
+                            <DateRangePicker
+                                onChange={handleSelect}
+                                moveRangeOnFirstSelection={false}
+                                months={2}
+                                ranges={dateRange}
+                                direction="horizontal"
                                 staticRanges={staticRanges}
                                 inputRanges={[]}
                                 rangeColors={['#0ea5e9']}

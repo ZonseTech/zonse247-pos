@@ -1,13 +1,12 @@
 import api from './http.service';
 import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
 
-// Fields to decode for branch items
 const BRANCH_DECODE_FIELDS = ['branchName', 'siteName', 'description', 'addressLine1', 'addressLine2', 'addressLine3', 'district', 'city', 'state', 'receiptFooter'] as const;
 
 const endpoints: Record<string, string> = {
-    all: 'branches/all',
-    store: 'branches/post',
-    update: 'branches/update',
+    all: 'branches',
+    store: 'branches',
+    update: 'branches',
     show: 'branches',
     delete: 'branches',
 };

@@ -1,4 +1,4 @@
-import { useIsMobile } from '../../hooks/useMediaQuery';
+import { useIsMobile, useIsElectron } from '../../hooks/useMediaQuery';
 import React, { PropsWithChildren, ReactNode } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router';
@@ -26,6 +26,7 @@ const PageHeader: React.FC<PropsWithChildren<PageHeaderProps>> = ({
     onBack
 }) => {
     const isMobile = useIsMobile();
+    const isElectron = useIsElectron();
     const navigate = useNavigate();
 
     const handleBack = () => {
@@ -38,12 +39,12 @@ const PageHeader: React.FC<PropsWithChildren<PageHeaderProps>> = ({
 
     return (
         <div className={compact
-            ? `flex flex-col border-b border-gray-300 dark:border-gray-600 mb-2 pb-2 -mx-2 px-2 gap-1 ${className}`
-            : `flex flex-col border-b border-gray-300 dark:border-gray-600 mb-4 md:pb-4 -mx-4 md:mx-0 px-3 md:px-0 gap-3 md:gap-4 ${className}`
+            ? `flex flex-col ${children ? 'border-b border-gray-300 dark:border-gray-600' : ''} mb-2 pb-2 -mx-2 px-2 gap-1 ${className}`
+            : `flex flex-col ${children ? 'border-b border-gray-300 dark:border-gray-600' : ''} mb-4 md:pb-4 -mx-4 md:mx-0 px-3 md:px-0 gap-3 md:gap-4 ${className}`
         }>
             <div className={compact
-                ? "fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 flex justify-between items-center gap-2 py-1 px-2 border-b border-gray-300 dark:border-gray-600"
-                : "fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 flex justify-between items-center gap-2 sm:gap-4 py-2 md:py-3 px-3 md:px-4 border-b border-gray-300 dark:border-gray-600"
+                ? `fixed top-0 left-0 ${!isElectron ? 'md:left-64' : ''} right-0 z-50 bg-white dark:bg-gray-900 flex justify-between items-center gap-2 py-1 px-2 border-b border-gray-300 dark:border-gray-600`
+                : `fixed top-0 left-0 ${!isElectron ? 'md:left-64' : ''} right-0 z-50 bg-white dark:bg-gray-900 flex justify-between items-center gap-2 sm:gap-4 py-2 md:py-3 px-3 md:px-4 border-b border-gray-300 dark:border-gray-600`
             }>
                 <div className={compact
                     ? "flex items-center gap-2 flex-1 min-w-0"
@@ -62,7 +63,7 @@ const PageHeader: React.FC<PropsWithChildren<PageHeaderProps>> = ({
                             <ArrowLeft className={compact ? "w-5 h-5 text-gray-600 dark:text-gray-400" : "w-6 h-6 text-gray-600 dark:text-gray-400"} />
                         </button>
                     )}
-                    {(icon && !isMobile) && (
+                    {(icon && !isMobile && isElectron) && (
                         <div className={compact
                             ? "flex-shrink-0 [&>svg]:w-5 [&>svg]:h-5"
                             : "flex-shrink-0 [&>svg]:w-6 [&>svg]:h-6 sm:[&>svg]:w-8 sm:[&>svg]:h-8"
@@ -96,8 +97,8 @@ const PageHeader: React.FC<PropsWithChildren<PageHeaderProps>> = ({
 
             {children && (
                 <div className={compact
-                    ? "py-1 border-t border-gray-200 dark:border-gray-700 -mx-2 px-2"
-                    : "py-2 md:py-4 md:pt-4 md:pb-0 border-t border-gray-200 dark:border-gray-700 -mx-3 md:mx-0 px-3 md:px-0"
+                    ? "py-1 -mx-2 px-2"
+                    : "py-2 md:py-4 md:pt-4 md:pb-0 -mx-3 md:mx-0 px-3 md:px-0"
                 }>
                     {children}
                 </div>

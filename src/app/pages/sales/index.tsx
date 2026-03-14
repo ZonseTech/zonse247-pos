@@ -11,6 +11,7 @@ import { getTableStyles } from "../../utils/table-styles";
 import { useSales } from "../../hooks/useSales";
 import { useSaleSummary } from "../../hooks/useSaleSummary";
 import { usePaymentMethods } from "../../hooks/usePaymentMethods";
+import { useMraCompliance } from "../../hooks/useMraCompliance";
 import { getSaleTableColumns } from "./partials/SaleTableColumns";
 import { StatusFilter } from "./partials/StatusFilter";
 import { PaymentMethodFilter } from "./partials/PaymentMethodFilter";
@@ -26,7 +27,7 @@ const SalesPage: FC = () => {
     const navigate = useNavigate();
     const isMobile = useIsMobile();
     const { mode } = useContext(ZonseThemeContext);
-    // Modal state for mobile view only
+    const { isMraEnabled } = useMraCompliance();
     const [isOpenDetails, setIsOpenDetails] = useState<boolean>(false);
     const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
     const [isReturnModalOpen, setIsReturnModalOpen] = useState<boolean>(false);
@@ -93,6 +94,7 @@ const SalesPage: FC = () => {
     const columns = getSaleTableColumns({
         onViewDetails: handleViewDetails,
         onInitiateReturn: handleInitiateReturn,
+        isMraEnabled,  // Pass MRA compliance status to show/hide MRA status column
     });
 
     return (
@@ -267,7 +269,6 @@ const SalesPage: FC = () => {
                                 onChangeRowsPerPage={handlePerRowsChange}
                                 onChangePage={handlePageChange}
                                 fixedHeader
-                                fixedHeaderScrollHeight="calc(100vh - 380px)"
                                 noDataComponent={
                                     <div className="flex flex-col items-center justify-center py-12">
                                         <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
@@ -296,12 +297,12 @@ const SalesPage: FC = () => {
                         </div>
                     )}
 
-                    {/* Modal only for mobile view */}
                     {isMobile && (
                         <SaleDetailsModal
                             sale={selectedSale}
                             isOpenDetails={isOpenDetails}
                             setIsOpenDetails={setIsOpenDetails}
+                            isMraEnabled={isMraEnabled}
                         />
                     )}
 

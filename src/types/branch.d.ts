@@ -41,8 +41,10 @@ type BranchFormValues = Omit<Branch, 'id' | 'createdAt' | 'updatedAt'>;
 
 interface CreateBranchRequest {
     tenantId: string;
-    branchCode: string;
+    branchCode?: string;
     branchName: string;
+    subscriptionPlanId: string;
+    subscriptionMonths?: number;
     businessType?: BusinessType;
     siteId?: string;
     siteName?: string;
@@ -88,6 +90,7 @@ interface BranchQueryParams {
     limit?: number;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
+    isAdminMode?: boolean;
 }
 
 interface BranchOptions {

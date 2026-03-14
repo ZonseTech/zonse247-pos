@@ -159,8 +159,10 @@ interface CreatePrintJobRequest {
 interface PrintReceiptRequest {
     printerId?: string;               // Optional - uses default receipt printer if not specified
     saleId?: string;
-    transactionId?: string;
+    transactionId?: string;           // @deprecated - use saleId
     orderId?: string;
+    terminalId?: string;              // For settings lookup (if receiptSettings not passed)
+    receiptSettings?: ReceiptDisplaySettings;  // Pass directly to skip DB lookup - improves performance
     copies?: number;
     includeHeader?: boolean;
     includeFooter?: boolean;

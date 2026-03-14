@@ -56,16 +56,17 @@ const getTerminalId = async (): Promise<string | null> => {
 				branchId,
 			}).then(res => res.data?.data);
 
-			if (terminal?.primaryTerminalId) {
-				localStorage.setItem(storageKey, terminal.primaryTerminalId);
-				return terminal.primaryTerminalId;
+			if (terminal?.terminalId) {
+				localStorage.setItem(storageKey, terminal.terminalId);
+				return terminal.terminalId;
 			}
 		}
 
 		return null;
-	} catch (error) {
-		console.error('Error getting terminal ID:', error);
-		return null;
+	} catch (error: any) {
+		const axiosError = error?.error || error;
+		const apiMessage = axiosError?.response?.data?.message || axiosError?.message || 'Error getting terminal ID';
+		throw new Error(apiMessage);
 	}
 };
 

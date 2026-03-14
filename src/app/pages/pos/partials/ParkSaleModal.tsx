@@ -62,6 +62,7 @@ const ParkSaleModal: FunctionComponent<ParkSaleModalProps> = ({
                 customerId: selectedCustomer?.customerId || undefined,
                 reference: reference.trim(),
                 items: cart.map(item => ({
+                    variantId: item.variantId,
                     productId: item.productId,
                     barcode: item.barcode,
                     name: item.name,

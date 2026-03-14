@@ -55,9 +55,9 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
             if (item.expirationDate && new Date(item.expirationDate) < new Date()) {
                 return false;
             }
-            // Filter out items with no stock
+            // Filter out items with no stock - zero/negative stock items cannot be sold
             const quantity = parseFloat((item.quantity || item.availableQuantity || 0).toString());
-            if (quantity <= 0 && !item.isDefault) {
+            if (quantity <= 0) {
                 return false;
             }
             return true;
@@ -80,6 +80,11 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
     }, [inventory, searchTerm, isOpen]);
 
     const handleAddToCart = (item: InventoryItem) => {
+        // Validate stock before adding to cart
+        const availableStock = parseFloat((item.quantity || item.availableQuantity || 0).toString());
+        if (availableStock <= 0) {
+            return; // Item is out of stock, don't add
+        }
         onAddToCart(item);
         barcodeScannerInputRef.current?.focus();
         onClose();
@@ -210,7 +215,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
 
                                 return (
                                     <div
-                                        key={item.productId || item.id}
+                                        key={item.id}
                                         onClick={() => handleAddToCart(item)}
                                         className="cursor-pointer bg-white dark:bg-gray-800 hover:bg-sky-50 dark:hover:bg-sky-900/30 hover:shadow-sm transition-all duration-150 group"
                                     >

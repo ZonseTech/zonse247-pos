@@ -1,7 +1,6 @@
-import axios from 'axios';
 import api from './http.service';
-
-const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL;
+import { liveApi, getTenantId, getLiveApiUrl, isLiveApiConfigured, isLiveServerAvailable as checkLiveServerAvailable } from './live-api.service';
+import { isElectron } from '../../helpers/index.helper';
 
 interface OfflineFirstLoginResult {
     success: boolean;
@@ -31,29 +30,24 @@ interface PrivilegesResponse {
 
 export type LoginProgressCallback = (message: string, step: number, totalSteps: number) => void;
 
-/**
- * Authentication Service - Offline First Strategy
- * 
- * Flow:
- * 1. Try offline login first (local database)
- * 2. If not found offline, try live server
- * 3. On live success, sync to offline in order: role → permissions → user
- * 4. Return complete login response
- */
 class AuthService {
-    private liveApi = axios.create({
-        baseURL: LIVE_API_URL,
-        timeout: 30000,
-        headers: {
-            'X-Client-Type': 'web'
-        }
-    });
-
-    async login(credentials: AuthProps, onProgress?: LoginProgressCallback): Promise<LoginResponse> {
+    async login(credentials: AuthProps, onProgress?: LoginProgressCallback, isDesktop?: boolean): Promise<LoginResponse> {
         const totalSteps = 6;
         const updateProgress = (message: string, step: number) => {
             onProgress?.(message, step, totalSteps);
         };
+
+        if (!isDesktop) {
+            updateProgress('Connecting to server...', 1);
+            const liveResult = await this.tryLiveLogin(credentials);
+
+            if (liveResult.success && liveResult.data) {
+                updateProgress('Login successful!', totalSteps);
+                return liveResult.data;
+            }
+
+            throw new Error(liveResult.error || 'Authentication failed');
+        }
 
         updateProgress('Checking local database...', 1);
         const offlineResult = await this.tryOfflineLogin(credentials);
@@ -63,32 +57,18 @@ class AuthService {
             return offlineResult.data;
         }
 
-        if (this.isUserNotFoundError(offlineResult.error)) {
-            updateProgress('Connecting to live server...', 2);
-            const liveResult = await this.tryLiveLogin(credentials);
+        updateProgress('Connecting to live server...', 2);
+        const liveResult = await this.tryLiveLogin(credentials);
 
-            if (liveResult.success && liveResult.data) {
-                await this.syncDataToOffline(liveResult.data, credentials, updateProgress);
+        if (liveResult.success && liveResult.data) {
+            await this.syncDataToOffline(liveResult.data, credentials, updateProgress);
 
-                updateProgress('Login successful!', totalSteps);
-                return liveResult.data;
-            }
-
-            throw new Error(liveResult.error || 'User not found');
+            updateProgress('Login successful!', totalSteps);
+            return liveResult.data;
         }
 
-        throw new Error(offlineResult.error || 'Authentication failed');
-    }
-
-    /**
-     * Check if error indicates user not found
-     */
-    private isUserNotFoundError(error?: string): boolean {
-        if (!error) return false;
-        const lowerError = error.toLowerCase();
-        return lowerError.includes('not found') ||
-            lowerError.includes('invalid') ||
-            lowerError.includes('credentials');
+        const errorMessage = liveResult.error || offlineResult.error || 'Authentication failed';
+        throw new Error(errorMessage);
     }
 
     /**
@@ -120,23 +100,33 @@ class AuthService {
      * Try live/remote server login
      */
     private async tryLiveLogin(credentials: AuthProps): Promise<OfflineFirstLoginResult> {
-        if (!LIVE_API_URL) {
+        const useLiveApi = isLiveApiConfigured();
+        const isDesktopPlatform = isElectron();
+
+        if (!useLiveApi && isDesktopPlatform) {
             return { success: false, source: 'live', error: 'Live server URL not configured' };
         }
 
         try {
-            const tenantSignature = await this.getTenantSignature();
+            let result: ApiResponse<LoginResponse>;
 
-            const response = await this.liveApi.post<ApiResponse<LoginResponse>>('auth/login', {
-                ...credentials,
-                offlineMode: true
-            }, {
-                headers: {
-                    ...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
-                }
-            });
+            if (useLiveApi) {
+                const tenantId = await getTenantId();
 
-            const result = response.data;
+                const response = await liveApi.post<ApiResponse<LoginResponse>>('auth/login', {
+                    ...credentials,
+                    offlineMode: true
+                }, {
+                    headers: {
+                        ...(tenantId && { 'X-Tenant-Id': tenantId })
+                    }
+                });
+
+                result = response.data;
+            } else {
+                const response = await api.post<ApiResponse<LoginResponse>>('auth/login', credentials as any);
+                result = response.data;
+            }
 
             if (result?.data?.token) {
                 return { success: true, source: 'live', data: result.data };
@@ -144,13 +134,25 @@ class AuthService {
 
             return { success: false, source: 'live', error: result.message || 'Invalid credentials' };
         } catch (error: any) {
-            if (error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK') {
-                return { success: false, source: 'live', error: 'Cannot connect to live server. Check your internet connection.' };
+            const axiosError = error?.error || error;
+            const errorCode = axiosError?.code || error?.code;
+
+            if (errorCode === 'ECONNREFUSED' || errorCode === 'ERR_NETWORK') {
+                return { success: false, source: 'live', error: 'Cannot connect to server. Check your internet connection.' };
             }
+
+            const errorMessage = axiosError?.response?.data?.message
+                || error?.response?.data?.message
+                || axiosError?.response?.data?.error
+                || error?.response?.data?.error
+                || axiosError?.message
+                || error?.message
+                || 'Authentication failed';
+
             return {
                 success: false,
                 source: 'live',
-                error: error?.response?.data?.message || error?.message || 'Live authentication failed'
+                error: errorMessage
             };
         }
     }
@@ -196,12 +198,12 @@ class AuthService {
      */
     private async fetchRoleFromLive(roleId: string, token: string): Promise<RoleResponse['data']['role'] | null> {
         try {
-            const tenantSignature = await this.getTenantSignature();
-            const response = await this.liveApi.get<RoleResponse>('auth/verifying-roles', {
+            const tenantId = await getTenantId();
+            const response = await liveApi.get<RoleResponse>('auth/verifying-roles', {
                 params: { roleId },
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    ...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
+                    ...(tenantId && { 'X-Tenant-Id': tenantId })
                 }
             });
             return response.data?.data?.role || null;
@@ -230,12 +232,12 @@ class AuthService {
      */
     private async fetchPermissionsFromLive(roleId: string, token: string): Promise<string[]> {
         try {
-            const tenantSignature = await this.getTenantSignature();
-            const response = await this.liveApi.get<PrivilegesResponse>('auth/verifying-privileges', {
+            const tenantId = await getTenantId();
+            const response = await liveApi.get<PrivilegesResponse>('auth/verifying-privileges', {
                 params: { roleId },
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    ...(tenantSignature && { 'X-Tenant-Id': tenantSignature })
+                    ...(tenantId && { 'X-Tenant-Id': tenantId })
                 }
             });
             return response.data?.data?.permissions || [];
@@ -324,34 +326,10 @@ class AuthService {
     }
 
     /**
-     * Get tenant signature from electron settings or session storage
-     */
-    private async getTenantSignature(): Promise<string | undefined> {
-        try {
-            if (typeof window !== 'undefined' && window.electronAPI?.settings) {
-                const result = await window.electronAPI.settings.getSignature();
-                if (result.success && result.data) return result.data;
-            }
-
-            const user = sessionStorage?.getItem('user');
-            if (user) return JSON.parse(user).tenantId;
-        } catch (error) {
-            console.warn('[AuthService] Error getting tenant signature:', error);
-        }
-        return undefined;
-    }
-
-    /**
      * Check if live server is reachable
      */
     async isLiveServerAvailable(): Promise<boolean> {
-        if (!LIVE_API_URL) return false;
-        try {
-            const response = await axios.get(`${LIVE_API_URL}/health`, { timeout: 5000 });
-            return response.status === 200;
-        } catch {
-            return false;
-        }
+        return checkLiveServerAvailable();
     }
 
     /**
@@ -362,6 +340,109 @@ class AuthService {
             await api.get(`auth/logout/${userId}`);
         } catch (error) {
             console.warn('[AuthService] Logout error:', error);
+        }
+    }
+
+    /**
+     * Refresh JWT token using the current token
+     * Calls LIVE API: POST /auth/refresh-token
+     * The API validates the token (ignoring expiration) and issues a new one if user is active
+     * @param currentToken - The current JWT token (can be expired)
+     * @returns New JWT token string
+     * @throws Error when token refresh fails or user is not found/inactive
+     */
+    async refreshToken(currentToken: string): Promise<string> {
+        const useLiveApi = isLiveApiConfigured();
+        const isDesktopPlatform = isElectron();
+
+        // Only require live API on desktop platform
+        if (!useLiveApi && isDesktopPlatform) {
+            throw new Error('Live server URL not configured');
+        }
+
+        try {
+            let result: ApiResponse<RefreshTokenResponse>;
+
+            if (useLiveApi) {
+                const tenantId = await getTenantId();
+
+                const response = await liveApi.post<ApiResponse<RefreshTokenResponse>>(
+                    'auth/refresh-token',
+                    { token: currentToken },
+                    {
+                        headers: {
+                            ...(tenantId && { 'X-Tenant-Id': tenantId })
+                        }
+                    }
+                );
+                result = response.data;
+            } else {
+                // Use regular API for web/mobile
+                const response = await api.post<ApiResponse<RefreshTokenResponse>>(
+                    'auth/refresh-token',
+                    { token: currentToken } as any
+                );
+                result = response.data;
+            }
+
+            if (result?.data?.token) {
+                return result.data.token;
+            }
+
+            throw new Error(result?.message || 'Token refresh failed');
+        } catch (error: any) {
+            console.error('[AuthService] Token refresh error:', error?.response?.data || error?.message);
+            throw new Error(error?.response?.data?.message || error?.message || 'Token refresh failed');
+        }
+    }
+
+    /**
+     * Verify if a JWT token is valid
+     * Calls LIVE API: POST /auth/verify-token
+     * @param token - The JWT token to verify
+     * @returns User data if token is valid
+     */
+    async verifyToken(token: string): Promise<any> {
+        const useLiveApi = isLiveApiConfigured();
+        const isDesktopPlatform = isElectron();
+
+        // Only require live API on desktop platform
+        if (!useLiveApi && isDesktopPlatform) {
+            throw new Error('Live server URL not configured');
+        }
+
+        try {
+            if (useLiveApi) {
+                const tenantId = await getTenantId();
+
+                const response = await liveApi.post<ApiResponse<{ user: any }>>(
+                    'auth/verify-token',
+                    {},
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            ...(tenantId && { 'X-Tenant-Id': tenantId })
+                        }
+                    }
+                );
+
+                return response.data?.data?.user;
+            } else {
+                // Use regular API for web/mobile
+                const response = await api.post<ApiResponse<{ user: any }>>(
+                    'auth/verify-token',
+                    {} as any,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    } as any
+                );
+
+                return response.data?.data?.user;
+            }
+        } catch (error: any) {
+            throw new Error(error?.response?.data?.message || 'Token verification failed');
         }
     }
 }
