@@ -1,4 +1,5 @@
 import { FunctionComponent, useState, ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { Form, Formik } from 'formik';
 import { Notify, Confirm } from 'notiflix';
 import { X, Wifi, Usb, Bluetooth, Network, Star, Trash2, Power, TestTube, FileText, Printer } from 'lucide-react';
@@ -185,10 +186,9 @@ const EditPrinterModal: FunctionComponent<EditPrinterModalProps> = ({
 		fontSize: printer.configuration?.fontSize || 12,
 	};
 
-	return (
+	return createPortal(
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
 			<div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col">
-				{/* Header */}
 				<div className="flex-shrink-0 px-6 py-5 border-b border-gray-200 dark:border-gray-700">
 					<div className="flex items-start justify-between">
 						<div className="flex items-center gap-3 flex-1 min-w-0">
@@ -217,7 +217,6 @@ const EditPrinterModal: FunctionComponent<EditPrinterModalProps> = ({
 						</button>
 					</div>
 
-					{/* Action Buttons */}
 					<div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
 						<div className={`px-3 py-1.5 rounded-lg text-xs font-medium ${printer.isActive
 							? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
@@ -261,7 +260,6 @@ const EditPrinterModal: FunctionComponent<EditPrinterModalProps> = ({
 					</div>
 				</div>
 
-				{/* Content */}
 				<div className="flex-1 overflow-y-auto p-6">
 					<Formik
 						initialValues={initialValues}
@@ -326,7 +324,6 @@ const EditPrinterModal: FunctionComponent<EditPrinterModalProps> = ({
 					</Formik>
 				</div>
 
-				{/* Footer */}
 				<div className="flex-shrink-0 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
 					<div className="flex gap-3">
 						<Button
@@ -360,7 +357,8 @@ const EditPrinterModal: FunctionComponent<EditPrinterModalProps> = ({
 					</div>
 				</div>
 			</div>
-		</div>
+		</div>,
+		document.body
 	);
 };
 

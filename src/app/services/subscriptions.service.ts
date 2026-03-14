@@ -175,6 +175,23 @@ class SubscriptionService {
 	}
 
 	/**
+	 * Get all subscriptions for a specific tenant's branches
+	 * Uses: GET /subscriptions/tenant/:tenantId
+	 */
+	async getByTenantId(tenantId: string): Promise<BranchSubscription[]> {
+		try {
+			const response = await liveApi.get<SubscriptionResponse>(
+				`${this.endpoint}/tenant/${tenantId}`,
+				{ headers: await getAuthHeaders() }
+			);
+			return (response.data.data || []).map(sub => this.normalizeSubscription(sub));
+		} catch (error) {
+			console.error('Error fetching subscriptions by tenant:', error);
+			throw error;
+		}
+	}
+
+	/**
 	 * Cancel a subscription
 	 */
 	async cancel(id: string): Promise<BranchSubscription> {

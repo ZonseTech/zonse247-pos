@@ -88,7 +88,6 @@ const SubscriptionManagement: FunctionComponent = () => {
                     }}
                     onChangePage={setPage}
                     fixedHeader
-                    fixedHeaderScrollHeight="calc(100vh - 350px)"
                     customStyles={getTableStyles(mode)}
                     noDataComponent={
                         <div className="flex flex-col items-center justify-center py-12">

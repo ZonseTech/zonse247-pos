@@ -18,7 +18,7 @@ export const getCustomerColumns = ({
             grow: 2,
             cell: (row) => (
                 <div className="flex items-center gap-3 py-3">
-                    <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br from-sky-500 to-sky-500 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                    <div className="flex-shrink-0 w-11 h-11 rounded bg-sky-500 flex items-center justify-center text-white font-bold text-lg">
                         {row.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0">
@@ -38,7 +38,6 @@ export const getCustomerColumns = ({
             name: 'Phone',
             selector: (row) => row.phone || '-',
             sortable: true,
-            width: '160px',
             cell: (row) => (
                 <div className="flex items-center gap-2">
                     {row.phone ? (
@@ -56,7 +55,6 @@ export const getCustomerColumns = ({
             name: 'Email',
             selector: (row) => row.email || '-',
             sortable: true,
-            width: '220px',
             cell: (row) => (
                 <div className="flex items-center gap-2">
                     {row.email ? (

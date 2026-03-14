@@ -169,7 +169,6 @@ const DesktopPrinterManagement: FunctionComponent = () => {
                             onChangeRowsPerPage={(n, p) => { setPage(p); setPerPage(n); }}
                             onChangePage={setPage}
                             fixedHeader
-                            fixedHeaderScrollHeight="calc(100vh - 450px)"
                             customStyles={getTableStyles(mode)}
                             noDataComponent={
                                 <div className="text-center py-12 dark:bg-gray-800">

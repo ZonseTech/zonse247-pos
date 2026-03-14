@@ -28,7 +28,6 @@ const SalesPage: FC = () => {
     const isMobile = useIsMobile();
     const { mode } = useContext(ZonseThemeContext);
     const { isMraEnabled } = useMraCompliance();
-    // Modal state for mobile view only
     const [isOpenDetails, setIsOpenDetails] = useState<boolean>(false);
     const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
     const [isReturnModalOpen, setIsReturnModalOpen] = useState<boolean>(false);
@@ -299,7 +298,6 @@ const SalesPage: FC = () => {
                         </div>
                     )}
 
-                    {/* Modal only for mobile view */}
                     {isMobile && (
                         <SaleDetailsModal
                             sale={selectedSale}

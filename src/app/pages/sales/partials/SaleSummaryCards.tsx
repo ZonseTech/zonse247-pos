@@ -20,7 +20,6 @@ const getIcon = (title: string): LucideIcon => {
     return iconMap[title] || DollarSign;
 };
 
-// Format currency abbreviated (MK 1.3M)
 const formatCurrencyShort = (value: number): string => {
     if (value >= 1000000) {
         return `MK ${(value / 1000000).toFixed(1)}M`;
@@ -95,7 +94,6 @@ const SaleSummaryCards: React.FC<SaleSummaryCardsProps> = ({ cards, isLoading, c
                 const fullValue = card.displayValue;
                 const isExpanded = expandedCard === idx;
 
-                // Determine if card is on the right side (for 2-col mobile: odd index, for 4-col: last 2 cards)
                 const isRightSide = isMobile ? (idx % 2 === 1) : (idx >= 2);
 
                 return (
@@ -112,9 +110,6 @@ const SaleSummaryCards: React.FC<SaleSummaryCardsProps> = ({ cards, isLoading, c
                                         : `${card.bgColor} rounded-lg p-3 sm:p-4 transition-all duration-200 hover:shadow-md`
                         }
                     >
-                        {/* EBN: Horizontal layout */}
-                        {/* Mobile: Horizontal layout - icon left with title, value below */}
-                        {/* Desktop/Compact: Horizontal layout */}
                         {isEBN ? (
                             <div className="flex items-center gap-2">
                                 <div className={`${card.iconBgColor} p-1.5 rounded-lg flex-shrink-0`}>

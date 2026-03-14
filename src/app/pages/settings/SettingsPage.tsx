@@ -40,8 +40,6 @@ const SettingsPage = () => {
     const handleSubmit = async (values: any) => {
         const sanitized = sanitizeSettings(values);
         await onSubmit(sanitized);
-
-        setTimeout(() => { window.location.reload(), 200 })
     };
 
     if (loading || !settings) {

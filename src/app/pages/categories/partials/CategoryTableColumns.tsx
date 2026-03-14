@@ -16,7 +16,7 @@ export const getCategoryColumns = (
             cell: (row: Category) => (
                 <div className="flex items-center gap-3 py-3">
                     <div
-                        className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md"
+                        className="flex-shrink-0 w-11 h-11 rounded flex items-center justify-center text-white font-bold text-lg"
                         style={{
                             backgroundColor: row.color || '#3B82F6',
                         }}
@@ -41,7 +41,6 @@ export const getCategoryColumns = (
             selector: (row: Category) => row.itemCount || 0,
             sortable: true,
             center: true,
-            width: '140px',
             cell: (row: Category) => (
                 <div className="flex items-center justify-center">
                     <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full ${(row.itemCount || 0) > 0
@@ -58,7 +57,6 @@ export const getCategoryColumns = (
             name: 'Created',
             selector: (row: Category) => row.createdAt ? new Date(row.createdAt).getTime() : 0,
             sortable: true,
-            width: '150px',
             cell: (row: Category) => (
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                     {row.createdAt
@@ -71,7 +69,6 @@ export const getCategoryColumns = (
             name: 'Updated',
             selector: (row: Category) => row.updatedAt ? new Date(row.updatedAt).getTime() : 0,
             sortable: true,
-            width: '150px',
             cell: (row: Category) => (
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                     {row.updatedAt

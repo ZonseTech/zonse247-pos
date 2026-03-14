@@ -37,7 +37,6 @@ const FormSearchableSelect: React.FC<FormSearchableSelectProps> = ({
     const { setFieldValue, setFieldTouched } = useFormikContext();
     const isMobile = useIsMobile();
 
-    // Find selected option with case-insensitive matching
     const selectedOption = options.find((option) => {
         if (!field.value) return false;
         return String(option.value).toLowerCase() === String(field.value).toLowerCase();
@@ -68,7 +67,11 @@ const FormSearchableSelect: React.FC<FormSearchableSelectProps> = ({
             backgroundColor: '#f3f4f6',
             borderRadius: '0.125rem',
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-            zIndex: 50,
+            zIndex: 9999,
+        }),
+        menuPortal: (provided) => ({
+            ...provided,
+            zIndex: 9999,
         }),
         menuList: (provided) => ({
             ...provided,
@@ -77,14 +80,14 @@ const FormSearchableSelect: React.FC<FormSearchableSelectProps> = ({
         option: (provided, state) => ({
             ...provided,
             backgroundColor: state.isSelected
-                ? '#6366f1'
+                ? '#0ea5e9'
                 : state.isFocused
                     ? '#e5e7eb'
                     : 'transparent',
             color: state.isSelected ? 'white' : '#27272a', // text-zinc-800
             cursor: 'pointer',
             '&:active': {
-                backgroundColor: '#818cf8',
+                backgroundColor: '#38bdf8',
             },
         }),
         singleValue: (provided) => ({
@@ -104,9 +107,9 @@ const FormSearchableSelect: React.FC<FormSearchableSelectProps> = ({
         }),
         dropdownIndicator: (provided, state) => ({
             ...provided,
-            color: state.isFocused ? '#6366f1' : '#a1a1aa',
+            color: state.isFocused ? '#0ea5e9' : '#a1a1aa',
             '&:hover': {
-                color: '#6366f1',
+                color: '#0ea5e9',
             },
         }),
         clearIndicator: (provided) => ({
@@ -139,7 +142,11 @@ const FormSearchableSelect: React.FC<FormSearchableSelectProps> = ({
             backgroundColor: '#27272a',
             borderRadius: '0.125rem',
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2)',
-            zIndex: 50,
+            zIndex: 9999,
+        }),
+        menuPortal: (provided) => ({
+            ...provided,
+            zIndex: 9999,
         }),
         menuList: (provided) => ({
             ...provided,
@@ -148,14 +155,14 @@ const FormSearchableSelect: React.FC<FormSearchableSelectProps> = ({
         option: (provided, state) => ({
             ...provided,
             backgroundColor: state.isSelected
-                ? '#6366f1'
+                ? '#0ea5e9'
                 : state.isFocused
                     ? '#3f3f46'
                     : 'transparent',
             color: state.isSelected ? 'white' : '#f4f4f5', // dark:text-zinc-100
             cursor: 'pointer',
             '&:active': {
-                backgroundColor: '#818cf8',
+                backgroundColor: '#38bdf8',
             },
         }),
         singleValue: (provided) => ({
@@ -175,9 +182,9 @@ const FormSearchableSelect: React.FC<FormSearchableSelectProps> = ({
         }),
         dropdownIndicator: (provided, state) => ({
             ...provided,
-            color: state.isFocused ? '#6366f1' : '#71717a',
+            color: state.isFocused ? '#0ea5e9' : '#71717a',
             '&:hover': {
-                color: '#6366f1',
+                color: '#0ea5e9',
             },
         }),
         clearIndicator: (provided) => ({
@@ -201,22 +208,26 @@ const FormSearchableSelect: React.FC<FormSearchableSelectProps> = ({
             borderColor: meta.touched && meta.error
                 ? '#ef4444'
                 : state.isFocused
-                    ? '#6366f1'
+                    ? '#0ea5e9'
                     : '#d1d5db',
-            borderRadius: '0.375rem',
+            borderRadius: '0.s75rem',
             padding: '0.25rem',
-            boxShadow: state.isFocused ? '0 0 0 1px #6366f1' : 'none',
+            boxShadow: state.isFocused ? '0 0 0 1px #0ea5e9' : 'none',
             '&:hover': {
-                borderColor: state.isFocused ? '#6366f1' : '#9ca3af',
+                borderColor: state.isFocused ? '#0ea5e9' : '#9ca3af',
             },
             minHeight: '42px',
         }),
         menu: (provided) => ({
             ...provided,
             backgroundColor: 'var(--select-menu-bg, white)',
-            borderRadius: '0.375rem',
+            borderRadius: '0.s75rem',
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-            zIndex: 50,
+            zIndex: 9999,
+        }),
+        menuPortal: (provided) => ({
+            ...provided,
+            zIndex: 9999,
         }),
         menuList: (provided) => ({
             ...provided,
@@ -225,14 +236,14 @@ const FormSearchableSelect: React.FC<FormSearchableSelectProps> = ({
         option: (provided, state) => ({
             ...provided,
             backgroundColor: state.isSelected
-                ? '#6366f1'
+                ? '#0ea5e9'
                 : state.isFocused
-                    ? '#e0e7ff'
+                    ? '#e0f2fe'
                     : 'transparent',
             color: state.isSelected ? 'white' : 'var(--select-text, #374151)',
             cursor: 'pointer',
             '&:active': {
-                backgroundColor: '#818cf8',
+                backgroundColor: '#38bdf8',
             },
         }),
         singleValue: (provided) => ({
@@ -252,9 +263,9 @@ const FormSearchableSelect: React.FC<FormSearchableSelectProps> = ({
         }),
         dropdownIndicator: (provided, state) => ({
             ...provided,
-            color: state.isFocused ? '#6366f1' : '#9ca3af',
+            color: state.isFocused ? '#0ea5e9' : '#9ca3af',
             '&:hover': {
-                color: '#6366f1',
+                color: '#0ea5e9',
             },
         }),
         clearIndicator: (provided) => ({
@@ -278,22 +289,26 @@ const FormSearchableSelect: React.FC<FormSearchableSelectProps> = ({
             borderColor: meta.touched && meta.error
                 ? '#ef4444'
                 : state.isFocused
-                    ? '#6366f1'
+                    ? '#0ea5e9'
                     : '#4b5563',
-            borderRadius: '0.375rem',
+            borderRadius: '0.275rem',
             padding: '0.25rem',
-            boxShadow: state.isFocused ? '0 0 0 1px #6366f1' : 'none',
+            boxShadow: state.isFocused ? '0 0 0 1px #0ea5e9' : 'none',
             '&:hover': {
-                borderColor: state.isFocused ? '#6366f1' : '#6b7280',
+                borderColor: state.isFocused ? '#0ea5e9' : '#6b7280',
             },
             minHeight: '42px',
         }),
         menu: (provided) => ({
             ...provided,
             backgroundColor: '#374151',
-            borderRadius: '0.375rem',
+            borderRadius: '0.275rem',
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2)',
-            zIndex: 50,
+            zIndex: 9999,
+        }),
+        menuPortal: (provided) => ({
+            ...provided,
+            zIndex: 9999,
         }),
         menuList: (provided) => ({
             ...provided,
@@ -302,14 +317,14 @@ const FormSearchableSelect: React.FC<FormSearchableSelectProps> = ({
         option: (provided, state) => ({
             ...provided,
             backgroundColor: state.isSelected
-                ? '#6366f1'
+                ? '#0ea5e9'
                 : state.isFocused
                     ? '#4b5563'
                     : 'transparent',
             color: state.isSelected ? 'white' : '#e5e7eb',
             cursor: 'pointer',
             '&:active': {
-                backgroundColor: '#818cf8',
+                backgroundColor: '#38bdf8',
             },
         }),
         singleValue: (provided) => ({
@@ -329,9 +344,9 @@ const FormSearchableSelect: React.FC<FormSearchableSelectProps> = ({
         }),
         dropdownIndicator: (provided, state) => ({
             ...provided,
-            color: state.isFocused ? '#6366f1' : '#9ca3af',
+            color: state.isFocused ? '#0ea5e9' : '#9ca3af',
             '&:hover': {
-                color: '#6366f1',
+                color: '#0ea5e9',
             },
         }),
         clearIndicator: (provided) => ({
@@ -380,6 +395,7 @@ const FormSearchableSelect: React.FC<FormSearchableSelectProps> = ({
                 styles={getStyles()}
                 classNamePrefix="react-select"
                 noOptionsMessage={() => 'No options found'}
+                menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                 filterOption={(option, searchText) => {
                     if (!searchText) return true;
                     return option.label.toLowerCase().includes(searchText.toLowerCase());

@@ -1,11 +1,9 @@
-// Response types
 interface SubscriptionResponse {
 	data: Array<BranchSubscription>;
 	message: string;
 	success: boolean;
 }
 
-// Branch Subscription - Primary subscription model
 interface BranchSubscription {
 	branchSubscriptionId: string;
 	branchId?: string;
@@ -22,7 +20,11 @@ interface BranchSubscription {
 	createdAt?: string | Date;
 	updatedAt?: string | Date;
 	subscriptionPlan?: SubscriptionPlan | null;
-	// Branch details for display
+	branch?: {
+		branchId?: string;
+		branchCode?: string;
+		branchName: string;
+	};
 	branchDetails?: {
 		branchCode?: string;
 		branchName: string;
@@ -36,7 +38,6 @@ interface BranchSubscriptionInfo {
 	branchSubscriptionId?: string | null;
 }
 
-// Subscription Plan - Updated to align with API v1.6.0
 interface SubscriptionPlan {
 	planId: string;
 	subscriptionPlanId?: string;
@@ -57,7 +58,6 @@ interface SubscriptionPlan {
 	updatedAt?: string;
 }
 
-// Request types
 interface CreateBranchSubscriptionRequest {
 	subscriptionPlanId: string;
 	subscriptionMonths?: number;
@@ -97,7 +97,6 @@ interface ProcessPaymentRequest {
 	paymentMethod: string;
 }
 
-// Stats
 interface SubscriptionStats {
 	total: number;
 	active: number;
@@ -108,8 +107,6 @@ interface SubscriptionStats {
 	annualRevenue: number;
 }
 
-// ----------------------------------------------------------------------------------------- //
-// Plan Features & Limits
 interface PlanFeature {
 	name: string;
 	included: boolean;
@@ -123,7 +120,6 @@ interface PlanLimits {
 	storage: string;
 }
 
-// Feature Categories
 interface PlanFeatureCategory {
 	featureCategoryId?: number;
 	title: string;
@@ -168,12 +164,10 @@ interface UpdateFeatureCategoryRequest {
 	order?: number;
 }
 
-// Tenant Info for billing display
 type TenantInfo = Pick<Tenant, 'tenantId' | 'businessName' | 'email' | 'phoneNumber' | 'address'> & {
 	subscriptionPlan?: string;
 }
 
-// Branch Info for subscription billing
 interface BranchInfo {
 	branchId: string;
 	branchName: string;
@@ -186,17 +180,7 @@ interface PaymentInfo {
 	paymentMethodId?: string;
 }
 
-// API Aligned PaymentInfo (with required paymentMethodId)
 interface PaymentInfoRequest {
 	referenceNumber: string;
 	paymentMethodId: string;
 }
-
-// Legacy types for backward compatibility (deprecated)
-/** @deprecated Use BranchSubscription instead */
-type TenantSubscription = BranchSubscription;
-/** @deprecated Use CreateBranchSubscriptionRequest instead */
-type CreateSubscriptionRequest = CreateBranchSubscriptionRequest;
-/** @deprecated Use UpdateBranchSubscriptionRequest instead */
-type UpdateSubscriptionRequest = UpdateBranchSubscriptionRequest;
-
