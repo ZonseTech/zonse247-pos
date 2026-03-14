@@ -21,11 +21,11 @@ export const useProductSummary = (
         { title: 'Discontinued', value: 0, bgColor: 'bg-red-500', onClick: () => ({}) },
     ]);
 
-    const loadSummary = async (products: Product[]) => {
+    const loadSummary = async (products: ProductWithInventory[]) => {
         try {
             const totalProducts = products.length;
-            const active = products.filter(p => p.status === 'ACTIVE').length;
-            const inactive = products.filter(p => p.status === 'INACTIVE').length;
+            const active = products.filter(p => p.status === 'ACTIVE' || (p.isActive && !p.status)).length;
+            const inactive = products.filter(p => p.status === 'INACTIVE' || (!p.isActive && !p.status)).length;
             const outOfStock = products.filter(p => p.status === 'OUT_OF_STOCK').length;
             const discontinued = products.filter(p => p.status === 'DISCONTINUED').length;
 

@@ -270,7 +270,7 @@ const InitiateReturnModal: FunctionComponent<InitiateReturnModalProps> = ({
                                                 <Button
                                                     type="button"
                                                     size="small"
-                                                    theme={isAdded ? 'default' : 'primary'}
+                                                    theme={isAdded ? 'neutral' : 'primary'}
                                                     onClick={() => handleAddItem({ ...item, orderId: orderItemId, sellingPrice: itemPrice, productDetails: { name: itemName } })}
                                                     disabled={isAdded}
                                                 >

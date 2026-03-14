@@ -1,11 +1,11 @@
 import { FC, useState, useCallback, useRef, useMemo } from 'react';
-import { 
-    TrendingUp, 
-    TrendingDown, 
-    RefreshCw, 
-    Package, 
-    Calendar, 
-    Hash, 
+import {
+    TrendingUp,
+    TrendingDown,
+    RefreshCw,
+    Package,
+    Calendar,
+    Hash,
     FileText,
     ChevronDown,
     User,
@@ -23,74 +23,74 @@ interface StockMovementMobileCardProps {
     index?: number;
 }
 
-const typeConfig: Record<StockMovementType, { 
-    color: string; 
+const typeConfig: Record<StockMovementType, {
+    color: string;
     bgColor: string;
     borderColor: string;
     label: string;
 }> = {
-    PURCHASE_RECEIPT: { 
-        color: 'text-green-600 dark:text-green-400', 
+    PURCHASE_RECEIPT: {
+        color: 'text-green-600 dark:text-green-400',
         bgColor: 'bg-green-50 dark:bg-green-900/20',
         borderColor: 'border-green-200 dark:border-green-800',
         label: 'Purchase'
     },
-    SALE: { 
-        color: 'text-red-600 dark:text-red-400', 
+    SALE: {
+        color: 'text-red-600 dark:text-red-400',
         bgColor: 'bg-red-50 dark:bg-red-900/20',
         borderColor: 'border-red-200 dark:border-red-800',
         label: 'Sale'
     },
-    RETURN: { 
-        color: 'text-sky-600 dark:text-sky-400', 
+    RETURN: {
+        color: 'text-sky-600 dark:text-sky-400',
         bgColor: 'bg-sky-50 dark:bg-sky-900/20',
         borderColor: 'border-sky-200 dark:border-sky-800',
         label: 'Return'
     },
-    ADJUSTMENT: { 
-        color: 'text-amber-600 dark:text-amber-400', 
+    ADJUSTMENT: {
+        color: 'text-amber-600 dark:text-amber-400',
         bgColor: 'bg-amber-50 dark:bg-amber-900/20',
         borderColor: 'border-amber-200 dark:border-amber-800',
         label: 'Adjustment'
     },
-    TRANSFER_IN: { 
-        color: 'text-purple-600 dark:text-purple-400', 
+    TRANSFER_IN: {
+        color: 'text-purple-600 dark:text-purple-400',
         bgColor: 'bg-purple-50 dark:bg-purple-900/20',
         borderColor: 'border-purple-200 dark:border-purple-800',
         label: 'Transfer In'
     },
-    TRANSFER_OUT: { 
-        color: 'text-pink-600 dark:text-pink-400', 
+    TRANSFER_OUT: {
+        color: 'text-pink-600 dark:text-pink-400',
         bgColor: 'bg-pink-50 dark:bg-pink-900/20',
         borderColor: 'border-pink-200 dark:border-pink-800',
         label: 'Transfer Out'
     },
-    DAMAGE: { 
-        color: 'text-orange-600 dark:text-orange-400', 
+    DAMAGE: {
+        color: 'text-orange-600 dark:text-orange-400',
         bgColor: 'bg-orange-50 dark:bg-orange-900/20',
         borderColor: 'border-orange-200 dark:border-orange-800',
         label: 'Damage'
     },
-    EXPIRY: { 
-        color: 'text-gray-600 dark:text-gray-400', 
+    EXPIRY: {
+        color: 'text-gray-600 dark:text-gray-400',
         bgColor: 'bg-gray-50 dark:bg-gray-700/50',
         borderColor: 'border-gray-200 dark:border-gray-600',
         label: 'Expiry'
     },
-    STOCK_TAKE: { 
-        color: 'text-indigo-600 dark:text-indigo-400', 
+    STOCK_TAKE: {
+        color: 'text-indigo-600 dark:text-indigo-400',
         bgColor: 'bg-indigo-50 dark:bg-indigo-900/20',
         borderColor: 'border-indigo-200 dark:border-indigo-800',
         label: 'Stock Take'
     },
-    PRODUCTION: { 
-        color: 'text-teal-600 dark:text-teal-400', 
+    PRODUCTION: {
+        color: 'text-teal-600 dark:text-teal-400',
         bgColor: 'bg-teal-50 dark:bg-teal-900/20',
         borderColor: 'border-teal-200 dark:border-teal-800',
         label: 'Production'
     },
-    CONSUMPTION: { 
-        color: 'text-cyan-600 dark:text-cyan-400', 
+    CONSUMPTION: {
+        color: 'text-cyan-600 dark:text-cyan-400',
         bgColor: 'bg-cyan-50 dark:bg-cyan-900/20',
         borderColor: 'border-cyan-200 dark:border-cyan-800',
         label: 'Consumption'
@@ -100,13 +100,13 @@ const typeConfig: Record<StockMovementType, {
 const StockMovementMobileCard: FC<StockMovementMobileCardProps> = ({ movement, index = 0 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
-    
+
     const isIncrease = movement.direction === 'IN';
     const isDecrease = movement.direction === 'OUT';
     const Icon = isIncrease ? TrendingUp : isDecrease ? TrendingDown : RefreshCw;
-    
+
     const config = typeConfig[movement.movementType] || typeConfig.ADJUSTMENT;
-    
+
     const quantityColorClass = isIncrease
         ? 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30'
         : isDecrease
@@ -125,10 +125,10 @@ const StockMovementMobileCard: FC<StockMovementMobileCardProps> = ({ movement, i
         setIsExpanded(prev => !prev);
     }, []);
 
-    const hasExtendedInfo = movement.unitCost > 0 || movement.referenceNumber || movement.notes || movement.createdByUser;
+    const hasExtendedInfo = movement.unitCost > 0 || movement.referenceNumber || movement.notes || movement.performedByUser;
 
     return (
-        <div 
+        <div
             ref={cardRef}
             className={classNames(
                 'animate-fade-in-up',
@@ -136,7 +136,7 @@ const StockMovementMobileCard: FC<StockMovementMobileCardProps> = ({ movement, i
             )}
             style={{ animationDelay: `${index * 50}ms` }}
         >
-            <div 
+            <div
                 className={classNames(
                     'p-4 transition-colors duration-200',
                     'active:bg-gray-50 dark:active:bg-gray-700/30'
@@ -183,7 +183,7 @@ const StockMovementMobileCard: FC<StockMovementMobileCardProps> = ({ movement, i
                             </h3>
                             <p className="text-xs text-gray-500 dark:text-gray-400">
                                 {movement.previousQuantity} → {movement.newQuantity}
-                                {movement.product?.sku && <span className="ml-2">• {movement.product.sku}</span>}
+                                {movement.variant?.sku && <span className="ml-2">• {movement.variant.sku}</span>}
                             </p>
                         </div>
                     </div>
@@ -220,7 +220,7 @@ const StockMovementMobileCard: FC<StockMovementMobileCardProps> = ({ movement, i
                                 </span>
                             </div>
                         )}
-                        
+
                         {movement.referenceNumber && (
                             <div className="flex items-center gap-2 text-sm">
                                 <Hash className="w-4 h-4 text-gray-400 flex-shrink-0" />
@@ -231,16 +231,16 @@ const StockMovementMobileCard: FC<StockMovementMobileCardProps> = ({ movement, i
                             </div>
                         )}
 
-                        {movement.createdByUser && (
+                        {movement.performedByUser && (
                             <div className="flex items-center gap-2 text-sm">
                                 <User className="w-4 h-4 text-gray-400 flex-shrink-0" />
                                 <span className="text-gray-600 dark:text-gray-400">By:</span>
                                 <span className="font-medium text-gray-900 dark:text-white">
-                                    {movement.createdByUser.firstName} {movement.createdByUser.lastName}
+                                    {movement.performedByUser.fullname}
                                 </span>
                             </div>
                         )}
-                        
+
                         {movement.notes && (
                             <div className="flex items-start gap-2">
                                 <FileText className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />
@@ -347,7 +347,7 @@ export const StockMovementMobileList: FC<StockMovementMobileListProps> = ({
                     index={index}
                 />
             ))}
-            
+
             {/* Loading more indicator */}
             {isLoading && movements.length > 0 && (
                 <div className="flex items-center justify-center py-6">
@@ -357,7 +357,7 @@ export const StockMovementMobileList: FC<StockMovementMobileListProps> = ({
                     </div>
                 </div>
             )}
-            
+
             {/* Intersection observer target */}
             {hasMore && !isLoading && (
                 <div ref={observerRef} className="h-4" />

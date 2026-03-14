@@ -66,14 +66,6 @@ const TerminalForm: FunctionComponent = () => {
         terminalLabel: '',
         terminalPosition: 1,
         deviceId: '',
-        osName: '',
-        osVersion: '',
-        osBuild: '',
-        macAddress: '',
-        posProductId: '',
-        posProductVersion: '',
-        offlineMaxTransactionAgeHours: 24,
-        offlineMaxCumulativeAmount: 10000,
         isPrimary: false,
         isBlocked: false,
         activationStatus: 'PENDING'
@@ -92,22 +84,6 @@ const TerminalForm: FunctionComponent = () => {
             .min(1, 'Position must be at least 1')
             .max(99, 'Position cannot exceed 99'),
         deviceId: Yup.string().max(255, 'Device ID is too long'),
-        osName: Yup.string().max(50, 'OS name is too long'),
-        osVersion: Yup.string().max(50, 'OS version is too long'),
-        osBuild: Yup.string().max(50, 'OS build is too long'),
-        macAddress: Yup.string()
-            .matches(
-                /^$|^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/,
-                'Invalid MAC address format (e.g., A4:7C:C3:49:D2:CC)'
-            )
-            .max(17, 'MAC address is too long'),
-        posProductId: Yup.string().max(100, 'POS product ID is too long'),
-        posProductVersion: Yup.string().max(50, 'POS version is too long'),
-        offlineMaxTransactionAgeHours: Yup.number()
-            .min(0, 'Must be 0 or higher')
-            .max(168, 'Cannot exceed 168 hours (7 days)'),
-        offlineMaxCumulativeAmount: Yup.number()
-            .min(0, 'Must be 0 or higher'),
         isPrimary: Yup.boolean(),
         isBlocked: Yup.boolean()
     });

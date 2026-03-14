@@ -312,7 +312,7 @@ const InventoryDashboard: FunctionComponent<RoleDashboardProps> = ({ user, isLoa
 
                         <div className="space-y-3">
                             {topValueItems.slice(0, 5).map((item, index) => (
-                                <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                <div key={item.productId} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                                     <div className="flex items-center gap-3">
                                         <span className="w-6 h-6 flex items-center justify-center bg-amber-100 dark:bg-amber-900/30 text-amber-500 dark:text-amber-400 rounded-full text-xs font-bold">
                                             {index + 1}

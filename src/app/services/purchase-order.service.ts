@@ -104,7 +104,7 @@ const purchaseOrderService = {
      */
     async cancelPurchaseOrder(purchaseOrderId: string): Promise<void> {
         return api
-            .post<PurchaseOrderResponse>(
+            .post(
                 endpoints.cancel(purchaseOrderId),
                 {}
             )
