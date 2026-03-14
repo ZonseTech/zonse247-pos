@@ -1,11 +1,12 @@
-import { useState, type FunctionComponent } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { User, LogOut, Settings, ChevronUp } from 'lucide-react';
 import classNames from 'classnames';
-import { useAuth } from '../../context/AuthProvider';
+import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../utils/constants';
+import { useAuth } from '../../context/AuthProvider';
+import { useState, type FunctionComponent } from 'react';
+import { version as appVersion } from '../../../../package.json';
+import { User, LogOut, Settings, ChevronUp } from 'lucide-react';
 
-const APP_VERSION = import.meta.env.VITE_APP_VERSION || '1.3.9';
+const APP_VERSION = import.meta.env.VITE_APP_VERSION || appVersion || '1.3.9';
 
 const SidebarFooter: FunctionComponent = () => {
     const navigate = useNavigate();
@@ -27,7 +28,6 @@ const SidebarFooter: FunctionComponent = () => {
 
     return (
         <div className="border-t border-gray-200/60 dark:border-gray-800/60 p-3">
-            {/* User Menu */}
             <div className="relative">
                 <button
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -38,12 +38,10 @@ const SidebarFooter: FunctionComponent = () => {
                             : "hover:bg-gray-100/80 dark:hover:bg-gray-800/80"
                     )}
                 >
-                    {/* Avatar */}
-                    <div className="w-9 h-9 rounded-lg bg-sky-500 flex items-center justify-center flex-shrink-0">
+                    <div className="w-9 h-9 rounded bg-sky-500 flex items-center justify-center flex-shrink-0">
                         <User size={18} className="text-white" />
                     </div>
 
-                    {/* User Info */}
                     <div className="flex-1 min-w-0 text-left">
                         <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                             {displayName}
@@ -53,7 +51,6 @@ const SidebarFooter: FunctionComponent = () => {
                         </p>
                     </div>
 
-                    {/* Chevron */}
                     <ChevronUp
                         size={16}
                         className={classNames(
@@ -63,7 +60,6 @@ const SidebarFooter: FunctionComponent = () => {
                     />
                 </button>
 
-                {/* Dropdown Menu */}
                 {isMenuOpen && (
                     <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-1.5 z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
                         <button
@@ -95,7 +91,6 @@ const SidebarFooter: FunctionComponent = () => {
                 )}
             </div>
 
-            {/* Version Info */}
             <div className="mt-2 px-2">
                 <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center">
                     Version {APP_VERSION}
