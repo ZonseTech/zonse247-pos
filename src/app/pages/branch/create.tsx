@@ -4,6 +4,8 @@ import { Button, FormFieldCard, OfflinePlaceholder } from '../../components';
 import FormInput from '../../components/FormInput';
 import FormWrapper from '../../components/FormWrapper';
 import FormSearchableSelect from '../../components/FormSearchableSelect';
+import TenantSearch from './partials/TenantSearch';
+import SubscriptionPlanSelector from './partials/SubscriptionPlanSelector';
 import { Fragment, useState, useEffect, useMemo } from 'react';
 import type { ChangeEvent, FunctionComponent } from 'react';
 import branchService from '../../services/branch.service';
@@ -17,10 +19,15 @@ import { useAuth } from '../../context/AuthProvider';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useBranchPermissions } from '../../hooks/useBranchPermissions';
 import { businessTypes } from '../../utils/tenant-status';
-import { capitalizeEachWord } from '../../utils';
+import { capitalizeEachWord, hasRole } from '../../utils';
 import * as Yup from 'yup';
-import MobilePlanSkeleton from '../../components/loader/MobilePlanSkeleton';
 import { useConnectivity } from '../../hooks/useConnectivity';
+import MobilePlanSkeleton from '../../components/loader/MobilePlanSkeleton';
+
+interface BranchFormValuesType extends Partial<Branch> {
+    subscriptionPlanId?: string;
+    subscriptionMonths?: number;
+}
 
 const BranchForm: FunctionComponent = () => {
     const navigate = useNavigate();
@@ -33,8 +40,10 @@ const BranchForm: FunctionComponent = () => {
     const [districtOptions, setDistrictOptions] = useState<Array<{ label: string; value: string }>>([]);
     const [loadingDistricts, setLoadingDistricts] = useState(true);
 
-    const { branchId } = location.state || {};
+    const { branchId, tenantId: stateTenantId } = location.state || {};
     const { user: authUser } = useAuth();
+
+    const effectiveTenantId = stateTenantId || authUser?.tenantId || '';
 
     const canEdit = useMemo(() => {
         if (!branchId) return permissions.canCreateBranch;
@@ -48,6 +57,10 @@ const BranchForm: FunctionComponent = () => {
 
     const isViewOnly = branchId && !canEdit;
 
+    const canSelectTenant = useMemo(() => {
+        return hasRole(authUser, 'admin');
+    }, [authUser]);
+
     const currencyOptions = [
         { label: 'USD - $', value: 'USD' },
         { label: 'EUR - €', value: 'EUR' },
@@ -60,10 +73,14 @@ const BranchForm: FunctionComponent = () => {
     ];
 
     const branchValidationSchema = Yup.object().shape({
+        tenantId: canSelectTenant ? Yup.string()
+            .required('Tenant is required') : Yup.string(),
         branchName: Yup.string()
             .required('Business name is required')
             .min(2, 'Name must be at least 2 characters')
             .max(255, 'Name is too long'),
+        subscriptionPlanId: !branchId ? Yup.string()
+            .required('Subscription plan is required') : Yup.string(),
         districtId: Yup.string()
             .required('District is required'),
         location: Yup.string()
@@ -117,10 +134,15 @@ const BranchForm: FunctionComponent = () => {
         fetchBranch();
     }, [branchId]);
 
-    const defaultBranchValues: Partial<Branch> = {
+    // For admins creating new branch, don't default to their tenant - let them pick
+    const defaultTenantId = canSelectTenant ? (stateTenantId || '') : effectiveTenantId;
+
+    const defaultBranchValues: BranchFormValuesType = {
         branchId: '',
-        tenantId: authUser?.tenantId || '',
+        tenantId: defaultTenantId,
         branchName: '',
+        subscriptionPlanId: '',
+        subscriptionMonths: 1,
         districtId: '',
         location: '',
         businessType: 'PRODUCT_BASED',
@@ -137,9 +159,9 @@ const BranchForm: FunctionComponent = () => {
         status: 'active'
     };
 
-    const initialBranchValues = branch ? { ...branch } : defaultBranchValues;
+    const initialBranchValues: BranchFormValuesType = branch ? { ...branch } : defaultBranchValues;
 
-    const handleSubmit = async (values: Partial<Branch>, { resetForm }: any) => {
+    const handleSubmit = async (values: BranchFormValuesType, { resetForm }: any) => {
         try {
             if (branch && branch.branchId) {
                 await branchService.update(branch.branchId, values as UpdateBranchRequest);
@@ -209,7 +231,7 @@ const BranchForm: FunctionComponent = () => {
                     initialValues={initialBranchValues}
                     validationSchema={branchValidationSchema}
                 >
-                    {({ isSubmitting, setFieldValue, submitForm }) => (
+                    {({ isSubmitting, setFieldValue, submitForm, values, errors, touched }) => (
                         <Form className="flex flex-col h-full">
                             {isMobile ? (
                                 <MobilePageHeader
@@ -239,6 +261,18 @@ const BranchForm: FunctionComponent = () => {
                             <div className="flex-1 overflow-y-auto max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                                 <FormWrapper>
                                     <div className="py-4 space-y-4">
+                                        {canSelectTenant && (
+                                            <FormFieldCard>
+                                                <TenantSearch
+                                                    value={values.tenantId}
+                                                    onChange={(tenantId) => setFieldValue('tenantId', tenantId)}
+                                                    error={errors.tenantId as string}
+                                                    touched={touched.tenantId as boolean}
+                                                    disabled={isViewOnly}
+                                                />
+                                            </FormFieldCard>
+                                        )}
+
                                         <FormFieldCard>
                                             <FormInput
                                                 type="text"
@@ -317,6 +351,18 @@ const BranchForm: FunctionComponent = () => {
                                                 />
                                             </div>
                                         </FormFieldCard>
+
+                                        {/* Subscription Plan Selection - Only for new branch */}
+                                        {!branch && (
+                                            <SubscriptionPlanSelector
+                                                selectedPlanId={values.subscriptionPlanId || ''}
+                                                subscriptionMonths={values.subscriptionMonths || 1}
+                                                onPlanChange={(planId) => setFieldValue('subscriptionPlanId', planId)}
+                                                onDurationChange={(months) => setFieldValue('subscriptionMonths', months)}
+                                                error={errors.subscriptionPlanId as string}
+                                                touched={touched.subscriptionPlanId as boolean}
+                                            />
+                                        )}
                                     </div>
 
                                     {/* Mobile Delete Button - Only show if user can delete */}
