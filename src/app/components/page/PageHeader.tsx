@@ -63,7 +63,7 @@ const PageHeader: React.FC<PropsWithChildren<PageHeaderProps>> = ({
                             <ArrowLeft className={compact ? "w-5 h-5 text-gray-600 dark:text-gray-400" : "w-6 h-6 text-gray-600 dark:text-gray-400"} />
                         </button>
                     )}
-                    {(icon && !isMobile && isElectron) && (
+                    {(icon && !isMobile && !isElectron) && (
                         <div className={compact
                             ? "flex-shrink-0 [&>svg]:w-5 [&>svg]:h-5"
                             : "flex-shrink-0 [&>svg]:w-6 [&>svg]:h-6 sm:[&>svg]:w-8 sm:[&>svg]:h-8"

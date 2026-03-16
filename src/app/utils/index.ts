@@ -24,6 +24,13 @@ export const formatCurrency = (amount: number, addCurrency?: boolean, prefix = '
 	return addCurrency ? `${prefix}${formatted}` : formatted;
 };
 
+/**
+ * Convert camelCase to readable format (e.g., "productVariants" -> "product variants")
+ */
+export const camelCaseToReadable = (name: string): string => {
+	return name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
+};
+
 export const formatCurrencyShort = (value: number, prefix = 'MK'): string => {
 	if (value >= 1000000) {
 		return `${prefix} ${(value / 1000000).toFixed(1)}M`;

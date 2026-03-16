@@ -39,7 +39,7 @@ const TerminalDetailsView: FunctionComponent<TerminalDetailsViewProps> = ({
             <div className="space-y-6">
                 <div className="text-center">
                     <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Terminal Activated</h2>
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Terminal Details</h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                         Review the details below and save to continue
                     </p>
@@ -50,7 +50,6 @@ const TerminalDetailsView: FunctionComponent<TerminalDetailsViewProps> = ({
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-4">
                     <div className="grid gap-3">
                         <DetailRow label="Terminal Name" value={terminal.terminalLabel} />
-                        <DetailRow label="Terminal ID" value={terminal.terminalId} mono />
                         {terminal.branch && (
                             <DetailRow label="Branch" value={terminal.branch.branchName} />
                         )}
@@ -72,7 +71,7 @@ const TerminalDetailsView: FunctionComponent<TerminalDetailsViewProps> = ({
                     {
                         loading ? (
                             <Loader className="w-5 h-5 animate-spin" />
-                        ) : "Save & Continue Setup"
+                        ) : "Continue Setup"
                     }
                 </Button>
 

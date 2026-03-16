@@ -145,8 +145,10 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
             // Check if the API result is available
             if (item) {
                 const quantity = parseFloat((item.quantity || item.availableQuantity || 0).toString());
+                const isOutOfStock = item.status && item.status.toUpperCase() === 'OUT_OF_STOCK';
                 const isInactive = item.status && item.status.toLowerCase() !== 'active';
-                if (quantity <= 0 || isInactive) {
+                // Block items with zero/negative stock or marked as out of stock
+                if (quantity <= 0 || isOutOfStock || isInactive) {
                     Confirm.show(
                         'Product unavailable',
                         `Product "${item.name || item.displayName}" is out of stock or inactive`,

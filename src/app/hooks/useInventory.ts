@@ -93,10 +93,26 @@ export const useInventory = () => {
         if (!isDefaultItem) {
             // Find by variant ID (the `id` field)
             const currentInventoryItem = inventory.find(p => p.id === variantId)
-            const availableStock = parseInt((currentInventoryItem?.quantity || currentInventoryItem?.availableQuantity || '0').toString())
+            
+            // Check if item is marked as OUT_OF_STOCK
+            const itemStatus = currentInventoryItem?.status || item.status || ''
+            if (itemStatus.toUpperCase() === 'OUT_OF_STOCK') {
+                Notify.failure(`${item.displayName || item.name} is out of stock.`)
+                return
+            }
+            
+            // Use inventory item quantity if found, otherwise use the item's own quantity
+            const availableStock = parseInt((
+                currentInventoryItem?.quantity || 
+                currentInventoryItem?.availableQuantity || 
+                item.quantity || 
+                item.availableQuantity || 
+                '0'
+            ).toString())
             const currentCartQuantity = existingItem ? existingItem.quantity : 0
             const newTotalQuantity = currentCartQuantity + quantity
 
+            // Block items with zero or negative stock
             if (availableStock <= 0) {
                 Notify.failure(`${item.displayName || item.name} is out of stock.`)
                 return

@@ -55,6 +55,10 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
             if (item.expirationDate && new Date(item.expirationDate) < new Date()) {
                 return false;
             }
+            // Filter out items marked as OUT_OF_STOCK
+            if (item.status && item.status.toUpperCase() === 'OUT_OF_STOCK') {
+                return false;
+            }
             // Filter out items with no stock - zero/negative stock items cannot be sold
             const quantity = parseFloat((item.quantity || item.availableQuantity || 0).toString());
             if (quantity <= 0) {
@@ -82,8 +86,13 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
     const handleAddToCart = (item: InventoryItem) => {
         // Validate stock before adding to cart
         const availableStock = parseFloat((item.quantity || item.availableQuantity || 0).toString());
+        // Block items with zero or negative stock
         if (availableStock <= 0) {
             return; // Item is out of stock, don't add
+        }
+        // Block items marked as OUT_OF_STOCK
+        if (item.status && item.status.toUpperCase() === 'OUT_OF_STOCK') {
+            return;
         }
         onAddToCart(item);
         barcodeScannerInputRef.current?.focus();
@@ -146,7 +155,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
         )}>
             <div className={classNames(
                 "bg-white dark:bg-gray-800 rounded-none shadow-xl w-full flex flex-col overflow-hidden border border-gray-200 dark:border-gray-700",
-                isEBN ? "max-w-5xl h-[98vh]" : "max-w-6xl max-h-[90vh]"
+                isEBN ? "max-w-5xl h-[98vh]" : "max-w-6xl h-[90vh]"
             )}>
                 <div className={classNames(
                     "flex items-center justify-between bg-slate-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700",
@@ -201,7 +210,7 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
 
                 <div className={classNames(
                     "flex-1 overflow-auto bg-white dark:bg-gray-800 min-h-0",
-                    showVirtualKeyboard && (isEBN ? "max-h-48" : "max-h-60")
+                    showVirtualKeyboard && showKeyboard && (isEBN ? "max-h-48" : "max-h-60")
                 )}>
                     {filteredItems.length > 0 ? (
                         <div className="divide-y divide-gray-100 dark:divide-gray-700">

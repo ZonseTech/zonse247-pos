@@ -210,7 +210,7 @@ const DesktopPOS: FunctionComponent = () => {
     };
 
     return (
-        <div className="flex flex-col h-full overflow-hidden">
+        <div className="absolute inset-0 flex flex-col overflow-hidden">
             <div className={classNames(
                 "flex-shrink-0",
                 isEBN ? "mb-1" : "mb-2 lg:mb-3"
@@ -234,7 +234,7 @@ const DesktopPOS: FunctionComponent = () => {
                         )}
                     </Panel>
                     <Panel size='1/2' className={classNames(
-                        "bg-gray-800 text-green-400/95 text-center font-bold",
+                        "bg-gray-800 text-green-400/95 text-center font-bold mt-2 mr-2.5",
                         isEBN
                             ? "px-2 py-1.5 text-xl"
                             : "px-4 lg:px-8 py-3 lg:py-4 text-4xl lg:text-6xl"
@@ -244,11 +244,11 @@ const DesktopPOS: FunctionComponent = () => {
                 </div>
             </div>
 
-            <div className="flex-1 min-h-0 overflow-hidden">
+            <div className="flex-1 min-h-0">
                 <div className="h-full flex gap-x-2 lg:gap-x-4">
-                    <Panel size={isEBN && keyboardSettings.enabled ? '2/3' : '3/4'} className='w-full h-full overflow-hidden'>
+                    <Panel size={isEBN && keyboardSettings.enabled ? '2/3' : '3/4'} className='w-full h-full'>
                         <div className={classNames(
-                            "h-full overflow-y-auto",
+                            "h-full",
                             isEBN ? "pb-28" : "pb-48"
                         )}>
                             <CartTable

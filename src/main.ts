@@ -18,7 +18,6 @@ import sessionService from './services/session.service';
 
 let syncJob: SyncJobService | null = null;
 let printAgent: PrintAgentService | null = null;
-let appSetup: { tenantId: string; branchId: string; terminalId: string } | null = null;
 
 if (started) {
 	app.quit();
@@ -97,19 +96,11 @@ app.whenReady().then(async () => {
 		defaultBranchId: setup?.branchId || '',
 	});
 
-	// Store setup for session-based sync job initialization
-	if (setup?.tenantId && setup?.branchId && setup?.terminalId) {
-		appSetup = {
-			tenantId: setup.tenantId,
-			branchId: setup.branchId,
-			terminalId: setup.terminalId,
-		};
-	}
-
 	sessionService.onSessionChange(async (session) => {
 		const liveApiUrl = import.meta.env.VITE_LIVE_API_URL || 'https://api.zonse247.com/api/v1';
+		const setup = await SecureSettingsService.getAppSetup();
 
-		if (session.token && appSetup) {
+		if (session.token && setup?.tenantId && setup?.branchId && setup?.terminalId) {
 			await resetSyncTimestamps();
 
 			const existingJob = getSyncJob();
@@ -118,9 +109,9 @@ app.whenReady().then(async () => {
 				syncJob = initSyncJob({
 					serverUrl: liveApiUrl,
 					apiKey: session.token,
-					terminalId: appSetup.terminalId,
-					tenantId: appSetup.tenantId,
-					branchId: appSetup.branchId,
+					terminalId: setup.terminalId,
+					tenantId: setup.tenantId,
+					branchId: setup.branchId,
 					enablePull: true,
 				});
 
