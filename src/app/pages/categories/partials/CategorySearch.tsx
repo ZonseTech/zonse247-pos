@@ -103,9 +103,14 @@ export const CategorySearch: FunctionComponent<CategorySearchProps> = ({
         setShowCreateModal(true);
     };
 
-    const handleCategoryCreated = async () => {
+    const handleCategoryCreated = async (newCategory?: Category) => {
         await fetchCategories();
         setShowCreateModal(false);
+        
+        if (newCategory?.categoryId) {
+            setSelectedCategory(newCategory);
+            onChange(newCategory.categoryId.toString());
+        }
     };
 
     return (
@@ -161,8 +166,8 @@ export const CategorySearch: FunctionComponent<CategorySearchProps> = ({
             )}
 
             {isOpen && (
-                <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-80 overflow-hidden">
-                    <div className="p-2 border-b border-gray-200 dark:border-gray-700">
+                <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-80 flex flex-col">
+                    <div className="p-2 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <input
@@ -176,7 +181,7 @@ export const CategorySearch: FunctionComponent<CategorySearchProps> = ({
                         </div>
                     </div>
 
-                    <div className="overflow-y-auto max-h-60">
+                    <div className="overflow-y-auto flex-1 min-h-0">
                         {loading ? (
                             <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                                 Loading categories...
@@ -216,7 +221,7 @@ export const CategorySearch: FunctionComponent<CategorySearchProps> = ({
                         )}
                     </div>
 
-                    <div className="p-2 border-t border-gray-200 dark:border-gray-700">
+                    <div className="p-2 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
                         <button
                             type="button"
                             onClick={handleAddCategoryClick}

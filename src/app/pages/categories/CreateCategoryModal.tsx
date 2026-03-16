@@ -117,7 +117,8 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
 
                 setIsOpenForm(false);
             } else {
-                await categoriesService.store(values);
+                const response = await categoriesService.store(values);
+                const createdCategory = response?.data || response;
 
                 const diagOptions = {
                     title: "Category Created Successfully",
@@ -141,7 +142,7 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
                             onClose();
                         }
                         if (onSuccess) {
-                            onSuccess?.();
+                            onSuccess?.(createdCategory);
                         }
                     }
                 );

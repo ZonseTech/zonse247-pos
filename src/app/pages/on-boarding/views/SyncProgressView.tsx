@@ -1,6 +1,5 @@
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useState } from 'react';
 import {
-    CheckCircle2,
     XCircle,
     Loader2,
     AlertTriangle,
@@ -9,10 +8,14 @@ import {
     RefreshCw,
     Cloud,
     HardDrive,
-    SkipForward
+    SkipForward,
+    ChevronDown,
+    ChevronUp,
+    Check
 } from 'lucide-react';
 import AuthLayout from '../../../layouts/AuthLayout';
 import type { SyncProgressViewProps } from '../types';
+import { camelCaseToReadable } from '../../../utils';
 
 /**
  * Get icon and styles for table sync status
@@ -37,7 +40,7 @@ const getStatusDisplay = (status: SyncTableStatus) => {
             };
         case 'completed':
             return {
-                icon: <CheckCircle2 className="w-4 h-4" />,
+                icon: <Check className="w-4 h-4" />,
                 text: 'Completed',
                 bgColor: 'bg-green-100 dark:bg-green-900/30',
                 textColor: 'text-green-600 dark:text-green-400',
@@ -71,9 +74,6 @@ const getStatusDisplay = (status: SyncTableStatus) => {
     }
 };
 
-/**
- * Table progress item component
- */
 const TableProgressItem: FunctionComponent<{
     table: SyncTableProgress;
 }> = ({ table }) => {
@@ -89,30 +89,20 @@ const TableProgressItem: FunctionComponent<{
                     : '';
 
     return (
-        <div
-            className={`flex items-center justify-between p-3 rounded-lg border ${display.borderColor} ${display.bgColor} transition-all duration-300`}
-        >
-            <div className="flex items-center gap-3">
-                <span className={display.textColor}>{display.icon}</span>
-                <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {table.label}
-                    </p>
-                    {progressText && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {progressText}
-                        </p>
-                    )}
-                    {table.error && (
-                        <p className="text-xs text-red-500 dark:text-red-400">
-                            {table.error}
-                        </p>
-                    )}
-                </div>
-            </div>
-            <span className={`text-xs font-medium ${display.textColor}`}>
-                {display.text}
+        <div className="flex items-center gap-2 py-1.5 px-2 rounded border border-gray-100 dark:border-gray-800">
+            <span className={display.textColor}>{display.icon}</span>
+            <span className="text-sm text-gray-900 dark:text-gray-100 flex-1 truncate">
+                {table.label}
             </span>
+            {table.error ? (
+                <span className="text-xs text-red-500 dark:text-red-400 truncate max-w-[120px]">
+                    {table.error}
+                </span>
+            ) : progressText ? (
+                <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                    {progressText}
+                </span>
+            ) : null}
         </div>
     );
 };
@@ -139,16 +129,17 @@ const SyncProgressView: FunctionComponent<SyncProgressViewProps> = ({
     const hasFailed = progress.status === 'failed';
     const isInProgress = progress.status === 'counting' || progress.status === 'fetching' || progress.status === 'saving';
 
+    const [showDetails, setShowDetails] = useState(false);
+
     return (
         <AuthLayout className="">
             <div className="space-y-6">
-                {/* Header */}
                 <div className="text-center">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 mb-4">
                         {isInProgress ? (
                             <Loader2 className="w-8 h-8 text-primary-600 dark:text-primary-400 animate-spin" />
                         ) : isComplete ? (
-                            <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
+                            <Check className="w-8 h-8 text-green-600 dark:text-green-400" />
                         ) : hasFailed ? (
                             <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
                         ) : (
@@ -172,7 +163,6 @@ const SyncProgressView: FunctionComponent<SyncProgressViewProps> = ({
                     </p>
                 </div>
 
-                {/* Terminal Info */}
                 <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
@@ -190,7 +180,6 @@ const SyncProgressView: FunctionComponent<SyncProgressViewProps> = ({
                     </div>
                 </div>
 
-                {/* Progress Bar */}
                 <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                         <span className="text-gray-600 dark:text-gray-400">
@@ -203,7 +192,7 @@ const SyncProgressView: FunctionComponent<SyncProgressViewProps> = ({
                             {progress.status === 'fetching' && (
                                 <span className="flex items-center gap-1">
                                     <Download className="w-4 h-4" />
-                                    Fetching: {progress.currentTable || 'data'}...
+                                    Fetching: {progress.currentTable ? camelCaseToReadable(progress.currentTable) : 'data'}...
                                 </span>
                             )}
                             {progress.status === 'saving' && (
@@ -214,7 +203,7 @@ const SyncProgressView: FunctionComponent<SyncProgressViewProps> = ({
                             )}
                             {progress.status === 'completed' && (
                                 <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                                    <CheckCircle2 className="w-4 h-4" />
+                                    <Check className="w-4 h-4" />
                                     Sync completed
                                 </span>
                             )}
@@ -247,14 +236,28 @@ const SyncProgressView: FunctionComponent<SyncProgressViewProps> = ({
                     </div>
                 </div>
 
-                {/* Table List */}
-                <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                    {progress.tables.map((table) => (
-                        <TableProgressItem key={table.table} table={table} />
-                    ))}
+                <div>
+                    <button
+                        type="button"
+                        onClick={() => setShowDetails(!showDetails)}
+                        className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors mb-2"
+                    >
+                        {showDetails ? (
+                            <ChevronUp className="w-4 h-4" />
+                        ) : (
+                            <ChevronDown className="w-4 h-4" />
+                        )}
+                        {showDetails ? 'Hide details' : 'Show details'}
+                    </button>
+                    {showDetails && (
+                        <div className="space-y-1 max-h-[300px] overflow-y-auto">
+                            {progress.tables.map((table) => (
+                                <TableProgressItem key={table.table} table={table} />
+                            ))}
+                        </div>
+                    )}
                 </div>
 
-                {/* Error Message */}
                 {progress.error && (
                     <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
                         <div className="flex items-start gap-3">
@@ -271,7 +274,6 @@ const SyncProgressView: FunctionComponent<SyncProgressViewProps> = ({
                     </div>
                 )}
 
-                {/* Actions */}
                 <div className="flex gap-3">
                     {hasFailed && (
                         <button
@@ -291,13 +293,12 @@ const SyncProgressView: FunctionComponent<SyncProgressViewProps> = ({
                                 : 'bg-amber-500 hover:bg-amber-600 text-white'
                                 }`}
                         >
-                            <CheckCircle2 className="w-5 h-5" />
+                            <Check className="w-5 h-5" />
                             {isComplete ? 'Complete Setup' : 'Continue Anyway'}
                         </button>
                     )}
                 </div>
 
-                {/* Footer Info */}
                 {progress.lastSyncTimestamp && (
                     <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
                         Last sync: {new Date(progress.lastSyncTimestamp).toLocaleString()}
