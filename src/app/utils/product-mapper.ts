@@ -17,7 +17,10 @@ export function mapProductToInventoryItem(product: ProductWithInventory): Invent
         barcode: product.primaryBarcode || '',
         primaryBarcode: product.primaryBarcode || undefined,
         sku: product.sku || undefined,
-        name: product.displayName || product.name,
+        // Combine product name + variant name for cart display
+        name: product.variantName && product.variantName !== product.name
+            ? `${product.name} - ${product.variantName}`
+            : product.name,
         variantName: product.variantName,
         displayName: product.displayName,
         description: product.description || undefined,
@@ -40,7 +43,10 @@ export function mapProductToInventoryItem(product: ProductWithInventory): Invent
         status: product.status || 'ACTIVE',
         isTaxable: product.isTaxable ?? true,
         isActive: product.isActive ?? true,
-        isDefault: product.isDefault ?? false,
+        // Always set isDefault to false for API products
+        // The API's isDefault indicates "default variant of a product"
+        // but the cart uses isDefault to mark "custom/manually-added items"
+        isDefault: false,
         // Images and media
         imageUrl: product.imageUrl || undefined,
         // Category details
