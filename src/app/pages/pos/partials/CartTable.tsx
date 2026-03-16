@@ -35,53 +35,13 @@ const CartTable: FunctionComponent<CartTableProps> = ({
     };
 
     return (
-        <div className="h-full flex flex-col bg-white dark:bg-gray-900 rounded-none border border-gray-100 dark:border-gray-800 overflow-hidden">
-            <div className={classNames(
-                "border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900",
-                compact ? "px-2 py-1.5" : "px-5 py-4"
-            )}>
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className={classNames(
-                            "bg-sky-100 dark:bg-sky-500/20 rounded-xl",
-                            compact ? "p-1" : "p-2.5"
-                        )}>
-                            <HiOutlineShoppingCart className={classNames(
-                                "text-sky-500 dark:text-sky-400",
-                                compact ? "w-3.5 h-3.5" : "w-6 h-6"
-                            )} />
-                        </div>
-                        <div>
-                            <h3 className={classNames(
-                                "font-semibold text-gray-900 dark:text-white",
-                                compact ? "text-xs" : "text-lg"
-                            )}>Shopping Cart</h3>
-                            <p className={classNames(
-                                "text-gray-500 dark:text-gray-400",
-                                compact ? "text-[10px]" : "text-sm"
-                            )}>
-                                {cart.length} {cart.length === 1 ? 'item' : 'items'}
-                            </p>
-                        </div>
-                    </div>
-                    {cart.length > 0 && (
-                        <span className={classNames(
-                            "font-semibold bg-sky-500 text-white rounded-full",
-                            compact ? "px-1.5 py-0.5 text-[10px]" : "px-3 py-1.5 text-sm"
-                        )}>
-                            {cart.reduce((sum, item) => sum + item.quantity, 0)} units
-                        </span>
-                    )}
-                </div>
-            </div>
-
-            <div className="flex-grow overflow-auto">
-                <table className="w-full table-fixed border-collapse">
-                    <thead className="bg-gray-50/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10">
-                        <tr>
-                            <th className={classNames(
-                                "text-left",
-                                compact ? "w-[32%] px-1.5 py-1" : "w-[28%] px-3 py-2 lg:px-4 lg:py-4"
+        <div className="h-full bg-white dark:bg-gray-900 rounded-none border border-gray-100 dark:border-gray-800 overflow-auto">
+            <table className="w-full table-fixed border-collapse">
+                <thead className="bg-gray-50/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10">
+                    <tr>
+                        <th className={classNames(
+                            "text-left",
+                            compact ? "w-[32%] px-1.5 py-1" : "w-[28%] px-3 py-2 lg:px-4 lg:py-4"
                             )}>
                                 <div className={classNames(
                                     "flex items-center gap-1 font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider",
@@ -313,7 +273,6 @@ const CartTable: FunctionComponent<CartTableProps> = ({
                         )}
                     </tbody>
                 </table>
-            </div>
         </div >
     )
 }
