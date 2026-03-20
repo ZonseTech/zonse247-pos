@@ -7,7 +7,7 @@ const Breadcrumb: FunctionComponent<{ staggerContainer, fadeInUp }> = ({ stagger
 	return (
 		<Fragment>
 			<motion.div
-				className="bg-white dark:bg-gray-700 dark:bg-gray-900 border-none"
+				className="bg-white dark:bg-gray-900 border-none"
 				initial={{ opacity: 0 }}
 				animate={{ opacity: 1 }}
 				transition={{ delay: 0.4, duration: 0.6 }}
@@ -20,7 +20,7 @@ const Breadcrumb: FunctionComponent<{ staggerContainer, fadeInUp }> = ({ stagger
 						animate="visible"
 					>
 						<motion.span
-							className="text-[#102f4f] dark:text-white dark:text-gray-100 hover:underline cursor-pointer"
+							className="text-[#102f4f] dark:text-gray-100 hover:underline cursor-pointer"
 							variants={fadeInUp}
 							whileHover={{ scale: 1.05 }}
 						>
@@ -30,7 +30,7 @@ const Breadcrumb: FunctionComponent<{ staggerContainer, fadeInUp }> = ({ stagger
 							<ChevronRight className="w-4 h-4" />
 						</motion.div>
 						<motion.span
-							className="text-[#102f4f] dark:text-white dark:text-gray-100 hover:underline cursor-pointer"
+							className="text-[#102f4f] dark:text-gray-100 hover:underline cursor-pointer"
 							variants={fadeInUp}
 							whileHover={{ scale: 1.05 }}
 						>
@@ -40,7 +40,7 @@ const Breadcrumb: FunctionComponent<{ staggerContainer, fadeInUp }> = ({ stagger
 							<ChevronRight className="w-4 h-4" />
 						</motion.div>
 						<motion.span
-							className="text-[#102f4f] dark:text-white dark:text-gray-100"
+							className="text-[#102f4f] dark:text-gray-100"
 							variants={fadeInUp}
 						>
 							Point of Sale
