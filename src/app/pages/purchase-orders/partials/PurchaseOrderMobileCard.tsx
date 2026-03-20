@@ -1,10 +1,11 @@
 import { FC } from 'react';
-import { Eye, CheckCircle, XCircle, Package, Calendar, Truck, DollarSign } from 'lucide-react';
+import { Eye, CheckCircle, XCircle, Send, Package, Calendar, Truck } from 'lucide-react';
 import dayjs from 'dayjs';
 
 interface PurchaseOrderMobileCardProps {
     purchaseOrder: PurchaseOrder;
     onReceive: (po: PurchaseOrder) => void;
+    onSend: (po: PurchaseOrder) => void;
     onCancel: (po: PurchaseOrder) => void;
     onView: (po: PurchaseOrder) => void;
 }
@@ -21,6 +22,18 @@ const statusConfig: Record<PurchaseOrderStatus, { bg: string; text: string; dot:
         text: 'text-yellow-800 dark:text-yellow-400',
         dot: 'bg-yellow-500',
         label: 'Pending'
+    },
+    SENT: {
+        bg: 'bg-indigo-100 dark:bg-indigo-900/30',
+        text: 'text-indigo-800 dark:text-indigo-400',
+        dot: 'bg-indigo-500',
+        label: 'Sent'
+    },
+    SHIPPED: {
+        bg: 'bg-purple-100 dark:bg-purple-900/30',
+        text: 'text-purple-800 dark:text-purple-400',
+        dot: 'bg-purple-500',
+        label: 'Shipped'
     },
     PARTIALLY_RECEIVED: {
         bg: 'bg-sky-100 dark:bg-sky-900/30',
@@ -45,6 +58,7 @@ const statusConfig: Record<PurchaseOrderStatus, { bg: string; text: string; dot:
 const PurchaseOrderMobileCard: FC<PurchaseOrderMobileCardProps> = ({
     purchaseOrder,
     onReceive,
+    onSend,
     onCancel,
     onView,
 }) => {
@@ -93,6 +107,30 @@ const PurchaseOrderMobileCard: FC<PurchaseOrderMobileCardProps> = ({
                 </div>
             </div>
 
+            {/* Receive progress bar for partial/received POs */}
+            {(() => {
+                const totalOrdered = purchaseOrder.items?.reduce((s, i) => s + i.orderedQuantity, 0) || 0;
+                const totalReceived = purchaseOrder.items?.reduce((s, i) => s + (i.receivedQuantity || 0), 0) || 0;
+                const isPartial = purchaseOrder.status === 'PARTIALLY_RECEIVED';
+                const isFullyReceived = purchaseOrder.status === 'RECEIVED';
+                if ((!isPartial && !isFullyReceived) || totalOrdered === 0) return null;
+                const progress = Math.round((totalReceived / totalOrdered) * 100);
+                return (
+                    <div className="mb-3">
+                        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+                            <span>Received</span>
+                            <span className="font-medium">{totalReceived}/{totalOrdered} ({progress}%)</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <div
+                                className={`h-full rounded-full transition-all ${isFullyReceived ? 'bg-green-500' : 'bg-sky-500'}`}
+                                style={{ width: `${progress}%` }}
+                            />
+                        </div>
+                    </div>
+                );
+            })()}
+
             {/* Expected delivery */}
             {purchaseOrder.expectedDeliveryDate && (
                 <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 mb-3">
@@ -110,7 +148,16 @@ const PurchaseOrderMobileCard: FC<PurchaseOrderMobileCardProps> = ({
                     <Eye className="w-4 h-4" />
                     <span>View</span>
                 </button>
-                {(purchaseOrder.status === 'PENDING' || purchaseOrder.status === 'PARTIALLY_RECEIVED') && (
+                {(purchaseOrder.status === 'DRAFT' || purchaseOrder.status === 'PENDING') && (
+                    <button
+                        onClick={() => onSend(purchaseOrder)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-indigo-500 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
+                    >
+                        <Send className="w-4 h-4" />
+                        <span>Send</span>
+                    </button>
+                )}
+                {(purchaseOrder.status === 'SENT' || purchaseOrder.status === 'SHIPPED' || purchaseOrder.status === 'PARTIALLY_RECEIVED') && (
                     <button
                         onClick={() => onReceive(purchaseOrder)}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-green-500 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
@@ -119,7 +166,7 @@ const PurchaseOrderMobileCard: FC<PurchaseOrderMobileCardProps> = ({
                         <span>Receive</span>
                     </button>
                 )}
-                {purchaseOrder.status === 'PENDING' && (
+                {(purchaseOrder.status === 'DRAFT' || purchaseOrder.status === 'PENDING' || purchaseOrder.status === 'SENT') && (
                     <button
                         onClick={() => onCancel(purchaseOrder)}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ml-auto"
@@ -136,6 +183,7 @@ const PurchaseOrderMobileCard: FC<PurchaseOrderMobileCardProps> = ({
 interface PurchaseOrderMobileListProps {
     purchaseOrders: PurchaseOrder[];
     onReceive: (po: PurchaseOrder) => void;
+    onSend: (po: PurchaseOrder) => void;
     onCancel: (po: PurchaseOrder) => void;
     onView: (po: PurchaseOrder) => void;
     isLoading?: boolean;
@@ -144,6 +192,7 @@ interface PurchaseOrderMobileListProps {
 export const PurchaseOrderMobileList: FC<PurchaseOrderMobileListProps> = ({
     purchaseOrders,
     onReceive,
+    onSend,
     onCancel,
     onView,
     isLoading = false,
@@ -181,6 +230,7 @@ export const PurchaseOrderMobileList: FC<PurchaseOrderMobileListProps> = ({
                     key={po.id}
                     purchaseOrder={po}
                     onReceive={onReceive}
+                    onSend={onSend}
                     onCancel={onCancel}
                     onView={onView}
                 />

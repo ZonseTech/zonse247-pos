@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Notify } from 'notiflix';
 import { productService } from '../services';
 import { useSettings } from './useSettings';
+import { getErrorMessage } from '../utils/api-error-handler';
 
 export const useProducts = () => {
     const { setup } = useSettings();
@@ -37,7 +38,7 @@ export const useProducts = () => {
             setProducts(result.products || []);
             setTotalRows(result.pagination?.total || result.pagination?.totalItems || 0);
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to load products');
+            Notify.failure(getErrorMessage(error, 'Failed to load products'));
             console.error('Load products error:', error);
             setProducts([]);
             setTotalRows(0);
@@ -55,7 +56,7 @@ export const useProducts = () => {
             const result = await productService.searchProduct(term, tenantId, branchId);
             return result;
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Product not found');
+            Notify.failure(getErrorMessage(error, 'Product not found'));
             return null;
         }
     }, []);
@@ -67,7 +68,7 @@ export const useProducts = () => {
             loadProducts();
             return product;
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to create product');
+            Notify.failure(getErrorMessage(error, 'Failed to create product'));
             throw error;
         }
     }, [loadProducts]);
@@ -79,7 +80,7 @@ export const useProducts = () => {
             loadProducts();
             return product;
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to update product');
+            Notify.failure(getErrorMessage(error, 'Failed to update product'));
             throw error;
         }
     }, [loadProducts]);
@@ -92,7 +93,7 @@ export const useProducts = () => {
             Notify.success('Product deleted successfully');
             loadProducts();
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to delete product');
+            Notify.failure(getErrorMessage(error, 'Failed to delete product'));
             throw error;
         }
     }, [loadProducts]);
@@ -101,7 +102,7 @@ export const useProducts = () => {
         try {
             return await productService.getProduct(productId, tenantId, branchId);
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to load product');
+            Notify.failure(getErrorMessage(error, 'Failed to load product'));
             return null;
         }
     }, []);

@@ -262,6 +262,7 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
                                         }}
                                         onDelete={() => handleDeleteVariant(setFieldValue, values.variants, editingVariantIndex)}
                                         isNewVariant={isNewVariant}
+                                        isEditing={!!productId}
                                         newVariantData={isNewVariant ? newVariantData : undefined}
                                         onNewVariantChange={isNewVariant ? setNewVariantData : undefined}
                                     />

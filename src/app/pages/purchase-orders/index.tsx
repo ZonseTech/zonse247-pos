@@ -4,8 +4,9 @@ import { ShoppingCart, Settings2 } from 'lucide-react';
 import DataTable, { type Themes } from 'react-data-table-component';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
-import { HiOutlinePlus, HiOutlineChevronLeft, HiOutlineChevronRight } from 'react-icons/hi2';
+import { HiOutlinePlus } from 'react-icons/hi2';
 import { HiOutlineFilter } from 'react-icons/hi';
+import MobilePagination from '../../components/MobilePagination';
 import { getTableStyles } from '../../utils/table-styles';
 import { Button, ZonseThemeContext, Select, ComponentLoader } from '../../components';
 import { usePurchaseOrders } from '../../hooks/usePurchaseOrders';
@@ -36,6 +37,7 @@ const PurchaseOrderManagement: FunctionComponent = () => {
         totalRows,
         statusFilter,
         setStatusFilter,
+        sendPurchaseOrder,
         receivePurchaseOrder,
         cancelPurchaseOrder,
     } = usePurchaseOrders();
@@ -46,9 +48,10 @@ const PurchaseOrderManagement: FunctionComponent = () => {
 
     // Calculate summary stats
     const summaryCards: PurchaseOrderSummaryCard[] = useMemo(() => {
-        const pendingCount = purchaseOrders.filter(po => po.status === 'PENDING' || po.status === 'PARTIALLY_RECEIVED').length;
+        const pendingCount = purchaseOrders.filter(po => po.status === 'PENDING' || po.status === 'DRAFT').length;
+        const sentCount = purchaseOrders.filter(po => po.status === 'SENT' || po.status === 'SHIPPED').length;
+        const partialCount = purchaseOrders.filter(po => po.status === 'PARTIALLY_RECEIVED').length;
         const receivedCount = purchaseOrders.filter(po => po.status === 'RECEIVED').length;
-        const cancelledCount = purchaseOrders.filter(po => po.status === 'CANCELLED').length;
 
         return [
             {
@@ -60,12 +63,28 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                 textColor: 'text-sky-500 dark:text-sky-400',
             },
             {
-                title: 'Pending',
+                title: 'Pending / Draft',
                 value: pendingCount,
                 icon: 'pending',
                 bgColor: 'bg-amber-50 dark:bg-amber-900/20',
                 iconBgColor: 'bg-amber-100 dark:bg-amber-900/40',
                 textColor: 'text-amber-500 dark:text-amber-400',
+            },
+            {
+                title: 'Sent / In Transit',
+                value: sentCount,
+                icon: 'sent',
+                bgColor: 'bg-indigo-50 dark:bg-indigo-900/20',
+                iconBgColor: 'bg-indigo-100 dark:bg-indigo-900/40',
+                textColor: 'text-indigo-500 dark:text-indigo-400',
+            },
+            {
+                title: 'Partial Received',
+                value: partialCount,
+                icon: 'sent',
+                bgColor: 'bg-cyan-50 dark:bg-cyan-900/20',
+                iconBgColor: 'bg-cyan-100 dark:bg-cyan-900/40',
+                textColor: 'text-cyan-500 dark:text-cyan-400',
             },
             {
                 title: 'Received',
@@ -75,20 +94,24 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                 iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
                 textColor: 'text-emerald-500 dark:text-emerald-400',
             },
-            {
-                title: 'Cancelled',
-                value: cancelledCount,
-                icon: 'cancelled',
-                bgColor: 'bg-red-50 dark:bg-red-900/20',
-                iconBgColor: 'bg-red-100 dark:bg-red-900/40',
-                textColor: 'text-red-500 dark:text-red-400',
-            },
         ];
     }, [purchaseOrders, totalRows]);
 
     const handleAddPO = useCallback(() => {
         navigate(ROUTES.PURCHASE_ORDER_FORM);
     }, [navigate]);
+
+    const handleSend = useCallback(async (po: PurchaseOrder) => {
+        Confirm.show(
+            'Send Purchase Order',
+            `Send ${po.poNumber} to ${po.supplier?.name || 'supplier'}?`,
+            'Yes, Send',
+            'Cancel',
+            async () => {
+                await sendPurchaseOrder(po.id);
+            }
+        );
+    }, [sendPurchaseOrder]);
 
     const handleReceive = useCallback((po: PurchaseOrder) => {
         setReceivingPO(po);
@@ -128,6 +151,7 @@ const PurchaseOrderManagement: FunctionComponent = () => {
     }, [setPerPage, setPage]);
 
     const columns = getPurchaseOrderTableColumns({
+        onSend: handleSend,
         onReceive: handleReceive,
         onCancel: handleCancel,
         onView: handleView,
@@ -161,6 +185,12 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                                 </option>
                                 <option value="RECEIVED" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                                     Received
+                                </option>
+                                <option value="SENT" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                    Sent
+                                </option>
+                                <option value="SHIPPED" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                    Shipped
                                 </option>
                                 <option value="CANCELLED" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                                     Cancelled
@@ -214,6 +244,7 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                             {isLoading ? (
                                 <PurchaseOrderMobileList
                                     purchaseOrders={[]}
+                                    onSend={handleSend}
                                     onReceive={handleReceive}
                                     onCancel={handleCancel}
                                     onView={handleView}
@@ -245,37 +276,14 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                                 <>
                                     <PurchaseOrderMobileList
                                         purchaseOrders={purchaseOrders}
+                                        onSend={handleSend}
                                         onReceive={handleReceive}
                                         onCancel={handleCancel}
                                         onView={handleView}
                                         isLoading={false}
                                     />
 
-                                    {/* Mobile Pagination */}
-                                    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-                                        <span className="text-xs text-gray-600 dark:text-gray-400">
-                                            {totalRows} total
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={() => setPage(Math.max(1, page - 1))}
-                                                disabled={page <= 1}
-                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                <HiOutlineChevronLeft className="w-5 h-5" />
-                                            </button>
-                                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                                                {page} / {Math.ceil(totalRows / perPage) || 1}
-                                            </span>
-                                            <button
-                                                onClick={() => setPage(Math.min(Math.ceil(totalRows / perPage), page + 1))}
-                                                disabled={page >= Math.ceil(totalRows / perPage)}
-                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                <HiOutlineChevronRight className="w-5 h-5" />
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <MobilePagination page={page} totalRows={totalRows} perPage={perPage} onPageChange={setPage} />
                                 </>
                             )}
                         </div>

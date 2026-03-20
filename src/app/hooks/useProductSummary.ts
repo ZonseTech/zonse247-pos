@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { productService } from '../services';
+import { getErrorMessage } from '../utils/api-error-handler';
 
 export interface SummaryCard {
     title: string;
@@ -78,7 +79,7 @@ export const useProductSummary = (
             ];
             setSummaryData(newSummaryData);
         } catch (error: any) {
-            toast.error("Error loading summary: " + error?.error?.response?.data?.message);
+            toast.error("Error loading summary: " + getErrorMessage(error, 'Unknown error'));
         }
     };
 

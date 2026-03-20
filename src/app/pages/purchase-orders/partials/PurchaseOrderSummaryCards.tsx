@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { ShoppingCart, Clock, CheckCircle, XCircle, LucideIcon } from 'lucide-react';
+import { ShoppingCart, Clock, CheckCircle, XCircle, Send, LucideIcon } from 'lucide-react';
 
 export interface PurchaseOrderSummaryCard {
     title: string;
@@ -8,7 +8,7 @@ export interface PurchaseOrderSummaryCard {
     bgColor: string;
     iconBgColor: string;
     textColor: string;
-    icon?: 'total' | 'pending' | 'received' | 'cancelled';
+    icon?: 'total' | 'pending' | 'sent' | 'received' | 'cancelled';
 }
 
 interface PurchaseOrderSummaryCardsProps {
@@ -19,6 +19,7 @@ interface PurchaseOrderSummaryCardsProps {
 const iconMap: Record<string, LucideIcon> = {
     total: ShoppingCart,
     pending: Clock,
+    sent: Send,
     received: CheckCircle,
     cancelled: XCircle,
 };

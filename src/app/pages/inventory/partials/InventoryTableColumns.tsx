@@ -530,6 +530,9 @@ export const getInventoryTableColumns = ({
             name: 'Actions',
             cell: (row) => {
                 const productId = row.id?.toString() || '';
+                const isInactive = !row.isActive;
+                const isDiscontinued = row.status === 'DISCONTINUED';
+                const disableStockActions = isInactive || isDiscontinued;
                 return (
                     <div className="flex items-center space-x-0.5">
                         {onView && (
@@ -550,7 +553,7 @@ export const getInventoryTableColumns = ({
                                 <History className="w-4 h-4" />
                             </button>
                         ) : null}
-                        {onAdjustQuantity ? (
+                        {onAdjustQuantity && !disableStockActions ? (
                             <button
                                 onClick={(e) => { e.stopPropagation(); onAdjustQuantity(row); }}
                                 className="group p-1.5 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20"
@@ -559,7 +562,7 @@ export const getInventoryTableColumns = ({
                                 <PackagePlus className="w-4 h-4" />
                             </button>
                         ) : null}
-                        {onConvertToVariant ? (
+                        {onConvertToVariant && !disableStockActions ? (
                             <button
                                 onClick={(e) => { e.stopPropagation(); onConvertToVariant(row); }}
                                 className="group p-1.5 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
@@ -575,13 +578,15 @@ export const getInventoryTableColumns = ({
                         >
                             <Edit2 className="w-4 h-4" />
                         </button>
-                        <button
-                            onClick={(e) => { e.stopPropagation(); onDelete(productId); }}
-                            className="group p-1.5 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-                            title="Delete Item"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </button>
+                        {!isDiscontinued && (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onDelete(productId); }}
+                                className="group p-1.5 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                title="Delete Item"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        )}
                     </div>
                 );
             },

@@ -26,6 +26,7 @@ interface VariantModalProps {
     onSave: () => void;
     onDelete?: () => void;
     isNewVariant?: boolean;
+    isEditing?: boolean;
     newVariantData?: Variant;
     onNewVariantChange?: (variant: Variant) => void;
 }
@@ -37,6 +38,7 @@ const VariantModal: FunctionComponent<VariantModalProps> = ({
     onSave,
     onDelete,
     isNewVariant = false,
+    isEditing = false,
     newVariantData,
     onNewVariantChange,
 }) => {
@@ -143,6 +145,7 @@ const VariantModal: FunctionComponent<VariantModalProps> = ({
                 <StockFields
                     fieldPrefix={fieldPrefix}
                     isNewVariant={isNewVariant}
+                    isEditing={isEditing}
                     getStock={getNumberValue}
                     onChange={handleNumberChange}
                     trackInventory={Boolean(variant?.trackInventory)}
