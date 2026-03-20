@@ -12,6 +12,7 @@ import { getErrorMessage } from '../../../utils/api-error-handler';
 
 type Props = {
     userId: string;
+    onSuccess?: () => void;
 };
 
 type PasswordValues = {
@@ -37,7 +38,7 @@ const initialPasswordValues: PasswordValues = {
     confirmPassword: '',
 };
 
-const ChangePasswordForm: FunctionComponent<Props> = ({ userId }) => {
+const ChangePasswordForm: FunctionComponent<Props> = ({ userId, onSuccess }) => {
 
     const handlePasswordSubmit = async (
         values: PasswordValues,
@@ -51,6 +52,7 @@ const ChangePasswordForm: FunctionComponent<Props> = ({ userId }) => {
             });
             Report.success('Success!', 'Password changed successfully', 'Ok');
             resetForm();
+            onSuccess?.();
         } catch (error: any) {
             Notify.failure(
                 getErrorMessage(error, 'An error occurred while changing password')
