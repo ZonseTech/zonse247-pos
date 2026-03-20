@@ -1,60 +1,87 @@
 /**
  * Purchase Order Types
- * Aligned with zonse247-pos-api module
- * Following the principle: "Orders show intent, receipts confirm reality"
+ * Aligned with zonse247-pos-api v1.6.1
+ *
+ * PO flow: DRAFT → SENT → PARTIALLY_RECEIVED / RECEIVED
+ * "Orders show intent, receipts confirm reality"
  */
 
 /**
- * Purchase order status (from Prisma)
+ * Purchase order status
  */
 type PurchaseOrderStatus =
-    | 'DRAFT'              // Being created
-    | 'PENDING'            // Sent to supplier, awaiting delivery
-    | 'PARTIALLY_RECEIVED' // Some items received
-    | 'RECEIVED'           // All items received
-    | 'CANCELLED';         // Order cancelled
+    | 'PENDING'
+    | 'DRAFT'
+    | 'SENT'
+    | 'SHIPPED'
+    | 'PARTIALLY_RECEIVED'
+    | 'RECEIVED'
+    | 'CANCELLED';
 
 /**
- * Purchase order item - aligned with API model
+ * Purchase order item — aligned with API model
  */
 interface PurchaseOrderItem {
     id: string;
     purchaseOrderId: string;
-    productId: string;
+    tenantId: string;
+    branchId: string;
+    variantId: string;
+
+    // Quantities
+    orderedQuantity: number;
+    receivedQuantity: number;
+    damagedQuantity: number;
+    invoicedQuantity: number;
+
+    // Pricing
+    unitPrice: number;
+    totalPrice: number; // orderedQuantity × unitPrice
+
+    // Notes
+    notes?: string;
+
+    // Versioning
+    version: number;
+    deletedAt?: Date | string | null;
+
+    // Audit
+    createdAt: Date | string;
+    updatedAt: Date | string;
+
+    // Relations (populated in responses)
+    variant?: {
+        id: string;
+        variantName: string;
+        sku?: string;
+        product?: {
+            id: string;
+            name: string;
+        };
+    };
+
+    /**
+     * @deprecated Use variantId instead. Kept for backward compat.
+     */
+    productId?: string;
+    /**
+     * @deprecated Use variant instead. Kept for backward compat.
+     */
     product?: {
         id: string;
         name: string;
         sku: string;
     };
-
-    // Quantities
-    orderedQuantity: number;    // What we ordered
-    receivedQuantity: number;   // What we actually got (good stock)
-    damagedQuantity: number;    // What arrived damaged
-
-    // Pricing
-    unitPrice: number;          // Price per unit
-    totalPrice: number;         // orderedQuantity * unitPrice (calculated)
-
-    // Notes
-    notes?: string;
-
-    // Audit
-    createdAt: Date | string;
-    updatedAt: Date | string;
 }
 
 /**
- * Main Purchase Order entity - aligned with API model
+ * Main Purchase Order entity — aligned with API model
  */
 interface PurchaseOrder {
     id: string;
-    purchaseOrderId: string; // Same as id - for compatibility
+    purchaseOrderId: string; // Same as id — for compatibility
     tenantId: string;
     branchId: string;
-
-    // Reference
-    poNumber: string; // Auto-generated: PO-YYYYMM-XXXX
 
     // Supplier
     supplierId: string;
@@ -62,6 +89,16 @@ interface PurchaseOrder {
         id: string;
         name: string;
     };
+
+    // Requisition link (optional)
+    requisitionId?: string | null;
+    requisition?: {
+        id: string;
+        requisitionNumber: string;
+    } | null;
+
+    // Reference
+    poNumber: string; // Auto-generated: PO-YYYYMM-XXXX
 
     // Status
     status: PurchaseOrderStatus;
@@ -78,42 +115,69 @@ interface PurchaseOrder {
     // Notes
     notes?: string;
 
-    // Receiving info
-    receivedBy?: string; // User ID who received the order
+    // Users
+    createdBy: string;
+    receivedBy?: string;
+
+    // Versioning
+    version: number;
+    deletedAt?: Date | string | null;
 
     // Audit
-    createdBy: string;
     createdAt: Date | string;
     updatedAt: Date | string;
 
-    // Computed field for UI (calculated from items)
+    // Computed (UI convenience)
     totalAmount?: number;
 }
 
+// ─── Input Payloads ────────────────────────────────────────────────────────
+
 /**
- * Create purchase order input - aligned with API
+ * Create purchase order input — aligned with API
  */
 interface CreatePurchaseOrderInput {
     supplierId: string;
+    requisitionId?: string;
     expectedDeliveryDate?: string;
     notes?: string;
+    createdBy: string;
     items: {
-        productId: string;
+        variantId: string;
         orderedQuantity: number;
         unitPrice: number;
+        notes?: string;
     }[];
 }
 
 /**
- * Receive purchase order input - aligned with API
+ * Update purchase order input (DRAFT only)
+ */
+interface UpdatePurchaseOrderInput {
+    supplierId?: string;
+    expectedDeliveryDate?: string;
+    notes?: string;
+    items?: {
+        variantId: string;
+        orderedQuantity: number;
+        unitPrice: number;
+        notes?: string;
+    }[];
+}
+
+/**
+ * Receive purchase order input — aligned with API
  */
 interface ReceivePurchaseOrderInput {
+    receivedBy: string;
     items: {
-        productId: string;
+        variantId: string;
         receivedQuantity: number;
         damagedQuantity: number;
     }[];
 }
+
+// ─── Query & Response ──────────────────────────────────────────────────────
 
 /**
  * Purchase order list query
@@ -121,12 +185,13 @@ interface ReceivePurchaseOrderInput {
 interface PurchaseOrderListQuery {
     status?: PurchaseOrderStatus;
     supplierId?: string;
+    requisitionId?: string;
     page?: number;
     limit?: number;
 }
 
 /**
- * Purchase order response
+ * Single PO API response
  */
 interface PurchaseOrderResponse {
     success: boolean;
@@ -135,7 +200,7 @@ interface PurchaseOrderResponse {
 }
 
 /**
- * Purchase order list response - aligned with API
+ * PO list API response
  */
 interface PurchaseOrderListResponse {
     success: boolean;
@@ -149,6 +214,17 @@ interface PurchaseOrderListResponse {
             itemsPerPage: number;
         };
     };
+}
+
+/**
+ * Create PO from approved requisition input
+ */
+interface CreatePOFromRequisitionInput {
+    requisitionId: string;
+    supplierId: string;
+    itemPrices: { variantId: string; unitPrice: number }[];
+    expectedDeliveryDate?: string;
+    notes?: string;
 }
 
 // Legacy type aliases for backward compatibility
