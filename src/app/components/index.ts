@@ -25,6 +25,7 @@ export { default as Modal } from './Modal';
 export { default as ModalFooter } from './ModalFooter';
 export { default as ModalHeader } from './ModalHeader';
 export { default as Pagination } from './Pagination';
+export { default as MobilePagination } from './MobilePagination';
 export { default as PageTitle } from './typography/PageTitle';
 export { default as SectionTitle } from './typography/SectionTitle';
 export { default as Select } from './Select';

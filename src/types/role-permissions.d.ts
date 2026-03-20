@@ -28,10 +28,14 @@ interface PermissionCategory { }
 interface PermissionScope { }
 
 interface RolePermission {
+    id?: number;
     rolePermissionId: string;
     roleId: string;
     permissionId: string;
     createdAt?: Date;
+    updatedAt?: Date;
+    version?: number;
+    deletedAt?: Date | null;
 }
 
 interface CreateRoleRequest {
