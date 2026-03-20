@@ -1,17 +1,24 @@
 import type { FunctionComponent } from 'react';
 import BranchSwitcher from '../../components/BranchSwitcher';
 import logo from '../../assets/images/logo.png';
-import NavGroup from './NavGroup';
+import CollapsibleNavGroup from './CollapsibleNavGroup';
 import SidebarFooter from './SidebarFooter';
 import type { SidebarProps } from './types';
-import { GROUP_ORDER } from './types';
+import type { NavItemBase } from '../../../types/navigation';
+import * as ScrollArea from '@radix-ui/react-scroll-area';
+import * as Separator from '@radix-ui/react-separator';
 
 const Sidebar: FunctionComponent<SidebarProps> = ({
-    groupedNavItems,
-    onItemClick,
-    getRoutePath,
-    isRouteActive,
+    navGroups,
+    onNavItemClick,
 }) => {
+    const handleNavItemClick = (item: NavItemBase) => {
+        if (item.onClick) {
+            item.onClick();
+        }
+        onNavItemClick?.(item);
+    };
+
     return (
         <aside className="h-full flex flex-col safe-area-top w-full bg-gradient-to-b from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-900/95 border-r border-gray-200/60 dark:border-gray-800/60">
             {/* Header */}
@@ -30,26 +37,33 @@ const Sidebar: FunctionComponent<SidebarProps> = ({
                     </div>
                 </div>
 
-                <div className="mt-4">
+                <Separator.Root className="mt-4 mb-0 h-px bg-gray-200/60 dark:bg-gray-800/60" decorative />
+
+                <div className="mt-3">
                     <BranchSwitcher compact />
                 </div>
             </div>
 
-            {/* Navigation Items */}
-            <div className="flex-1 overflow-y-auto py-2 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
-                <div className="flex flex-col gap-4 px-3">
-                    {GROUP_ORDER.map((groupKey) => (
-                        <NavGroup
-                            key={groupKey}
-                            groupKey={groupKey}
-                            items={groupedNavItems[groupKey]}
-                            onItemClick={onItemClick}
-                            getRoutePath={getRoutePath}
-                            isRouteActive={isRouteActive}
-                        />
-                    ))}
-                </div>
-            </div>
+            {/* Navigation Items — Radix ScrollArea */}
+            <ScrollArea.Root className="flex-1 overflow-hidden">
+                <ScrollArea.Viewport className="h-full w-full py-2">
+                    <div className="flex flex-col gap-4 px-3">
+                        {navGroups?.map((group) => (
+                            <CollapsibleNavGroup
+                                key={group.key}
+                                group={group}
+                                onItemClick={handleNavItemClick}
+                            />
+                        ))}
+                    </div>
+                </ScrollArea.Viewport>
+                <ScrollArea.Scrollbar
+                    className="flex select-none touch-none p-0.5 bg-transparent transition-colors duration-150 hover:bg-gray-100 dark:hover:bg-gray-800 data-[orientation=vertical]:w-2"
+                    orientation="vertical"
+                >
+                    <ScrollArea.Thumb className="flex-1 bg-gray-300 dark:bg-gray-600 rounded-full relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-full before:h-full before:min-w-[44px] before:min-h-[44px]" />
+                </ScrollArea.Scrollbar>
+            </ScrollArea.Root>
 
             {/* Footer */}
             <SidebarFooter />

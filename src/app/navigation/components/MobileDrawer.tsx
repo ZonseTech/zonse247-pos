@@ -1,9 +1,8 @@
 import { useState, type FunctionComponent } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { X, Building2 } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { X, Building2, ChevronRight } from 'lucide-react';
 import classNames from 'classnames';
 import { version } from '../../../../package.json';
-import { NAV_GROUP_LABELS } from '../partials/navItems';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useAuth } from '../../context/AuthProvider';
 import { useBranch } from '../../context/BranchContext';
@@ -12,26 +11,156 @@ import Button from '../../components/Button';
 import BranchSwitchModal from './BranchSwitchModal';
 import { ROUTES } from '../../utils/constants';
 import type { MobileDrawerProps } from './types';
-import { MOBILE_GROUP_ORDER } from './types';
 import { FaCaretDown } from 'react-icons/fa';
+import type { NavGroup as NavGroupType, NavItemBase, NavSubGroup } from '../../../types/navigation';
+import * as Collapsible from '@radix-ui/react-collapsible';
+
+// ─── Shared active-state helper ──────────────────────────────────────────────
+function isItemActive(item: NavItemBase, pathname: string, search: string): boolean {
+    if (!item.route) return false;
+    const qIdx = item.route.indexOf('?');
+    if (qIdx === -1) {
+        return pathname === item.route || pathname.startsWith(item.route + '/');
+    }
+    const routePath = item.route.slice(0, qIdx);
+    const routeSearch = item.route.slice(qIdx);
+    return pathname === routePath && search === routeSearch;
+}
+
+// ─── Mobile nav item button ──────────────────────────────────────────────────
+const MobileNavItemBtn: FunctionComponent<{
+    item: NavItemBase;
+    isActive: boolean;
+    onClick: () => void;
+}> = ({ item, isActive, onClick }) => (
+    <button
+        onClick={onClick}
+        className={classNames(
+            'flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-all duration-150 active:scale-[0.98] w-full group',
+            isActive
+                ? 'text-sky-500 dark:text-sky-400'
+                : 'text-gray-700 dark:text-gray-300',
+        )}
+    >
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-150 text-sky-500 dark:text-sky-400">
+            {item.icon}
+        </div>
+        <span className={classNames('text-sm flex-1', isActive ? 'font-semibold' : 'font-medium')}>
+            {item.label}
+        </span>
+        {isActive && <div className="w-1.5 h-1.5 rounded-full bg-sky-500" />}
+    </button>
+);
+
+// ─── Mobile collapsible sub-group ────────────────────────────────────────────
+const MobileSubGroup: FunctionComponent<{
+    subGroup: NavSubGroup;
+    pathname: string;
+    search: string;
+    onItemClick: (item: NavItemBase) => void;
+}> = ({ subGroup, pathname, search, onItemClick }) => {
+    const hasActiveChild = subGroup.items.some((item) => isItemActive(item, pathname, search));
+    const [open, setOpen] = useState(!subGroup.defaultCollapsed || hasActiveChild);
+
+    const mobileItems = subGroup.items.filter((i) => i.showOnMobile !== false);
+    if (mobileItems.length === 0) return null;
+
+    return (
+        <Collapsible.Root open={open} onOpenChange={setOpen}>
+            <Collapsible.Trigger asChild>
+                <button className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-lg text-left text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/60">
+                    {subGroup.icon && (
+                        <div className="flex items-center justify-center text-gray-400 dark:text-gray-500">
+                            {subGroup.icon}
+                        </div>
+                    )}
+                    <span className="text-[11px] font-semibold uppercase tracking-wider flex-1">
+                        {subGroup.label}
+                    </span>
+                    <ChevronRight
+                        size={14}
+                        className={classNames('transition-transform duration-200 text-gray-400', open && 'rotate-90')}
+                    />
+                </button>
+            </Collapsible.Trigger>
+            <Collapsible.Content className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+                <div className="flex flex-col gap-0.5 pl-3 mt-0.5 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+                    {mobileItems.map((item) => (
+                        <MobileNavItemBtn
+                            key={item.id}
+                            item={item}
+                            isActive={isItemActive(item, pathname, search)}
+                            onClick={() => onItemClick(item)}
+                        />
+                    ))}
+                </div>
+            </Collapsible.Content>
+        </Collapsible.Root>
+    );
+};
+
+// ─── Mobile collapsible group ────────────────────────────────────────────────
+const MobileNavGroup: FunctionComponent<{
+    group: NavGroupType;
+    pathname: string;
+    search: string;
+    onItemClick: (item: NavItemBase) => void;
+}> = ({ group, pathname, search, onItemClick }) => {
+    const mobileItems = group.items.filter((i) => i.showOnMobile !== false);
+    const mobileSubGroups = group.subGroups?.filter(
+        (sg) => sg.items.some((i) => i.showOnMobile !== false),
+    );
+    const totalMobile = mobileItems.length + (mobileSubGroups?.reduce((s, sg) => s + sg.items.filter((i) => i.showOnMobile !== false).length, 0) ?? 0);
+    if (totalMobile === 0) return null;
+
+    return (
+        <div>
+            <div className="flex items-center gap-2 px-2 mb-1.5">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                    {group.label}
+                </span>
+                <div className="flex-1 h-px bg-gradient-to-r from-gray-200 dark:from-gray-700 to-transparent" />
+            </div>
+            <div className="flex flex-col gap-0.5">
+                {mobileItems.map((item) => (
+                    <MobileNavItemBtn
+                        key={item.id}
+                        item={item}
+                        isActive={isItemActive(item, pathname, search)}
+                        onClick={() => onItemClick(item)}
+                    />
+                ))}
+                {mobileSubGroups?.map((sg) => (
+                    <MobileSubGroup
+                        key={sg.id}
+                        subGroup={sg}
+                        pathname={pathname}
+                        search={search}
+                        onItemClick={onItemClick}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+};
 
 const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
     isOpen,
     onClose,
-    groupedNavItems,
-    onItemClick,
-    getRoutePath,
-    isRouteActive,
+    navGroups,
+    onNavItemClick,
 }) => {
     const isMobile = useIsMobile();
     const navigate = useNavigate();
+    const location = useLocation();
     const { user } = useAuth();
     const { currentBranch, accessibleBranches } = useBranch();
     const [isBranchModalOpen, setIsBranchModalOpen] = useState(false);
     const isDesktopApp = isElectron();
 
-    const handleItemClick = (onClick: any) => {
-        onItemClick(onClick);
+    const handleItemClick = (item: NavItemBase) => {
+        if (item.onClick) item.onClick();
+        onNavItemClick?.(item);
         onClose();
     };
 
@@ -177,52 +306,18 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
 
                     <div className="flex-1 overflow-y-auto py-3 px-2 bg-white dark:bg-gray-800">
                         <div className="flex flex-col gap-4">
-                            {MOBILE_GROUP_ORDER.map((groupKey) => {
-                                const items = groupedNavItems[groupKey];
-                                if (!items || items.length === 0) return null;
-
-                                return (
-                                    <div key={groupKey}>
-                                        <div className="flex items-center gap-2 px-2 mb-1.5">
-                                            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                                {NAV_GROUP_LABELS[groupKey]}
-                                            </span>
-                                            <div className="flex-1 h-px bg-gradient-to-r from-gray-200 dark:from-gray-700 to-transparent" />
-                                        </div>
-                                        <div className="flex flex-col gap-0.5">
-                                            {items.map((item, index) => {
-                                                const routePath = getRoutePath(item.onClick);
-                                                const isActive = isRouteActive(routePath);
-                                                return (
-                                                    <button
-                                                        key={`${groupKey}-${index}`}
-                                                        onClick={() => handleItemClick(item.onClick)}
-                                                        className={classNames(
-                                                            "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-all duration-150 active:scale-[0.98] w-full group",
-                                                            isActive
-                                                                ? "text-sky-500 dark:text-sky-400"
-                                                                : "text-gray-700 dark:text-gray-300"
-                                                        )}
-                                                    >
-                                                        <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-150 text-sky-500 dark:text-sky-400">
-                                                            {item.icon}
-                                                        </div>
-                                                        <span className={classNames(
-                                                            "text-sm flex-1",
-                                                            isActive ? "font-semibold" : "font-medium"
-                                                        )}>
-                                                            {item.text}
-                                                        </span>
-                                                        {isActive && (
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-sky-500" />
-                                                        )}
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                            {navGroups
+                                ?.filter((g) => g.key !== 'system')
+                                .sort((a, b) => a.order - b.order)
+                                .map((group) => (
+                                    <MobileNavGroup
+                                        key={group.key}
+                                        group={group}
+                                        pathname={location.pathname}
+                                        search={location.search}
+                                        onItemClick={handleItemClick}
+                                    />
+                                ))}
                         </div>
                     </div>
                 </div>
