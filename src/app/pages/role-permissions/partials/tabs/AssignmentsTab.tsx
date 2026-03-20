@@ -18,7 +18,15 @@ export const AssignmentsTab: FC<AssignmentTabProps> = ({
 
         try {
             const rolePermissionData = await rolePermissionService.getByRoleUuid(roleUuid);
-            const permissionUuids = rolePermissionData?.data?.map(rp => rp.permissionId);
+            const rawData = rolePermissionData?.data;
+            const rolePermissionsList: RolePermission[] = Array.isArray(rawData)
+                ? rawData
+                : Array.isArray((rawData as any)?.rolePermissions)
+                    ? (rawData as any).rolePermissions
+                    : Array.isArray(rolePermissionData)
+                        ? rolePermissionData as any
+                        : [];
+            const permissionUuids = rolePermissionsList.map(rp => rp.permissionId);
             const assignedPermissions = permissions.filter(p => permissionUuids.includes(p.permissionId));
             setRolePermissions(assignedPermissions);
         } catch (err) {

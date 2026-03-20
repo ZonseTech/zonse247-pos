@@ -50,7 +50,14 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
         setLoading(true);
         try {
             const result = await rolePermissionService.getByRoleUuid(role.roleId);
-            const rolePermissions = result?.data || [];
+            const rawData = result?.data;
+            const rolePermissions: RolePermission[] = Array.isArray(rawData)
+                ? rawData
+                : Array.isArray((rawData as any)?.rolePermissions)
+                    ? (rawData as any).rolePermissions
+                    : Array.isArray(result)
+                        ? result as any
+                        : [];
 
             const permissionIds: string[] = [];
             const mappings = new Map<string, string>();
