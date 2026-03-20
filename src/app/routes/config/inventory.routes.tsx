@@ -2,6 +2,7 @@ import { lazy } from 'react'
 import { Route } from 'react-router'
 import { ROUTES } from '../../utils/constants'
 
+const InventoryHubPage = lazy(() => import('../../pages/inventory-hub'))
 const Inventory = lazy(() => import('../../pages/inventory'))
 const MobileInventory = lazy(() => import('../../pages/inventory/MobileInventory'))
 const MobileStocks = lazy(() => import('../../pages/inventory/MobileStocks'))
@@ -14,6 +15,7 @@ const Categories = lazy(() => import('../../pages/categories'))
 
 export const InventoryRoutes = (
     <>
+        <Route path={ROUTES.INVENTORY_HUB} element={<InventoryHubPage />} />
         <Route path={ROUTES.INVENTORY} element={<Inventory />} />
         <Route path={ROUTES.INVENTORY_FORM} element={<InventoryForm />} />
         <Route path={ROUTES.MOBILE_INVENTORY} element={<MobileInventory />} />
