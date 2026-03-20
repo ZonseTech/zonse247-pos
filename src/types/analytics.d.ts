@@ -11,15 +11,6 @@ interface TopProduct {
     categoryName: string;
 }
 
-interface DashboardCounts {
-    totalSales: string;
-    stock: number;
-    totalUsers: number;
-    allCustomers: number;
-    expiredProducts: number;
-    myTotalTransactions: number;
-}
-
 type MonthlySales = {
     date: number;
     totalAmount: number;
