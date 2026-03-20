@@ -6,7 +6,8 @@ import {
 	shell,
 } from 'electron';
 import { ROUTES } from '../app/utils/constants';
-import { hasAnyPermission, hasPermission, hasRole } from '../app/utils';
+import { hasAnyPermission, hasPermission } from '../app/utils';
+import { buildNavMenuGroups, navGroupsToElectronMenu } from '../app/navigation/partials/navMenuConfig';
 
 export default class MenuBuilder {
 	mainWindow: BrowserWindow;
@@ -62,6 +63,8 @@ export default class MenuBuilder {
 
 	buildDefaultTemplate(): Array<MenuItemConstructorOptions> {
 		const template: Array<MenuItemConstructorOptions> = [];
+
+		// ── File menu ──────────────────────────────────────────────────────
 		const fileSubmenu: Array<MenuItemConstructorOptions> = [];
 
 		if (hasAnyPermission(this.user, ['products.create', 'products.edit'])) {
@@ -93,128 +96,15 @@ export default class MenuBuilder {
 			submenu: fileSubmenu,
 		});
 
-		const operationsItems: Array<MenuItemConstructorOptions> = [];
+		// ── Navigation menus from shared config ────────────────────────────
+		const navGroups = buildNavMenuGroups(this.user);
+		const navMenus = navGroupsToElectronMenu(
+			navGroups,
+			(route) => this.navigateTo(route),
+		);
+		template.push(...navMenus);
 
-		if (
-			hasAnyPermission(this.user, [
-				'products.view',
-				'products.create',
-				'sales.create',
-				'refunds.process',
-			])
-		) {
-			operationsItems.push({
-				label: 'Point of Sale',
-				accelerator: 'CommandOrControl+P',
-				click: () => this.navigateTo(ROUTES.POS),
-			});
-		}
-
-		if (this.user) {
-			operationsItems.push({
-				label: 'Reports',
-				accelerator: 'CommandOrControl+D',
-				click: () => this.navigateTo(ROUTES.REPORTS),
-			});
-		}
-
-		if (
-			hasAnyPermission(this.user, [
-				'reports.sales.daily',
-				'reports.sales.detailed',
-				'payments.view',
-			])
-		) {
-			operationsItems.push({
-				label: 'Sales',
-				accelerator: 'CommandOrControl+T',
-				click: () => this.navigateTo(ROUTES.SALES),
-			});
-		}
-
-		if (
-			hasAnyPermission(this.user, [
-				'refunds.process',
-				'refunds.view',
-				'returns.manage',
-			])
-		) {
-			operationsItems.push({
-				label: 'Returns',
-				click: () => this.navigateTo(ROUTES.RETURNS),
-			});
-		}
-
-		if (operationsItems.length > 0) {
-			template.push({
-				label: 'Operations',
-				submenu: operationsItems,
-			});
-		}
-		if (
-			hasAnyPermission(this.user, [
-				'products.view',
-				'products.create',
-				'products.edit',
-			])
-		) {
-			const inventoryItems: Array<MenuItemConstructorOptions> = [
-				{
-					label: 'Inventory',
-					click: () => this.navigateTo(ROUTES.INVENTORY),
-				},
-				{
-					label: 'Categories',
-					click: () => this.navigateTo(ROUTES.CATEGORIES),
-				},
-				{
-					label: 'Suppliers',
-					click: () => this.navigateTo(ROUTES.SUPPLIERS),
-				},
-				{
-					label: 'Purchase Requisitions',
-					click: () => this.navigateTo(ROUTES.PURCHASE_REQUISITIONS),
-				},
-				{
-					label: 'Purchase Orders',
-					click: () => this.navigateTo(ROUTES.PURCHASE_ORDERS),
-				},
-				{
-					label: 'Goods Receipts',
-					click: () => this.navigateTo(ROUTES.GOODS_RECEIPTS),
-				},
-				{
-					label: 'Supplier Invoices',
-					click: () => this.navigateTo(ROUTES.SUPPLIER_INVOICES),
-				},
-				{
-					label: 'Supplier Payments',
-					click: () => this.navigateTo(ROUTES.SUPPLIER_PAYMENTS),
-				},
-				{
-					label: 'Supplier Returns',
-					click: () => this.navigateTo(ROUTES.SUPPLIER_RETURNS),
-				},
-				{
-					label: 'Credit Notes',
-					click: () => this.navigateTo(ROUTES.CREDIT_NOTES),
-				},
-				{
-					label: 'Stock Movements',
-					click: () => this.navigateTo(ROUTES.STOCK_MOVEMENTS),
-				},
-				{
-					label: 'Customers',
-					click: () => this.navigateTo(ROUTES.CUSTOMERS),
-				},
-			];
-
-			template.push({
-				label: 'Inventory',
-				submenu: inventoryItems,
-			});
-		}
-
+		// ── View menu ──────────────────────────────────────────────────────
 		const viewSubmenu: Array<MenuItemConstructorOptions> = [];
 
 		if (!app.isPackaged) {
@@ -231,6 +121,7 @@ export default class MenuBuilder {
 			});
 		}
 
+		// ── Window menu ────────────────────────────────────────────────────
 		const windowSubmenu: Array<MenuItemConstructorOptions> = [
 			{
 				label: 'Toggle Menu Bar',
@@ -276,99 +167,7 @@ export default class MenuBuilder {
 			submenu: windowSubmenu,
 		});
 
-		const managementSubmenu: Array<MenuItemConstructorOptions> = [];
-
-		if (this.user) {
-			managementSubmenu.push({
-				label: 'My Profile',
-				accelerator: 'CommandOrControl+Shift+P',
-				click: () => this.navigateTo(ROUTES.MY_PROFILE),
-			});
-		}
-
-		const managementItems: Array<MenuItemConstructorOptions> = [];
-
-		if (
-			hasAnyPermission(this.user, [
-				'users.view',
-				'users.create',
-				'users.edit',
-				'users.delete',
-			])
-		) {
-			managementItems.push({
-				label: 'Billing',
-				click: () => this.navigateTo(ROUTES.SUBSCRIPTION_BILLING),
-			});
-			managementItems.push({
-				label: 'Staff Management',
-				click: () => this.navigateTo(ROUTES.USERS),
-			});
-		}
-
-		if (hasRole(this.user, 'admin') || hasRole(this.user, 'super-admin')) {
-			managementItems.push({
-				label: 'Security',
-				click: () => this.navigateTo(ROUTES.ROLES_PERMISSIONS),
-			});
-		}
-
-		if (managementItems.length > 0) {
-			managementSubmenu.push(...managementItems);
-		}
-
-		if (managementSubmenu.length > 0) {
-			template.push({
-				label: 'Management',
-				submenu: managementSubmenu,
-			});
-		}
-
-		if (hasPermission(this.user, 'settings.branch.manage')) {
-			const settingsSubmenu: Array<MenuItemConstructorOptions> = [
-				{
-					label: 'General Settings',
-					accelerator: 'CommandOrControl+,',
-					click: () => this.navigateTo(ROUTES.SETTINGS_GENERAL),
-				},
-				{
-					label: 'Printers',
-					click: () => this.navigateTo(ROUTES.PRINTERS),
-				},
-				{
-					label: 'Branch Settings',
-					click: () => this.navigateTo(ROUTES.BRANCHES),
-				},
-				{
-					label: 'Terminals',
-					click: () => this.navigateTo(ROUTES.TERMINALS),
-				},
-			];
-
-			template.push({
-				label: 'Settings',
-				submenu: settingsSubmenu,
-			});
-		}
-
-		if (hasRole(this.user, 'admin') || hasPermission(this.user, 'system.admin')) {
-			const adminSubmenu: Array<MenuItemConstructorOptions> = [
-				{
-					label: 'Subscriptions',
-					click: () => this.navigateTo(ROUTES.SUBSCRIPTIONS),
-				},
-				{
-					label: 'Tenants',
-					click: () => this.navigateTo(ROUTES.TENANTS),
-				},
-			];
-
-			template.push({
-				label: 'Admin',
-				submenu: adminSubmenu,
-			});
-		}
-
+		// ── Help menu ──────────────────────────────────────────────────────
 		template.push({
 			label: 'Help',
 			submenu: [

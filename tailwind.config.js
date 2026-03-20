@@ -162,8 +162,19 @@ export default {
         "slide-down": "slideDown 0.3s ease-in forwards",
         "scale-in": "scaleIn 0.3s ease-out forwards",
         "scale-out": "scaleOut 0.2s ease-in forwards",
+        // Radix Collapsible animations
+        "collapsible-down": "collapsibleDown 200ms ease-out",
+        "collapsible-up": "collapsibleUp 200ms ease-out",
       },
       keyframes: {
+        collapsibleDown: {
+          "0%": { height: "0", opacity: 0 },
+          "100%": { height: "var(--radix-collapsible-content-height)", opacity: 1 },
+        },
+        collapsibleUp: {
+          "0%": { height: "var(--radix-collapsible-content-height)", opacity: 1 },
+          "100%": { height: "0", opacity: 0 },
+        },
         fadeIn: {
           "0%": { opacity: 0, transform: "scale(0.95)" },
           "100%": { opacity: 1, transform: "scale(1)" },
