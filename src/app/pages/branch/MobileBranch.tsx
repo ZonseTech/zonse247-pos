@@ -1,6 +1,6 @@
 import { FunctionComponent } from 'react';
 import { Store } from 'lucide-react';
-import { HiOutlineChevronLeft, HiOutlineChevronRight } from 'react-icons/hi2';
+import MobilePagination from '../../components/MobilePagination';
 import { BranchMobileList } from './partials/BranchMobileCard';
 import { BranchPermissions } from '../../hooks/useBranchPermissions';
 
@@ -70,31 +70,7 @@ const MobileBranch: FunctionComponent<MobileBranchProps> = ({
                         permissions={permissions}
                     />
 
-                    {/* Mobile Pagination */}
-                    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-                        <span className="text-xs text-gray-600 dark:text-gray-400">
-                            Page {page} of {Math.ceil(totalRows / perPage) || 1} ({totalRows} total)
-                        </span>
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => onPageChange(page - 1)}
-                                disabled={page <= 1}
-                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                                <HiOutlineChevronLeft className="w-5 h-5" />
-                            </button>
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                                {page}
-                            </span>
-                            <button
-                                onClick={() => onPageChange(page + 1)}
-                                disabled={page >= Math.ceil(totalRows / perPage)}
-                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                                <HiOutlineChevronRight className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
+                    <MobilePagination page={page} totalRows={totalRows} perPage={perPage} onPageChange={onPageChange} />
                 </>
             )}
         </div>

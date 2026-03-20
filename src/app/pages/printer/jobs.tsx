@@ -1,7 +1,8 @@
 import { Confirm, Notify } from 'notiflix';
 import { RefreshCw, Printer } from 'lucide-react';
 import AppLayout from '../../layouts/AppLayout';
-import { HiOutlineQueueList, HiOutlineChevronLeft, HiOutlineChevronRight } from 'react-icons/hi2';
+import { HiOutlineQueueList } from 'react-icons/hi2';
+import MobilePagination from '../../components/MobilePagination';
 import { SearchBar } from '../../components/SearchBar';
 import DataTable from 'react-data-table-component';
 import { FunctionComponent, useContext, useState, useEffect, useCallback, useMemo } from 'react';
@@ -11,6 +12,7 @@ import { Button, ZonseThemeContext } from '../../components';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import printerService from '../../services/printer.service';
 import { usePrintAgent } from '../../hooks/usePrintAgent';
+import { getErrorMessage } from '../../utils/api-error-handler';
 
 import { getJobsTableColumns } from './partials/JobsTableColumns';
 import { PrintAgentCard } from './partials/PrintAgentCard';
@@ -49,7 +51,7 @@ const PrintJobsManagement: FunctionComponent = () => {
         try {
             setPrintJobs(await printerService.getPendingJobs());
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to load print jobs');
+            Notify.failure(getErrorMessage(error, 'Failed to load print jobs'));
         } finally {
             setIsLoading(false);
         }
@@ -65,7 +67,7 @@ const PrintJobsManagement: FunctionComponent = () => {
         try {
             setPrintJobs(await printerService.getJobHistory(printerId));
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to load job history');
+            Notify.failure(getErrorMessage(error, 'Failed to load job history'));
         } finally {
             setIsLoading(false);
         }
@@ -241,31 +243,7 @@ const PrintJobsManagement: FunctionComponent = () => {
                                         isLoading={false}
                                     />
 
-                                    {/* Mobile Pagination */}
-                                    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-                                        <span className="text-xs text-gray-600 dark:text-gray-400">
-                                            {filteredJobs.length} total
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={() => setPage(Math.max(1, page - 1))}
-                                                disabled={page <= 1}
-                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                <HiOutlineChevronLeft className="w-5 h-5" />
-                                            </button>
-                                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                                                {page} / {Math.ceil(filteredJobs.length / perPage) || 1}
-                                            </span>
-                                            <button
-                                                onClick={() => setPage(Math.min(Math.ceil(filteredJobs.length / perPage), page + 1))}
-                                                disabled={page >= Math.ceil(filteredJobs.length / perPage)}
-                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                <HiOutlineChevronRight className="w-5 h-5" />
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <MobilePagination page={page} totalRows={filteredJobs.length} perPage={perPage} onPageChange={setPage} />
                                 </>
                             )}
                         </div>

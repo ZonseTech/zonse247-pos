@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { Notify } from 'notiflix';
+import { getErrorMessage } from '../utils/api-error-handler';
 import printerService from '../services/printer.service';
 import { usePrinterStore } from '../store/printerStore';
 
@@ -137,7 +138,7 @@ export const usePrintReceipt = () => {
                     jobId: job.printJobId,
                 };
             } catch (err: any) {
-                const errorMessage = err?.response?.data?.message || err?.message || 'Print failed';
+                const errorMessage = getErrorMessage(err, 'Print failed');
 
                 // If not the last attempt, wait and retry
                 if (attempt < maxRetries) {

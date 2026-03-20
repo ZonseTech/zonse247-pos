@@ -10,6 +10,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 import { Notify, Confirm } from 'notiflix';
 import terminalService from '../../../../services/terminal.service';
+import { getErrorMessage } from '../../../../utils/api-error-handler';
 
 interface TerminalsTabProps {
     terminals: Terminal[];
@@ -244,7 +245,7 @@ const TerminalsTab: FunctionComponent<TerminalsTabProps> = memo(({ terminals, lo
                     onRefresh?.();
                 } catch (error: any) {
                     console.error('Error regenerating activation code:', error);
-                    const message = error?.response?.data?.message || 'Failed to regenerate activation code';
+                    const message = getErrorMessage(error, 'Failed to regenerate activation code');
                     Notify.failure(message);
                 } finally {
                     setActionLoading(null);

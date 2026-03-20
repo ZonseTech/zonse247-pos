@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios";
 import api from "./http.service";
 import { getLiveApiUrl } from "./live-api.service";
+import { getErrorMessage } from '../utils/api-error-handler';
 
 /**
  * Get the live API URL - uses centralized service
@@ -203,9 +204,7 @@ export default {
         } catch (err: any) {
             const axiosError = err as AxiosError<ApiResponse>;
             throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to activate terminal'
+                getErrorMessage(axiosError, 'Failed to activate terminal')
             );
         }
     },
@@ -226,9 +225,7 @@ export default {
         } catch (err: any) {
             const axiosError = err as AxiosError<ApiResponse>;
             throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to save terminal details'
+                getErrorMessage(axiosError, 'Failed to save terminal details')
             );
         }
     },
@@ -269,9 +266,7 @@ export default {
         } catch (err: any) {
             const axiosError = err as AxiosError<ApiResponse>;
             throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to set terminal as activated'
+                getErrorMessage(axiosError, 'Failed to set terminal as activated')
             );
         }
     },
@@ -311,9 +306,7 @@ export default {
         } catch (err: any) {
             const axiosError = err as AxiosError<ApiResponse>;
             throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                `Failed to fetch ${stepType} from cloud`
+                getErrorMessage(axiosError, `Failed to fetch ${stepType} from cloud`)
             );
         }
     },
@@ -353,9 +346,7 @@ export default {
         } catch (err: any) {
             const axiosError = err as AxiosError<ApiResponse>;
             throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                `Failed to sync ${stepType} to local database`
+                getErrorMessage(axiosError, `Failed to sync ${stepType} to local database`)
             );
         }
     },
@@ -408,9 +399,7 @@ export default {
         } catch (err: any) {
             const axiosError = err as AxiosError<ApiResponse>;
             throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                `Failed to sync ${stepType}`
+                getErrorMessage(axiosError, `Failed to sync ${stepType}`)
             );
         }
     },
@@ -618,9 +607,7 @@ export default {
         } catch (err: any) {
             const axiosError = err as AxiosError<ApiResponse>;
             throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to get data counts'
+                getErrorMessage(axiosError, 'Failed to get data counts')
             );
         }
     },
@@ -648,9 +635,7 @@ export default {
         } catch (err: any) {
             const axiosError = err as AxiosError<ApiResponse>;
             throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to fetch master data from cloud'
+                getErrorMessage(axiosError, 'Failed to fetch master data from cloud')
             );
         }
     },
@@ -695,9 +680,7 @@ export default {
         } catch (err: any) {
             const axiosError = err as AxiosError<ApiResponse>;
             throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                `Failed to fetch ${table} from cloud`
+                getErrorMessage(axiosError, `Failed to fetch ${table} from cloud`)
             );
         }
     },
@@ -719,9 +702,7 @@ export default {
         } catch (err: any) {
             const axiosError = err as AxiosError<ApiResponse>;
             throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                'Failed to save master data locally'
+                getErrorMessage(axiosError, 'Failed to save master data locally')
             );
         }
     },
@@ -799,9 +780,7 @@ export default {
                 skipped: 0,
                 failed: data.length,
                 errors: [
-                    axiosError?.response?.data?.message ||
-                    axiosError?.message ||
-                    `Failed to sync ${table} batch`
+                    getErrorMessage(axiosError, `Failed to sync ${table} batch`)
                 ],
             };
         }
@@ -832,9 +811,7 @@ export default {
         } catch (err: any) {
             const axiosError = err as AxiosError<ApiResponse>;
             throw new Error(
-                axiosError?.response?.data?.message ||
-                axiosError?.message ||
-                `Failed to sync ${stepType}`
+                getErrorMessage(axiosError, `Failed to sync ${stepType}`)
             );
         }
     },

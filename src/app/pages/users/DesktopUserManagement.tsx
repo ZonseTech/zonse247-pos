@@ -17,15 +17,15 @@ const DesktopUserManagement: FunctionComponent = () => {
     const { mode } = useContext(ZonseThemeContext);
 
     const {
+        users,
         isLoading,
-        setPage,
-        setPerPage,
         perPage,
         totalRows,
+        handlePageChange,
+        handlePerRowsChange,
         deleteUser,
         updateUserStatus,
         resetPassword,
-        getPaginatedData,
     } = useUsers();
 
     const handleAddUser = useCallback(() => {
@@ -112,7 +112,7 @@ const DesktopUserManagement: FunctionComponent = () => {
                     <div className="overflow-hidden">
                         <DataTable
                             columns={columns}
-                            data={getPaginatedData()}
+                            data={users}
                             theme={mode as string}
                             progressPending={isLoading}
                             progressComponent={<ComponentLoader loading={isLoading} />}
@@ -124,11 +124,8 @@ const DesktopUserManagement: FunctionComponent = () => {
                             paginationTotalRows={totalRows}
                             paginationPerPage={perPage}
                             paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
-                            onChangeRowsPerPage={(newPerPage, page) => {
-                                setPage(page);
-                                setPerPage(newPerPage);
-                            }}
-                            onChangePage={setPage}
+                            onChangeRowsPerPage={handlePerRowsChange}
+                            onChangePage={handlePageChange}
                             fixedHeader
                             fixedHeaderScrollHeight="calc(100vh - 420px)"
                             customStyles={getTableStyles(mode)}

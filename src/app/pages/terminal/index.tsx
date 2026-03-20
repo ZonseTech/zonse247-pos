@@ -1,7 +1,8 @@
 import { Confirm } from 'notiflix';
 import { Monitor, Building2 } from 'lucide-react';
 import AppLayout from '../../layouts/AppLayout';
-import { HiOutlinePlus, HiOutlineComputerDesktop, HiOutlineChevronLeft, HiOutlineChevronRight } from 'react-icons/hi2';
+import { HiOutlinePlus, HiOutlineComputerDesktop } from 'react-icons/hi2';
+import MobilePagination from '../../components/MobilePagination';
 import { SearchBar } from '../../components/SearchBar';
 import DataTable from 'react-data-table-component';
 import { useTerminals } from '../../hooks/useTerminals';
@@ -51,6 +52,7 @@ const TerminalManagement: FunctionComponent = () => {
     }, []);
 
     const {
+        terminals,
         isLoading,
         searchTerm,
         setSearchTerm,
@@ -58,18 +60,17 @@ const TerminalManagement: FunctionComponent = () => {
         page,
         setPage,
         perPage,
-        setPerPage,
-        getPaginatedData,
+        handlePageChange,
+        handlePerRowsChange,
         deleteTerminal,
         blockTerminal,
         unblockTerminal,
         setPrimary,
         syncTerminal,
-        filteredTerminals
     } = useTerminals({ branchId: selectedBranchId || undefined });
 
     const summaryCards: TerminalSummaryCard[] = useMemo(() => {
-        const allTerminals = filteredTerminals || [];
+        const allTerminals = terminals || [];
         const activeCount = allTerminals.filter(t => t.activationStatus === 'ACTIVATED').length;
         const primaryCount = allTerminals.filter(t => t.isPrimary).length;
         const blockedCount = allTerminals.filter(t => t.isBlocked).length;
@@ -108,7 +109,7 @@ const TerminalManagement: FunctionComponent = () => {
                 textColor: 'text-red-500 dark:text-red-400',
             },
         ];
-    }, [filteredTerminals, totalRows]);
+    }, [terminals, totalRows]);
 
     const handleEdit = (terminal: Terminal) => {
         navigate(ROUTES.TERMINAL_FORM, { state: { terminalId: terminal.terminalId } });
@@ -291,7 +292,7 @@ const TerminalManagement: FunctionComponent = () => {
                                     onSync={handleSync}
                                     isLoading={true}
                                 />
-                            ) : getPaginatedData().length === 0 ? (
+                            ) : terminals.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-12 px-4">
                                     <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
                                         <Monitor className="w-8 h-8 text-gray-400" />
@@ -317,7 +318,7 @@ const TerminalManagement: FunctionComponent = () => {
                             ) : (
                                 <>
                                     <TerminalMobileList
-                                        terminals={getPaginatedData()}
+                                        terminals={terminals}
                                         onEdit={handleEdit}
                                         onDelete={handleDelete}
                                         onToggleBlock={handleToggleBlock}
@@ -326,31 +327,7 @@ const TerminalManagement: FunctionComponent = () => {
                                         isLoading={false}
                                     />
 
-                                    {/* Mobile Pagination */}
-                                    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-                                        <span className="text-xs text-gray-600 dark:text-gray-400">
-                                            {totalRows} total
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={() => setPage(Math.max(1, page - 1))}
-                                                disabled={page <= 1}
-                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                <HiOutlineChevronLeft className="w-5 h-5" />
-                                            </button>
-                                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                                                {page} / {Math.ceil(totalRows / perPage) || 1}
-                                            </span>
-                                            <button
-                                                onClick={() => setPage(Math.min(Math.ceil(totalRows / perPage), page + 1))}
-                                                disabled={page >= Math.ceil(totalRows / perPage)}
-                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                <HiOutlineChevronRight className="w-5 h-5" />
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <MobilePagination page={page} totalRows={totalRows} perPage={perPage} onPageChange={handlePageChange} />
                                 </>
                             )}
                         </div>
@@ -359,7 +336,7 @@ const TerminalManagement: FunctionComponent = () => {
                         <div className="overflow-hidden">
                             <DataTable
                                 columns={columns}
-                                data={getPaginatedData()}
+                                data={terminals}
                                 theme={mode as string}
                                 progressPending={isLoading}
                                 progressComponent={<ComponentLoader loading={isLoading} />}
@@ -371,11 +348,8 @@ const TerminalManagement: FunctionComponent = () => {
                                 paginationTotalRows={totalRows}
                                 paginationPerPage={perPage}
                                 paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
-                                onChangeRowsPerPage={(newPerPage, page) => {
-                                    setPage(page);
-                                    setPerPage(newPerPage);
-                                }}
-                                onChangePage={setPage}
+                                onChangeRowsPerPage={handlePerRowsChange}
+                                onChangePage={handlePageChange}
                                 fixedHeader
                                 fixedHeaderScrollHeight="calc(100vh - 420px)"
                                 customStyles={getTableStyles(mode)}

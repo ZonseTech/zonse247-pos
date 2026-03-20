@@ -236,7 +236,7 @@ export function parseApiError(error: unknown): ParsedApiError {
 
 	// If there's a structured error response from the API
 	if (responseData) {
-		const apiMessage = responseData.message || responseData.error;
+		const apiMessage = responseData.error || responseData.message;
 		const apiCode = responseData.code;
 		const apiField = responseData.field;
 		// Handle both 'errors' and 'data' as field-specific errors

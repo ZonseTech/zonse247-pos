@@ -1,6 +1,7 @@
 import api from './http.service';
 import { liveApi, getTenantId, getLiveApiUrl, isLiveApiConfigured, isLiveServerAvailable as checkLiveServerAvailable } from './live-api.service';
 import { isElectron } from '../../helpers/index.helper';
+import { getErrorMessage } from '../utils/api-error-handler';
 
 interface OfflineFirstLoginResult {
     success: boolean;
@@ -88,10 +89,7 @@ class AuthService {
             return {
                 success: false,
                 source: 'offline',
-                error: error?.error?.response?.data?.message ||
-                    error?.response?.data?.message ||
-                    error?.message ||
-                    'Offline authentication failed'
+                error: getErrorMessage(error, 'Offline authentication failed')
             };
         }
     }
@@ -141,13 +139,7 @@ class AuthService {
                 return { success: false, source: 'live', error: 'Cannot connect to server. Check your internet connection.' };
             }
 
-            const errorMessage = axiosError?.response?.data?.message
-                || error?.response?.data?.message
-                || axiosError?.response?.data?.error
-                || error?.response?.data?.error
-                || axiosError?.message
-                || error?.message
-                || 'Authentication failed';
+            const errorMessage = getErrorMessage(error, 'Authentication failed');
 
             return {
                 success: false,
@@ -208,7 +200,7 @@ class AuthService {
             });
             return response.data?.data?.role || null;
         } catch (error: any) {
-            console.warn('[AuthService] Failed to fetch role:', error?.response?.data?.message || error?.message);
+            console.warn('[AuthService] Failed to fetch role:', getErrorMessage(error, 'Unknown error'));
             return null;
         }
     }
@@ -242,7 +234,7 @@ class AuthService {
             });
             return response.data?.data?.permissions || [];
         } catch (error: any) {
-            console.warn('[AuthService] Failed to fetch permissions:', error?.response?.data?.message || error?.message);
+            console.warn('[AuthService] Failed to fetch permissions:', getErrorMessage(error, 'Unknown error'));
             return [];
         }
     }
@@ -392,7 +384,7 @@ class AuthService {
             throw new Error(result?.message || 'Token refresh failed');
         } catch (error: any) {
             console.error('[AuthService] Token refresh error:', error?.response?.data || error?.message);
-            throw new Error(error?.response?.data?.message || error?.message || 'Token refresh failed');
+            throw new Error(getErrorMessage(error, 'Token refresh failed'));
         }
     }
 
@@ -442,7 +434,7 @@ class AuthService {
                 return response.data?.data?.user;
             }
         } catch (error: any) {
-            throw new Error(error?.response?.data?.message || 'Token verification failed');
+            throw new Error(getErrorMessage(error, 'Token verification failed'));
         }
     }
 }

@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { Confirm, Report } from 'notiflix';
 import parkedSalesService from '../../../../services/parked-sales.service';
 import { UseParkedSalesReturn, ResumeCallbacks } from './types';
+import { getErrorMessage } from '../../../../utils/api-error-handler';
 
 export const useParkedSales = (
     tenantId: string,
@@ -39,7 +40,7 @@ export const useParkedSales = (
             setParkedSales(sales);
         } catch (error: any) {
             console.error("Error fetching parked sales:", error);
-            const errorMessage = error?.response?.data?.message || "Failed to load parked sales";
+            const errorMessage = getErrorMessage(error, "Failed to load parked sales");
             setError(errorMessage);
         } finally {
             setIsLoading(false);
@@ -113,7 +114,7 @@ export const useParkedSales = (
 
                 } catch (error: any) {
                     console.error("Error resuming parked sale:", error);
-                    const errorMessage = error?.response?.data?.message || "Failed to resume the sale";
+                    const errorMessage = getErrorMessage(error, "Failed to resume the sale");
                     Report.failure("Error", errorMessage, "Ok");
                 } finally {
                     setIsLoading(false);
@@ -145,7 +146,7 @@ export const useParkedSales = (
                     Report.success("Deleted", "Parked sale has been removed", "Ok");
                 } catch (error: any) {
                     console.error("Error deleting parked sale:", error);
-                    const errorMessage = error?.response?.data?.message || "Failed to delete the parked sale";
+                    const errorMessage = getErrorMessage(error, "Failed to delete the parked sale");
                     Report.failure("Error", errorMessage, "Ok");
                 } finally {
                     setIsLoading(false);

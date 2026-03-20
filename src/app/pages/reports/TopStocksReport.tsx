@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { formatCurrency } from '../../utils'
 import reportsService, { TopStockItem, TopStocksResponse } from '../../services/reports.service'
 import { toast } from 'react-toastify'
+import { getErrorMessage } from '../../utils/api-error-handler'
 import dayjs from 'dayjs'
 import { ReportPieChart } from '../../components'
 
@@ -31,9 +32,8 @@ const TopStocksReport: React.FC<TopStocksReportProps> = ({ startDate, endDate })
             const response = await reportsService.getTopStocks(query)
             setData(response)
         } catch (err: any) {
-            const axiosError = err?.error || err
-            const serverMessage = axiosError?.response?.data?.message || axiosError?.message || 'Failed to fetch top stocks data'
-            console.error('Error fetching top stocks:', axiosError?.response?.data || axiosError)
+            const serverMessage = getErrorMessage(err, 'Failed to fetch top stocks data')
+            console.error('Error fetching top stocks:', err)
             toast.error(serverMessage)
         } finally {
             setLoading(false)

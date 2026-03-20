@@ -42,7 +42,7 @@ const MobileMoreReportsPage: FunctionComponent = () => {
     const navigate = useNavigate();
     const { inventory } = useInventory();
     const { customers, totalRows: totalCustomers } = useCustomers();
-    const { totalRows: totalUsers, getPaginatedData } = useUsers();
+    const { totalRows: totalUsers, users } = useUsers();
     const { suppliers, totalRows: totalSuppliers } = useSuppliers();
 
     const stats = useMemo(() => {
@@ -84,9 +84,8 @@ const MobileMoreReportsPage: FunctionComponent = () => {
     }, [inventory]);
 
     const staffCount = useMemo(() => {
-        const users = getPaginatedData();
         return users.length || totalUsers;
-    }, [getPaginatedData, totalUsers]);
+    }, [users, totalUsers]);
 
     return (
         <div className="flex flex-col h-full overflow-hidden bg-gray-100 dark:bg-gray-900">

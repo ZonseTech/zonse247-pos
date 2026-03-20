@@ -1,4 +1,5 @@
 import { Report } from 'notiflix';
+import { parseApiError, formatFieldErrorsMessage } from '../../../utils/api-error-handler';
 import { FunctionComponent, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useFocusManager } from '../../../hooks/useFocusManager';
@@ -230,25 +231,11 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
             setProcessing(false);
             setProcessingStep(null);
 
-            const responseData = error?.error?.response?.data || error?.response?.data;
-            const mainMessage = responseData?.message || 'Failed to complete sale';
-            const detailedError = responseData?.error;
-            const fieldErrors = responseData?.data;
-
-            let fieldErrorsMessage = '';
-            if (fieldErrors && typeof fieldErrors === 'object' && !Array.isArray(fieldErrors)) {
-                fieldErrorsMessage = Object.entries(fieldErrors)
-                    .map(([field, message]) => `• ${field}: ${message}`)
-                    .join('\n');
-            }
-
-            let fullErrorMessage = mainMessage;
-            if (detailedError) {
-                fullErrorMessage += `:\n${detailedError}`;
-            } else if (fieldErrorsMessage) {
+            const parsed = parseApiError(error);
+            const fieldErrorsMessage = formatFieldErrorsMessage(parsed.errors);
+            let fullErrorMessage = parsed.message;
+            if (fieldErrorsMessage) {
                 fullErrorMessage += `:\n${fieldErrorsMessage}`;
-            } else if (!responseData) {
-                fullErrorMessage = error?.message || 'An unknown error occurred';
             }
 
             Report.failure(

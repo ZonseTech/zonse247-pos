@@ -20,6 +20,7 @@ import MobilePlanSkeleton from '../../components/loader/MobilePlanSkeleton';
 import * as Yup from 'yup';
 import { capitalizeEachWord } from '../../utils';
 import { useConnectivity } from '../../hooks/useConnectivity';
+import { getErrorMessage } from '../../utils/api-error-handler';
 
 const TerminalForm: FunctionComponent = () => {
     const navigate = useNavigate();
@@ -47,7 +48,7 @@ const TerminalForm: FunctionComponent = () => {
                     setTerminal(terminalData);
                 } catch (error: any) {
                     console.error('Error fetching terminal:', error);
-                    const errorMessage = error?.response?.data?.message || 'Failed to load terminal details';
+                    const errorMessage = getErrorMessage(error, 'Failed to load terminal details');
                     Notify.failure(errorMessage);
                 } finally {
                     setLoading(false);
@@ -103,7 +104,7 @@ const TerminalForm: FunctionComponent = () => {
                 });
             }
         } catch (error: any) {
-            const errorMessage = error?.error?.response?.data?.message || error?.error?.message || 'An error occurred while saving the terminal';
+            const errorMessage = getErrorMessage(error, 'An error occurred while saving the terminal');
             Notify.failure(errorMessage);
         }
     };
@@ -126,7 +127,7 @@ const TerminalForm: FunctionComponent = () => {
                     Notify.success('Terminal deleted successfully');
                     navigate(ROUTES.TERMINALS);
                 } catch (error: any) {
-                    const errorMessage = error?.response?.data?.message || 'Failed to delete terminal';
+                    const errorMessage = getErrorMessage(error, 'Failed to delete terminal');
                     Notify.failure(errorMessage);
                 }
             }

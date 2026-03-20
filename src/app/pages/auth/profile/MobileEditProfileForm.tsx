@@ -6,6 +6,7 @@ import { Button } from '../../../components';
 import FormWrapper from '../../../components/FormWrapper';
 import FormInput from '../../../components/FormInput';
 import usersService from '../../../services/users.service';
+import { getErrorMessage } from '../../../utils/api-error-handler';
 
 type Props = {
     user: User | null;
@@ -64,7 +65,7 @@ const MobileEditProfileForm: FunctionComponent<Props> = ({ user, onSuccess }) =>
             onSuccess?.();
         } catch (error: any) {
             Notify.failure(
-                error?.response?.data?.message || 'An error occurred while updating profile'
+                getErrorMessage(error, 'An error occurred while updating profile')
             );
         } finally {
             setSubmitting(false);

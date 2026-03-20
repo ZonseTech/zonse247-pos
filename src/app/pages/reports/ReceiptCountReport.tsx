@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import reportsService, { ReceiptCountDataPoint, ReceiptCountResponse } from '../../services/reports.service'
 import { toast } from 'react-toastify'
+import { getErrorMessage } from '../../utils/api-error-handler'
 import dayjs from 'dayjs'
 import { ReportBarChart, ReportProgressBar } from '../../components'
 
@@ -31,9 +32,8 @@ const ReceiptCountReport: React.FC<ReceiptCountReportProps> = ({ startDate, endD
             const response = await reportsService.getReceiptCount(query)
             setData(response)
         } catch (err: any) {
-            const axiosError = err?.error || err
-            const serverMessage = axiosError?.response?.data?.message || axiosError?.message || 'Failed to fetch receipt count data'
-            console.error('Error fetching receipt count:', axiosError?.response?.data || axiosError)
+            const serverMessage = getErrorMessage(err, 'Failed to fetch receipt count data')
+            console.error('Error fetching receipt count:', err)
             toast.error(serverMessage)
         } finally {
             setLoading(false)

@@ -7,6 +7,7 @@ import { useApp } from '../../../context/AppProvider'
 import { Modal, Input } from "../../../components"
 import parkedSalesService from "../../../services/parked-sales.service"
 import { formatCurrency } from "../../../utils"
+import { getErrorMessage } from '../../../utils/api-error-handler'
 
 interface ParkSaleModalProps {
     isOpen: boolean;
@@ -92,7 +93,7 @@ const ParkSaleModal: FunctionComponent<ParkSaleModalProps> = ({
 
         } catch (error: any) {
             console.error("Error parking sale:", error)
-            const errorMessage = error?.response?.data?.message || "Failed to park the sale. Please try again."
+            const errorMessage = getErrorMessage(error, "Failed to park the sale. Please try again.")
             Report.failure("Error", errorMessage, "Ok")
         } finally {
             setIsSubmitting(false)

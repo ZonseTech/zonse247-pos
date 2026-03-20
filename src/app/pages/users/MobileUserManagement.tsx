@@ -1,4 +1,4 @@
-import { FunctionComponent, useCallback, useState, useMemo } from 'react';
+import { FunctionComponent, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Users } from 'lucide-react';
 import MobilePageHeader from '../../components/page/MobilePageHeader';
@@ -14,15 +14,14 @@ const MobileUserManagement: FunctionComponent = () => {
     const [searchQuery, setSearchQuery] = useState('');
 
     const {
+        users,
         isLoading,
         setPage,
         perPage,
         totalRows,
-        getPaginatedData,
     } = useUsers();
 
-    const filteredUsers = useMemo(() => {
-        const users = getPaginatedData();
+    const filteredUsers = (() => {
         if (!searchQuery.trim()) return users;
 
         const query = searchQuery.toLowerCase();
@@ -33,7 +32,7 @@ const MobileUserManagement: FunctionComponent = () => {
             user.phone?.includes(query) ||
             user.roleName?.toLowerCase().includes(query)
         );
-    }, [getPaginatedData, searchQuery]);
+    })();
 
     const handleAddUser = useCallback(() => {
         navigate(ROUTES.USER_FORM);

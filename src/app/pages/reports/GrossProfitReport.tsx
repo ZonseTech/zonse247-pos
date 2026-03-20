@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { formatCurrency } from '../../utils'
 import reportsService, { GrossProfitDataPoint, GrossProfitResponse } from '../../services/reports.service'
 import { toast } from 'react-toastify'
+import { getErrorMessage } from '../../utils/api-error-handler'
 import dayjs from 'dayjs'
 import { ReportBarChart, ReportProgressBar } from '../../components'
 import { HiInformationCircle } from 'react-icons/hi'
@@ -33,9 +34,8 @@ const GrossProfitReport: React.FC<GrossProfitReportProps> = ({ startDate, endDat
             const response = await reportsService.getGrossProfit(query)
             setData(response)
         } catch (err: any) {
-            const axiosError = err?.error || err
-            const serverMessage = axiosError?.response?.data?.message || axiosError?.message || 'Failed to fetch gross profit data'
-            console.error('Error fetching gross profit:', axiosError?.response?.data || axiosError)
+            const serverMessage = getErrorMessage(err, 'Failed to fetch gross profit data')
+            console.error('Error fetching gross profit:', err)
             toast.error(serverMessage)
         } finally {
             setLoading(false)

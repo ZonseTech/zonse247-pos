@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Notify } from 'notiflix';
+import { getErrorMessage } from '../utils/api-error-handler';
 import printerService from '../services/printer.service';
 
 interface UsePrintJobsOptions {
@@ -46,7 +47,7 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
             setPrintJobs(jobs);
         } catch (error: any) {
             console.error('Error loading pending print jobs:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to load pending print jobs';
+            const errorMessage = getErrorMessage(error, 'Failed to load pending print jobs');
             Notify.failure(errorMessage);
         } finally {
             setIsLoading(false);
@@ -70,7 +71,7 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
             setPrintJobs(jobs);
         } catch (error: any) {
             console.error('Error loading print job history:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to load print job history';
+            const errorMessage = getErrorMessage(error, 'Failed to load print job history');
             Notify.failure(errorMessage);
         } finally {
             setIsLoading(false);
@@ -91,7 +92,7 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
             return true;
         } catch (error: any) {
             console.error('Error cancelling print job:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to cancel print job';
+            const errorMessage = getErrorMessage(error, 'Failed to cancel print job');
             Notify.failure(errorMessage);
             return false;
         }
@@ -111,7 +112,7 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
             return true;
         } catch (error: any) {
             console.error('Error retrying print job:', error);
-            const errorMessage = error?.message || error?.response?.data?.message || 'Failed to retry print job';
+            const errorMessage = getErrorMessage(error, 'Failed to retry print job');
             Notify.failure(errorMessage);
             return false;
         }
@@ -132,7 +133,7 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
             return affected;
         } catch (error: any) {
             console.error('Error retrying all failed jobs:', error);
-            const errorMessage = error?.message || error?.response?.data?.message || 'Failed to retry jobs';
+            const errorMessage = getErrorMessage(error, 'Failed to retry jobs');
             Notify.failure(errorMessage);
             return 0;
         }
@@ -153,7 +154,7 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
             return affected;
         } catch (error: any) {
             console.error('Error clearing queue:', error);
-            const errorMessage = error?.message || error?.response?.data?.message || 'Failed to clear queue';
+            const errorMessage = getErrorMessage(error, 'Failed to clear queue');
             Notify.failure(errorMessage);
             return 0;
         }
@@ -173,7 +174,7 @@ export const usePrintJobs = (options: UsePrintJobsOptions = {}): UsePrintJobsRet
             return result.deletedCount;
         } catch (error: any) {
             console.error('Error cleaning up print jobs:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to cleanup print jobs';
+            const errorMessage = getErrorMessage(error, 'Failed to cleanup print jobs');
             Notify.failure(errorMessage);
             return 0;
         }

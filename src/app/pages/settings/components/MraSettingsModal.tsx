@@ -3,6 +3,7 @@ import { BottomSheet, Button, Alert, Input, Label } from '../../../components';
 import { HiOutlineShieldCheck, HiOutlineArrowPath } from 'react-icons/hi2';
 import { mraComplianceService } from '../../../services';
 import { useSettings } from '../../../hooks/useSettings';
+import { getErrorMessage } from '../../../utils/api-error-handler';
 
 interface MraSettingsModalProps {
     isOpen: boolean;
@@ -55,13 +56,7 @@ const MraSettingsModal: React.FC<MraSettingsModalProps> = ({ isOpen, onClose }) 
             }
         } catch (err: any) {
             console.error('Terminal activation error:', err);
-            if (err?.response?.data?.message) {
-                setError(err.response.data.message);
-            } else if (err instanceof Error) {
-                setError(err.message);
-            } else {
-                setError('Failed to activate terminal. Please check your TAC and try again.');
-            }
+            setError(getErrorMessage(err, 'Failed to activate terminal. Please check your TAC and try again.'));
         } finally {
             setActivating(false);
         }

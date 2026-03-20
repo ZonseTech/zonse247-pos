@@ -11,6 +11,7 @@ import printerService from '../../services/printer.service';
 import { DiscoveryModal, DiscoveryFilterType } from './partials/DiscoveryModal';
 import AddPrinterTypeModal from './partials/AddPrinterTypeModal';
 import PrinterDetailModal from './partials/PrinterDetailModal';
+import { getErrorMessage } from '../../utils/api-error-handler';
 
 const MobilePrinterManagement: FunctionComponent = () => {
     const [isDiscovering, setIsDiscovering] = useState(false);
@@ -25,16 +26,15 @@ const MobilePrinterManagement: FunctionComponent = () => {
     const [discoveryFilter, setDiscoveryFilter] = useState<DiscoveryFilterType>('USB');
 
     const {
+        printers,
         isLoading,
         totalRows,
         setPage,
         discoverPrinters,
         refreshPrinters,
         deletePrinter,
-        filteredPrinters,
         page,
         perPage,
-        getPaginatedData
     } = usePrinters();
 
     const handleDiscoverPrinters = async (connectionType?: DiscoveryFilterType) => {
@@ -75,7 +75,7 @@ const MobilePrinterManagement: FunctionComponent = () => {
             handleCloseModal();
             await refreshPrinters();
         } catch (e: any) {
-            const errorMessage = e?.error?.response?.data?.message || e?.response?.data?.message || e?.message || 'Failed to save printer';
+            const errorMessage = getErrorMessage(e, 'Failed to save printer');
             Notify.failure(errorMessage);
         }
         finally { setIsSaving(false); }
@@ -118,7 +118,7 @@ const MobilePrinterManagement: FunctionComponent = () => {
                     <div className="overflow-hidden">
                         {isLoading ? (
                             <ComponentLoader loading={true} />
-                        ) : filteredPrinters.length === 0 ? (
+                        ) : printers.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-12 px-4">
                                 <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
                                     <Printer className="w-8 h-8 text-gray-400" />
@@ -133,7 +133,7 @@ const MobilePrinterManagement: FunctionComponent = () => {
                         ) : (
                             <>
                                 <div className="space-y-3 p-2">
-                                    {getPaginatedData().map((printer) => (
+                                    {printers.map((printer) => (
                                         <PrinterMobileCard
                                             key={printer.printerId}
                                             printer={printer}

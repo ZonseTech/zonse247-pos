@@ -3,6 +3,7 @@ import { Search, Shield, X, Check } from 'lucide-react';
 import roleService from '../../../services/role.service';
 import { Notify } from 'notiflix';
 import { ROLE_IDS } from '../../../constants/roles';
+import { getErrorMessage } from '../../../utils/api-error-handler';
 
 interface Role {
     roleId: string;
@@ -112,7 +113,7 @@ export const RoleSearch: FunctionComponent<RoleSearchProps> = ({
             setFilteredRoles(roleData);
         } catch (error: any) {
             console.error('Error loading roles:', error);
-            Notify.failure(error?.response?.data?.message || 'Failed to load roles');
+            Notify.failure(getErrorMessage(error, 'Failed to load roles'));
             setRoles([]);
             setFilteredRoles([]);
         } finally {

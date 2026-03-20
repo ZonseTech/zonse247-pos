@@ -58,6 +58,11 @@ const ReturnMobileCard: React.FC<ReturnMobileCardProps> = ({
     const hasPendingRestock = returnData.returnItems.some(
         (item) => item.restockStatus === 'pending'
     );
+    const hasRestockedItems = returnData.returnItems.some(
+        (item) => item.restockStatus === 'restocked'
+    );
+    const isCancelled = returnData.status === 'CANCELLED';
+    const canCancel = !hasRestockedItems && !isCancelled;
     const restockStatus = getRestockStatus(returnData);
     const StatusIcon = restockStatus.icon;
 
@@ -127,7 +132,7 @@ const ReturnMobileCard: React.FC<ReturnMobileCardProps> = ({
                     <HiOutlineEye className="w-4 h-4" />
                     <span>View</span>
                 </button>
-                {hasPendingRestock && (
+                {hasPendingRestock && !isCancelled && (
                     <button
                         onClick={() => onRestock(returnData)}
                         className="flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-medium text-emerald-500 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 active:bg-emerald-200 dark:active:bg-emerald-900/70 rounded-lg transition-colors duration-150"
@@ -136,15 +141,17 @@ const ReturnMobileCard: React.FC<ReturnMobileCardProps> = ({
                         <span>Restock</span>
                     </button>
                 )}
-                <button
-                    onClick={() => onCancel(
-                        returnData.returnId || returnData.returnTransaction?.transactionId || '',
-                        returnData.returnNumber || returnData.returnTransaction?.refNumber || ''
-                    )}
-                    className="flex items-center justify-center p-2.5 text-xs font-medium text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 active:bg-red-200 dark:active:bg-red-900/70 rounded-lg transition-colors duration-150"
-                >
-                    <Trash2 className="w-4 h-4" />
-                </button>
+                {canCancel && (
+                    <button
+                        onClick={() => onCancel(
+                            returnData.returnId || returnData.returnTransaction?.transactionId || '',
+                            returnData.returnNumber || returnData.returnTransaction?.refNumber || ''
+                        )}
+                        className="flex items-center justify-center p-2.5 text-xs font-medium text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 active:bg-red-200 dark:active:bg-red-900/70 rounded-lg transition-colors duration-150"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </button>
+                )}
             </div>
         </div>
     );

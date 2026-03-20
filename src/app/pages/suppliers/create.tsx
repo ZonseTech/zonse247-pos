@@ -12,6 +12,8 @@ import FormSearchableSelect from '../../components/FormSearchableSelect';
 import { ROUTES } from '../../utils/constants';
 import { useSuppliers } from '../../hooks/useSuppliers';
 import { useSettings } from '../../hooks/useSettings';
+import SupplierBalanceWidget from './partials/SupplierBalanceWidget';
+import { getErrorMessage } from '../../utils/api-error-handler';
 
 const SupplierForm: FunctionComponent = () => {
     const navigate = useNavigate();
@@ -42,7 +44,7 @@ const SupplierForm: FunctionComponent = () => {
             }
         } catch (error: any) {
             console.error('Error fetching supplier:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to load supplier details';
+            const errorMessage = getErrorMessage(error, 'Failed to load supplier details');
             Notify.failure(errorMessage);
         } finally {
             setLoading(false);
@@ -159,7 +161,7 @@ const SupplierForm: FunctionComponent = () => {
             }
         } catch (error: any) {
             console.error('Submit error:', error);
-            const errorMessage = error?.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} supplier`;
+            const errorMessage = getErrorMessage(error, `Failed to ${isEditMode ? 'update' : 'create'} supplier`);
             Report.failure('Error', errorMessage, 'Okay');
         } finally {
             setLoading(false);
@@ -197,6 +199,14 @@ const SupplierForm: FunctionComponent = () => {
                             />
 
                             <div className="mt-6 space-y-6">
+                                {/* Balance Widget (edit mode only) */}
+                                {isEditMode && supplierId && (
+                                    <SupplierBalanceWidget
+                                        supplierId={supplierId}
+                                        supplierName={supplier?.name}
+                                    />
+                                )}
+
                                 <FormFieldCard title="Basic Information">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <FormInput

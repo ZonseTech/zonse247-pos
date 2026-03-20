@@ -127,7 +127,6 @@ const DesktopReturns: FC = () => {
                     description={isEBN ? undefined : "Manage product returns, process refunds, and track restock status"}
                     compact={isEBN}
                 >
-                    {/* Filters Section */}
                     {isEBN ? (
                         <div className="flex flex-wrap items-center gap-2 px-2 py-2 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
                             <SearchBar
@@ -158,7 +157,6 @@ const DesktopReturns: FC = () => {
                     ) : (
                         <div className="p-3 md:p-6 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
                             <div className="flex flex-row items-center justify-between gap-3 md:gap-4">
-                                {/* Search Row */}
                                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                                     <SearchBar
                                         placeholder="Search by return ID, transaction, or customer..."
@@ -167,7 +165,6 @@ const DesktopReturns: FC = () => {
                                         className="w-full sm:flex-1 sm:max-w-xs"
                                     />
 
-                                    {/* Action buttons */}
                                     <div className="flex items-center gap-2 flex-wrap">
                                         {hasActiveFilters && (
                                             <button
@@ -181,7 +178,6 @@ const DesktopReturns: FC = () => {
                                     </div>
                                 </div>
 
-                                {/* Status Filters */}
                                 <div className="flex flex-col gap-3">
                                     <Filters
                                         summaryData={summaryData}
@@ -195,7 +191,6 @@ const DesktopReturns: FC = () => {
                     )}
                 </PageHeader>
 
-                {/* Main Content Container */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
 
                     <ReturnSummaryCards
@@ -205,7 +200,6 @@ const DesktopReturns: FC = () => {
                         mobile={false}
                     />
 
-                    {/* Desktop View - Data Table */}
                     <div className="overflow-hidden">
                         <DataTable
                             columns={columns}
@@ -226,7 +220,6 @@ const DesktopReturns: FC = () => {
                             onChangeRowsPerPage={handlePerRowsChange}
                             onChangePage={handlePageChange}
                             fixedHeader
-                            fixedHeaderScrollHeight={isEBN ? "calc(100vh - 280px)" : "calc(100vh - 420px)"}
                             noDataComponent={
                                 <div className={isEBN ? "flex flex-col items-center justify-center py-6" : "flex flex-col items-center justify-center py-12"}>
                                     <div className={isEBN

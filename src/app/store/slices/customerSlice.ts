@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import customerService from '../../services/customers.service'
+import { getErrorMessage } from '../../utils/api-error-handler'
 import { Notify } from 'notiflix'
 
 interface CustomersState {
@@ -23,7 +24,7 @@ export const fetchCustomers = createAsyncThunk(
             const response = await customerService.list()
             return response
         } catch (error) {
-            const message = 'Error fetching customers: ' + error?.error?.response?.data?.message
+            const message = getErrorMessage(error, 'Error fetching customers')
             Notify.failure(message)
             return rejectWithValue(message)
         }

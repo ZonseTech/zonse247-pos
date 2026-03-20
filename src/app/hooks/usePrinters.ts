@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Notify } from 'notiflix';
 import printerService from '../services/printer.service';
+import { getErrorMessage } from '../utils/api-error-handler';
+import { usePagination } from './usePagination';
 
 interface UsePrintersReturn {
     printers: Printer[];
-    filteredPrinters: Printer[];
     isLoading: boolean;
     searchTerm: string;
     setSearchTerm: (term: string) => void;
@@ -13,6 +14,8 @@ interface UsePrintersReturn {
     perPage: number;
     setPerPage: (perPage: number) => void;
     totalRows: number;
+    handlePageChange: (page: number) => void;
+    handlePerRowsChange: (newPerPage: number, page: number) => void;
     deletePrinter: (printerId: string) => Promise<void>;
     setDefault: (printerId: string) => Promise<void>;
     updateStatus: (printerId: string, status: PrinterStatus, errorMessage?: string) => Promise<void>;
@@ -21,8 +24,6 @@ interface UsePrintersReturn {
     testConnection: (printerId: string) => Promise<PrinterTestResult | null>;
     printTestPage: (printerId: string) => Promise<void>;
     refreshPrinters: () => Promise<void>;
-    filterPrinters: (term: string) => Printer[];
-    getPaginatedData: () => Printer[];
     discoverPrinters: (connectionType?: PrinterConnectionType) => Promise<DiscoveredPrinter[]>;
     pendingJobs: PrintJob[];
     loadPendingJobs: () => Promise<void>;
@@ -32,29 +33,32 @@ interface UsePrintersReturn {
 
 export const usePrinters = (): UsePrintersReturn => {
     const [printers, setPrinters] = useState<Printer[]>([]);
-    const [filteredPrinters, setFilteredPrinters] = useState<Printer[]>([]);
     const [pendingJobs, setPendingJobs] = useState<PrintJob[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [page, setPage] = useState(1);
-    const [perPage, setPerPage] = useState(10);
-    const [totalRows, setTotalRows] = useState(0);
+
+    const {
+        page, setPage, perPage, setPerPage, totalRows, setTotalRows,
+        handlePageChange, handlePerRowsChange,
+    } = usePagination();
 
     const loadPrinters = useCallback(async () => {
         setIsLoading(true);
         try {
-            const data = await printerService.getAll();
-            setPrinters(data);
-            setFilteredPrinters(data);
-            setTotalRows(data.length);
+            const result = await printerService.getAllPaginated({
+                page,
+                perPage,
+                search: searchTerm || undefined,
+            });
+            setPrinters(result.printers || []);
+            setTotalRows(result.pagination?.total || 0);
         } catch (error: any) {
             console.error('Error loading printers:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to load printers';
-            Notify.failure(errorMessage);
+            Notify.failure(getErrorMessage(error, 'Failed to load printers'));
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [page, perPage, searchTerm, setTotalRows]);
 
     const loadPendingJobs = useCallback(async () => {
         try {
@@ -69,35 +73,10 @@ export const usePrinters = (): UsePrintersReturn => {
         loadPrinters();
     }, [loadPrinters]);
 
-    const filterPrinters = useCallback((term: string): Printer[] => {
-        if (!term.trim()) {
-            return printers;
-        }
-
-        const lowerTerm = term.toLowerCase();
-        return printers.filter((printer) =>
-            printer.printerName?.toLowerCase().includes(lowerTerm) ||
-            printer.printerModel?.toLowerCase().includes(lowerTerm) ||
-            printer.printerType?.toLowerCase().includes(lowerTerm) ||
-            printer.connectionType?.toLowerCase().includes(lowerTerm) ||
-            printer.connectionAddress?.toLowerCase().includes(lowerTerm) ||
-            printer.status?.toLowerCase().includes(lowerTerm) ||
-            printer.serialNumber?.toLowerCase().includes(lowerTerm)
-        );
-    }, [printers]);
-
+    // Reset to page 1 when search changes
     useEffect(() => {
-        const filtered = filterPrinters(searchTerm);
-        setFilteredPrinters(filtered);
-        setTotalRows(filtered.length);
         setPage(1);
-    }, [searchTerm, filterPrinters]);
-
-    const getPaginatedData = useCallback((): Printer[] => {
-        const startIndex = (page - 1) * perPage;
-        const endIndex = startIndex + perPage;
-        return filteredPrinters.slice(startIndex, endIndex);
-    }, [page, perPage, filteredPrinters]);
+    }, [searchTerm, setPage]);
 
     const deletePrinter = useCallback(async (printerId: string) => {
         try {
@@ -106,7 +85,7 @@ export const usePrinters = (): UsePrintersReturn => {
             await loadPrinters();
         } catch (error: any) {
             console.error('Error deleting printer:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to delete printer';
+            const errorMessage = getErrorMessage(error, 'Failed to delete printer');
             Notify.failure(errorMessage);
         }
     }, [loadPrinters]);
@@ -118,7 +97,7 @@ export const usePrinters = (): UsePrintersReturn => {
             await loadPrinters();
         } catch (error: any) {
             console.error('Error setting default printer:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to set default printer';
+            const errorMessage = getErrorMessage(error, 'Failed to set default printer');
             Notify.failure(errorMessage);
         }
     }, [loadPrinters]);
@@ -130,7 +109,7 @@ export const usePrinters = (): UsePrintersReturn => {
             await loadPrinters();
         } catch (error: any) {
             console.error('Error updating printer status:', error);
-            const message = error?.response?.data?.message || 'Failed to update printer status';
+            const message = getErrorMessage(error, 'Failed to update printer status');
             Notify.failure(message);
         }
     }, [loadPrinters]);
@@ -142,7 +121,7 @@ export const usePrinters = (): UsePrintersReturn => {
             await loadPrinters();
         } catch (error: any) {
             console.error('Error activating printer:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to activate printer';
+            const errorMessage = getErrorMessage(error, 'Failed to activate printer');
             Notify.failure(errorMessage);
         }
     }, [loadPrinters]);
@@ -154,7 +133,7 @@ export const usePrinters = (): UsePrintersReturn => {
             await loadPrinters();
         } catch (error: any) {
             console.error('Error deactivating printer:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to deactivate printer';
+            const errorMessage = getErrorMessage(error, 'Failed to deactivate printer');
             Notify.failure(errorMessage);
         }
     }, [loadPrinters]);
@@ -171,7 +150,7 @@ export const usePrinters = (): UsePrintersReturn => {
             return result;
         } catch (error: any) {
             console.error('Error testing printer:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to test printer connection';
+            const errorMessage = getErrorMessage(error, 'Failed to test printer connection');
             Notify.failure(errorMessage);
             return null;
         }
@@ -183,7 +162,7 @@ export const usePrinters = (): UsePrintersReturn => {
             Notify.success('Test page sent to printer');
         } catch (error: any) {
             console.error('Error printing test page:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to print test page';
+            const errorMessage = getErrorMessage(error, 'Failed to print test page');
             Notify.failure(errorMessage);
         }
     }, []);
@@ -199,7 +178,7 @@ export const usePrinters = (): UsePrintersReturn => {
             return result.printers;
         } catch (error: any) {
             console.error('Error discovering printers:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to discover printers';
+            const errorMessage = getErrorMessage(error, 'Failed to discover printers');
             Notify.failure(errorMessage);
             return [];
         }
@@ -212,7 +191,7 @@ export const usePrinters = (): UsePrintersReturn => {
             await loadPendingJobs();
         } catch (error: any) {
             console.error('Error cancelling print job:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to cancel print job';
+            const errorMessage = getErrorMessage(error, 'Failed to cancel print job');
             Notify.failure(errorMessage);
         }
     }, [loadPendingJobs]);
@@ -223,7 +202,7 @@ export const usePrinters = (): UsePrintersReturn => {
             Notify.success(`Cleaned up ${result.deletedCount} old print job(s)`);
         } catch (error: any) {
             console.error('Error cleaning up print jobs:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to cleanup print jobs';
+            const errorMessage = getErrorMessage(error, 'Failed to cleanup print jobs');
             Notify.failure(errorMessage);
         }
     }, []);
@@ -235,7 +214,6 @@ export const usePrinters = (): UsePrintersReturn => {
 
     return {
         printers,
-        filteredPrinters,
         isLoading,
         searchTerm,
         setSearchTerm,
@@ -244,6 +222,8 @@ export const usePrinters = (): UsePrintersReturn => {
         perPage,
         setPerPage,
         totalRows,
+        handlePageChange,
+        handlePerRowsChange,
         deletePrinter,
         setDefault,
         updateStatus,
@@ -252,8 +232,6 @@ export const usePrinters = (): UsePrintersReturn => {
         testConnection,
         printTestPage,
         refreshPrinters,
-        filterPrinters,
-        getPaginatedData,
         discoverPrinters,
         pendingJobs,
         loadPendingJobs,

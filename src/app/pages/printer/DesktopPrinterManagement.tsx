@@ -15,6 +15,7 @@ import { ROUTES } from '../../utils/constants';
 import printerService from '../../services/printer.service';
 import { DiscoveryModal, DiscoveryFilterType } from './partials/DiscoveryModal';
 import EditPrinterModal from './partials/EditPrinterModal';
+import { getErrorMessage } from '../../utils/api-error-handler';
 
 const DesktopPrinterManagement: FunctionComponent = () => {
     const navigate = useNavigate();
@@ -30,9 +31,10 @@ const DesktopPrinterManagement: FunctionComponent = () => {
     const [printerToEdit, setPrinterToEdit] = useState<Printer | null>(null);
 
     const {
-        isLoading, searchTerm, setSearchTerm, totalRows, setPage, setPerPage, getPaginatedData,
+        printers, isLoading, searchTerm, setSearchTerm, totalRows, perPage,
+        handlePageChange, handlePerRowsChange,
         deletePrinter, setDefault, activatePrinter, deactivatePrinter, testConnection, printTestPage,
-        discoverPrinters, refreshPrinters, perPage
+        discoverPrinters, refreshPrinters,
     } = usePrinters();
 
     const handleDiscoverPrinters = async (connectionType?: DiscoveryFilterType) => {
@@ -73,7 +75,7 @@ const DesktopPrinterManagement: FunctionComponent = () => {
             handleCloseModal();
             await refreshPrinters();
         } catch (e: any) {
-            const errorMessage = e?.error?.response?.data?.message || e?.response?.data?.message || e?.message || 'Failed to save printer';
+            const errorMessage = getErrorMessage(e, 'Failed to save printer');
             Notify.failure(errorMessage);
         }
         finally { setIsSaving(false); }
@@ -155,7 +157,7 @@ const DesktopPrinterManagement: FunctionComponent = () => {
                     <div className="overflow-hidden">
                         <DataTable
                             columns={columns}
-                            data={getPaginatedData()}
+                            data={printers}
                             theme={mode as string}
                             progressPending={isLoading}
                             highlightOnHover
@@ -166,8 +168,8 @@ const DesktopPrinterManagement: FunctionComponent = () => {
                             paginationTotalRows={totalRows}
                             paginationPerPage={perPage}
                             paginationRowsPerPageOptions={[10, 15, 25, 50]}
-                            onChangeRowsPerPage={(n, p) => { setPage(p); setPerPage(n); }}
-                            onChangePage={setPage}
+                            onChangeRowsPerPage={handlePerRowsChange}
+                            onChangePage={handlePageChange}
                             fixedHeader
                             customStyles={getTableStyles(mode)}
                             noDataComponent={

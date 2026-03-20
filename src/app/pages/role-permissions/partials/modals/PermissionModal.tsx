@@ -7,6 +7,7 @@ import FormWrapper from '../../../../components/FormWrapper';
 import FormInput from '../../../../components/FormInput';
 import FormTextArea from '../../../../components/FormTextArea';
 import FormSelectBox from '../../../../components/FormSelectBox';
+import { getErrorMessage } from '../../../../utils/api-error-handler';
 
 type Props = {
     permission?: Permission;
@@ -48,7 +49,7 @@ const PermissionModal: FunctionComponent<Props> = ({ permission, categories, sco
             await onSave(values);
             onClose();
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            const errorMessage = getErrorMessage(error, 'An unknown error occurred');
             Notify.failure('Error saving permission: ' + errorMessage);
         }
     };
