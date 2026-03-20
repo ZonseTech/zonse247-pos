@@ -11,8 +11,8 @@ const paymentMethodService = {
 	endpoints,
 	async list(query = {}): Promise<Array<PaymentMethod>> {
 		return api
-			.get<ApiResponse<Array<PaymentMethod>>>(endpoints.all, query)
-			.then((res) => res.data.data)
+			.get<ApiResponse<{ paymentMethods: Array<PaymentMethod> }>>(endpoints.all, query)
+			.then((res) => res.data.data?.paymentMethods || [])
 			.catch((err) => {
 				throw err;
 			});

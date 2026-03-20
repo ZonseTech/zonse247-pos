@@ -17,8 +17,10 @@ const tenantsService = {
     endpoints,
     async list(query: TenantQueryParams = {}): Promise<Array<Tenant>> {
         try {
-            const response = await api.get<ApiResponse<Array<Tenant>>>(endpoints.all, query);
-            return decodeArrayStrings(response.data.data || [], TENANT_DECODE_FIELDS);
+            const response = await api.get<ApiResponse<{ tenants?: Array<Tenant> }>>(endpoints.all, query);
+            const data = response.data.data;
+            const tenants = Array.isArray(data) ? data : (data?.tenants || []);
+            return decodeArrayStrings(tenants, TENANT_DECODE_FIELDS);
         } catch (err) {
             console.error('Error fetching tenants:', err);
             throw err;

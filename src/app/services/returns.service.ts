@@ -38,8 +38,11 @@ const returnsService = {
      */
     async getReturnsByTransaction(transactionId: string): Promise<ReturnDetails[]> {
         return api
-            .get<ApiResponse<ReturnDetails[]>>(`${endpoints.byTransaction}/${transactionId}`)
-            .then((res) => res.data.data)
+            .get<ApiResponse<{ returns?: ReturnDetails[] }>>(`${endpoints.byTransaction}/${transactionId}`)
+            .then((res) => {
+                const data = res.data.data;
+                return Array.isArray(data) ? data : (data?.returns || []);
+            })
             .catch((err) => {
                 throw err;
             });
@@ -51,8 +54,11 @@ const returnsService = {
      */
     async list(): Promise<ReturnDetails[]> {
         return api
-            .get<ApiResponse<ReturnDetails[]>>(endpoints.list)
-            .then((res) => res.data.data)
+            .get<ApiResponse<{ returns?: ReturnDetails[] }>>(endpoints.list)
+            .then((res) => {
+                const data = res.data.data;
+                return Array.isArray(data) ? data : (data?.returns || []);
+            })
             .catch((err) => {
                 throw err;
             });

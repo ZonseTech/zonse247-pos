@@ -128,8 +128,12 @@ const transactionService = {
 	/** @deprecated Use list with date filters instead */
 	async byDate(query: SaleQueryParams = {}): Promise<Sale[]> {
 		return api
-			.get<ApiResponse<{ data: Sale[] }>>(endpoints.list, query)
-			.then((res) => res.data.data.data || [])
+			.get<ApiResponse<any>>(endpoints.list, query)
+			.then((res) => {
+				const data = res.data.data;
+				if (Array.isArray(data)) return data;
+				return data?.sales || data?.data || [];
+			})
 			.catch((err) => {
 				throw err;
 			});

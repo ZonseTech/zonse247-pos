@@ -1,6 +1,7 @@
 import api from './http.service';
 import { decodeObjectStrings, decodeArrayStrings } from '../utils/text-encoding';
 import { liveApi, getAuthHeaders } from './live-api.service';
+import { getErrorMessage } from '../utils/api-error-handler';
 
 // Fields to decode for inventory items
 const INVENTORY_DECODE_FIELDS = ['name', 'description', 'brand', 'sku', 'color', 'size', 'unit', 'supplierName'] as const;
@@ -74,6 +75,10 @@ export interface MoveToCategoryPayload {
 	categoryId: string;
 }
 
+/**
+ * @deprecated Use StockAdjustmentPayload from stock-movement.d.ts instead.
+ * Never update inventory directly — always use stock movement endpoints.
+ */
 export interface AdjustInventoryPayload {
 	adjustment: number;
 	reason?: string;
@@ -208,8 +213,11 @@ const inventoryService = {
 	 */
 	async getTopValueItems(limit: number = 10): Promise<TopValueItem[]> {
 		return api
-			.get<ApiResponse<TopValueItem[]>>(endpoints.topValue, { limit })
-			.then((res) => res.data.data)
+			.get<ApiResponse<{ items?: TopValueItem[]; topValueItems?: TopValueItem[] }>>(endpoints.topValue, { limit })
+			.then((res) => {
+				const data = res.data.data;
+				return Array.isArray(data) ? data : (data?.items || data?.topValueItems || []);
+			})
 			.catch((err) => {
 				throw err;
 			});
@@ -256,8 +264,12 @@ const inventoryService = {
 	 */
 	async getAll(query = {}): Promise<InventoryItem[]> {
 		return api
-			.get<ApiResponse<InventoryItem[]>>(endpoints.all, { ...query, groupByProduct: true })
-			.then((res) => decodeArrayStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
+			.get<ApiResponse<any>>(endpoints.all, { ...query, groupByProduct: true })
+			.then((res) => {
+				const data = res.data.data;
+				const items = Array.isArray(data) ? data : (data?.inventoryItems || data?.products || []);
+				return decodeArrayStrings<InventoryItem>(items, INVENTORY_DECODE_FIELDS);
+			})
 			.catch((err) => {
 				throw err;
 			});
@@ -268,8 +280,12 @@ const inventoryService = {
 	 */
 	async index(query = {}): Promise<InventoryItem[]> {
 		return api
-			.get<ApiResponse<InventoryItem[]>>(endpoints.itemsOnly, query)
-			.then((res) => decodeArrayStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
+			.get<ApiResponse<any>>(endpoints.itemsOnly, query)
+			.then((res) => {
+				const data = res.data.data;
+				const items = Array.isArray(data) ? data : (data?.inventoryItems || data?.products || []);
+				return decodeArrayStrings<InventoryItem>(items, INVENTORY_DECODE_FIELDS);
+			})
 			.catch((err) => {
 				throw err;
 			});
@@ -292,8 +308,12 @@ const inventoryService = {
 	 */
 	async search(query: string, filters = {}): Promise<InventoryItem[]> {
 		return api
-			.get<ApiResponse<InventoryItem[]>>(endpoints.search, { q: query, ...filters })
-			.then((res) => decodeArrayStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
+			.get<ApiResponse<any>>(endpoints.search, { q: query, ...filters })
+			.then((res) => {
+				const data = res.data.data;
+				const items = Array.isArray(data) ? data : (data?.inventoryItems || data?.results || data?.products || []);
+				return decodeArrayStrings<InventoryItem>(items, INVENTORY_DECODE_FIELDS);
+			})
 			.catch((err) => {
 				throw err;
 			});
@@ -319,8 +339,12 @@ const inventoryService = {
 	 */
 	async getByCategory(categoryId: string, query = {}): Promise<InventoryItem[]> {
 		return api
-			.get<ApiResponse<InventoryItem[]>>(`${endpoints.byCategory}/${categoryId}`, query)
-			.then((res) => decodeArrayStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
+			.get<ApiResponse<any>>(`${endpoints.byCategory}/${categoryId}`, query)
+			.then((res) => {
+				const data = res.data.data;
+				const items = Array.isArray(data) ? data : (data?.inventoryItems || data?.products || []);
+				return decodeArrayStrings<InventoryItem>(items, INVENTORY_DECODE_FIELDS);
+			})
 			.catch((err) => {
 				throw err;
 			});
@@ -331,8 +355,12 @@ const inventoryService = {
 	 */
 	async getByStatus(status: string, query = {}): Promise<InventoryItem[]> {
 		return api
-			.get<ApiResponse<InventoryItem[]>>(`${endpoints.byStatus}/${status}`, query)
-			.then((res) => decodeArrayStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
+			.get<ApiResponse<any>>(`${endpoints.byStatus}/${status}`, query)
+			.then((res) => {
+				const data = res.data.data;
+				const items = Array.isArray(data) ? data : (data?.inventoryItems || data?.products || []);
+				return decodeArrayStrings<InventoryItem>(items, INVENTORY_DECODE_FIELDS);
+			})
 			.catch((err) => {
 				throw err;
 			});
@@ -343,8 +371,12 @@ const inventoryService = {
 	 */
 	async getLowStock(query = {}): Promise<InventoryItem[]> {
 		return api
-			.get<ApiResponse<InventoryItem[]>>(endpoints.lowStock, query)
-			.then((res) => decodeArrayStrings<InventoryItem>(res.data.data, INVENTORY_DECODE_FIELDS))
+			.get<ApiResponse<any>>(endpoints.lowStock, query)
+			.then((res) => {
+				const data = res.data.data;
+				const items = Array.isArray(data) ? data : (data?.inventoryItems || data?.products || []);
+				return decodeArrayStrings<InventoryItem>(items, INVENTORY_DECODE_FIELDS);
+			})
 			.catch((err) => {
 				throw err;
 			});
@@ -384,13 +416,7 @@ const inventoryService = {
 				throw err;
 			}
 			// Handle API error responses
-			const axiosError = err?.error || err;
-			const message =
-				axiosError?.response?.data?.message ||
-				axiosError?.message ||
-				err?.message ||
-				'Failed to create inventory item';
-			throw new Error(message);
+			throw new Error(getErrorMessage(err, 'Failed to create inventory item'));
 		}
 	},
 
@@ -426,11 +452,15 @@ const inventoryService = {
 
 	/**
 	 * PUT /item/:itemId - Update an inventory item
+	 * NOTE: Quantity-related fields are stripped to enforce the golden rule:
+	 * "Never update inventory directly — always use stock movement endpoints."
 	 */
 	async update(id: string, data: Partial<InventoryItem>): Promise<InventoryItem> {
 		const headers = await getAuthHeaders();
+		// Strip quantity-related fields — inventory quantities must only be changed via stock movements
+		const { quantity, availableQuantity, reservedQuantity, damagedQuantity, ...safeData } = data as any;
 		return liveApi
-			.put<ApiResponse<InventoryItem>>(`${endpoints.item}/${id}`, data, { headers })
+			.put<ApiResponse<InventoryItem>>(`${endpoints.item}/${id}`, safeData, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -465,11 +495,15 @@ const inventoryService = {
 
 	/**
 	 * PUT /bulk-update - Bulk update inventory items
+	 * NOTE: Quantity-related fields are stripped from updates to enforce the golden rule.
 	 */
 	async bulkUpdate(payload: BulkUpdatePayload): Promise<{ updated: number; items: InventoryItem[] }> {
 		const headers = await getAuthHeaders();
+		// Strip quantity-related fields from the updates object
+		const { quantity, availableQuantity, reservedQuantity, damagedQuantity, ...safeUpdates } = payload.updates as any;
+		const safePayload = { ...payload, updates: safeUpdates };
 		return liveApi
-			.put<ApiResponse<{ updated: number; items: InventoryItem[] }>>(endpoints.bulkUpdate, payload, { headers })
+			.put<ApiResponse<{ updated: number; items: InventoryItem[] }>>(endpoints.bulkUpdate, safePayload, { headers })
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
@@ -492,11 +526,11 @@ const inventoryService = {
 	// ==================== PATCH ENDPOINTS ====================
 
 	/**
-	 * PATCH /item/:variantId/quantity - Update inventory quantity
-	 * @param variantId - The variant ID to update quantity for
-	 * @param quantity - The new quantity value
+	 * @deprecated Use stockMovementService.performStockCount() instead.
+	 * Never update inventory directly — always use stock movement endpoints.
 	 */
 	async updateQuantity(variantId: string, quantity: number): Promise<InventoryItem> {
+		console.warn('[DEPRECATED] inventoryService.updateQuantity() — use stockMovementService.performStockCount() instead');
 		const headers = await getAuthHeaders();
 		return liveApi
 			.patch<ApiResponse<InventoryItem>>(`${endpoints.item}/${variantId}/quantity`, { quantity }, { headers })
@@ -507,11 +541,11 @@ const inventoryService = {
 	},
 
 	/**
-	 * PATCH /item/:variantId/adjust - Adjust inventory (add/subtract/set)
-	 * @param variantId - The variant ID to adjust inventory for
-	 * @param payload - Adjustment details (type: add/subtract/set, adjustment amount, reason)
+	 * @deprecated Use stockMovementService.adjustStock() instead.
+	 * Never update inventory directly — always use stock movement endpoints.
 	 */
 	async adjustInventory(variantId: string, payload: AdjustInventoryPayload): Promise<InventoryItem> {
+		console.warn('[DEPRECATED] inventoryService.adjustInventory() — use stockMovementService.adjustStock() instead');
 		const headers = await getAuthHeaders();
 		return liveApi
 			.patch<ApiResponse<InventoryItem>>(`${endpoints.item}/${variantId}/adjust`, payload, { headers })
@@ -522,12 +556,11 @@ const inventoryService = {
 	},
 
 	/**
-	 * Increment inventory quantity (for returns/restocking)
-	 * @param variantId Variant ID to increment (or productId for backwards compat)
-	 * @param quantity Quantity to add
-	 * @param reason Optional reason for increment
+	 * @deprecated Use stockMovementService.adjustStock() with adjustmentType: 'ADD' instead.
+	 * Never update inventory directly — always use stock movement endpoints.
 	 */
 	async incrementInventory(variantId: string, quantity: number, reason?: string): Promise<InventoryItem> {
+		console.warn('[DEPRECATED] inventoryService.incrementInventory() — use stockMovementService.adjustStock() instead');
 		return this.adjustInventory(variantId, {
 			adjustment: quantity,
 			type: 'add',
@@ -536,12 +569,11 @@ const inventoryService = {
 	},
 
 	/**
-	 * Decrement inventory quantity (for reversing returns)
-	 * @param variantId Variant ID to decrement (or productId for backwards compat)
-	 * @param quantity Quantity to subtract
-	 * @param reason Optional reason for decrement
+	 * @deprecated Use stockMovementService.adjustStock() with adjustmentType: 'SUBTRACT' instead.
+	 * Never update inventory directly — always use stock movement endpoints.
 	 */
 	async decrementInventory(variantId: string, quantity: number, reason?: string): Promise<InventoryItem> {
+		console.warn('[DEPRECATED] inventoryService.decrementInventory() — use stockMovementService.adjustStock() instead');
 		return this.adjustInventory(variantId, {
 			adjustment: quantity,
 			type: 'subtract',
@@ -613,11 +645,11 @@ const inventoryService = {
 	},
 
 	/**
-	 * Reserve inventory for an order
-	 * @param variantId Variant ID to reserve (or productId for backwards compat)
-	 * @param quantity Quantity to reserve
+	 * @deprecated Use stock movement endpoints for reservation tracking instead.
+	 * Never update inventory directly — always use stock movement endpoints.
 	 */
 	async reserveInventory(variantId: string, quantity: number): Promise<InventoryItem> {
+		console.warn('[DEPRECATED] inventoryService.reserveInventory() — use stock movement endpoints instead');
 		const item = await this.show(variantId);
 		const currentReserved = Number(item.reservedQuantity || 0);
 
@@ -627,11 +659,11 @@ const inventoryService = {
 	},
 
 	/**
-	 * Release reserved inventory
-	 * @param variantId Variant ID (or productId for backwards compat)
-	 * @param quantity Quantity to release
+	 * @deprecated Use stock movement endpoints for reservation tracking instead.
+	 * Never update inventory directly — always use stock movement endpoints.
 	 */
 	async releaseReservedInventory(variantId: string, quantity: number): Promise<InventoryItem> {
+		console.warn('[DEPRECATED] inventoryService.releaseReservedInventory() — use stock movement endpoints instead');
 		const item = await this.show(variantId);
 		const currentReserved = Number(item.reservedQuantity || 0);
 

@@ -11,8 +11,19 @@ const customerSerive = {
 	endpoints,
 	async list(query = {}): Promise<Customer[]> {
 		return api
-			.get<ApiResponse<Customer[]>>(endpoints.all, query)
-			.then((res) => res.data.data)
+			.get<ApiResponse<{ customers: Customer[]; pagination?: any }>>(endpoints.all, query)
+			.then((res) => res.data.data?.customers || [])
+			.catch((err) => {
+				throw err;
+			});
+	},
+	async listPaginated(query: Record<string, any> = {}): Promise<{ data: Customer[]; pagination: { total: number; page: number; limit: number; pages: number } }> {
+		return api
+			.get<ApiResponse<{ customers: Customer[]; pagination?: any }>>(endpoints.all, { ...query, paginated: true })
+			.then((res) => ({
+				data: res.data.data?.customers || [],
+				pagination: res.data.data?.pagination || { total: 0, page: 1, limit: 10, pages: 1 },
+			}))
 			.catch((err) => {
 				throw err;
 			});

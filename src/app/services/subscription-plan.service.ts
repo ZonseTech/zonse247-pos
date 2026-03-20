@@ -31,10 +31,12 @@ class SubscriptionPlanService {
 	 */
 	async list(): Promise<SubscriptionPlan[]> {
 		try {
-			const response = await liveApi.get<ApiResponse<SubscriptionPlan[]>>(this.endpoint, {
+			const response = await liveApi.get<ApiResponse<any>>(this.endpoint, {
 				headers: await getAuthHeaders()
 			});
-			return this.normalizePlans(response.data.data || []);
+			const data = response.data.data;
+			const plans = Array.isArray(data) ? data : (data?.subscriptionPlans || data?.plans || []);
+			return this.normalizePlans(plans);
 		} catch (error) {
 			console.error('Error fetching subscription plans:', error);
 			throw error;
@@ -113,12 +115,14 @@ class SubscriptionPlanService {
 	 */
 	async getActive(): Promise<SubscriptionPlan[]> {
 		try {
-			const response = await liveApi.get<ApiResponse<SubscriptionPlan[]>>(
+			const response = await liveApi.get<ApiResponse<any>>(
 				`${this.endpoint}/active`,
 				{ headers: await getAuthHeaders() }
 			);
 
-			const plans = this.normalizePlans(response.data.data || []);
+			const data = response.data.data;
+			const rawPlans = Array.isArray(data) ? data : (data?.subscriptionPlans || data?.plans || []);
+			const plans = this.normalizePlans(rawPlans);
 
 			// Sort: Offline/Free (left) -> Popular (middle) -> Others (right)
 			const sortedPlans = plans.sort((a, b) => {

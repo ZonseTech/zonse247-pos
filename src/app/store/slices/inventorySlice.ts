@@ -1,4 +1,5 @@
 import { Notify } from 'notiflix'
+import { getErrorMessage } from '../../utils/api-error-handler'
 import productService from '../../services/product.service'
 import categoriesService from '../../services/category.service'
 import paymentMethodService from '../../services/payment-method.service'
@@ -91,8 +92,7 @@ export const fetchInventory = createAsyncThunk(
                 } : null,
             }
         } catch (error: any) {
-            const apiMessage = error?.response?.data?.message || error?.error?.response?.data?.message;
-            const message = apiMessage || `Error fetching products: ${error?.message || 'Unknown error'}`;
+            const message = getErrorMessage(error, 'Error fetching products');
 
             Notify.failure(message)
             return rejectWithValue(message)
@@ -107,8 +107,7 @@ export const fetchCategories = createAsyncThunk(
             const data = await categoriesService.list()
             return data
         } catch (error: any) {
-            const apiMessage = error?.response?.data?.message || error?.error?.response?.data?.message;
-            const message = apiMessage || `Error fetching categories: ${error?.message || 'Unknown error'}`;
+            const message = getErrorMessage(error, 'Error fetching categories');
             Notify.failure(message)
             return rejectWithValue(message)
         }
@@ -122,8 +121,7 @@ export const fetchPaymentMethods = createAsyncThunk(
             const data = await paymentMethodService.list()
             return data
         } catch (error: any) {
-            const apiMessage = error?.response?.data?.message || error?.error?.response?.data?.message;
-            const message = apiMessage || `Error fetching payment methods: ${error?.message || 'Unknown error'}`;
+            const message = getErrorMessage(error, 'Error fetching payment methods');
             Notify.failure(message)
             return rejectWithValue(message)
         }
@@ -137,8 +135,7 @@ export const fetchPaymentServiceProvider = createAsyncThunk(
             const data = await paymentServiceProviderService.list()
             return data
         } catch (error: any) {
-            const apiMessage = error?.response?.data?.message || error?.error?.response?.data?.message;
-            const message = apiMessage || `Error fetching payment service providers: ${error?.message || 'Unknown error'}`;
+            const message = getErrorMessage(error, 'Error fetching payment service providers');
             Notify.failure(message)
             return rejectWithValue(message)
         }
@@ -225,13 +222,13 @@ const inventorySlice = createSlice({
                 state.error = action.payload as string
             })
             .addCase(fetchCategories.fulfilled, (state, action) => {
-                state.categories = action.payload
+                state.categories = Array.isArray(action.payload) ? action.payload : []
             })
             .addCase(fetchPaymentMethods.fulfilled, (state, action) => {
-                state.paymentMethods = action.payload
+                state.paymentMethods = Array.isArray(action.payload) ? action.payload : []
             })
             .addCase(fetchPaymentServiceProvider.fulfilled, (state, action) => {
-                state.paymentServiceProvider = action.payload
+                state.paymentServiceProvider = Array.isArray(action.payload) ? action.payload : []
             })
             .addCase(fetchAllInventoryDataWithCache.fulfilled, (state) => {
                 state.lastFetched = Date.now()

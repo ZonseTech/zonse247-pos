@@ -22,8 +22,8 @@ const usersService = {
 
 	async list(query: UserQueryParams = {}): Promise<User[]> {
 		try {
-			const response = await api.get<ApiResponse<User[]>>(endpoints.all, query);
-			return decodeArrayStrings(response.data.data || [], USER_DECODE_FIELDS);
+			const response = await api.get<ApiResponse<{ users: User[]; pagination?: any }>>(endpoints.all, query);
+			return decodeArrayStrings(response.data.data?.users || [], USER_DECODE_FIELDS);
 		} catch (err) {
 			console.error('Error fetching users:', err);
 			throw err;
@@ -32,14 +32,17 @@ const usersService = {
 
 	async listPaginated(query: UserQueryParams = {}): Promise<PaginatedResponse<User>> {
 		try {
-			const response = await api.get<PaginatedResponse<User>>(endpoints.all, {
+			const response = await api.get<ApiResponse<{ users: User[]; pagination?: any }>>(endpoints.all, {
 				...query,
 				paginated: true
 			});
-			if (response.data.data) {
-				response.data.data = decodeArrayStrings(response.data.data, USER_DECODE_FIELDS);
-			}
-			return response.data;
+			const data = response.data.data;
+			const users = decodeArrayStrings(data?.users || [], USER_DECODE_FIELDS);
+			return {
+				...response.data,
+				data: users,
+				pagination: data?.pagination
+			};
 		} catch (err) {
 			console.error('Error fetching paginated users:', err);
 			throw err;

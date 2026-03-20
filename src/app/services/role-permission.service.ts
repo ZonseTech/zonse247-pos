@@ -16,8 +16,13 @@ const rolePermissionService = {
 
     async getAll(): Promise<RolePermission[]> {
         return api
-            .get<RolePermission[]>(rolePermissionEndpoints.all)
-            .then((res) => res.data)
+            .get<any>(rolePermissionEndpoints.all)
+            .then((res) => {
+                const data = res.data;
+                if (Array.isArray(data)) return data;
+                if (data?.data) return Array.isArray(data.data) ? data.data : (data.data.rolePermissions || []);
+                return [];
+            })
             .catch((err) => {
                 throw err;
             });
@@ -61,8 +66,14 @@ const rolePermissionService = {
 
     async getByRoleUuid(roleUuid: string): Promise<ApiResponse<RolePermission[]>> {
         return api
-            .get<ApiResponse<RolePermission[]>>(`${rolePermissionEndpoints.role}/${roleUuid}`)
-            .then((res) => res.data)
+            .get<ApiResponse<any>>(`${rolePermissionEndpoints.role}/${roleUuid}`)
+            .then((res) => {
+                const response = res.data;
+                if (response.data && !Array.isArray(response.data)) {
+                    response.data = response.data.rolePermissions || response.data.permissions || [];
+                }
+                return response;
+            })
             .catch((err) => {
                 throw err;
             });
@@ -70,8 +81,14 @@ const rolePermissionService = {
 
     async getByPermissionUuid(permissionUuid: string): Promise<ApiResponse<RolePermission[]>> {
         return api
-            .get<ApiResponse<RolePermission[]>>(`${rolePermissionEndpoints.permission}/${permissionUuid}`)
-            .then((res) => res.data)
+            .get<ApiResponse<any>>(`${rolePermissionEndpoints.permission}/${permissionUuid}`)
+            .then((res) => {
+                const response = res.data;
+                if (response.data && !Array.isArray(response.data)) {
+                    response.data = response.data.rolePermissions || response.data.permissions || [];
+                }
+                return response;
+            })
             .catch((err) => {
                 throw err;
             });

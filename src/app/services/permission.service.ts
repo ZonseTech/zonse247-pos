@@ -18,8 +18,14 @@ const permissionService = {
 
     async list(): Promise<ApiResponse<Array<Permission>>> {
         return api
-            .get<ApiResponse<Array<Permission>>>(permissionEndpoints.all)
-            .then((res) => res.data)
+            .get<ApiResponse<any>>(permissionEndpoints.all)
+            .then((res) => {
+                const response = res.data;
+                if (response.data && !Array.isArray(response.data)) {
+                    response.data = response.data.permissions || [];
+                }
+                return response;
+            })
             .catch((err) => {
                 throw err;
             });
@@ -63,8 +69,13 @@ const permissionService = {
 
     async getByCategory(category: string): Promise<Array<Permission>> {
         return api
-            .get<Permission[]>(`${permissionEndpoints.category}/${category}`)
-            .then((res) => res.data)
+            .get<any>(`${permissionEndpoints.category}/${category}`)
+            .then((res) => {
+                const data = res.data;
+                if (Array.isArray(data)) return data;
+                if (data?.data) return Array.isArray(data.data) ? data.data : (data.data.permissions || []);
+                return [];
+            })
             .catch((err) => {
                 throw err;
             });
@@ -72,8 +83,13 @@ const permissionService = {
 
     async getByScope(scope: string): Promise<Array<Permission>> {
         return api
-            .get<Permission[]>(`${permissionEndpoints.scope}/${scope}`)
-            .then((res) => res.data)
+            .get<any>(`${permissionEndpoints.scope}/${scope}`)
+            .then((res) => {
+                const data = res.data;
+                if (Array.isArray(data)) return data;
+                if (data?.data) return Array.isArray(data.data) ? data.data : (data.data.permissions || []);
+                return [];
+            })
             .catch((err) => {
                 throw err;
             });
@@ -81,8 +97,13 @@ const permissionService = {
 
     async getSystemPermissions(): Promise<Array<Permission>> {
         return api
-            .get<Permission[]>(permissionEndpoints.system)
-            .then((res) => res.data)
+            .get<any>(permissionEndpoints.system)
+            .then((res) => {
+                const data = res.data;
+                if (Array.isArray(data)) return data;
+                if (data?.data) return Array.isArray(data.data) ? data.data : (data.data.permissions || []);
+                return [];
+            })
             .catch((err) => {
                 throw err;
             });
@@ -90,8 +111,14 @@ const permissionService = {
 
     async getCategories(): Promise<ApiResponse<Array<PermissionCategory>>> {
         return api
-            .get<ApiResponse<Array<PermissionCategory>>>(permissionEndpoints.categories)
-            .then((res) => res.data)
+            .get<ApiResponse<any>>(permissionEndpoints.categories)
+            .then((res) => {
+                const response = res.data;
+                if (response.data && !Array.isArray(response.data)) {
+                    response.data = response.data.categories || response.data.permissionCategories || [];
+                }
+                return response;
+            })
             .catch((err) => {
                 throw err;
             });
@@ -99,8 +126,14 @@ const permissionService = {
 
     async getScopes(): Promise<ApiResponse<Array<PermissionScope>>> {
         return api
-            .get<ApiResponse<Array<PermissionScope>>>(permissionEndpoints.scopes)
-            .then((res) => res.data)
+            .get<ApiResponse<any>>(permissionEndpoints.scopes)
+            .then((res) => {
+                const response = res.data;
+                if (response.data && !Array.isArray(response.data)) {
+                    response.data = response.data.scopes || response.data.permissionScopes || [];
+                }
+                return response;
+            })
             .catch((err) => {
                 throw err;
             });

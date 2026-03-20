@@ -100,8 +100,11 @@ const supplierService = {
         branchId: string
     ): Promise<Supplier[]> {
         return api
-            .get<ApiResponse<Supplier[]>>(`${endpoints.search}`, { term, tenantId, branchId })
-            .then((res) => res.data.data)
+            .get<ApiResponse<{ suppliers?: Supplier[] }>>(`${endpoints.search}`, { term, tenantId, branchId })
+            .then((res) => {
+                const data = res.data.data;
+                return Array.isArray(data) ? data : (data?.suppliers || []);
+            })
             .catch((err) => {
                 throw err;
             });

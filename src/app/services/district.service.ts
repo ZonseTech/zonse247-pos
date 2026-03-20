@@ -25,8 +25,8 @@ const districtService = {
 
     async list(): Promise<Array<District>> {
         try {
-            const response = await api.get<ApiResponse<Array<District>>>(endpoints.all);
-            return response.data.data || [];
+            const response = await api.get<ApiResponse<{ districts: Array<District>; pagination?: any }>>(endpoints.all);
+            return response.data.data?.districts || [];
         } catch (err) {
             console.error('Error fetching districts:', err);
             throw err;
