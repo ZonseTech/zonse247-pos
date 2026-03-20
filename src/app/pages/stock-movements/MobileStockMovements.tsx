@@ -8,12 +8,24 @@ import {
     RefreshCw,
     TrendingUp,
     TrendingDown,
-    Package
+    Package,
+    SlidersHorizontal,
+    ShieldAlert,
+    Clock,
+    ClipboardCheck,
+    ArrowRightLeft,
 } from 'lucide-react';
 import { useStockMovements } from '../../hooks/useStockMovements';
 import { StockMovementMobileList } from './partials/StockMovementMobileCard';
 import MobileFilters from './partials/MobileFilters';
+import StockAdjustmentModal from './partials/StockAdjustmentModal';
+import DamageStockModal from './partials/DamageStockModal';
+import ExpiryStockModal from './partials/ExpiryStockModal';
+import StockCountModal from './partials/StockCountModal';
+import StockTransferModal from './partials/StockTransferModal';
 import classNames from 'classnames';
+
+type ModalType = 'adjust' | 'damage' | 'expiry' | 'count' | 'transfer' | null;
 
 const MobileStockMovements: FC = () => {
     const location = useLocation();
@@ -23,6 +35,7 @@ const MobileStockMovements: FC = () => {
     const [isSearchVisible, setIsSearchVisible] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [activeModal, setActiveModal] = useState<ModalType>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [pullDistance, setPullDistance] = useState(0);
@@ -42,6 +55,14 @@ const MobileStockMovements: FC = () => {
         endDate,
         setEndDate,
         loadMovements,
+        adjustStock,
+        damageStock,
+        transferStock,
+        performStockCount,
+        recordExpiry,
+        tenantId,
+        branchId,
+        userId,
     } = useStockMovements(productId);
 
     // Accumulated movements for infinite scroll
@@ -266,6 +287,47 @@ const MobileStockMovements: FC = () => {
                 )}
             </div>
 
+            {/* Action Buttons */}
+            <div className="flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2">
+                <div className="flex gap-2 overflow-x-auto no-scrollbar">
+                    <button
+                        onClick={() => setActiveModal('adjust')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 whitespace-nowrap active:scale-95 transition-all"
+                    >
+                        <SlidersHorizontal className="w-3.5 h-3.5" />
+                        Adjust
+                    </button>
+                    <button
+                        onClick={() => setActiveModal('damage')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 whitespace-nowrap active:scale-95 transition-all"
+                    >
+                        <ShieldAlert className="w-3.5 h-3.5" />
+                        Damage
+                    </button>
+                    <button
+                        onClick={() => setActiveModal('expiry')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 whitespace-nowrap active:scale-95 transition-all"
+                    >
+                        <Clock className="w-3.5 h-3.5" />
+                        Expiry
+                    </button>
+                    <button
+                        onClick={() => setActiveModal('count')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 whitespace-nowrap active:scale-95 transition-all"
+                    >
+                        <ClipboardCheck className="w-3.5 h-3.5" />
+                        Stock Count
+                    </button>
+                    <button
+                        onClick={() => setActiveModal('transfer')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 whitespace-nowrap active:scale-95 transition-all"
+                    >
+                        <ArrowRightLeft className="w-3.5 h-3.5" />
+                        Transfer
+                    </button>
+                </div>
+            </div>
+
             {/* Pull to Refresh Indicator */}
             {pullDistance > 0 && (
                 <div
@@ -345,6 +407,36 @@ const MobileStockMovements: FC = () => {
 
             {/* Datepicker Portal */}
             <div id="datepicker-portal" />
+
+            {/* Modals */}
+            <StockAdjustmentModal
+                isOpen={activeModal === 'adjust'}
+                onClose={() => setActiveModal(null)}
+                onSubmit={adjustStock}
+            />
+            <DamageStockModal
+                isOpen={activeModal === 'damage'}
+                onClose={() => setActiveModal(null)}
+                onSubmit={damageStock}
+            />
+            <ExpiryStockModal
+                isOpen={activeModal === 'expiry'}
+                onClose={() => setActiveModal(null)}
+                onSubmit={recordExpiry}
+            />
+            <StockCountModal
+                isOpen={activeModal === 'count'}
+                onClose={() => setActiveModal(null)}
+                onSubmit={performStockCount}
+            />
+            <StockTransferModal
+                isOpen={activeModal === 'transfer'}
+                onClose={() => setActiveModal(null)}
+                onSubmit={transferStock}
+                tenantId={tenantId}
+                branchId={branchId}
+                userId={userId}
+            />
         </div>
     );
 };

@@ -23,7 +23,8 @@ const movementTypes: { value: StockMovementType | ''; label: string; color: stri
     { value: 'TRANSFER_OUT', label: 'Transfer Out', color: 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400' },
     { value: 'DAMAGE', label: 'Damage', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400' },
     { value: 'EXPIRY', label: 'Expiry', color: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' },
-    { value: 'STOCK_TAKE', label: 'Stock Take', color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400' },
+    { value: 'OPENING_BALANCE', label: 'Opening Balance', color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400' },
+    { value: 'RETURN_TO_SUPPLIER', label: 'Return to Supplier', color: 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400' },
 ];
 
 const MobileFilters: FC<MobileFiltersProps> = ({

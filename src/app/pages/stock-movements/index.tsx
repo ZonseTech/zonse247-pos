@@ -1,34 +1,39 @@
-import { FunctionComponent, useContext, useMemo } from 'react';
+import { FunctionComponent, useContext, useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
-import { Activity } from 'lucide-react';
+import { Activity, SlidersHorizontal, ShieldAlert, Clock, ClipboardCheck, ArrowRightLeft } from 'lucide-react';
 import DataTable from 'react-data-table-component';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import { getTableStyles } from '../../utils/table-styles';
-import { ZonseThemeContext, ComponentLoader } from '../../components';
+import { ZonseThemeContext, ComponentLoader, Button } from '../../components';
 import { useStockMovements } from '../../hooks/useStockMovements';
 import { getStockMovementTableColumns } from './partials/StockMovementTableColumns';
 import StockMovementSummaryCards, { StockMovementSummaryCard } from './partials/StockMovementSummaryCards';
 import Filters from './partials/Filters';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import MobileStockMovements from './MobileStockMovements';
+import StockAdjustmentModal from './partials/StockAdjustmentModal';
+import DamageStockModal from './partials/DamageStockModal';
+import ExpiryStockModal from './partials/ExpiryStockModal';
+import StockCountModal from './partials/StockCountModal';
+import StockTransferModal from './partials/StockTransferModal';
+
+type ModalType = 'adjust' | 'damage' | 'expiry' | 'count' | 'transfer' | null;
 
 const StockMovements: FunctionComponent = () => {
     const location = useLocation();
     const { mode } = useContext(ZonseThemeContext);
     const isMobile = useIsMobile();
     const productId = (location.state as any)?.productId;
+    const [activeModal, setActiveModal] = useState<ModalType>(null);
 
-    // For mobile, render the dedicated mobile component
     if (isMobile) {
         return <MobileStockMovements />;
     }
 
-    // Desktop version continues below
     const {
         movements,
         isLoading,
-        page,
         setPage,
         perPage,
         setPerPage,
@@ -39,9 +44,16 @@ const StockMovements: FunctionComponent = () => {
         setStartDate,
         endDate,
         setEndDate,
+        adjustStock,
+        damageStock,
+        transferStock,
+        performStockCount,
+        recordExpiry,
+        tenantId,
+        branchId,
+        userId,
     } = useStockMovements(productId);
 
-    // Calculate summary stats
     const summaryCards: StockMovementSummaryCard[] = useMemo(() => {
         const inCount = movements.filter(m => m.direction === 'IN').length;
         const outCount = movements.filter(m => m.direction === 'OUT').length;
@@ -91,8 +103,13 @@ const StockMovements: FunctionComponent = () => {
                 icon={<Activity className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                 title="Stock Movements"
                 description={productId ? 'Product stock history' : 'All stock movements audit trail'}
-                action={
-                    <div className='px-4 pb-4'>
+            />
+
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+
+                {/* Action Toolbar + Filters */}
+                <div className="px-4 pt-4 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <Filters
                             movementTypeFilter={movementTypeFilter}
                             onMovementTypeChange={setMovementTypeFilter}
@@ -101,20 +118,61 @@ const StockMovements: FunctionComponent = () => {
                             endDate={endDate}
                             onEndDateChange={setEndDate}
                         />
+                        <div className="flex flex-wrap gap-2 flex-shrink-0">
+                            <Button
+                                theme="primary"
+                                layout="outline"
+                                size="small"
+                                onClick={() => setActiveModal('adjust')}
+                            >
+                                <SlidersHorizontal className="w-3.5 h-3.5 mr-1.5" />
+                                Adjust
+                            </Button>
+                            <Button
+                                theme="warning"
+                                layout="outline"
+                                size="small"
+                                onClick={() => setActiveModal('damage')}
+                            >
+                                <ShieldAlert className="w-3.5 h-3.5 mr-1.5" />
+                                Damage
+                            </Button>
+                            <Button
+                                theme="danger"
+                                layout="outline"
+                                size="small"
+                                onClick={() => setActiveModal('expiry')}
+                            >
+                                <Clock className="w-3.5 h-3.5 mr-1.5" />
+                                Expiry
+                            </Button>
+                            <Button
+                                theme="success"
+                                layout="outline"
+                                size="small"
+                                onClick={() => setActiveModal('count')}
+                            >
+                                <ClipboardCheck className="w-3.5 h-3.5 mr-1.5" />
+                                Count
+                            </Button>
+                            <Button
+                                theme="primary"
+                                layout="outline"
+                                size="small"
+                                onClick={() => setActiveModal('transfer')}
+                            >
+                                <ArrowRightLeft className="w-3.5 h-3.5 mr-1.5" />
+                                Transfer
+                            </Button>
+                        </div>
                     </div>
-                }
-            />
+                </div>
 
-            {/* Main Content Container */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-
-                {/* Summary Cards */}
                 <StockMovementSummaryCards
                     cards={summaryCards}
                     isLoading={isLoading}
                 />
 
-                {/* Desktop View - Data Table */}
                 <div className="overflow-hidden">
                     <DataTable
                         columns={columns}
@@ -134,7 +192,6 @@ const StockMovements: FunctionComponent = () => {
                         responsive
                         persistTableHead
                         fixedHeader
-                        fixedHeaderScrollHeight="calc(100vh - 450px)"
                         noDataComponent={
                             <div className="text-center py-12">
                                 <Activity className="w-16 h-16 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
@@ -151,6 +208,36 @@ const StockMovements: FunctionComponent = () => {
                     />
                 </div>
             </div>
+
+            {/* Modals */}
+            <StockAdjustmentModal
+                isOpen={activeModal === 'adjust'}
+                onClose={() => setActiveModal(null)}
+                onSubmit={adjustStock}
+            />
+            <DamageStockModal
+                isOpen={activeModal === 'damage'}
+                onClose={() => setActiveModal(null)}
+                onSubmit={damageStock}
+            />
+            <ExpiryStockModal
+                isOpen={activeModal === 'expiry'}
+                onClose={() => setActiveModal(null)}
+                onSubmit={recordExpiry}
+            />
+            <StockCountModal
+                isOpen={activeModal === 'count'}
+                onClose={() => setActiveModal(null)}
+                onSubmit={performStockCount}
+            />
+            <StockTransferModal
+                isOpen={activeModal === 'transfer'}
+                onClose={() => setActiveModal(null)}
+                onSubmit={transferStock}
+                tenantId={tenantId}
+                branchId={branchId}
+                userId={userId}
+            />
         </AppLayout>
     );
 };
