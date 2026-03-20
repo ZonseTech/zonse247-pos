@@ -1,5 +1,4 @@
 export enum ROUTES {
-	DASHBOARD = '/dashboard',
 	POS = '/pos',
 	USERS = '/users',
 	USER_FORM = '/users/form',
@@ -24,6 +23,7 @@ export enum ROUTES {
 	CUSTOMERS = '/customers',
 	ITEMS = '/items',
 	INVENTORY = '/inventory',
+	INVENTORY_HUB = '/inventory-hub',
 	INVENTORY_FORM = '/inventory/form',
 	MOBILE_INVENTORY = '/mobile-inventory',
 	TERMINALS = '/terminals',
@@ -34,6 +34,7 @@ export enum ROUTES {
 
 	SUPPLIERS = '/suppliers',
 	SUPPLIER_FORM = '/suppliers/form',
+	PROCUREMENT = '/procurement',
 	PURCHASE_ORDERS = '/purchase-orders',
 	PURCHASE_ORDER_FORM = '/purchase-orders/form',
 	PURCHASE_ORDER_RECEIVE = '/purchase-orders/:id/receive',
@@ -66,6 +67,7 @@ export enum ROUTES {
 	BRANCH_FORM = '/branches/form',
 
 	LOGIN = '/login',
+	CHANGE_PASSWORD = '/change-password',
 	SETTINGS = '/settings',
 	SETTINGS_GENERAL = '/settings/general',
 	SETTINGS_SALES = '/settings/sales',
