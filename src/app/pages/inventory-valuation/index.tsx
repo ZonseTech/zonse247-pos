@@ -5,19 +5,22 @@ import {
     Layers,
     RefreshCw,
     Search,
-    Eye,
     TrendingUp,
     BarChart3,
     FileSpreadsheet,
 } from 'lucide-react';
-import DataTable, { TableColumn } from 'react-data-table-component';
+import DataTable from 'react-data-table-component';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
+import TableSkeleton from '../../components/skeleton/TableSkeleton';
+import TableEmptyState from '../../components/TableEmptyState';
+import SummaryCards, { type SummaryCardItem } from '../../components/stats/SummaryCards';
 import { getTableStyles } from '../../utils/table-styles';
-import { ZonseThemeContext, ComponentLoader, Button } from '../../components';
+import { ZonseThemeContext, Button } from '../../components';
 import { useInventoryValuation } from '../../hooks/useInventoryValuation';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { formatCurrency } from '../../utils';
+import { getValuationTableColumns } from './partials/ValuationTableColumns';
 import ValuationDrillDownModal from './partials/ValuationDrillDownModal';
 import OpeningBalanceModal from './partials/OpeningBalanceModal';
 import MobileInventoryValuation from './MobileInventoryValuation';
@@ -72,91 +75,7 @@ const InventoryValuation: FunctionComponent = () => {
         );
     }, [summary?.items, searchTerm]);
 
-    const columns: TableColumn<InventoryValuationItem>[] = [
-        {
-            name: 'Product',
-            sortable: true,
-            minWidth: '220px',
-            selector: (row) => row.productName,
-            cell: (row) => (
-                <div className="py-2">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {row.productName}
-                    </p>
-                    {row.sku && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">
-                            {row.sku}
-                        </p>
-                    )}
-                </div>
-            ),
-        },
-        {
-            name: 'Qty',
-            sortable: true,
-            width: '90px',
-            right: true,
-            selector: (row) => row.availableQuantity,
-            cell: (row) => (
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    {row.availableQuantity.toLocaleString()}
-                </span>
-            ),
-        },
-        {
-            name: 'Avg Cost',
-            sortable: true,
-            width: '120px',
-            right: true,
-            selector: (row) => row.averageCost,
-            cell: (row) => (
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {formatCurrency(row.averageCost, true)}
-                </span>
-            ),
-        },
-        {
-            name: 'Value',
-            sortable: true,
-            width: '140px',
-            right: true,
-            selector: (row) => getItemDisplayValue(row),
-            cell: (row) => (
-                <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                    {formatCurrency(getItemDisplayValue(row), true)}
-                </span>
-            ),
-        },
-        {
-            name: 'Method',
-            width: '100px',
-            center: true,
-            cell: (row) => {
-                const label = row.costingMethod === 'WEIGHTED_AVERAGE' ? 'WAC'
-                    : row.costingMethod === 'FIFO' ? 'FIFO' : 'LIFO';
-                return (
-                    <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
-                        {label}
-                    </span>
-                );
-            },
-        },
-        {
-            name: '',
-            width: '60px',
-            center: true,
-            cell: (row) => (
-                <button
-                    onClick={() => openDrillDown(row)}
-                    className="p-1.5 text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                    title="View details"
-                >
-                    <Eye className="w-4 h-4" />
-                </button>
-            ),
-        },
-    ];
-
+    const columns = getValuationTableColumns({ getItemDisplayValue, openDrillDown });
     const activeLabel = COSTING_METHODS.find(m => m.value === displayMethod)?.short ?? 'WAC';
 
     return (
@@ -167,54 +86,54 @@ const InventoryValuation: FunctionComponent = () => {
                 description="Stock valuation summary across costing methods"
             />
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <SummaryCard
-                    title="Total Value"
-                    value={formatCurrency(getDisplayTotal(), true)}
-                    subtitle={`${activeLabel} method`}
-                    icon={<DollarSign className="w-5 h-5" />}
-                    bgColor="bg-emerald-50 dark:bg-emerald-900/20"
-                    iconBgColor="bg-emerald-100 dark:bg-emerald-900/40"
-                    textColor="text-emerald-600 dark:text-emerald-400"
-                    isLoading={isLoading}
-                />
-                <SummaryCard
-                    title="Total Items"
-                    value={summary?.totalItems?.toLocaleString() ?? '—'}
-                    subtitle="Tracked products"
-                    icon={<Package className="w-5 h-5" />}
-                    bgColor="bg-sky-50 dark:bg-sky-900/20"
-                    iconBgColor="bg-sky-100 dark:bg-sky-900/40"
-                    textColor="text-sky-600 dark:text-sky-400"
-                    isLoading={isLoading}
-                />
-                <SummaryCard
-                    title="Total Quantity"
-                    value={summary?.totalQuantity?.toLocaleString() ?? '—'}
-                    subtitle="Units in stock"
-                    icon={<Layers className="w-5 h-5" />}
-                    bgColor="bg-indigo-50 dark:bg-indigo-900/20"
-                    iconBgColor="bg-indigo-100 dark:bg-indigo-900/40"
-                    textColor="text-indigo-600 dark:text-indigo-400"
-                    isLoading={isLoading}
-                />
-                <SummaryCard
-                    title="Avg Value / Item"
-                    value={summary && summary.totalItems > 0
-                        ? formatCurrency(getDisplayTotal() / summary.totalItems, true)
-                        : '—'}
-                    subtitle="Per product average"
-                    icon={<TrendingUp className="w-5 h-5" />}
-                    bgColor="bg-amber-50 dark:bg-amber-900/20"
-                    iconBgColor="bg-amber-100 dark:bg-amber-900/40"
-                    textColor="text-amber-600 dark:text-amber-400"
-                    isLoading={isLoading}
-                />
-            </div>
-
             {/* Main Table Card */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                {/* Summary Cards */}
+                <SummaryCards
+                    cards={[
+                        {
+                            title: 'Total Value',
+                            value: formatCurrency(getDisplayTotal(), true),
+                            subtitle: `${activeLabel} method`,
+                            icon: <DollarSign className="w-5 h-5" />,
+                            bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
+                            iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
+                            textColor: 'text-emerald-600 dark:text-emerald-400',
+                        },
+                        {
+                            title: 'Total Items',
+                            value: summary?.totalItems?.toLocaleString() ?? '—',
+                            subtitle: 'Tracked products',
+                            icon: <Package className="w-5 h-5" />,
+                            bgColor: 'bg-sky-50 dark:bg-sky-900/20',
+                            iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
+                            textColor: 'text-sky-600 dark:text-sky-400',
+                        },
+                        {
+                            title: 'Total Quantity',
+                            value: summary?.totalQuantity?.toLocaleString() ?? '—',
+                            subtitle: 'Units in stock',
+                            icon: <Layers className="w-5 h-5" />,
+                            bgColor: 'bg-indigo-50 dark:bg-indigo-900/20',
+                            iconBgColor: 'bg-indigo-100 dark:bg-indigo-900/40',
+                            textColor: 'text-indigo-600 dark:text-indigo-400',
+                        },
+                        {
+                            title: 'Avg Value / Item',
+                            value: summary && summary.totalItems > 0
+                                ? formatCurrency(getDisplayTotal() / summary.totalItems, true)
+                                : '—',
+                            subtitle: 'Per product average',
+                            icon: <TrendingUp className="w-5 h-5" />,
+                            bgColor: 'bg-amber-50 dark:bg-amber-900/20',
+                            iconBgColor: 'bg-amber-100 dark:bg-amber-900/40',
+                            textColor: 'text-amber-600 dark:text-amber-400',
+                        },
+                    ]}
+                    isLoading={isLoading}
+                    skeletonCount={4}
+                    variant="embedded"
+                />
                 {/* Toolbar */}
                 <div className="px-4 pt-4 space-y-3">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -278,7 +197,7 @@ const InventoryValuation: FunctionComponent = () => {
                         data={filteredItems}
                         theme={mode as string}
                         progressPending={isLoading}
-                        progressComponent={<ComponentLoader loading={isLoading} />}
+                        progressComponent={<TableSkeleton rows={15} columns={6} />}
                         pagination
                         paginationPerPage={15}
                         paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
@@ -290,17 +209,15 @@ const InventoryValuation: FunctionComponent = () => {
                         onRowClicked={(row) => openDrillDown(row)}
                         pointerOnHover
                         noDataComponent={
-                            <div className="text-center py-12">
-                                <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                                    No valuation data
-                                </h3>
-                                <p className="text-gray-500 dark:text-gray-400">
-                                    {searchTerm
+                            <TableEmptyState
+                                icon={<BarChart3 />}
+                                title="No valuation data"
+                                description={
+                                    searchTerm
                                         ? 'No items match your search.'
-                                        : 'Inventory valuation data will appear here.'}
-                                </p>
-                            </div>
+                                        : 'Inventory valuation data will appear here.'
+                                }
+                            />
                         }
                     />
                 </div>
@@ -325,41 +242,5 @@ const InventoryValuation: FunctionComponent = () => {
         </AppLayout>
     );
 };
-
-// ─── Summary Card Component ────────────────────────────────────────────────
-
-interface SummaryCardProps {
-    title: string;
-    value: string;
-    subtitle: string;
-    icon: React.ReactNode;
-    bgColor: string;
-    iconBgColor: string;
-    textColor: string;
-    isLoading?: boolean;
-}
-
-const SummaryCard: FunctionComponent<SummaryCardProps> = ({
-    title, value, subtitle, icon, bgColor, iconBgColor, textColor, isLoading,
-}) => (
-    <div className={`${bgColor} rounded-lg p-4 border border-transparent`}>
-        <div className="flex items-center gap-3">
-            <div className={`${iconBgColor} ${textColor} p-2.5 rounded-lg`}>
-                {icon}
-            </div>
-            <div className="min-w-0">
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{title}</p>
-                {isLoading ? (
-                    <div className="h-6 w-24 bg-gray-200 dark:bg-gray-600 rounded animate-pulse mt-1" />
-                ) : (
-                    <>
-                        <p className={`text-lg font-bold ${textColor}`}>{value}</p>
-                        <p className="text-[10px] text-gray-400 dark:text-gray-500">{subtitle}</p>
-                    </>
-                )}
-            </div>
-        </div>
-    </div>
-);
 
 export default InventoryValuation;

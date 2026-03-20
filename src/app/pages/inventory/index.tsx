@@ -1,12 +1,12 @@
 import { FunctionComponent, useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { Confirm, Notify } from 'notiflix';
-import { Package, Settings2, X } from 'lucide-react';
+import { Package, Settings2, X, Plus, Download } from 'lucide-react';
 import DataTable, { type Themes, type ExpanderComponentProps } from 'react-data-table-component';
-import { HiOutlinePlus, HiOutlineDownload, HiOutlineFilter } from 'react-icons/hi';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import TableSkeleton from '../../components/skeleton/TableSkeleton';
+import TableEmptyState from '../../components/TableEmptyState';
 import { getTableStyles } from '../../utils/table-styles';
 import { formatCurrencyShort, formatCurrencyFull } from '../../utils';
 import { useInventoryStats } from '../../hooks/useInventoryStats';
@@ -281,7 +281,7 @@ const InventoryManagement: FunctionComponent = () => {
                     description="Manage your inventory items, track stock levels, and monitor expiration dates."
                     action={
                         <Button
-                            icon={HiOutlinePlus}
+                            icon={Plus}
                             layout="primary"
                             onClick={handleAddItem}
                             theme="primary">
@@ -310,7 +310,7 @@ const InventoryManagement: FunctionComponent = () => {
                                         onClick={exportData}
                                         className="flex items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors duration-200 text-sm font-medium text-gray-700 dark:text-gray-200"
                                     >
-                                        <HiOutlineDownload className="w-4 h-4" />
+                                        <Download className="w-4 h-4" />
                                         Export
                                     </button>
 
@@ -371,7 +371,6 @@ const InventoryManagement: FunctionComponent = () => {
                             progressPending={isLoading}
                             progressComponent={<TableSkeleton rows={perPage} columns={6} showCheckbox showActions />}
                             highlightOnHover
-                            striped
                             responsive
                             pagination
                             paginationServer
@@ -390,29 +389,28 @@ const InventoryManagement: FunctionComponent = () => {
                             expandOnRowClicked
                             expandableRowDisabled={(row) => (row.variantCount ?? 1) <= 1}
                             customStyles={getTableStyles(mode)}
+                            persistTableHead
+                            fixedHeader
                             noDataComponent={
-                                <div className="flex flex-col items-center justify-center py-12">
-                                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                                        <Package className="w-8 h-8 text-gray-400" />
-                                    </div>
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                                        No inventory found
-                                    </h3>
-                                    <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm">
-                                        {hasActiveFilters
-                                            ? "Try adjusting your search, date, status, or category filters to find items."
-                                            : "Inventory items will appear here once they are added."
-                                        }
-                                    </p>
-                                    {hasActiveFilters && (
-                                        <button
-                                            onClick={handleClearFilters}
-                                            className="mt-4 text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium"
-                                        >
-                                            Clear filters
-                                        </button>
-                                    )}
-                                </div>
+                                <TableEmptyState
+                                    icon={<Package />}
+                                    title="No inventory found"
+                                    description={
+                                        hasActiveFilters
+                                            ? 'Try adjusting your search, date, status, or category filters to find items.'
+                                            : 'Inventory items will appear here once they are added.'
+                                    }
+                                    action={
+                                        hasActiveFilters ? (
+                                            <button
+                                                onClick={handleClearFilters}
+                                                className="text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
+                                            >
+                                                Clear filters
+                                            </button>
+                                        ) : undefined
+                                    }
+                                />
                             }
                         />
                     </div>

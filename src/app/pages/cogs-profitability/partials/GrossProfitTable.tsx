@@ -1,7 +1,9 @@
 import { FC, useContext, useMemo, useState } from 'react';
-import { Search, TrendingUp, TrendingDown, Loader2 } from 'lucide-react';
+import { Search, TrendingUp, TrendingDown } from 'lucide-react';
 import DataTable, { TableColumn } from 'react-data-table-component';
-import { ZonseThemeContext, ComponentLoader } from '../../../components';
+import { ZonseThemeContext } from '../../../components';
+import TableSkeleton from '../../../components/skeleton/TableSkeleton';
+import TableEmptyState from '../../../components/TableEmptyState';
 import { getTableStyles } from '../../../utils/table-styles';
 import { formatCurrency } from '../../../utils';
 
@@ -89,8 +91,8 @@ const GrossProfitTable: FC<GrossProfitTableProps> = ({ data, isLoading }) => {
             selector: (row) => row.grossProfit,
             cell: (row) => (
                 <span className={`text-sm font-semibold ${row.grossProfit >= 0
-                        ? 'text-emerald-600 dark:text-emerald-400'
-                        : 'text-red-600 dark:text-red-400'
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-red-600 dark:text-red-400'
                     }`}>
                     {formatCurrency(row.grossProfit, true)}
                 </span>
@@ -112,8 +114,8 @@ const GrossProfitTable: FC<GrossProfitTableProps> = ({ data, isLoading }) => {
                             <TrendingDown className="w-3.5 h-3.5 text-red-500" />
                         )}
                         <span className={`text-sm font-bold ${isPositive
-                                ? 'text-emerald-600 dark:text-emerald-400'
-                                : 'text-red-600 dark:text-red-400'
+                            ? 'text-emerald-600 dark:text-emerald-400'
+                            : 'text-red-600 dark:text-red-400'
                             }`}>
                             {row.marginPercent.toFixed(1)}%
                         </span>
@@ -178,7 +180,7 @@ const GrossProfitTable: FC<GrossProfitTableProps> = ({ data, isLoading }) => {
                 data={filteredProducts}
                 theme={mode as string}
                 progressPending={isLoading}
-                progressComponent={<ComponentLoader loading={isLoading} />}
+                progressComponent={<TableSkeleton rows={15} columns={6} />}
                 pagination
                 paginationPerPage={15}
                 paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
@@ -190,20 +192,15 @@ const GrossProfitTable: FC<GrossProfitTableProps> = ({ data, isLoading }) => {
                 defaultSortFieldId={6}
                 defaultSortAsc={false}
                 noDataComponent={
-                    <div className="text-center py-12">
-                        {isLoading ? (
-                            <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mx-auto" />
-                        ) : (
-                            <>
-                                <TrendingUp className="w-12 h-12 mx-auto mb-3 text-gray-400 dark:text-gray-500" />
-                                <p className="text-gray-500 dark:text-gray-400 text-sm">
-                                    {searchTerm
-                                        ? 'No products match your search.'
-                                        : 'No profit data for this period.'}
-                                </p>
-                            </>
-                        )}
-                    </div>
+                    <TableEmptyState
+                        icon={<TrendingUp />}
+                        title="No profit data"
+                        description={
+                            searchTerm
+                                ? 'No products match your search.'
+                                : 'No profit data for this period.'
+                        }
+                    />
                 }
             />
         </div>

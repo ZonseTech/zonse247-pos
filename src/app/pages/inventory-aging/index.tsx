@@ -11,6 +11,9 @@ import {
 import DataTable from 'react-data-table-component';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
+import TableSkeleton from '../../components/skeleton/TableSkeleton';
+import TableEmptyState from '../../components/TableEmptyState';
+import SummaryCards, { type SummaryCardItem } from '../../components/stats/SummaryCards';
 import { getTableStyles } from '../../utils/table-styles';
 import { ZonseThemeContext, ComponentLoader, Button } from '../../components';
 import { useInventoryAging } from '../../hooks/useInventoryAging';
@@ -80,6 +83,45 @@ const InventoryAging: FunctionComponent = () => {
     const columns = getAgingTableColumns();
     const isDark = mode === 'dark';
 
+    const summaryCards: SummaryCardItem[] = useMemo(() => [
+        {
+            title: 'Total Items',
+            value: agingData?.totalItems?.toLocaleString() ?? '—',
+            subtitle: 'Tracked products',
+            icon: <Package className="w-5 h-5" />,
+            bgColor: 'bg-sky-50 dark:bg-sky-900/20',
+            iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
+            textColor: 'text-sky-600 dark:text-sky-400',
+        },
+        {
+            title: 'Slow Movers',
+            value: agingData?.totalSlowMovers?.toLocaleString() ?? '—',
+            subtitle: agingData ? formatCurrency(agingData.slowMoverValue, true) : '—',
+            icon: <AlertTriangle className="w-5 h-5" />,
+            bgColor: 'bg-amber-50 dark:bg-amber-900/20',
+            iconBgColor: 'bg-amber-100 dark:bg-amber-900/40',
+            textColor: 'text-amber-600 dark:text-amber-400',
+        },
+        {
+            title: 'Never Sold',
+            value: agingData?.totalNeverSold?.toLocaleString() ?? '—',
+            subtitle: agingData ? formatCurrency(agingData.neverSoldValue, true) : '—',
+            icon: <PackageX className="w-5 h-5" />,
+            bgColor: 'bg-red-50 dark:bg-red-900/20',
+            iconBgColor: 'bg-red-100 dark:bg-red-900/40',
+            textColor: 'text-red-600 dark:text-red-400',
+        },
+        {
+            title: 'Value at Risk',
+            value: formatCurrency(valueAtRisk, true),
+            subtitle: 'Slow + never-sold stock',
+            icon: <DollarSign className="w-5 h-5" />,
+            bgColor: 'bg-rose-50 dark:bg-rose-900/20',
+            iconBgColor: 'bg-rose-100 dark:bg-rose-900/40',
+            textColor: 'text-rose-600 dark:text-rose-400',
+        },
+    ], [agingData, valueAtRisk]);
+
     return (
         <AppLayout>
             <PageHeader
@@ -88,52 +130,10 @@ const InventoryAging: FunctionComponent = () => {
                 description="Slow-mover and dead stock analysis"
             />
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <SummaryCard
-                    title="Total Items"
-                    value={agingData?.totalItems?.toLocaleString() ?? '—'}
-                    subtitle="Tracked products"
-                    icon={<Package className="w-5 h-5" />}
-                    bgColor="bg-sky-50 dark:bg-sky-900/20"
-                    iconBgColor="bg-sky-100 dark:bg-sky-900/40"
-                    textColor="text-sky-600 dark:text-sky-400"
-                    isLoading={isLoading}
-                />
-                <SummaryCard
-                    title="Slow Movers"
-                    value={agingData?.totalSlowMovers?.toLocaleString() ?? '—'}
-                    subtitle={agingData ? formatCurrency(agingData.slowMoverValue, true) : '—'}
-                    icon={<AlertTriangle className="w-5 h-5" />}
-                    bgColor="bg-amber-50 dark:bg-amber-900/20"
-                    iconBgColor="bg-amber-100 dark:bg-amber-900/40"
-                    textColor="text-amber-600 dark:text-amber-400"
-                    isLoading={isLoading}
-                />
-                <SummaryCard
-                    title="Never Sold"
-                    value={agingData?.totalNeverSold?.toLocaleString() ?? '—'}
-                    subtitle={agingData ? formatCurrency(agingData.neverSoldValue, true) : '—'}
-                    icon={<PackageX className="w-5 h-5" />}
-                    bgColor="bg-red-50 dark:bg-red-900/20"
-                    iconBgColor="bg-red-100 dark:bg-red-900/40"
-                    textColor="text-red-600 dark:text-red-400"
-                    isLoading={isLoading}
-                />
-                <SummaryCard
-                    title="Value at Risk"
-                    value={formatCurrency(valueAtRisk, true)}
-                    subtitle="Slow + never-sold stock"
-                    icon={<DollarSign className="w-5 h-5" />}
-                    bgColor="bg-rose-50 dark:bg-rose-900/20"
-                    iconBgColor="bg-rose-100 dark:bg-rose-900/40"
-                    textColor="text-rose-600 dark:text-rose-400"
-                    isLoading={isLoading}
-                />
-            </div>
-
             {/* Chart Card */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mb-6">
+                {/* Summary Cards */}
+                <SummaryCards cards={summaryCards} isLoading={isLoading} skeletonCount={4} variant="embedded" />
                 <div className="px-4 pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -151,8 +151,8 @@ const InventoryAging: FunctionComponent = () => {
                                     key={value}
                                     onClick={() => setChartMetric(value)}
                                     className={`px-3 py-1.5 text-xs font-semibold transition-colors ${chartMetric === value
-                                            ? 'bg-amber-500 text-white'
-                                            : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                        ? 'bg-amber-500 text-white'
+                                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                                         }`}
                                 >
                                     {label}
@@ -197,8 +197,8 @@ const InventoryAging: FunctionComponent = () => {
                                         key={value}
                                         onClick={() => setStatusFilter(value)}
                                         className={`px-3 py-1.5 text-xs font-semibold transition-colors ${statusFilter === value
-                                                ? 'bg-amber-500 text-white'
-                                                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                            ? 'bg-amber-500 text-white'
+                                            : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                                             }`}
                                     >
                                         {label}
@@ -240,7 +240,7 @@ const InventoryAging: FunctionComponent = () => {
                         data={filteredItems}
                         theme={mode as string}
                         progressPending={isLoading}
-                        progressComponent={<ComponentLoader loading={isLoading} />}
+                        progressComponent={<TableSkeleton rows={15} columns={5} />}
                         pagination
                         paginationPerPage={15}
                         paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
@@ -252,17 +252,15 @@ const InventoryAging: FunctionComponent = () => {
                         defaultSortFieldId={5}
                         defaultSortAsc={false}
                         noDataComponent={
-                            <div className="text-center py-12">
-                                <Clock className="w-16 h-16 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                                    No aging data
-                                </h3>
-                                <p className="text-gray-500 dark:text-gray-400">
-                                    {searchTerm || statusFilter !== 'all'
+                            <TableEmptyState
+                                icon={<Clock />}
+                                title="No aging data"
+                                description={
+                                    searchTerm || statusFilter !== 'all'
                                         ? 'No items match your filters.'
-                                        : 'Inventory aging data will appear here.'}
-                                </p>
-                            </div>
+                                        : 'Inventory aging data will appear here.'
+                                }
+                            />
                         }
                     />
                 </div>
@@ -270,41 +268,5 @@ const InventoryAging: FunctionComponent = () => {
         </AppLayout>
     );
 };
-
-// ─── Summary Card Component ────────────────────────────────────────────────
-
-interface SummaryCardProps {
-    title: string;
-    value: string;
-    subtitle: string;
-    icon: React.ReactNode;
-    bgColor: string;
-    iconBgColor: string;
-    textColor: string;
-    isLoading?: boolean;
-}
-
-const SummaryCard: FunctionComponent<SummaryCardProps> = ({
-    title, value, subtitle, icon, bgColor, iconBgColor, textColor, isLoading,
-}) => (
-    <div className={`${bgColor} rounded-lg p-4 border border-transparent`}>
-        <div className="flex items-center gap-3">
-            <div className={`${iconBgColor} ${textColor} p-2.5 rounded-lg`}>
-                {icon}
-            </div>
-            <div className="min-w-0">
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{title}</p>
-                {isLoading ? (
-                    <div className="h-6 w-24 bg-gray-200 dark:bg-gray-600 rounded animate-pulse mt-1" />
-                ) : (
-                    <>
-                        <p className={`text-lg font-bold ${textColor}`}>{value}</p>
-                        <p className="text-[10px] text-gray-400 dark:text-gray-500">{subtitle}</p>
-                    </>
-                )}
-            </div>
-        </div>
-    </div>
-);
 
 export default InventoryAging;

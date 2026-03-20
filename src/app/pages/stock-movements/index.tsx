@@ -1,14 +1,16 @@
 import { FunctionComponent, useContext, useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
-import { Activity, SlidersHorizontal, ShieldAlert, Clock, ClipboardCheck, ArrowRightLeft } from 'lucide-react';
+import { Activity, SlidersHorizontal, ShieldAlert, Clock, ClipboardCheck, ArrowRightLeft, TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
 import DataTable from 'react-data-table-component';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
+import TableSkeleton from '../../components/skeleton/TableSkeleton';
+import TableEmptyState from '../../components/TableEmptyState';
+import SummaryCards, { type SummaryCardItem } from '../../components/stats/SummaryCards';
 import { getTableStyles } from '../../utils/table-styles';
-import { ZonseThemeContext, ComponentLoader, Button } from '../../components';
+import { ZonseThemeContext, Button } from '../../components';
 import { useStockMovements } from '../../hooks/useStockMovements';
 import { getStockMovementTableColumns } from './partials/StockMovementTableColumns';
-import StockMovementSummaryCards, { StockMovementSummaryCard } from './partials/StockMovementSummaryCards';
 import Filters from './partials/Filters';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import MobileStockMovements from './MobileStockMovements';
@@ -54,7 +56,7 @@ const StockMovements: FunctionComponent = () => {
         userId,
     } = useStockMovements(productId);
 
-    const summaryCards: StockMovementSummaryCard[] = useMemo(() => {
+    const summaryCards: SummaryCardItem[] = useMemo(() => {
         const inCount = movements.filter(m => m.direction === 'IN').length;
         const outCount = movements.filter(m => m.direction === 'OUT').length;
         const adjustmentCount = movements.filter(m => m.direction === 'ADJUSTMENT').length;
@@ -63,7 +65,7 @@ const StockMovements: FunctionComponent = () => {
             {
                 title: 'Total Movements',
                 value: totalRows,
-                icon: 'total',
+                icon: <Activity className="w-5 h-5" />,
                 bgColor: 'bg-sky-50 dark:bg-sky-900/20',
                 iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
                 textColor: 'text-sky-500 dark:text-sky-400',
@@ -71,7 +73,7 @@ const StockMovements: FunctionComponent = () => {
             {
                 title: 'Stock In',
                 value: inCount,
-                icon: 'in',
+                icon: <TrendingUp className="w-5 h-5" />,
                 bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
                 iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
                 textColor: 'text-emerald-500 dark:text-emerald-400',
@@ -79,7 +81,7 @@ const StockMovements: FunctionComponent = () => {
             {
                 title: 'Stock Out',
                 value: outCount,
-                icon: 'out',
+                icon: <TrendingDown className="w-5 h-5" />,
                 bgColor: 'bg-red-50 dark:bg-red-900/20',
                 iconBgColor: 'bg-red-100 dark:bg-red-900/40',
                 textColor: 'text-red-500 dark:text-red-400',
@@ -87,7 +89,7 @@ const StockMovements: FunctionComponent = () => {
             {
                 title: 'Adjustments',
                 value: adjustmentCount,
-                icon: 'adjustment',
+                icon: <RefreshCw className="w-5 h-5" />,
                 bgColor: 'bg-amber-50 dark:bg-amber-900/20',
                 iconBgColor: 'bg-amber-100 dark:bg-amber-900/40',
                 textColor: 'text-amber-500 dark:text-amber-400',
@@ -168,9 +170,11 @@ const StockMovements: FunctionComponent = () => {
                     </div>
                 </div>
 
-                <StockMovementSummaryCards
+                <SummaryCards
                     cards={summaryCards}
                     isLoading={isLoading}
+                    skeletonCount={4}
+                    variant="embedded"
                 />
 
                 <div className="overflow-hidden">
@@ -179,7 +183,7 @@ const StockMovements: FunctionComponent = () => {
                         data={movements}
                         theme={mode as string}
                         progressPending={isLoading}
-                        progressComponent={<ComponentLoader loading={isLoading} />}
+                        progressComponent={<TableSkeleton rows={10} columns={6} />}
                         pagination
                         paginationServer
                         paginationTotalRows={totalRows}
@@ -193,17 +197,15 @@ const StockMovements: FunctionComponent = () => {
                         persistTableHead
                         fixedHeader
                         noDataComponent={
-                            <div className="text-center py-12">
-                                <Activity className="w-16 h-16 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                                    No stock movements found
-                                </h3>
-                                <p className="text-gray-500 dark:text-gray-400">
-                                    {movementTypeFilter || startDate || endDate
-                                        ? "Try adjusting your filters."
-                                        : "Stock movements will appear here."}
-                                </p>
-                            </div>
+                            <TableEmptyState
+                                icon={<Activity />}
+                                title="No stock movements found"
+                                description={
+                                    movementTypeFilter || startDate || endDate
+                                        ? 'Try adjusting your filters.'
+                                        : 'Stock movements will appear here.'
+                                }
+                            />
                         }
                     />
                 </div>
