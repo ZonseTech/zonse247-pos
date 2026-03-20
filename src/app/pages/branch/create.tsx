@@ -23,6 +23,7 @@ import { capitalizeEachWord, hasRole } from '../../utils';
 import * as Yup from 'yup';
 import { useConnectivity } from '../../hooks/useConnectivity';
 import MobilePlanSkeleton from '../../components/loader/MobilePlanSkeleton';
+import { getErrorMessage } from '../../utils/api-error-handler';
 
 interface BranchFormValuesType extends Partial<Branch> {
     subscriptionPlanId?: string;
@@ -123,7 +124,7 @@ const BranchForm: FunctionComponent = () => {
                     setBranch(branchData);
                 } catch (error: any) {
                     console.error('Error fetching branch:', error);
-                    const errorMessage = error?.response?.data?.message || 'Failed to load branch details';
+                    const errorMessage = getErrorMessage(error, 'Failed to load branch details');
                     Notify.failure(errorMessage);
                 } finally {
                     setLoading(false);
@@ -176,7 +177,7 @@ const BranchForm: FunctionComponent = () => {
                 });
             }
         } catch (error: any) {
-            const errorMessage = error?.error?.response?.data?.message || error?.error?.message || 'An error occurred while saving the branch';
+            const errorMessage = getErrorMessage(error, 'An error occurred while saving the branch');
             Notify.failure(errorMessage);
         }
     };
@@ -199,7 +200,7 @@ const BranchForm: FunctionComponent = () => {
                     Notify.success('Branch deleted successfully');
                     navigate(ROUTES.BRANCHES);
                 } catch (error: any) {
-                    const errorMessage = error?.response?.data?.message || 'Failed to delete branch';
+                    const errorMessage = getErrorMessage(error, 'Failed to delete branch');
                     Notify.failure(errorMessage);
                 }
             }

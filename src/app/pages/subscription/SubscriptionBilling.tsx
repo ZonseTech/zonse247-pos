@@ -14,6 +14,7 @@ import FeatureRowSkeleton from '../../components/loader/FeatureRowSkeleton';
 import MobilePlanSkeleton from '../../components/loader/MobilePlanSkeleton';
 import { OfflinePlaceholder } from '../../components';
 import { useConnectivity } from '../../hooks/useConnectivity';
+import { getErrorMessage } from '../../utils/api-error-handler';
 
 const SubscriptionBilling: FunctionComponent = () => {
 	const { user } = useAuth();
@@ -123,11 +124,7 @@ const SubscriptionBilling: FunctionComponent = () => {
 			setCurrentSubscription(prev => prev ? { ...prev, subscriptionPlanId: selectedPlan.subscriptionPlanId, status: 'active' } : null);
 			setPaymentInfo({ referenceNumber: '' });
 		} catch (error: any) {
-			if (error?.response?.data?.message) {
-				toast.error(error.response.data.message);
-			} else {
-				toast.error('Failed to process subscription');
-			}
+			toast.error(getErrorMessage(error, 'Failed to process subscription'));
 		}
 	}, [selectedPlan, paymentInfo, billingCycle, branchInfo, getPrice]);
 

@@ -70,8 +70,12 @@ const NavBar: FunctionComponent<NavBarProps> = ({
      * Extract route path from onClick handler
      */
     const getRoutePath = (onClick: any): string => {
+        const fnStr = onClick?.toString() || '';
         for (const [key, value] of Object.entries(ROUTES)) {
-            if (onClick?.toString().includes(key) || onClick?.toString().includes(value as string)) {
+            // Use word-boundary regex to avoid partial key matches
+            // e.g., "RECEIPTS" must not match "GOODS_RECEIPTS"
+            const keyPattern = new RegExp(`\\b${key}\\b`);
+            if (keyPattern.test(fnStr) || fnStr.includes(value as string)) {
                 return value as string;
             }
         }

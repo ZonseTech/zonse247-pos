@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useEffect, useRef, lazy, Suspense, type
 import { HiOutlineDocumentChartBar } from 'react-icons/hi2';
 import dayjs from 'dayjs';
 import { toast } from 'react-toastify';
+import { getErrorMessage } from '../../utils/api-error-handler';
 
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
@@ -75,9 +76,8 @@ const DesktopReports: FunctionComponent = () => {
             setSummary(response);
             lastFetchKeyRef.current = currentFetchKey;
         } catch (err: any) {
-            const axiosError = err?.error || err;
-            const serverMessage = axiosError?.response?.data?.message || axiosError?.message || 'Failed to fetch report summary';
-            console.error('Error fetching report summary:', axiosError?.response?.data || axiosError);
+            const serverMessage = getErrorMessage(err, 'Failed to fetch report summary');
+            console.error('Error fetching report summary:', err);
             toast.error(serverMessage);
             setSummary(defaultSummary);
         } finally {

@@ -5,8 +5,9 @@ import { Truck, Settings2, X, Package, DollarSign } from 'lucide-react';
 import DataTable, { type Themes } from 'react-data-table-component';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
-import { HiOutlinePlus, HiOutlineChevronLeft, HiOutlineChevronRight } from 'react-icons/hi2';
+import { HiOutlinePlus } from 'react-icons/hi2';
 import { HiOutlineFilter } from 'react-icons/hi';
+import MobilePagination from '../../components/MobilePagination';
 import { getTableStyles } from '../../utils/table-styles';
 import { Button, ZonseThemeContext, ComponentLoader } from '../../components';
 import { useSuppliers } from '../../hooks/useSuppliers';
@@ -236,31 +237,7 @@ const SupplierManagement: FunctionComponent = () => {
                                         isLoading={false}
                                     />
 
-                                    {/* Mobile Pagination */}
-                                    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-                                        <span className="text-xs text-gray-600 dark:text-gray-400">
-                                            {totalRows} total
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={() => setPage(Math.max(1, page - 1))}
-                                                disabled={page <= 1}
-                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                <HiOutlineChevronLeft className="w-5 h-5" />
-                                            </button>
-                                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                                                {page} / {Math.ceil(totalRows / perPage) || 1}
-                                            </span>
-                                            <button
-                                                onClick={() => setPage(Math.min(Math.ceil(totalRows / perPage), page + 1))}
-                                                disabled={page >= Math.ceil(totalRows / perPage)}
-                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                <HiOutlineChevronRight className="w-5 h-5" />
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <MobilePagination page={page} totalRows={totalRows} perPage={perPage} onPageChange={setPage} />
                                 </>
                             )}
                         </div>

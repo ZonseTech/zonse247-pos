@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Notify } from 'notiflix';
 import { purchaseOrderService } from '../services';
+import { getErrorMessage } from '../utils/api-error-handler';
 
 export const usePurchaseOrders = () => {
     const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
@@ -44,7 +45,7 @@ export const usePurchaseOrders = () => {
             setPurchaseOrders(normalizedOrders);
             setTotalRows(pagination.totalItems || 0);
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to load purchase orders');
+            Notify.failure(getErrorMessage(error, 'Failed to load purchase orders'));
             console.error('Load purchase orders error:', error);
             setPurchaseOrders([]);
             setTotalRows(0);
@@ -64,7 +65,46 @@ export const usePurchaseOrders = () => {
             loadPurchaseOrders();
             return po;
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to create purchase order');
+            Notify.failure(getErrorMessage(error, 'Failed to create purchase order'));
+            throw error;
+        }
+    }, [loadPurchaseOrders]);
+
+    const createFromRequisition = useCallback(async (payload: CreatePOFromRequisitionInput) => {
+        try {
+            const po = await purchaseOrderService.createFromRequisition(payload);
+            Notify.success('Purchase order created from requisition');
+            loadPurchaseOrders();
+            return po;
+        } catch (error: any) {
+            Notify.failure(getErrorMessage(error, 'Failed to create PO from requisition'));
+            throw error;
+        }
+    }, [loadPurchaseOrders]);
+
+    const updatePurchaseOrder = useCallback(async (
+        poId: string,
+        payload: UpdatePurchaseOrderInput
+    ) => {
+        try {
+            const po = await purchaseOrderService.updatePurchaseOrder(poId, payload);
+            Notify.success('Purchase order updated successfully');
+            loadPurchaseOrders();
+            return po;
+        } catch (error: any) {
+            Notify.failure(getErrorMessage(error, 'Failed to update purchase order'));
+            throw error;
+        }
+    }, [loadPurchaseOrders]);
+
+    const sendPurchaseOrder = useCallback(async (poId: string) => {
+        try {
+            const po = await purchaseOrderService.sendPurchaseOrder(poId);
+            Notify.success('Purchase order sent to supplier');
+            loadPurchaseOrders();
+            return po;
+        } catch (error: any) {
+            Notify.failure(getErrorMessage(error, 'Failed to send purchase order'));
             throw error;
         }
     }, [loadPurchaseOrders]);
@@ -79,7 +119,7 @@ export const usePurchaseOrders = () => {
             loadPurchaseOrders();
             return po;
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to receive purchase order');
+            Notify.failure(getErrorMessage(error, 'Failed to receive purchase order'));
             throw error;
         }
     }, [loadPurchaseOrders]);
@@ -90,7 +130,18 @@ export const usePurchaseOrders = () => {
             Notify.success('Purchase order cancelled successfully');
             loadPurchaseOrders();
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to cancel purchase order');
+            Notify.failure(getErrorMessage(error, 'Failed to cancel purchase order'));
+            throw error;
+        }
+    }, [loadPurchaseOrders]);
+
+    const deletePurchaseOrder = useCallback(async (poId: string) => {
+        try {
+            await purchaseOrderService.deletePurchaseOrder(poId);
+            Notify.success('Purchase order deleted');
+            loadPurchaseOrders();
+        } catch (error: any) {
+            Notify.failure(getErrorMessage(error, 'Failed to delete purchase order'));
             throw error;
         }
     }, [loadPurchaseOrders]);
@@ -108,7 +159,7 @@ export const usePurchaseOrders = () => {
                 ) ?? 0,
             };
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to load purchase order');
+            Notify.failure(getErrorMessage(error, 'Failed to load purchase order'));
             return null;
         }
     }, []);
@@ -127,8 +178,12 @@ export const usePurchaseOrders = () => {
         setSupplierFilter,
         loadPurchaseOrders,
         createPurchaseOrder,
+        createFromRequisition,
+        updatePurchaseOrder,
+        sendPurchaseOrder,
         receivePurchaseOrder,
         cancelPurchaseOrder,
+        deletePurchaseOrder,
         getPurchaseOrder,
         // Aliases for form compatibility
         create: createPurchaseOrder,

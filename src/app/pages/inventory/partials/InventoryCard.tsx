@@ -159,52 +159,61 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
             </div>
 
             {/* Action Buttons - Fixed at bottom */}
-            <div className="flex border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                {onAdjustQuantity && (
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onAdjustQuantity(item);
-                        }}
-                        className="flex-1 flex items-center justify-center gap-2 py-3 
-                            text-purple-600 dark:text-purple-400 
-                            hover:bg-purple-50 dark:hover:bg-purple-900/20 
-                            active:bg-purple-100 dark:active:bg-purple-900/30
-                            transition-colors border-r border-gray-100 dark:border-gray-700"
-                    >
-                        <PackagePlus className="w-4 h-4" />
-                        <span className="text-sm font-medium">Adjust</span>
-                    </button>
-                )}
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(item);
-                    }}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 
-                        text-green-500 dark:text-green-400 
-                        hover:bg-green-50 dark:hover:bg-green-900/20 
-                        active:bg-green-100 dark:active:bg-green-900/30
-                        transition-colors border-r border-gray-100 dark:border-gray-700"
-                >
-                    <Edit2 className="w-4 h-4" />
-                    <span className="text-sm font-medium">Edit</span>
-                </button>
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onDelete(productId);
-                    }}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 
-                        text-red-500 dark:text-red-400 
-                        hover:bg-red-50 dark:hover:bg-red-900/20 
-                        active:bg-red-100 dark:active:bg-red-900/30
-                        transition-colors"
-                >
-                    <Trash2 className="w-4 h-4" />
-                    <span className="text-sm font-medium">Delete</span>
-                </button>
-            </div>
+            {(() => {
+                const isInactive = item.isActive === false;
+                const isDiscontinued = item.status === 'DISCONTINUED';
+                const disableStockActions = isInactive || isDiscontinued;
+                return (
+                    <div className="flex border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                        {onAdjustQuantity && !disableStockActions && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onAdjustQuantity(item);
+                                }}
+                                className="flex-1 flex items-center justify-center gap-2 py-3 
+                                    text-purple-600 dark:text-purple-400 
+                                    hover:bg-purple-50 dark:hover:bg-purple-900/20 
+                                    active:bg-purple-100 dark:active:bg-purple-900/30
+                                    transition-colors border-r border-gray-100 dark:border-gray-700"
+                            >
+                                <PackagePlus className="w-4 h-4" />
+                                <span className="text-sm font-medium">Adjust</span>
+                            </button>
+                        )}
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onEdit(item);
+                            }}
+                            className="flex-1 flex items-center justify-center gap-2 py-3 
+                                text-green-500 dark:text-green-400 
+                                hover:bg-green-50 dark:hover:bg-green-900/20 
+                                active:bg-green-100 dark:active:bg-green-900/30
+                                transition-colors border-r border-gray-100 dark:border-gray-700"
+                        >
+                            <Edit2 className="w-4 h-4" />
+                            <span className="text-sm font-medium">Edit</span>
+                        </button>
+                        {!isDiscontinued && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDelete(productId);
+                                }}
+                                className="flex-1 flex items-center justify-center gap-2 py-3 
+                                    text-red-500 dark:text-red-400 
+                                    hover:bg-red-50 dark:hover:bg-red-900/20 
+                                    active:bg-red-100 dark:active:bg-red-900/30
+                                    transition-colors"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                <span className="text-sm font-medium">Delete</span>
+                            </button>
+                        )}
+                    </div>
+                );
+            })()}
         </div>
     );
 };

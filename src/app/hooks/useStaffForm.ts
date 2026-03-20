@@ -5,7 +5,7 @@ import type { FormikHelpers } from 'formik';
 import usersService from '../services/users.service';
 import { useAuth } from '../context/AuthProvider';
 import { createStaffValidationSchema, updateStaffValidationSchema } from '../schemas/user.schema';
-import { parseApiError, mapErrorToFormikErrors, isDuplicateError } from '../utils/api-error-handler';
+import { parseApiError, mapErrorToFormikErrors, isDuplicateError, getErrorMessage } from '../utils/api-error-handler';
 import { ROUTES } from '../utils/constants';
 import { hasRole } from '../utils';
 
@@ -64,7 +64,7 @@ export const useStaffForm = (): UseStaffFormReturn => {
                     setUser(userData);
                 } catch (error: any) {
                     console.error('Error fetching user:', error);
-                    const errorMessage = error?.response?.data?.message || 'Failed to load user details';
+                    const errorMessage = getErrorMessage(error, 'Failed to load user details');
                     Notify.failure(errorMessage);
                 } finally {
                     setLoading(false);

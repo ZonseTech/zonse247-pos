@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Notify } from 'notiflix';
+import { getErrorMessage } from '../utils/api-error-handler';
 import dayjs from 'dayjs';
 import salesService from '../services/sales.service';
 
@@ -59,7 +60,7 @@ export const useSales = () => {
 
         } catch (error) {
             console.error("Error loading sales:", error);
-            Notify.failure("Error loading sales: " + (error instanceof Error ? error.message : String(error)));
+            Notify.failure(getErrorMessage(error, "Error loading sales"));
             setSales([]);
             setTotalRows(0);
         } finally {

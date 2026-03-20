@@ -130,7 +130,8 @@ class SubscriptionService {
 					params: { status }
 				}
 			);
-			return response.data.data || [];
+			const data = response.data.data;
+			return Array.isArray(data) ? data : (data?.subscriptions || []);
 		} catch (error) {
 			console.error('Error fetching subscriptions by status:', error);
 			throw error;
@@ -167,7 +168,8 @@ class SubscriptionService {
 					params: { planId }
 				}
 			);
-			return response.data.data || [];
+			const data = response.data.data;
+			return Array.isArray(data) ? data : (data?.subscriptions || []);
 		} catch (error) {
 			console.error('Error fetching subscriptions by plan:', error);
 			throw error;
@@ -184,7 +186,9 @@ class SubscriptionService {
 				`${this.endpoint}/tenant/${tenantId}`,
 				{ headers: await getAuthHeaders() }
 			);
-			return (response.data.data || []).map(sub => this.normalizeSubscription(sub));
+			const data = response.data.data;
+			const items = Array.isArray(data) ? data : (data?.subscriptions || []);
+			return items.map(sub => this.normalizeSubscription(sub));
 		} catch (error) {
 			console.error('Error fetching subscriptions by tenant:', error);
 			throw error;
@@ -250,11 +254,12 @@ class SubscriptionService {
 	 */
 	async getExpiring(days: number = 30): Promise<BranchSubscription[]> {
 		try {
-			const response = await liveApi.get<ApiResponse<BranchSubscription[]>>(
+			const response = await liveApi.get<ApiResponse<any>>(
 				`${this.endpoint}/expiring?days=${days}`,
 				{ headers: await getAuthHeaders() }
 			);
-			return response.data.data || [];
+			const data = response.data.data;
+			return Array.isArray(data) ? data : (data?.subscriptions || []);
 		} catch (error) {
 			console.error('Error fetching expiring subscriptions:', error);
 			throw error;
@@ -282,12 +287,13 @@ class SubscriptionService {
 	 */
 	async bulkUpdate(data: BulkUpdateRequest): Promise<BranchSubscription[]> {
 		try {
-			const response = await liveApi.patch<ApiResponse<BranchSubscription[]>>(
+			const response = await liveApi.patch<ApiResponse<any>>(
 				`${this.endpoint}/bulk-update`,
 				data,
 				{ headers: await getAuthHeaders() }
 			);
-			return response.data.data || [];
+			const result = response.data.data;
+			return Array.isArray(result) ? result : (result?.subscriptions || []);
 		} catch (error) {
 			console.error('Error bulk updating subscriptions:', error);
 			throw error;

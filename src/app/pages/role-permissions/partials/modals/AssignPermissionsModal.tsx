@@ -6,6 +6,7 @@ import rolePermissionService from "../../../../services/role-permission.service"
 import FormWrapper from '../../../../components/FormWrapper';
 import { FunctionComponent, useEffect, useState } from "react";
 import { Button, ModalFooter, Modal } from '../../../../components';
+import { getErrorMessage } from '../../../../utils/api-error-handler';
 
 type Props = {
     role: Role;
@@ -49,7 +50,14 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
         setLoading(true);
         try {
             const result = await rolePermissionService.getByRoleUuid(role.roleId);
-            const rolePermissions = result?.data || [];
+            const rawData = result?.data;
+            const rolePermissions: RolePermission[] = Array.isArray(rawData)
+                ? rawData
+                : Array.isArray((rawData as any)?.rolePermissions)
+                    ? (rawData as any).rolePermissions
+                    : Array.isArray(result)
+                        ? result as any
+                        : [];
 
             const permissionIds: string[] = [];
             const mappings = new Map<string, string>();
@@ -103,7 +111,7 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
                 Notify.success(`Permission "${permission.name}" removed from role "${role.name}"`);
             } else {
                 const response = await rolePermissionService.create({
-                    roleUuid: role.roleId,
+                    roleId: role.roleId,
                     permissionId: permissionId
                 });
 
@@ -112,7 +120,7 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
                 setCurrentPermissions(newSelected);
 
                 const newMappings = new Map(rolePermissionMappings);
-                newMappings.set(permissionId, response.data?.uuid || response.data?.id);
+                newMappings.set(permissionId, response.data?.rolePermissionId || response.data?.id);
                 setRolePermissionMappings(newMappings);
 
                 Notify.success(`Permission "${permission.name}" assigned to role "${role.name}"`);
@@ -120,9 +128,8 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
 
         } catch (error) {
             console.error('Error updating permission:', error);
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
             const action = isCurrentlySelected ? 'removing' : 'assigning';
-            Notify.failure(`Error ${action} permission: ${errorMessage}`);
+            Notify.failure(`Error ${action} permission: ${getErrorMessage(error, 'An unknown error occurred')}`);
         } finally {
             setSavingPermissions(prev => {
                 const newSet = new Set(prev);
@@ -142,12 +149,10 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
         }
 
         try {
-            const assignments = permissionsToAdd.map(permissionId => ({
-                roleUuid: role.roleId,
-                permissionId
-            }));
-
-            await rolePermissionService.bulkAssign({ assignments });
+            await rolePermissionService.bulkAssign({
+                roleId: role.roleId,
+                permissionIds: permissionsToAdd
+            });
 
             setFieldValue('selectedPermissions', allPermissionIds);
             setCurrentPermissions(allPermissionIds);
@@ -157,8 +162,7 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
             Notify.success(`${permissionsToAdd.length} permissions assigned successfully`);
         } catch (error) {
             console.error('Error assigning all permissions:', error);
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            Notify.failure('Error assigning all permissions: ' + errorMessage);
+            Notify.failure(getErrorMessage(error, 'Error assigning all permissions'));
         }
     };
 
@@ -186,8 +190,7 @@ export const AssignPermissionsModal: FunctionComponent<Props> = ({
             Notify.success(`${currentSelected.length} permissions removed successfully`);
         } catch (error) {
             console.error('Error removing all permissions:', error);
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            Notify.failure('Error removing all permissions: ' + errorMessage);
+            Notify.failure(getErrorMessage(error, 'Error removing all permissions'));
         }
     };
 

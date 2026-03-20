@@ -30,7 +30,8 @@ const Filters: FunctionComponent<FiltersProps> = ({
         { value: 'TRANSFER_OUT', label: 'Transfer Out' },
         { value: 'DAMAGE', label: 'Damage' },
         { value: 'EXPIRY', label: 'Expiry' },
-        { value: 'STOCK_TAKE', label: 'Stock Take' },
+        { value: 'OPENING_BALANCE', label: 'Opening Balance' },
+        { value: 'RETURN_TO_SUPPLIER', label: 'Return to Supplier' },
     ];
 
     return (

@@ -8,8 +8,9 @@ class PlanFeaturesService {
      */
     async list(): Promise<FeatureCategory[]> {
         try {
-            const response = await api.get<ApiResponse<FeatureCategory[]>>(this.endpoint);
-            return response.data.data || [];
+            const response = await api.get<ApiResponse<any>>(this.endpoint);
+            const data = response.data.data;
+            return Array.isArray(data) ? data : (data?.featureCategories || data?.features || []);
         } catch (error) {
             console.error('Error fetching feature categories:', error);
             throw error;

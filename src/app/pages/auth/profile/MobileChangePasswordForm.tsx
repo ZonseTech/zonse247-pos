@@ -7,6 +7,7 @@ import FormWrapper from '../../../components/FormWrapper';
 import FormInput from '../../../components/FormInput';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import usersService from '../../../services/users.service';
+import { getErrorMessage } from '../../../utils/api-error-handler';
 
 type Props = {
     userId: string;
@@ -61,7 +62,7 @@ const MobileChangePasswordForm: FunctionComponent<Props> = ({ userId, onSuccess 
             onSuccess?.();
         } catch (error: any) {
             Notify.failure(
-                error?.response?.data?.message || 'An error occurred while changing password'
+                getErrorMessage(error, 'An error occurred while changing password')
             );
         } finally {
             setSubmitting(false);

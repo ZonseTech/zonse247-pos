@@ -28,9 +28,10 @@ const CustomerManagement: FunctionComponent = () => {
         setPage,
         setPerPage,
         totalRows,
+        handlePageChange,
+        handlePerRowsChange,
         deleteCustomer,
         refreshCustomers,
-        getPaginatedData,
     } = useCustomers();
 
     const handleAddCustomer = useCallback(() => {
@@ -136,7 +137,7 @@ const CustomerManagement: FunctionComponent = () => {
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">Showing</p>
-                                    <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{getPaginatedData().length}</p>
+                                    <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{customers.length}</p>
                                 </div>
                             </div>
                         </div>
@@ -167,7 +168,7 @@ const CustomerManagement: FunctionComponent = () => {
                     <div className="overflow-hidden">
                         <DataTable
                             columns={columns}
-                            data={getPaginatedData()}
+                            data={customers}
                             theme={mode as string}
                             progressPending={isLoading}
                             highlightOnHover
@@ -176,11 +177,9 @@ const CustomerManagement: FunctionComponent = () => {
                             pagination
                             paginationServer
                             paginationTotalRows={totalRows}
-                            onChangeRowsPerPage={(newPerPage, page) => {
-                                setPage(page);
-                                setPerPage(newPerPage);
-                            }}
-                            onChangePage={setPage}
+                            paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
+                            onChangeRowsPerPage={handlePerRowsChange}
+                            onChangePage={handlePageChange}
                             fixedHeader
                             customStyles={getTableStyles(mode)}
                             noDataComponent={

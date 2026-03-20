@@ -18,7 +18,7 @@ export const getStockMovementTableColumns = (): TableColumn<StockMovement>[] => 
     {
         name: 'Type',
         cell: (row) => {
-            const typeColors: Record<StockMovementType, string> = {
+            const typeColors: Record<string, string> = {
                 PURCHASE_RECEIPT: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
                 SALE: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
                 RETURN: 'bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-200',
@@ -27,9 +27,8 @@ export const getStockMovementTableColumns = (): TableColumn<StockMovement>[] => 
                 TRANSFER_OUT: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
                 DAMAGE: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
                 EXPIRY: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-                STOCK_TAKE: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
-                PRODUCTION: 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200',
-                CONSUMPTION: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200',
+                OPENING_BALANCE: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
+                RETURN_TO_SUPPLIER: 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200',
             };
             return (
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeColors[row.movementType]}`}>

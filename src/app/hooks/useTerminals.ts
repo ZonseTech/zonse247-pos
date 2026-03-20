@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Notify } from 'notiflix';
 import terminalService from '../services/terminal.service';
+import { getErrorMessage } from '../utils/api-error-handler';
+import { usePagination } from './usePagination';
 
 interface UseTerminalsOptions {
     branchId?: string;
@@ -11,7 +13,6 @@ interface UseTerminalsOptions {
 
 interface UseTerminalsReturn {
     terminals: Terminal[];
-    filteredTerminals: Terminal[];
     isLoading: boolean;
     searchTerm: string;
     setSearchTerm: (term: string) => void;
@@ -20,6 +21,8 @@ interface UseTerminalsReturn {
     perPage: number;
     setPerPage: (perPage: number) => void;
     totalRows: number;
+    handlePageChange: (page: number) => void;
+    handlePerRowsChange: (newPerPage: number, page: number) => void;
     deleteTerminal: (terminalId: string) => Promise<void>;
     updateActivationStatus: (terminalId: string, status: TerminalActivationStatus) => Promise<void>;
     blockTerminal: (terminalId: string, reason: string) => Promise<void>;
@@ -27,25 +30,28 @@ interface UseTerminalsReturn {
     setPrimary: (terminalId: string, branchId: string) => Promise<void>;
     syncTerminal: (terminalId: string) => Promise<void>;
     refreshTerminals: () => Promise<void>;
-    filterTerminals: (term: string) => Terminal[];
-    getPaginatedData: () => Terminal[];
 }
 
 export const useTerminals = (options: UseTerminalsOptions = {}): UseTerminalsReturn => {
     const { branchId, tenantId, isAdminMode = false, autoLoad = true } = options;
 
     const [terminals, setTerminals] = useState<Terminal[]>([]);
-    const [filteredTerminals, setFilteredTerminals] = useState<Terminal[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [page, setPage] = useState(1);
-    const [perPage, setPerPage] = useState(10);
-    const [totalRows, setTotalRows] = useState(0);
+
+    const {
+        page, setPage, perPage, setPerPage, totalRows, setTotalRows,
+        handlePageChange, handlePerRowsChange,
+    } = usePagination();
 
     const loadTerminals = useCallback(async () => {
         setIsLoading(true);
         try {
-            const query: TerminalQueryParams = {};
+            const query: TerminalQueryParams = {
+                page,
+                perPage,
+                search: searchTerm || undefined,
+            };
 
             if (branchId) {
                 query.branchId = branchId;
@@ -57,18 +63,16 @@ export const useTerminals = (options: UseTerminalsOptions = {}): UseTerminalsRet
                 }
             }
 
-            const data = await terminalService.list(query);
-            setTerminals(data);
-            setFilteredTerminals(data);
-            setTotalRows(data.length);
+            const result = await terminalService.listPaginated(query);
+            setTerminals(result.data || []);
+            setTotalRows(result.pagination?.total || 0);
         } catch (error: any) {
             console.error('Error loading terminals:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to load terminals';
-            Notify.failure(errorMessage);
+            Notify.failure(getErrorMessage(error, 'Failed to load terminals'));
         } finally {
             setIsLoading(false);
         }
-    }, [branchId, tenantId, isAdminMode]);
+    }, [page, perPage, searchTerm, branchId, tenantId, isAdminMode, setTotalRows]);
 
     useEffect(() => {
         if (autoLoad) {
@@ -76,33 +80,10 @@ export const useTerminals = (options: UseTerminalsOptions = {}): UseTerminalsRet
         }
     }, [loadTerminals, autoLoad]);
 
-    const filterTerminals = useCallback((term: string): Terminal[] => {
-        if (!term.trim()) {
-            return terminals;
-        }
-
-        const lowerTerm = term.toLowerCase();
-        return terminals.filter((terminal) =>
-            terminal.terminalLabel?.toLowerCase().includes(lowerTerm) ||
-            terminal.terminalCode?.toLowerCase().includes(lowerTerm) ||
-            terminal.deviceId?.toLowerCase().includes(lowerTerm) ||
-            terminal.macAddress?.toLowerCase().includes(lowerTerm) ||
-            terminal.activationStatus?.toLowerCase().includes(lowerTerm)
-        );
-    }, [terminals]);
-
+    // Reset to page 1 when search changes
     useEffect(() => {
-        const filtered = filterTerminals(searchTerm);
-        setFilteredTerminals(filtered);
-        setTotalRows(filtered.length);
         setPage(1);
-    }, [searchTerm, filterTerminals]);
-
-    const getPaginatedData = useCallback((): Terminal[] => {
-        const startIndex = (page - 1) * perPage;
-        const endIndex = startIndex + perPage;
-        return filteredTerminals.slice(startIndex, endIndex);
-    }, [page, perPage, filteredTerminals]);
+    }, [searchTerm, setPage]);
 
     const deleteTerminal = useCallback(async (terminalId: string) => {
         try {
@@ -111,7 +92,7 @@ export const useTerminals = (options: UseTerminalsOptions = {}): UseTerminalsRet
             await loadTerminals();
         } catch (error: any) {
             console.error('Error deleting terminal:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to delete terminal';
+            const errorMessage = getErrorMessage(error, 'Failed to delete terminal');
             Notify.failure(errorMessage);
         }
     }, [loadTerminals]);
@@ -129,7 +110,7 @@ export const useTerminals = (options: UseTerminalsOptions = {}): UseTerminalsRet
             await loadTerminals();
         } catch (error: any) {
             console.error('Error updating terminal status:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to update terminal status';
+            const errorMessage = getErrorMessage(error, 'Failed to update terminal status');
             Notify.failure(errorMessage);
         }
     }, [loadTerminals]);
@@ -141,7 +122,7 @@ export const useTerminals = (options: UseTerminalsOptions = {}): UseTerminalsRet
             await loadTerminals();
         } catch (error: any) {
             console.error('Error blocking terminal:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to block terminal';
+            const errorMessage = getErrorMessage(error, 'Failed to block terminal');
             Notify.failure(errorMessage);
         }
     }, [loadTerminals]);
@@ -153,7 +134,7 @@ export const useTerminals = (options: UseTerminalsOptions = {}): UseTerminalsRet
             await loadTerminals();
         } catch (error: any) {
             console.error('Error unblocking terminal:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to unblock terminal';
+            const errorMessage = getErrorMessage(error, 'Failed to unblock terminal');
             Notify.failure(errorMessage);
         }
     }, [loadTerminals]);
@@ -165,7 +146,7 @@ export const useTerminals = (options: UseTerminalsOptions = {}): UseTerminalsRet
             await loadTerminals();
         } catch (error: any) {
             console.error('Error setting primary terminal:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to set primary terminal';
+            const errorMessage = getErrorMessage(error, 'Failed to set primary terminal');
             Notify.failure(errorMessage);
         }
     }, [loadTerminals]);
@@ -177,7 +158,7 @@ export const useTerminals = (options: UseTerminalsOptions = {}): UseTerminalsRet
             await loadTerminals();
         } catch (error: any) {
             console.error('Error syncing terminal:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to sync terminal';
+            const errorMessage = getErrorMessage(error, 'Failed to sync terminal');
             Notify.failure(errorMessage);
         }
     }, [loadTerminals]);
@@ -188,7 +169,6 @@ export const useTerminals = (options: UseTerminalsOptions = {}): UseTerminalsRet
 
     return {
         terminals,
-        filteredTerminals,
         isLoading,
         searchTerm,
         setSearchTerm,
@@ -197,6 +177,8 @@ export const useTerminals = (options: UseTerminalsOptions = {}): UseTerminalsRet
         perPage,
         setPerPage,
         totalRows,
+        handlePageChange,
+        handlePerRowsChange,
         deleteTerminal,
         updateActivationStatus,
         blockTerminal,
@@ -204,7 +186,5 @@ export const useTerminals = (options: UseTerminalsOptions = {}): UseTerminalsRet
         setPrimary,
         syncTerminal,
         refreshTerminals,
-        filterTerminals,
-        getPaginatedData,
     };
 };

@@ -6,6 +6,7 @@ import { Button, Modal, ModalFooter } from '../../../../components';
 import FormWrapper from '../../../../components/FormWrapper';
 import FormInput from '../../../../components/FormInput';
 import FormTextArea from '../../../../components/FormTextArea';
+import { getErrorMessage } from '../../../../utils/api-error-handler';
 
 type Props = {
     role?: Role;
@@ -51,7 +52,7 @@ const RoleModal: FunctionComponent<Props> = ({ role, isOpen, onSave, onClose }) 
             await onSave(values);
             onClose();
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            const errorMessage = getErrorMessage(error, 'An unknown error occurred');
             Notify.failure('Error saving role: ' + errorMessage);
         }
     };

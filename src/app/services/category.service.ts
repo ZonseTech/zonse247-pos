@@ -15,8 +15,8 @@ const categoriesSerive = {
 	endpoints,
 	async list(query = {}): Promise<Category[]> {
 		return api
-			.get<ApiResponse<Category[]>>(endpoints.all, query)
-			.then((res) => decodeArrayStrings<Category>(res.data.data, CATEGORY_DECODE_FIELDS))
+			.get<ApiResponse<{ categories: Category[]; pagination?: any }>>(endpoints.all, query)
+			.then((res) => decodeArrayStrings<Category>(res.data.data?.categories || [], CATEGORY_DECODE_FIELDS))
 			.catch((err) => {
 				throw err;
 			});

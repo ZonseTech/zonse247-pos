@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Notify } from 'notiflix';
+import { getErrorMessage } from '../utils/api-error-handler';
 import printerService from '../services/printer.service';
 import { usePrinterStore } from '../store/printerStore';
 
@@ -118,7 +119,7 @@ export const usePrinterSetup = () => {
 
             return uniquePrinters;
         } catch (err: any) {
-            const errorMessage = err?.response?.data?.message || err?.message || 'Failed to discover printers';
+            const errorMessage = getErrorMessage(err, 'Failed to discover printers');
             console.error('Printer discovery error:', errorMessage);
             Notify.failure(errorMessage);
             return [];
@@ -158,7 +159,7 @@ export const usePrinterSetup = () => {
 
             return result.printers;
         } catch (err: any) {
-            const errorMessage = err?.response?.data?.message || err?.message || 'Failed to scan network';
+            const errorMessage = getErrorMessage(err, 'Failed to scan network');
             console.error('Network scan error:', errorMessage);
             Notify.failure(errorMessage);
             return [];
@@ -212,7 +213,7 @@ export const usePrinterSetup = () => {
 
             return { success: true, printer };
         } catch (err: any) {
-            const errorMessage = err?.response?.data?.message || err?.message || 'Failed to register printer';
+            const errorMessage = getErrorMessage(err, 'Failed to register printer');
             console.error('Printer registration error:', errorMessage);
             Notify.failure(errorMessage);
             return { success: false, error: errorMessage };
@@ -267,7 +268,7 @@ export const usePrinterSetup = () => {
 
             return result;
         } catch (err: any) {
-            const errorMessage = err?.response?.data?.message || err?.message || 'Failed to test printer';
+            const errorMessage = getErrorMessage(err, 'Failed to test printer');
             console.error('Printer test error:', errorMessage);
             Notify.failure(errorMessage);
             return null;
@@ -287,7 +288,7 @@ export const usePrinterSetup = () => {
             Notify.success('Test page sent to printer');
             return true;
         } catch (err: any) {
-            const errorMessage = err?.response?.data?.message || err?.message || 'Failed to print test page';
+            const errorMessage = getErrorMessage(err, 'Failed to print test page');
             console.error('Print test page error:', errorMessage);
             Notify.failure(errorMessage);
             return false;
@@ -321,7 +322,7 @@ export const usePrinterSetup = () => {
 
             return result;
         } catch (err: any) {
-            const errorMessage = err?.response?.data?.message || err?.message || 'Failed to validate printer';
+            const errorMessage = getErrorMessage(err, 'Failed to validate printer');
             console.error('Printer validation error:', errorMessage);
             Notify.failure(errorMessage);
             return null;
@@ -354,7 +355,7 @@ export const usePrinterSetup = () => {
             Notify.success('Default printer updated');
             return true;
         } catch (err: any) {
-            const errorMessage = err?.response?.data?.message || err?.message || 'Failed to set default printer';
+            const errorMessage = getErrorMessage(err, 'Failed to set default printer');
             console.error('Set default error:', errorMessage);
             Notify.failure(errorMessage);
             return false;

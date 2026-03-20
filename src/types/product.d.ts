@@ -101,6 +101,7 @@ interface ProductVariant {
     createdAt: Date | string;
     updatedAt: Date | string;
     inventory?: {
+        inventoryId?: string;
         availableQuantity: number;
         reservedQuantity?: number;
         damagedQuantity?: number;
@@ -117,6 +118,7 @@ interface ProductVariant {
  * Inventory data for a variant
  */
 interface InventoryInfo {
+    inventoryId?: string;
     availableQuantity: number;
     reservedQuantity: number;
     damagedQuantity: number;

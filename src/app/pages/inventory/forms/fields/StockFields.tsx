@@ -3,11 +3,13 @@ import { useFormikContext, getIn } from 'formik';
 import FormInput from '../../../../components/FormInput';
 import Input from '../../../../components/Input';
 import Label from '../../../../components/Label';
+import { Info } from 'lucide-react';
 
 interface StockFieldsProps {
     fieldPrefix?: string;
     showLowStockAlert?: boolean;
     isNewVariant?: boolean;
+    isEditing?: boolean;
     getStock?: (field: string) => number | string;
     onChange?: (field: string, value: string) => void;
     trackInventory?: boolean;
@@ -19,6 +21,7 @@ const StockFields: FunctionComponent<StockFieldsProps> = ({
     fieldPrefix = '',
     showLowStockAlert = true,
     isNewVariant = false,
+    isEditing = false,
     getStock,
     onChange,
     trackInventory,
@@ -84,12 +87,16 @@ const StockFields: FunctionComponent<StockFieldsProps> = ({
         }
     }, []);
 
+    // Quantity is read-only when editing an existing variant on an existing product.
+    // Stock changes must go through stock movement endpoints (Adjust Stock).
+    const isQuantityLocked = isEditing && !isNewVariant;
+
     return (
         <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
                 {isNewVariant ? (
                     <div className="space-y-1">
-                        <Label>Stock Available</Label>
+                        <Label>{isEditing ? 'Opening Stock' : 'Stock Available'}</Label>
                         <Input
                             value={getNumberValue('quantity')}
                             onChange={(e) => onChange?.('quantity', e.target.value)}
@@ -97,6 +104,20 @@ const StockFields: FunctionComponent<StockFieldsProps> = ({
                             placeholder="0"
                             min={0}
                         />
+                    </div>
+                ) : isQuantityLocked ? (
+                    <div className="space-y-1">
+                        <Label>Current Stock</Label>
+                        <Input
+                            value={getFieldValue('quantity') ?? 0}
+                            type="number"
+                            disabled
+                            className="bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-75"
+                        />
+                        <p className="flex items-start gap-1 text-xs text-amber-600 dark:text-amber-400 mt-1">
+                            <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                            <span>To change stock, use <strong>Adjust Stock</strong> from the inventory list.</span>
+                        </p>
                     </div>
                 ) : (
                     <FormInput

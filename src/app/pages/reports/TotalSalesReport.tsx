@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { formatCurrency } from '../../utils'
 import reportsService, { TotalSalesDataPoint, TotalSalesResponse } from '../../services/reports.service'
 import { toast } from 'react-toastify'
+import { getErrorMessage } from '../../utils/api-error-handler'
 import dayjs from 'dayjs'
 import { ReportBarChart, ReportProgressBar } from '../../components'
 
@@ -32,9 +33,8 @@ const TotalSalesReport: React.FC<TotalSalesReportProps> = ({ startDate, endDate 
             const response = await reportsService.getTotalSales(query)
             setData(response)
         } catch (err: any) {
-            const axiosError = err?.error || err
-            const serverMessage = axiosError?.response?.data?.message || axiosError?.message || 'Failed to fetch total sales data'
-            console.error('Error fetching total sales:', axiosError?.response?.data || axiosError)
+            const serverMessage = getErrorMessage(err, 'Failed to fetch total sales data')
+            console.error('Error fetching total sales:', err)
             toast.error(serverMessage)
         } finally {
             setLoading(false)

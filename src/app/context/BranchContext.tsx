@@ -7,6 +7,7 @@ import React, {
     type PropsWithChildren
 } from 'react';
 import { Notify } from 'notiflix';
+import { getErrorMessage } from '../utils/api-error-handler';
 import { useAuth } from './AuthProvider';
 import api from '../services/http.service';
 import { isElectron } from '../utils';
@@ -163,9 +164,7 @@ export const BranchProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
             return true;
         } catch (err: any) {
-            const errorMessage = err?.error?.response?.data?.message ||
-                err?.message ||
-                'Failed to switch branch';
+            const errorMessage = getErrorMessage(err, 'Failed to switch branch');
 
             console.error('Error switching branch:', err);
             setError(errorMessage);

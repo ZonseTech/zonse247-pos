@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Notify } from 'notiflix';
 import { supplierService } from '../services';
+import { getErrorMessage } from '../utils/api-error-handler';
 
 export const useSuppliers = () => {
     const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -32,7 +33,7 @@ export const useSuppliers = () => {
             setSuppliers(result.suppliers || []);
             setTotalRows(result.pagination?.total || 0);
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to load suppliers');
+            Notify.failure(getErrorMessage(error, 'Failed to load suppliers'));
             console.error('Load suppliers error:', error);
             // Reset state on error
             setSuppliers([]);
@@ -53,7 +54,7 @@ export const useSuppliers = () => {
             loadSuppliers();
             return supplier;
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to create supplier');
+            Notify.failure(getErrorMessage(error, 'Failed to create supplier'));
             throw error;
         }
     }, [loadSuppliers]);
@@ -65,7 +66,7 @@ export const useSuppliers = () => {
             loadSuppliers();
             return supplier;
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to update supplier');
+            Notify.failure(getErrorMessage(error, 'Failed to update supplier'));
             throw error;
         }
     }, [loadSuppliers]);
@@ -76,7 +77,7 @@ export const useSuppliers = () => {
             Notify.success('Supplier deleted successfully');
             loadSuppliers();
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to delete supplier');
+            Notify.failure(getErrorMessage(error, 'Failed to delete supplier'));
             throw error;
         }
     }, [loadSuppliers]);
@@ -85,7 +86,7 @@ export const useSuppliers = () => {
         try {
             return await supplierService.getSupplier(supplierId);
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to load supplier');
+            Notify.failure(getErrorMessage(error, 'Failed to load supplier'));
             return null;
         }
     }, []);

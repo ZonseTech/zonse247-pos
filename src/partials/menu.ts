@@ -172,8 +172,32 @@ export default class MenuBuilder {
 					click: () => this.navigateTo(ROUTES.SUPPLIERS),
 				},
 				{
+					label: 'Purchase Requisitions',
+					click: () => this.navigateTo(ROUTES.PURCHASE_REQUISITIONS),
+				},
+				{
 					label: 'Purchase Orders',
 					click: () => this.navigateTo(ROUTES.PURCHASE_ORDERS),
+				},
+				{
+					label: 'Goods Receipts',
+					click: () => this.navigateTo(ROUTES.GOODS_RECEIPTS),
+				},
+				{
+					label: 'Supplier Invoices',
+					click: () => this.navigateTo(ROUTES.SUPPLIER_INVOICES),
+				},
+				{
+					label: 'Supplier Payments',
+					click: () => this.navigateTo(ROUTES.SUPPLIER_PAYMENTS),
+				},
+				{
+					label: 'Supplier Returns',
+					click: () => this.navigateTo(ROUTES.SUPPLIER_RETURNS),
+				},
+				{
+					label: 'Credit Notes',
+					click: () => this.navigateTo(ROUTES.CREDIT_NOTES),
 				},
 				{
 					label: 'Stock Movements',

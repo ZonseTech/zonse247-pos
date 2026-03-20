@@ -1,13 +1,15 @@
 import { Confirm } from 'notiflix';
 import { FolderOpen, LayoutGrid, List, Plus, Search } from 'lucide-react';
 import AppLayout from '../../layouts/AppLayout';
-import { HiOutlinePlus, HiOutlineFolderOpen } from 'react-icons/hi2';
 import { SearchBar } from '../../components/SearchBar';
 import DataTable from 'react-data-table-component';
 import { useCategories } from '../../hooks/useCategories';
-import { FunctionComponent, useContext, useState } from 'react';
+import { FunctionComponent, useContext, useMemo, useState } from 'react';
 import { getTableStyles } from '../../utils/table-styles';
 import PageHeader from '../../components/page/PageHeader';
+import TableSkeleton from '../../components/skeleton/TableSkeleton';
+import TableEmptyState from '../../components/TableEmptyState';
+import SummaryCards, { type SummaryCardItem } from '../../components/stats/SummaryCards';
 import { Button, ZonseThemeContext } from '../../components';
 import { getCategoryColumns, getMobileCategoryColumns } from './partials/CategoryTableColumns';
 import CreateCategoryModal from './CreateCategoryModal';
@@ -70,13 +72,48 @@ const CategoriesManager: FunctionComponent = () => {
         ? getMobileCategoryColumns(handleEdit, handleDelete)
         : getCategoryColumns(handleEdit, handleDelete);
 
+    const summaryCards: SummaryCardItem[] = useMemo(() => [
+        {
+            title: 'Total',
+            value: totalRows,
+            icon: <FolderOpen className="w-5 h-5" />,
+            bgColor: 'bg-sky-50 dark:bg-sky-900/20',
+            iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
+            textColor: 'text-sky-500 dark:text-sky-400',
+        },
+        {
+            title: 'Active',
+            value: categories.filter(c => c.itemCount > 0).length,
+            icon: <LayoutGrid className="w-5 h-5" />,
+            bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
+            iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
+            textColor: 'text-emerald-500 dark:text-emerald-400',
+        },
+        {
+            title: 'Empty',
+            value: categories.filter(c => !c.itemCount || c.itemCount === 0).length,
+            icon: <List className="w-5 h-5" />,
+            bgColor: 'bg-amber-50 dark:bg-amber-900/20',
+            iconBgColor: 'bg-amber-100 dark:bg-amber-900/40',
+            textColor: 'text-amber-500 dark:text-amber-400',
+        },
+        {
+            title: 'Showing',
+            value: getPaginatedData().length,
+            icon: <Search className="w-5 h-5" />,
+            bgColor: 'bg-purple-50 dark:bg-purple-900/20',
+            iconBgColor: 'bg-purple-100 dark:bg-purple-900/40',
+            textColor: 'text-purple-600 dark:text-purple-400',
+        },
+    ], [totalRows, categories, getPaginatedData]);
+
     return (
         <AppLayout>
             <div className="max-w-full">
                 <PageHeader
                     title="Categories"
                     description="Manage your product categories"
-                    icon={<HiOutlineFolderOpen className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
+                    icon={<FolderOpen className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                     action={
                         <div className='flex items-center gap-2 sm:gap-3'>
                             {!isMobile && (
@@ -87,7 +124,7 @@ const CategoriesManager: FunctionComponent = () => {
                             )}
 
                             <Button
-                                icon={HiOutlinePlus}
+                                icon={Plus}
                                 layout={isMobile ? 'outline' : 'primary'}
                                 onClick={() => setShowCreateModal(true)}
                                 className="!px-3 sm:!px-4 !py-2 sm:!py-2.5"
@@ -111,52 +148,12 @@ const CategoriesManager: FunctionComponent = () => {
 
                 <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6 px-4 mt-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
-                            <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-sky-100 dark:bg-sky-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <FolderOpen className="w-4 h-4 sm:w-5 sm:h-5 text-sky-500 dark:text-sky-400" />
-                                </div>
-                                <div className="min-w-0">
-                                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">Total</p>
-                                    <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{totalRows}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
-                            <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <LayoutGrid className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 dark:text-green-400" />
-                                </div>
-                                <div className="min-w-0">
-                                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">Active</p>
-                                    <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{categories.filter(c => c.itemCount > 0).length}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
-                            <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <List className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500 dark:text-amber-400" />
-                                </div>
-                                <div className="min-w-0">
-                                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">Empty</p>
-                                    <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{categories.filter(c => !c.itemCount || c.itemCount === 0).length}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
-                            <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <Search className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
-                                </div>
-                                <div className="min-w-0">
-                                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">Showing</p>
-                                    <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{getPaginatedData().length}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <SummaryCards
+                        cards={summaryCards}
+                        isLoading={isLoading}
+                        skeletonCount={4}
+                        variant="embedded"
+                    />
 
                     <div className="overflow-hidden">
                         <DataTable
@@ -164,8 +161,8 @@ const CategoriesManager: FunctionComponent = () => {
                             data={getPaginatedData()}
                             theme={mode as string}
                             progressPending={isLoading}
+                            progressComponent={<TableSkeleton rows={10} columns={4} />}
                             highlightOnHover
-                            striped
                             responsive
                             pagination
                             paginationServer
@@ -176,30 +173,29 @@ const CategoriesManager: FunctionComponent = () => {
                             }}
                             onChangePage={setPage}
                             fixedHeader
+                            persistTableHead
                             customStyles={getTableStyles(mode)}
                             noDataComponent={
-                                <div className="text-center py-12 sm:py-16 px-4">
-                                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <FolderOpen className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400 dark:text-gray-500" />
-                                    </div>
-                                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                                        {searchTerm ? 'No categories found' : 'No categories yet'}
-                                    </h3>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
-                                        {searchTerm
+                                <TableEmptyState
+                                    icon={<FolderOpen />}
+                                    title={searchTerm ? 'No categories found' : 'No categories yet'}
+                                    description={
+                                        searchTerm
                                             ? 'Try adjusting your search terms or clear the filter'
-                                            : 'Get started by creating your first category to organize your products'}
-                                    </p>
-                                    {!searchTerm && (
-                                        <button
-                                            onClick={() => setShowCreateModal(true)}
-                                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-700 text-white rounded-xl transition-colors font-medium shadow-lg shadow-sky-500/25"
-                                        >
-                                            <Plus className="w-4 h-4" />
-                                            Create Category
-                                        </button>
-                                    )}
-                                </div>
+                                            : 'Get started by creating your first category to organize your products'
+                                    }
+                                    action={
+                                        !searchTerm ? (
+                                            <button
+                                                onClick={() => setShowCreateModal(true)}
+                                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-700 text-white rounded-xl transition-colors font-medium shadow-lg shadow-sky-500/25"
+                                            >
+                                                <Plus className="w-4 h-4" />
+                                                Create Category
+                                            </button>
+                                        ) : undefined
+                                    }
+                                />
                             }
                         />
                     </div>

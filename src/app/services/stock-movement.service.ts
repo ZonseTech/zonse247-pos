@@ -11,6 +11,7 @@ const endpoints = {
 
     // List/Query
     list: 'stock-movements',
+    get: (id: string) => `stock-movements/${id}`,
     byProduct: 'stock-movements/product',
     byVariant: 'stock-movements/variant',
     byBranch: 'stock-movements/branch',
@@ -21,12 +22,22 @@ const endpoints = {
     // Actions
     adjust: 'stock-movements/adjust',
     damage: 'stock-movements/damage',
+    expiry: 'stock-movements/expiry',
     transfer: 'stock-movements/transfer',
-    stockTake: 'stock-movements/stock-take',
+    stockCount: 'stock-movements/stock-count',
+    correction: 'stock-movements/correction',
+    sync: 'stock-movements/sync',
+
+    // Data repair
+    recalculate: (inventoryId: string) => `stock-movements/recalculate/${inventoryId}`,
+    recalculateBranch: 'stock-movements/recalculate-branch',
 
     // Summary
     summary: 'stock-movements/summary',
     productSummary: 'stock-movements/product-summary',
+
+    /** @deprecated Use stockCount instead */
+    stockTake: 'stock-movements/stock-count',
 };
 
 const stockMovementService = {
@@ -130,12 +141,8 @@ const stockMovementService = {
 
     /**
      * POST /stock-movements/adjust - Manual stock adjustment
-     * Types: ADD, SUBTRACT, SET
-     * 
-     * Examples:
-     * - ADD: Add 10 units (found stock)
-     * - SUBTRACT: Remove 5 units (theft/loss)
-     * - SET: Set total to 100 (after physical count)
+     * quantity is signed: positive = add, negative = subtract
+     * Auth header provides tenantId, branchId, and performedBy.
      */
     async adjustStock(payload: StockAdjustmentPayload): Promise<StockMovement> {
         return api
@@ -178,8 +185,114 @@ const stockMovementService = {
     },
 
     /**
-     * POST /stock-movements/stock-take - Physical stock count
-     * Adjusts inventory to match physical count
+     * POST /stock-movements/stock-count — Physical stock count reconciliation
+     * Backend computes variance = actual − system. If ≠ 0, creates ADJUSTMENT movement.
+     */
+    async performStockCount(payload: {
+        inventoryId: string;
+        actualQuantity: number;
+        unitCost?: number;
+        notes?: string;
+    }): Promise<{
+        movementId: string;
+        previousQuantity: number;
+        newQuantity: number;
+        variance: number;
+    }> {
+        return api
+            .post<ApiResponse<any>>(endpoints.stockCount, payload as any)
+            .then((res) => res.data.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * POST /stock-movements/expiry — Record expired stock
+     */
+    async recordExpiry(payload: {
+        inventoryId: string;
+        quantity: number;
+        unitCost?: number;
+        expiryDate?: string;
+        notes?: string;
+    }): Promise<StockMovement> {
+        return api
+            .post<StockMovementResponse>(endpoints.expiry, payload as any)
+            .then((res) => res.data.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * POST /stock-movements/correction — Reverse a prior movement
+     */
+    async correctMovement(payload: {
+        originalMovementId: string;
+        reason: string;
+    }): Promise<StockMovement> {
+        return api
+            .post<StockMovementResponse>(endpoints.correction, payload as any)
+            .then((res) => res.data.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * POST /stock-movements/sync — Bulk sync from offline terminal
+     */
+    async syncMovements(
+        movements: SyncMovementInput[]
+    ): Promise<BulkSyncResult> {
+        return api
+            .post<ApiResponse<BulkSyncResult>>(endpoints.sync, { movements } as any)
+            .then((res) => res.data.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * GET /stock-movements/:id — Get single stock movement
+     */
+    async getStockMovement(movementId: string): Promise<StockMovement> {
+        return api
+            .get<StockMovementResponse>(endpoints.get(movementId))
+            .then((res) => res.data.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * POST /stock-movements/recalculate/:inventoryId — Rebuild single item from movements
+     */
+    async recalculateInventory(inventoryId: string): Promise<void> {
+        return api
+            .post(endpoints.recalculate(inventoryId), {})
+            .then(() => undefined)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * POST /stock-movements/recalculate-branch — Rebuild all branch inventory
+     */
+    async recalculateBranch(): Promise<void> {
+        return api
+            .post(endpoints.recalculateBranch, {})
+            .then(() => undefined)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * @deprecated Use performStockCount instead
+     * POST /stock-movements/stock-count - Physical stock count
      */
     async performStockTake(payload: {
         tenantId: string;

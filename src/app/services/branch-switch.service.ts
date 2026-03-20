@@ -73,8 +73,9 @@ const branchSwitchService = {
      */
     async getAccessibleBranches(): Promise<Branch[]> {
         try {
-            const response = await api.get<ApiResponse<Branch[]>>(endpoints.accessibleBranches);
-            return response.data.data || [];
+            const response = await api.get<ApiResponse<any>>(endpoints.accessibleBranches);
+            const data = response.data.data;
+            return Array.isArray(data) ? data : (data?.branches || []);
         } catch (err) {
             console.error('Error fetching accessible branches:', err);
             throw err;

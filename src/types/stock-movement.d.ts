@@ -1,28 +1,45 @@
 /**
  * Stock Movement Types
- * Complete audit trail of all inventory changes
+ * Aligned with zonse247-pos-api v1.6.1
+ *
+ * GOLDEN RULE: Never update inventory directly — always record a stock movement.
+ * The Inventory table is a cache; movements are the source of truth.
  */
 
 /**
  * Stock movement types
  */
 type StockMovementType =
-    | 'PURCHASE_RECEIPT'  // Goods received from supplier (IN +)
-    | 'SALE'              // Items sold to customer (OUT -)
-    | 'RETURN'            // Customer return / Sale void (IN +)
-    | 'ADJUSTMENT'        // Manual stock adjustment (IN/OUT ±)
-    | 'TRANSFER_IN'       // Transfer from another branch (IN +)
-    | 'TRANSFER_OUT'      // Transfer to another branch (OUT -)
-    | 'DAMAGE'            // Items marked as damaged
-    | 'EXPIRY'            // Expired items removed (OUT -)
-    | 'STOCK_TAKE'        // Physical stock count adjustment (±)
-    | 'PRODUCTION'        // Items produced/manufactured (IN +)
-    | 'CONSUMPTION';      // Items consumed in production (OUT -)
+    | 'PURCHASE_RECEIPT'
+    | 'SALE'
+    | 'RETURN'
+    | 'ADJUSTMENT'
+    | 'TRANSFER_IN'
+    | 'TRANSFER_OUT'
+    | 'DAMAGE'
+    | 'EXPIRY'
+    | 'OPENING_BALANCE'
+    | 'RETURN_TO_SUPPLIER';
 
 /**
- * Stock movement direction
+ * Stock reference types
+ */
+type StockReferenceType =
+    | 'PURCHASE_ORDER'
+    | 'GOODS_RECEIPT'
+    | 'SALE'
+    | 'RETURN'
+    | 'ADJUSTMENT'
+    | 'TRANSFER'
+    | 'OPENING_BALANCE'
+    | 'SUPPLIER_RETURN';
+
+/**
+ * @deprecated Use StockMovementType direction semantics instead
  */
 type StockMovementDirection = 'IN' | 'OUT' | 'ADJUSTMENT';
+
+// ─── Core Entity ───────────────────────────────────────────────────────────
 
 /**
  * Stock movement entity
@@ -31,59 +48,171 @@ interface StockMovement {
     id: string;
     tenantId: string;
     branchId: string;
+    terminalId?: string | null;
 
-    // Product reference
-    productId: string;
-    variantId?: string; // Variant ID for variant-level tracking
-    inventoryId?: string; // Inventory record ID
-    product?: Product; // Populated in responses
-    variant?: ProductVariant; // Populated in responses
+    // Inventory reference
+    inventoryId: string;
 
     // Movement details
     movementType: StockMovementType;
-    direction: StockMovementDirection;
-    quantity: number; // Always positive, direction determines IN/OUT
+    quantity: number; // Always positive, type determines direction
 
     // Inventory impact
-    previousQuantity: number;        // Stock before movement
-    newQuantity: number;             // Stock after movement
-    previousAvailableQuantity?: number;
-    newAvailableQuantity?: number;
-    previousDamagedQuantity?: number;
-    newDamagedQuantity?: number;
+    previousQuantity: number;
+    newQuantity: number;
+
+    // Reference
+    referenceType?: StockReferenceType | null;
+    referenceId?: string | null;
 
     // Cost tracking
     unitCost: number;
-    totalCost: number; // quantity * unitCost
+    totalCost: number; // quantity × unitCost
 
-    // References
-    referenceType?: 'PURCHASE_ORDER' | 'SALE' | 'TRANSFER' | 'ADJUSTMENT' | 'STOCK_TAKE';
-    referenceId?: string; // ID of related PO, Sale, Transfer, etc.
-    referenceNumber?: string; // Human-readable reference (PO-202601-0001, SALE-20260105-00001)
+    // Notes
+    notes?: string | null;
 
-    // Location tracking
-    fromBranchId?: string; // For transfers
-    toBranchId?: string;   // For transfers
-    warehouseLocation?: string; // Bin/shelf location
+    // User who performed the movement
+    movedBy: string;
 
     // Movement date
     movementDate: Date | string;
 
-    // User who performed the movement
-    performedBy: string;
-    performedByUser?: User; // Populated in responses
-
-    // Notes and reason
-    notes?: string;
-    reason?: string;
-
     // Audit
     createdAt: Date | string;
-    updatedAt: Date | string;
+
+    // Relations (populated in responses)
+    inventory?: {
+        variant: {
+            id: string;
+            sku: string;
+        } | null;
+        product: {
+            id: string;
+            name: string;
+        } | null;
+    };
+
+    /**
+     * @deprecated Use inventoryId / inventory instead
+     */
+    productId?: string;
+    variantId?: string;
+    product?: Product;
+    variant?: ProductVariant;
+    direction?: 'IN' | 'OUT' | 'ADJUSTMENT';
+    previousAvailableQuantity?: number;
+    newAvailableQuantity?: number;
+    previousDamagedQuantity?: number;
+    newDamagedQuantity?: number;
+    referenceNumber?: string;
+    fromBranchId?: string;
+    toBranchId?: string;
+    warehouseLocation?: string;
+    performedBy?: string;
+    performedByUser?: any;
+    reason?: string;
+    updatedAt?: Date | string;
+}
+
+// ─── Input Payloads ────────────────────────────────────────────────────────
+
+/**
+ * Create stock movement input
+ */
+interface CreateStockMovementInput {
+    id?: string;
+    tenantId: string;
+    branchId: string;
+    terminalId?: string | null;
+    inventoryId: string;
+    movementType: StockMovementType;
+    quantity: number;
+    referenceType?: StockReferenceType | null;
+    referenceId?: string | null;
+    unitCost: number;
+    notes?: string | null;
+    movedBy: string;
+    movementDate?: Date | string;
 }
 
 /**
- * Create stock movement payload
+ * Record movement with upsert (creates inventory if not exists)
+ */
+interface RecordMovementWithUpsertInput {
+    tenantId: string;
+    branchId: string;
+    terminalId?: string | null;
+    variantId: string;
+    productId?: string;
+    movementType: StockMovementType;
+    quantity: number;
+    referenceType?: StockReferenceType | null;
+    referenceId?: string | null;
+    unitCost: number;
+    notes?: string | null;
+    movedBy: string;
+    movementDate?: Date | string;
+}
+
+/**
+ * API-based movement recording (simplified)
+ */
+interface RecordMovementAPIInput {
+    variantId?: string;
+    inventoryId?: string;
+    movementType: StockMovementType;
+    quantity: number;
+    referenceType?: StockReferenceType | null;
+    referenceId?: string | null;
+    unitCost?: number;
+    notes?: string | null;
+}
+
+/**
+ * Sync movement input (offline terminal)
+ */
+interface SyncMovementInput {
+    id: string;
+    tenantId: string;
+    branchId: string;
+    terminalId: string;
+    inventoryId?: string;
+    variantId?: string;
+    productId?: string;
+    movementType: StockMovementType;
+    quantity: number;
+    previousQuantity: number;
+    newQuantity: number;
+    referenceType?: StockReferenceType | null;
+    referenceId?: string | null;
+    unitCost: number;
+    totalCost: number;
+    notes?: string | null;
+    movedBy: string;
+    movementDate: Date | string;
+    createdAt: Date | string;
+}
+
+/**
+ * Bulk sync result
+ */
+interface BulkSyncResult {
+    success: boolean;
+    processed: number;
+    inserted: number;
+    skipped: number;
+    errors: Array<{
+        movementId: string;
+        error: string;
+    }>;
+    inventoriesRecalculated: number;
+}
+
+// ─── Legacy Payloads (backward compat) ─────────────────────────────────────
+
+/**
+ * @deprecated Use CreateStockMovementInput
  */
 interface CreateStockMovementPayload {
     tenantId: string;
@@ -100,6 +229,50 @@ interface CreateStockMovementPayload {
     reason?: string;
     movementDate?: Date | string;
 }
+
+/**
+ * Stock adjustment payload
+ * API: POST /stock-movements/adjust
+ * Accepts: { inventoryId, quantity (signed: +add / -subtract), unitCost?, notes? }
+ * Auth provides tenantId, branchId, and performedBy automatically.
+ */
+interface StockAdjustmentPayload {
+    inventoryId: string;
+    quantity: number;
+    unitCost?: number;
+    notes?: string;
+}
+
+/**
+ * Damage stock payload
+ * API: POST /stock-movements/damage
+ * Accepts: { inventoryId, quantity, unitCost?, notes? }
+ */
+interface DamageStockPayload {
+    inventoryId: string;
+    quantity: number;
+    unitCost?: number;
+    notes?: string;
+}
+
+/**
+ * Transfer stock payload
+ * API: POST /stock-movements/transfer
+ * Full API: { sourceInventoryId, destinationBranchId, destinationInventoryId, quantity, unitCost?, transferId, notes? }
+ * NOTE: This type retains the simplified shape used by the frontend hook/modal.
+ * The hook should map these fields to the API contract before sending.
+ */
+interface TransferStockPayload {
+    tenantId: string;
+    fromBranchId: string;
+    toBranchId: string;
+    productId: string;
+    quantity: number;
+    notes?: string;
+    performedBy: string;
+}
+
+// ─── Query & Response ──────────────────────────────────────────────────────
 
 /**
  * Stock movement list query
@@ -155,45 +328,4 @@ interface StockMovementSummary {
     movementCount: number;
     averageCost: number;
     totalValue: number;
-}
-
-/**
- * Stock adjustment payload
- */
-interface StockAdjustmentPayload {
-    tenantId: string;
-    branchId: string;
-    productId: string;
-    adjustmentType: 'ADD' | 'SUBTRACT' | 'SET';
-    quantity: number; // For SET, this is the new total quantity
-    reason: string;
-    notes?: string;
-    performedBy: string;
-}
-
-/**
- * Damage stock payload
- */
-interface DamageStockPayload {
-    tenantId: string;
-    branchId: string;
-    productId: string;
-    quantity: number;
-    reason: string;
-    notes?: string;
-    performedBy: string;
-    referenceId?: string; // Related PO or other reference
-}
-
-/**
- * Transfer stock payload
- */
-interface TransferStockPayload {
-    tenantId: string;
-    fromBranchId: string;
-    toBranchId: string;
-    productId: string;
-    quantity: number;
-    notes?: string;
-    performedBy: string;
 }

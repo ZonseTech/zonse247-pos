@@ -5,6 +5,7 @@ import branchService from '../../../services/branch.service';
 import { FunctionComponent, useState, useEffect } from 'react';
 import subscriptionPlanService from '../../../services/subscription-plan.service';
 import subscriptionService from '../../../services/subscriptions.service';
+import { getErrorMessage } from '../../../utils/api-error-handler';
 
 interface SubscribeBranchModalProps {
     isOpen: boolean;
@@ -73,7 +74,7 @@ const SubscribeBranchModal: FunctionComponent<SubscribeBranchModalProps> = ({
             handleClose();
         } catch (error: any) {
             console.error('Error subscribing branch:', error);
-            const message = error?.response?.data?.message || 'Failed to subscribe branch';
+            const message = getErrorMessage(error, 'Failed to subscribe branch');
             Notify.failure(message);
         } finally {
             setSubmitting(false);

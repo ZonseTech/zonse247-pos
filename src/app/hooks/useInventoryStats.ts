@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { getErrorMessage } from '../utils/api-error-handler';
 import inventoryService, {
     InventoryOverview,
     TopValueItem,
@@ -54,7 +55,7 @@ export const useInventoryStats = (
             setError(null);
             return overview;
         } catch (err: any) {
-            const message = err?.response?.data?.message || 'Failed to fetch inventory overview';
+            const message = getErrorMessage(err, 'Failed to fetch inventory overview');
             setError(message);
             console.error('Error fetching inventory overview:', err);
             return null;
@@ -71,7 +72,7 @@ export const useInventoryStats = (
             setError(null);
             return items;
         } catch (err: any) {
-            const message = err?.response?.data?.message || 'Failed to fetch top value items';
+            const message = getErrorMessage(err, 'Failed to fetch top value items');
             setError(message);
             console.error('Error fetching top value items:', err);
             return [];
@@ -88,7 +89,7 @@ export const useInventoryStats = (
             setError(null);
             return summary;
         } catch (err: any) {
-            const message = err?.response?.data?.message || 'Failed to fetch inventory summary';
+            const message = getErrorMessage(err, 'Failed to fetch inventory summary');
             setError(message);
             console.error('Error fetching inventory summary:', err);
             return null;
@@ -105,7 +106,7 @@ export const useInventoryStats = (
             setError(null);
             return count;
         } catch (err: any) {
-            const message = err?.response?.data?.message || 'Failed to fetch inventory count';
+            const message = getErrorMessage(err, 'Failed to fetch inventory count');
             setError(message);
             console.error('Error fetching inventory count:', err);
             return null;
@@ -137,7 +138,7 @@ export const useInventoryStats = (
                 count,
             });
         } catch (err: any) {
-            const message = err?.response?.data?.message || 'Failed to fetch inventory stats';
+            const message = getErrorMessage(err, 'Failed to fetch inventory stats');
             setError(message);
             toast.error(message);
         } finally {

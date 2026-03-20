@@ -5,6 +5,7 @@ import { X, Wifi, Usb, Bluetooth, Network, Star, Trash2, Power, TestTube, FileTe
 import { Button, FormSearchableSelect, FormFieldCard, TabOptionGroup, FormSwitch } from '../../../components';
 import printerService from '../../../services/printer.service';
 import MobilePageHeader from '../../../components/page/MobilePageHeader';
+import { getErrorMessage } from '../../../utils/api-error-handler';
 
 interface PrinterDetailModalProps {
     isOpen: boolean;
@@ -93,7 +94,7 @@ const PrinterDetailModal: FunctionComponent<PrinterDetailModalProps> = ({
             onSave();
             onClose();
         } catch (e: any) {
-            const errorMessage = e?.error?.response?.data?.message || e?.response?.data?.message || e?.message || 'Failed to update printer';
+            const errorMessage = getErrorMessage(e, 'Failed to update printer');
             Notify.failure(errorMessage);
         } finally {
             setIsSaving(false);

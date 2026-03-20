@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Notify } from 'notiflix';
+import { getErrorMessage } from '../utils/api-error-handler';
 import printerService from '../services/printer.service';
 import { usePrinterStore } from '../store/printerStore';
 
@@ -46,7 +47,7 @@ export const useCashDrawer = () => {
             await printerService.openCashDrawer(printerIdToUse);
             return true;
         } catch (err: any) {
-            const errorMessage = err?.response?.data?.message || err?.message || 'Failed to open cash drawer';
+            const errorMessage = getErrorMessage(err, 'Failed to open cash drawer');
             console.error('Cash drawer error:', errorMessage);
             Notify.failure(`Failed to open cash drawer: ${errorMessage}`);
             return false;

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import inventoryService from '../services/inventory.service';
 import { Confirm, Notify } from 'notiflix';
+import { getErrorMessage } from '../utils/api-error-handler';
 import { useAppDispatch, useAppSelector } from './redux';
 import { fetchCategories, setCategories } from '../store/slices/inventorySlice';
 
@@ -52,7 +53,7 @@ export const useInventoryManagement = () => {
                 setData([]);
             }
         } catch (error: any) {
-            toast.error("Error applying filters: " + error?.error?.response?.data?.message);
+            toast.error(getErrorMessage(error, "Error applying filters"));
             setInventory([]);
             setData([]);
         } finally {
@@ -93,7 +94,7 @@ export const useInventoryManagement = () => {
                 setData([]);
             }
         } catch (error: any) {
-            toast.error("Error loading inventory: " + error?.error?.response?.data?.message);
+            toast.error(getErrorMessage(error, "Error loading inventory"));
             setInventory([]);
             setData([]);
         } finally {
@@ -117,7 +118,7 @@ export const useInventoryManagement = () => {
                         loadInventory();
                     })
                     .catch((error) => {
-                        Notify.failure(`Failed to void item: ${error?.error?.response?.data?.message}`);
+                        Notify.failure(getErrorMessage(error, 'Failed to void item'));
                     })
                     .finally(() => {
                         setIsLoading(false);

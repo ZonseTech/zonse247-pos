@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Package, FolderInput, Edit3, Minus, Plus, Hash, ArrowLeft, X } from 'lucide-react';
+import { Package, FolderInput, Edit3, Minus, Plus, ClipboardCheck, ArrowLeft, X } from 'lucide-react';
+import { Notify } from 'notiflix';
 import { Button, Select, Label, Input } from '../../../components';
 import { useInventoryActions } from '../../../hooks/useInventoryActions';
 import { useIsEBN } from '../../../hooks/useMediaQuery';
-import type { AdjustInventoryPayload } from '../../../services/inventory.service';
+import stockMovementService from '../../../services/stock-movement.service';
+import { getErrorMessage } from '../../../utils/api-error-handler';
 
 interface BulkActionsModalProps {
     isOpen: boolean;
@@ -48,8 +50,8 @@ const ACTION_OPTIONS: ActionOption[] = [
     {
         type: 'adjust-quantity',
         icon: Package,
-        label: 'Adjust Qty',
-        description: 'Add, subtract, or set',
+        label: 'Adjust Stock',
+        description: 'Audited stock movement',
         color: 'text-green-500 dark:text-green-400',
         hoverBg: 'hover:bg-green-50 dark:hover:bg-green-900/20',
         hoverBorder: 'hover:border-green-500'
@@ -78,7 +80,7 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
     const [adjustmentReason, setAdjustmentReason] = useState('');
     const [bulkStatus, setBulkStatus] = useState('');
 
-    const { moveToCategory, bulkUpdate, adjustInventory, isLoading } = useInventoryActions();
+    const { moveToCategory, bulkUpdate, isLoading } = useInventoryActions();
 
     useEffect(() => {
         if (!isOpen) return;
@@ -141,23 +143,37 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
     const handleAdjustQuantity = async () => {
         const value = parseInt(adjustmentValue);
         if (isNaN(value) || value < 0) return;
+        // Reason is required for add/subtract
+        if (adjustmentType !== 'set' && !adjustmentReason.trim()) return;
         try {
-            const payload: AdjustInventoryPayload = {
-                adjustment: value,
-                type: adjustmentType,
-                reason: adjustmentReason || undefined
-            };
             for (const item of selectedItems) {
                 // Use the default variant ID for quantity adjustments
                 const defaultVariant = item.variants?.find(v => v.isDefault) || item.variants?.[0];
-                if (defaultVariant) {
-                    await adjustInventory(defaultVariant.id, payload);
+                const invId = defaultVariant?.inventory?.inventoryId;
+                if (defaultVariant && invId) {
+                    if (adjustmentType === 'set') {
+                        await stockMovementService.performStockCount({
+                            inventoryId: invId,
+                            actualQuantity: value,
+                            notes: adjustmentReason || undefined,
+                        });
+                    } else {
+                        const signedQty = adjustmentType === 'add' ? value : -value;
+                        await stockMovementService.adjustStock({
+                            inventoryId: invId,
+                            quantity: signedQty,
+                            notes: adjustmentReason || 'Bulk adjustment from inventory page',
+                        });
+                    }
                 }
             }
+            const actionText = adjustmentType === 'add' ? 'added' : adjustmentType === 'subtract' ? 'subtracted' : 'set';
+            Notify.success(`Quantity ${actionText} for ${selectedItems.length} item(s)`);
             onSuccess();
             handleClose();
-        } catch (error) {
-            console.error('Failed to adjust quantities:', error);
+        } catch (error: any) {
+            const msg = getErrorMessage(error, 'Failed to adjust quantities');
+            Notify.failure(msg);
         }
     };
 
@@ -165,9 +181,9 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
     const itemLabel = itemCount === 1 ? 'item' : 'items';
 
     const adjustmentButtons = [
-        { type: 'add' as const, icon: Plus, label: 'Add', activeClass: 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' },
-        { type: 'subtract' as const, icon: Minus, label: 'Sub', activeClass: 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' },
-        { type: 'set' as const, icon: Hash, label: 'Set', activeClass: 'border-sky-500 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400' }
+        { type: 'add' as const, icon: Plus, label: 'Add Stock', activeClass: 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' },
+        { type: 'subtract' as const, icon: Minus, label: 'Remove', activeClass: 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' },
+        { type: 'set' as const, icon: ClipboardCheck, label: 'Count', activeClass: 'border-sky-500 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400' }
     ];
 
     const renderActionContent = () => {
@@ -227,11 +243,13 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
 
             case 'adjust-quantity':
                 const multiVariantCount = selectedItems.filter(item => (item.variantCount ?? 1) > 1).length;
+                const isReasonRequired = adjustmentType !== 'set';
 
                 return (
                     <div className={baseSpacing}>
                         <p className={descriptionClass}>
-                            Adjust quantity for {itemCount} {itemLabel} (default variant).
+                            Record a stock movement for {itemCount} {itemLabel} (default variant).
+                            This creates an audit trail.
                         </p>
 
                         {multiVariantCount > 0 && (
@@ -265,24 +283,28 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
                         </div>
 
                         <div>
-                            <Label className={isEBN ? 'text-xs' : ''}>Quantity</Label>
+                            <Label className={isEBN ? 'text-xs' : ''}>{adjustmentType === 'set' ? 'Actual Quantity on Hand' : 'Quantity'}</Label>
                             <Input
                                 type="number"
                                 min="0"
                                 value={adjustmentValue}
                                 onChange={(e) => setAdjustmentValue(e.target.value)}
-                                placeholder="Enter quantity"
+                                placeholder={adjustmentType === 'set' ? 'Enter counted quantity' : 'Enter quantity'}
                                 className={`mt-1.5 w-full ${isEBN ? 'text-xs' : ''}`}
                             />
                         </div>
 
                         <div>
-                            <Label className={isEBN ? 'text-xs' : ''}>Reason (optional)</Label>
+                            <Label className={isEBN ? 'text-xs' : ''}>
+                                Reason {isReasonRequired ? <span className="text-red-500">*</span> : '(optional)'}
+                            </Label>
                             <Input
                                 type="text"
                                 value={adjustmentReason}
                                 onChange={(e) => setAdjustmentReason(e.target.value)}
-                                placeholder="e.g., Stock count adjustment"
+                                placeholder={adjustmentType === 'add' ? 'e.g., Found stock, received donation'
+                                    : adjustmentType === 'subtract' ? 'e.g., Theft, breakage, expired'
+                                        : 'e.g., Physical stock count'}
                                 className={`mt-1.5 w-full ${isEBN ? 'text-xs' : ''}`}
                             />
                         </div>
@@ -323,7 +345,11 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
         const buttonConfig = {
             'move-category': { handler: handleMoveToCategory, disabled: !selectedCategoryId, label: 'Move' },
             'bulk-update': { handler: handleBulkUpdate, disabled: !bulkStatus, label: 'Update' },
-            'adjust-quantity': { handler: handleAdjustQuantity, disabled: !adjustmentValue, label: 'Adjust' }
+            'adjust-quantity': {
+                handler: handleAdjustQuantity,
+                disabled: !adjustmentValue || (adjustmentType !== 'set' && !adjustmentReason.trim()),
+                label: adjustmentType === 'set' ? 'Record Count' : 'Apply Adjustment'
+            }
         };
 
         if (!actionType) return null;

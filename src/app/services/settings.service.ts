@@ -11,6 +11,7 @@ import {
 	GroupedApiResponse
 } from '../pages/settings/constants/defaultValues';
 import { isElectron } from '../../helpers/index.helper';
+import { getErrorMessage } from '../utils/api-error-handler';
 
 const BASE_PATH = 'terminal-settings';
 
@@ -65,7 +66,7 @@ const getTerminalId = async (): Promise<string | null> => {
 		return null;
 	} catch (error: any) {
 		const axiosError = error?.error || error;
-		const apiMessage = axiosError?.response?.data?.message || axiosError?.message || 'Error getting terminal ID';
+		const apiMessage = getErrorMessage(axiosError, 'Error getting terminal ID');
 		throw new Error(apiMessage);
 	}
 };
@@ -91,8 +92,11 @@ const settingsService = {
 	 */
 	async getAllSettings(query: Record<string, any> = {}): Promise<SettingsApiResponse[]> {
 		return api
-			.get<ApiResponse<SettingsApiResponse[]>>(endpoints.base, query)
-			.then((res) => res.data.data || [])
+			.get<ApiResponse<any>>(endpoints.base, query)
+			.then((res) => {
+				const data = res.data.data;
+				return Array.isArray(data) ? data : (data?.terminalSettings || data?.settings || []);
+			})
 			.catch((err) => {
 				throw err;
 			});

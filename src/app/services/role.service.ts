@@ -20,8 +20,14 @@ const roleService = {
 
     async list(): Promise<ApiResponse<Array<Role>>> {
         return api
-            .get<ApiResponse<Array<Role>>>(roleEndpoints.all)
-            .then((res) => res.data)
+            .get<ApiResponse<any>>(roleEndpoints.all)
+            .then((res) => {
+                const response = res.data;
+                if (response.data && !Array.isArray(response.data)) {
+                    response.data = response.data.roles || [];
+                }
+                return response;
+            })
             .catch((err) => {
                 throw err;
             });
@@ -65,8 +71,13 @@ const roleService = {
 
     async getByTenantUuid(tenantUuid: string): Promise<Array<Role>> {
         return api
-            .get<Role[]>(`${roleEndpoints.tenant}/${tenantUuid}`)
-            .then((res) => res.data)
+            .get<any>(`${roleEndpoints.tenant}/${tenantUuid}`)
+            .then((res) => {
+                const data = res.data;
+                if (Array.isArray(data)) return data;
+                if (data?.data) return Array.isArray(data.data) ? data.data : (data.data.roles || []);
+                return [];
+            })
             .catch((err) => {
                 throw err;
             });
@@ -74,8 +85,13 @@ const roleService = {
 
     async getByBranchUuid(branchUuid: string): Promise<Array<Role>> {
         return api
-            .get<Role[]>(`${roleEndpoints.branch}/${branchUuid}`)
-            .then((res) => res.data)
+            .get<any>(`${roleEndpoints.branch}/${branchUuid}`)
+            .then((res) => {
+                const data = res.data;
+                if (Array.isArray(data)) return data;
+                if (data?.data) return Array.isArray(data.data) ? data.data : (data.data.roles || []);
+                return [];
+            })
             .catch((err) => {
                 throw err;
             });
@@ -83,8 +99,13 @@ const roleService = {
 
     async getSystemRoles(): Promise<Array<Role>> {
         return api
-            .get<Role[]>(roleEndpoints.system)
-            .then((res) => res.data)
+            .get<any>(roleEndpoints.system)
+            .then((res) => {
+                const data = res.data;
+                if (Array.isArray(data)) return data;
+                if (data?.data) return Array.isArray(data.data) ? data.data : (data.data.roles || []);
+                return [];
+            })
             .catch((err) => {
                 throw err;
             });
@@ -92,8 +113,13 @@ const roleService = {
 
     async getActiveRoles(): Promise<Array<Role>> {
         return api
-            .get<Role[]>(roleEndpoints.active)
-            .then((res) => res.data)
+            .get<any>(roleEndpoints.active)
+            .then((res) => {
+                const data = res.data;
+                if (Array.isArray(data)) return data;
+                if (data?.data) return Array.isArray(data.data) ? data.data : (data.data.roles || []);
+                return [];
+            })
             .catch((err) => {
                 throw err;
             });
@@ -119,8 +145,14 @@ const roleService = {
 
     async getRolePermissions(id: string): Promise<ApiResponse<Array<Role>>> {
         return api
-            .get<ApiResponse<Array<Role>>>(`${roleEndpoints.permissions}/${id}/permissions`)
-            .then((res) => res.data)
+            .get<ApiResponse<any>>(`${roleEndpoints.permissions}/${id}/permissions`)
+            .then((res) => {
+                const response = res.data;
+                if (response.data && !Array.isArray(response.data)) {
+                    response.data = response.data.permissions || response.data.roles || [];
+                }
+                return response;
+            })
             .catch((err) => {
                 throw err;
             });

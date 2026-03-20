@@ -7,6 +7,7 @@ import MobileTabPageHeader from '../../components/page/MobileTabPageHeader';
 import LoadingState from '../../components/loader/LoadingState';
 import reportsService, { ReportSummary } from '../../services/reports.service';
 import { toast } from 'react-toastify';
+import { getErrorMessage } from '../../utils/api-error-handler';
 import dayjs from 'dayjs';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
@@ -80,9 +81,8 @@ const MobileReport: React.FC = () => {
             setSummary(response);
             lastFetchKeyRef.current = currentFetchKey;
         } catch (err: any) {
-            const axiosError = err?.error || err;
-            const serverMessage = axiosError?.response?.data?.message || axiosError?.message || 'Failed to fetch report summary';
-            console.error('Error fetching report summary:', axiosError?.response?.data || axiosError);
+            const serverMessage = getErrorMessage(err, 'Failed to fetch report summary');
+            console.error('Error fetching report summary:', err);
             toast.error(serverMessage);
             setSummary(defaultSummary);
         } finally {

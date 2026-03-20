@@ -16,8 +16,9 @@ const branchService = {
 
     async list(query: BranchQueryParams = {}): Promise<Array<Branch>> {
         try {
-            const response = await api.get<ApiResponse<Array<Branch>>>(endpoints.all, query);
-            return decodeArrayStrings<Branch>(response.data.data || [], BRANCH_DECODE_FIELDS);
+            const response = await api.get<ApiResponse<{ branches: Array<Branch>; pagination?: any }>>(endpoints.all, query);
+            const data = response.data.data;
+            return decodeArrayStrings<Branch>(data?.branches || [], BRANCH_DECODE_FIELDS);
         } catch (err) {
             console.error('Error fetching branches:', err);
             throw err;
@@ -26,13 +27,15 @@ const branchService = {
 
     async listPaginated(query: BranchQueryParams = {}): Promise<PaginatedResponse<Branch>> {
         try {
-            const response = await api.get<PaginatedResponse<Branch>>(endpoints.all, {
+            const response = await api.get<ApiResponse<{ branches: Array<Branch>; pagination?: any }>>(endpoints.all, {
                 ...query,
                 paginated: true
             });
+            const data = response.data.data;
             return {
                 ...response.data,
-                data: decodeArrayStrings<Branch>(response.data.data || [], BRANCH_DECODE_FIELDS)
+                data: decodeArrayStrings<Branch>(data?.branches || [], BRANCH_DECODE_FIELDS),
+                pagination: data?.pagination
             };
         } catch (err) {
             console.error('Error fetching paginated branches:', err);

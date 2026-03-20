@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Notify } from 'notiflix';
+import { getErrorMessage } from '../utils/api-error-handler';
 import parkedSalesService from '../services/parked-sales.service';
 import { useAuth } from '../context/AuthProvider';
 
@@ -43,7 +44,7 @@ export const useParkedSales = () => {
             setParkedSalesCount(sales.length);
         } catch (err: any) {
             console.error('Error fetching parked sales:', err);
-            const errorMessage = err?.response?.data?.message || 'Failed to load parked sales';
+            const errorMessage = getErrorMessage(err, 'Failed to load parked sales');
             setError(errorMessage);
         } finally {
             setIsLoading(false);
@@ -98,7 +99,7 @@ export const useParkedSales = () => {
             return result;
         } catch (err: any) {
             console.error('Error parking sale:', err);
-            const errorMessage = err?.response?.data?.message || 'Failed to park sale';
+            const errorMessage = getErrorMessage(err, 'Failed to park sale');
             Notify.failure(errorMessage);
             return null;
         } finally {
@@ -131,7 +132,7 @@ export const useParkedSales = () => {
             return result;
         } catch (err: any) {
             console.error('Error resuming parked sale:', err);
-            const errorMessage = err?.response?.data?.message || 'Failed to resume parked sale';
+            const errorMessage = getErrorMessage(err, 'Failed to resume parked sale');
             Notify.failure(errorMessage);
             return null;
         } finally {
@@ -155,7 +156,7 @@ export const useParkedSales = () => {
             return true;
         } catch (err: any) {
             console.error('Error deleting parked sale:', err);
-            const errorMessage = err?.response?.data?.message || 'Failed to delete parked sale';
+            const errorMessage = getErrorMessage(err, 'Failed to delete parked sale');
             Notify.failure(errorMessage);
             return false;
         } finally {

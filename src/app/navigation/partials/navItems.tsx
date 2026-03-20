@@ -15,7 +15,7 @@ import {
     HiOutlineReceiptRefund,
     HiOutlineChartPie,
 } from 'react-icons/hi';
-import { RotateCcw, Package, Users as SuppliersIcon, ShoppingCart as POIcon, ArrowRightLeft, Settings } from 'lucide-react';
+import { RotateCcw, Package, Users as SuppliersIcon, ShoppingCart as POIcon, ClipboardList, ArrowRightLeft, Settings, FileBox, FileText, Wallet, Undo2, Receipt, BarChart3, DollarSign, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useAuth } from '../../context/AuthProvider';
@@ -62,8 +62,17 @@ const useNavItems = (): Array<NavItem> => {
         sales: <HiOutlinePresentationChartBar className="h-5 w-5" />,
         returns: <RotateCcw className="h-5 w-5" />,
         suppliers: <SuppliersIcon className="h-5 w-5" />,
+        purchase_requisitions: <ClipboardList className="h-5 w-5" />,
         purchase_orders: <POIcon className="h-5 w-5" />,
+        goods_receipts: <FileBox className="h-5 w-5" />,
+        supplier_invoices: <FileText className="h-5 w-5" />,
+        supplier_payments: <Wallet className="h-5 w-5" />,
+        supplier_returns: <Undo2 className="h-5 w-5" />,
+        credit_notes: <Receipt className="h-5 w-5" />,
         stock_movements: <ArrowRightLeft className="h-5 w-5" />,
+        inventory_valuation: <BarChart3 className="h-5 w-5" />,
+        cogs_profitability: <DollarSign className="h-5 w-5" />,
+        inventory_aging: <Clock className="h-5 w-5" />,
         users: <HiOutlineUsers className="h-5 w-5" />,
         role_permissions: <HiOutlineKey className="h-5 w-5" />,
         admin: <HiOutlineUserCircle className="h-5 w-5" />,
@@ -110,6 +119,16 @@ const useNavItems = (): Array<NavItem> => {
 
             items.push({
                 type: 'button',
+                color: 'bg-indigo-600 hover:bg-indigo-700',
+                iconColor: 'bg-indigo-700',
+                text: 'Requisitions',
+                icon: icons.purchase_requisitions,
+                group: 'inventory',
+                onClick: () => navigate(ROUTES.PURCHASE_REQUISITIONS),
+            });
+
+            items.push({
+                type: 'button',
                 color: 'bg-violet-600 hover:bg-violet-700',
                 iconColor: 'bg-violet-700',
                 text: 'Purchase Orders',
@@ -120,12 +139,92 @@ const useNavItems = (): Array<NavItem> => {
 
             items.push({
                 type: 'button',
+                color: 'bg-teal-600 hover:bg-teal-700',
+                iconColor: 'bg-teal-700',
+                text: 'Goods Receipts',
+                icon: icons.goods_receipts,
+                group: 'inventory',
+                onClick: () => navigate(ROUTES.GOODS_RECEIPTS),
+            });
+
+            items.push({
+                type: 'button',
+                color: 'bg-indigo-600 hover:bg-indigo-700',
+                iconColor: 'bg-indigo-700',
+                text: 'Supplier Invoices',
+                icon: icons.supplier_invoices,
+                group: 'inventory',
+                onClick: () => navigate(ROUTES.SUPPLIER_INVOICES),
+            });
+
+            items.push({
+                type: 'button',
+                color: 'bg-emerald-600 hover:bg-emerald-700',
+                iconColor: 'bg-emerald-700',
+                text: 'Supplier Payments',
+                icon: icons.supplier_payments,
+                group: 'inventory',
+                onClick: () => navigate(ROUTES.SUPPLIER_PAYMENTS),
+            });
+
+            items.push({
+                type: 'button',
+                color: 'bg-orange-600 hover:bg-orange-700',
+                iconColor: 'bg-orange-700',
+                text: 'Supplier Returns',
+                icon: icons.supplier_returns,
+                group: 'inventory',
+                onClick: () => navigate(ROUTES.SUPPLIER_RETURNS),
+            });
+
+            items.push({
+                type: 'button',
+                color: 'bg-teal-600 hover:bg-teal-700',
+                iconColor: 'bg-teal-700',
+                text: 'Credit Notes',
+                icon: icons.credit_notes,
+                group: 'inventory',
+                onClick: () => navigate(ROUTES.CREDIT_NOTES),
+            });
+
+            items.push({
+                type: 'button',
                 color: 'bg-fuchsia-600 hover:bg-fuchsia-700',
                 iconColor: 'bg-fuchsia-700',
                 text: 'Stock Movements',
                 icon: icons.stock_movements,
                 group: 'inventory',
                 onClick: () => navigate(ROUTES.STOCK_MOVEMENTS),
+            });
+
+            items.push({
+                type: 'button',
+                color: 'bg-emerald-600 hover:bg-emerald-700',
+                iconColor: 'bg-emerald-700',
+                text: 'Valuation',
+                icon: icons.inventory_valuation,
+                group: 'inventory',
+                onClick: () => navigate(ROUTES.INVENTORY_VALUATION),
+            });
+
+            items.push({
+                type: 'button',
+                color: 'bg-red-600 hover:bg-red-700',
+                iconColor: 'bg-red-700',
+                text: 'COGS & Profit',
+                icon: icons.cogs_profitability,
+                group: 'inventory',
+                onClick: () => navigate(ROUTES.COGS_PROFITABILITY),
+            });
+
+            items.push({
+                type: 'button',
+                color: 'bg-amber-600 hover:bg-amber-700',
+                iconColor: 'bg-amber-700',
+                text: 'Inventory Aging',
+                icon: icons.inventory_aging,
+                group: 'inventory',
+                onClick: () => navigate(ROUTES.INVENTORY_AGING),
             });
 
             items.push({
@@ -320,7 +419,14 @@ export const useMobileNavItems = (): Array<NavItem> => {
         staff: <HiOutlineUsers className="h-5 w-5" />,
         returns: <HiOutlineReceiptRefund className="h-5 w-5" />,
         procurement: <POIcon className="h-5 w-5" />,
+        supplier_invoices: <FileText className="h-5 w-5" />,
+        supplier_payments: <Wallet className="h-5 w-5" />,
+        supplier_returns: <Undo2 className="h-5 w-5" />,
+        credit_notes: <Receipt className="h-5 w-5" />,
         stock_movements: <ArrowRightLeft className="h-5 w-5" />,
+        inventory_valuation: <BarChart3 className="h-5 w-5" />,
+        cogs_profitability: <DollarSign className="h-5 w-5" />,
+        inventory_aging: <Clock className="h-5 w-5" />,
         subscription: <LucideSubscript className="h-5 w-5" />,
         tenants: <RiGroup3Line className="h-5 w-5" />,
         generalSettings: <Settings className="h-5 w-5" />,
@@ -397,12 +503,72 @@ export const useMobileNavItems = (): Array<NavItem> => {
     if (hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {
         items.push({
             type: 'button',
+            color: 'bg-indigo-500 hover:bg-indigo-600',
+            iconColor: 'bg-indigo-600',
+            text: 'Requisitions',
+            icon: icons.procurement,
+            group: 'misc',
+            onClick: () => navigate(ROUTES.PURCHASE_REQUISITIONS),
+        });
+
+        items.push({
+            type: 'button',
             color: 'bg-violet-500 hover:bg-violet-600',
             iconColor: 'bg-violet-600',
-            text: 'Procurement Management',
+            text: 'Purchase Orders',
             icon: icons.procurement,
             group: 'misc',
             onClick: () => navigate(ROUTES.PURCHASE_ORDERS),
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-teal-500 hover:bg-teal-600',
+            iconColor: 'bg-teal-600',
+            text: 'Goods Receipts',
+            icon: icons.procurement,
+            group: 'misc',
+            onClick: () => navigate(ROUTES.GOODS_RECEIPTS),
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-indigo-500 hover:bg-indigo-600',
+            iconColor: 'bg-indigo-600',
+            text: 'Supplier Invoices',
+            icon: icons.supplier_invoices,
+            group: 'misc',
+            onClick: () => navigate(ROUTES.SUPPLIER_INVOICES),
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-emerald-500 hover:bg-emerald-600',
+            iconColor: 'bg-emerald-600',
+            text: 'Supplier Payments',
+            icon: icons.supplier_payments,
+            group: 'misc',
+            onClick: () => navigate(ROUTES.SUPPLIER_PAYMENTS),
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-orange-500 hover:bg-orange-600',
+            iconColor: 'bg-orange-600',
+            text: 'Supplier Returns',
+            icon: icons.supplier_returns,
+            group: 'misc',
+            onClick: () => navigate(ROUTES.SUPPLIER_RETURNS),
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-teal-500 hover:bg-teal-600',
+            iconColor: 'bg-teal-600',
+            text: 'Credit Notes',
+            icon: icons.credit_notes,
+            group: 'misc',
+            onClick: () => navigate(ROUTES.CREDIT_NOTES),
         });
 
         items.push({
@@ -413,6 +579,36 @@ export const useMobileNavItems = (): Array<NavItem> => {
             icon: icons.stock_movements,
             group: 'misc',
             onClick: () => navigate(ROUTES.STOCK_MOVEMENTS),
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-emerald-500 hover:bg-emerald-600',
+            iconColor: 'bg-emerald-600',
+            text: 'Valuation',
+            icon: icons.inventory_valuation,
+            group: 'misc',
+            onClick: () => navigate(ROUTES.INVENTORY_VALUATION),
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-red-500 hover:bg-red-600',
+            iconColor: 'bg-red-600',
+            text: 'COGS & Profit',
+            icon: icons.cogs_profitability,
+            group: 'misc',
+            onClick: () => navigate(ROUTES.COGS_PROFITABILITY),
+        });
+
+        items.push({
+            type: 'button',
+            color: 'bg-amber-500 hover:bg-amber-600',
+            iconColor: 'bg-amber-600',
+            text: 'Inventory Aging',
+            icon: icons.inventory_aging,
+            group: 'misc',
+            onClick: () => navigate(ROUTES.INVENTORY_AGING),
         });
     }
 

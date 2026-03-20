@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Notify } from 'notiflix';
+import { getErrorMessage } from '../utils/api-error-handler';
 import { stockMovementService } from '../services';
 import { useSettings } from './useSettings';
 
@@ -7,8 +8,8 @@ import { useSettings } from './useSettings';
  * Helper to derive movement direction from movement type
  */
 const getDirectionFromType = (movementType: StockMovementType): StockMovementDirection => {
-    const inTypes: StockMovementType[] = ['PURCHASE_RECEIPT', 'RETURN', 'TRANSFER_IN', 'PRODUCTION'];
-    const outTypes: StockMovementType[] = ['SALE', 'TRANSFER_OUT', 'DAMAGE', 'EXPIRY', 'CONSUMPTION'];
+    const inTypes: StockMovementType[] = ['PURCHASE_RECEIPT', 'RETURN', 'TRANSFER_IN', 'OPENING_BALANCE'];
+    const outTypes: StockMovementType[] = ['SALE', 'TRANSFER_OUT', 'DAMAGE', 'EXPIRY', 'RETURN_TO_SUPPLIER'];
 
     if (inTypes.includes(movementType)) return 'IN';
     if (outTypes.includes(movementType)) return 'OUT';
@@ -121,7 +122,7 @@ export const useStockMovements = (productId?: string, variantId?: string) => {
                 setTotalRows(result.pagination?.total || (result.pagination as any)?.totalItems || 0);
             }
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to load stock movements');
+            Notify.failure(getErrorMessage(error, 'Failed to load stock movements'));
             console.error('Load movements error:', error);
             // Reset state on error
             setMovements([]);
@@ -142,7 +143,7 @@ export const useStockMovements = (productId?: string, variantId?: string) => {
             loadMovements();
             return movement;
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to adjust stock');
+            Notify.failure(getErrorMessage(error, 'Failed to adjust stock'));
             throw error;
         }
     }, [loadMovements]);
@@ -154,7 +155,7 @@ export const useStockMovements = (productId?: string, variantId?: string) => {
             loadMovements();
             return movement;
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to mark stock as damaged');
+            Notify.failure(getErrorMessage(error, 'Failed to mark stock as damaged'));
             throw error;
         }
     }, [loadMovements]);
@@ -166,7 +167,7 @@ export const useStockMovements = (productId?: string, variantId?: string) => {
             loadMovements();
             return result;
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to transfer stock');
+            Notify.failure(getErrorMessage(error, 'Failed to transfer stock'));
             throw error;
         }
     }, [loadMovements]);
@@ -191,10 +192,51 @@ export const useStockMovements = (productId?: string, variantId?: string) => {
             loadMovements();
             return movement;
         } catch (error: any) {
-            Notify.failure(error?.response?.data?.message || 'Failed to perform stock take');
+            Notify.failure(getErrorMessage(error, 'Failed to perform stock take'));
             throw error;
         }
     }, [tenantId, branchId, userId, loadMovements]);
+
+    /**
+     * POST /stock-movements/stock-count — physical count reconciliation
+     */
+    const performStockCount = useCallback(async (payload: {
+        inventoryId: string;
+        actualQuantity: number;
+        unitCost?: number;
+        notes?: string;
+    }) => {
+        try {
+            const result = await stockMovementService.performStockCount(payload);
+            Notify.success('Stock count reconciliation completed');
+            loadMovements();
+            return result;
+        } catch (error: any) {
+            Notify.failure(getErrorMessage(error, 'Failed to reconcile stock count'));
+            throw error;
+        }
+    }, [loadMovements]);
+
+    /**
+     * POST /stock-movements/expiry — record expired stock
+     */
+    const recordExpiry = useCallback(async (payload: {
+        inventoryId: string;
+        quantity: number;
+        unitCost?: number;
+        expiryDate?: string;
+        notes?: string;
+    }) => {
+        try {
+            const result = await stockMovementService.recordExpiry(payload);
+            Notify.success('Expired stock recorded');
+            loadMovements();
+            return result;
+        } catch (error: any) {
+            Notify.failure(getErrorMessage(error, 'Failed to record expiry'));
+            throw error;
+        }
+    }, [loadMovements]);
 
     return {
         movements,
@@ -215,5 +257,10 @@ export const useStockMovements = (productId?: string, variantId?: string) => {
         damageStock,
         transferStock,
         performStockTake,
+        performStockCount,
+        recordExpiry,
+        tenantId,
+        branchId,
+        userId,
     };
 };

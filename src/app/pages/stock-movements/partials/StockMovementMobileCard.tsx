@@ -23,7 +23,7 @@ interface StockMovementMobileCardProps {
     index?: number;
 }
 
-const typeConfig: Record<StockMovementType, {
+const typeConfig: Record<string, {
     color: string;
     bgColor: string;
     borderColor: string;
@@ -77,23 +77,17 @@ const typeConfig: Record<StockMovementType, {
         borderColor: 'border-gray-200 dark:border-gray-600',
         label: 'Expiry'
     },
-    STOCK_TAKE: {
+    OPENING_BALANCE: {
         color: 'text-indigo-600 dark:text-indigo-400',
         bgColor: 'bg-indigo-50 dark:bg-indigo-900/20',
         borderColor: 'border-indigo-200 dark:border-indigo-800',
-        label: 'Stock Take'
+        label: 'Opening Balance'
     },
-    PRODUCTION: {
+    RETURN_TO_SUPPLIER: {
         color: 'text-teal-600 dark:text-teal-400',
         bgColor: 'bg-teal-50 dark:bg-teal-900/20',
         borderColor: 'border-teal-200 dark:border-teal-800',
-        label: 'Production'
-    },
-    CONSUMPTION: {
-        color: 'text-cyan-600 dark:text-cyan-400',
-        bgColor: 'bg-cyan-50 dark:bg-cyan-900/20',
-        borderColor: 'border-cyan-200 dark:border-cyan-800',
-        label: 'Consumption'
+        label: 'Supplier Return'
     },
 };
 

@@ -283,7 +283,7 @@ const printerService = {
 		return api
 			.get<PrinterListResponse>(`${endpoints.byTerminal}/${terminalId}`)
 			.then((res) =>
-				decodeArrayStrings<Printer>(res.data.data || [], PRINTER_DECODE_FIELDS),
+				decodeArrayStrings<Printer>(res.data.data?.printers || [], PRINTER_DECODE_FIELDS),
 			)
 			.catch((err) => {
 				console.error('Error fetching printers by terminal:', err);

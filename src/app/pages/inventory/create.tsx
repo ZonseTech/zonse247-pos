@@ -1,4 +1,5 @@
 import { Notify, Report, Confirm } from 'notiflix';
+import { parseApiError, mapErrorToFormikErrors, formatFieldErrorsMessage } from '../../utils/api-error-handler';
 import { useState, useEffect, FunctionComponent } from 'react';
 import inventoryService from '../../services/inventory.service';
 import { OfflinePlaceholder } from '../../components';
@@ -37,12 +38,9 @@ const InventoryForm: FunctionComponent = () => {
                 } catch (error: any) {
                     console.error('Error fetching inventory item:', error);
 
-                    const responseData = error?.error?.response?.data || error?.response?.data;
-                    const statusCode = error?.error?.response?.status || error?.response?.status;
-                    const mainMessage = responseData?.message || 'Failed to fetch inventory item';
-                    const detailedError = responseData?.error;
+                    const parsed = parseApiError(error);
 
-                    if (statusCode === 404) {
+                    if (parsed.statusCode === 404) {
                         Report.failure(
                             'Item Not Found',
                             'The inventory item you are trying to edit was not found.',
@@ -50,10 +48,7 @@ const InventoryForm: FunctionComponent = () => {
                             () => { }
                         );
                     } else {
-                        const fullErrorMessage = detailedError
-                            ? `${mainMessage}:\n${detailedError}`
-                            : mainMessage;
-                        Notify.failure(fullErrorMessage);
+                        Notify.failure(parsed.message);
                     }
                 } finally {
                     setLoading(false);
@@ -125,40 +120,18 @@ const InventoryForm: FunctionComponent = () => {
                 );
             }
         } catch (error: any) {
-            const responseData = error?.error?.response?.data || error?.response?.data;
-            const mainMessage = responseData?.message || error?.message || 'Failed to save inventory item';
-            const detailedError = responseData?.error;
-            const fieldErrors = responseData?.data;
+            const parsed = parseApiError(error);
 
-            let fieldErrorsMessage = '';
-            if (fieldErrors && typeof fieldErrors === 'object' && !Array.isArray(fieldErrors)) {
-                fieldErrorsMessage = Object.entries(fieldErrors)
-                    .map(([field, message]) => `• ${field}: ${message}`)
-                    .join('\n');
-
-                const formErrors: Record<string, string> = {};
-                Object.entries(fieldErrors).forEach(([field, message], index) => {
-                    const fieldMapping: Record<string, string> = {
-                        'sellingPrice': `variants.${index}.sellingPrice`,
-                        'costPrice': `variants.${index}.costPrice`,
-                        'barcode': `variants.${index}.barcode`,
-                        'primaryBarcode': `variants.${index}.barcode`,
-                        'sku': `variants.${index}.sku`,
-                        'quantity': `variants.${index}.quantity`,
-                        'minStock': `variants.${index}.minStock`,
-                        'maxStock': `variants.${index}.maxStock`,
-                        'reorderLevel': `variants.${index}.reorderLevel`,
-                    };
-                    const formField = fieldMapping[field] || field;
-                    formErrors[formField] = message as string;
-                });
-                setErrors(formErrors);
+            // Set field-level errors in Formik if available
+            const formikFieldErrors = mapErrorToFormikErrors(error);
+            if (Object.keys(formikFieldErrors).length > 0) {
+                setErrors(formikFieldErrors);
             }
 
-            let fullErrorMessage = mainMessage;
-            if (detailedError) {
-                fullErrorMessage += `:\n${detailedError}`;
-            } else if (fieldErrorsMessage) {
+            // Build display message
+            const fieldErrorsMessage = formatFieldErrorsMessage(parsed.errors);
+            let fullErrorMessage = parsed.message;
+            if (fieldErrorsMessage) {
                 fullErrorMessage += `:\n${fieldErrorsMessage}`;
             }
 

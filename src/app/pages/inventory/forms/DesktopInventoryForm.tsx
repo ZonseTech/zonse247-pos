@@ -184,156 +184,157 @@ const DesktopInventoryForm: FunctionComponent<DesktopInventoryFormProps> = ({
                                             className='uppercase'
                                         />
 
-                                    <CategorySearch
-                                        value={values.categoryId || ''}
-                                        onChange={(categoryId) => setFieldValue('categoryId', categoryId)}
-                                        error={errors.categoryId as string}
-                                        touched={touched.categoryId as boolean}
-                                    />
+                                        <CategorySearch
+                                            value={values.categoryId || ''}
+                                            onChange={(categoryId) => setFieldValue('categoryId', categoryId)}
+                                            error={errors.categoryId as string}
+                                            touched={touched.categoryId as boolean}
+                                        />
 
-                                    <FormSelectBox
-                                        label="Sell by Unit"
-                                        name="unit"
-                                        options={unitOptions}
-                                    />
-                                </div>
-                            </FormFieldCard>
-
-                            {!productId && (
-                                <div className="flex justify-center">
-                                    <ToggleButtonGroup<FormMode>
-                                        options={formModeOptions}
-                                        value={formMode}
-                                        onChange={(value) => setFormMode(value)}
-                                    />
-                                </div>
-                            )}
-
-                            {formMode === 'simple' ? (
-                                <FormFieldCard title="Pricing & Stock">
-                                    <PricingFields fieldPrefix="variants.0" showTrackProfit={true} />
+                                        <FormSelectBox
+                                            label="Sell by Unit"
+                                            name="unit"
+                                            options={unitOptions}
+                                        />
+                                    </div>
                                 </FormFieldCard>
-                            ) : (
-                                <FormFieldCard title="Variants">
-                                    <div className="space-y-3">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                            {values.variants.map((variant, index) => (
-                                                <VariantCard
-                                                    key={variant.id || index}
-                                                    variant={variant}
-                                                    index={index}
-                                                    onClick={() => handleOpenVariantModal(index)}
-                                                />
+
+                                {!productId && (
+                                    <div className="flex justify-center">
+                                        <ToggleButtonGroup<FormMode>
+                                            options={formModeOptions}
+                                            value={formMode}
+                                            onChange={(value) => setFormMode(value)}
+                                        />
+                                    </div>
+                                )}
+
+                                {formMode === 'simple' ? (
+                                    <FormFieldCard title="Pricing & Stock">
+                                        <PricingFields fieldPrefix="variants.0" showTrackProfit={true} />
+                                    </FormFieldCard>
+                                ) : (
+                                    <FormFieldCard title="Variants">
+                                        <div className="space-y-3">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                {values.variants.map((variant, index) => (
+                                                    <VariantCard
+                                                        key={variant.id || index}
+                                                        variant={variant}
+                                                        index={index}
+                                                        onClick={() => handleOpenVariantModal(index)}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <div className="flex justify-center pt-2">
+                                                <Button
+                                                    type="button"
+                                                    theme="primary"
+                                                    onClick={handleOpenAddVariantModal}
+                                                >
+                                                    <PlusIcon className="w-4 h-4 mr-2" />
+                                                    Add Variant
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </FormFieldCard>
+                                )}
+
+                                {/* Stock Movement History - Only show when editing existing product */}
+                                {productId && item && item.variants && item.variants.length > 0 && (
+                                    <FormFieldCard title="Stock Movement History">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                            {item.variants.map((variant) => (
+                                                <button
+                                                    key={variant.id}
+                                                    type="button"
+                                                    onClick={() => setMovementModalVariant(variant)}
+                                                    className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-900/20 hover:border-sky-300 dark:hover:border-sky-700 transition-colors text-left"
+                                                >
+                                                    <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
+                                                        <History className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                            {variant.variantName}
+                                                        </p>
+                                                        {variant.sku && (
+                                                            <p className="text-xs text-gray-500 dark:text-gray-400 font-mono truncate">
+                                                                {variant.sku}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </button>
                                             ))}
                                         </div>
-                                        <div className="flex justify-center pt-2">
-                                            <Button
-                                                type="button"
-                                                theme="primary"
-                                                onClick={handleOpenAddVariantModal}
-                                            >
-                                                <PlusIcon className="w-4 h-4 mr-2" />
-                                                Add Variant
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </FormFieldCard>
-                            )}
+                                    </FormFieldCard>
+                                )}
 
-                            {/* Stock Movement History - Only show when editing existing product */}
-                            {productId && item && item.variants && item.variants.length > 0 && (
-                                <FormFieldCard title="Stock Movement History">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                        {item.variants.map((variant) => (
-                                            <button
-                                                key={variant.id}
-                                                type="button"
-                                                onClick={() => setMovementModalVariant(variant)}
-                                                className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-900/20 hover:border-sky-300 dark:hover:border-sky-700 transition-colors text-left"
-                                            >
-                                                <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
-                                                    <History className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                                        {variant.variantName}
-                                                    </p>
-                                                    {variant.sku && (
-                                                        <p className="text-xs text-gray-500 dark:text-gray-400 font-mono truncate">
-                                                            {variant.sku}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            </button>
-                                        ))}
-                                    </div>
-                                </FormFieldCard>
-                            )}
+                                <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
+                                    <Button
+                                        type="button"
+                                        theme="danger"
+                                        onClick={() => navigate(ROUTES.INVENTORY)}
+                                        disabled={isSubmitting || loading}
+                                    >
+                                        <X className="w-4 h-4 mr-2" />
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        theme="success"
+                                        disabled={isSubmitting || loading}
+                                    >
+                                        {isSubmitting || loading ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                Saving...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <CheckCircle2 className="w-4 h-4 mr-2" />
+                                                {productId ? 'Update Item' : 'Create Item'}
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
 
-                            <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
-                                <Button
-                                    type="button"
-                                    theme="danger"
-                                    onClick={() => navigate(ROUTES.INVENTORY)}
-                                    disabled={isSubmitting || loading}
-                                >
-                                    <X className="w-4 h-4 mr-2" />
-                                    Cancel
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    theme="success"
-                                    disabled={isSubmitting || loading}
-                                >
-                                    {isSubmitting || loading ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                            Saving...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <CheckCircle2 className="w-4 h-4 mr-2" />
-                                            {productId ? 'Update Item' : 'Create Item'}
-                                        </>
-                                    )}
-                                </Button>
-                            </div>
-
-                            <VariantModal
-                                isOpen={isVariantModalOpen}
-                                onClose={() => {
-                                    setIsVariantModalOpen(false);
-                                    if (isNewVariant) {
-                                        setNewVariantData(createDefaultVariant());
-                                    }
-                                }}
-                                variantIndex={editingVariantIndex}
-                                onSave={() => {
-                                    if (isNewVariant) {
-                                        handleSaveNewVariant(setFieldValue, values.variants);
-                                    }
-                                }}
-                                onDelete={() => handleDeleteVariant(setFieldValue, values.variants, editingVariantIndex)}
-                                isNewVariant={isNewVariant}
-                                newVariantData={isNewVariant ? newVariantData : undefined}
-                                onNewVariantChange={isNewVariant ? setNewVariantData : undefined}
-                            />
-
-                            {/* Stock Movement Modal */}
-                            {movementModalVariant && item && (
-                                <StockMovementModal
-                                    isOpen={!!movementModalVariant}
-                                    onClose={() => setMovementModalVariant(null)}
-                                    variantId={movementModalVariant.id}
-                                    variantName={movementModalVariant.variantName}
-                                    productName={item.name}
-                                    sku={movementModalVariant.sku}
+                                <VariantModal
+                                    isOpen={isVariantModalOpen}
+                                    onClose={() => {
+                                        setIsVariantModalOpen(false);
+                                        if (isNewVariant) {
+                                            setNewVariantData(createDefaultVariant());
+                                        }
+                                    }}
+                                    variantIndex={editingVariantIndex}
+                                    onSave={() => {
+                                        if (isNewVariant) {
+                                            handleSaveNewVariant(setFieldValue, values.variants);
+                                        }
+                                    }}
+                                    onDelete={() => handleDeleteVariant(setFieldValue, values.variants, editingVariantIndex)}
+                                    isNewVariant={isNewVariant}
+                                    isEditing={!!productId}
+                                    newVariantData={isNewVariant ? newVariantData : undefined}
+                                    onNewVariantChange={isNewVariant ? setNewVariantData : undefined}
                                 />
-                            )}
-                        </div>
-                    </Form>
-                )}
-            </Formik>
+
+                                {/* Stock Movement Modal */}
+                                {movementModalVariant && item && (
+                                    <StockMovementModal
+                                        isOpen={!!movementModalVariant}
+                                        onClose={() => setMovementModalVariant(null)}
+                                        variantId={movementModalVariant.id}
+                                        variantName={movementModalVariant.variantName}
+                                        productName={item.name}
+                                        sku={movementModalVariant.sku}
+                                    />
+                                )}
+                            </div>
+                        </Form>
+                    )}
+                </Formik>
             </div>
         </AppLayout>
     );

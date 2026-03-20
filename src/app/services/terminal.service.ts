@@ -24,8 +24,8 @@ const terminalService = {
 
     async list(query: TerminalQueryParams = {}): Promise<Array<Terminal>> {
         try {
-            const response = await api.get<ApiResponse<Array<Terminal>>>(endpoints.all, query);
-            return decodeArrayStrings<Terminal>(response.data.data || [], TERMINAL_DECODE_FIELDS);
+            const response = await api.get<ApiResponse<{ terminals: Array<Terminal>; pagination?: any }>>(endpoints.all, query);
+            return decodeArrayStrings<Terminal>(response.data.data?.terminals || [], TERMINAL_DECODE_FIELDS);
         } catch (err) {
             console.error('Error fetching terminals:', err);
             throw err;
@@ -34,13 +34,15 @@ const terminalService = {
 
     async listPaginated(query: TerminalQueryParams = {}): Promise<PaginatedResponse<Terminal>> {
         try {
-            const response = await api.get<PaginatedResponse<Terminal>>(endpoints.all, {
+            const response = await api.get<ApiResponse<{ terminals: Array<Terminal>; pagination?: any }>>(endpoints.all, {
                 ...query,
                 paginated: true
             });
+            const data = response.data.data;
             return {
                 ...response.data,
-                data: decodeArrayStrings<Terminal>(response.data.data || [], TERMINAL_DECODE_FIELDS)
+                data: decodeArrayStrings<Terminal>(data?.terminals || [], TERMINAL_DECODE_FIELDS),
+                pagination: data?.pagination
             };
         } catch (err) {
             console.error('Error fetching paginated terminals:', err);

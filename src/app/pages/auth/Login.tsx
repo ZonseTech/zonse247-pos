@@ -12,6 +12,7 @@ import FormWrapper from "../../components/FormWrapper";
 import { useIsMobile, useIsEBN } from '../../hooks/useMediaQuery';
 import InputKeyboard from "../../components/InputKeyboard";
 import { useKeyboardSettings } from '../../hooks/useKeyboardSettings';
+import { getErrorMessage } from '../../utils/api-error-handler';
 import type { Dispatch, FunctionComponent, SetStateAction } from "react";
 
 interface AuthProps {
@@ -93,7 +94,7 @@ const Login: FunctionComponent = () => {
             const user = await auth.signin(values)
             navigate(ROUTES.POS);
         } catch (error: any) {
-            setAuthError(error.message || 'Login failed. Please try again.');
+            setAuthError(getErrorMessage(error, 'Login failed. Please try again.'));
         }
     }
 

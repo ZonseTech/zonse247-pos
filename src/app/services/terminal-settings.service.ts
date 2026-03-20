@@ -22,8 +22,9 @@ const terminalSettingsService = {
      */
     async list(): Promise<Array<TerminalSettings>> {
         try {
-            const response = await api.get<ApiResponse<Array<TerminalSettings>>>(endpoints.all);
-            return response.data.data || [];
+            const response = await api.get<ApiResponse<{ terminalSettings?: Array<TerminalSettings> }>>(endpoints.all);
+            const data = response.data.data;
+            return Array.isArray(data) ? data : (data?.terminalSettings || []);
         } catch (err) {
             console.error('Error fetching terminal settings:', err);
             throw err;

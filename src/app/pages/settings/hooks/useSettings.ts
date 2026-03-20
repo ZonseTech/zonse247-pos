@@ -1,4 +1,5 @@
 import { Notify, Report } from 'notiflix';
+import { getErrorMessage } from '../../../utils/api-error-handler';
 import { useState, useEffect, useCallback } from 'react';
 import type { SettingsTabId } from '../constants/config';
 import settingsService from '../../../services/settings.service';
@@ -62,7 +63,7 @@ export const useSettings = (): UseSettingsReturn => {
             Report.success('Success!', 'Settings saved successfully', 'Ok');
             await loadSettings();
         } catch (error: any) {
-            const errorMessage = error?.response?.data?.message || error?.message || 'Failed to save settings';
+            const errorMessage = getErrorMessage(error, 'Failed to save settings');
             Notify.failure(errorMessage, { timeout: 5000 });
             throw error;
         }
@@ -77,7 +78,7 @@ export const useSettings = (): UseSettingsReturn => {
             Report.success('Success!', `${String(groupName)} updated successfully`, 'Ok');
             await loadSettings();
         } catch (error: any) {
-            const errorMessage = error?.response?.data?.message || error?.message || 'Failed to update settings group';
+            const errorMessage = getErrorMessage(error, 'Failed to update settings group');
             Notify.failure(errorMessage, { timeout: 5000 });
             throw error;
         }
@@ -90,7 +91,7 @@ export const useSettings = (): UseSettingsReturn => {
             setShowResetConfirm(false);
             await loadSettings();
         } catch (error: any) {
-            const errorMessage = error?.response?.data?.message || error?.message || 'Failed to reset settings';
+            const errorMessage = getErrorMessage(error, 'Failed to reset settings');
             Notify.failure(errorMessage, { timeout: 5000 });
         }
     }, [loadSettings]);

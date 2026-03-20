@@ -66,9 +66,15 @@ export const ReturnActions: React.FC<ReturnActionsProps> = ({
     onCancel,
     compact = false
 }) => {
-    const hasPendingRestock = getReturnItems(returnData).some(
+    const returnItems = getReturnItems(returnData);
+    const hasPendingRestock = returnItems.some(
         (item) => item.restockStatus === 'pending'
     );
+    const hasRestockedItems = returnItems.some(
+        (item) => item.restockStatus === 'restocked'
+    );
+    const isCancelled = returnData.status === 'CANCELLED';
+    const canCancel = !hasRestockedItems && !isCancelled;
 
     const iconClass = compact ? "w-3.5 h-3.5" : "w-4 h-4 sm:w-5 sm:h-5";
     const buttonClass = compact
@@ -85,7 +91,7 @@ export const ReturnActions: React.FC<ReturnActionsProps> = ({
                 <HiOutlineEye className={iconClass} />
             </button>
 
-            {hasPendingRestock && (
+            {hasPendingRestock && !isCancelled && (
                 <button
                     onClick={() => onRestock(returnData)}
                     className={`${buttonClass} text-emerald-500 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20`}
@@ -95,18 +101,20 @@ export const ReturnActions: React.FC<ReturnActionsProps> = ({
                 </button>
             )}
 
-            <button
-                onClick={() =>
-                    onCancel(
-                        getReturnId(returnData),
-                        getReturnRefNumber(returnData)
-                    )
-                }
-                className={`${buttonClass} text-red-500 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20`}
-                title="Cancel Return"
-            >
-                <HiOutlineTrash className={iconClass} />
-            </button>
+            {canCancel && (
+                <button
+                    onClick={() =>
+                        onCancel(
+                            getReturnId(returnData),
+                            getReturnRefNumber(returnData)
+                        )
+                    }
+                    className={`${buttonClass} text-red-500 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20`}
+                    title="Cancel Return"
+                >
+                    <HiOutlineTrash className={iconClass} />
+                </button>
+            )}
         </div>
     );
 };

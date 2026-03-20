@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Notify } from 'notiflix';
+import { getErrorMessage } from '../utils/api-error-handler';
 import customerService from '../services/customers.service';
+import { usePagination } from './usePagination';
 
 interface UseCustomersReturn {
     customers: Customer[];
-    filteredCustomers: Customer[];
     isLoading: boolean;
     searchTerm: string;
     setSearchTerm: (term: string) => void;
@@ -13,67 +14,52 @@ interface UseCustomersReturn {
     perPage: number;
     setPerPage: (perPage: number) => void;
     totalRows: number;
+    handlePageChange: (page: number) => void;
+    handlePerRowsChange: (newPerPage: number, page: number) => void;
     deleteCustomer: (customerId: string) => Promise<void>;
     refreshCustomers: () => Promise<void>;
-    filterCustomers: (term: string) => Customer[];
-    getPaginatedData: () => Customer[];
 }
 
 export const useCustomers = (): UseCustomersReturn => {
     const [customers, setCustomers] = useState<Customer[]>([]);
-    const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [page, setPage] = useState(1);
-    const [perPage, setPerPage] = useState(10);
-    const [totalRows, setTotalRows] = useState(0);
+    const searchDebounceRef = useRef<ReturnType<typeof setTimeout>>();
+
+    const {
+        page, setPage, perPage, setPerPage, totalRows, setTotalRows,
+        handlePageChange, handlePerRowsChange,
+    } = usePagination();
 
     const loadCustomers = useCallback(async () => {
         setIsLoading(true);
         try {
-            const data = await customerService.list();
-            setCustomers(data);
-            setFilteredCustomers(data);
-            setTotalRows(data.length);
+            const result = await customerService.listPaginated({
+                page,
+                limit: perPage,
+                search: searchTerm || undefined,
+            });
+            setCustomers(result.data || []);
+            setTotalRows(result.pagination?.total || 0);
         } catch (error: any) {
             console.error('Error loading customers:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to load customers';
-            Notify.failure(errorMessage);
+            Notify.failure(getErrorMessage(error, 'Failed to load customers'));
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [page, perPage, searchTerm, setTotalRows]);
 
     useEffect(() => {
         loadCustomers();
     }, [loadCustomers]);
 
-    const filterCustomers = useCallback((term: string): Customer[] => {
-        if (!term.trim()) {
-            return customers;
-        }
-
-        const lowerTerm = term.toLowerCase();
-        return customers.filter((customer) =>
-            customer.name?.toLowerCase().includes(lowerTerm) ||
-            customer.email?.toLowerCase().includes(lowerTerm) ||
-            customer.phone?.toLowerCase().includes(lowerTerm) ||
-            customer.address?.toLowerCase().includes(lowerTerm)
-        );
-    }, [customers]);
-
-    useEffect(() => {
-        const filtered = filterCustomers(searchTerm);
-        setFilteredCustomers(filtered);
-        setTotalRows(filtered.length);
-        setPage(1);
-    }, [searchTerm, filterCustomers]);
-
-    const getPaginatedData = useCallback((): Customer[] => {
-        const startIndex = (page - 1) * perPage;
-        const endIndex = startIndex + perPage;
-        return filteredCustomers.slice(startIndex, endIndex);
-    }, [page, perPage, filteredCustomers]);
+    const setSearchTermDebounced = useCallback((term: string) => {
+        if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+        searchDebounceRef.current = setTimeout(() => {
+            setSearchTerm(term);
+            setPage(1);
+        }, 300);
+    }, [setPage]);
 
     const deleteCustomer = useCallback(async (customerId: string) => {
         try {
@@ -82,8 +68,7 @@ export const useCustomers = (): UseCustomersReturn => {
             await loadCustomers();
         } catch (error: any) {
             console.error('Error deleting customer:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to delete customer';
-            Notify.failure(errorMessage);
+            Notify.failure(getErrorMessage(error, 'Failed to delete customer'));
         }
     }, [loadCustomers]);
 
@@ -93,18 +78,17 @@ export const useCustomers = (): UseCustomersReturn => {
 
     return {
         customers,
-        filteredCustomers,
         isLoading,
         searchTerm,
-        setSearchTerm,
+        setSearchTerm: setSearchTermDebounced,
         page,
         setPage,
         perPage,
         setPerPage,
         totalRows,
+        handlePageChange,
+        handlePerRowsChange,
         deleteCustomer,
         refreshCustomers,
-        filterCustomers,
-        getPaginatedData,
     };
 };

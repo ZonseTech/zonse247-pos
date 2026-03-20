@@ -24,6 +24,7 @@ import { capitalizeEachWord } from '../../utils';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useConnectivity } from '../../hooks/useConnectivity';
 import MobilePlanSkeleton from '../../components/loader/MobilePlanSkeleton';
+import { getErrorMessage } from '../../utils/api-error-handler';
 import {
     businessTypes,
     msonkhoStatuses,
@@ -76,7 +77,7 @@ const TenantFormModal: FunctionComponent = () => {
                     setTenant(tenantData);
                 } catch (error: any) {
                     console.error('Error fetching tenant:', error);
-                    const errorMessage = error?.response?.data?.message || 'Failed to load tenant details';
+                    const errorMessage = getErrorMessage(error, 'Failed to load tenant details');
                     Notify.failure(errorMessage);
                 } finally {
                     setLoading(false);
@@ -134,7 +135,7 @@ const TenantFormModal: FunctionComponent = () => {
                 });
             }
         } catch (error: any) {
-            const errorMessage = error?.error?.response?.data?.message || 'An error occurred while saving the tenant';
+            const errorMessage = getErrorMessage(error, 'An error occurred while saving the tenant');
             Notify.failure(errorMessage);
         }
     };

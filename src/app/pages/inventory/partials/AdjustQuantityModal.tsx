@@ -1,9 +1,10 @@
 import { useState, useEffect, FC, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { Minus, Plus, Hash, Package, X, ChevronDown, Check } from 'lucide-react';
+import { Minus, Plus, ClipboardCheck, Package, X, ChevronDown, Check, ArrowRight } from 'lucide-react';
+import { Notify } from 'notiflix';
 import { Button, Input, Label } from '../../../components';
-import { useInventoryActions } from '../../../hooks/useInventoryActions';
-import type { AdjustInventoryPayload } from '../../../services/inventory.service';
+import stockMovementService from '../../../services/stock-movement.service';
+import { getErrorMessage } from '../../../utils/api-error-handler';
 
 interface AdjustQuantityModalProps {
     isOpen: boolean;
@@ -13,9 +14,9 @@ interface AdjustQuantityModalProps {
 }
 
 const ADJUSTMENT_TYPES = [
-    { type: 'add' as const, icon: Plus, label: 'Add', active: 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' },
-    { type: 'subtract' as const, icon: Minus, label: 'Sub', active: 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' },
-    { type: 'set' as const, icon: Hash, label: 'Set', active: 'border-sky-500 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400' }
+    { type: 'add' as const, icon: Plus, label: 'Add Stock', hint: 'Found stock, received items', active: 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' },
+    { type: 'subtract' as const, icon: Minus, label: 'Remove', hint: 'Loss, theft, breakage', active: 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' },
+    { type: 'set' as const, icon: ClipboardCheck, label: 'Stock Count', hint: 'Set to actual count', active: 'border-sky-500 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400' }
 ];
 
 const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, item, onSuccess }) => {
@@ -24,8 +25,7 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
     const [adjustmentValue, setAdjustmentValue] = useState('');
     const [adjustmentReason, setAdjustmentReason] = useState('');
     const [isVariantDropdownOpen, setIsVariantDropdownOpen] = useState(false);
-
-    const { adjustInventory, updateQuantity, isLoading } = useInventoryActions();
+    const [isLoading, setIsLoading] = useState(false);
 
     const variants = useMemo(() => item?.variants || [], [item]);
     const hasMultipleVariants = variants.length > 1;
@@ -68,24 +68,43 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
         if (!item || !selectedVariant) return;
         const value = parseInt(adjustmentValue);
         if (isNaN(value) || value < 0) return;
+        // Reason is required for add/subtract (audit trail)
+        if (adjustmentType !== 'set' && !adjustmentReason.trim()) return;
 
+        setIsLoading(true);
         try {
-            const variantId = selectedVariant.id;
+            const invId = selectedVariant.inventory?.inventoryId;
+            if (!invId) {
+                Notify.failure('No inventory record found for this variant. Try selling or restocking it first.');
+                setIsLoading(false);
+                return;
+            }
 
             if (adjustmentType === 'set') {
-                await updateQuantity(variantId, value);
+                // Use stock-count endpoint — backend computes variance and creates a movement
+                await stockMovementService.performStockCount({
+                    inventoryId: invId,
+                    actualQuantity: value,
+                    notes: adjustmentReason || undefined,
+                });
             } else {
-                const payload: AdjustInventoryPayload = {
-                    adjustment: value,
-                    type: adjustmentType,
-                    reason: adjustmentReason || undefined
-                };
-                await adjustInventory(variantId, payload);
+                // Use stock-adjustment endpoint — quantity sign determines direction
+                const signedQty = adjustmentType === 'add' ? value : -value;
+                await stockMovementService.adjustStock({
+                    inventoryId: invId,
+                    quantity: signedQty,
+                    notes: adjustmentReason || 'Manual adjustment from inventory page',
+                });
             }
+            const actionText = adjustmentType === 'add' ? 'added' : adjustmentType === 'subtract' ? 'subtracted' : 'set';
+            Notify.success(`Quantity ${actionText} successfully`);
             onSuccess();
             resetAndClose();
-        } catch (error) {
-            console.error('Failed to adjust quantity:', error);
+        } catch (error: any) {
+            const msg = getErrorMessage(error, 'Failed to adjust quantity');
+            Notify.failure(msg);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -98,6 +117,10 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
         : adjustmentType === 'subtract'
             ? Math.max(0, currentQuantity - value)
             : value;
+    const change = newQuantity - currentQuantity;
+    const isReasonRequired = adjustmentType !== 'set';
+    const isValid = !!adjustmentValue && !!selectedVariant && value >= 0
+        && (!isReasonRequired || adjustmentReason.trim().length > 0);
 
     const getVariantLabel = (variant: ProductVariant) => {
         const parts = [variant.variantName];
@@ -113,9 +136,14 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
             <div className="bg-white dark:bg-gray-800 w-full max-w-sm rounded-xl shadow-2xl">
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        Adjust Quantity
-                    </h2>
+                    <div>
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            Adjust Stock
+                        </h2>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            Creates an audited stock movement record
+                        </p>
+                    </div>
                     <button
                         onClick={resetAndClose}
                         className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -222,18 +250,21 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
 
                     {/* Adjustment Type */}
                     <div>
-                        <Label>Adjustment Type</Label>
+                        <Label>Movement Type</Label>
                         <div className="grid grid-cols-3 gap-2 mt-1.5">
-                            {ADJUSTMENT_TYPES.map(({ type, icon: Icon, label, active }) => (
+                            {ADJUSTMENT_TYPES.map(({ type, icon: Icon, label, hint, active }) => (
                                 <button
                                     key={type}
                                     type="button"
                                     onClick={() => setAdjustmentType(type)}
-                                    className={`flex items-center justify-center gap-1.5 py-2.5 rounded-lg border-2 text-sm transition-colors ${adjustmentType === type ? active : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300'
+                                    className={`flex flex-col items-center gap-1 py-2.5 rounded-lg border-2 transition-colors ${adjustmentType === type ? active : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300'
                                         }`}
                                 >
-                                    <Icon className="w-4 h-4" />
-                                    {label}
+                                    <div className="flex items-center gap-1">
+                                        <Icon className="w-4 h-4" />
+                                        <span className="text-sm font-medium">{label}</span>
+                                    </div>
+                                    <span className="text-[9px] opacity-60 leading-tight text-center px-1">{hint}</span>
                                 </button>
                             ))}
                         </div>
@@ -241,38 +272,64 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
 
                     {/* Quantity Input */}
                     <div>
-                        <Label>Quantity</Label>
+                        <Label>{adjustmentType === 'set' ? 'Actual Quantity on Hand' : 'Quantity'}</Label>
                         <Input
                             type="number"
                             min="0"
                             value={adjustmentValue}
                             onChange={(e) => setAdjustmentValue(e.target.value)}
-                            placeholder="Enter quantity"
+                            placeholder={adjustmentType === 'set' ? 'Enter counted quantity' : 'Enter quantity'}
                             className="mt-1.5 w-full"
                         />
                     </div>
 
                     {/* Reason Input */}
                     <div>
-                        <Label>Reason (optional)</Label>
+                        <Label>
+                            Reason {isReasonRequired ? <span className="text-red-500">*</span> : '(optional)'}
+                        </Label>
                         <Input
                             type="text"
                             value={adjustmentReason}
                             onChange={(e) => setAdjustmentReason(e.target.value)}
-                            placeholder="e.g., Stock count adjustment"
+                            placeholder={adjustmentType === 'add' ? 'e.g., Found stock, received donation'
+                                : adjustmentType === 'subtract' ? 'e.g., Theft, breakage, expired'
+                                    : 'e.g., Physical stock count'}
                             className="mt-1.5 w-full"
                         />
                     </div>
 
                     {/* Preview */}
                     {adjustmentValue && selectedVariant && (
-                        <div className="p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800">
-                            <p className="text-sm text-sky-800 dark:text-sky-200">
-                                {hasMultipleVariants && (
-                                    <span className="font-medium">{selectedVariant.variantName}: </span>
-                                )}
-                                New quantity: <span className="font-bold">{newQuantity}</span>
-                            </p>
+                        <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div className="flex items-center justify-between">
+                                <div className="text-center">
+                                    <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400">Current</p>
+                                    <p className="text-lg font-bold text-gray-900 dark:text-white">{currentQuantity}</p>
+                                </div>
+                                <ArrowRight className="w-5 h-5 text-gray-400" />
+                                <div className="text-center">
+                                    <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400">New</p>
+                                    <p className={`text-lg font-bold ${change > 0 ? 'text-green-600 dark:text-green-400'
+                                        : change < 0 ? 'text-red-600 dark:text-red-400'
+                                            : 'text-sky-600 dark:text-sky-400'
+                                        }`}>
+                                        {newQuantity}
+                                    </p>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400">Change</p>
+                                    <p className={`text-lg font-bold ${change >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                                        }`}>
+                                        {change >= 0 ? '+' : ''}{change}
+                                    </p>
+                                </div>
+                            </div>
+                            {hasMultipleVariants && (
+                                <p className="text-[10px] text-gray-400 mt-1.5 text-center">
+                                    Variant: {selectedVariant.variantName}
+                                </p>
+                            )}
                         </div>
                     )}
                 </div>
@@ -285,10 +342,10 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
                     <Button
                         theme="primary"
                         onClick={handleSubmit}
-                        disabled={!adjustmentValue || !selectedVariant || isLoading}
+                        disabled={!isValid || isLoading}
                         loading={isLoading}
                     >
-                        Apply
+                        {adjustmentType === 'set' ? 'Record Count' : 'Apply Adjustment'}
                     </Button>
                 </div>
             </div>

@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Notify } from 'notiflix';
 import usersService from '../services/users.service';
+import { getErrorMessage } from '../utils/api-error-handler';
+import { usePagination } from './usePagination';
 
 interface UseUsersReturn {
     users: User[];
-    filteredUsers: User[];
     isLoading: boolean;
     searchTerm: string;
     setSearchTerm: (term: string) => void;
@@ -15,86 +16,58 @@ interface UseUsersReturn {
     perPage: number;
     setPerPage: (perPage: number) => void;
     totalRows: number;
+    handlePageChange: (page: number) => void;
+    handlePerRowsChange: (newPerPage: number, page: number) => void;
     deleteUser: (userId: string) => Promise<void>;
     updateUserStatus: (userId: string, status: UserStatus) => Promise<void>;
     resetPassword: (userId: string, newPassword: string, forceChange?: boolean) => Promise<void>;
     refreshUsers: () => Promise<void>;
-    filterUsers: (term: string, roleId?: string) => User[];
-    getPaginatedData: () => User[];
     clearFilters: () => void;
 }
 
 export const useUsers = (): UseUsersReturn => {
     const [users, setUsers] = useState<User[]>([]);
-    const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [roleFilter, setRoleFilter] = useState('all');
-    const [page, setPage] = useState(1);
-    const [perPage, setPerPage] = useState(10);
-    const [totalRows, setTotalRows] = useState(0);
+
+    const {
+        page, setPage, perPage, setPerPage, totalRows, setTotalRows,
+        handlePageChange, handlePerRowsChange,
+    } = usePagination();
 
     const loadUsers = useCallback(async () => {
         setIsLoading(true);
         try {
-            const data = await usersService.list();
-            setUsers(data);
-            setFilteredUsers(data);
-            setTotalRows(data.length);
+            const result = await usersService.listPaginated({
+                page,
+                limit: perPage,
+                search: searchTerm || undefined,
+                roleId: roleFilter !== 'all' ? roleFilter : undefined,
+            });
+            setUsers(result.data || []);
+            setTotalRows(result.pagination?.total || 0);
         } catch (error: any) {
             console.error('Error loading users:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to load users';
-            Notify.failure(errorMessage);
+            Notify.failure(getErrorMessage(error, 'Failed to load users'));
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [page, perPage, searchTerm, roleFilter, setTotalRows]);
 
     useEffect(() => {
         loadUsers();
     }, [loadUsers]);
 
-    const filterUsers = useCallback((term: string, roleId?: string): User[] => {
-        let filtered = users;
-
-        // Filter by role first
-        if (roleId && roleId !== 'all') {
-            filtered = filtered.filter((user) => user.roleId === roleId);
-        }
-
-        // Then filter by search term
-        if (term.trim()) {
-            const lowerTerm = term.toLowerCase();
-            filtered = filtered.filter((user) =>
-                user.username?.toLowerCase().includes(lowerTerm) ||
-                user.fullname?.toLowerCase().includes(lowerTerm) ||
-                user.email?.toLowerCase().includes(lowerTerm) ||
-                user.phone?.toLowerCase().includes(lowerTerm) ||
-                user.roleId?.toLowerCase().includes(lowerTerm) ||
-                user.roleName?.toLowerCase().includes(lowerTerm)
-            );
-        }
-
-        return filtered;
-    }, [users]);
-
+    // Reset to page 1 when filters change
     useEffect(() => {
-        const filtered = filterUsers(searchTerm, roleFilter);
-        setFilteredUsers(filtered);
-        setTotalRows(filtered.length);
         setPage(1);
-    }, [searchTerm, roleFilter, filterUsers]);
+    }, [searchTerm, roleFilter, setPage]);
 
     const clearFilters = useCallback(() => {
         setSearchTerm('');
         setRoleFilter('all');
     }, []);
-
-    const getPaginatedData = useCallback((): User[] => {
-        const startIndex = (page - 1) * perPage;
-        const endIndex = startIndex + perPage;
-        return filteredUsers.slice(startIndex, endIndex);
-    }, [page, perPage, filteredUsers]);
 
     const deleteUser = useCallback(async (userId: string) => {
         try {
@@ -103,8 +76,7 @@ export const useUsers = (): UseUsersReturn => {
             await loadUsers();
         } catch (error: any) {
             console.error('Error deleting user:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to delete user';
-            Notify.failure(errorMessage);
+            Notify.failure(getErrorMessage(error, 'Failed to delete user'));
         }
     }, [loadUsers]);
 
@@ -115,8 +87,7 @@ export const useUsers = (): UseUsersReturn => {
             await loadUsers();
         } catch (error: any) {
             console.error('Error updating user status:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to update user status';
-            Notify.failure(errorMessage);
+            Notify.failure(getErrorMessage(error, 'Failed to update user status'));
         }
     }, [loadUsers]);
 
@@ -127,8 +98,7 @@ export const useUsers = (): UseUsersReturn => {
             await loadUsers();
         } catch (error: any) {
             console.error('Error resetting password:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to reset password';
-            Notify.failure(errorMessage);
+            Notify.failure(getErrorMessage(error, 'Failed to reset password'));
         }
     }, [loadUsers]);
 
@@ -138,7 +108,6 @@ export const useUsers = (): UseUsersReturn => {
 
     return {
         users,
-        filteredUsers,
         isLoading,
         searchTerm,
         setSearchTerm,
@@ -149,12 +118,12 @@ export const useUsers = (): UseUsersReturn => {
         perPage,
         setPerPage,
         totalRows,
+        handlePageChange,
+        handlePerRowsChange,
         deleteUser,
         updateUserStatus,
         resetPassword,
         refreshUsers,
-        filterUsers,
-        getPaginatedData,
         clearFilters,
     };
 };

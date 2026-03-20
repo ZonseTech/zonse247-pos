@@ -46,10 +46,10 @@ export default function RolePermissionAdmin() {
         permissionService.getCategories(),
         permissionService.getScopes(),
       ]);
-      setRoles(rolesData.data);
-      setPermissions(permissionsData.data);
-      setCategories(categoriesData.data);
-      setScopes(scopesData.data);
+      setRoles(Array.isArray(rolesData.data) ? rolesData.data : []);
+      setPermissions(Array.isArray(permissionsData.data) ? permissionsData.data : []);
+      setCategories(Array.isArray(categoriesData.data) ? categoriesData.data : []);
+      setScopes(Array.isArray(scopesData.data) ? scopesData.data : []);
     } catch (err) {
       setError('Failed to load data');
       console.error(err);

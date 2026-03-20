@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { Notify } from 'notiflix';
+import { getErrorMessage } from '../utils/api-error-handler';
 import inventoryService, {
     BulkUpdatePayload,
     MoveToCategoryPayload,
@@ -28,7 +29,7 @@ export const useInventoryActions = () => {
             setInventoryCount(count);
             return count;
         } catch (error: any) {
-            toast.error('Failed to fetch inventory count: ' + error.message);
+            toast.error(getErrorMessage(error, 'Failed to fetch inventory count'));
             throw error;
         } finally {
             setIsLoading(false);
@@ -47,7 +48,7 @@ export const useInventoryActions = () => {
             setLowStockItems(items);
             return items;
         } catch (error: any) {
-            toast.error('Failed to fetch low stock items: ' + error.message);
+            toast.error(getErrorMessage(error, 'Failed to fetch low stock items'));
             throw error;
         } finally {
             setIsLoading(false);
@@ -71,7 +72,7 @@ export const useInventoryActions = () => {
             setSearchResults(results);
             return results;
         } catch (error: any) {
-            toast.error('Search failed: ' + error.message);
+            toast.error(getErrorMessage(error, 'Search failed'));
             throw error;
         } finally {
             setIsLoading(false);
@@ -98,7 +99,7 @@ export const useInventoryActions = () => {
         } catch (error: any) {
             // Don't show error for 404s as item might not exist
             if (error.response?.status !== 404) {
-                toast.error('Failed to find item by barcode: ' + error.message);
+                toast.error(getErrorMessage(error, 'Failed to find item by barcode'));
             }
             return null;
         } finally {
@@ -116,7 +117,7 @@ export const useInventoryActions = () => {
             return item;
         } catch (error: any) {
             if (error.response?.status !== 404) {
-                toast.error('Failed to find item by SKU: ' + error.message);
+                toast.error(getErrorMessage(error, 'Failed to find item by SKU'));
             }
             return null;
         } finally {
@@ -135,7 +136,7 @@ export const useInventoryActions = () => {
             const items = await inventoryService.getByCategory(categoryId);
             return items;
         } catch (error: any) {
-            toast.error('Failed to get items by category: ' + error.message);
+            toast.error(getErrorMessage(error, 'Failed to get items by category'));
             throw error;
         } finally {
             setIsLoading(false);
@@ -152,7 +153,7 @@ export const useInventoryActions = () => {
             Notify.success(`${result.moved} item(s) moved to category successfully`);
             return result;
         } catch (error: any) {
-            Notify.failure('Failed to move items: ' + error.message);
+            Notify.failure(getErrorMessage(error, 'Failed to move items'));
             throw error;
         } finally {
             setIsLoading(false);
@@ -169,7 +170,7 @@ export const useInventoryActions = () => {
             Notify.success(result.message || 'Category counts synced successfully');
             return result;
         } catch (error: any) {
-            Notify.failure('Failed to sync category counts: ' + error.message);
+            Notify.failure(getErrorMessage(error, 'Failed to sync category counts'));
             throw error;
         } finally {
             setIsLoading(false);
@@ -187,7 +188,7 @@ export const useInventoryActions = () => {
             const items = await inventoryService.getByStatus(status);
             return items;
         } catch (error: any) {
-            toast.error('Failed to get items by status: ' + error.message);
+            toast.error(getErrorMessage(error, 'Failed to get items by status'));
             throw error;
         } finally {
             setIsLoading(false);
@@ -208,7 +209,7 @@ export const useInventoryActions = () => {
             Notify.success('Quantity updated successfully');
             return item;
         } catch (error: any) {
-            Notify.failure('Failed to update quantity: ' + error.message);
+            Notify.failure(getErrorMessage(error, 'Failed to update quantity'));
             throw error;
         } finally {
             setIsLoading(false);
@@ -228,7 +229,7 @@ export const useInventoryActions = () => {
             Notify.success(`Inventory ${actionText} successfully`);
             return item;
         } catch (error: any) {
-            Notify.failure('Failed to adjust inventory: ' + error.message);
+            Notify.failure(getErrorMessage(error, 'Failed to adjust inventory'));
             throw error;
         } finally {
             setIsLoading(false);
@@ -247,7 +248,7 @@ export const useInventoryActions = () => {
             Notify.success(`${result.updated} item(s) updated successfully`);
             return result;
         } catch (error: any) {
-            Notify.failure('Failed to bulk update items: ' + error.message);
+            Notify.failure(getErrorMessage(error, 'Failed to bulk update items'));
             throw error;
         } finally {
             setIsLoading(false);
@@ -278,7 +279,7 @@ export const useInventoryActions = () => {
             Notify.success('Item voided successfully');
             return item;
         } catch (error: any) {
-            Notify.failure('Failed to void item: ' + error.message);
+            Notify.failure(getErrorMessage(error, 'Failed to void item'));
             throw error;
         } finally {
             setIsLoading(false);
@@ -314,7 +315,7 @@ export const useInventoryActions = () => {
             const items = await inventoryService.getAll();
             return items;
         } catch (error: any) {
-            toast.error('Failed to fetch all items: ' + error.message);
+            toast.error(getErrorMessage(error, 'Failed to fetch all items'));
             throw error;
         } finally {
             setIsLoading(false);
