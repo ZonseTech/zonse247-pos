@@ -14,6 +14,7 @@ type ContextProps = {
     signin: (cb: AuthProps) => Promise<LoginResponse>;
     signup: (cb: AccountActivationProps) => Promise<AccountActivationResponse>;
     signout: (callback: () => void) => void;
+    forceSignout: (reason?: string) => void;
     updateUser: (userData: User) => void;
     activeBranchId: string | null;
 }
@@ -28,6 +29,7 @@ const authContext = createContext<ContextProps>({
     signout: async () => ({
         // 
     } as any),
+    forceSignout: () => { },
     updateUser: () => { },
     activeBranchId: null,
 });
@@ -89,6 +91,33 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
         setUser(userData);
         sessionStorage.setItem('user', JSON.stringify(userData));
     }, []);
+
+    /**
+     * Force sign out without confirmation dialog.
+     * Used when sync detects the user has been deactivated by an admin.
+     */
+    const forceSignout = useCallback(async (reason?: string) => {
+        try {
+            await api.get('auth/logout/' + user?.userId).catch(() => { });
+        } finally {
+            setUser(null);
+            setAuth(null);
+            sessionStorage.removeItem('user');
+            sessionStorage.removeItem('token');
+
+            if (isElectron() && window.electronAPI?.session?.clear) {
+                try {
+                    await window.electronAPI.session.clear();
+                } catch (err) {
+                    console.warn('Failed to clear session:', err);
+                }
+            }
+
+            if (reason) {
+                Notify.warning(reason);
+            }
+        }
+    }, [user?.userId]);
 
 
     const signin = async (data: AuthProps) => {
@@ -216,6 +245,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
             signin,
             signup,
             signout,
+            forceSignout,
             updateUser,
             activeBranchId,
         }}>
