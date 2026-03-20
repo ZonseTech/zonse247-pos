@@ -54,7 +54,7 @@ export const useSubscriptions = () => {
 		try {
 			setIsLoading(true);
 			const result = await subscriptionsService.list();
-			const data = result.data || [];
+			const data = result.data?.subscriptions || [];
 
 			setSubscriptions(data);
 			setFilteredSubscriptions(data);

@@ -1,5 +1,13 @@
 interface SubscriptionResponse {
-	data: Array<BranchSubscription>;
+	data: {
+		subscriptions: Array<BranchSubscription>;
+		pagination?: {
+			currentPage: number;
+			totalPages: number;
+			totalItems: number;
+			itemsPerPage: number;
+		};
+	};
 	message: string;
 	success: boolean;
 }
