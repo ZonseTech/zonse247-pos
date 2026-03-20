@@ -6,7 +6,13 @@
 import productService from './product.service';
 import supplierService from './supplier.service';
 import purchaseOrderService from './purchase-order.service';
+import purchaseRequisitionService from './purchase-requisition.service';
+import goodsReceiptService from './goods-receipt.service';
+import supplierInvoiceService from './supplier-invoice.service';
+import supplierPaymentService from './supplier-payment.service';
+import supplierReturnService from './supplier-return.service';
 import stockMovementService from './stock-movement.service';
+import inventoryValuationService from './inventory-valuation.service';
 import saleService from './sale.service';
 import inventoryService from './inventory.service';
 import barcodeScannerService from './barcode-scanner.service';
@@ -27,7 +33,13 @@ export {
     productService,
     supplierService,
     purchaseOrderService,
+    purchaseRequisitionService,
+    goodsReceiptService,
+    supplierInvoiceService,
+    supplierPaymentService,
+    supplierReturnService,
     stockMovementService,
+    inventoryValuationService,
     saleService,
     inventoryService,
     barcodeScannerService,
@@ -39,7 +51,13 @@ export const inventoryWorkflow = {
     product: productService,
     supplier: supplierService,
     purchaseOrder: purchaseOrderService,
+    purchaseRequisition: purchaseRequisitionService,
+    goodsReceipt: goodsReceiptService,
+    supplierInvoice: supplierInvoiceService,
+    supplierPayment: supplierPaymentService,
+    supplierReturn: supplierReturnService,
     stockMovement: stockMovementService,
+    inventoryValuation: inventoryValuationService,
     sale: saleService,
     inventory: inventoryService,
 };

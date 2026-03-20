@@ -9,10 +9,14 @@ import api from './http.service';
 const endpoints = {
     root: 'purchase-orders',
     create: 'purchase-orders',
+    fromRequisition: 'purchase-orders/from-requisition',
     list: 'purchase-orders',
     get: (id: string) => `purchase-orders/${id}`,
+    update: (id: string) => `purchase-orders/${id}`,
+    send: (id: string) => `purchase-orders/${id}/send`,
     receive: (id: string) => `purchase-orders/${id}/receive`,
     cancel: (id: string) => `purchase-orders/${id}/cancel`,
+    delete: (id: string) => `purchase-orders/${id}`,
 };
 
 const purchaseOrderService = {
@@ -99,8 +103,60 @@ const purchaseOrderService = {
     },
 
     /**
-     * POST /purchase-orders/:id/cancel - Cancel purchase order
-     * Only allowed if not yet received
+     * POST /purchase-orders/from-requisition — Create PO from approved requisition
+     * Copies approved quantities; requires supplierId and item-level unitPrice.
+     */
+    async createFromRequisition(payload: {
+        requisitionId: string;
+        supplierId: string;
+        itemPrices: { variantId: string; unitPrice: number }[];
+        expectedDeliveryDate?: string;
+        notes?: string;
+    }): Promise<PurchaseOrder> {
+        return api
+            .post<PurchaseOrderResponse>(endpoints.fromRequisition, payload as any)
+            .then((res) => res.data.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * PUT /purchase-orders/:id — Update a DRAFT purchase order
+     */
+    async updatePurchaseOrder(
+        purchaseOrderId: string,
+        payload: UpdatePurchaseOrderInput
+    ): Promise<PurchaseOrder> {
+        return api
+            .put<PurchaseOrderResponse>(
+                endpoints.update(purchaseOrderId),
+                payload as any
+            )
+            .then((res) => res.data.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * POST /purchase-orders/:id/send — Mark PO as sent to supplier (DRAFT → SENT)
+     */
+    async sendPurchaseOrder(purchaseOrderId: string): Promise<PurchaseOrder> {
+        return api
+            .post<PurchaseOrderResponse>(
+                endpoints.send(purchaseOrderId),
+                {}
+            )
+            .then((res) => res.data.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * POST /purchase-orders/:id/cancel — Cancel purchase order
+     * Only allowed for DRAFT or SENT status
      */
     async cancelPurchaseOrder(purchaseOrderId: string): Promise<void> {
         return api
@@ -108,6 +164,19 @@ const purchaseOrderService = {
                 endpoints.cancel(purchaseOrderId),
                 {}
             )
+            .then(() => undefined)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * DELETE /purchase-orders/:id — Soft-delete a purchase order
+     * Only DRAFT or CANCELLED POs can be deleted
+     */
+    async deletePurchaseOrder(purchaseOrderId: string): Promise<void> {
+        return api
+            .delete(endpoints.delete(purchaseOrderId))
             .then(() => undefined)
             .catch((err) => {
                 throw err;
