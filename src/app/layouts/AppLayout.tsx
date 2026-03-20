@@ -1,11 +1,10 @@
-import { Fragment } from 'react'
 import type { FC, PropsWithChildren } from 'react'
 
 const AppLayout: FC<PropsWithChildren> = ({ children }) => {
     return (
-        <Fragment>
+        <div className="min-h-full px-4 md:px-6 pb-4">
             {children}
-        </Fragment>
+        </div>
     )
 }
 
