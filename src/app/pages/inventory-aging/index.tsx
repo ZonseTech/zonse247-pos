@@ -15,20 +15,14 @@ import TableSkeleton from '../../components/skeleton/TableSkeleton';
 import TableEmptyState from '../../components/TableEmptyState';
 import SummaryCards, { type SummaryCardItem } from '../../components/stats/SummaryCards';
 import { getTableStyles } from '../../utils/table-styles';
-import { ZonseThemeContext, ComponentLoader, Button } from '../../components';
+import { ZonseThemeContext, Button } from '../../components';
 import { useInventoryAging } from '../../hooks/useInventoryAging';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { formatCurrency } from '../../utils';
-import AgingBucketChart from './partials/AgingBucketChart';
 import { getAgingTableColumns } from './partials/AgingTableColumns';
 import MobileInventoryAging from './MobileInventoryAging';
 
 const THRESHOLD_OPTIONS = [30, 60, 90, 120, 180, 365];
-const CHART_METRICS = [
-    { value: 'totalValue' as const, label: 'Value' },
-    { value: 'itemCount' as const, label: 'Items' },
-    { value: 'totalQuantity' as const, label: 'Qty' },
-];
 const STATUS_FILTERS = [
     { value: 'all' as const, label: 'All' },
     { value: 'active' as const, label: 'Active' },
@@ -40,7 +34,6 @@ const InventoryAging: FunctionComponent = () => {
     const { mode } = useContext(ZonseThemeContext);
     const isMobile = useIsMobile();
     const [searchTerm, setSearchTerm] = useState('');
-    const [chartMetric, setChartMetric] = useState<'totalValue' | 'itemCount' | 'totalQuantity'>('totalValue');
 
     const {
         agingData,
@@ -50,7 +43,6 @@ const InventoryAging: FunctionComponent = () => {
         statusFilter,
         setStatusFilter,
         loadAgingReport,
-        getBucketChartData,
         getFilteredItems,
         valueAtRisk,
     } = useInventoryAging();
@@ -79,7 +71,6 @@ const InventoryAging: FunctionComponent = () => {
         );
     }, [getFilteredItems, searchTerm]);
 
-    const bucketChartData = getBucketChartData();
     const columns = getAgingTableColumns();
     const isDark = mode === 'dark';
 
@@ -130,46 +121,9 @@ const InventoryAging: FunctionComponent = () => {
                 description="Slow-mover and dead stock analysis"
             />
 
-            {/* Chart Card */}
+            {/* Summary Cards */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mb-6">
-                {/* Summary Cards */}
                 <SummaryCards cards={summaryCards} isLoading={isLoading} skeletonCount={4} variant="embedded" />
-                <div className="px-4 pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
-                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                            Aging Distribution
-                        </h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                            Stock grouped by days since last sale
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        {/* Metric Toggle */}
-                        <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                            {CHART_METRICS.map(({ value, label }) => (
-                                <button
-                                    key={value}
-                                    onClick={() => setChartMetric(value)}
-                                    className={`px-3 py-1.5 text-xs font-semibold transition-colors ${chartMetric === value
-                                        ? 'bg-amber-500 text-white'
-                                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-                                        }`}
-                                >
-                                    {label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-                <div className="p-4">
-                    {isLoading ? (
-                        <div className="h-64 flex items-center justify-center">
-                            <ComponentLoader loading={true} />
-                        </div>
-                    ) : (
-                        <AgingBucketChart data={bucketChartData} metric={chartMetric} isDark={isDark} />
-                    )}
-                </div>
             </div>
 
             {/* Items Table Card */}
