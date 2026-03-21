@@ -1,58 +1,42 @@
-import { lazy, Suspense, useCallback, type FunctionComponent } from 'react';
-import { useSearchParams } from 'react-router';
-import { Package } from 'lucide-react';
 import * as Tabs from '@radix-ui/react-tabs';
-import AppLayout from '../../layouts/AppLayout';
-import PageHeader from '../../components/page/PageHeader';
-import { ComponentLoader } from '../../components';
 import { ROUTES } from '../../utils/constants';
+import AppLayout from '../../layouts/AppLayout';
+import { ComponentLoader } from '../../components';
+import { Outlet, useLocation, useNavigate } from 'react-router';
+import { Suspense, useCallback, type FunctionComponent } from 'react';
 
-// ─── Lazy-loaded inventory sub-pages ───────────────────────────────────────────
-const Products = lazy(() => import('../inventory'));
-const Categories = lazy(() => import('../categories'));
-const StockMovements = lazy(() => import('../stock-movements'));
-const InventoryValuation = lazy(() => import('../inventory-valuation'));
-const COGSProfitability = lazy(() => import('../cogs-profitability'));
-const InventoryAging = lazy(() => import('../inventory-aging'));
-
-// ─── Tab definitions ───────────────────────────────────────────────────────────
 const INVENTORY_TABS = [
-    { id: 'products', label: 'Products', Component: Products, route: ROUTES.INVENTORY },
-    { id: 'categories', label: 'Categories', Component: Categories, route: ROUTES.CATEGORIES },
-    { id: 'stock-movements', label: 'Stock Movements', Component: StockMovements, route: ROUTES.STOCK_MOVEMENTS },
-    { id: 'valuation', label: 'Valuation', Component: InventoryValuation, route: ROUTES.INVENTORY_VALUATION },
-    { id: 'cogs', label: 'COGS & Profit', Component: COGSProfitability, route: ROUTES.COGS_PROFITABILITY },
-    { id: 'aging', label: 'Aging', Component: InventoryAging, route: ROUTES.INVENTORY_AGING },
+    { id: 'products', label: 'Products', path: ROUTES.INVENTORY_HUB_PRODUCTS },
+    { id: 'categories', label: 'Categories', path: ROUTES.INVENTORY_HUB_CATEGORIES },
+    { id: 'stock-movements', label: 'Stock Movements', path: ROUTES.INVENTORY_HUB_STOCK_MOVEMENTS },
+    { id: 'valuation', label: 'Valuation', path: ROUTES.INVENTORY_HUB_VALUATION },
+    { id: 'cogs', label: 'COGS & Profit', path: ROUTES.INVENTORY_HUB_COGS },
+    { id: 'aging', label: 'Aging', path: ROUTES.INVENTORY_HUB_AGING },
+    { id: 'charts', label: 'Charts', path: ROUTES.INVENTORY_HUB_CHARTS },
 ] as const;
 
+const DEFAULT_TAB = 'products';
 type InventoryTabId = (typeof INVENTORY_TABS)[number]['id'];
-const DEFAULT_TAB: InventoryTabId = 'products';
-
-// ─── Component ─────────────────────────────────────────────────────────────────
 
 const InventoryHubPage: FunctionComponent = () => {
-    const [searchParams, setSearchParams] = useSearchParams();
+    const { pathname } = useLocation();
+    const navigate = useNavigate();
 
-    const activeTab = (searchParams.get('tab') as InventoryTabId) || DEFAULT_TAB;
+    const segment = pathname.split('/').pop() || DEFAULT_TAB;
+    const activeTab: InventoryTabId =
+        INVENTORY_TABS.find((t) => t.id === segment)?.id ?? DEFAULT_TAB;
 
     const handleTabChange = useCallback(
         (value: string) => {
-            setSearchParams({ tab: value }, { replace: true });
+            const tab = INVENTORY_TABS.find((t) => t.id === value);
+            if (tab) navigate(tab.path, { replace: true });
         },
-        [setSearchParams],
+        [navigate],
     );
 
     return (
         <AppLayout>
-            <PageHeader
-                icon={<Package className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
-                title="Inventory"
-                description="Manage products, categories, stock movements and analytics"
-                compact
-            />
-
             <Tabs.Root value={activeTab} onValueChange={handleTabChange}>
-                {/* Tab list — horizontally scrollable on mobile */}
                 <Tabs.List className="-mx-4 md:-mx-6 px-4 md:px-6 flex overflow-x-auto border-b border-gray-200 dark:border-gray-700 gap-0 scrollbar-none mb-4">
                     {INVENTORY_TABS.map((tab) => (
                         <Tabs.Trigger
@@ -71,19 +55,9 @@ const InventoryHubPage: FunctionComponent = () => {
                     ))}
                 </Tabs.List>
 
-                {/* Tab panels — each renders the existing page component */}
-                {INVENTORY_TABS.map((tab) => (
-                    <Tabs.Content
-                        key={tab.id}
-                        value={tab.id}
-                        className="outline-none"
-                        forceMount={undefined}
-                    >
-                        <Suspense fallback={<ComponentLoader loading={true} />}>
-                            <tab.Component />
-                        </Suspense>
-                    </Tabs.Content>
-                ))}
+                <Suspense fallback={<ComponentLoader loading={true} />}>
+                    <Outlet />
+                </Suspense>
             </Tabs.Root>
         </AppLayout>
     );
