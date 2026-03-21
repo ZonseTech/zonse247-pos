@@ -1,8 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Notify } from 'notiflix';
 import { getErrorMessage } from '../utils/api-error-handler';
 import inventoryValuationService from '../services/inventory-valuation.service';
 import { useSettings } from './useSettings';
+import { usePagination } from './usePagination';
 
 /**
  * Hook for COGS & Profitability reporting
@@ -26,8 +27,16 @@ export const useCOGSReport = () => {
     const [showCrossCheck, setShowCrossCheck] = useState(false);
 
     // Gross profit
-    const [grossProfit, setGrossProfit] = useState<GrossProfitByProductResult | null>(null);
+    const [grossProfitItems, setGrossProfitItems] = useState<GrossProfitProductItem[]>([]);
+    const [grossProfitSummary, setGrossProfitSummary] = useState<GrossProfitSummary | null>(null);
     const [isLoadingProfit, setIsLoadingProfit] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Pagination
+    const {
+        page, perPage, totalRows, setTotalRows,
+        handlePageChange, handlePerRowsChange, resetPage,
+    } = usePagination({ initialPerPage: 15 });
 
     const branchId = setup?.branchId || '';
 
@@ -59,23 +68,48 @@ export const useCOGSReport = () => {
     }, [startDate, endDate, branchId]);
 
     /**
-     * Load gross profit by product
+     * Load gross profit by product (paginated)
      */
     const loadGrossProfit = useCallback(async () => {
         if (!startDate || !endDate) return;
         setIsLoadingProfit(true);
         try {
-            const result = await inventoryValuationService.getGrossProfitByProduct(
-                startDate, endDate, branchId || undefined
-            );
-            setGrossProfit(result);
+            const result = await inventoryValuationService.getGrossProfitByProduct({
+                startDate,
+                endDate,
+                page,
+                perPage,
+                search: searchTerm || undefined,
+                branchId: branchId || undefined,
+            });
+            setGrossProfitItems(result.items);
+            setGrossProfitSummary(result.summary);
+            setTotalRows(result.pagination.totalItems);
         } catch (error: any) {
+            setGrossProfitItems([]);
+            setGrossProfitSummary(null);
+            setTotalRows(0);
             Notify.failure(getErrorMessage(error, 'Failed to load gross profit data'));
             console.error('Load gross profit error:', error);
         } finally {
             setIsLoadingProfit(false);
         }
-    }, [startDate, endDate, branchId]);
+    }, [startDate, endDate, page, perPage, searchTerm, branchId, setTotalRows]);
+
+    /**
+     * Search handler — resets to page 1
+     */
+    const handleSearch = useCallback((value: string) => {
+        setSearchTerm(value);
+        resetPage();
+    }, [resetPage]);
+
+    /**
+     * Reload gross profit when pagination/search/dates change
+     */
+    useEffect(() => {
+        loadGrossProfit();
+    }, [loadGrossProfit]);
 
     /**
      * Load all data for the current date range
@@ -112,9 +146,18 @@ export const useCOGSReport = () => {
         cogsDiscrepancy,
         hasDiscrepancy,
         // Gross profit
-        grossProfit,
+        grossProfitItems,
+        grossProfitSummary,
         isLoadingProfit,
         loadGrossProfit,
+        // Search & Pagination
+        searchTerm,
+        handleSearch,
+        page,
+        perPage,
+        totalRows,
+        handlePageChange,
+        handlePerRowsChange,
         // Combined
         loadAll,
         branchId,
