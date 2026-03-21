@@ -65,6 +65,7 @@ interface InventoryValuationItem {
     productId: string;
     variantId: string | null;
     productName: string;
+    variantName: string | null;
     sku: string | null;
     costingMethod: CostingMethodType;
     availableQuantity: number;
@@ -75,7 +76,7 @@ interface InventoryValuationItem {
 }
 
 /**
- * Branch-level valuation summary
+ * Branch-level valuation summary (aggregate totals)
  */
 interface InventoryValuationSummary {
     tenantId: string;
@@ -86,8 +87,31 @@ interface InventoryValuationSummary {
     totalWeightedAverageValue: number;
     totalFIFOValue: number;
     totalLIFOValue: number;
-    items: InventoryValuationItem[];
     valuationDate: Date | string;
+}
+
+/**
+ * Paginated valuation response data
+ */
+interface InventoryValuationData {
+    items: InventoryValuationItem[];
+    pagination: {
+        currentPage: number;
+        totalPages: number;
+        totalItems: number;
+        itemsPerPage: number;
+    };
+    summary: InventoryValuationSummary;
+}
+
+/**
+ * Query params for paginated valuation summary
+ */
+interface ValuationSummaryQuery {
+    page?: number;
+    limit?: number;
+    search?: string;
+    costingMethod?: CostingMethodType;
 }
 
 /**
@@ -153,9 +177,25 @@ interface PeriodCOGSFromSalesResult {
 }
 
 /**
- * Gross profit by product
+ * Gross profit product item
  */
-interface GrossProfitByProductResult {
+interface GrossProfitProductItem {
+    productId: string;
+    productName: string;
+    variantId: string;
+    variantName: string | null;
+    sku: string | null;
+    unitsSold: number;
+    revenue: number;
+    cogs: number;
+    grossProfit: number;
+    marginPercent: number;
+}
+
+/**
+ * Gross profit summary
+ */
+interface GrossProfitSummary {
     tenantId: string;
     branchId: string;
     startDate: Date | string;
@@ -165,17 +205,32 @@ interface GrossProfitByProductResult {
     totalGrossProfit: number;
     overallMarginPercent: number;
     totalUnitsSold: number;
-    byProduct: Array<{
-        productId: string;
-        productName: string;
-        variantId: string;
-        sku: string | null;
-        unitsSold: number;
-        revenue: number;
-        cogs: number;
-        grossProfit: number;
-        marginPercent: number;
-    }>;
+}
+
+/**
+ * Gross profit by product — paginated response data
+ */
+interface GrossProfitByProductResult {
+    items: GrossProfitProductItem[];
+    pagination: {
+        currentPage: number;
+        totalPages: number;
+        totalItems: number;
+        itemsPerPage: number;
+    };
+    summary: GrossProfitSummary;
+}
+
+/**
+ * Query params for paginated gross profit
+ */
+interface GrossProfitQuery {
+    startDate: string;
+    endDate: string;
+    page?: number;
+    perPage?: number;
+    search?: string;
+    branchId?: string;
 }
 
 // ─── Inventory Aging ───────────────────────────────────────────────────────
@@ -262,7 +317,7 @@ interface ChangeCostingMethodResult {
 interface ValuationSummaryResponse {
     success: boolean;
     message: string;
-    data: InventoryValuationSummary;
+    data: InventoryValuationData;
 }
 
 /**
