@@ -38,12 +38,19 @@ const inventoryValuationService = {
     // ─── Valuation ─────────────────────────────────────────────────────────
 
     /**
-     * GET /inventory-valuation/summary — Full branch valuation
-     * Returns WAC + FIFO + LIFO totals and per-item breakdown
+     * GET /inventory-valuation/summary — Paginated branch valuation
+     * Returns items (page), pagination metadata, and aggregate summary
      */
-    async getValuationSummary(): Promise<InventoryValuationSummary> {
+    async getValuationSummary(query: ValuationSummaryQuery = {}): Promise<InventoryValuationData> {
+        const params: Record<string, any> = {};
+        Object.keys(query).forEach((key) => {
+            const value = (query as any)[key];
+            if (value !== undefined && value !== null && value !== '') {
+                params[key] = value;
+            }
+        });
         return api
-            .get<ValuationSummaryResponse>(endpoints.summary)
+            .get<ValuationSummaryResponse>(endpoints.summary, params)
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -142,19 +149,20 @@ const inventoryValuationService = {
 
     /**
      * GET /inventory-valuation/gross-profit/by-product
-     * Returns per-product revenue, COGS, profit, margin %
+     * Returns paginated per-product revenue, COGS, profit, margin %
      */
     async getGrossProfitByProduct(
-        startDate: string,
-        endDate: string,
-        branchId?: string
+        query: GrossProfitQuery
     ): Promise<GrossProfitByProductResult> {
+        const params: Record<string, any> = {};
+        Object.keys(query).forEach((key) => {
+            const value = (query as any)[key];
+            if (value !== undefined && value !== null && value !== '') {
+                params[key] = value;
+            }
+        });
         return api
-            .get<GrossProfitResponse>(endpoints.grossProfitByProduct, {
-                startDate,
-                endDate,
-                ...(branchId && { branchId }),
-            })
+            .get<GrossProfitResponse>(endpoints.grossProfitByProduct, params)
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
