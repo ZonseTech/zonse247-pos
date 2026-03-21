@@ -53,6 +53,14 @@ export enum ROUTES {
 	INVENTORY_VALUATION = '/inventory-valuation',
 	COGS_PROFITABILITY = '/cogs-profitability',
 	INVENTORY_AGING = '/inventory-aging',
+
+	INVENTORY_HUB_PRODUCTS = '/inventory-hub/products',
+	INVENTORY_HUB_CATEGORIES = '/inventory-hub/categories',
+	INVENTORY_HUB_STOCK_MOVEMENTS = '/inventory-hub/stock-movements',
+	INVENTORY_HUB_VALUATION = '/inventory-hub/valuation',
+	INVENTORY_HUB_COGS = '/inventory-hub/cogs',
+	INVENTORY_HUB_AGING = '/inventory-hub/aging',
+	INVENTORY_HUB_CHARTS = '/inventory-hub/charts',
 	SALES_HISTORY = '/sales-history',
 
 	SUBSCRIPTIONS = '/subscriptions',
