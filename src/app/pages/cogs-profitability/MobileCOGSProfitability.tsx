@@ -30,7 +30,8 @@ const MobileCOGSProfitability: FC = () => {
         isLoadingCOGS,
         showCrossCheck, setShowCrossCheck,
         cogsDiscrepancy, hasDiscrepancy,
-        grossProfit,
+        grossProfitItems,
+        grossProfitSummary,
         isLoadingProfit,
         loadAll,
     } = useCOGSReport();
@@ -48,8 +49,8 @@ const MobileCOGSProfitability: FC = () => {
     const isLoading = isLoadingCOGS || isLoadingProfit;
 
     // Sort profit products by margin descending
-    const sortedProducts = grossProfit?.byProduct
-        ? [...grossProfit.byProduct].sort((a, b) => b.marginPercent - a.marginPercent)
+    const sortedProducts = grossProfitItems.length
+        ? [...grossProfitItems].sort((a, b) => b.marginPercent - a.marginPercent)
         : [];
 
     return (
@@ -233,7 +234,7 @@ const MobileCOGSProfitability: FC = () => {
                                 <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-3" />
                                 <p className="text-sm text-gray-500 dark:text-gray-400">Loading profit data...</p>
                             </div>
-                        ) : !grossProfit ? (
+                        ) : !grossProfitSummary ? (
                             <div className="text-center py-16 text-gray-500 dark:text-gray-400 text-sm">
                                 No profit data available.
                             </div>
@@ -244,29 +245,29 @@ const MobileCOGSProfitability: FC = () => {
                                     <div className="p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800">
                                         <p className="text-[10px] uppercase tracking-wider text-sky-500 dark:text-sky-400 font-medium">Revenue</p>
                                         <p className="text-sm font-bold text-sky-600 dark:text-sky-400 mt-0.5">
-                                            {formatCurrency(grossProfit.totalRevenue, true)}
+                                            {formatCurrency(grossProfitSummary.totalRevenue, true)}
                                         </p>
                                     </div>
                                     <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
                                         <p className="text-[10px] uppercase tracking-wider text-red-500 dark:text-red-400 font-medium">COGS</p>
                                         <p className="text-sm font-bold text-red-600 dark:text-red-400 mt-0.5">
-                                            {formatCurrency(grossProfit.totalCOGS, true)}
+                                            {formatCurrency(grossProfitSummary.totalCOGS, true)}
                                         </p>
                                     </div>
                                     <div className={classNames(
                                         'p-3 rounded-lg border',
-                                        grossProfit.totalGrossProfit >= 0
+                                        grossProfitSummary.totalGrossProfit >= 0
                                             ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
                                             : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
                                     )}>
                                         <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium">Profit</p>
                                         <p className={classNames(
                                             'text-sm font-bold mt-0.5',
-                                            grossProfit.totalGrossProfit >= 0
+                                            grossProfitSummary.totalGrossProfit >= 0
                                                 ? 'text-emerald-600 dark:text-emerald-400'
                                                 : 'text-red-600 dark:text-red-400'
                                         )}>
-                                            {formatCurrency(grossProfit.totalGrossProfit, true)}
+                                            {formatCurrency(grossProfitSummary.totalGrossProfit, true)}
                                         </p>
                                     </div>
                                 </div>
@@ -274,22 +275,22 @@ const MobileCOGSProfitability: FC = () => {
                                 {/* Overall Margin */}
                                 <div className={classNames(
                                     'flex items-center justify-center gap-2 py-2 rounded-lg',
-                                    grossProfit.overallMarginPercent >= 0
+                                    grossProfitSummary.overallMarginPercent >= 0
                                         ? 'bg-emerald-50 dark:bg-emerald-900/20'
                                         : 'bg-red-50 dark:bg-red-900/20'
                                 )}>
-                                    {grossProfit.overallMarginPercent >= 0 ? (
+                                    {grossProfitSummary.overallMarginPercent >= 0 ? (
                                         <TrendingUp className="w-4 h-4 text-emerald-500" />
                                     ) : (
                                         <TrendingDown className="w-4 h-4 text-red-500" />
                                     )}
                                     <span className={classNames(
                                         'text-sm font-bold',
-                                        grossProfit.overallMarginPercent >= 0
+                                        grossProfitSummary.overallMarginPercent >= 0
                                             ? 'text-emerald-600 dark:text-emerald-400'
                                             : 'text-red-600 dark:text-red-400'
                                     )}>
-                                        {grossProfit.overallMarginPercent.toFixed(1)}% overall margin
+                                        {grossProfitSummary.overallMarginPercent.toFixed(1)}% overall margin
                                     </span>
                                 </div>
 
