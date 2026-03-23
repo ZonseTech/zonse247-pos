@@ -1,4 +1,5 @@
 import { FunctionComponent, ReactNode } from 'react';
+import { Card, Flex, Text } from '@radix-ui/themes';
 import {
     Wifi,
     Usb,
@@ -50,33 +51,38 @@ const PrinterMobileCard: FunctionComponent<PrinterMobileCardProps> = ({
     };
 
     return (
-        <div
+        <Card
+            size="2"
+            className="cursor-pointer active:bg-gray-50 dark:active:bg-gray-700/50 transition-colors"
             onClick={() => onEdit(printer)}
-            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-none active:bg-gray-50 dark:active:bg-gray-700/50 transition-colors cursor-pointer"
         >
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${printer.isActive ? 'bg-sky-100 dark:bg-sky-900/30' : 'bg-gray-100 dark:bg-gray-700'}`}>
+            <Flex align="center" justify="between">
+                <Flex align="center" gap="3">
+                    <Flex
+                        align="center"
+                        justify="center"
+                        className={`p-2 rounded-lg ${printer.isActive ? 'bg-sky-100 dark:bg-sky-900/30' : 'bg-gray-100 dark:bg-gray-700'}`}
+                    >
                         <span className={printer.isActive ? 'text-sky-500 dark:text-sky-400' : 'text-gray-400'}>
                             {getConnectionIcon(printer.connectionType)}
                         </span>
-                    </div>
-                    <div>
-                        <h3 className="font-medium text-gray-900 dark:text-white text-sm">
+                    </Flex>
+                    <Flex direction="column" gap="1">
+                        <Text size="2" weight="medium">
                             {printer.printerName}
-                        </h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        </Text>
+                        <Text size="1" color="gray">
                             {getConnectionLabel(printer.connectionType)}
                             {printer.printerModel && ` • ${printer.printerModel}`}
                             {` • ${getPrinterTypeLabel(printer.printerType)}`}
-                        </p>
-                    </div>
-                </div>
+                        </Text>
+                    </Flex>
+                </Flex>
                 {printer.isDefault && (
                     <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
                 )}
-            </div>
-        </div>
+            </Flex>
+        </Card>
     );
 };
 
