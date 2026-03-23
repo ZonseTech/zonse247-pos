@@ -3,21 +3,18 @@ import Footer from "../components/Footer"
 import { Outlet } from "react-router"
 import { type FunctionComponent } from "react"
 import { isElectron } from "../../helpers/index.helper"
-import { useApp } from "../context/AppProvider"
 import { useIsMobile, useIsNativeMobile, useIsEBN } from "../hooks/useMediaQuery"
 import { useUserSyncCheck } from "../hooks/useUserSyncCheck"
 import SocketWrapper from "../components/SocketWrapper"
 import { PageHeaderProvider, PageHeaderSlot } from "../context/PageHeaderContext"
 
 const ProtectedLayout: FunctionComponent = () => {
-	const { settings } = useApp();
-	const isMobile = useIsMobile();
-	const isNativeMobile = useIsNativeMobile();
 	const isEBN = useIsEBN();
+	const isMobile = useIsMobile();
 	const isNotDesktopEnv = !isElectron()
+	const isNativeMobile = useIsNativeMobile();
 	const showWebNav = isNotDesktopEnv && !isNativeMobile && !isEBN
 
-	// Reactive user status check after sync pulls (deactivation / force password reset)
 	useUserSyncCheck();
 
 	return (
@@ -33,18 +30,18 @@ const ProtectedLayout: FunctionComponent = () => {
 					)}
 
 					<div className="flex flex-col flex-1 min-w-0 z-10">
-						{showWebNav && (
+						{showWebNav ? (
 							<header className="flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm z-20 relative">
 								<NavBar variant="topbar" />
 							</header>
-						)}
+						) : null}
 
-						{/* Page header slot — PageHeader portals here, between topbar and main */}
 						<PageHeaderSlot />
 
 						<main className="flex-1 overflow-auto text-gray-700 dark:text-gray-300 relative z-0">
 							<Outlet />
 						</main>
+
 						{!isNativeMobile && (
 							<div className="border-t border-gray-200 dark:border-gray-700">
 								<Footer />
