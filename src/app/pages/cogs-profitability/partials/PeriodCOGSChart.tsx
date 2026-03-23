@@ -13,8 +13,10 @@ import { AlertTriangle, Loader2 } from 'lucide-react';
 import { formatCurrency } from '../../../utils';
 
 interface PeriodCOGSChartProps {
-    periodCOGS: PeriodCOGSResult | null;
-    salesCOGS: PeriodCOGSFromSalesResult | null;
+    items: PeriodCOGSProductItem[];
+    summary: PeriodCOGSSummary | null;
+    salesItems: PeriodCOGSProductItem[];
+    salesSummary: PeriodCOGSFromSalesResult['summary'] | null;
     showCrossCheck: boolean;
     isLoading: boolean;
     cogsDiscrepancy: number | null;
@@ -22,7 +24,7 @@ interface PeriodCOGSChartProps {
 }
 
 const PeriodCOGSChart: FC<PeriodCOGSChartProps> = ({
-    periodCOGS, salesCOGS, showCrossCheck, isLoading, cogsDiscrepancy, hasDiscrepancy,
+    items, summary, salesItems, salesSummary, showCrossCheck, isLoading, cogsDiscrepancy, hasDiscrepancy,
 }) => {
     if (isLoading) {
         return (
@@ -33,7 +35,7 @@ const PeriodCOGSChart: FC<PeriodCOGSChartProps> = ({
         );
     }
 
-    if (!periodCOGS) {
+    if (!summary) {
         return (
             <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <p className="text-sm">Select a date range and click Refresh to load COGS data.</p>
@@ -41,21 +43,24 @@ const PeriodCOGSChart: FC<PeriodCOGSChartProps> = ({
         );
     }
 
-    // Build chart data from byProduct — top 15 by COGS
-    const sorted = [...periodCOGS.byProduct].sort((a, b) => b.cogs - a.cogs);
+    // Build chart data — top 15 by COGS
+    const sorted = [...items].sort((a, b) => b.cogs - a.cogs);
     const top = sorted.slice(0, 15);
 
     const chartData = top.map((item) => {
+        const label = item.variantName && item.variantName !== 'Default'
+            ? `${item.productName} – ${item.variantName}`
+            : item.productName;
         const entry: Record<string, any> = {
-            name: item.productName.length > 20
-                ? item.productName.substring(0, 18) + '…'
-                : item.productName,
-            fullName: item.productName,
+            name: label.length > 20
+                ? label.substring(0, 18) + '…'
+                : label,
+            fullName: label,
             ledgerCOGS: item.cogs,
         };
 
-        if (showCrossCheck && salesCOGS) {
-            const salesItem = salesCOGS.byProduct.find(
+        if (showCrossCheck && salesItems?.length > 0) {
+            const salesItem = salesItems.find(
                 (s) => s.productId === item.productId
             );
             entry.salesCOGS = salesItem?.cogs ?? 0;
@@ -70,23 +75,23 @@ const PeriodCOGSChart: FC<PeriodCOGSChartProps> = ({
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <MiniStat
                     label="Total COGS (Ledger)"
-                    value={formatCurrency(periodCOGS.totalCOGS, true)}
+                    value={formatCurrency(summary.totalCOGS, true)}
                     color="text-red-600 dark:text-red-400"
                 />
                 <MiniStat
                     label="Units Sold"
-                    value={periodCOGS.totalUnitsSold.toLocaleString()}
+                    value={summary.totalUnitsSold.toLocaleString()}
                     color="text-sky-600 dark:text-sky-400"
                 />
                 <MiniStat
                     label="Sale Movements"
-                    value={periodCOGS.saleMovementCount.toLocaleString()}
+                    value={summary.saleMovementCount.toLocaleString()}
                     color="text-indigo-600 dark:text-indigo-400"
                 />
-                {showCrossCheck && salesCOGS && (
+                {showCrossCheck && salesSummary && (
                     <MiniStat
                         label="COGS (Sales)"
-                        value={formatCurrency(salesCOGS.totalCOGS, true)}
+                        value={formatCurrency(salesSummary.totalCOGS, true)}
                         color="text-amber-600 dark:text-amber-400"
                     />
                 )}
@@ -98,15 +103,15 @@ const PeriodCOGSChart: FC<PeriodCOGSChartProps> = ({
                     <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
                     <p className="text-xs text-amber-700 dark:text-amber-300">
                         <span className="font-semibold">COGS discrepancy detected:</span>{' '}
-                        Ledger ({formatCurrency(periodCOGS.totalCOGS, true)}) vs Sales
-                        ({formatCurrency(salesCOGS!.totalCOGS, true)}) differ by{' '}
+                        Ledger ({formatCurrency(summary.totalCOGS, true)}) vs Sales
+                        ({formatCurrency(salesSummary!.totalCOGS, true)}) differ by{' '}
                         <span className="font-bold">{formatCurrency(cogsDiscrepancy, true)}</span>.
                         This may indicate missing or duplicate cost entries.
                     </p>
                 </div>
             )}
 
-            {showCrossCheck && !hasDiscrepancy && salesCOGS && (
+            {showCrossCheck && !hasDiscrepancy && salesSummary && (
                 <div className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
                     <span className="text-emerald-500 text-sm">✓</span>
                     <p className="text-xs text-emerald-700 dark:text-emerald-300">
@@ -163,7 +168,7 @@ const PeriodCOGSChart: FC<PeriodCOGSChartProps> = ({
                                 }}
                                 labelStyle={{ color: '#9ca3af', fontWeight: 600 }}
                             />
-                            {showCrossCheck && salesCOGS && (
+                            {showCrossCheck && salesItems?.length > 0 && (
                                 <Legend
                                     wrapperStyle={{ fontSize: 11 }}
                                     formatter={(value) =>
@@ -178,7 +183,7 @@ const PeriodCOGSChart: FC<PeriodCOGSChartProps> = ({
                                 radius={[3, 3, 0, 0]}
                                 maxBarSize={40}
                             />
-                            {showCrossCheck && salesCOGS && (
+                            {showCrossCheck && salesItems?.length > 0 && (
                                 <Bar
                                     dataKey="salesCOGS"
                                     name="salesCOGS"
