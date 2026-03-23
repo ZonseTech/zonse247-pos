@@ -111,7 +111,9 @@ const StockTransferModal: FC<StockTransferModalProps> = ({
                                 Transfer Stock
                             </h2>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                Move inventory to another branch
+                                {selected
+                                    ? <>{selected.name} — <span className="font-semibold">{selected.variantName}</span></>
+                                    : 'Move inventory to another branch'}
                             </p>
                         </div>
                     </div>
