@@ -200,6 +200,7 @@ const DesktopReports: FunctionComponent = () => {
                             startDate={startDate}
                             endDate={endDate}
                             onChange={handleDateChange}
+                            align='right'
                         />
                     </div>
                 </div>
