@@ -1,8 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Notify } from 'notiflix';
 import { getErrorMessage } from '../utils/api-error-handler';
 import inventoryValuationService from '../services/inventory-valuation.service';
 import { useSettings } from './useSettings';
+import { usePagination } from './usePagination';
 
 const BUCKET_KEYS = ['0-30', '31-60', '61-90', '91-180', '181-365', '365+', 'never'] as const;
 type BucketKey = (typeof BUCKET_KEYS)[number];
@@ -31,12 +32,20 @@ export { BUCKET_KEYS, BUCKET_LABELS, BUCKET_COLORS };
 export type { BucketKey };
 
 export const useInventoryAging = () => {
-    const { setup } = useSettings();
+    const { setup, loading: setupLoading } = useSettings();
 
-    const [agingData, setAgingData] = useState<InventoryAgingResult | null>(null);
+    const [items, setItems] = useState<InventoryAgingItem[]>([]);
+    const [summary, setSummary] = useState<InventoryAgingSummary | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
     const [thresholdDays, setThresholdDays] = useState<number>(90);
     const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'slow' | 'dead'>('all');
+
+    const {
+        page, perPage, totalRows, setTotalRows,
+        handlePageChange, handlePerRowsChange, resetPage,
+        hasNextPage, hasPrevPage, nextPage, prevPage, pageLabel,
+    } = usePagination({ initialPerPage: 15 });
 
     const tenantId = setup?.tenantId || '';
     const branchId = setup?.branchId || '';
@@ -45,60 +54,96 @@ export const useInventoryAging = () => {
         if (!tenantId || !branchId) return;
         setIsLoading(true);
         try {
-            const data = await inventoryValuationService.getInventoryAging(
-                threshold ?? thresholdDays,
-                branchId
-            );
-            setAgingData(data);
+            const data = await inventoryValuationService.getInventoryAging({
+                page,
+                limit: perPage,
+                search: searchTerm || undefined,
+                statusFilter: statusFilter !== 'all' ? statusFilter : undefined,
+                thresholdDays: threshold ?? thresholdDays,
+                branchId,
+            });
+            setItems(data.items);
+            setSummary(data.summary);
+            setTotalRows(data.pagination.totalItems);
         } catch (error: any) {
+            setItems([]);
+            setSummary(null);
+            setTotalRows(0);
             Notify.failure(getErrorMessage(error, 'Failed to load aging report'));
             console.error('Load aging report error:', error);
         } finally {
             setIsLoading(false);
         }
-    }, [tenantId, branchId, thresholdDays]);
+    }, [tenantId, branchId, page, perPage, searchTerm, statusFilter, thresholdDays, setTotalRows]);
+
+    const handleSearch = useCallback((value: string) => {
+        setSearchTerm(value);
+        resetPage();
+    }, [resetPage]);
+
+    const handleStatusFilterChange = useCallback((value: 'all' | 'active' | 'slow' | 'dead') => {
+        setStatusFilter(value);
+        resetPage();
+    }, [resetPage]);
+
+    const handleThresholdChange = useCallback((days: number) => {
+        setThresholdDays(days);
+        resetPage();
+    }, [resetPage]);
+
+    useEffect(() => {
+        loadAgingReport();
+    }, [loadAgingReport]);
 
     /**
      * Get bucket chart data for visualization
      */
     const getBucketChartData = useCallback(() => {
-        if (!agingData) return [];
+        if (!summary) return [];
         return BUCKET_KEYS.map((key) => ({
             key,
             label: BUCKET_LABELS[key],
             color: BUCKET_COLORS[key],
-            itemCount: agingData.buckets[key].itemCount,
-            totalQuantity: agingData.buckets[key].totalQuantity,
-            totalValue: agingData.buckets[key].totalValue,
+            itemCount: summary.buckets[key].itemCount,
+            totalQuantity: summary.buckets[key].totalQuantity,
+            totalValue: summary.buckets[key].totalValue,
         }));
-    }, [agingData]);
-
-    /**
-     * Filter items by status
-     */
-    const getFilteredItems = useCallback(() => {
-        if (!agingData) return [];
-        if (statusFilter === 'all') return agingData.items;
-        return agingData.items.filter((item) => item.status === statusFilter);
-    }, [agingData, statusFilter]);
+    }, [summary]);
 
     /**
      * Total value at risk (slow + never-sold)
      */
-    const valueAtRisk = agingData
-        ? agingData.slowMoverValue + agingData.neverSoldValue
+    const valueAtRisk = summary
+        ? summary.slowMoverValue + summary.neverSoldValue
         : 0;
 
+    const isBusy = setupLoading || isLoading;
+
     return {
-        agingData,
-        isLoading,
-        thresholdDays,
-        setThresholdDays,
-        statusFilter,
-        setStatusFilter,
+        items,
+        summary,
+        isLoading: isBusy,
         loadAgingReport,
+        // Pagination & search
+        page,
+        perPage,
+        totalRows,
+        searchTerm,
+        handleSearch,
+        handlePageChange,
+        handlePerRowsChange,
+        hasNextPage,
+        hasPrevPage,
+        nextPage,
+        prevPage,
+        pageLabel,
+        // Filters
+        thresholdDays,
+        handleThresholdChange,
+        statusFilter,
+        handleStatusFilterChange,
+        // Chart helpers
         getBucketChartData,
-        getFilteredItems,
         valueAtRisk,
         tenantId,
         branchId,
