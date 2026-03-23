@@ -146,7 +146,7 @@ const purchaseOrderService = {
         return api
             .post<PurchaseOrderResponse>(
                 endpoints.send(purchaseOrderId),
-                {}
+                {} as any
             )
             .then((res) => res.data.data)
             .catch((err) => {
