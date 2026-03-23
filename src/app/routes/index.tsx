@@ -25,6 +25,7 @@ import {
 	SubscriptionRoutes,
 	SystemRoutes,
 	ErrorRoutes,
+	AccountInfoRoutes,
 } from './config'
 
 const ProtectedLayoutWithAuth = withProtectedRoute(ProtectedLayout)
@@ -59,6 +60,7 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 					{SubscriptionRoutes}
 
 					{SystemRoutes}
+					{AccountInfoRoutes}
 
 					<Route path="*" element={<Navigate to="/not-found" />} />
 				</Route>
