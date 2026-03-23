@@ -1,7 +1,9 @@
 import { FunctionComponent, useState, ReactNode } from 'react';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { Badge, Flex, Heading, IconButton, ScrollArea, Separator, Text, Tooltip } from '@radix-ui/themes';
 import { Form, Formik } from 'formik';
 import { Notify, Confirm } from 'notiflix';
-import { X, Wifi, Usb, Bluetooth, Network, Star, Trash2, Power, TestTube, FileText, Printer } from 'lucide-react';
+import { Wifi, Usb, Bluetooth, Network, Star, Trash2, Power, TestTube, FileText, Printer } from 'lucide-react';
 import { Button, FormSearchableSelect, FormFieldCard, TabOptionGroup, FormSwitch } from '../../../components';
 import printerService from '../../../services/printer.service';
 import MobilePageHeader from '../../../components/page/MobilePageHeader';
@@ -188,168 +190,155 @@ const PrinterDetailModal: FunctionComponent<PrinterDetailModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 z-50 bg-gray-50 dark:bg-gray-900 flex flex-col">
-            <MobilePageHeader
-                title="Printer Details"
-                onLeftPress={onClose}
-                leftIcon={<span className={printer.isActive ? 'text-sky-500' : 'text-gray-400'}>
-                    {getConnectionIcon(printer.connectionType)}
-                </span>}
-                rightContent={
-                    <button
-                        onClick={onClose}
-                        className="p-2 -mr-2 text-gray-500 dark:text-gray-400"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
-                }
-            />
+        <DialogPrimitive.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <DialogPrimitive.Portal>
+                <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50" />
+                <DialogPrimitive.Content className="fixed inset-0 z-50 bg-gray-50 dark:bg-gray-900 flex flex-col">
+                    <MobilePageHeader
+                        title="Printer Details"
+                        onLeftPress={onClose}
+                        leftIcon={<span className={printer.isActive ? 'text-sky-500' : 'text-gray-400'}>
+                            {getConnectionIcon(printer.connectionType)}
+                        </span>}
+                        rightContent={
+                            <DialogPrimitive.Close asChild>
+                                <IconButton variant="ghost" color="gray" size="2">
+                                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+                                </IconButton>
+                            </DialogPrimitive.Close>
+                        }
+                    />
 
-            <div className="flex-shrink-0 p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                <div className="flex items-center gap-3">
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
-                                {printer.printerName}
-                            </h2>
-                            {printer.isDefault && (
-                                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 flex-shrink-0" />
+                    {/* Printer Info Header */}
+                    <Flex direction="column" gap="3" p="4" className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                        <Flex align="center" gap="3">
+                            <Flex direction="column" gap="1" className="flex-1 min-w-0">
+                                <Flex align="center" gap="2">
+                                    <Heading size="3" truncate>{printer.printerName}</Heading>
+                                    {printer.isDefault && (
+                                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 flex-shrink-0" />
+                                    )}
+                                </Flex>
+                                <Text size="2" color="gray">
+                                    {printer.connectionType} • {printer.printerType}
+                                </Text>
+                            </Flex>
+                            <Badge color={printer.isActive ? 'green' : 'gray'} variant="soft" size="1">
+                                {printer.isActive ? 'Active' : 'Inactive'}
+                            </Badge>
+                        </Flex>
+
+                        <Separator size="4" />
+
+                        <Flex align="center" justify="end" gap="1">
+                            <Tooltip content={printer.isDefault ? 'Default printer' : 'Set as default'}>
+                                <IconButton
+                                    variant="ghost"
+                                    color={printer.isDefault ? 'yellow' : 'gray'}
+                                    size="2"
+                                    onClick={handleSetDefault}
+                                    disabled={printer.isDefault}
+                                >
+                                    <Star className={`w-5 h-5 ${printer.isDefault ? 'fill-current' : ''}`} />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip content={printer.isActive ? 'Disable printer' : 'Enable printer'}>
+                                <IconButton variant="ghost" color={printer.isActive ? 'green' : 'gray'} size="2" onClick={handleToggleActive}>
+                                    <Power className="w-5 h-5" />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip content="Test connection">
+                                <IconButton variant="ghost" color="blue" size="2" onClick={handleTestConnection} disabled={isTestingConnection}>
+                                    <TestTube className={`w-5 h-5 ${isTestingConnection ? 'animate-pulse' : ''}`} />
+                                </IconButton>
+                            </Tooltip>
+                            {onDelete && (
+                                <Tooltip content="Delete printer">
+                                    <IconButton variant="ghost" color="red" size="2" onClick={handleDelete}>
+                                        <Trash2 className="w-5 h-5" />
+                                    </IconButton>
+                                </Tooltip>
                             )}
-                        </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {printer.connectionType} • {printer.printerType}
-                        </p>
-                    </div>
-                    <div className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${printer.isActive
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                        : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
-                        }`}>
-                        {printer.isActive ? 'Active' : 'Inactive'}
-                    </div>
-                </div>
+                        </Flex>
+                    </Flex>
 
-                <div className="flex items-center justify-end gap-1 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                    <button
-                        onClick={handleSetDefault}
-                        disabled={printer.isDefault}
-                        className="p-2.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
-                        title="Set as default"
-                    >
-                        <Star className={`w-5 h-5 ${printer.isDefault ? 'text-yellow-500 fill-yellow-500' : 'text-gray-500 dark:text-gray-400'}`} />
-                    </button>
-                    <button
-                        onClick={handleToggleActive}
-                        className="p-2.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        title={printer.isActive ? 'Disable printer' : 'Enable printer'}
-                    >
-                        <Power className={`w-5 h-5 ${printer.isActive ? 'text-green-500' : 'text-gray-500 dark:text-gray-400'}`} />
-                    </button>
-                    <button
-                        onClick={handleTestConnection}
-                        disabled={isTestingConnection}
-                        className="p-2.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
-                        title="Test connection"
-                    >
-                        <TestTube className={`w-5 h-5 text-sky-500 ${isTestingConnection ? 'animate-pulse' : ''}`} />
-                    </button>
-                    {onDelete && (
-                        <button
-                            onClick={handleDelete}
-                            className="p-2.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
-                            title="Delete printer"
+                    {/* Scrollable Form Content */}
+                    <ScrollArea scrollbars="vertical" className="flex-1">
+                        <Formik
+                            initialValues={initialValues}
+                            onSubmit={handleSubmit}
+                            enableReinitialize
                         >
-                            <Trash2 className="w-5 h-5 text-red-500" />
-                        </button>
-                    )}
-                </div>
-            </div>
+                            {() => (
+                                <Form id="printer-form" className="p-4 pb-6 space-y-6">
+                                    <FormFieldCard title="Paper Width">
+                                        <TabOptionGroup
+                                            name="paperWidth"
+                                            options={PAPER_WIDTH_OPTIONS}
+                                            size="md"
+                                            columns={3}
+                                        />
+                                    </FormFieldCard>
 
-            <div className="flex-1 overflow-y-auto">
-                <Formik
-                    initialValues={initialValues}
-                    onSubmit={handleSubmit}
-                    enableReinitialize
-                >
-                    {() => (
-                        <Form id="printer-form" className="p-4 pb-6 space-y-6">
-                            <FormFieldCard title="Paper Width">
-                                <TabOptionGroup
-                                    name="paperWidth"
-                                    options={PAPER_WIDTH_OPTIONS}
-                                    size="md"
-                                    columns={3}
-                                />
-                            </FormFieldCard>
+                                    <FormFieldCard title="Printer Content">
+                                        <TabOptionGroup
+                                            name="printerContent"
+                                            options={PRINTER_CONTENT_OPTIONS}
+                                            columns={4}
+                                            size="md"
+                                        />
+                                    </FormFieldCard>
 
-                            <FormFieldCard title="Printer Content">
-                                <TabOptionGroup
-                                    name="printerContent"
-                                    options={PRINTER_CONTENT_OPTIONS}
-                                    columns={4}
-                                    size="md"
-                                />
-                            </FormFieldCard>
+                                    <FormFieldCard title="Print Mode">
+                                        <TabOptionGroup
+                                            name="printMode"
+                                            options={PRINT_MODE_OPTIONS}
+                                            size="md"
+                                            columns={3}
+                                        />
+                                    </FormFieldCard>
 
-                            <FormFieldCard title="Print Mode">
-                                <TabOptionGroup
-                                    name="printMode"
-                                    options={PRINT_MODE_OPTIONS}
-                                    size="md"
-                                    columns={3}
-                                />
-                            </FormFieldCard>
+                                    <FormFieldCard title="Additional Options">
+                                        <div className="space-y-4">
+                                            <FormSwitch
+                                                name="autoPrintOnSale"
+                                                label="Print automatically on sale"
+                                            />
 
-                            <FormFieldCard title="Additional Options">
-                                <div className="space-y-4">
-                                    <FormSwitch
-                                        name="autoPrintOnSale"
-                                        label="Print automatically on sale"
-                                    />
+                                            <FormSearchableSelect
+                                                label="Line Spacing"
+                                                name="lineSpacing"
+                                                options={LINE_SPACING_OPTIONS}
+                                                placeholder="Select line spacing"
+                                                isClearable={false}
+                                            />
 
-                                    <FormSearchableSelect
-                                        label="Line Spacing"
-                                        name="lineSpacing"
-                                        options={LINE_SPACING_OPTIONS}
-                                        placeholder="Select line spacing"
-                                        isClearable={false}
-                                    />
+                                            <FormSearchableSelect
+                                                label="Font Size"
+                                                name="fontSize"
+                                                options={FONT_SIZE_OPTIONS}
+                                                placeholder="Select font size"
+                                                isClearable={false}
+                                            />
+                                        </div>
+                                    </FormFieldCard>
+                                </Form>
+                            )}
+                        </Formik>
+                    </ScrollArea>
 
-                                    <FormSearchableSelect
-                                        label="Font Size"
-                                        name="fontSize"
-                                        options={FONT_SIZE_OPTIONS}
-                                        placeholder="Select font size"
-                                        isClearable={false}
-                                    />
-                                </div>
-                            </FormFieldCard>
-                        </Form>
-                    )}
-                </Formik>
-            </div>
-
-            <div className="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 safe-area-bottom">
-                <div className="flex flex-row gap-3">
-                    <Button
-                        type="button"
-                        theme="success"
-                        className="flex-1"
-                        onClick={handlePrintTestPage}
-                    >
-                        TEST PRINT
-                    </Button>
-                    <Button
-                        type="submit"
-                        form="printer-form"
-                        theme="success"
-                        className="flex-1"
-                        disabled={isSaving}
-                    >
-                        {isSaving ? 'Saving...' : 'DONE'}
-                    </Button>
-                </div>
-            </div>
-        </div>
+                    {/* Footer Actions */}
+                    <Flex gap="3" p="4" className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 safe-area-bottom">
+                        <Button type="button" theme="success" className="flex-1" onClick={handlePrintTestPage}>
+                            TEST PRINT
+                        </Button>
+                        <Button type="submit" form="printer-form" theme="success" className="flex-1" disabled={isSaving}>
+                            {isSaving ? 'Saving...' : 'DONE'}
+                        </Button>
+                    </Flex>
+                </DialogPrimitive.Content>
+            </DialogPrimitive.Portal>
+        </DialogPrimitive.Root>
     );
 };
 
