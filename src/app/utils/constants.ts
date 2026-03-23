@@ -19,6 +19,11 @@ export enum ROUTES {
 	RECEIPTS = '/receipts',
 	RECEIPT_DETAILS = '/receipts/:saleId',
 	RETURNS = '/returns',
+
+	SALES_HUB = '/sales-hub',
+	SALES_HUB_SALES = '/sales-hub/sales',
+	SALES_HUB_REPORTS = '/sales-hub/reports',
+	SALES_HUB_RETURNS = '/sales-hub/returns',
 	CATEGORIES = '/categories',
 	CUSTOMERS = '/customers',
 	ITEMS = '/items',
@@ -49,6 +54,15 @@ export enum ROUTES {
 	SUPPLIER_RETURNS = '/supplier-returns',
 	SUPPLIER_RETURN_FORM = '/supplier-returns/form',
 	CREDIT_NOTES = '/supplier-returns/credit-notes',
+
+	PROCUREMENT_SUPPLIERS = '/procurement/suppliers',
+	PROCUREMENT_REQUISITIONS = '/procurement/requisitions',
+	PROCUREMENT_PURCHASE_ORDERS = '/procurement/purchase-orders',
+	PROCUREMENT_GOODS_RECEIPTS = '/procurement/goods-receipts',
+	PROCUREMENT_INVOICES = '/procurement/invoices',
+	PROCUREMENT_PAYMENTS = '/procurement/payments',
+	PROCUREMENT_RETURNS = '/procurement/returns',
+	PROCUREMENT_CREDIT_NOTES = '/procurement/credit-notes',
 	STOCK_MOVEMENTS = '/stock-movements',
 	INVENTORY_VALUATION = '/inventory-valuation',
 	COGS_PROFITABILITY = '/cogs-profitability',
@@ -73,6 +87,11 @@ export enum ROUTES {
 
 	BRANCHES = '/branches',
 	BRANCH_FORM = '/branches/form',
+
+	ACCOUNT_INFO = '/account-info',
+	ACCOUNT_INFO_TENANT = '/account-info/tenant',
+	ACCOUNT_INFO_BRANCHES = '/account-info/branches',
+	ACCOUNT_INFO_TERMINALS = '/account-info/terminals',
 
 	LOGIN = '/login',
 	CHANGE_PASSWORD = '/change-password',
