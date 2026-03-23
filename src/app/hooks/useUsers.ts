@@ -41,7 +41,7 @@ export const useUsers = (): UseUsersReturn => {
         try {
             const result = await usersService.listPaginated({
                 page,
-                limit: perPage,
+                perPage,
                 search: searchTerm || undefined,
                 roleId: roleFilter !== 'all' ? roleFilter : undefined,
             });
