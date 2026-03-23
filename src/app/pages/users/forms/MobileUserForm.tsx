@@ -1,8 +1,8 @@
 import { Form, Formik } from 'formik';
-import { Button } from '../../../components';
 import type { FunctionComponent } from 'react';
 import MobilePageHeader from '../../../components/page/MobilePageHeader';
 import { HiCheck } from 'react-icons/hi';
+import { Box, Button, Flex, Separator, Skeleton, Text } from '@radix-ui/themes';
 import {
     BasicInfoFields,
     StaffOptionsFields,
@@ -27,31 +27,31 @@ const MobileUserForm: FunctionComponent = () => {
 
     if (loading && !user && userId) {
         return (
-            <div className="flex flex-col h-full overflow-hidden bg-gray-50 dark:bg-gray-900">
-                <div className="fixed top-0 left-0 right-0 z-50">
+            <Flex direction="column" className="h-full overflow-hidden bg-gray-50 dark:bg-gray-900">
+                <Box className="fixed top-0 left-0 right-0 z-50">
                     <MobilePageHeader
-                        title={<span className="text-white font-semibold">Loading...</span>}
+                        title={<Text weight="bold" className="text-white">Loading...</Text>}
                         className="bg-sky-500 dark:bg-sky-700"
                     />
-                </div>
-                <div className="flex-1 min-h-0 overflow-hidden pt-[52px]">
-                    <div className="h-full overflow-y-auto p-4">
-                        <div className="space-y-4">
+                </Box>
+                <Box className="flex-1 min-h-0 overflow-hidden pt-[52px]">
+                    <Box className="h-full overflow-y-auto" p="4">
+                        <Flex direction="column" gap="4">
                             {[...Array(6)].map((_, i) => (
-                                <div key={i} className="space-y-2">
-                                    <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                                    <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
-                                </div>
+                                <Flex key={i} direction="column" gap="2">
+                                    <Skeleton className="h-4 w-24 rounded" />
+                                    <Skeleton className="h-12 rounded-lg" />
+                                </Flex>
                             ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        </Flex>
+                    </Box>
+                </Box>
+            </Flex>
         );
     }
 
     return (
-        <div className="flex flex-col h-full overflow-hidden bg-gray-50 dark:bg-gray-900">
+        <Flex direction="column" className="h-full overflow-hidden bg-gray-50 dark:bg-gray-900">
             <Formik
                 onSubmit={handleSubmit}
                 enableReinitialize={true}
@@ -60,100 +60,100 @@ const MobileUserForm: FunctionComponent = () => {
             >
                 {({ isSubmitting, values, setFieldValue, errors, touched }) => (
                     <Form className="flex flex-col h-full">
-                        <div className="fixed top-0 left-0 right-0 z-50">
+                        <Box className="fixed top-0 left-0 right-0 z-50">
                             <MobilePageHeader
                                 onLeftPress={() => navigate(-1)}
-                                title={<span className="text-white font-semibold">{isEditMode ? 'EDIT USER' : 'ADD USER'}</span>}
+                                title={<Text weight="bold" className="text-white">{isEditMode ? 'EDIT USER' : 'ADD USER'}</Text>}
                                 rightContent={
                                     <Button
                                         type="submit"
                                         disabled={isSubmitting || loading}
                                         loading={isSubmitting || loading}
+                                        variant="ghost"
+                                        highContrast
                                     >
                                         <HiCheck className="w-5 h-5 text-white" />
-                                        <span className="text-white text-sm font-medium">SAVE</span>
+                                        <Text size="2" weight="medium" className="text-white">SAVE</Text>
                                     </Button>
                                 }
                                 theme='sky'
                             />
-                        </div>
+                        </Box>
 
-                        <div className="flex-1 min-h-0 overflow-hidden pt-[52px]">
-                            <div className="h-full overflow-y-auto pb-20 p-4 space-y-4">
-                                <BasicInfoFields isEditMode={isEditMode} />
+                        <Box className="flex-1 min-h-0 overflow-hidden pt-[52px]">
+                            <Box className="h-full overflow-y-auto pb-20" p="4">
+                                <Flex direction="column" gap="4">
+                                    <BasicInfoFields isEditMode={isEditMode} />
 
-                                <StaffOptionsFields
-                                    trackAttendance={values.trackAttendance}
-                                    allowAppAccess={values.allowAppAccess}
-                                    onTrackAttendanceChange={(value) => setFieldValue('trackAttendance', value)}
-                                    onAllowAppAccessChange={(value) => setFieldValue('allowAppAccess', value)}
-                                />
+                                    <StaffOptionsFields
+                                        trackAttendance={values.trackAttendance}
+                                        allowAppAccess={values.allowAppAccess}
+                                        onTrackAttendanceChange={(value) => setFieldValue('trackAttendance', value)}
+                                        onAllowAppAccessChange={(value) => setFieldValue('allowAppAccess', value)}
+                                    />
 
-                                {values.trackAttendance && (
-                                    <>
-                                        <div className="py-3">
-                                            <div className="flex items-center gap-2">
-                                                <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
-                                                <h4 className="text-xs font-semibold text-sky-600 dark:text-sky-400 uppercase tracking-wider">
+                                    {values.trackAttendance && (
+                                        <>
+                                            <Flex align="center" gap="2" py="3">
+                                                <Separator size="4" />
+                                                <Text size="1" weight="bold" color="sky" className="uppercase tracking-wider whitespace-nowrap">
                                                     Attendance & Salary
-                                                </h4>
-                                                <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
-                                            </div>
-                                        </div>
+                                                </Text>
+                                                <Separator size="4" />
+                                            </Flex>
 
-                                        <CalculateAsFields
-                                            value={values.calculateAs}
-                                            onChange={(value) => setFieldValue('calculateAs', value)}
-                                        />
+                                            <CalculateAsFields
+                                                value={values.calculateAs}
+                                                onChange={(value) => setFieldValue('calculateAs', value)}
+                                            />
 
-                                        <SalaryAttendanceFields
-                                            calculateAs={values.calculateAs}
-                                            allowSelfAttendance={values.allowSelfAttendance}
-                                            attendanceType={values.attendanceType}
-                                            onAllowSelfAttendanceChange={(value) => setFieldValue('allowSelfAttendance', value)}
-                                            onAttendanceTypeChange={(value) => setFieldValue('attendanceType', value)}
-                                        />
-                                    </>
-                                )}
+                                            <SalaryAttendanceFields
+                                                calculateAs={values.calculateAs}
+                                                allowSelfAttendance={values.allowSelfAttendance}
+                                                attendanceType={values.attendanceType}
+                                                onAllowSelfAttendanceChange={(value) => setFieldValue('allowSelfAttendance', value)}
+                                                onAttendanceTypeChange={(value) => setFieldValue('attendanceType', value)}
+                                            />
+                                        </>
+                                    )}
 
-                                {values.allowAppAccess && (
-                                    <>
-                                        <div className="py-3">
-                                            <div className="flex items-center gap-2">
-                                                <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
-                                                <h4 className="text-xs font-semibold text-sky-600 dark:text-sky-400 uppercase tracking-wider">
+                                    {values.allowAppAccess && (
+                                        <>
+                                            <Flex align="center" gap="2" py="3">
+                                                <Separator size="4" />
+                                                <Text size="1" weight="bold" color="sky" className="uppercase tracking-wider whitespace-nowrap">
                                                     Access & Permissions
-                                                </h4>
-                                                <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
-                                            </div>
-                                        </div>
+                                                </Text>
+                                                <Separator size="4" />
+                                            </Flex>
 
-                                        <BranchRoleFields
-                                            branchId={values.branchId}
-                                            roleId={values.roleId}
-                                            tenantId={values.tenantId}
-                                            branchError={errors.branchId as string}
-                                            branchTouched={touched.branchId as boolean}
-                                            roleError={errors.roleId as string}
-                                            roleTouched={touched.roleId as boolean}
-                                            onBranchChange={(value) => setFieldValue('branchId', value)}
-                                            onRoleChange={(value) => setFieldValue('roleId', value)}
-                                            showTenant={hasPrefilledTenant}
-                                            tenantDisabled={hasPrefilledTenant}
-                                            onTenantChange={(tenantId) => {
-                                                setFieldValue('tenantId', tenantId);
-                                                setFieldValue('branchId', '');
-                                                setFieldValue('roleId', '');
-                                            }}
-                                        />
-                                    </>
-                                )}
-                            </div>
-                        </div>
+                                            <BranchRoleFields
+                                                branchId={values.branchId}
+                                                roleId={values.roleId}
+                                                tenantId={values.tenantId}
+                                                branchError={errors.branchId as string}
+                                                branchTouched={touched.branchId as boolean}
+                                                roleError={errors.roleId as string}
+                                                roleTouched={touched.roleId as boolean}
+                                                onBranchChange={(value) => setFieldValue('branchId', value)}
+                                                onRoleChange={(value) => setFieldValue('roleId', value)}
+                                                showTenant={hasPrefilledTenant}
+                                                tenantDisabled={hasPrefilledTenant}
+                                                onTenantChange={(tenantId) => {
+                                                    setFieldValue('tenantId', tenantId);
+                                                    setFieldValue('branchId', '');
+                                                    setFieldValue('roleId', '');
+                                                }}
+                                            />
+                                        </>
+                                    )}
+                                </Flex>
+                            </Box>
+                        </Box>
                     </Form>
                 )}
             </Formik>
-        </div>
+        </Flex>
     );
 };
 
