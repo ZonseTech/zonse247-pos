@@ -2,10 +2,9 @@ import * as Yup from 'yup';
 import { FunctionComponent, useState } from 'react';
 import { Form, Formik, FormikHelpers } from 'formik';
 import { Notify, Report } from 'notiflix';
-import { Button } from '../../../components';
+import { Box, Flex, Text, Button } from '@radix-ui/themes';
 import FormWrapper from '../../../components/FormWrapper';
 import FormInput from '../../../components/FormInput';
-import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import usersService from '../../../services/users.service';
 import { getErrorMessage } from '../../../utils/api-error-handler';
 
@@ -70,7 +69,7 @@ const MobileChangePasswordForm: FunctionComponent<Props> = ({ userId, onSuccess 
     };
 
     return (
-        <div className="px-4 pb-6">
+        <Box px="4" pb="6">
             <Formik
                 initialValues={initialPasswordValues}
                 validationSchema={passwordValidationSchema}
@@ -79,8 +78,8 @@ const MobileChangePasswordForm: FunctionComponent<Props> = ({ userId, onSuccess 
                 {({ isSubmitting }) => (
                     <Form>
                         <FormWrapper>
-                            <div className="space-y-4">
-                                <div className="relative">
+                            <Flex direction="column" gap="4">
+                                <Box className="relative">
                                     <FormInput
                                         type={showOldPassword ? 'text' : 'password'}
                                         name="oldPassword"
@@ -88,8 +87,8 @@ const MobileChangePasswordForm: FunctionComponent<Props> = ({ userId, onSuccess 
                                         required
                                         placeholder="Enter your current password"
                                     />
-                                </div>
-                                <div className="relative">
+                                </Box>
+                                <Box className="relative">
                                     <FormInput
                                         type={showNewPassword ? 'text' : 'password'}
                                         name="newPassword"
@@ -97,8 +96,8 @@ const MobileChangePasswordForm: FunctionComponent<Props> = ({ userId, onSuccess 
                                         required
                                         placeholder="Enter new password"
                                     />
-                                </div>
-                                <div className="relative">
+                                </Box>
+                                <Box className="relative">
                                     <FormInput
                                         type={showConfirmPassword ? 'text' : 'password'}
                                         name="confirmPassword"
@@ -106,23 +105,25 @@ const MobileChangePasswordForm: FunctionComponent<Props> = ({ userId, onSuccess 
                                         required
                                         placeholder="Confirm new password"
                                     />
-                                </div>
-                            </div>
+                                </Box>
+                            </Flex>
                         </FormWrapper>
 
-                        <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                            <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+                        <Box mt="4" p="3" className="bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <Text as="p" size="1" weight="medium" color="gray" className="mb-2">
                                 Password Requirements:
-                            </p>
-                            <ul className="text-xs text-gray-500 dark:text-gray-500 space-y-1">
-                                <li>• At least 8 characters</li>
-                                <li>• One uppercase letter</li>
-                                <li>• One lowercase letter</li>
-                                <li>• One number</li>
-                            </ul>
-                        </div>
+                            </Text>
+                            <Flex direction="column" gap="1" asChild>
+                                <ul className="text-xs text-gray-500 dark:text-gray-500">
+                                    <li>• At least 8 characters</li>
+                                    <li>• One uppercase letter</li>
+                                    <li>• One lowercase letter</li>
+                                    <li>• One number</li>
+                                </ul>
+                            </Flex>
+                        </Box>
 
-                        <div className="mt-6">
+                        <Box mt="6">
                             <Button
                                 type="submit"
                                 loading={isSubmitting}
@@ -130,11 +131,11 @@ const MobileChangePasswordForm: FunctionComponent<Props> = ({ userId, onSuccess 
                             >
                                 Change Password
                             </Button>
-                        </div>
+                        </Box>
                     </Form>
                 )}
             </Formik>
-        </div>
+        </Box>
     );
 };
 
