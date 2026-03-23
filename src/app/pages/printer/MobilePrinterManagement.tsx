@@ -1,5 +1,6 @@
 import { Notify } from 'notiflix';
 import { Printer, Plus } from 'lucide-react';
+import { Box, Flex, IconButton, Text } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
 import { HiOutlineChevronLeft, HiOutlineChevronRight } from 'react-icons/hi2';
 import { usePrinters } from '../../hooks/usePrinters';
@@ -112,67 +113,69 @@ const MobilePrinterManagement: FunctionComponent = () => {
         <AppLayout>
             <MobilePageHeader title="Printers" theme='sky' />
 
-            <div className="max-w-full">
+            <Box className="max-w-full">
+                {isLoading ? (
+                    <ComponentLoader loading={true} />
+                ) : printers.length === 0 ? (
+                    <Flex direction="column" align="center" justify="center" py="9" px="4">
+                        <Flex
+                            align="center" justify="center"
+                            className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mb-4"
+                        >
+                            <Printer className="w-8 h-8 text-gray-400" />
+                        </Flex>
+                        <Text size="4" weight="medium" align="center" mb="2">
+                            No printers yet
+                        </Text>
+                        <Text size="2" color="gray" align="center" className="max-w-sm">
+                            Discover or add printers to get started.
+                        </Text>
+                    </Flex>
+                ) : (
+                    <>
+                        <Flex direction="column" gap="3" p="2">
+                            {printers.map((printer) => (
+                                <PrinterMobileCard
+                                    key={printer.printerId}
+                                    printer={printer}
+                                    onEdit={handleOpenDetail}
+                                />
+                            ))}
+                        </Flex>
 
-                <div className="overflow-hidden">
-                    <div className="overflow-hidden">
-                        {isLoading ? (
-                            <ComponentLoader loading={true} />
-                        ) : printers.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-12 px-4">
-                                <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                                    <Printer className="w-8 h-8 text-gray-400" />
-                                </div>
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2 text-center">
-                                    No printers yet
-                                </h3>
-                                <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm text-sm">
-                                    Discover or add printers to get started.
-                                </p>
-                            </div>
-                        ) : (
-                            <>
-                                <div className="space-y-3 p-2">
-                                    {printers.map((printer) => (
-                                        <PrinterMobileCard
-                                            key={printer.printerId}
-                                            printer={printer}
-                                            onEdit={handleOpenDetail}
-                                        />
-                                    ))}
-                                </div>
-
-                                {totalRows >= 10 && (
-                                    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-                                        <span className="text-xs text-gray-600 dark:text-gray-400">
-                                            {totalRows} total
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={() => setPage(Math.max(1, page - 1))}
-                                                disabled={page <= 1}
-                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                <HiOutlineChevronLeft className="w-5 h-5" />
-                                            </button>
-                                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                                                {page} / {Math.ceil(totalRows / perPage) || 1}
-                                            </span>
-                                            <button
-                                                onClick={() => setPage(Math.min(Math.ceil(totalRows / perPage), page + 1))}
-                                                disabled={page >= Math.ceil(totalRows / perPage)}
-                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                <HiOutlineChevronRight className="w-5 h-5" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-                            </>
+                        {totalRows >= 10 && (
+                            <Flex align="center" justify="between" px="4" py="3" className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+                                <Text size="1" color="gray">
+                                    {totalRows} total
+                                </Text>
+                                <Flex align="center" gap="2">
+                                    <IconButton
+                                        variant="ghost"
+                                        color="gray"
+                                        size="2"
+                                        onClick={() => setPage(Math.max(1, page - 1))}
+                                        disabled={page <= 1}
+                                    >
+                                        <HiOutlineChevronLeft className="w-5 h-5" />
+                                    </IconButton>
+                                    <Text size="2" color="gray">
+                                        {page} / {Math.ceil(totalRows / perPage) || 1}
+                                    </Text>
+                                    <IconButton
+                                        variant="ghost"
+                                        color="gray"
+                                        size="2"
+                                        onClick={() => setPage(Math.min(Math.ceil(totalRows / perPage), page + 1))}
+                                        disabled={page >= Math.ceil(totalRows / perPage)}
+                                    >
+                                        <HiOutlineChevronRight className="w-5 h-5" />
+                                    </IconButton>
+                                </Flex>
+                            </Flex>
                         )}
-                    </div>
-                </div>
-            </div>
+                    </>
+                )}
+            </Box>
 
             <DiscoveryModal
                 isOpen={showDiscoveryModal} isDiscovering={isDiscovering}
@@ -204,7 +207,7 @@ const MobilePrinterManagement: FunctionComponent = () => {
                     className="rounded-full shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95 px-4 h-12 bg-sky-500 text-white active:bg-sky-700"
                 >
                     <Plus className="w-5 h-5" />
-                    <span className="text-sm font-medium whitespace-nowrap">ADD NEW PRINTER</span>
+                    <Text size="2" weight="medium" className="whitespace-nowrap text-white">ADD NEW PRINTER</Text>
                 </button>
             </div>
         </AppLayout>
