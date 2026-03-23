@@ -1,4 +1,5 @@
 import type { FunctionComponent } from 'react';
+import { Flex, Box, Text } from '@radix-ui/themes';
 import FormFieldCard from '../../../../components/card/FormFieldCard';
 import BranchSearch from '../../../terminal/partials/BranchSearch';
 import TenantSearch from '../../../branch/partials/TenantSearch';
@@ -35,7 +36,7 @@ const BranchRoleFields: FunctionComponent<BranchRoleFieldsProps> = ({
 }) => {
     return (
         <FormFieldCard>
-            <div className="space-y-4">
+            <Flex direction="column" gap="4">
                 {showTenant && onTenantChange && (
                     <TenantSearch
                         value={tenantId}
@@ -50,10 +51,10 @@ const BranchRoleFields: FunctionComponent<BranchRoleFieldsProps> = ({
                     error={branchError}
                     touched={branchTouched}
                 />
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Role <span className="text-red-500">*</span>
-                    </label>
+                <Box>
+                    <Text as="label" size="2" weight="medium" mb="1" className="block">
+                        Role <Text color="red" asChild><span>*</span></Text>
+                    </Text>
                     <RoleSearch
                         selectedRoleId={roleId}
                         onRoleSelect={(role) => {
@@ -63,10 +64,10 @@ const BranchRoleFields: FunctionComponent<BranchRoleFieldsProps> = ({
                         disabled={!tenantId}
                     />
                     {roleTouched && roleError && typeof roleError === 'string' && (
-                        <div className="text-red-500 text-sm mt-1">{roleError}</div>
+                        <Text as="p" size="1" color="red" mt="1">{roleError}</Text>
                     )}
-                </div>
-            </div>
+                </Box>
+            </Flex>
         </FormFieldCard>
     );
 };
