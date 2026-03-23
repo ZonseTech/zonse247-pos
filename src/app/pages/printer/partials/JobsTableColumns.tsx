@@ -1,4 +1,5 @@
 import { TableColumn } from 'react-data-table-component';
+import { Badge, Flex, IconButton, Text, Tooltip } from '@radix-ui/themes';
 import { Printer, X, RotateCcw, AlertCircle, Clock, Loader2, CheckCircle, XCircle, Receipt, FileText, FileBarChart, Tag, ChefHat, TestTube } from 'lucide-react';
 import { Notify } from 'notiflix';
 import { formatDistanceToNow, format } from 'date-fns';
@@ -11,6 +12,14 @@ const JOB_TYPE_ICONS: Record<PrintJobType, React.ReactNode> = {
     BARCODE: <Tag className="w-4 h-4" />,
     KITCHEN_ORDER: <ChefHat className="w-4 h-4" />,
     TEST_PAGE: <TestTube className="w-4 h-4" />,
+};
+
+const STATUS_BADGE_COLOR: Record<PrintJobStatus, 'yellow' | 'blue' | 'green' | 'red' | 'gray'> = {
+    PENDING: 'yellow',
+    PRINTING: 'blue',
+    COMPLETED: 'green',
+    FAILED: 'red',
+    CANCELLED: 'gray',
 };
 
 const STATUS_CONFIG: Record<PrintJobStatus, { bg: string; text: string; icon: React.ReactNode }> = {
@@ -48,9 +57,9 @@ export const getJobsTableColumns = (
             selector: row => row.jobType,
             sortable: true,
             cell: row => (
-                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                <Badge color="purple" variant="soft" size="1">
                     {row.jobType.replace('_', ' ')}
-                </span>
+                </Badge>
             ),
             minWidth: '120px',
         },
@@ -59,10 +68,10 @@ export const getJobsTableColumns = (
             selector: row => getPrinterName(row.printerId),
             sortable: true,
             cell: row => (
-                <div className="flex items-center gap-2">
+                <Flex align="center" gap="2">
                     <Printer className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-700 dark:text-gray-300">{getPrinterName(row.printerId)}</span>
-                </div>
+                    <Text size="2" color="gray">{getPrinterName(row.printerId)}</Text>
+                </Flex>
             ),
             minWidth: '150px',
         },
@@ -73,10 +82,10 @@ export const getJobsTableColumns = (
             cell: row => {
                 const config = STATUS_CONFIG[row.status] || STATUS_CONFIG.PENDING;
                 return (
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
+                    <Badge color={STATUS_BADGE_COLOR[row.status] || 'gray'} variant="soft" size="1">
                         {config.icon}
-                        {row.status}
-                    </span>
+                        <span className="ml-1">{row.status}</span>
+                    </Badge>
                 );
             },
             minWidth: '130px',
@@ -103,25 +112,31 @@ export const getJobsTableColumns = (
         {
             name: 'Actions',
             cell: row => (
-                <div className="flex items-center gap-2">
+                <Flex align="center" gap="1">
                     {row.status === 'PENDING' && (
-                        <button onClick={() => onCancel(row.printJobId, row.jobTitle)} className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20" title="Cancel">
-                            <X className="w-4 h-4" />
-                        </button>
+                        <Tooltip content="Cancel job">
+                            <IconButton variant="ghost" color="red" size="1" onClick={() => onCancel(row.printJobId, row.jobTitle)}>
+                                <X className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
                     )}
                     {row.status === 'FAILED' && (
                         <>
-                            <button onClick={() => onRetry(row.printJobId, row.jobTitle)} className="p-1.5 rounded-lg text-sky-500 hover:bg-sky-50 dark:hover:bg-sky-900/20" title="Retry">
-                                <RotateCcw className="w-4 h-4" />
-                            </button>
+                            <Tooltip content="Retry job">
+                                <IconButton variant="ghost" color="blue" size="1" onClick={() => onRetry(row.printJobId, row.jobTitle)}>
+                                    <RotateCcw className="w-4 h-4" />
+                                </IconButton>
+                            </Tooltip>
                             {row.errorMessage && (
-                                <button onClick={() => Notify.info(row.errorMessage || 'Unknown error')} className="p-1.5 rounded-lg text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20" title="View Error">
-                                    <AlertCircle className="w-4 h-4" />
-                                </button>
+                                <Tooltip content="View error">
+                                    <IconButton variant="ghost" color="amber" size="1" onClick={() => Notify.info(row.errorMessage || 'Unknown error')}>
+                                        <AlertCircle className="w-4 h-4" />
+                                    </IconButton>
+                                </Tooltip>
                             )}
                         </>
                     )}
-                </div>
+                </Flex>
             ),
             width: '120px',
             right: true,
