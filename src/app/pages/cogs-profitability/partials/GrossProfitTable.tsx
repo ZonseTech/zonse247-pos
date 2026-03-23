@@ -6,9 +6,8 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 import * as Popover from '@radix-ui/react-popover';
 import * as Avatar from '@radix-ui/react-avatar';
 import * as Separator from '@radix-ui/react-separator';
-import { Box, Flex } from '@radix-ui/themes';
+import { Box } from '@radix-ui/themes';
 import { ZonseThemeContext } from '../../../components';
-import { SearchBar } from '../../../components/SearchBar';
 import TableSkeleton from '../../../components/skeleton/TableSkeleton';
 import TableEmptyState from '../../../components/TableEmptyState';
 import { getTableStyles } from '../../../utils/table-styles';
@@ -20,7 +19,6 @@ interface GrossProfitTableProps {
     summary: GrossProfitSummary | null;
     isLoading: boolean;
     searchTerm: string;
-    onSearch: (value: string) => void;
     totalRows: number;
     perPage: number;
     onPageChange: (page: number) => void;
@@ -38,7 +36,7 @@ interface SummaryCard {
 
 const GrossProfitTable: FC<GrossProfitTableProps> = ({
     items, summary, isLoading,
-    searchTerm, onSearch,
+    searchTerm,
     totalRows, perPage, onPageChange, onPerRowsChange,
 }) => {
     const { mode } = useContext(ZonseThemeContext);
@@ -102,6 +100,9 @@ const GrossProfitTable: FC<GrossProfitTableProps> = ({
                 <div className="py-2">
                     <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                         {row.productName}
+                        {row.variantName && row.variantName !== 'Default' && (
+                            <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">– {row.variantName}</span>
+                        )}
                     </p>
                     {row.sku && (
                         <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">{row.sku}</p>
@@ -337,21 +338,6 @@ const GrossProfitTable: FC<GrossProfitTableProps> = ({
                 </Box>
                 <Separator.Root decorative className="h-px bg-gray-200 dark:bg-gray-700" />
             </Tooltip.Provider>
-
-            {/* Search */}
-            <Flex
-                align="center"
-                px="4"
-                py="3"
-                className="border-b border-gray-200 dark:border-gray-700"
-            >
-                <SearchBar
-                    placeholder="Search products..."
-                    value={searchTerm}
-                    onChange={onSearch}
-                    className="w-full sm:flex-1 sm:max-w-xs"
-                />
-            </Flex>
 
             {/* Table */}
             <DataTable
