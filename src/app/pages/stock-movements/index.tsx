@@ -2,13 +2,14 @@ import { FunctionComponent, useContext, useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
 import { Activity, SlidersHorizontal, ShieldAlert, Clock, ClipboardCheck, ArrowRightLeft, TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
 import DataTable from 'react-data-table-component';
+import { Box, Flex, Button } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import TableSkeleton from '../../components/skeleton/TableSkeleton';
 import TableEmptyState from '../../components/TableEmptyState';
 import SummaryCards, { type SummaryCardItem } from '../../components/stats/SummaryCards';
 import { getTableStyles } from '../../utils/table-styles';
-import { ZonseThemeContext, Button } from '../../components';
+import { ZonseThemeContext } from '../../components';
 import { useStockMovements } from '../../hooks/useStockMovements';
 import { getStockMovementTableColumns } from './partials/StockMovementTableColumns';
 import Filters from './partials/Filters';
@@ -107,68 +108,72 @@ const StockMovements: FunctionComponent = () => {
                 description={productId ? 'Product stock history' : 'All stock movements audit trail'}
             />
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-
-                {/* Action Toolbar + Filters */}
-                <div className="px-4 pt-4 space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <Filters
-                            movementTypeFilter={movementTypeFilter}
-                            onMovementTypeChange={setMovementTypeFilter}
-                            startDate={startDate}
-                            onStartDateChange={setStartDate}
-                            endDate={endDate}
-                            onEndDateChange={setEndDate}
-                        />
-                        <div className="flex flex-wrap gap-2 flex-shrink-0">
-                            <Button
-                                theme="primary"
-                                layout="outline"
-                                size="small"
-                                onClick={() => setActiveModal('adjust')}
-                            >
-                                <SlidersHorizontal className="w-3.5 h-3.5 mr-1.5" />
-                                Adjust
-                            </Button>
-                            <Button
-                                theme="warning"
-                                layout="outline"
-                                size="small"
-                                onClick={() => setActiveModal('damage')}
-                            >
-                                <ShieldAlert className="w-3.5 h-3.5 mr-1.5" />
-                                Damage
-                            </Button>
-                            <Button
-                                theme="danger"
-                                layout="outline"
-                                size="small"
-                                onClick={() => setActiveModal('expiry')}
-                            >
-                                <Clock className="w-3.5 h-3.5 mr-1.5" />
-                                Expiry
-                            </Button>
-                            <Button
-                                theme="success"
-                                layout="outline"
-                                size="small"
-                                onClick={() => setActiveModal('count')}
-                            >
-                                <ClipboardCheck className="w-3.5 h-3.5 mr-1.5" />
-                                Count
-                            </Button>
-                            <Button
-                                theme="primary"
-                                layout="outline"
-                                size="small"
-                                onClick={() => setActiveModal('transfer')}
-                            >
-                                <ArrowRightLeft className="w-3.5 h-3.5 mr-1.5" />
-                                Transfer
-                            </Button>
-                        </div>
-                    </div>
-                </div>
+            <Box className="rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <Flex
+                    direction={{ initial: 'column', sm: 'row' }}
+                    align={{ initial: 'start', sm: 'center' }}
+                    justify="between"
+                    gap="3"
+                    px="4"
+                    py="3"
+                    className="border-b border-gray-200 dark:border-gray-700"
+                >
+                    <Filters
+                        movementTypeFilter={movementTypeFilter}
+                        onMovementTypeChange={setMovementTypeFilter}
+                        startDate={startDate}
+                        onStartDateChange={setStartDate}
+                        endDate={endDate}
+                        onEndDateChange={setEndDate}
+                    />
+                    <Flex wrap="wrap" gap="2" flexShrink="0">
+                        <Button
+                            variant="outline"
+                            color="blue"
+                            size="1"
+                            onClick={() => setActiveModal('adjust')}
+                        >
+                            <SlidersHorizontal className="w-3.5 h-3.5" />
+                            Adjust
+                        </Button>
+                        <Button
+                            variant="outline"
+                            color="orange"
+                            size="1"
+                            onClick={() => setActiveModal('damage')}
+                        >
+                            <ShieldAlert className="w-3.5 h-3.5" />
+                            Damage
+                        </Button>
+                        <Button
+                            variant="outline"
+                            color="red"
+                            size="1"
+                            onClick={() => setActiveModal('expiry')}
+                        >
+                            <Clock className="w-3.5 h-3.5" />
+                            Expiry
+                        </Button>
+                        <Button
+                            variant="outline"
+                            color="green"
+                            size="1"
+                            onClick={() => setActiveModal('count')}
+                        >
+                            <ClipboardCheck className="w-3.5 h-3.5" />
+                            Count
+                        </Button>
+                        <Button
+                            variant="outline"
+                            color="blue"
+                            size="1"
+                            onClick={() => setActiveModal('transfer')}
+                        >
+                            <ArrowRightLeft className="w-3.5 h-3.5" />
+                            Transfer
+                        </Button>
+                    </Flex>
+                </Flex>
 
                 <SummaryCards
                     cards={summaryCards}
@@ -177,41 +182,38 @@ const StockMovements: FunctionComponent = () => {
                     variant="embedded"
                 />
 
-                <div className="overflow-hidden">
-                    <DataTable
-                        columns={columns}
-                        data={movements}
-                        theme={mode as string}
-                        progressPending={isLoading}
-                        progressComponent={<TableSkeleton rows={10} columns={6} />}
-                        pagination
-                        paginationServer
-                        paginationTotalRows={totalRows}
-                        paginationPerPage={perPage}
-                        paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
-                        onChangeRowsPerPage={setPerPage}
-                        onChangePage={setPage}
-                        customStyles={getTableStyles(mode)}
-                        highlightOnHover
-                        responsive
-                        persistTableHead
-                        fixedHeader
-                        noDataComponent={
-                            <TableEmptyState
-                                icon={<Activity />}
-                                title="No stock movements found"
-                                description={
-                                    movementTypeFilter || startDate || endDate
-                                        ? 'Try adjusting your filters.'
-                                        : 'Stock movements will appear here.'
-                                }
-                            />
-                        }
-                    />
-                </div>
-            </div>
+                <DataTable
+                    columns={columns}
+                    data={movements}
+                    theme={mode as string}
+                    progressPending={isLoading}
+                    progressComponent={<TableSkeleton rows={10} columns={6} />}
+                    pagination
+                    paginationServer
+                    paginationTotalRows={totalRows}
+                    paginationPerPage={perPage}
+                    paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
+                    onChangeRowsPerPage={setPerPage}
+                    onChangePage={setPage}
+                    customStyles={getTableStyles(mode)}
+                    highlightOnHover
+                    responsive
+                    persistTableHead
+                    fixedHeader
+                    noDataComponent={
+                        <TableEmptyState
+                            icon={<Activity />}
+                            title="No stock movements found"
+                            description={
+                                movementTypeFilter || startDate || endDate
+                                    ? 'Try adjusting your filters.'
+                                    : 'Stock movements will appear here.'
+                            }
+                        />
+                    }
+                />
+            </Box>
 
-            {/* Modals */}
             <StockAdjustmentModal
                 isOpen={activeModal === 'adjust'}
                 onClose={() => setActiveModal(null)}
