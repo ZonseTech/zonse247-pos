@@ -1,4 +1,5 @@
 import type { FunctionComponent, ReactNode } from 'react';
+import { Flex, Box, Text } from '@radix-ui/themes';
 
 interface InfoRowProps {
     icon: ReactNode;
@@ -8,16 +9,18 @@ interface InfoRowProps {
 }
 
 const InfoRow: FunctionComponent<InfoRowProps> = ({ icon, label, value, noBorder = false }) => (
-    <div
-        className={`flex items-center px-4 sm:px-6 py-3 sm:py-4 ${!noBorder ? 'border-b border-gray-100 dark:border-gray-700' : ''
-            }`}
+    <Flex
+        align="center"
+        px={{ initial: '4', sm: '6' }}
+        py={{ initial: '3', sm: '4' }}
+        className={!noBorder ? 'border-b border-gray-100 dark:border-gray-700' : ''}
     >
-        <div className="flex-shrink-0 mr-3 sm:mr-4">{icon}</div>
-        <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
-            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{value}</p>
-        </div>
-    </div>
+        <Box flexShrink="0" mr={{ initial: '3', sm: '4' }}>{icon}</Box>
+        <Box flexGrow="1" minWidth="0">
+            <Text as="p" size="1" color="gray">{label}</Text>
+            <Text as="p" size="2" weight="medium" truncate>{value}</Text>
+        </Box>
+    </Flex>
 );
 
 export default InfoRow;
