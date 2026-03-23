@@ -49,6 +49,7 @@ export const useInventoryStats = (
      * Fetch inventory overview with optional filters
      */
     const fetchOverview = useCallback(async (query: InventoryOverviewQuery = {}): Promise<InventoryOverview | null> => {
+        setIsLoading(true);
         try {
             const overview = await inventoryService.getOverview(query);
             setStats(prev => ({ ...prev, overview }));
@@ -59,6 +60,8 @@ export const useInventoryStats = (
             setError(message);
             console.error('Error fetching inventory overview:', err);
             return null;
+        } finally {
+            setIsLoading(false);
         }
     }, []);
 
