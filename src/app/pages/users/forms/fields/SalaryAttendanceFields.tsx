@@ -1,4 +1,5 @@
-import type { ChangeEvent, FunctionComponent } from 'react';
+import type { FunctionComponent } from 'react';
+import { Flex, Grid, Text, Switch, Separator, SegmentedControl } from '@radix-ui/themes';
 import FormFieldCard from '../../../../components/card/FormFieldCard';
 import FormInput from '../../../../components/FormInput';
 
@@ -21,14 +22,14 @@ const SalaryAttendanceFields: FunctionComponent<SalaryAttendanceFieldsProps> = (
 }) => {
     return (
         <FormFieldCard>
-            <div className="space-y-4">
+            <Flex direction="column" gap="4">
                 <FormInput
                     label="Staff Salary"
                     name="staffSalary"
                     type="number"
                     placeholder="Amount"
                 />
-                <div className="grid gap-3 grid-cols-2">
+                <Grid columns="2" gap="3">
                     {calculateAs !== 'hourly' && (
                         <FormInput
                             label="Avg. Shift Hrs/Day"
@@ -44,51 +45,35 @@ const SalaryAttendanceFields: FunctionComponent<SalaryAttendanceFieldsProps> = (
                         name="joiningDate"
                         type="date"
                     />
-                </div>
+                </Grid>
 
-                <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
-                    <label className="flex items-center space-x-3 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            checked={allowSelfAttendance}
-                            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                                onAllowSelfAttendanceChange(e.target.checked)
-                            }
-                            className="h-5 w-5 text-sky-500 focus:ring-0 focus:ring-offset-0 border-gray-300 rounded-sm accent-sky-500"
-                        />
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Separator size="4" />
+
+                <Flex asChild justify="between" align="center" gap="3">
+                    <label className="cursor-pointer">
+                        <Text size="2" weight="medium">
                             Allow self attendance
-                        </span>
+                        </Text>
+                        <Switch
+                            checked={allowSelfAttendance}
+                            onCheckedChange={onAllowSelfAttendanceChange}
+                            color="sky"
+                            size="2"
+                        />
                     </label>
+                </Flex>
 
-                    {allowSelfAttendance && (
-                        <div className="mt-3 flex items-center gap-4">
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="radio"
-                                    name="attendanceType"
-                                    value="single"
-                                    checked={attendanceType === 'single'}
-                                    onChange={() => onAttendanceTypeChange('single')}
-                                    className="h-4 w-4 text-sky-500 focus:ring-0 focus:ring-offset-0 border-gray-300 accent-sky-500"
-                                />
-                                <span className="text-sm text-gray-700 dark:text-gray-300">Single</span>
-                            </label>
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="radio"
-                                    name="attendanceType"
-                                    value="punch"
-                                    checked={attendanceType === 'punch'}
-                                    onChange={() => onAttendanceTypeChange('punch')}
-                                    className="h-4 w-4 text-sky-500 focus:ring-0 focus:ring-offset-0 border-gray-300 accent-sky-500"
-                                />
-                                <span className="text-sm text-gray-700 dark:text-gray-300">Punch In/Out</span>
-                            </label>
-                        </div>
-                    )}
-                </div>
-            </div>
+                {allowSelfAttendance && (
+                    <SegmentedControl.Root
+                        value={attendanceType}
+                        onValueChange={(val) => onAttendanceTypeChange(val as AttendanceType)}
+                        size="2"
+                    >
+                        <SegmentedControl.Item value="single">Single</SegmentedControl.Item>
+                        <SegmentedControl.Item value="punch">Punch In/Out</SegmentedControl.Item>
+                    </SegmentedControl.Root>
+                )}
+            </Flex>
         </FormFieldCard>
     );
 };
