@@ -90,7 +90,9 @@ const DamageStockModal: FC<DamageStockModalProps> = ({
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Record Damage</h2>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                Mark stock as damaged and remove from available
+                                {selected
+                                    ? <>{selected.name} — <span className="font-semibold">{selected.variantName}</span></>
+                                    : 'Mark stock as damaged and remove from available'}
                             </p>
                         </div>
                     </div>
