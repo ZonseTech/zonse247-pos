@@ -1,10 +1,9 @@
 import { FunctionComponent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Card from '../../../components/card/Card';
 import { LogOut } from 'lucide-react';
+import { Card, Flex, Box, Text, Heading, Button } from '@radix-ui/themes';
 import { useAuth } from '../../../context/AuthProvider';
 import { ROUTES } from '../../../utils/constants';
-import Button from '../../../components/Button';
 
 const LogoutCard: FunctionComponent = () => {
     const navigate = useNavigate();
@@ -15,31 +14,31 @@ const LogoutCard: FunctionComponent = () => {
     };
 
     return (
-        <Card className="p-6 border-red-200 dark:border-red-900/30">
-            <div className="flex items-center gap-2 mb-4">
+        <Card size="3" className="border-red-200 dark:border-red-900/30">
+            <Flex align="center" gap="2" mb="4">
                 <LogOut className="w-5 h-5 text-red-500 dark:text-red-400" />
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <Heading as="h3" size="4" weight="bold">
                     Sign Out
-                </h3>
-            </div>
-            <div className="flex items-center justify-between">
-                <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                </Heading>
+            </Flex>
+            <Flex align="center" justify="between">
+                <Box>
+                    <Text as="p" size="2" weight="medium">
                         End Your Session
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    </Text>
+                    <Text as="p" size="1" color="gray">
                         You'll be redirected to the login page
-                    </p>
-                </div>
+                    </Text>
+                </Box>
                 <Button
-                    theme="danger"
+                    color="red"
+                    variant="solid"
                     onClick={handleLogout}
-                    className="flex items-center gap-2"
                 >
                     <LogOut className="w-4 h-4" />
-                    <span>Logout</span>
+                    Logout
                 </Button>
-            </div>
+            </Flex>
         </Card>
     );
 };
