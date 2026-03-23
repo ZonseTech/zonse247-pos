@@ -1,8 +1,9 @@
-import { useIsMobile, useIsElectron } from '../../hooks/useMediaQuery';
-import React, { PropsWithChildren, ReactNode } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import React, { PropsWithChildren, ReactNode } from 'react';
+import { Flex, Heading, Text, IconButton, Box } from '@radix-ui/themes';
 import { PageHeaderPortal } from '../../context/PageHeaderContext';
+import { useIsMobile, useIsElectron } from '../../hooks/useMediaQuery';
 
 interface PageHeaderProps {
     title?: string;
@@ -39,68 +40,81 @@ const PageHeader: React.FC<PropsWithChildren<PageHeaderProps>> = ({
     };
 
     const headerContent = (
-        <header
-            className={`flex-shrink-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 ${className}`}
-        >
-            {/* Title bar */}
-            <div className={compact
-                ? "flex justify-between items-center gap-2 py-2 px-4 md:px-6"
-                : "flex justify-between items-center gap-3 py-3 md:py-4 px-4 md:px-6"
-            }>
-                <div className={compact
-                    ? "flex items-center gap-2 flex-1 min-w-0"
-                    : "flex items-center gap-3 flex-1 min-w-0"
-                }>
-                    {(showBackButton || isMobile) && (
-                        <button
-                            onClick={handleBack}
-                            className="flex-shrink-0 p-1.5 -ml-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all"
-                            aria-label="Go back"
-                            type="button"
-                        >
-                            <ArrowLeft className={compact
-                                ? "w-4 h-4 text-gray-500 dark:text-gray-400"
-                                : "w-5 h-5 text-gray-500 dark:text-gray-400"
-                            } />
-                        </button>
-                    )}
-                    {icon && !isMobile && !isElectron && (
-                        <div className="flex-shrink-0 [&>svg]:w-6 [&>svg]:h-6">
-                            {icon}
-                        </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                        <h1 className={compact
-                            ? "text-sm font-semibold text-gray-900 dark:text-gray-100 truncate"
-                            : "text-base sm:text-lg md:text-xl font-semibold text-gray-900 dark:text-gray-100 truncate"
-                        }>
-                            {title}
-                        </h1>
-                        {!compact && description && (
-                            <p className="text-xs sm:text-sm hidden md:block text-gray-500 dark:text-gray-400 mt-0.5 truncate">
-                                {description}
-                            </p>
+        <Box asChild>
+            <header
+                className={`flex-shrink-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 ${className}`}
+            >
+                <Flex
+                    justify="between"
+                    align="center"
+                    gap={compact ? "2" : "3"}
+                    py={compact ? "2" : "3"}
+                    px={{ initial: "4", md: "6" }}
+                >
+                    <Flex
+                        align="center"
+                        gap={compact ? "2" : "3"}
+                        flexGrow="1"
+                        minWidth="0"
+                    >
+                        {(showBackButton || isMobile) && (
+                            <IconButton
+                                variant="ghost"
+                                color="gray"
+                                size="1"
+                                onClick={handleBack}
+                                aria-label="Go back"
+                                className="-ml-1 active:scale-95 transition-all"
+                            >
+                                <ArrowLeft className={compact ? "w-4 h-4" : "w-5 h-5"} />
+                            </IconButton>
                         )}
-                    </div>
-                </div>
+                        {/* {icon && !isMobile && !isElectron && (
+                            <Box flexShrink="0" className="[&>svg]:w-6 [&>svg]:h-6">
+                                {icon}
+                            </Box>
+                        )} */}
+                        <Box flexGrow="1" minWidth="0">
+                            <Heading
+                                as="h1"
+                                size={compact ? "2" : "4"}
+                                weight="bold"
+                                truncate
+                            >
+                                {title}
+                            </Heading>
+                            {!compact && description && (
+                                <Text
+                                    as="p"
+                                    size="2"
+                                    color="gray"
+                                    truncate
+                                    className="mt-0.5 hidden md:block"
+                                >
+                                    {description}
+                                </Text>
+                            )}
+                        </Box>
+                    </Flex>
 
-                {action && (
-                    <div className="flex-shrink-0">
-                        {action}
-                    </div>
+                    {action && (
+                        <Box flexShrink="0">
+                            {action}
+                        </Box>
+                    )}
+                </Flex>
+
+                {children && (
+                    <Box
+                        px={{ initial: "4", md: "6" }}
+                        py={compact ? "1" : "2"}
+                        className="border-t border-gray-100 dark:border-gray-800"
+                    >
+                        {children}
+                    </Box>
                 )}
-            </div>
-
-            {/* Optional sub-content (filters, tabs, etc.) */}
-            {children && (
-                <div className={compact
-                    ? "px-4 md:px-6 py-1 border-t border-gray-100 dark:border-gray-800"
-                    : "px-4 md:px-6 py-2 border-t border-gray-100 dark:border-gray-800"
-                }>
-                    {children}
-                </div>
-            )}
-        </header>
+            </header>
+        </Box>
     );
 
     return <PageHeaderPortal>{headerContent}</PageHeaderPortal>;
