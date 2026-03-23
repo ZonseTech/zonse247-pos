@@ -1,4 +1,5 @@
 import { FunctionComponent, ReactNode } from 'react';
+import { Badge, Card, Flex, Separator, Skeleton, Text } from '@radix-ui/themes';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import {
@@ -28,6 +29,17 @@ const PrintJobMobileCard: FunctionComponent<PrintJobMobileCardProps> = ({
     onCancel,
     onRetry
 }) => {
+    const getStatusBadgeColor = (status: PrintJobStatus): 'yellow' | 'blue' | 'green' | 'red' | 'gray' => {
+        const colors: Record<PrintJobStatus, 'yellow' | 'blue' | 'green' | 'red' | 'gray'> = {
+            'PENDING': 'yellow',
+            'PRINTING': 'blue',
+            'COMPLETED': 'green',
+            'FAILED': 'red',
+            'CANCELLED': 'gray',
+        };
+        return colors[status] || 'gray';
+    };
+
     const getStatusConfig = (status: PrintJobStatus) => {
         const configs: Record<PrintJobStatus, { color: string; bgColor: string; icon: ReactNode; label: string }> = {
             'PENDING': {
@@ -83,79 +95,78 @@ const PrintJobMobileCard: FunctionComponent<PrintJobMobileCardProps> = ({
     const canRetry = job.status === 'FAILED';
 
     return (
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm">
+        <Card size="2">
             {/* Header */}
-            <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className={`p-2 rounded-lg ${statusConfig.bgColor}`}>
+            <Flex align="start" justify="between" mb="3">
+                <Flex align="center" gap="3" className="flex-1 min-w-0">
+                    <Flex align="center" justify="center" className={`p-2 rounded-lg ${statusConfig.bgColor}`}>
                         <FileText className={`w-5 h-5 ${statusConfig.color}`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 dark:text-white text-sm truncate">
+                    </Flex>
+                    <Flex direction="column" gap="1" className="flex-1 min-w-0">
+                        <Text size="2" weight="medium" truncate>
                             {job.jobTitle}
-                        </h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-mono truncate">
+                        </Text>
+                        <Text size="1" color="gray" className="font-mono" truncate>
                             {job.printJobId.slice(0, 8)}...
-                        </p>
-                    </div>
-                </div>
-                <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${statusConfig.bgColor} ${statusConfig.color}`}>
+                        </Text>
+                    </Flex>
+                </Flex>
+                <Badge color={getStatusBadgeColor(job.status)} variant="soft" size="1">
                     {statusConfig.icon}
-                    <span>{statusConfig.label}</span>
-                </div>
-            </div>
+                    <span className="ml-1">{statusConfig.label}</span>
+                </Badge>
+            </Flex>
 
             {/* Details */}
-            <div className="space-y-2 mb-3">
-                <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400">Type</span>
-                    <span className={`font-medium ${jobTypeConfig.color}`}>
+            <Flex direction="column" gap="2" mb="3">
+                <Flex align="center" justify="between">
+                    <Text size="2" color="gray">Type</Text>
+                    <Text size="2" weight="medium" className={jobTypeConfig.color}>
                         {jobTypeConfig.label}
-                    </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400">Printer</span>
-                    <div className="flex items-center gap-1.5 text-gray-900 dark:text-white">
+                    </Text>
+                </Flex>
+                <Flex align="center" justify="between">
+                    <Text size="2" color="gray">Printer</Text>
+                    <Flex align="center" gap="1">
                         <Printer className="w-3.5 h-3.5 text-gray-400" />
-                        <span className="truncate max-w-[150px]">{getPrinterName(job.printerId)}</span>
-                    </div>
-                </div>
+                        <Text size="2" truncate className="max-w-[150px]">{getPrinterName(job.printerId)}</Text>
+                    </Flex>
+                </Flex>
                 {job.copies && job.copies > 1 && (
-                    <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500 dark:text-gray-400">Copies</span>
-                        <span className="text-gray-900 dark:text-white">{job.copies}</span>
-                    </div>
+                    <Flex align="center" justify="between">
+                        <Text size="2" color="gray">Copies</Text>
+                        <Text size="2">{job.copies}</Text>
+                    </Flex>
                 )}
                 {job.referenceId && (
-                    <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500 dark:text-gray-400">Reference</span>
-                        <span className="text-gray-700 dark:text-gray-300 font-mono text-xs truncate max-w-[150px]">
+                    <Flex align="center" justify="between">
+                        <Text size="2" color="gray">Reference</Text>
+                        <Text size="1" color="gray" className="font-mono" truncate>
                             {job.referenceId}
-                        </span>
-                    </div>
+                        </Text>
+                    </Flex>
                 )}
-            </div>
+            </Flex>
 
             {/* Error Message */}
             {job.status === 'FAILED' && job.errorMessage && (
                 <div className="mb-3 p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                    <div className="flex items-start gap-2">
+                    <Flex align="start" gap="2">
                         <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-                        <p className="text-xs text-red-500 dark:text-red-400 line-clamp-2">
+                        <Text size="1" color="red" className="line-clamp-2">
                             {job.errorMessage}
-                        </p>
-                    </div>
+                        </Text>
+                    </Flex>
                 </div>
             )}
 
             {/* Timestamps & Actions */}
-            <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {job.createdAt && (
-                        <span>{dayjs(job.createdAt).fromNow()}</span>
-                    )}
-                </div>
-                <div className="flex items-center gap-2">
+            <Separator size="4" mb="3" />
+            <Flex align="center" justify="between">
+                <Text size="1" color="gray">
+                    {job.createdAt && dayjs(job.createdAt).fromNow()}
+                </Text>
+                <Flex align="center" gap="2">
                     {canRetry && (
                         <button
                             onClick={() => onRetry(job.printJobId, job.jobTitle)}
@@ -174,42 +185,43 @@ const PrintJobMobileCard: FunctionComponent<PrintJobMobileCardProps> = ({
                             Cancel
                         </button>
                     )}
-                </div>
-            </div>
-        </div>
+                </Flex>
+            </Flex>
+        </Card>
     );
 };
 
 // Skeleton loader
 export const PrintJobMobileCardSkeleton: FunctionComponent = () => (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 animate-pulse">
-        <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg" />
-                <div>
-                    <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded mb-1" />
-                    <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded" />
-                </div>
-            </div>
-            <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded-full" />
-        </div>
-        <div className="space-y-2 mb-3">
-            <div className="flex justify-between">
-                <div className="h-4 w-12 bg-gray-200 dark:bg-gray-700 rounded" />
-                <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded" />
-            </div>
-            <div className="flex justify-between">
-                <div className="h-4 w-14 bg-gray-200 dark:bg-gray-700 rounded" />
-                <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
-            </div>
-        </div>
-        <div className="flex justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
-            <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded" />
-            <div className="flex gap-2">
-                <div className="h-7 w-16 bg-gray-200 dark:bg-gray-700 rounded-lg" />
-            </div>
-        </div>
-    </div>
+    <Card size="2">
+        <Flex align="start" justify="between" mb="3">
+            <Flex align="center" gap="3">
+                <Skeleton width="40px" height="40px" className="rounded-lg" />
+                <Flex direction="column" gap="1">
+                    <Skeleton width="128px" height="16px" />
+                    <Skeleton width="80px" height="12px" />
+                </Flex>
+            </Flex>
+            <Skeleton width="80px" height="24px" className="rounded-full" />
+        </Flex>
+        <Flex direction="column" gap="2" mb="3">
+            <Flex justify="between">
+                <Skeleton width="48px" height="16px" />
+                <Skeleton width="64px" height="16px" />
+            </Flex>
+            <Flex justify="between">
+                <Skeleton width="56px" height="16px" />
+                <Skeleton width="96px" height="16px" />
+            </Flex>
+        </Flex>
+        <Separator size="4" mb="3" />
+        <Flex justify="between">
+            <Skeleton width="80px" height="16px" />
+            <Flex gap="2">
+                <Skeleton width="64px" height="28px" className="rounded-lg" />
+            </Flex>
+        </Flex>
+    </Card>
 );
 
 // Mobile List Component
