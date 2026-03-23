@@ -1,4 +1,5 @@
 import { Clock, Loader2, XCircle, CheckCircle, Filter, X } from 'lucide-react';
+import { Badge, Card, Flex, Select, Separator, Text } from '@radix-ui/themes';
 import { Button } from '../../../components';
 import { Trash2, RotateCcw } from 'lucide-react';
 import { useIsMobile } from '../../../hooks/useMediaQuery';
@@ -69,57 +70,62 @@ export const JobsFilters = ({
     if (isMobile) {
         const ActiveIcon = () => getStatusIcon(statusFilter);
         return (
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-4 mx-4">
-                <div className="flex flex-col gap-3">
-                    <div className="relative w-full">
-                        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                            <ActiveIcon />
-                        </div>
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => onStatusChange(e.target.value as JobStatusFilter)}
-                            className="w-full h-10 pl-10 pr-4 appearance-none cursor-pointer rounded-md text-sm font-medium
-                                bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600
-                                focus:outline-none focus:ring-2 focus:ring-sky-500"
-                        >
+            <Card size="2" className="mb-4 mx-4">
+                <Flex direction="column" gap="3">
+                    {/* Status Filter */}
+                    <Select.Root value={statusFilter} onValueChange={(val) => onStatusChange(val as JobStatusFilter)}>
+                        <Select.Trigger placeholder="Filter by status" />
+                        <Select.Content>
                             {statusOptions.map(opt => (
-                                <option key={opt.value} value={opt.value}>{opt.label} ({opt.count})</option>
+                                <Select.Item key={opt.value} value={opt.value}>
+                                    {opt.label} ({opt.count})
+                                </Select.Item>
                             ))}
-                        </select>
-                    </div>
+                        </Select.Content>
+                    </Select.Root>
 
-                    <div className="grid grid-cols-2 gap-2">
-                        <select
-                            value={selectedPrinterId}
-                            onChange={(e) => onPrinterChange(e.target.value)}
-                            className="h-10 px-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm"
-                        >
-                            <option value="ALL">All Printers</option>
-                            {printers.map(p => <option key={p.printerId} value={p.printerId}>{p.printerName}</option>)}
-                        </select>
-                        <select
-                            value={typeFilter}
-                            onChange={(e) => onTypeChange(e.target.value as JobTypeFilter)}
-                            className="h-10 px-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm"
-                        >
-                            {TYPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                        </select>
-                    </div>
+                    <Flex gap="2">
+                        {/* Printer Filter */}
+                        <Select.Root value={selectedPrinterId} onValueChange={onPrinterChange}>
+                            <Select.Trigger placeholder="All Printers" className="flex-1" />
+                            <Select.Content>
+                                <Select.Item value="ALL">All Printers</Select.Item>
+                                {printers.map(p => (
+                                    <Select.Item key={p.printerId} value={p.printerId}>{p.printerName}</Select.Item>
+                                ))}
+                            </Select.Content>
+                        </Select.Root>
+
+                        {/* Type Filter */}
+                        <Select.Root value={typeFilter} onValueChange={(val) => onTypeChange(val as JobTypeFilter)}>
+                            <Select.Trigger placeholder="All Types" className="flex-1" />
+                            <Select.Content>
+                                {TYPE_OPTIONS.map(opt => (
+                                    <Select.Item key={opt.value} value={opt.value}>{opt.label}</Select.Item>
+                                ))}
+                            </Select.Content>
+                        </Select.Root>
+                    </Flex>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 pt-2 border-t border-gray-200 dark:border-gray-600">
-                        {failedCount > 0 && <Button onClick={onRetryAllFailed} layout="outline" theme="primary" size="small" icon={RotateCcw} className="flex-1">Retry ({failedCount})</Button>}
-                        {(pendingCount > 0 || failedCount > 0) && <Button onClick={onClearQueue} layout="outline" theme="danger" size="small" icon={Trash2} className="flex-1">Clear</Button>}
-                    </div>
-                </div>
-            </div>
+                    {(failedCount > 0 || pendingCount > 0) && (
+                        <>
+                            <Separator size="4" />
+                            <Flex align="center" gap="2">
+                                {failedCount > 0 && <Button onClick={onRetryAllFailed} layout="outline" theme="primary" size="small" icon={RotateCcw} className="flex-1">Retry ({failedCount})</Button>}
+                                {(pendingCount > 0 || failedCount > 0) && <Button onClick={onClearQueue} layout="outline" theme="danger" size="small" icon={Trash2} className="flex-1">Clear</Button>}
+                            </Flex>
+                        </>
+                    )}
+                </Flex>
+            </Card>
         );
     }
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-4 mx-4 md:mx-0">
-            <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-600">
-                <div className="flex flex-wrap items-center gap-2">
+        <Card size="2" className="mb-4 mx-4 md:mx-0">
+            <Flex wrap="wrap" align="center" justify="between" gap="4" pb="4" className="border-b border-gray-200 dark:border-gray-600">
+                <Flex wrap="wrap" align="center" gap="2">
                     {statusOptions.map(opt => {
                         const isActive = statusFilter === opt.value;
                         return (
@@ -134,54 +140,57 @@ export const JobsFilters = ({
                             >
                                 {getStatusIcon(opt.value)}
                                 <span>{opt.label}</span>
-                                <span className={`px-1.5 rounded text-xs font-medium
-                                    ${isActive
-                                        ? 'bg-sky-100 text-sky-800 dark:bg-sky-800 dark:text-sky-100'
-                                        : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-                                    }`}>
+                                <Badge
+                                    color={isActive ? 'blue' : 'gray'}
+                                    variant="soft"
+                                    size="1"
+                                >
                                     {opt.count}
-                                </span>
+                                </Badge>
                             </button>
                         );
                     })}
-                </div>
+                </Flex>
 
-                <div className="flex items-center gap-3">
-                    <select
-                        value={selectedPrinterId}
-                        onChange={(e) => onPrinterChange(e.target.value)}
-                        className="h-9 px-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-sky-500"
-                    >
-                        <option value="ALL">All Printers</option>
-                        {printers.map(p => <option key={p.printerId} value={p.printerId}>{p.printerName}</option>)}
-                    </select>
-                    <select
-                        value={typeFilter}
-                        onChange={(e) => onTypeChange(e.target.value as JobTypeFilter)}
-                        className="h-9 px-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-sky-500"
-                    >
-                        {TYPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                    </select>
-                </div>
-            </div>
+                <Flex align="center" gap="3">
+                    <Select.Root value={selectedPrinterId} onValueChange={onPrinterChange}>
+                        <Select.Trigger placeholder="All Printers" />
+                        <Select.Content>
+                            <Select.Item value="ALL">All Printers</Select.Item>
+                            {printers.map(p => (
+                                <Select.Item key={p.printerId} value={p.printerId}>{p.printerName}</Select.Item>
+                            ))}
+                        </Select.Content>
+                    </Select.Root>
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-4">
-                <div className="flex flex-wrap items-center gap-2">
+                    <Select.Root value={typeFilter} onValueChange={(val) => onTypeChange(val as JobTypeFilter)}>
+                        <Select.Trigger placeholder="All Types" />
+                        <Select.Content>
+                            {TYPE_OPTIONS.map(opt => (
+                                <Select.Item key={opt.value} value={opt.value}>{opt.label}</Select.Item>
+                            ))}
+                        </Select.Content>
+                    </Select.Root>
+                </Flex>
+            </Flex>
+
+            <Flex direction={{ initial: 'column', sm: 'row' }} align={{ sm: 'center' }} justify="between" gap="3" mt="4">
+                <Flex wrap="wrap" align="center" gap="2">
                     <Trash2 className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Cleanup older than</span>
+                    <Text size="2" color="gray">Cleanup older than</Text>
                     <input
                         type="number" min="1" max="365" value={cleanupDays}
                         onChange={(e) => onCleanupDaysChange(parseInt(e.target.value) || 30)}
                         className="w-20 px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm"
                     />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">days</span>
+                    <Text size="2" color="gray">days</Text>
                     <Button onClick={onCleanup} layout="outline" theme="warning" size="small" icon={Trash2}>Cleanup</Button>
-                </div>
-                <div className="flex items-center gap-2">
+                </Flex>
+                <Flex align="center" gap="2">
                     {failedCount > 0 && <Button onClick={onRetryAllFailed} layout="outline" theme="primary" size="small" icon={RotateCcw}>Retry Failed ({failedCount})</Button>}
                     {(pendingCount > 0 || failedCount > 0) && <Button onClick={onClearQueue} layout="outline" theme="danger" size="small" icon={Trash2}>Clear Queue</Button>}
-                </div>
-            </div>
-        </div>
+                </Flex>
+            </Flex>
+        </Card>
     );
 };
