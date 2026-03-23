@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 import { FunctionComponent } from 'react';
 import { Form, Formik, FormikHelpers } from 'formik';
 import { Notify, Report } from 'notiflix';
-import { Button } from '../../../components';
+import { Box, Flex, Button } from '@radix-ui/themes';
 import FormWrapper from '../../../components/FormWrapper';
 import FormInput from '../../../components/FormInput';
 import usersService from '../../../services/users.service';
@@ -73,7 +73,7 @@ const MobileEditProfileForm: FunctionComponent<Props> = ({ user, onSuccess }) =>
     };
 
     return (
-        <div className="px-4 pb-6">
+        <Box px="4" pb="6">
             <Formik
                 initialValues={initialProfileValues}
                 validationSchema={profileValidationSchema}
@@ -84,7 +84,7 @@ const MobileEditProfileForm: FunctionComponent<Props> = ({ user, onSuccess }) =>
                     <Form>
                         <FormWrapper>
                             <input type="hidden" name="userId" />
-                            <div className="space-y-4">
+                            <Flex direction="column" gap="4">
                                 <FormInput
                                     type="text"
                                     name="fullname"
@@ -112,10 +112,10 @@ const MobileEditProfileForm: FunctionComponent<Props> = ({ user, onSuccess }) =>
                                     label="Phone Number"
                                     placeholder="Enter your phone number"
                                 />
-                            </div>
+                            </Flex>
                         </FormWrapper>
 
-                        <div className="mt-6">
+                        <Box mt="6">
                             <Button
                                 type="submit"
                                 loading={isSubmitting}
@@ -123,11 +123,11 @@ const MobileEditProfileForm: FunctionComponent<Props> = ({ user, onSuccess }) =>
                             >
                                 Update Profile
                             </Button>
-                        </div>
+                        </Box>
                     </Form>
                 )}
             </Formik>
-        </div>
+        </Box>
     );
 };
 
