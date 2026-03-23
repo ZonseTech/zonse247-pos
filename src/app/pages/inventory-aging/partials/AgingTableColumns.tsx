@@ -11,12 +11,14 @@ export const getAgingTableColumns = (): TableColumn<InventoryAgingItem>[] => [
     {
         name: 'Product',
         sortable: true,
-        minWidth: '200px',
         selector: (row) => row.productName,
         cell: (row) => (
             <div className="py-2">
                 <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                     {row.productName}
+                    {row.variantName && row.variantName !== 'Default' && (
+                        <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">– {row.variantName}</span>
+                    )}
                 </p>
                 {row.sku && (
                     <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">{row.sku}</p>
@@ -27,7 +29,6 @@ export const getAgingTableColumns = (): TableColumn<InventoryAgingItem>[] => [
     {
         name: 'Qty',
         sortable: true,
-        width: '80px',
         right: true,
         selector: (row) => row.availableQuantity,
         cell: (row) => (
@@ -39,7 +40,6 @@ export const getAgingTableColumns = (): TableColumn<InventoryAgingItem>[] => [
     {
         name: 'Avg Cost',
         sortable: true,
-        width: '110px',
         right: true,
         selector: (row) => row.averageCost,
         cell: (row) => (
@@ -51,7 +51,6 @@ export const getAgingTableColumns = (): TableColumn<InventoryAgingItem>[] => [
     {
         name: 'Stock Value',
         sortable: true,
-        width: '130px',
         right: true,
         selector: (row) => row.stockValue,
         cell: (row) => (
@@ -63,17 +62,16 @@ export const getAgingTableColumns = (): TableColumn<InventoryAgingItem>[] => [
     {
         name: 'Days Idle',
         sortable: true,
-        width: '100px',
         right: true,
         selector: (row) => row.daysSinceLastSale ?? 9999,
         cell: (row) => (
             <span className={`text-sm font-medium ${row.daysSinceLastSale === null
-                    ? 'text-gray-400 dark:text-gray-500'
-                    : row.daysSinceLastSale > 180
-                        ? 'text-red-600 dark:text-red-400'
-                        : row.daysSinceLastSale > 90
-                            ? 'text-amber-600 dark:text-amber-400'
-                            : 'text-gray-700 dark:text-gray-300'
+                ? 'text-gray-400 dark:text-gray-500'
+                : row.daysSinceLastSale > 180
+                    ? 'text-red-600 dark:text-red-400'
+                    : row.daysSinceLastSale > 90
+                        ? 'text-amber-600 dark:text-amber-400'
+                        : 'text-gray-700 dark:text-gray-300'
                 }`}>
                 {row.daysSinceLastSale !== null ? row.daysSinceLastSale : 'Never'}
             </span>
@@ -82,7 +80,6 @@ export const getAgingTableColumns = (): TableColumn<InventoryAgingItem>[] => [
     {
         name: 'Last Sale',
         sortable: true,
-        width: '110px',
         selector: (row) => row.lastSoldAt ? new Date(row.lastSoldAt).getTime() : 0,
         cell: (row) => (
             <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -92,7 +89,6 @@ export const getAgingTableColumns = (): TableColumn<InventoryAgingItem>[] => [
     },
     {
         name: 'Status',
-        width: '90px',
         center: true,
         cell: (row) => (
             <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded ${STATUS_BADGE_CLASSES[row.status] || ''}`}>
