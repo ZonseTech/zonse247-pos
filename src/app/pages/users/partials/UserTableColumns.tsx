@@ -1,6 +1,7 @@
 import React from 'react';
 import { Edit2, Trash2, Key, Lock, LockOpen, Mail, Phone, Shield } from 'lucide-react';
 import { TableColumn } from 'react-data-table-component';
+import { Flex, Box, Text, Badge, IconButton, Tooltip } from '@radix-ui/themes';
 import usersService from '../../../services/users.service';
 
 interface UserTableColumnsProps {
@@ -10,7 +11,6 @@ interface UserTableColumnsProps {
     onToggleStatus: (userId: string, status: UserStatus) => void;
 }
 
-// Generate initials from fullname
 const getInitials = (name: string) => {
     if (!name) return 'U';
     const names = name.trim().split(' ');
@@ -18,15 +18,12 @@ const getInitials = (name: string) => {
     return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
 };
 
-const getStatusColorClass = (status: UserStatus) => {
+const getStatusBadgeColor = (status: UserStatus): 'green' | 'red' | 'yellow' | 'gray' => {
     const statusInfo = usersService.getStatusColor(status);
-    return statusInfo === 'green'
-        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-        : statusInfo === 'red'
-            ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-            : statusInfo === 'yellow'
-                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+    if (statusInfo === 'green') return 'green';
+    if (statusInfo === 'red') return 'red';
+    if (statusInfo === 'yellow') return 'yellow';
+    return 'gray';
 };
 
 export const getUserTableColumns = ({
@@ -38,19 +35,24 @@ export const getUserTableColumns = ({
         {
             name: 'User',
             cell: (row: User) => (
-                <div className="flex items-center gap-3 py-2">
-                    <div className="w-10 h-10 bg-gradient-to-br from-sky-500 to-sky-500 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                <Flex align="center" gap="3" py="2">
+                    <Flex
+                        align="center"
+                        justify="center"
+                        flexShrink="0"
+                        className="w-10 h-10 bg-gradient-to-br from-sky-500 to-sky-600 rounded-full text-white font-semibold text-sm"
+                    >
                         {getInitials(row.fullname || row.username || '')}
-                    </div>
-                    <div className="min-w-0">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    </Flex>
+                    <Box minWidth="0">
+                        <Text as="p" size="2" weight="medium" truncate>
                             {row.fullname || '-'}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        </Text>
+                        <Text as="p" size="1" color="gray">
                             @{row.username}
-                        </p>
-                    </div>
-                </div>
+                        </Text>
+                    </Box>
+                </Flex>
             ),
             sortable: true,
             minWidth: '200px',
@@ -58,35 +60,37 @@ export const getUserTableColumns = ({
         {
             name: 'Contact',
             cell: (row: User) => (
-                <div className="space-y-1">
+                <Flex direction="column" gap="1">
                     {row.email && (
-                        <div className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
-                            <Mail className="w-3.5 h-3.5" />
-                            <span className="truncate max-w-[180px]">{row.email}</span>
-                        </div>
+                        <Flex align="center" gap="1">
+                            <Mail className="w-3.5 h-3.5 text-gray-400" />
+                            <Text size="2" color="gray" truncate className="max-w-[180px]">
+                                {row.email}
+                            </Text>
+                        </Flex>
                     )}
                     {row.phone && (
-                        <div className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
-                            <Phone className="w-3.5 h-3.5" />
-                            <span>{row.phone}</span>
-                        </div>
+                        <Flex align="center" gap="1">
+                            <Phone className="w-3.5 h-3.5 text-gray-400" />
+                            <Text size="2" color="gray">{row.phone}</Text>
+                        </Flex>
                     )}
                     {!row.email && !row.phone && (
-                        <span className="text-sm text-gray-400 dark:text-gray-500">-</span>
+                        <Text size="2" color="gray">-</Text>
                     )}
-                </div>
+                </Flex>
             ),
             minWidth: '200px',
         },
         {
             name: 'Role',
             cell: (row: User) => (
-                <div className="flex items-center gap-1.5">
+                <Flex align="center" gap="1">
                     <Shield className="w-4 h-4 text-purple-500 dark:text-purple-400" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                    <Text size="2" color="gray">
                         {row.roleName || row.roleId || '-'}
-                    </span>
-                </div>
+                    </Text>
+                </Flex>
             ),
             sortable: true,
             minWidth: '140px',
@@ -94,9 +98,13 @@ export const getUserTableColumns = ({
         {
             name: 'Status',
             cell: (row: User) => (
-                <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColorClass(row.status)}`}>
+                <Badge
+                    size="1"
+                    variant="soft"
+                    color={getStatusBadgeColor(row.status)}
+                >
                     {row.status || 'unknown'}
-                </span>
+                </Badge>
             ),
             sortable: true,
             width: '120px',
@@ -107,42 +115,51 @@ export const getUserTableColumns = ({
                 const userId = String(row.userId);
 
                 return (
-                    <div className="flex items-center space-x-1">
-                        <button
-                            onClick={() => onEdit(row)}
-                            className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20"
-                            title="Edit User"
-                        >
-                            <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={() => onResetPassword(userId)}
-                            className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
-                            title="Reset Password"
-                        >
-                            <Key className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={() => onToggleStatus(
-                                userId,
-                                row.status === 'active' ? 'inactive' : 'active'
-                            )}
-                            className={`group p-2 rounded-lg transition-all duration-200 ${row.status === 'active'
-                                ? 'text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20'
-                                : 'text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
-                                }`}
-                            title={row.status === 'active' ? 'Deactivate' : 'Activate'}
-                        >
-                            {row.status === 'active' ? <Lock className="w-4 h-4" /> : <LockOpen className="w-4 h-4" />}
-                        </button>
-                        <button
-                            onClick={() => onDelete(userId)}
-                            className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-                            title="Delete User"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </button>
-                    </div>
+                    <Flex align="center" gap="1">
+                        <Tooltip content="Edit user">
+                            <IconButton
+                                size="1"
+                                variant="ghost"
+                                color="sky"
+                                onClick={() => onEdit(row)}
+                            >
+                                <Edit2 className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip content="Reset password">
+                            <IconButton
+                                size="1"
+                                variant="ghost"
+                                color="yellow"
+                                onClick={() => onResetPassword(userId)}
+                            >
+                                <Key className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip content={row.status === 'active' ? 'Deactivate' : 'Activate'}>
+                            <IconButton
+                                size="1"
+                                variant="ghost"
+                                color={row.status === 'active' ? 'orange' : 'green'}
+                                onClick={() => onToggleStatus(
+                                    userId,
+                                    row.status === 'active' ? 'inactive' : 'active'
+                                )}
+                            >
+                                {row.status === 'active' ? <Lock className="w-4 h-4" /> : <LockOpen className="w-4 h-4" />}
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip content="Delete user">
+                            <IconButton
+                                size="1"
+                                variant="ghost"
+                                color="red"
+                                onClick={() => onDelete(userId)}
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
+                    </Flex>
                 );
             },
             width: '180px',
