@@ -2,11 +2,10 @@ import * as Yup from 'yup';
 import { FunctionComponent, useState } from 'react';
 import { Form, Formik, FormikHelpers } from 'formik';
 import { Notify, Report } from 'notiflix';
-import Card from '../../../components/card/Card';
-import { Button } from '../../../components';
+import { Card, Flex, Box, Text, Heading, Button } from '@radix-ui/themes';
 import FormWrapper from '../../../components/FormWrapper';
 import FormInput from '../../../components/FormInput';
-import { KeyIcon, LockIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
+import { KeyIcon } from 'lucide-react';
 import usersService from '../../../services/users.service';
 import { getErrorMessage } from '../../../utils/api-error-handler';
 
@@ -63,13 +62,13 @@ const ChangePasswordForm: FunctionComponent<Props> = ({ userId, onSuccess }) => 
     };
 
     return (
-        <Card className="p-6">
-            <div className="flex items-center gap-2 mb-6">
+        <Card size="3">
+            <Flex align="center" gap="2" mb="6">
                 <KeyIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <Heading as="h3" size="4" weight="bold">
                     Change Password
-                </h3>
-            </div>
+                </Heading>
+            </Flex>
 
             <Formik
                 initialValues={initialPasswordValues}
@@ -79,8 +78,8 @@ const ChangePasswordForm: FunctionComponent<Props> = ({ userId, onSuccess }) => 
                 {({ isSubmitting }) => (
                     <Form>
                         <FormWrapper>
-                            <div className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <Box className="space-y-4">
+                                <Box className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <FormInput
                                         type={'password'}
                                         name="oldPassword"
@@ -102,11 +101,11 @@ const ChangePasswordForm: FunctionComponent<Props> = ({ userId, onSuccess }) => 
                                         required
                                         placeholder="Confirm new password"
                                     />
-                                </div>
-                            </div>
+                                </Box>
+                            </Box>
                         </FormWrapper>
 
-                        <div className="flex justify-end mt-6">
+                        <Flex justify="end" mt="6">
                             <Button
                                 type="submit"
                                 loading={isSubmitting}
@@ -114,7 +113,7 @@ const ChangePasswordForm: FunctionComponent<Props> = ({ userId, onSuccess }) => 
                             >
                                 Change Password
                             </Button>
-                        </div>
+                        </Flex>
                     </Form>
                 )}
             </Formik>
