@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import { Activity, TrendingUp, TrendingDown, RefreshCw, LucideIcon } from 'lucide-react';
+import { Box, Flex, Text, Skeleton, Tooltip } from '@radix-ui/themes';
 
 export interface StockMovementSummaryCard {
     title: string;
@@ -23,49 +24,64 @@ const iconMap: Record<string, LucideIcon> = {
     adjustment: RefreshCw,
 };
 
+const SkeletonCard: FC<{ index: number }> = ({ index }) => (
+    <Tooltip content="Loading stock movement data…">
+        <Box
+            className="rounded-xl p-3 animate-pulse bg-gray-100 dark:bg-gray-700"
+            aria-busy="true"
+            aria-label={`Loading card ${index + 1}`}
+        >
+            <Flex align="center" gap="3">
+                <Skeleton className="w-10 h-10 rounded-lg" />
+                <Flex direction="column" gap="2">
+                    <Skeleton className="h-3 w-16 rounded" />
+                    <Skeleton className="h-5 w-10 rounded" />
+                </Flex>
+            </Flex>
+        </Box>
+    </Tooltip>
+);
+
 const StockMovementSummaryCards: FC<StockMovementSummaryCardsProps> = ({ cards, isLoading = false }) => {
     if (isLoading) {
         return (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 border-b border-gray-200 dark:border-gray-700">
+            <Box className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 border-b border-[var(--gray-a6)]">
                 {[...Array(4)].map((_, i) => (
-                    <div key={i} className="bg-gray-100 dark:bg-gray-700 rounded-xl p-3 animate-pulse">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gray-200 dark:bg-gray-600 rounded-lg" />
-                            <div className="space-y-2">
-                                <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded w-16" />
-                                <div className="h-5 bg-gray-200 dark:bg-gray-600 rounded w-10" />
-                            </div>
-                        </div>
-                    </div>
+                    <SkeletonCard key={i} index={i} />
                 ))}
-            </div>
+            </Box>
         );
     }
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 border-b border-gray-200 dark:border-gray-700">
+        <Box className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 border-b border-[var(--gray-a6)]">
             {cards.map((card, index) => {
                 const IconComponent = card.icon ? iconMap[card.icon] : Activity;
                 return (
-                    <div
+                    <Box
                         key={index}
                         className={`${card.bgColor} rounded-xl p-3 transition-all duration-200 hover:shadow-md`}
                     >
-                        <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 ${card.iconBgColor} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                        <Flex align="center" gap="3">
+                            <Flex
+                                align="center"
+                                justify="center"
+                                flexShrink="0"
+                                className={`w-10 h-10 ${card.iconBgColor} rounded-lg`}
+                            >
                                 <IconComponent className={`w-5 h-5 ${card.textColor}`} />
-                            </div>
-                            <div className="min-w-0">
-                                <p className="text-xs text-gray-600 dark:text-gray-400 truncate">{card.title}</p>
-                                <p className={`text-lg font-bold ${card.textColor}`}>
+                            </Flex>
+                            <Box className="min-w-0">
+                                <Text as="p" size="1" color="gray" truncate>{card.title}</Text>
+                                <Text as="p" size="4" weight="bold" className={card.textColor}>
                                     {card.displayValue ?? card.value}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                                </Text>
+                            </Box>
+                        </Flex>
+                    </Box>
                 );
             })}
-        </div>
+        </Box>
     );
 };
 
