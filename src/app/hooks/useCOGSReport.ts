@@ -21,8 +21,10 @@ export const useCOGSReport = () => {
     const [endDate, setEndDate] = useState(today);
 
     // Period COGS
-    const [periodCOGS, setPeriodCOGS] = useState<PeriodCOGSResult | null>(null);
-    const [salesCOGS, setSalesCOGS] = useState<PeriodCOGSFromSalesResult | null>(null);
+    const [periodCOGSItems, setPeriodCOGSItems] = useState<PeriodCOGSProductItem[]>([]);
+    const [periodCOGSSummary, setPeriodCOGSSummary] = useState<PeriodCOGSSummary | null>(null);
+    const [salesCOGSItems, setSalesCOGSItems] = useState<PeriodCOGSProductItem[]>([]);
+    const [salesCOGSSummary, setSalesCOGSSummary] = useState<PeriodCOGSFromSalesResult['summary'] | null>(null);
     const [isLoadingCOGS, setIsLoadingCOGS] = useState(false);
     const [showCrossCheck, setShowCrossCheck] = useState(false);
 
@@ -57,8 +59,12 @@ export const useCOGSReport = () => {
                 );
             }
             const [cogsResult, salesResult] = await Promise.all(promises);
-            setPeriodCOGS(cogsResult);
-            if (salesResult) setSalesCOGS(salesResult);
+            setPeriodCOGSItems(cogsResult.items);
+            setPeriodCOGSSummary(cogsResult.summary);
+            if (salesResult) {
+                setSalesCOGSItems(salesResult.items);
+                setSalesCOGSSummary(salesResult.summary);
+            }
         } catch (error: any) {
             Notify.failure(getErrorMessage(error, 'Failed to load period COGS'));
             console.error('Load period COGS error:', error);
@@ -124,8 +130,8 @@ export const useCOGSReport = () => {
     /**
      * COGS discrepancy (if cross-check enabled)
      */
-    const cogsDiscrepancy = periodCOGS && salesCOGS
-        ? Math.abs(periodCOGS.totalCOGS - salesCOGS.totalCOGS)
+    const cogsDiscrepancy = periodCOGSSummary && salesCOGSSummary
+        ? Math.abs(periodCOGSSummary.totalCOGS - salesCOGSSummary.totalCOGS)
         : null;
 
     const hasDiscrepancy = cogsDiscrepancy !== null && cogsDiscrepancy > 0.01;
@@ -137,8 +143,10 @@ export const useCOGSReport = () => {
         endDate,
         setEndDate,
         // COGS
-        periodCOGS,
-        salesCOGS,
+        periodCOGSItems,
+        periodCOGSSummary,
+        salesCOGSItems,
+        salesCOGSSummary,
         isLoadingCOGS,
         loadPeriodCOGS,
         showCrossCheck,
