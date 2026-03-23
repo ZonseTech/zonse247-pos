@@ -1,6 +1,9 @@
-import { FunctionComponent, useState, useMemo } from 'react';
-import Card from '../../../components/card/Card';
-import { ShieldIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
+import { FunctionComponent, useMemo } from 'react';
+import { ShieldIcon } from 'lucide-react';
+import { Card, Flex, Box, Text, Heading, Badge } from '@radix-ui/themes';
+import * as Collapsible from '@radix-ui/react-collapsible';
+import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
+import { useState } from 'react';
 
 type Props = {
     permissions: string[] | null | undefined;
@@ -20,7 +23,7 @@ const groupPermissions = (permissions: string[] | null | undefined): Record<stri
 };
 
 const PermissionsCard: FunctionComponent<Props> = ({ permissions }) => {
-    const [showPermissions, setShowPermissions] = useState(false);
+    const [open, setOpen] = useState(false);
 
     const groupedPermissions = useMemo(
         () => groupPermissions(permissions),
@@ -28,49 +31,48 @@ const PermissionsCard: FunctionComponent<Props> = ({ permissions }) => {
     );
 
     return (
-        <Card className="p-6">
-            <button
-                type="button"
-                onClick={() => setShowPermissions(!showPermissions)}
-                className="w-full flex items-center justify-between"
-            >
-                <div className="flex items-center gap-2">
-                    <ShieldIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        Permissions
-                    </h3>
-                    <span className="px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 text-xs font-medium">
-                        {permissions?.length || 0}
-                    </span>
-                </div>
-                {showPermissions ? (
-                    <ChevronUpIcon className="w-5 h-5 text-gray-500" />
-                ) : (
-                    <ChevronDownIcon className="w-5 h-5 text-gray-500" />
-                )}
-            </button>
+        <Card size="3">
+            <Collapsible.Root open={open} onOpenChange={setOpen}>
+                <Collapsible.Trigger asChild>
+                    <button type="button" className="w-full">
+                        <Flex align="center" justify="between">
+                            <Flex align="center" gap="2">
+                                <ShieldIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                                <Heading as="h3" size="4" weight="bold">
+                                    Permissions
+                                </Heading>
+                                <Badge color="sky" variant="soft" size="1">
+                                    {permissions?.length || 0}
+                                </Badge>
+                            </Flex>
+                            {open ? (
+                                <ChevronUpIcon className="w-5 h-5 text-gray-500" />
+                            ) : (
+                                <ChevronDownIcon className="w-5 h-5 text-gray-500" />
+                            )}
+                        </Flex>
+                    </button>
+                </Collapsible.Trigger>
 
-            {showPermissions && (
-                <div className="mt-6 space-y-4">
-                    {Object.entries(groupedPermissions).map(([category, perms]) => (
-                        <div key={category}>
-                            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 capitalize mb-2">
-                                {category}
-                            </h4>
-                            <div className="flex flex-wrap gap-2">
-                                {perms.map((perm) => (
-                                    <span
-                                        key={perm}
-                                        className="px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-xs text-gray-700 dark:text-gray-300"
-                                    >
-                                        {perm.split('.').slice(1).join('.')}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
+                <Collapsible.Content>
+                    <Box mt="6" className="space-y-4">
+                        {Object.entries(groupedPermissions).map(([category, perms]) => (
+                            <Box key={category}>
+                                <Text as="p" size="2" weight="bold" color="gray" className="capitalize mb-2">
+                                    {category}
+                                </Text>
+                                <Flex wrap="wrap" gap="2">
+                                    {perms.map((perm) => (
+                                        <Badge key={perm} variant="soft" color="gray" size="1">
+                                            {perm.split('.').slice(1).join('.')}
+                                        </Badge>
+                                    ))}
+                                </Flex>
+                            </Box>
+                        ))}
+                    </Box>
+                </Collapsible.Content>
+            </Collapsible.Root>
         </Card>
     );
 };
