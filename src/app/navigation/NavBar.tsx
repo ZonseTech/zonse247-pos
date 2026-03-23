@@ -11,7 +11,6 @@ interface NavBarProps {
 const NavBar: FunctionComponent<NavBarProps> = ({
     variant = 'sidebar',
 }) => {
-    const navigate = useNavigate();
     const { groups } = useNavGroups();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
