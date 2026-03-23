@@ -1,5 +1,6 @@
 import { Confirm, Notify } from 'notiflix';
 import { RefreshCw, Printer } from 'lucide-react';
+import { Box, Card, Flex, Text } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
 import { HiOutlineQueueList } from 'react-icons/hi2';
 import MobilePagination from '../../components/MobilePagination';
@@ -168,18 +169,18 @@ const PrintJobsManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="max-w-full">
+            <Box className="max-w-full">
                 <PageHeader
                     title="Print Jobs"
                     description="Monitor and manage print job queue"
                     showBackButton
                     action={
-                        <div className="flex items-center gap-2">
+                        <Flex align="center" gap="2">
                             {!isMobile && <SearchBar value={searchTerm} onChange={setSearchTerm} placeholder="Search jobs..." />}
                             <Button onClick={handleRefresh} icon={RefreshCw} layout="outline" theme="primary" disabled={isRefreshing}>
                                 {!isMobile && (isRefreshing ? 'Refreshing...' : 'Refresh')}
                             </Button>
-                        </div>
+                        </Flex>
                     }
                 >
                     {isMobile && <div className="m-4 mt-0"><SearchBar value={searchTerm} onChange={setSearchTerm} placeholder="Search jobs..." /></div>}
@@ -204,7 +205,7 @@ const PrintJobsManagement: FunctionComponent = () => {
                 />
 
                 {/* Main Content Container */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <Card size="2" className="overflow-hidden">
                     {/* Summary Cards */}
                     <PrintJobSummaryCards cards={summaryCards} isLoading={isLoading} />
 
@@ -220,19 +221,22 @@ const PrintJobsManagement: FunctionComponent = () => {
                                     isLoading={true}
                                 />
                             ) : filteredJobs.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-12 px-4">
-                                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                                <Flex direction="column" align="center" justify="center" py="9" px="4">
+                                    <Flex
+                                        align="center" justify="center"
+                                        className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mb-4"
+                                    >
                                         <HiOutlineQueueList className="w-8 h-8 text-gray-400" />
-                                    </div>
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2 text-center">
+                                    </Flex>
+                                    <Text size="4" weight="medium" align="center" mb="2">
                                         {searchTerm || statusFilter !== 'ALL' || typeFilter !== 'ALL' ? 'No jobs match filters' : 'No print jobs'}
-                                    </h3>
-                                    <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm text-sm">
+                                    </Text>
+                                    <Text size="2" color="gray" align="center" className="max-w-sm">
                                         {searchTerm || statusFilter !== 'ALL' || typeFilter !== 'ALL'
                                             ? "Try adjusting your filters to find jobs."
                                             : selectedPrinterId === 'ALL' ? "No pending jobs in the queue." : "No job history for this printer."}
-                                    </p>
-                                </div>
+                                    </Text>
+                                </Flex>
                             ) : (
                                 <>
                                     <PrintJobMobileList
@@ -269,18 +273,18 @@ const PrintJobsManagement: FunctionComponent = () => {
                                 fixedHeaderScrollHeight="calc(100vh - 550px)"
                                 customStyles={getTableStyles(mode)}
                                 noDataComponent={
-                                    <div className="text-center py-12 dark:bg-gray-800">
-                                        <HiOutlineQueueList className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                                        <p className="text-gray-500 dark:text-gray-400 font-medium">
+                                    <Flex direction="column" align="center" py="9" className="dark:bg-gray-800">
+                                        <HiOutlineQueueList className="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4" />
+                                        <Text size="2" color="gray" weight="medium">
                                             {searchTerm || statusFilter !== 'ALL' || typeFilter !== 'ALL' ? 'No jobs match filters.' : selectedPrinterId === 'ALL' ? 'No pending jobs.' : 'No job history.'}
-                                        </p>
-                                    </div>
+                                        </Text>
+                                    </Flex>
                                 }
                             />
                         </div>
                     )}
-                </div>
-            </div>
+                </Card>
+            </Box>
 
             <SetupModal isOpen={showSetupModal} onClose={() => setShowSetupModal(false)} setupInstructions={setupInstructions} />
         </AppLayout>
