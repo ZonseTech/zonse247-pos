@@ -4,6 +4,7 @@ import AppLayout from '../../../layouts/AppLayout';
 import PageHeader from '../../../components/page/PageHeader';
 import { ROUTES } from '../../../utils/constants';
 import { UserCog, User, Clock, Shield, Briefcase, Building2 } from 'lucide-react';
+import { Box, Flex, Grid, Text } from '@radix-ui/themes';
 import FormInput from '../../../components/FormInput';
 import BranchSearch from '../../terminal/partials/BranchSearch';
 import TenantSearch from '../../branch/partials/TenantSearch';
@@ -42,7 +43,7 @@ const DesktopUserForm: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <Box className="max-w-7xl mx-auto" px={{ initial: "4", sm: "6", lg: "8" }} py="6">
                 <PageHeader
                     title={isEditMode ? 'Edit Staff' : 'Add Staff'}
                     description='Manage staff information, attendance and app access'
@@ -57,125 +58,127 @@ const DesktopUserForm: FunctionComponent = () => {
                 >
                     {({ isSubmitting, values, setFieldValue, errors, touched }) => (
                         <Form>
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-                                <div className="lg:col-span-2 space-y-6">
-                                    <SectionCard
-                                        title="Basic Information"
-                                        icon={User}
-                                        iconColor="bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400"
-                                    >
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <div className="sm:col-span-2">
+                            <Grid columns={{ initial: "1", lg: "3" }} gap="6" mt="6">
+                                <Box className="lg:col-span-2">
+                                    <Flex direction="column" gap="6">
+                                        <SectionCard
+                                            title="Basic Information"
+                                            icon={User}
+                                            iconColor="bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400"
+                                        >
+                                            <Grid columns={{ initial: "1", sm: "2" }} gap="4">
+                                                <Box className="sm:col-span-2">
+                                                    <FormInput
+                                                        label="Staff Name"
+                                                        name="fullname"
+                                                        placeholder="Enter full name"
+                                                        required
+                                                    />
+                                                </Box>
                                                 <FormInput
-                                                    label="Staff Name"
-                                                    name="fullname"
-                                                    placeholder="Enter full name"
-                                                    required
+                                                    label="Email Address"
+                                                    name="email"
+                                                    type="email"
+                                                    placeholder="staff@example.com"
+                                                    required={!isEditMode}
                                                 />
-                                            </div>
-                                            <FormInput
-                                                label="Email Address"
-                                                name="email"
-                                                type="email"
-                                                placeholder="staff@example.com"
-                                                required={!isEditMode}
-                                            />
-                                            <FormInput
-                                                label="Phone Number"
-                                                name="phone"
-                                                type="tel"
-                                                placeholder="+265 xxx xxx xxx"
-                                            />
-                                        </div>
-                                    </SectionCard>
-
-                                    {values.trackAttendance && (
-                                        <SectionCard
-                                            title="Attendance & Salary"
-                                            icon={Clock}
-                                            iconColor="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400"
-                                        >
-                                            <div className="space-y-5">
-                                                <CalculateAsSelector
-                                                    value={values.calculateAs}
-                                                    onChange={(value: CalculateAsType) => setFieldValue('calculateAs', value)}
+                                                <FormInput
+                                                    label="Phone Number"
+                                                    name="phone"
+                                                    type="tel"
+                                                    placeholder="+265 xxx xxx xxx"
                                                 />
+                                            </Grid>
+                                        </SectionCard>
 
-                                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                                    <FormInput
-                                                        label="Staff Salary"
-                                                        name="staffSalary"
-                                                        type="number"
-                                                        placeholder="Amount"
+                                        {values.trackAttendance && (
+                                            <SectionCard
+                                                title="Attendance & Salary"
+                                                icon={Clock}
+                                                iconColor="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400"
+                                            >
+                                                <Flex direction="column" gap="5">
+                                                    <CalculateAsSelector
+                                                        value={values.calculateAs}
+                                                        onChange={(value: CalculateAsType) => setFieldValue('calculateAs', value)}
                                                     />
-                                                    {values.calculateAs !== 'hourly' && (
+
+                                                    <Grid columns={{ initial: "1", sm: "3" }} gap="4">
                                                         <FormInput
-                                                            label="Avg. Shift Hours"
-                                                            name="avgShiftHours"
+                                                            label="Staff Salary"
+                                                            name="staffSalary"
                                                             type="number"
-                                                            placeholder="e.g., 8"
-                                                            min={1}
-                                                            max={24}
+                                                            placeholder="Amount"
                                                         />
-                                                    )}
-                                                    <FormInput
-                                                        label="Joining Date"
-                                                        name="joiningDate"
-                                                        type="date"
-                                                    />
-                                                </div>
+                                                        {values.calculateAs !== 'hourly' && (
+                                                            <FormInput
+                                                                label="Avg. Shift Hours"
+                                                                name="avgShiftHours"
+                                                                type="number"
+                                                                placeholder="e.g., 8"
+                                                                min={1}
+                                                                max={24}
+                                                            />
+                                                        )}
+                                                        <FormInput
+                                                            label="Joining Date"
+                                                            name="joiningDate"
+                                                            type="date"
+                                                        />
+                                                    </Grid>
 
-                                                <AttendanceTypeSelector
-                                                    allowSelfAttendance={values.allowSelfAttendance}
-                                                    attendanceType={values.attendanceType}
-                                                    onAllowSelfAttendanceChange={(checked) => setFieldValue('allowSelfAttendance', checked)}
-                                                    onAttendanceTypeChange={(type: AttendanceType) => setFieldValue('attendanceType', type)}
-                                                />
-                                            </div>
-                                        </SectionCard>
-                                    )}
-
-                                    {values.allowAppAccess && (
-                                        <SectionCard
-                                            title="Access & Permissions"
-                                            icon={Shield}
-                                            iconColor="bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400"
-                                        >
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                <div>
-                                                    <BranchSearch
-                                                        value={values.branchId}
-                                                        onChange={(value) => setFieldValue('branchId', value)}
-                                                        tenantId={values.tenantId}
-                                                        error={errors.branchId as string}
-                                                        touched={touched.branchId as boolean}
+                                                    <AttendanceTypeSelector
+                                                        allowSelfAttendance={values.allowSelfAttendance}
+                                                        attendanceType={values.attendanceType}
+                                                        onAllowSelfAttendanceChange={(checked) => setFieldValue('allowSelfAttendance', checked)}
+                                                        onAttendanceTypeChange={(type: AttendanceType) => setFieldValue('attendanceType', type)}
                                                     />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                        Role <span className="text-red-500">*</span>
-                                                    </label>
-                                                    <RoleSearch
-                                                        selectedRoleId={values.roleId}
-                                                        onRoleSelect={(role) => setFieldValue('roleId', role?.roleId || '')}
-                                                        tenantId={values.tenantId}
-                                                        disabled={!values.tenantId}
-                                                        error={errors.roleId as string}
-                                                        touched={touched.roleId as boolean}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </SectionCard>
-                                    )}
-                                </div>
+                                                </Flex>
+                                            </SectionCard>
+                                        )}
 
-                                <div className="space-y-6">
+                                        {values.allowAppAccess && (
+                                            <SectionCard
+                                                title="Access & Permissions"
+                                                icon={Shield}
+                                                iconColor="bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400"
+                                            >
+                                                <Grid columns={{ initial: "1", sm: "2" }} gap="4">
+                                                    <Box>
+                                                        <BranchSearch
+                                                            value={values.branchId}
+                                                            onChange={(value) => setFieldValue('branchId', value)}
+                                                            tenantId={values.tenantId}
+                                                            error={errors.branchId as string}
+                                                            touched={touched.branchId as boolean}
+                                                        />
+                                                    </Box>
+                                                    <Box>
+                                                        <Text as="label" size="2" weight="medium" mb="1" className="block">
+                                                            Role <Text color="red" asChild><span>*</span></Text>
+                                                        </Text>
+                                                        <RoleSearch
+                                                            selectedRoleId={values.roleId}
+                                                            onRoleSelect={(role) => setFieldValue('roleId', role?.roleId || '')}
+                                                            tenantId={values.tenantId}
+                                                            disabled={!values.tenantId}
+                                                            error={errors.roleId as string}
+                                                            touched={touched.roleId as boolean}
+                                                        />
+                                                    </Box>
+                                                </Grid>
+                                            </SectionCard>
+                                        )}
+                                    </Flex>
+                                </Box>
+
+                                <Flex direction="column" gap="6">
                                     <SectionCard
                                         title="Staff Options"
                                         icon={Briefcase}
                                         iconColor="bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400"
                                     >
-                                        <div className="space-y-1">
+                                        <Flex direction="column" gap="1">
                                             <ToggleOption
                                                 checked={values.trackAttendance}
                                                 onChange={(checked) => {
@@ -196,7 +199,7 @@ const DesktopUserForm: FunctionComponent = () => {
                                                 title="Allow App Access"
                                                 description="Staff can login and use the app"
                                             />
-                                        </div>
+                                        </Flex>
                                     </SectionCard>
 
                                     <SectionCard
@@ -204,7 +207,7 @@ const DesktopUserForm: FunctionComponent = () => {
                                         icon={Building2}
                                         iconColor="bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400"
                                     >
-                                        <div className="space-y-4">
+                                        <Flex direction="column" gap="4">
                                             {hasPrefilledTenant && (
                                                 <TenantSearch
                                                     value={values.tenantId}
@@ -225,7 +228,7 @@ const DesktopUserForm: FunctionComponent = () => {
                                                 error={errors.branchId as string}
                                                 touched={touched.branchId as boolean}
                                             />
-                                        </div>
+                                        </Flex>
                                     </SectionCard>
 
                                     <FormActions
@@ -235,12 +238,12 @@ const DesktopUserForm: FunctionComponent = () => {
                                         submitIcon={<User className="w-4 h-4" />}
                                         onCancel={() => navigate(ROUTES.USERS)}
                                     />
-                                </div>
-                            </div>
+                                </Flex>
+                            </Grid>
                         </Form>
                     )}
                 </Formik>
-            </div>
+            </Box>
         </AppLayout>
     );
 };
