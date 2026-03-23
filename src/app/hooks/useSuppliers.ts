@@ -2,11 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { Notify } from 'notiflix';
 import { supplierService } from '../services';
 import { getErrorMessage } from '../utils/api-error-handler';
+import { useDebouncedSearch } from './useDebouncedSearch';
 
 export const useSuppliers = () => {
     const [suppliers, setSuppliers] = useState<Supplier[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
+    const { searchTerm, debouncedTerm, setSearchTerm, clearSearch } = useDebouncedSearch(300);
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
     const [totalRows, setTotalRows] = useState(0);
@@ -19,11 +20,11 @@ export const useSuppliers = () => {
             const result = await supplierService.listSuppliers({
                 page,
                 limit: perPage,
-                search: searchTerm || undefined,
+                search: debouncedTerm || undefined,
                 status: statusFilter || undefined,
+                includeInactive: true,
             } as any);
 
-            // Handle case where result might be undefined or malformed
             if (!result) {
                 setSuppliers([]);
                 setTotalRows(0);
@@ -31,17 +32,16 @@ export const useSuppliers = () => {
             }
 
             setSuppliers(result.suppliers || []);
-            setTotalRows(result.pagination?.total || 0);
+            setTotalRows(result.pagination?.totalItems || 0);
         } catch (error: any) {
             Notify.failure(getErrorMessage(error, 'Failed to load suppliers'));
             console.error('Load suppliers error:', error);
-            // Reset state on error
             setSuppliers([]);
             setTotalRows(0);
         } finally {
             setIsLoading(false);
         }
-    }, [page, perPage, searchTerm, statusFilter]);
+    }, [page, perPage, debouncedTerm, statusFilter]);
 
     useEffect(() => {
         loadSuppliers();
@@ -96,6 +96,7 @@ export const useSuppliers = () => {
         isLoading,
         searchTerm,
         setSearchTerm,
+        clearSearch,
         page,
         setPage,
         perPage,
@@ -108,7 +109,6 @@ export const useSuppliers = () => {
         updateSupplier,
         deleteSupplier,
         getSupplier,
-        // Aliases for form compatibility
         create: createSupplier,
         update: updateSupplier,
         getById: getSupplier,

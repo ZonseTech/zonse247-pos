@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
 import { Capacitor } from '@capacitor/core';
+import { useState, useEffect, useMemo } from 'react';
 import { isElectron } from '../../helpers/index.helper';
 
 /**
@@ -64,10 +64,11 @@ export const useIsMobile = (): boolean => {
  */
 export const useIsNativeMobile = (): boolean => {
     return useMemo(() => {
-        // Exclude Electron from being treated as mobile
+
         if (isElectron()) {
             return false;
         }
+
         const isNativePlatform = Capacitor.isNativePlatform();
         const isEnvMobile = import.meta.env.VITE_APP_CLIENT_TYPE === 'mobile';
         return isNativePlatform || isEnvMobile;

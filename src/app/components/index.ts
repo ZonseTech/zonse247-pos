@@ -6,7 +6,6 @@ export { default as Backdrop } from './Backdrop';
 export { default as Badge } from './Badge';
 export { default as BottomSheet } from './BottomSheet';
 export { default as Button } from './Button';
-export { default as Breadcrumb } from './Breadcrumb';
 export { default as ToggleButtonGroup } from './buttons/ToggleButtonGroup';
 export type { ToggleOption } from './buttons/ToggleButtonGroup';
 export { default as NavigationCard } from './buttons/NavigationCard';

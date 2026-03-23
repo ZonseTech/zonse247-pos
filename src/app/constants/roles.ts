@@ -1,6 +1,6 @@
 /**
  * System Role Constants
- * Defines all available roles in the system and their categorizations for dashboard rendering
+ * Defines all available roles in the system and their categorizations
  */
 export const ROLE_IDS = {
     SUPER_ADMIN: 'super-admin',
@@ -35,74 +35,54 @@ export const ROLE_NAMES = {
     AUDITOR: 'auditor',
 } as const;
 
-export enum DashboardCategory {
-    ADMIN = 'admin',           // Full system overview
-    MANAGER = 'manager',       // Branch/location operations
-    SPECIALIST = 'specialist', // Role-specific views (inventory, accounting)
-    CASHIER = 'cashier',       // Sales and transactions
-    READONLY = 'readonly',     // View-only access
-}
+const ADMIN_ROLE_IDS = new Set<string>([
+    ROLE_IDS.SUPER_ADMIN,
+    ROLE_IDS.TENANT_OWNER,
+    ROLE_IDS.ADMIN,
+]);
 
-export const ROLE_DASHBOARD_MAP: Record<string, DashboardCategory> = {
-    [ROLE_IDS.SUPER_ADMIN]: DashboardCategory.ADMIN,
-    [ROLE_IDS.TENANT_OWNER]: DashboardCategory.ADMIN,
-    [ROLE_IDS.ADMIN]: DashboardCategory.ADMIN,
-    [ROLE_IDS.BRANCH_MANAGER]: DashboardCategory.MANAGER,
-    [ROLE_IDS.MANAGER]: DashboardCategory.MANAGER,
-    [ROLE_IDS.SHIFT_SUPERVISOR]: DashboardCategory.MANAGER,
-    [ROLE_IDS.INVENTORY_MANAGER]: DashboardCategory.SPECIALIST,
-    [ROLE_IDS.ACCOUNTANT]: DashboardCategory.SPECIALIST,
-    [ROLE_IDS.SENIOR_CASHIER]: DashboardCategory.CASHIER,
-    [ROLE_IDS.CASHIER]: DashboardCategory.CASHIER,
-    [ROLE_IDS.STOCK_CLERK]: DashboardCategory.CASHIER,
-    [ROLE_IDS.VIEWER]: DashboardCategory.READONLY,
-    [ROLE_IDS.AUDITOR]: DashboardCategory.READONLY,
-};
+const ADMIN_ROLE_NAMES = new Set<string>([
+    ROLE_NAMES.SUPER_ADMIN,
+    ROLE_NAMES.TENANT_OWNER,
+    ROLE_NAMES.ADMIN,
+]);
 
-export const ROLE_NAME_DASHBOARD_MAP: Record<string, DashboardCategory> = {
-    [ROLE_NAMES.SUPER_ADMIN]: DashboardCategory.ADMIN,
-    [ROLE_NAMES.TENANT_OWNER]: DashboardCategory.ADMIN,
-    [ROLE_NAMES.ADMIN]: DashboardCategory.ADMIN,
-    [ROLE_NAMES.BRANCH_MANAGER]: DashboardCategory.MANAGER,
-    [ROLE_NAMES.MANAGER]: DashboardCategory.MANAGER,
-    [ROLE_NAMES.SHIFT_SUPERVISOR]: DashboardCategory.MANAGER,
-    [ROLE_NAMES.INVENTORY_MANAGER]: DashboardCategory.SPECIALIST,
-    [ROLE_NAMES.ACCOUNTANT]: DashboardCategory.SPECIALIST,
-    [ROLE_NAMES.SENIOR_CASHIER]: DashboardCategory.CASHIER,
-    [ROLE_NAMES.CASHIER]: DashboardCategory.CASHIER,
-    [ROLE_NAMES.STOCK_CLERK]: DashboardCategory.CASHIER,
-    [ROLE_NAMES.VIEWER]: DashboardCategory.READONLY,
-    [ROLE_NAMES.AUDITOR]: DashboardCategory.READONLY,
-};
+const MANAGER_ROLE_IDS = new Set<string>([
+    ...ADMIN_ROLE_IDS,
+    ROLE_IDS.BRANCH_MANAGER,
+    ROLE_IDS.MANAGER,
+    ROLE_IDS.SHIFT_SUPERVISOR,
+]);
 
-/**
- * Get the dashboard category for a user based on their role
- */
-export const getDashboardCategory = (roleId?: string, roleName?: string): DashboardCategory => {
-    if (roleId && ROLE_DASHBOARD_MAP[roleId]) {
-        return ROLE_DASHBOARD_MAP[roleId];
-    }
-    if (roleName && ROLE_NAME_DASHBOARD_MAP[roleName]) {
-        return ROLE_NAME_DASHBOARD_MAP[roleName];
-    }
+const MANAGER_ROLE_NAMES = new Set<string>([
+    ...ADMIN_ROLE_NAMES,
+    ROLE_NAMES.BRANCH_MANAGER,
+    ROLE_NAMES.MANAGER,
+    ROLE_NAMES.SHIFT_SUPERVISOR,
+]);
 
-    return DashboardCategory.CASHIER;
-};
+const READONLY_ROLE_IDS = new Set<string>([
+    ROLE_IDS.VIEWER,
+    ROLE_IDS.AUDITOR,
+]);
+
+const READONLY_ROLE_NAMES = new Set<string>([
+    ROLE_NAMES.VIEWER,
+    ROLE_NAMES.AUDITOR,
+]);
 
 /**
  * Check if a role has admin-level access
  */
 export const isAdminRole = (roleId?: string, roleName?: string): boolean => {
-    const category = getDashboardCategory(roleId, roleName);
-    return category === DashboardCategory.ADMIN;
+    return !!(roleId && ADMIN_ROLE_IDS.has(roleId)) || !!(roleName && ADMIN_ROLE_NAMES.has(roleName));
 };
 
 /**
  * Check if a role has management-level access
  */
 export const isManagerRole = (roleId?: string, roleName?: string): boolean => {
-    const category = getDashboardCategory(roleId, roleName);
-    return category === DashboardCategory.ADMIN || category === DashboardCategory.MANAGER;
+    return !!(roleId && MANAGER_ROLE_IDS.has(roleId)) || !!(roleName && MANAGER_ROLE_NAMES.has(roleName));
 };
 
 /**
@@ -123,8 +103,7 @@ export const isAccountant = (roleId?: string, roleName?: string): boolean => {
  * Check if user has read-only access
  */
 export const isReadOnlyRole = (roleId?: string, roleName?: string): boolean => {
-    const category = getDashboardCategory(roleId, roleName);
-    return category === DashboardCategory.READONLY;
+    return !!(roleId && READONLY_ROLE_IDS.has(roleId)) || !!(roleName && READONLY_ROLE_NAMES.has(roleName));
 };
 
 // Role display information

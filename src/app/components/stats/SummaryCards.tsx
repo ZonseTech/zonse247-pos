@@ -1,7 +1,5 @@
 import { FC, ReactNode } from 'react';
-import { LucideIcon } from 'lucide-react';
-
-// ─── Types ─────────────────────────────────────────────────────────────────────
+import { Box, Flex, Text, Skeleton, Tooltip } from '@radix-ui/themes';
 
 export interface SummaryCardItem {
     title: string;
@@ -17,15 +15,35 @@ export interface SummaryCardItem {
 export interface SummaryCardsProps {
     cards: SummaryCardItem[];
     isLoading?: boolean;
-    /** Number of skeleton placeholders to show while loading (default: cards.length or 4) */
     skeletonCount?: number;
-    /** Grid columns class override (default: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4") */
     gridClassName?: string;
-    /** Whether rendered inside a table card (adds border-b + padding) vs standalone (adds mb-6) */
     variant?: 'standalone' | 'embedded';
 }
 
-// ─── Component ─────────────────────────────────────────────────────────────────
+const SkeletonCard: FC = () => (
+    <Tooltip content="Loading…">
+        <Box
+            className="rounded-xl animate-pulse"
+            p={{ initial: '3', sm: '4' }}
+            style={{ backgroundColor: 'var(--gray-a3)' }}
+            aria-busy="true"
+            aria-label="Loading card"
+        >
+            <Flex align="center" gap={{ initial: '2', sm: '3' }}>
+                <Skeleton
+                    width="44px"
+                    height="44px"
+                    className="rounded-xl !w-10 !h-10 sm:!w-11 sm:!h-11"
+                />
+                <Flex direction="column" gap="1" flexGrow="1" minWidth="0">
+                    <Skeleton width="56px" height="12px" />
+                    <Skeleton width="72px" height="20px" />
+                </Flex>
+            </Flex>
+        </Box>
+    </Tooltip>
+);
+
 
 const SummaryCards: FC<SummaryCardsProps> = ({
     cards,
@@ -37,22 +55,14 @@ const SummaryCards: FC<SummaryCardsProps> = ({
     const count = (skeletonCount ?? cards.length) || 4;
 
     const wrapperClass = variant === 'embedded'
-        ? `grid ${gridClassName} gap-3 p-4 border-b border-gray-200 dark:border-gray-700`
+        ? `grid ${gridClassName} gap-3 p-4 border-b border-[var(--gray-a6)]`
         : `grid ${gridClassName} gap-4 mb-6`;
 
     if (isLoading) {
         return (
             <div className={wrapperClass}>
                 {[...Array(count)].map((_, i) => (
-                    <div key={i} className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-4 animate-pulse">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gray-200 dark:bg-gray-600 rounded-lg flex-shrink-0" />
-                            <div className="flex-1 min-w-0 space-y-2">
-                                <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded w-16" />
-                                <div className="h-5 bg-gray-200 dark:bg-gray-600 rounded w-20" />
-                            </div>
-                        </div>
-                    </div>
+                    <SkeletonCard key={i} />
                 ))}
             </div>
         );
@@ -64,29 +74,30 @@ const SummaryCards: FC<SummaryCardsProps> = ({
                 const display = card.displayValue ?? (typeof card.value === 'number' ? card.value.toLocaleString() : card.value);
 
                 return (
-                    <div
+                    <Box
                         key={index}
-                        className={`${card.bgColor} rounded-lg p-4 border border-transparent transition-all duration-200 hover:shadow-md`}
+                        className={`${card.bgColor} rounded-lg border border-transparent transition-all duration-200 hover:shadow-md`}
+                        p="4"
                     >
-                        <div className="flex items-center gap-3">
-                            <div className={`${card.iconBgColor} ${card.textColor} p-2.5 rounded-lg flex-shrink-0`}>
+                        <Flex align="center" gap="3">
+                            <Box className={`${card.iconBgColor} ${card.textColor} rounded-lg`} p="2" flexShrink="0">
                                 {card.icon}
-                            </div>
-                            <div className="min-w-0">
-                                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium truncate">
+                            </Box>
+                            <Box minWidth="0">
+                                <Text as="p" size="1" weight="medium" color="gray" truncate>
                                     {card.title}
-                                </p>
-                                <p className={`text-lg font-bold ${card.textColor} leading-tight`}>
+                                </Text>
+                                <Text as="p" size="4" weight="bold" className={`${card.textColor} leading-tight`}>
                                     {display}
-                                </p>
+                                </Text>
                                 {card.subtitle && (
-                                    <p className="text-[10px] text-gray-400 dark:text-gray-500 truncate">
+                                    <Text as="p" size="1" color="gray" truncate>
                                         {card.subtitle}
-                                    </p>
+                                    </Text>
                                 )}
-                            </div>
-                        </div>
-                    </div>
+                            </Box>
+                        </Flex>
+                    </Box>
                 );
             })}
         </div>

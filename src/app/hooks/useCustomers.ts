@@ -24,7 +24,7 @@ export const useCustomers = (): UseCustomersReturn => {
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const searchDebounceRef = useRef<ReturnType<typeof setTimeout>>();
+    const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
     const {
         page, setPage, perPage, setPerPage, totalRows, setTotalRows,

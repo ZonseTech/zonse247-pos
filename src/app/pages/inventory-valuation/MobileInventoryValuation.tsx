@@ -1,4 +1,4 @@
-import { FC, useState, useCallback, useEffect, useRef } from 'react';
+import { FC, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import {
     ArrowLeft,
@@ -10,10 +10,11 @@ import {
     X,
     RefreshCw,
     Eye,
-    Loader2,
     FileSpreadsheet,
+    ChevronLeft,
+    ChevronRight,
 } from 'lucide-react';
-import classNames from 'classnames';
+import { IconButton, Button, Badge, Flex, SegmentedControl, Spinner } from '@radix-ui/themes';
 import { useInventoryValuation } from '../../hooks/useInventoryValuation';
 import { formatCurrency } from '../../utils';
 import ValuationDrillDownModal from './partials/ValuationDrillDownModal';
@@ -28,32 +29,37 @@ const COSTING_METHODS: { value: CostingMethodType; short: string }[] = [
 const MobileInventoryValuation: FC = () => {
     const navigate = useNavigate();
     const [isSearchVisible, setIsSearchVisible] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [showOpeningBalance, setShowOpeningBalance] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
 
     const {
+        items,
         summary,
         isLoading,
         loadSummary,
+        // Pagination & search
+        searchTerm,
+        handleSearch,
+        hasNextPage,
+        hasPrevPage,
+        nextPage,
+        prevPage,
+        pageLabel,
+        // Display
         displayMethod,
         setDisplayMethod,
-        getDisplayTotal,
-        getItemDisplayValue,
+        // Drill-down
         selectedItem,
         itemValuation,
         costLayers,
         isLoadingDetail,
         openDrillDown,
         closeDrillDown,
+        // Actions
         changeCostingMethod,
         recordOpeningBalance,
     } = useInventoryValuation();
-
-    useEffect(() => {
-        loadSummary();
-    }, [loadSummary]);
 
     const handleRefresh = useCallback(async () => {
         setIsRefreshing(true);
@@ -66,21 +72,14 @@ const MobileInventoryValuation: FC = () => {
             if (!prev) {
                 setTimeout(() => searchInputRef.current?.focus(), 100);
             } else {
-                setSearchTerm('');
+                handleSearch('');
             }
             return !prev;
         });
-    }, []);
+    }, [handleSearch]);
 
-    const filteredItems = searchTerm.trim()
-        ? (summary?.items ?? []).filter(
-            (item) =>
-                item.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.sku?.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-        : summary?.items ?? [];
-
-    const activeLabel = COSTING_METHODS.find((m) => m.value === displayMethod)?.short ?? 'WAC';
+    const handleOpenBalance = useCallback(() => setShowOpeningBalance(true), []);
+    const handleCloseBalance = useCallback(() => setShowOpeningBalance(false), []);
 
     return (
         <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
@@ -93,7 +92,7 @@ const MobileInventoryValuation: FC = () => {
                             ref={searchInputRef}
                             type="text"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => handleSearch(e.target.value)}
                             placeholder="Search products, SKU..."
                             className="flex-1 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 outline-none"
                         />
@@ -120,26 +119,26 @@ const MobileInventoryValuation: FC = () => {
                                 </h1>
                             </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                            <button
+                        <Flex align="center" gap="1">
+                            <IconButton
+                                size="2"
+                                variant="ghost"
+                                color="gray"
                                 onClick={handleSearchToggle}
-                                className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
                             >
                                 <Search className="w-5 h-5" />
-                            </button>
-                            <button
+                            </IconButton>
+                            <IconButton
+                                size="2"
+                                variant="ghost"
+                                color="gray"
                                 onClick={handleRefresh}
                                 disabled={isLoading || isRefreshing}
-                                className={classNames(
-                                    'p-2 rounded-lg text-gray-500 dark:text-gray-400',
-                                    'hover:bg-gray-100 dark:hover:bg-gray-700',
-                                    'disabled:opacity-50 transition-all',
-                                    (isLoading || isRefreshing) && 'animate-spin'
-                                )}
+                                className={(isLoading || isRefreshing) ? 'animate-spin' : ''}
                             >
                                 <RefreshCw className="w-5 h-5" />
-                            </button>
-                        </div>
+                            </IconButton>
+                        </Flex>
                     </div>
                 )}
             </div>
@@ -151,7 +150,7 @@ const MobileInventoryValuation: FC = () => {
                         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg">
                             <DollarSign className="w-4 h-4 text-emerald-500" />
                             <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                                {isLoading ? '...' : formatCurrency(getDisplayTotal(), true)}
+                                {isLoading ? '...' : formatCurrency(summary?.totalValue ?? 0, true)}
                             </span>
                         </div>
                         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-sky-50 dark:bg-sky-900/30 rounded-lg">
@@ -172,42 +171,39 @@ const MobileInventoryValuation: FC = () => {
 
             {/* Costing Method Toggle */}
             <div className="flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2">
-                <div className="flex gap-2 overflow-x-auto no-scrollbar">
-                    {COSTING_METHODS.map(({ value, short }) => (
-                        <button
-                            key={value}
-                            onClick={() => setDisplayMethod(value)}
-                            className={classNames(
-                                'px-3 py-1.5 text-xs font-semibold rounded-full whitespace-nowrap transition-all active:scale-95',
-                                displayMethod === value
-                                    ? 'bg-emerald-500 text-white'
-                                    : 'border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400'
-                            )}
-                        >
-                            {short}
-                        </button>
-                    ))}
-                    <span className="flex items-center text-[10px] text-gray-400 dark:text-gray-500 pl-2">
-                        Viewing: {activeLabel}
-                    </span>
-                    <button
-                        onClick={() => setShowOpeningBalance(true)}
-                        className="ml-auto flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 rounded-full whitespace-nowrap active:scale-95 transition-all"
+                <Flex align="center" gap="2" justify="between">
+                    <SegmentedControl.Root
+                        size="1"
+                        value={displayMethod}
+                        onValueChange={(value) => setDisplayMethod(value as CostingMethodType)}
+                    >
+                        {COSTING_METHODS.map(({ value, short }) => (
+                            <SegmentedControl.Item key={value} value={value}>
+                                {short}
+                            </SegmentedControl.Item>
+                        ))}
+                    </SegmentedControl.Root>
+
+                    <Button
+                        size="1"
+                        variant="soft"
+                        color="green"
+                        onClick={handleOpenBalance}
                     >
                         <FileSpreadsheet className="w-3.5 h-3.5" />
                         Balance
-                    </button>
-                </div>
+                    </Button>
+                </Flex>
             </div>
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto overscroll-contain">
-                {isLoading && filteredItems.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-16">
-                        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-3" />
+                {isLoading && items.length === 0 ? (
+                    <Flex align="center" justify="center" direction="column" py="9" gap="3">
+                        <Spinner size="3" />
                         <p className="text-sm text-gray-500 dark:text-gray-400">Loading valuation...</p>
-                    </div>
-                ) : filteredItems.length === 0 ? (
+                    </Flex>
+                ) : !isLoading && items.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-16 px-6">
                         <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700/50 rounded-2xl flex items-center justify-center mb-4">
                             <BarChart3 className="w-10 h-10 text-gray-400" />
@@ -221,17 +217,20 @@ const MobileInventoryValuation: FC = () => {
                                 : 'Inventory valuation data will appear here.'}
                         </p>
                         {searchTerm && (
-                            <button
-                                onClick={() => setSearchTerm('')}
-                                className="mt-4 px-4 py-2 text-emerald-500 font-medium text-sm hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg transition-colors"
+                            <Button
+                                variant="ghost"
+                                color="green"
+                                size="2"
+                                className="mt-4"
+                                onClick={() => handleSearch('')}
                             >
                                 Clear Search
-                            </button>
+                            </Button>
                         )}
                     </div>
                 ) : (
                     <div className="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700/50">
-                        {filteredItems.map((item) => (
+                        {items.map((item) => (
                             <button
                                 key={item.inventoryId}
                                 onClick={() => openDrillDown(item)}
@@ -240,6 +239,9 @@ const MobileInventoryValuation: FC = () => {
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                                         {item.productName}
+                                        {item.variantName && item.variantName !== 'Default' && (
+                                            <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">– {item.variantName}</span>
+                                        )}
                                     </p>
                                     <div className="flex items-center gap-2 mt-0.5">
                                         {item.sku && (
@@ -247,14 +249,14 @@ const MobileInventoryValuation: FC = () => {
                                                 {item.sku}
                                             </span>
                                         )}
-                                        <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 dark:text-indigo-400 rounded">
+                                        <Badge size="1" color="indigo" variant="soft">
                                             {item.costingMethod === 'WEIGHTED_AVERAGE' ? 'WAC' : item.costingMethod}
-                                        </span>
+                                        </Badge>
                                     </div>
                                 </div>
                                 <div className="text-right flex-shrink-0">
                                     <p className="text-sm font-bold text-gray-900 dark:text-white">
-                                        {formatCurrency(getItemDisplayValue(item), true)}
+                                        {formatCurrency(item.totalValue, true)}
                                     </p>
                                     <p className="text-[10px] text-gray-400">
                                         {item.availableQuantity.toLocaleString()} units
@@ -264,28 +266,51 @@ const MobileInventoryValuation: FC = () => {
                             </button>
                         ))}
 
-                        {/* Bottom Info */}
-                        <div className="text-center py-6 text-sm text-gray-500 dark:text-gray-400">
-                            Showing {filteredItems.length} of {summary?.totalItems ?? 0} items
+                        {/* Pagination */}
+                        <div className="flex items-center justify-between px-4 py-3">
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {pageLabel}
+                            </span>
+                            <Flex gap="2">
+                                <IconButton
+                                    size="1"
+                                    variant="soft"
+                                    color="gray"
+                                    disabled={!hasPrevPage || isLoading}
+                                    onClick={prevPage}
+                                >
+                                    <ChevronLeft className="w-4 h-4" />
+                                </IconButton>
+                                <IconButton
+                                    size="1"
+                                    variant="soft"
+                                    color="gray"
+                                    disabled={!hasNextPage || isLoading}
+                                    onClick={nextPage}
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </IconButton>
+                            </Flex>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Drill-Down Modal */}
-            <ValuationDrillDownModal
-                isOpen={!!selectedItem}
-                onClose={closeDrillDown}
-                item={selectedItem}
-                valuation={itemValuation}
-                costLayers={costLayers}
-                isLoading={isLoadingDetail}
-                onChangeCostingMethod={changeCostingMethod}
-            />
+            {!!selectedItem && (
+                <ValuationDrillDownModal
+                    isOpen
+                    onClose={closeDrillDown}
+                    item={selectedItem}
+                    valuation={itemValuation}
+                    costLayers={costLayers}
+                    isLoading={isLoadingDetail}
+                    onChangeCostingMethod={changeCostingMethod}
+                />
+            )}
 
             <OpeningBalanceModal
                 isOpen={showOpeningBalance}
-                onClose={() => setShowOpeningBalance(false)}
+                onClose={handleCloseBalance}
                 onSubmit={recordOpeningBalance}
             />
         </div>

@@ -1,11 +1,14 @@
 import { FC, useContext, useState, useCallback } from "react";
 import DataTable, { type Themes } from "react-data-table-component";
-import { HiOutlineMenuAlt4, HiOutlineDownload, HiOutlineFilter, HiOutlinePlus, HiOutlineChevronLeft, HiOutlineChevronRight } from "react-icons/hi";
-import { ReceiptEuro } from "lucide-react";
+import { HiOutlineMenuAlt4 } from "react-icons/hi";
+import { ReceiptEuro, Plus, Download, X } from "lucide-react";
+import { Button, Box, Flex } from "@radix-ui/themes";
 import AppLayout from "../../layouts/AppLayout";
 import PageHeader from "../../components/page/PageHeader";
 import TableSkeleton from "../../components/skeleton/TableSkeleton";
-import { Button, ZonseThemeContext, DateRangeFilter } from "../../components";
+import TableEmptyState from "../../components/TableEmptyState";
+import { ZonseThemeContext } from "../../components";
+import MobileDateFilter from "../../components/reports/MobileDateFilter";
 import { SearchBar } from "../../components/SearchBar";
 import { getTableStyles } from "../../utils/table-styles";
 import { useSales } from "../../hooks/useSales";
@@ -45,10 +48,9 @@ const SalesPage: FC = () => {
         perPage,
         getPaginatedData,
         handleSearch,
-        handleDateChange,
+        handleDateChange: handleDateChangeTuple,
         handleStatusChange,
         handlePaymentMethodChange,
-        getTodaySales,
         clearFilters,
         handlePageChange,
         handlePerRowsChange,
@@ -57,6 +59,13 @@ const SalesPage: FC = () => {
     } = useSales();
 
     const totalPages = Math.ceil(totalRows / perPage);
+
+    const handleDateChange = useCallback(
+        (start: Date | null, end: Date | null) => {
+            handleDateChangeTuple([start, end]);
+        },
+        [handleDateChangeTuple],
+    );
 
     const { paymentMethods, isLoading: isLoadingPaymentMethods } = usePaymentMethods();
 
@@ -97,233 +106,216 @@ const SalesPage: FC = () => {
         isMraEnabled,  // Pass MRA compliance status to show/hide MRA status column
     });
 
+    const hasActiveFilters = !!(searchTerm || startDate || selectedStatus !== 'all' || selectedPaymentMethod !== 'all');
+
     return (
         <AppLayout>
-            <div className="max-w-full">
-                <PageHeader
-                    title="Sales"
-                    description="Manage and view all sales transactions"
-                    icon={<ReceiptEuro className="w-8 h-8 text-sky-500 dark:text-sky-400" />}
-                    action={
-                        <Button
-                            icon={HiOutlinePlus}
-                            layout={isMobile ? 'outline' : 'primary'}
-                            onClick={() => navigate(ROUTES.POS)}
-                            theme="primary">
-                            {!isMobile && <span className='hidden md:block'>
-                                New Sale
-                            </span>}
-                        </Button>
-                    }
+            <PageHeader
+                title="Sales"
+                description="Manage and view all sales transactions"
+                icon={<ReceiptEuro className="w-8 h-8 text-sky-500 dark:text-sky-400" />}
+                action={
+                    <Button size="2" onClick={() => navigate(ROUTES.POS)}>
+                        <Plus className="w-4 h-4" />
+                        New Sale
+                    </Button>
+                }
+            />
+
+            <Box className="rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <Flex
+                    direction={{ initial: 'column', sm: 'row' }}
+                    align={{ initial: 'start', sm: 'center' }}
+                    justify="between"
+                    gap={{ initial: '2', sm: '3' }}
+                    px="4"
+                    py="3"
+                    className="border-b border-gray-200 dark:border-gray-700"
                 >
-                    <div className="p-3 md:p-6 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
-                        <div className="flex flex-col gap-3 md:gap-4">
-                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                                <SearchBar
-                                    placeholder="Search transactions..."
-                                    value={searchTerm}
-                                    onChange={handleSearch}
-                                    className="w-full sm:flex-1 sm:max-w-xs"
-                                />
+                    <SearchBar
+                        placeholder="Search transactions..."
+                        value={searchTerm}
+                        onChange={handleSearch}
+                        className="w-full sm:flex-1 sm:max-w-xs"
+                    />
 
-                                <div className="flex items-center gap-2 flex-wrap">
-                                    <button
-                                        onClick={exportData}
-                                        className="flex items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors duration-200 text-sm font-medium text-gray-700 dark:text-gray-200"
-                                    >
-                                        <HiOutlineDownload className="w-4 h-4" />
-                                        <span className="hidden sm:inline">Export</span>
-                                    </button>
+                    <Flex align="center" gap="2" wrap="wrap">
+                        <MobileDateFilter
+                            startDate={startDate ? new Date(startDate) : null}
+                            endDate={endDate ? new Date(endDate) : null}
+                            onChange={handleDateChange}
+                            align="right"
+                        />
 
-                                    <button
-                                        onClick={getTodaySales}
-                                        className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 bg-sky-50 hover:bg-sky-100 dark:bg-sky-900/30 dark:hover:bg-sky-900/50 border border-sky-200 dark:border-sky-700 rounded-lg transition-colors duration-200"
-                                    >
-                                        <HiOutlineFilter className="w-4 h-4" />
-                                        <span className="hidden sm:inline">Today</span>
-                                    </button>
+                        <Button variant="outline" color="gray" size="2" onClick={exportData}>
+                            <Download className="w-4 h-4" />
+                            <span className="hidden sm:inline">Export</span>
+                        </Button>
 
-                                    {(searchTerm || startDate || selectedStatus !== 'all' || selectedPaymentMethod !== 'all') && (
-                                        <button
-                                            onClick={clearFilters}
-                                            className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-500 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
-                                        >
-                                            <HiOutlineFilter className="w-4 h-4" />
-                                            <span className="hidden sm:inline">Clear</span>
-                                        </button>
-                                    )}
-                                </div>
-                                <DateRangeFilter
-                                    startDate={startDate}
-                                    endDate={endDate}
-                                    onChange={handleDateChange}
-                                />
-                            </div>
+                        {hasActiveFilters && (
+                            <Button variant="soft" color="red" size="2" onClick={clearFilters}>
+                                <X className="w-4 h-4" />
+                                <span className="hidden sm:inline">Clear</span>
+                            </Button>
+                        )}
+                    </Flex>
+                </Flex>
 
-                            <div className="flex flex-col gap-3">
-                                <StatusFilter
-                                    selectedStatus={selectedStatus}
-                                    onChange={handleStatusChange}
-                                />
+                <Flex direction="column" gap="2" px="4" py="3" className="border-b border-gray-200 dark:border-gray-700">
+                    <StatusFilter
+                        selectedStatus={selectedStatus}
+                        onChange={handleStatusChange}
+                    />
+                    <PaymentMethodFilter
+                        selectedPaymentMethod={selectedPaymentMethod}
+                        onChange={handlePaymentMethodChange}
+                        paymentMethods={paymentMethods}
+                        isLoading={isLoadingPaymentMethods}
+                    />
+                </Flex>
 
-                                <PaymentMethodFilter
-                                    selectedPaymentMethod={selectedPaymentMethod}
-                                    onChange={handlePaymentMethodChange}
-                                    paymentMethods={paymentMethods}
-                                    isLoading={isLoadingPaymentMethods}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </PageHeader>
-
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-
+                <Box px="4">
                     <SaleSummaryCards
                         cards={getSummaryCards()}
                         isLoading={isLoadingSummary}
                     />
+                </Box>
 
-                    {isMobile ? (
-                        <div className="overflow-hidden">
-                            {isLoading ? (
-                                <SaleMobileList
-                                    transactions={[]}
-                                    onViewDetails={handleViewDetails}
-                                    onInitiateReturn={handleInitiateReturn}
-                                    isLoading={true}
-                                />
-                            ) : getPaginatedData().length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-12 px-4">
-                                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                                        <HiOutlineMenuAlt4 className="w-8 h-8 text-gray-400" />
-                                    </div>
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2 text-center">
-                                        No sales found
-                                    </h3>
-                                    <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm text-sm">
-                                        {searchTerm || startDate || selectedStatus !== 'all' || selectedPaymentMethod !== 'all'
-                                            ? "Try adjusting your filters to find sales."
-                                            : "Sales will appear here once they are created."
-                                        }
-                                    </p>
-                                    {(searchTerm || startDate || selectedStatus !== 'all' || selectedPaymentMethod !== 'all') && (
-                                        <button
-                                            onClick={clearFilters}
-                                            className="mt-4 text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
-                                        >
+                {isMobile ? (
+                    <div className="overflow-hidden">
+                        {isLoading ? (
+                            <SaleMobileList
+                                transactions={[]}
+                                onViewDetails={handleViewDetails}
+                                onInitiateReturn={handleInitiateReturn}
+                                isLoading={true}
+                            />
+                        ) : getPaginatedData().length === 0 ? (
+                            <TableEmptyState
+                                icon={<HiOutlineMenuAlt4 />}
+                                title="No sales found"
+                                description={
+                                    hasActiveFilters
+                                        ? "Try adjusting your filters to find sales."
+                                        : "Sales will appear here once they are created."
+                                }
+                                action={
+                                    hasActiveFilters ? (
+                                        <Button variant="ghost" color="sky" size="2" onClick={clearFilters}>
                                             Clear filters
-                                        </button>
-                                    )}
-                                </div>
-                            ) : (
-                                <>
-                                    <SaleMobileList
-                                        transactions={getPaginatedData()}
-                                        onViewDetails={handleViewDetails}
-                                        onInitiateReturn={handleInitiateReturn}
-                                        isLoading={false}
-                                    />
-
-                                    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-                                        <span className="text-xs text-gray-600 dark:text-gray-400">
-                                            Page {page} of {totalPages} ({totalRows} total)
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={() => handlePageChange(page - 1)}
-                                                disabled={page <= 1}
-                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                <HiOutlineChevronLeft className="w-5 h-5" />
-                                            </button>
-                                            <button
-                                                onClick={() => handlePageChange(page + 1)}
-                                                disabled={page >= totalPages}
-                                                className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                <HiOutlineChevronRight className="w-5 h-5" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="overflow-hidden">
-                            <DataTable
-                                columns={columns}
-                                data={getPaginatedData()}
-                                theme={mode as Themes}
-                                customStyles={getTableStyles(mode)}
-                                progressPending={isLoading}
-                                progressComponent={<TableSkeleton rows={perPage} columns={8} showCheckbox={false} showActions />}
-                                highlightOnHover
-                                striped
-                                responsive
-                                pagination
-                                paginationServer
-                                paginationTotalRows={totalRows}
-                                paginationPerPage={perPage}
-                                paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
-                                onChangeRowsPerPage={handlePerRowsChange}
-                                onChangePage={handlePageChange}
-                                fixedHeader
-                                noDataComponent={
-                                    <div className="flex flex-col items-center justify-center py-12">
-                                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                                            <HiOutlineMenuAlt4 className="w-8 h-8 text-gray-400" />
-                                        </div>
-                                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                                            No transactions found
-                                        </h3>
-                                        <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm">
-                                            {searchTerm || startDate || selectedStatus !== 'all' || selectedPaymentMethod !== 'all'
-                                                ? "Try adjusting your search, date, status, or payment method filters to find transactions."
-                                                : "Transactions will appear here once they are created."
-                                            }
-                                        </p>
-                                        {(searchTerm || startDate || selectedStatus !== 'all' || selectedPaymentMethod !== 'all') && (
-                                            <button
-                                                onClick={clearFilters}
-                                                className="mt-4 text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium"
-                                            >
-                                                Clear filters
-                                            </button>
-                                        )}
-                                    </div>
+                                        </Button>
+                                    ) : undefined
                                 }
                             />
-                        </div>
-                    )}
+                        ) : (
+                            <>
+                                <SaleMobileList
+                                    transactions={getPaginatedData()}
+                                    onViewDetails={handleViewDetails}
+                                    onInitiateReturn={handleInitiateReturn}
+                                    isLoading={false}
+                                />
 
-                    {isMobile && (
-                        <SaleDetailsModal
-                            sale={selectedSale}
-                            isOpenDetails={isOpenDetails}
-                            setIsOpenDetails={setIsOpenDetails}
-                            isMraEnabled={isMraEnabled}
-                        />
-                    )}
+                                <Flex
+                                    align="center"
+                                    justify="between"
+                                    px="4"
+                                    py="3"
+                                    className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50"
+                                >
+                                    <span className="text-xs text-gray-600 dark:text-gray-400">
+                                        Page {page} of {totalPages} ({totalRows} total)
+                                    </span>
+                                    <Flex align="center" gap="2">
+                                        <Button
+                                            variant="ghost"
+                                            color="gray"
+                                            size="1"
+                                            onClick={() => handlePageChange(page - 1)}
+                                            disabled={page <= 1}
+                                        >
+                                            ‹
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            color="gray"
+                                            size="1"
+                                            onClick={() => handlePageChange(page + 1)}
+                                            disabled={page >= totalPages}
+                                        >
+                                            ›
+                                        </Button>
+                                    </Flex>
+                                </Flex>
+                            </>
+                        )}
+                    </div>
+                ) : (
+                    <DataTable
+                        columns={columns}
+                        data={getPaginatedData()}
+                        theme={mode as Themes}
+                        customStyles={getTableStyles(mode)}
+                        progressPending={isLoading}
+                        progressComponent={<TableSkeleton rows={perPage} columns={8} showCheckbox={false} showActions />}
+                        highlightOnHover
+                        striped
+                        responsive
+                        pagination
+                        paginationServer
+                        paginationTotalRows={totalRows}
+                        paginationPerPage={perPage}
+                        paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
+                        onChangeRowsPerPage={handlePerRowsChange}
+                        onChangePage={handlePageChange}
+                        fixedHeader
+                        noDataComponent={
+                            <TableEmptyState
+                                icon={<HiOutlineMenuAlt4 />}
+                                title="No transactions found"
+                                description={
+                                    hasActiveFilters
+                                        ? "Try adjusting your search, date, status, or payment method filters to find transactions."
+                                        : "Transactions will appear here once they are created."
+                                }
+                                action={
+                                    hasActiveFilters ? (
+                                        <Button variant="ghost" color="sky" size="2" onClick={clearFilters}>
+                                            Clear filters
+                                        </Button>
+                                    ) : undefined
+                                }
+                            />
+                        }
+                    />
+                )}
+            </Box>
 
-                    {saleForReturn && (
-                        <InitiateReturnModal
-                            isOpen={isReturnModalOpen}
-                            onClose={() => {
-                                setIsReturnModalOpen(false);
-                                setSaleForReturn(null);
-                            }}
-                            sale={saleForReturn}
-                            onSuccess={() => {
-                                loadSales();
-                                loadSummary();
-                                setIsReturnModalOpen(false);
-                                setSaleForReturn(null);
-                            }}
-                        />
-                    )}
-                </div>
-            </div>
+            {isMobile && (
+                <SaleDetailsModal
+                    sale={selectedSale}
+                    isOpenDetails={isOpenDetails}
+                    setIsOpenDetails={setIsOpenDetails}
+                    isMraEnabled={isMraEnabled}
+                />
+            )}
+
+            {saleForReturn && (
+                <InitiateReturnModal
+                    isOpen={isReturnModalOpen}
+                    onClose={() => {
+                        setIsReturnModalOpen(false);
+                        setSaleForReturn(null);
+                    }}
+                    sale={saleForReturn}
+                    onSuccess={() => {
+                        loadSales();
+                        loadSummary();
+                        setIsReturnModalOpen(false);
+                        setSaleForReturn(null);
+                    }}
+                />
+            )}
         </AppLayout>
     );
 };

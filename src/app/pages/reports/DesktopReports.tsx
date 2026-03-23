@@ -7,7 +7,7 @@ import { getErrorMessage } from '../../utils/api-error-handler';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import LoadingState from '../../components/loader/LoadingState';
-import { MobileDateFilter, ReportCard, ReportCardProps } from '../dashboard/components';
+import { MobileDateFilter, ReportCard, ReportCardProps } from '../../components/reports';
 import { formatCurrency } from '../../utils';
 import reportsService, { ReportSummary } from '../../services/reports.service';
 import { useBranch } from '../../context/BranchContext';
@@ -200,6 +200,7 @@ const DesktopReports: FunctionComponent = () => {
                             startDate={startDate}
                             endDate={endDate}
                             onChange={handleDateChange}
+                            align='right'
                         />
                     </div>
                 </div>

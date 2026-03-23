@@ -90,7 +90,9 @@ const ExpiryStockModal: FC<ExpiryStockModalProps> = ({
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Record Expiry</h2>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                Write off expired stock from inventory
+                                {selected
+                                    ? <>{selected.name} — <span className="font-semibold">{selected.variantName}</span></>
+                                    : 'Write off expired stock from inventory'}
                             </p>
                         </div>
                     </div>

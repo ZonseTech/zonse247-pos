@@ -101,7 +101,9 @@ const StockAdjustmentModal: FC<StockAdjustmentModalProps> = ({
                     <div>
                         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Adjust Stock</h2>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                            Manual inventory adjustment with audit trail
+                            {selected
+                                ? <>{selected.name} — <span className="font-semibold">{selected.variantName}</span></>
+                                : 'Manual inventory adjustment with audit trail'}
                         </p>
                     </div>
                     <button

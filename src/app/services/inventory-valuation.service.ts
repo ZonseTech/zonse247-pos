@@ -38,12 +38,19 @@ const inventoryValuationService = {
     // ─── Valuation ─────────────────────────────────────────────────────────
 
     /**
-     * GET /inventory-valuation/summary — Full branch valuation
-     * Returns WAC + FIFO + LIFO totals and per-item breakdown
+     * GET /inventory-valuation/summary — Paginated branch valuation
+     * Returns items (page), pagination metadata, and aggregate summary
      */
-    async getValuationSummary(): Promise<InventoryValuationSummary> {
+    async getValuationSummary(query: ValuationSummaryQuery = {}): Promise<InventoryValuationData> {
+        const params: Record<string, any> = {};
+        Object.keys(query).forEach((key) => {
+            const value = (query as any)[key];
+            if (value !== undefined && value !== null && value !== '') {
+                params[key] = value;
+            }
+        });
         return api
-            .get<ValuationSummaryResponse>(endpoints.summary)
+            .get<ValuationSummaryResponse>(endpoints.summary, params)
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -128,11 +135,31 @@ const inventoryValuationService = {
         branchId?: string
     ): Promise<PeriodCOGSFromSalesResult> {
         return api
-            .get<ApiResponse<PeriodCOGSFromSalesResult>>(
+            .get<ApiResponse<any>>(
                 endpoints.cogsPeriodFromSales,
                 { startDate, endDate, ...(branchId && { branchId }) }
             )
-            .then((res) => res.data.data)
+            .then((res) => {
+                const raw = res.data.data;
+                return {
+                    items: raw.items ?? raw.byProduct ?? [],
+                    pagination: raw.pagination ?? {
+                        currentPage: 1,
+                        totalPages: 1,
+                        totalItems: (raw.items ?? raw.byProduct ?? []).length,
+                        itemsPerPage: (raw.items ?? raw.byProduct ?? []).length,
+                    },
+                    summary: raw.summary ?? {
+                        tenantId: raw.tenantId,
+                        branchId: raw.branchId,
+                        startDate: raw.startDate,
+                        endDate: raw.endDate,
+                        totalCOGS: raw.totalCOGS ?? 0,
+                        saleCount: raw.saleCount ?? 0,
+                        totalUnitsSold: raw.totalUnitsSold ?? 0,
+                    },
+                };
+            })
             .catch((err) => {
                 throw err;
             });
@@ -142,19 +169,20 @@ const inventoryValuationService = {
 
     /**
      * GET /inventory-valuation/gross-profit/by-product
-     * Returns per-product revenue, COGS, profit, margin %
+     * Returns paginated per-product revenue, COGS, profit, margin %
      */
     async getGrossProfitByProduct(
-        startDate: string,
-        endDate: string,
-        branchId?: string
+        query: GrossProfitQuery
     ): Promise<GrossProfitByProductResult> {
+        const params: Record<string, any> = {};
+        Object.keys(query).forEach((key) => {
+            const value = (query as any)[key];
+            if (value !== undefined && value !== null && value !== '') {
+                params[key] = value;
+            }
+        });
         return api
-            .get<GrossProfitResponse>(endpoints.grossProfitByProduct, {
-                startDate,
-                endDate,
-                ...(branchId && { branchId }),
-            })
+            .get<GrossProfitResponse>(endpoints.grossProfitByProduct, params)
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -166,14 +194,17 @@ const inventoryValuationService = {
      * Groups items into buckets (0-30, 31-60, …, 365+, never)
      */
     async getInventoryAging(
-        thresholdDays?: number,
-        branchId?: string
+        query: InventoryAgingQuery = {}
     ): Promise<InventoryAgingResult> {
+        const params: Record<string, any> = {};
+        Object.keys(query).forEach((key) => {
+            const value = (query as any)[key];
+            if (value !== undefined && value !== null && value !== '') {
+                params[key] = value;
+            }
+        });
         return api
-            .get<InventoryAgingResponse>(endpoints.aging, {
-                ...(thresholdDays !== undefined && { thresholdDays }),
-                ...(branchId && { branchId }),
-            })
+            .get<InventoryAgingResponse>(endpoints.aging, params)
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;

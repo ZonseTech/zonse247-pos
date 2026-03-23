@@ -1,36 +1,38 @@
-import { FunctionComponent, useCallback, useContext, useState, useMemo } from 'react';
+import { FC, useCallback, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { Confirm, Notify } from 'notiflix';
-import { Truck, Settings2, X, Package, DollarSign } from 'lucide-react';
+import { Truck, Plus, X } from 'lucide-react';
 import DataTable, { type Themes } from 'react-data-table-component';
+import { HiOutlineMenuAlt4 } from 'react-icons/hi';
+import { Button, Box, Flex } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
-import { HiOutlinePlus } from 'react-icons/hi2';
-import { HiOutlineFilter } from 'react-icons/hi';
-import MobilePagination from '../../components/MobilePagination';
+import TableSkeleton from '../../components/skeleton/TableSkeleton';
+import TableEmptyState from '../../components/TableEmptyState';
+import { ZonseThemeContext } from '../../components';
+import { SearchBar } from '../../components/SearchBar';
 import { getTableStyles } from '../../utils/table-styles';
-import { Button, ZonseThemeContext, ComponentLoader } from '../../components';
 import { useSuppliers } from '../../hooks/useSuppliers';
 import { getSupplierTableColumns } from './partials/SupplierTableColumns';
 import { SupplierMobileList } from './partials/SupplierMobileCard';
 import SupplierSummaryCards, { SupplierSummaryCard } from './partials/SupplierSummaryCards';
+import { SupplierStatusFilter } from './partials/SupplierStatusFilter';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
-import SearchBar from '../../components/SearchBar';
 
-const SupplierManagement: FunctionComponent = () => {
+const SupplierManagement: FC = () => {
     const isMobile = useIsMobile();
     const navigate = useNavigate();
     const { mode } = useContext(ZonseThemeContext);
-
-    const [selectedRows, setSelectedRows] = useState<Supplier[]>([]);
-    const [toggleCleared, setToggleCleared] = useState(false);
 
     const {
         suppliers,
         isLoading,
         searchTerm,
         setSearchTerm,
+        clearSearch,
+        statusFilter,
+        setStatusFilter,
         page,
         setPage,
         perPage,
@@ -39,9 +41,9 @@ const SupplierManagement: FunctionComponent = () => {
         deleteSupplier,
     } = useSuppliers();
 
-    const hasActiveFilters = useMemo(() => {
-        return !!searchTerm;
-    }, [searchTerm]);
+    const totalPages = Math.ceil(totalRows / perPage);
+
+    const hasActiveFilters = useMemo(() => !!searchTerm || !!statusFilter, [searchTerm, statusFilter]);
 
     // Calculate summary stats
     const summaryCards: SupplierSummaryCard[] = useMemo(() => {
@@ -117,20 +119,25 @@ const SupplierManagement: FunctionComponent = () => {
     }, [deleteSupplier]);
 
     const handleClearFilters = useCallback(() => {
-        setSearchTerm('');
-    }, [setSearchTerm]);
+        clearSearch();
+        setStatusFilter('');
+    }, [clearSearch, setStatusFilter]);
 
-    const handleRowSelected = useCallback((state: { selectedRows: Supplier[] }) => {
-        setSelectedRows(state.selectedRows);
-    }, []);
+    const handleStatusChange = useCallback(
+        (status: SupplierStatus | '') => {
+            setStatusFilter(status);
+            setPage(1);
+        },
+        [setStatusFilter, setPage],
+    );
 
-    const handlePageChange = useCallback((page: number) => {
-        setPage(page);
+    const handlePageChange = useCallback((newPage: number) => {
+        setPage(newPage);
     }, [setPage]);
 
-    const handlePerRowsChange = useCallback((newPerPage: number, page: number) => {
+    const handlePerRowsChange = useCallback((newPerPage: number, newPage: number) => {
         setPerPage(newPerPage);
-        setPage(page);
+        setPage(newPage);
     }, [setPerPage, setPage]);
 
     const columns = getSupplierTableColumns({
@@ -140,155 +147,169 @@ const SupplierManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="max-w-full">
-                <PageHeader
-                    icon={<Truck className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
-                    title="Suppliers"
-                    description="Manage your suppliers for purchase orders"
-                    action={
-                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                            <SearchBar
-                                value={searchTerm}
-                                onChange={setSearchTerm}
-                                placeholder="Search suppliers by name, code, or contact..."
-                            />
+            <PageHeader
+                title="Suppliers"
+                description="Manage your suppliers for purchase orders"
+                icon={<Truck className="w-8 h-8 text-sky-500 dark:text-sky-400" />}
+                action={
+                    <Button size="2" onClick={handleAddSupplier}>
+                        <Plus className="w-4 h-4" />
+                        Add Supplier
+                    </Button>
+                }
+            />
 
-                            {selectedRows.length > 0 && !isMobile && (
-                                <div className="flex items-center gap-2 px-4 py-2 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-md">
-                                    <Settings2 className="w-4 h-4 text-sky-500 dark:text-sky-400" />
-                                    <span className="text-sm font-medium text-sky-900 dark:text-sky-100">
-                                        {selectedRows.length} selected
-                                    </span>
-                                </div>
-                            )}
-
-                            {hasActiveFilters && (
-                                <button
-                                    onClick={handleClearFilters}
-                                    className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-500 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
-                                >
-                                    <HiOutlineFilter className="w-4 h-4" />
-                                    <span>Clear</span>
-                                </button>
-                            )}
-
-                            <Button
-                                icon={HiOutlinePlus}
-                                layout={isMobile ? 'outline' : 'primary'}
-                                onClick={handleAddSupplier}
-                                className="!px-3 sm:!px-4 !py-2 sm:!py-2.5"
-                                theme="primary">
-                                {!isMobile && <span className='hidden md:block'>
-                                    Add Supplier
-                                </span>}
-                            </Button>
-                        </div>
-                    }
-                />
-
-                {/* Main Content Container */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-
-                    {/* Summary Cards */}
-                    <SupplierSummaryCards
-                        cards={summaryCards}
-                        isLoading={isLoading}
+            <Box className="rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                {/* Search & Actions Bar */}
+                <Flex
+                    direction={{ initial: 'column', sm: 'row' }}
+                    align={{ initial: 'start', sm: 'center' }}
+                    justify="between"
+                    gap={{ initial: '2', sm: '3' }}
+                    px="4"
+                    py="3"
+                    className="border-b border-gray-200 dark:border-gray-700"
+                >
+                    <SearchBar
+                        placeholder="Search suppliers..."
+                        value={searchTerm}
+                        onChange={setSearchTerm}
+                        className="w-full sm:flex-1 sm:max-w-xs"
                     />
 
-                    {/* Mobile View - Card List */}
-                    {isMobile ? (
-                        <div className="overflow-hidden">
-                            {isLoading ? (
-                                <SupplierMobileList
-                                    suppliers={[]}
-                                    onEdit={handleEdit}
-                                    onDelete={handleDelete}
-                                    isLoading={true}
-                                />
-                            ) : suppliers.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-12 px-4">
-                                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                                        <Truck className="w-8 h-8 text-gray-400" />
-                                    </div>
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2 text-center">
-                                        {searchTerm ? 'No matching suppliers' : 'No suppliers yet'}
-                                    </h3>
-                                    <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm text-sm">
-                                        {searchTerm
-                                            ? "Try adjusting your search to find suppliers."
-                                            : "Add your first supplier to get started."
-                                        }
-                                    </p>
-                                    {hasActiveFilters && (
-                                        <button
-                                            onClick={handleClearFilters}
-                                            className="mt-4 text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
-                                        >
-                                            Clear filters
-                                        </button>
-                                    )}
-                                </div>
-                            ) : (
-                                <>
-                                    <SupplierMobileList
-                                        suppliers={suppliers}
-                                        onEdit={handleEdit}
-                                        onDelete={handleDelete}
-                                        isLoading={false}
-                                    />
+                    <Flex align="center" gap="2" wrap="wrap">
+                        {hasActiveFilters && (
+                            <Button variant="soft" color="red" size="2" onClick={handleClearFilters}>
+                                <X className="w-4 h-4" />
+                                <span className="hidden sm:inline">Clear</span>
+                            </Button>
+                        )}
+                    </Flex>
+                </Flex>
 
-                                    <MobilePagination page={page} totalRows={totalRows} perPage={perPage} onPageChange={setPage} />
-                                </>
-                            )}
-                        </div>
-                    ) : (
-                        /* Desktop View - Data Table */
-                        <div className="overflow-hidden">
-                            <DataTable
-                                columns={columns}
-                                data={suppliers}
-                                theme={mode as Themes}
-                                progressPending={isLoading}
-                                progressComponent={<ComponentLoader loading={isLoading} />}
-                                pagination
-                                paginationServer
-                                paginationTotalRows={totalRows}
-                                paginationPerPage={perPage}
-                                paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
-                                onChangeRowsPerPage={handlePerRowsChange}
-                                onChangePage={handlePageChange}
-                                customStyles={getTableStyles(mode)}
-                                highlightOnHover
-                                striped
-                                responsive
-                                fixedHeader
-                                selectableRows
-                                selectableRowsHighlight
-                                onSelectedRowsChange={handleRowSelected}
-                                clearSelectedRows={toggleCleared}
-                                fixedHeaderScrollHeight="calc(100vh - 420px)"
-                                persistTableHead
-                                noDataComponent={
-                                    <div className="flex flex-col items-center justify-center py-12 dark:bg-gray-800 flex-1">
-                                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-                                            <Truck className="h-8 w-8 text-gray-400 dark:text-gray-500" />
-                                        </div>
-                                        <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                            {searchTerm ? 'No matching suppliers' : 'No suppliers yet'}
-                                        </h3>
-                                        <p className="mt-2 max-w-sm text-center text-sm text-gray-600 dark:text-gray-400">
-                                            {searchTerm
-                                                ? 'Try adjusting your search terms or clear the search to see all suppliers.'
-                                                : 'Get started by adding your first supplier.'
-                                            }
-                                        </p>
-                                    </div>
+                {/* Status Filter */}
+                <Flex direction="column" gap="2" px="4" py="3" className="border-b border-gray-200 dark:border-gray-700">
+                    <SupplierStatusFilter
+                        selectedStatus={statusFilter}
+                        onChange={handleStatusChange}
+                    />
+                </Flex>
+
+                {/* Summary Cards */}
+                <Box px="4">
+                    <SupplierSummaryCards cards={summaryCards} isLoading={isLoading} />
+                </Box>
+
+                {/* Mobile Card List / Desktop DataTable */}
+                {isMobile ? (
+                    <div className="overflow-hidden">
+                        {isLoading ? (
+                            <SupplierMobileList
+                                suppliers={[]}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                                isLoading
+                            />
+                        ) : suppliers.length === 0 ? (
+                            <TableEmptyState
+                                icon={<HiOutlineMenuAlt4 />}
+                                title={searchTerm ? 'No matching suppliers' : 'No suppliers yet'}
+                                description={
+                                    searchTerm
+                                        ? 'Try adjusting your search to find suppliers.'
+                                        : 'Add your first supplier to get started.'
+                                }
+                                action={
+                                    hasActiveFilters ? (
+                                        <Button variant="ghost" color="sky" size="2" onClick={handleClearFilters}>
+                                            Clear filters
+                                        </Button>
+                                    ) : undefined
                                 }
                             />
-                        </div>
-                    )}
-                </div>
-            </div>
+                        ) : (
+                            <>
+                                <SupplierMobileList
+                                    suppliers={suppliers}
+                                    onEdit={handleEdit}
+                                    onDelete={handleDelete}
+                                    isLoading={false}
+                                />
+
+                                <Flex
+                                    align="center"
+                                    justify="between"
+                                    px="4"
+                                    py="3"
+                                    className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50"
+                                >
+                                    <span className="text-xs text-gray-600 dark:text-gray-400">
+                                        Page {page} of {totalPages} ({totalRows} total)
+                                    </span>
+                                    <Flex align="center" gap="2">
+                                        <Button
+                                            variant="ghost"
+                                            color="gray"
+                                            size="1"
+                                            onClick={() => handlePageChange(page - 1)}
+                                            disabled={page <= 1}
+                                        >
+                                            ‹
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            color="gray"
+                                            size="1"
+                                            onClick={() => handlePageChange(page + 1)}
+                                            disabled={page >= totalPages}
+                                        >
+                                            ›
+                                        </Button>
+                                    </Flex>
+                                </Flex>
+                            </>
+                        )}
+                    </div>
+                ) : (
+                    <DataTable
+                        columns={columns}
+                        data={suppliers}
+                        theme={mode as Themes}
+                        customStyles={getTableStyles(mode)}
+                        progressPending={isLoading}
+                        progressComponent={<TableSkeleton rows={perPage} columns={6} showCheckbox={false} showActions />}
+                        highlightOnHover
+                        striped
+                        responsive
+                        pagination
+                        paginationServer
+                        paginationTotalRows={totalRows}
+                        paginationPerPage={perPage}
+                        paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
+                        onChangeRowsPerPage={handlePerRowsChange}
+                        onChangePage={handlePageChange}
+                        fixedHeader
+                        noDataComponent={
+                            <TableEmptyState
+                                icon={<HiOutlineMenuAlt4 />}
+                                title={searchTerm ? 'No matching suppliers' : 'No suppliers yet'}
+                                description={
+                                    searchTerm
+                                        ? 'Try adjusting your search terms or clear the search to see all suppliers.'
+                                        : 'Get started by adding your first supplier.'
+                                }
+                                action={
+                                    hasActiveFilters ? (
+                                        <Button variant="ghost" color="sky" size="2" onClick={handleClearFilters}>
+                                            Clear filters
+                                        </Button>
+                                    ) : undefined
+                                }
+                            />
+                        }
+                    />
+                )}
+            </Box>
         </AppLayout>
     );
 };

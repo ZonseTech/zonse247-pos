@@ -9,7 +9,6 @@ import InitApp from '../pages/landing/InitApp'
 import {
 	PublicAuthRoutes,
 	ProtectedAuthRoutes,
-	DashboardRoutes,
 	MobileTabRoutes,
 	DesktopPosRoute,
 	MobileReportRoutes,
@@ -17,6 +16,7 @@ import {
 	SalesRoutes,
 	InventoryRoutes,
 	SupplierRoutes,
+	ProcurementRoutes,
 	UserRoutes,
 	BranchRoutes,
 	TerminalRoutes,
@@ -25,6 +25,7 @@ import {
 	SubscriptionRoutes,
 	SystemRoutes,
 	ErrorRoutes,
+	AccountInfoRoutes,
 } from './config'
 
 const ProtectedLayoutWithAuth = withProtectedRoute(ProtectedLayout)
@@ -42,12 +43,12 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 				<Route path="/" element={<ProtectedLayoutWithAuth />}>
 					{isNativeMobile ? MobileTabRoutes : DesktopPosRoute}
 
-					{DashboardRoutes}
 					{MobileReportRoutes}
 					{DesktopReportRoutes}
 					{SalesRoutes}
 					{InventoryRoutes}
 					{SupplierRoutes}
+					{ProcurementRoutes}
 
 					{UserRoutes}
 					{ProtectedAuthRoutes}
@@ -59,6 +60,7 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 					{SubscriptionRoutes}
 
 					{SystemRoutes}
+					{AccountInfoRoutes}
 
 					<Route path="*" element={<Navigate to="/not-found" />} />
 				</Route>

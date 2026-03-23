@@ -36,7 +36,7 @@ const normalizeMovement = (apiMovement: any): StockMovement => {
 export const useStockMovements = (productId?: string, variantId?: string) => {
     const { setup } = useSettings();
     const [movements, setMovements] = useState<StockMovement[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
     const [totalRows, setTotalRows] = useState(0);

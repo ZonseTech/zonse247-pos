@@ -95,7 +95,7 @@ const InventoryForm: FunctionComponent = () => {
                 }
             }
 
-            const inventoryRoute = isMobile ? ROUTES.MOBILE_INVENTORY : ROUTES.INVENTORY;
+            const inventoryRoute = isMobile ? ROUTES.MOBILE_INVENTORY : ROUTES.INVENTORY_HUB;
 
             if (productId) {
                 await inventoryService.update(productId, values as unknown as Partial<InventoryItem>);
@@ -122,13 +122,11 @@ const InventoryForm: FunctionComponent = () => {
         } catch (error: any) {
             const parsed = parseApiError(error);
 
-            // Set field-level errors in Formik if available
             const formikFieldErrors = mapErrorToFormikErrors(error);
             if (Object.keys(formikFieldErrors).length > 0) {
                 setErrors(formikFieldErrors);
             }
 
-            // Build display message
             const fieldErrorsMessage = formatFieldErrorsMessage(parsed.errors);
             let fullErrorMessage = parsed.message;
             if (fieldErrorsMessage) {

@@ -5,7 +5,7 @@
 /**
  * Supplier status
  */
-type SupplierStatus = 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
+type SupplierStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
 
 /**
  * Supplier entity
@@ -115,12 +115,13 @@ interface UpdateSupplierPayload {
  * Supplier list query parameters
  */
 interface SupplierListQuery {
-    tenantId: string;
-    branchId: string;
+    tenantId?: string;
+    branchId?: string;
     page?: number;
     limit?: number;
     search?: string;
     status?: SupplierStatus;
+    includeInactive?: boolean;
 }
 
 /**
@@ -141,10 +142,10 @@ interface SupplierListResponse {
     data: {
         suppliers: Supplier[];
         pagination: {
-            page: number;
-            limit: number;
-            total: number;
+            currentPage: number;
             totalPages: number;
+            totalItems: number;
+            itemsPerPage: number;
         };
     };
 }

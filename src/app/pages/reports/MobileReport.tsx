@@ -2,7 +2,7 @@ import { HiShare, HiX } from 'react-icons/hi';
 import { ReceiptText, Download } from 'lucide-react';
 import { formatCurrency } from '../../utils';
 import React, { useState, useCallback, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
-import { MobileDateFilter, ReportCard, ReportCardProps } from '../dashboard/components';
+import { MobileDateFilter, ReportCard, ReportCardProps } from '../../components/reports';
 import MobileTabPageHeader from '../../components/page/MobileTabPageHeader';
 import LoadingState from '../../components/loader/LoadingState';
 import reportsService, { ReportSummary } from '../../services/reports.service';

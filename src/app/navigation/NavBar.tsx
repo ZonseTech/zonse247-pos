@@ -1,8 +1,7 @@
-import useNavItems, { useMobileNavItems } from './partials/navItems';
-import type { NavItem, NavGroup } from './partials/RenderNavItem';
-import { useState, useEffect, useMemo, type FunctionComponent } from 'react';
-import { useLocation } from 'react-router-dom';
-import { ROUTES } from '../utils/constants';
+import { useState, useEffect, type FunctionComponent } from 'react';
+import { useNavigate } from 'react-router-dom';
+import useNavGroups from './partials/useNavGroups';
+import type { NavItemBase } from '../../types/navigation';
 import { Sidebar, MobileDrawer } from './components';
 
 interface NavBarProps {
@@ -12,48 +11,8 @@ interface NavBarProps {
 const NavBar: FunctionComponent<NavBarProps> = ({
     variant = 'sidebar',
 }) => {
-    const location = useLocation();
-    const navItems = useNavItems();
-    const mobileNavItems = useMobileNavItems();
+    const { groups } = useNavGroups();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-    const groupedNavItems = useMemo(() => {
-        const groups: Record<NavGroup, NavItem[]> = {
-            operations: [],
-            inventory: [],
-            management: [],
-            admin: [],
-            settings: [],
-            system: [],
-            misc: [],
-        };
-
-        navItems.forEach((item) => {
-            const group = item.group || 'operations';
-            groups[group].push(item);
-        });
-
-        return groups;
-    }, [navItems]);
-
-    const groupedMobileNavItems = useMemo(() => {
-        const groups: Record<NavGroup, NavItem[]> = {
-            operations: [],
-            inventory: [],
-            management: [],
-            admin: [],
-            settings: [],
-            system: [],
-            misc: [],
-        };
-
-        mobileNavItems.forEach((item) => {
-            const group = item.group || 'management';
-            groups[group].push(item);
-        });
-
-        return groups;
-    }, [mobileNavItems]);
 
     useEffect(() => {
         if (isMenuOpen) {
@@ -67,39 +26,10 @@ const NavBar: FunctionComponent<NavBarProps> = ({
     }, [isMenuOpen]);
 
     /**
-     * Extract route path from onClick handler
+     * Callback when a nav item is clicked (new hierarchical items).
+     * The item's own `onClick` is already invoked inside the drawer/sidebar.
      */
-    const getRoutePath = (onClick: any): string => {
-        const fnStr = onClick?.toString() || '';
-        for (const [key, value] of Object.entries(ROUTES)) {
-            // Use word-boundary regex to avoid partial key matches
-            // e.g., "RECEIPTS" must not match "GOODS_RECEIPTS"
-            const keyPattern = new RegExp(`\\b${key}\\b`);
-            if (keyPattern.test(fnStr) || fnStr.includes(value as string)) {
-                return value as string;
-            }
-        }
-        return '';
-    };
-
-    /**
-     * Check if a route is active, including sub-routes
-     */
-    const isRouteActive = (routePath: string): boolean => {
-        if (!routePath) return false;
-        const currentPath = location.pathname;
-
-        if (currentPath === routePath) return true;
-
-        if (currentPath.startsWith(routePath + '/')) return true;
-
-        return false;
-    };
-
-    const handleItemClick = (onClick: any) => {
-        if (typeof onClick === 'function') {
-            onClick();
-        }
+    const handleNavItemClick = (_item: NavItemBase) => {
         setIsMenuOpen(false);
     };
 
@@ -108,20 +38,16 @@ const NavBar: FunctionComponent<NavBarProps> = ({
             <MobileDrawer
                 isOpen={isMenuOpen}
                 onClose={() => setIsMenuOpen(false)}
-                groupedNavItems={groupedMobileNavItems}
-                onItemClick={handleItemClick}
-                getRoutePath={getRoutePath}
-                isRouteActive={isRouteActive}
+                navGroups={groups}
+                onNavItemClick={handleNavItemClick}
             />
         );
     }
 
     return (
         <Sidebar
-            groupedNavItems={groupedNavItems}
-            onItemClick={handleItemClick}
-            getRoutePath={getRoutePath}
-            isRouteActive={isRouteActive}
+            navGroups={groups}
+            onNavItemClick={handleNavItemClick}
         />
     );
 };

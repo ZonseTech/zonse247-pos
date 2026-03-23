@@ -1,8 +1,8 @@
 import { FunctionComponent, useState, ReactNode } from 'react';
-import { createPortal } from 'react-dom';
 import { Form, Formik } from 'formik';
 import { Notify, Confirm } from 'notiflix';
-import { X, Wifi, Usb, Bluetooth, Network, Star, Trash2, Power, TestTube, FileText, Printer } from 'lucide-react';
+import { Wifi, Usb, Bluetooth, Network, Star, Trash2, Power, TestTube, FileText, Printer } from 'lucide-react';
+import { Badge, Dialog, Flex, Heading, IconButton, ScrollArea, Separator, Text, Tooltip } from '@radix-ui/themes';
 import { Button, FormSearchableSelect, FormFieldCard, TabOptionGroup, FormSwitch } from '../../../components';
 import printerService from '../../../services/printer.service';
 import { getErrorMessage } from '../../../utils/api-error-handler';
@@ -187,179 +187,176 @@ const EditPrinterModal: FunctionComponent<EditPrinterModalProps> = ({
 		fontSize: printer.configuration?.fontSize || 12,
 	};
 
-	return createPortal(
-		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-			<div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col">
-				<div className="flex-shrink-0 px-6 py-5 border-b border-gray-200 dark:border-gray-700">
-					<div className="flex items-start justify-between">
-						<div className="flex items-center gap-3 flex-1 min-w-0">
-							<div className={`p-2.5 rounded-xl ${printer.isActive ? 'bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400' : 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500'}`}>
+	return (
+		<Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+			<Dialog.Content maxWidth="768px" className="!p-0 !rounded-2xl">
+				{/* Header */}
+				<Flex direction="column" className="border-b border-gray-200 dark:border-gray-700" px="6" py="5">
+					<Flex align="start" justify="between">
+						<Flex align="center" gap="3" className="flex-1 min-w-0">
+							<Flex
+								align="center" justify="center"
+								className={`p-2.5 rounded-xl ${printer.isActive ? 'bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400' : 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500'}`}
+							>
 								{getConnectionIcon(printer.connectionType)}
-							</div>
-							<div className="flex-1 min-w-0">
-								<div className="flex items-center gap-2">
-									<h2 className="text-xl font-semibold text-gray-900 dark:text-white truncate">
-										{printer.printerName}
-									</h2>
+							</Flex>
+							<Flex direction="column" gap="1" className="flex-1 min-w-0">
+								<Flex align="center" gap="2">
+									<Heading size="4" truncate>{printer.printerName}</Heading>
 									{printer.isDefault && (
 										<Star className="w-5 h-5 text-yellow-500 fill-yellow-500 flex-shrink-0" />
 									)}
-								</div>
-								<p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+								</Flex>
+								<Text size="2" color="gray">
 									{printer.connectionType} • {printer.printerType}
-								</p>
-							</div>
-						</div>
-						<button
-							onClick={onClose}
-							className="p-2 -mr-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-						>
-							<X className="w-5 h-5" />
-						</button>
-					</div>
+								</Text>
+							</Flex>
+						</Flex>
+						<Dialog.Close>
+							<IconButton variant="ghost" color="gray" size="2" radius="large">
+								<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+							</IconButton>
+						</Dialog.Close>
+					</Flex>
 
-					<div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-						<div className={`px-3 py-1.5 rounded-lg text-xs font-medium ${printer.isActive
-							? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-							: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
-							}`}>
+					<Separator size="4" my="4" />
+
+					<Flex align="center" gap="2">
+						<Badge color={printer.isActive ? 'green' : 'gray'} variant="soft" size="1">
 							{printer.isActive ? 'Active' : 'Inactive'}
-						</div>
+						</Badge>
 						<div className="flex-1" />
-						<button
-							onClick={handleSetDefault}
-							disabled={printer.isDefault}
-							className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
-							title="Set as default"
-						>
-							<Star className={`w-5 h-5 ${printer.isDefault ? 'text-yellow-500 fill-yellow-500' : 'text-gray-500 dark:text-gray-400'}`} />
-						</button>
-						<button
-							onClick={handleToggleActive}
-							className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-							title={printer.isActive ? 'Disable printer' : 'Enable printer'}
-						>
-							<Power className={`w-5 h-5 ${printer.isActive ? 'text-green-500' : 'text-gray-500 dark:text-gray-400'}`} />
-						</button>
-						<button
-							onClick={handleTestConnection}
-							disabled={isTestingConnection}
-							className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
-							title="Test connection"
-						>
-							<TestTube className={`w-5 h-5 text-sky-500 ${isTestingConnection ? 'animate-pulse' : ''}`} />
-						</button>
-						{onDelete && (
-							<button
-								onClick={handleDelete}
-								className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
-								title="Delete printer"
+						<Tooltip content={printer.isDefault ? 'Default printer' : 'Set as default'}>
+							<IconButton
+								variant="ghost"
+								color={printer.isDefault ? 'yellow' : 'gray'}
+								size="2"
+								onClick={handleSetDefault}
+								disabled={printer.isDefault}
 							>
-								<Trash2 className="w-5 h-5 text-red-500" />
-							</button>
+								<Star className={`w-5 h-5 ${printer.isDefault ? 'fill-current' : ''}`} />
+							</IconButton>
+						</Tooltip>
+						<Tooltip content={printer.isActive ? 'Disable printer' : 'Enable printer'}>
+							<IconButton variant="ghost" color={printer.isActive ? 'green' : 'gray'} size="2" onClick={handleToggleActive}>
+								<Power className="w-5 h-5" />
+							</IconButton>
+						</Tooltip>
+						<Tooltip content="Test connection">
+							<IconButton variant="ghost" color="blue" size="2" onClick={handleTestConnection} disabled={isTestingConnection}>
+								<TestTube className={`w-5 h-5 ${isTestingConnection ? 'animate-pulse' : ''}`} />
+							</IconButton>
+						</Tooltip>
+						{onDelete && (
+							<Tooltip content="Delete printer">
+								<IconButton variant="ghost" color="red" size="2" onClick={handleDelete}>
+									<Trash2 className="w-5 h-5" />
+								</IconButton>
+							</Tooltip>
 						)}
-					</div>
-				</div>
+					</Flex>
+				</Flex>
 
-				<div className="flex-1 overflow-y-auto p-6">
-					<Formik
-						initialValues={initialValues}
-						onSubmit={handleSubmit}
-						enableReinitialize
+				{/* Scrollable Form Content */}
+				<ScrollArea scrollbars="vertical" style={{ maxHeight: 'calc(90vh - 280px)' }}>
+					<div className="p-6">
+						<Formik
+							initialValues={initialValues}
+							onSubmit={handleSubmit}
+							enableReinitialize
+						>
+							{() => (
+								<Form id="printer-edit-form" className="space-y-6">
+									<FormFieldCard title="Paper Width">
+										<TabOptionGroup
+											name="paperWidth"
+											options={PAPER_WIDTH_OPTIONS}
+											size="md"
+											columns={3}
+										/>
+									</FormFieldCard>
+
+									<FormFieldCard title="Printer Content">
+										<TabOptionGroup
+											name="printerContent"
+											options={PRINTER_CONTENT_OPTIONS}
+											columns={4}
+											size="md"
+										/>
+									</FormFieldCard>
+
+									<FormFieldCard title="Print Mode">
+										<TabOptionGroup
+											name="printMode"
+											options={PRINT_MODE_OPTIONS}
+											size="md"
+											columns={3}
+										/>
+									</FormFieldCard>
+
+									<FormFieldCard title="Additional Options">
+										<div className="space-y-4">
+											<FormSwitch
+												name="autoPrintOnSale"
+												label="Print automatically on sale"
+											/>
+
+											<FormSearchableSelect
+												label="Line Spacing"
+												name="lineSpacing"
+												options={LINE_SPACING_OPTIONS}
+												placeholder="Select line spacing"
+												isClearable={false}
+											/>
+
+											<FormSearchableSelect
+												label="Font Size"
+												name="fontSize"
+												options={FONT_SIZE_OPTIONS}
+												placeholder="Select font size"
+												isClearable={false}
+											/>
+										</div>
+									</FormFieldCard>
+								</Form>
+							)}
+						</Formik>
+					</div>
+				</ScrollArea>
+
+				{/* Footer Actions */}
+				<Flex gap="3" px="6" py="4" className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+					<Button
+						type="button"
+						theme="neutral"
+						layout="outline"
+						onClick={onClose}
+						className="flex-1"
 					>
-						{() => (
-							<Form id="printer-edit-form" className="space-y-6">
-								<FormFieldCard title="Paper Width">
-									<TabOptionGroup
-										name="paperWidth"
-										options={PAPER_WIDTH_OPTIONS}
-										size="md"
-										columns={3}
-									/>
-								</FormFieldCard>
-
-								<FormFieldCard title="Printer Content">
-									<TabOptionGroup
-										name="printerContent"
-										options={PRINTER_CONTENT_OPTIONS}
-										columns={4}
-										size="md"
-									/>
-								</FormFieldCard>
-
-								<FormFieldCard title="Print Mode">
-									<TabOptionGroup
-										name="printMode"
-										options={PRINT_MODE_OPTIONS}
-										size="md"
-										columns={3}
-									/>
-								</FormFieldCard>
-
-								<FormFieldCard title="Additional Options">
-									<div className="space-y-4">
-										<FormSwitch
-											name="autoPrintOnSale"
-											label="Print automatically on sale"
-										/>
-
-										<FormSearchableSelect
-											label="Line Spacing"
-											name="lineSpacing"
-											options={LINE_SPACING_OPTIONS}
-											placeholder="Select line spacing"
-											isClearable={false}
-										/>
-
-										<FormSearchableSelect
-											label="Font Size"
-											name="fontSize"
-											options={FONT_SIZE_OPTIONS}
-											placeholder="Select font size"
-											isClearable={false}
-										/>
-									</div>
-								</FormFieldCard>
-							</Form>
-						)}
-					</Formik>
-				</div>
-
-				<div className="flex-shrink-0 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-					<div className="flex gap-3">
-						<Button
-							type="button"
-							theme="neutral"
-							layout="outline"
-							onClick={onClose}
-							className="flex-1"
-						>
-							Cancel
-						</Button>
-						<Button
-							type="button"
-							theme="primary"
-							layout="outline"
-							onClick={handlePrintTestPage}
-							className="flex-1"
-						>
-							<FileText className="w-4 h-4 mr-2" />
-							Test Print
-						</Button>
-						<Button
-							type="submit"
-							form="printer-edit-form"
-							theme="primary"
-							className="flex-1"
-							disabled={isSaving}
-						>
-							{isSaving ? 'Saving...' : 'Save Changes'}
-						</Button>
-					</div>
-				</div>
-			</div>
-		</div>,
-		document.body
+						Cancel
+					</Button>
+					<Button
+						type="button"
+						theme="primary"
+						layout="outline"
+						onClick={handlePrintTestPage}
+						className="flex-1"
+					>
+						<FileText className="w-4 h-4 mr-2" />
+						Test Print
+					</Button>
+					<Button
+						type="submit"
+						form="printer-edit-form"
+						theme="primary"
+						className="flex-1"
+						disabled={isSaving}
+					>
+						{isSaving ? 'Saving...' : 'Save Changes'}
+					</Button>
+				</Flex>
+			</Dialog.Content>
+		</Dialog.Root>
 	);
 };
 

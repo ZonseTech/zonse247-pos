@@ -1,4 +1,5 @@
 import { FunctionComponent, ReactNode } from 'react';
+import { Card, Flex, Grid, Skeleton, Text } from '@radix-ui/themes';
 import {
     FileText,
     Clock,
@@ -27,44 +28,42 @@ const PrintJobSummaryCards: FunctionComponent<PrintJobSummaryCardsProps> = ({
 }) => {
     if (isLoading) {
         return (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 p-4 border-b border-gray-200 dark:border-gray-700">
+            <Grid columns={{ initial: '2', sm: '3', lg: '6' }} gap="3" p="4" className="border-b border-gray-200 dark:border-gray-700">
                 {[...Array(6)].map((_, i) => (
-                    <div
-                        key={i}
-                        className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 animate-pulse"
-                    >
-                        <div className="flex items-center gap-2 mb-2">
-                            <div className="w-8 h-8 bg-gray-200 dark:bg-gray-600 rounded-lg" />
-                            <div className="h-4 w-14 bg-gray-200 dark:bg-gray-600 rounded" />
-                        </div>
-                        <div className="h-6 w-8 bg-gray-200 dark:bg-gray-600 rounded" />
-                    </div>
+                    <Card key={i} size="1" className="bg-gray-50 dark:bg-gray-700/50">
+                        <Flex align="center" gap="2" mb="2">
+                            <Skeleton width="32px" height="32px" />
+                            <Skeleton width="56px" height="16px" />
+                        </Flex>
+                        <Skeleton width="32px" height="24px" />
+                    </Card>
                 ))}
-            </div>
+            </Grid>
         );
     }
 
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 p-4 border-b border-gray-200 dark:border-gray-700">
+        <Grid columns={{ initial: '2', sm: '3', lg: '6' }} gap="3" p="4" className="border-b border-gray-200 dark:border-gray-700">
             {cards.map((card, index) => (
-                <div
+                <Card
                     key={index}
-                    className={`${card.bgColor} rounded-lg p-3 transition-all hover:scale-[1.02]`}
+                    size="1"
+                    className={`${card.bgColor} transition-all hover:scale-[1.02]`}
                 >
-                    <div className="flex items-center gap-2 mb-1">
-                        <div className={`p-1.5 rounded-lg bg-white/50 dark:bg-gray-800/50 ${card.color}`}>
+                    <Flex align="center" gap="2" mb="1">
+                        <Flex align="center" justify="center" className={`p-1.5 rounded-lg bg-white/50 dark:bg-gray-800/50 ${card.color}`}>
                             {card.icon}
-                        </div>
-                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400 truncate">
+                        </Flex>
+                        <Text size="1" weight="medium" color="gray" truncate>
                             {card.title}
-                        </span>
-                    </div>
-                    <p className={`text-xl font-bold ${card.color}`}>
+                        </Text>
+                    </Flex>
+                    <Text size="5" weight="bold" className={card.color}>
                         {card.value}
-                    </p>
-                </div>
+                    </Text>
+                </Card>
             ))}
-        </div>
+        </Grid>
     );
 };
 

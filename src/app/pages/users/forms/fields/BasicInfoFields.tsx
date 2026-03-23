@@ -1,4 +1,5 @@
 import type { FunctionComponent } from 'react';
+import { Flex } from '@radix-ui/themes';
 import FormFieldCard from '../../../../components/card/FormFieldCard';
 import FormInput from '../../../../components/FormInput';
 
@@ -9,7 +10,7 @@ interface BasicInfoFieldsProps {
 const BasicInfoFields: FunctionComponent<BasicInfoFieldsProps> = ({ isEditMode = false }) => {
     return (
         <FormFieldCard>
-            <div className="space-y-4">
+            <Flex direction="column" gap="4">
                 <FormInput
                     label="Staff Name"
                     name="fullname"
@@ -29,7 +30,7 @@ const BasicInfoFields: FunctionComponent<BasicInfoFieldsProps> = ({ isEditMode =
                     type="tel"
                     placeholder="e.g., +265123456789"
                 />
-            </div>
+            </Flex>
         </FormFieldCard>
     );
 };

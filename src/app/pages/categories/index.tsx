@@ -10,7 +10,8 @@ import PageHeader from '../../components/page/PageHeader';
 import TableSkeleton from '../../components/skeleton/TableSkeleton';
 import TableEmptyState from '../../components/TableEmptyState';
 import SummaryCards, { type SummaryCardItem } from '../../components/stats/SummaryCards';
-import { Button, ZonseThemeContext } from '../../components';
+import { ZonseThemeContext } from '../../components';
+import { Button, Box, Flex } from '@radix-ui/themes';
 import { getCategoryColumns, getMobileCategoryColumns } from './partials/CategoryTableColumns';
 import CreateCategoryModal from './CreateCategoryModal';
 import { useIsMobile } from '../../hooks/useMediaQuery';
@@ -109,107 +110,96 @@ const CategoriesManager: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="max-w-full">
-                <PageHeader
-                    title="Categories"
-                    description="Manage your product categories"
-                    icon={<FolderOpen className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
-                    action={
-                        <div className='flex items-center gap-2 sm:gap-3'>
-                            {!isMobile && (
-                                <SearchBar
-                                    value={searchTerm}
-                                    onChange={setSearchTerm}
-                                />
-                            )}
-
-                            <Button
-                                icon={Plus}
-                                layout={isMobile ? 'outline' : 'primary'}
-                                onClick={() => setShowCreateModal(true)}
-                                className="!px-3 sm:!px-4 !py-2 sm:!py-2.5"
-                                theme="primary">
-                                {!isMobile && <span className='hidden md:block'>
-                                    Add Category
-                                </span>}
-                            </Button>
-                        </div>
-                    }
-                >
-                    {isMobile && (
-                        <div className='px-4 pb-4'>
+            <PageHeader
+                title="Categories"
+                description="Manage your product categories"
+                icon={<FolderOpen className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
+                action={
+                    <Flex align="center" gap={{ initial: '2', sm: '3' }}>
+                        {!isMobile && (
                             <SearchBar
                                 value={searchTerm}
                                 onChange={setSearchTerm}
                             />
-                        </div>
-                    )}
-                </PageHeader>
+                        )}
 
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-
-                    <SummaryCards
-                        cards={summaryCards}
-                        isLoading={isLoading}
-                        skeletonCount={4}
-                        variant="embedded"
-                    />
-
-                    <div className="overflow-hidden">
-                        <DataTable
-                            columns={columns}
-                            data={getPaginatedData()}
-                            theme={mode as string}
-                            progressPending={isLoading}
-                            progressComponent={<TableSkeleton rows={10} columns={4} />}
-                            highlightOnHover
-                            responsive
-                            pagination
-                            paginationServer
-                            paginationTotalRows={totalRows}
-                            onChangeRowsPerPage={(newPerPage, page) => {
-                                setPage(page);
-                                setPerPage(newPerPage);
-                            }}
-                            onChangePage={setPage}
-                            fixedHeader
-                            persistTableHead
-                            customStyles={getTableStyles(mode)}
-                            noDataComponent={
-                                <TableEmptyState
-                                    icon={<FolderOpen />}
-                                    title={searchTerm ? 'No categories found' : 'No categories yet'}
-                                    description={
-                                        searchTerm
-                                            ? 'Try adjusting your search terms or clear the filter'
-                                            : 'Get started by creating your first category to organize your products'
-                                    }
-                                    action={
-                                        !searchTerm ? (
-                                            <button
-                                                onClick={() => setShowCreateModal(true)}
-                                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-700 text-white rounded-xl transition-colors font-medium shadow-lg shadow-sky-500/25"
-                                            >
-                                                <Plus className="w-4 h-4" />
-                                                Create Category
-                                            </button>
-                                        ) : undefined
-                                    }
-                                />
-                            }
+                        <Button size="2" onClick={() => setShowCreateModal(true)}>
+                            <Plus className="w-4 h-4" />
+                            {!isMobile && 'Add Category'}
+                        </Button>
+                    </Flex>
+                }
+            >
+                {isMobile && (
+                    <Box px="4" pb="4">
+                        <SearchBar
+                            value={searchTerm}
+                            onChange={setSearchTerm}
                         />
-                    </div>
-                </div>
+                    </Box>
+                )}
+            </PageHeader>
 
-                <CreateCategoryModal
-                    category={editingCategory || undefined}
-                    isOpen={showCreateModal || !!editingCategory}
-                    onClose={handleModalClose}
-                    onSuccess={handleModalSuccess}
-                    showAddButton={false}
-                    categoriesCount={categories.length}
+            <Box className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+
+                <SummaryCards
+                    cards={summaryCards}
+                    isLoading={isLoading}
+                    skeletonCount={4}
+                    variant="embedded"
                 />
-            </div>
+
+                <Box className="overflow-hidden">
+                    <DataTable
+                        columns={columns}
+                        data={getPaginatedData()}
+                        theme={mode as string}
+                        progressPending={isLoading}
+                        progressComponent={<TableSkeleton rows={10} columns={4} />}
+                        highlightOnHover
+                        responsive
+                        pagination
+                        paginationServer
+                        paginationTotalRows={totalRows}
+                        onChangeRowsPerPage={(newPerPage, page) => {
+                            setPage(page);
+                            setPerPage(newPerPage);
+                        }}
+                        onChangePage={setPage}
+                        fixedHeader
+                        persistTableHead
+                        customStyles={getTableStyles(mode)}
+                        noDataComponent={
+                            <TableEmptyState
+                                icon={<FolderOpen />}
+                                title={searchTerm ? 'No categories found' : 'No categories yet'}
+                                description={
+                                    searchTerm
+                                        ? 'Try adjusting your search terms or clear the filter'
+                                        : 'Get started by creating your first category to organize your products'
+                                }
+                                action={
+                                    !searchTerm ? (
+                                        <Button size="2" onClick={() => setShowCreateModal(true)}>
+                                            <Plus className="w-4 h-4" />
+                                            Create Category
+                                        </Button>
+                                    ) : undefined
+                                }
+                            />
+                        }
+                    />
+                </Box>
+            </Box>
+
+            <CreateCategoryModal
+                category={editingCategory || undefined}
+                isOpen={showCreateModal || !!editingCategory}
+                onClose={handleModalClose}
+                onSuccess={handleModalSuccess}
+                showAddButton={false}
+                categoriesCount={categories.length}
+            />
         </AppLayout>
     );
 };

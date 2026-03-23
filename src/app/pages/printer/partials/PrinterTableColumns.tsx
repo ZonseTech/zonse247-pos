@@ -1,5 +1,6 @@
 import { Fragment, FunctionComponent } from 'react';
 import { TableColumn } from 'react-data-table-component';
+import { Badge, Flex, IconButton, Text, Tooltip } from '@radix-ui/themes';
 import { Edit2, Trash2, Printer, Star, Power, PowerOff, TestTube, FileText, Wifi, WifiOff } from 'lucide-react';
 import { HiOutlineMenuAlt4 } from 'react-icons/hi';
 
@@ -23,29 +24,42 @@ const PrinterActions: FunctionComponent<PrinterActionsProps> = ({
     onPrintTestPage
 }) => {
     return (
-        <div className="flex items-center space-x-1">
+        <Flex align="center" gap="1">
+            <Tooltip content={printer.isDefault ? 'Default printer' : 'Set as default'}>
+                <IconButton
+                    variant="ghost"
+                    color={printer.isDefault ? 'yellow' : 'gray'}
+                    size="1"
+                    onClick={() => onSetDefault(printer.printerId)}
+                >
+                    <Star className={`w-4 h-4 ${printer.isDefault ? 'fill-current' : ''}`} />
+                </IconButton>
+            </Tooltip>
 
-            <button
-                onClick={() => onSetDefault(printer.printerId)}
-                className={`group p-2 rounded-lg transition-all duration-200 ${printer.isDefault
-                    ? 'text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300 hover:bg-yellow-50 dark:hover:bg-yellow-900/20'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20'
-                    } focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:focus:ring-yellow-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800`}
-                title={printer.isDefault ? 'Default printer' : 'Set as default'}
-            >
-                <Star className={`w-4 h-4 transition-transform group-hover:scale-110 ${printer.isDefault ? 'fill-current' : ''}`} />
-            </button>
-
-            <button
-                onClick={() => onEdit(printer)}
-                className="group p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
-                title="Edit printer"
-            >
-                <Edit2 className="w-4 h-4 transition-transform group-hover:scale-110" />
-            </button>
-
-        </div>
+            <Tooltip content="Edit printer">
+                <IconButton
+                    variant="ghost"
+                    color="blue"
+                    size="1"
+                    onClick={() => onEdit(printer)}
+                >
+                    <Edit2 className="w-4 h-4" />
+                </IconButton>
+            </Tooltip>
+        </Flex>
     );
+};
+
+export const getStatusBadgeColor = (status?: PrinterStatus): 'green' | 'gray' | 'yellow' | 'red' | 'orange' | 'amber' => {
+    switch (status) {
+        case 'ONLINE': return 'green';
+        case 'OFFLINE': return 'gray';
+        case 'BUSY': return 'yellow';
+        case 'ERROR': return 'red';
+        case 'PAPER_OUT': return 'orange';
+        case 'COVER_OPEN': return 'amber';
+        default: return 'gray';
+    }
 };
 
 export const getStatusColor = (status?: PrinterStatus): string => {
@@ -83,6 +97,17 @@ const getStatusDotColor = (status?: PrinterStatus): string => {
             return 'bg-amber-400 dark:bg-amber-300';
         default:
             return 'bg-gray-400 dark:bg-gray-500';
+    }
+};
+
+export const getPrinterTypeBadgeColor = (type?: PrinterType): 'blue' | 'purple' | 'indigo' | 'gray' | 'teal' => {
+    switch (type) {
+        case 'THERMAL': return 'blue';
+        case 'INKJET': return 'purple';
+        case 'LASER': return 'indigo';
+        case 'DOT_MATRIX': return 'gray';
+        case 'LABEL': return 'teal';
+        default: return 'gray';
     }
 };
 
@@ -196,14 +221,14 @@ export const getPrinterColumns = (
             name: 'Type',
             cell: (row) => (
                 <Fragment>
-                    <div className="space-y-1">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getPrinterTypeColor(row.printerType)}`}>
+                    <Flex direction="column" gap="1">
+                        <Badge color={getPrinterTypeBadgeColor(row.printerType)} variant="soft" size="1">
                             {row.printerType}
-                        </span>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        </Badge>
+                        <Text size="1" color="gray">
                             {getConnectionTypeIcon(row.connectionType)} {row.connectionType}
-                        </div>
-                    </div>
+                        </Text>
+                    </Flex>
                 </Fragment>
             ),
         },
@@ -211,31 +236,15 @@ export const getPrinterColumns = (
             name: 'Purpose',
             cell: (row) => (
                 <Fragment>
-                    <div className="flex flex-wrap gap-1">
-                        {row.isReceiptPrinter ? (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-sky-100 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300">
-                                Receipt
-                            </span>
-                        ) : null}
-                        {row.isLabelPrinter ? (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-300">
-                                Label
-                            </span>
-                        ) : null}
-                        {row.isKitchenPrinter ? (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300">
-                                Kitchen
-                            </span>
-                        ) : null}
-                        {row.isReportPrinter ? (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
-                                Report
-                            </span>
-                        ) : null}
+                    <Flex wrap="wrap" gap="1">
+                        {row.isReceiptPrinter && <Badge color="blue" variant="soft" size="1">Receipt</Badge>}
+                        {row.isLabelPrinter && <Badge color="teal" variant="soft" size="1">Label</Badge>}
+                        {row.isKitchenPrinter && <Badge color="orange" variant="soft" size="1">Kitchen</Badge>}
+                        {row.isReportPrinter && <Badge color="purple" variant="soft" size="1">Report</Badge>}
                         {!row.isReceiptPrinter && !row.isLabelPrinter && !row.isKitchenPrinter && !row.isReportPrinter && (
-                            <span className="text-xs text-gray-400 dark:text-gray-500">Not assigned</span>
+                            <Text size="1" color="gray">Not assigned</Text>
                         )}
-                    </div>
+                    </Flex>
                 </Fragment>
             ),
         },
@@ -243,15 +252,13 @@ export const getPrinterColumns = (
             name: 'Status',
             cell: (row) => (
                 <Fragment>
-                    <div className="space-y-1">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(row.status)}`}>
+                    <Flex direction="column" gap="1">
+                        <Badge color={getStatusBadgeColor(row.status)} variant="soft" size="1">
                             <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${getStatusDotColor(row.status)}`} />
                             {row.status}
-                        </span>
-                        {!row.isActive ? (
-                            <div className="text-xs text-gray-500 dark:text-gray-400">Inactive</div>
-                        ) : null}
-                    </div>
+                        </Badge>
+                        {!row.isActive && <Text size="1" color="gray">Inactive</Text>}
+                    </Flex>
                 </Fragment>
             ),
         },

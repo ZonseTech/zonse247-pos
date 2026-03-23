@@ -12,12 +12,12 @@ import {
     UserIcon,
 } from 'lucide-react';
 import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi2';
+import { Flex, Box, Text, Heading, Badge, Card, Button, Separator } from '@radix-ui/themes';
+import * as Avatar from '@radix-ui/react-avatar';
 import { useAuth } from '../../context/AuthProvider';
 import { useBranch } from '../../context/BranchContext';
 import { ThemeContext } from '../../context/ThemeContext';
 import PageHeader from '../../components/page/PageHeader';
-import Card from '../../components/card/Card';
-import { Button } from '../../components';
 import { ROUTES } from '../../utils/constants';
 import { ChangePasswordForm, InfoRow, ActionRow, formatRoleName } from './profile';
 
@@ -33,43 +33,47 @@ const DesktopMyProfile: FunctionComponent = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
+        <Box className="max-w-4xl mx-auto space-y-6" pt="4">
             <PageHeader
                 title="My Profile"
                 description="Manage your account settings"
                 icon={<User2Icon className="w-8 h-8 text-sky-500" />}
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
-                    <Card className="overflow-hidden">
-                        <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-                            <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 text-xl font-semibold">
+            <Flex gap="6" direction={{ initial: 'column', lg: 'row' }}>
+                <Box flexGrow="1" className="lg:flex-[2]">
+                    <Card size="3" className="overflow-hidden">
+                        <Flex
+                            align="center"
+                            gap="4"
+                            p="5"
+                            className="border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50"
+                        >
+                            <Avatar.Root className="w-16 h-16 rounded-full overflow-hidden inline-flex items-center justify-center bg-gray-200 dark:bg-gray-700">
+                                <Avatar.Fallback className="w-full h-full flex items-center justify-center text-gray-600 dark:text-gray-300 text-xl font-semibold">
                                     {user?.fullname?.charAt(0)?.toUpperCase() || 'U'}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white truncate">
-                                        {user?.fullname || 'User'}
-                                    </h2>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        @{user?.username}
-                                    </p>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <span
-                                            className={`px-2 py-0.5 rounded-full text-xs font-medium ${user?.status === 'active'
-                                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                                                : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                                                }`}
-                                        >
-                                            {user?.status?.charAt(0).toUpperCase() + (user?.status?.slice(1) || '')}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                </Avatar.Fallback>
+                            </Avatar.Root>
+                            <Box flexGrow="1" minWidth="0">
+                                <Heading as="h2" size="5" weight="bold" truncate>
+                                    {user?.fullname || 'User'}
+                                </Heading>
+                                <Text as="p" size="2" color="gray">
+                                    @{user?.username}
+                                </Text>
+                                <Flex align="center" gap="2" mt="1">
+                                    <Badge
+                                        color={user?.status === 'active' ? 'green' : 'red'}
+                                        variant="soft"
+                                        size="1"
+                                    >
+                                        {user?.status?.charAt(0).toUpperCase() + (user?.status?.slice(1) || '')}
+                                    </Badge>
+                                </Flex>
+                            </Box>
+                        </Flex>
 
-                        <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                        <Box className="divide-y divide-gray-100 dark:divide-gray-700">
                             <InfoRow
                                 icon={<UserIcon className="w-5 h-5 text-sky-500" />}
                                 label="Full Name"
@@ -100,18 +104,18 @@ const DesktopMyProfile: FunctionComponent = () => {
                                 label="Role"
                                 value={formatRoleName(user?.roleName)}
                             />
-                        </div>
+                        </Box>
                     </Card>
-                </div>
+                </Box>
 
-                <div className="space-y-6">
-                    <Card className="overflow-hidden">
-                        <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+                <Flex direction="column" gap="6" className="lg:flex-1">
+                    <Card size="3" className="overflow-hidden">
+                        <Box p="4" className="border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+                            <Text size="1" weight="bold" className="uppercase tracking-wide text-gray-900 dark:text-white">
                                 Settings
-                            </h3>
-                        </div>
-                        <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                            </Text>
+                        </Box>
+                        <Box className="divide-y divide-gray-100 dark:divide-gray-700">
                             <ActionRow
                                 icon={<KeyRound className="w-5 h-5 text-amber-500" />}
                                 label="Change Password"
@@ -131,39 +135,39 @@ const DesktopMyProfile: FunctionComponent = () => {
                                 description={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
                                 onTap={toggleMode}
                             />
-                        </div>
+                        </Box>
                     </Card>
 
-                    <Card className="p-5 border-red-200 dark:border-red-900/30">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
+                    <Card size="2" className="border-red-200 dark:border-red-900/30">
+                        <Flex align="center" justify="between">
+                            <Flex align="center" gap="3">
                                 <LogOut className="w-5 h-5 text-red-500" />
-                                <div>
-                                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                <Box>
+                                    <Text as="p" size="2" weight="medium">
                                         Sign Out
-                                    </p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    </Text>
+                                    <Text as="p" size="1" color="gray">
                                         End your session
-                                    </p>
-                                </div>
-                            </div>
+                                    </Text>
+                                </Box>
+                            </Flex>
                             <Button
-                                theme="danger"
+                                color="red"
+                                variant="solid"
                                 onClick={handleLogout}
-                                className="flex items-center gap-2"
                             >
                                 <LogOut className="w-4 h-4" />
-                                <span>Logout</span>
+                                Logout
                             </Button>
-                        </div>
+                        </Flex>
                     </Card>
-                </div>
-            </div>
+                </Flex>
+            </Flex>
 
             {activeTab === 'password' && (
                 <ChangePasswordForm userId={user?.userId || ''} />
             )}
-        </div>
+        </Box>
     );
 };
 

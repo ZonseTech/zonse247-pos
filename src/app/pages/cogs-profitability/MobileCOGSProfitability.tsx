@@ -26,11 +26,13 @@ const MobileCOGSProfitability: FC = () => {
     const {
         startDate, setStartDate,
         endDate, setEndDate,
-        periodCOGS, salesCOGS,
+        periodCOGSItems, periodCOGSSummary,
+        salesCOGSSummary,
         isLoadingCOGS,
         showCrossCheck, setShowCrossCheck,
         cogsDiscrepancy, hasDiscrepancy,
-        grossProfit,
+        grossProfitItems,
+        grossProfitSummary,
         isLoadingProfit,
         loadAll,
     } = useCOGSReport();
@@ -48,8 +50,8 @@ const MobileCOGSProfitability: FC = () => {
     const isLoading = isLoadingCOGS || isLoadingProfit;
 
     // Sort profit products by margin descending
-    const sortedProducts = grossProfit?.byProduct
-        ? [...grossProfit.byProduct].sort((a, b) => b.marginPercent - a.marginPercent)
+    const sortedProducts = grossProfitItems.length
+        ? [...grossProfitItems].sort((a, b) => b.marginPercent - a.marginPercent)
         : [];
 
     return (
@@ -155,7 +157,7 @@ const MobileCOGSProfitability: FC = () => {
                                 <Loader2 className="w-8 h-8 text-red-500 animate-spin mb-3" />
                                 <p className="text-sm text-gray-500 dark:text-gray-400">Loading COGS...</p>
                             </div>
-                        ) : !periodCOGS ? (
+                        ) : !periodCOGSSummary ? (
                             <div className="text-center py-16 text-gray-500 dark:text-gray-400 text-sm">
                                 No COGS data available.
                             </div>
@@ -166,32 +168,32 @@ const MobileCOGSProfitability: FC = () => {
                                     <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
                                         <p className="text-[10px] uppercase tracking-wider text-red-500 dark:text-red-400 font-medium">Total COGS</p>
                                         <p className="text-lg font-bold text-red-600 dark:text-red-400 mt-0.5">
-                                            {formatCurrency(periodCOGS.totalCOGS, true)}
+                                            {formatCurrency(periodCOGSSummary.totalCOGS, true)}
                                         </p>
                                     </div>
                                     <div className="p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800">
                                         <p className="text-[10px] uppercase tracking-wider text-sky-500 dark:text-sky-400 font-medium">Units Sold</p>
                                         <p className="text-lg font-bold text-sky-600 dark:text-sky-400 mt-0.5">
-                                            {periodCOGS.totalUnitsSold.toLocaleString()}
+                                            {periodCOGSSummary.totalUnitsSold.toLocaleString()}
                                         </p>
                                     </div>
                                 </div>
 
                                 {/* Cross-check result */}
-                                {showCrossCheck && salesCOGS && hasDiscrepancy && cogsDiscrepancy !== null && (
+                                {showCrossCheck && salesCOGSSummary && hasDiscrepancy && cogsDiscrepancy !== null && (
                                     <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
                                         <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
                                         <div className="text-xs text-amber-700 dark:text-amber-300">
                                             <p className="font-semibold">Discrepancy detected</p>
                                             <p className="mt-0.5">
-                                                Ledger: {formatCurrency(periodCOGS.totalCOGS, true)} vs
-                                                Sales: {formatCurrency(salesCOGS.totalCOGS, true)} —
+                                                Ledger: {formatCurrency(periodCOGSSummary.totalCOGS, true)} vs
+                                                Sales: {formatCurrency(salesCOGSSummary.totalCOGS, true)} —
                                                 Δ {formatCurrency(cogsDiscrepancy, true)}
                                             </p>
                                         </div>
                                     </div>
                                 )}
-                                {showCrossCheck && salesCOGS && !hasDiscrepancy && (
+                                {showCrossCheck && salesCOGSSummary && !hasDiscrepancy && (
                                     <div className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
                                         <span className="text-emerald-500 text-sm">✓</span>
                                         <p className="text-xs text-emerald-700 dark:text-emerald-300">COGS sources match.</p>
@@ -203,16 +205,21 @@ const MobileCOGSProfitability: FC = () => {
                                     <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
                                         By Product
                                         <span className="text-xs font-normal text-gray-500 dark:text-gray-400 ml-1.5">
-                                            ({periodCOGS.byProduct.length})
+                                            ({periodCOGSItems.length})
                                         </span>
                                     </h3>
                                     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-700/50">
-                                        {[...periodCOGS.byProduct]
+                                        {[...periodCOGSItems]
                                             .sort((a, b) => b.cogs - a.cogs)
                                             .map((item) => (
                                                 <div key={`${item.productId}-${item.variantId}`} className="flex items-center justify-between px-3 py-2.5">
                                                     <div className="min-w-0 flex-1">
-                                                        <p className="text-sm text-gray-900 dark:text-white truncate">{item.productName}</p>
+                                                        <p className="text-sm text-gray-900 dark:text-white truncate">
+                                                            {item.productName}
+                                                            {item.variantName && item.variantName !== 'Default' && (
+                                                                <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">– {item.variantName}</span>
+                                                            )}
+                                                        </p>
                                                         <p className="text-[10px] text-gray-400">{item.unitsSold} units</p>
                                                     </div>
                                                     <span className="text-sm font-semibold text-red-600 dark:text-red-400 flex-shrink-0 ml-3">
@@ -233,7 +240,7 @@ const MobileCOGSProfitability: FC = () => {
                                 <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-3" />
                                 <p className="text-sm text-gray-500 dark:text-gray-400">Loading profit data...</p>
                             </div>
-                        ) : !grossProfit ? (
+                        ) : !grossProfitSummary ? (
                             <div className="text-center py-16 text-gray-500 dark:text-gray-400 text-sm">
                                 No profit data available.
                             </div>
@@ -244,29 +251,29 @@ const MobileCOGSProfitability: FC = () => {
                                     <div className="p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800">
                                         <p className="text-[10px] uppercase tracking-wider text-sky-500 dark:text-sky-400 font-medium">Revenue</p>
                                         <p className="text-sm font-bold text-sky-600 dark:text-sky-400 mt-0.5">
-                                            {formatCurrency(grossProfit.totalRevenue, true)}
+                                            {formatCurrency(grossProfitSummary.totalRevenue, true)}
                                         </p>
                                     </div>
                                     <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
                                         <p className="text-[10px] uppercase tracking-wider text-red-500 dark:text-red-400 font-medium">COGS</p>
                                         <p className="text-sm font-bold text-red-600 dark:text-red-400 mt-0.5">
-                                            {formatCurrency(grossProfit.totalCOGS, true)}
+                                            {formatCurrency(grossProfitSummary.totalCOGS, true)}
                                         </p>
                                     </div>
                                     <div className={classNames(
                                         'p-3 rounded-lg border',
-                                        grossProfit.totalGrossProfit >= 0
+                                        grossProfitSummary.totalGrossProfit >= 0
                                             ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
                                             : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
                                     )}>
                                         <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium">Profit</p>
                                         <p className={classNames(
                                             'text-sm font-bold mt-0.5',
-                                            grossProfit.totalGrossProfit >= 0
+                                            grossProfitSummary.totalGrossProfit >= 0
                                                 ? 'text-emerald-600 dark:text-emerald-400'
                                                 : 'text-red-600 dark:text-red-400'
                                         )}>
-                                            {formatCurrency(grossProfit.totalGrossProfit, true)}
+                                            {formatCurrency(grossProfitSummary.totalGrossProfit, true)}
                                         </p>
                                     </div>
                                 </div>
@@ -274,22 +281,22 @@ const MobileCOGSProfitability: FC = () => {
                                 {/* Overall Margin */}
                                 <div className={classNames(
                                     'flex items-center justify-center gap-2 py-2 rounded-lg',
-                                    grossProfit.overallMarginPercent >= 0
+                                    grossProfitSummary.overallMarginPercent >= 0
                                         ? 'bg-emerald-50 dark:bg-emerald-900/20'
                                         : 'bg-red-50 dark:bg-red-900/20'
                                 )}>
-                                    {grossProfit.overallMarginPercent >= 0 ? (
+                                    {grossProfitSummary.overallMarginPercent >= 0 ? (
                                         <TrendingUp className="w-4 h-4 text-emerald-500" />
                                     ) : (
                                         <TrendingDown className="w-4 h-4 text-red-500" />
                                     )}
                                     <span className={classNames(
                                         'text-sm font-bold',
-                                        grossProfit.overallMarginPercent >= 0
+                                        grossProfitSummary.overallMarginPercent >= 0
                                             ? 'text-emerald-600 dark:text-emerald-400'
                                             : 'text-red-600 dark:text-red-400'
                                     )}>
-                                        {grossProfit.overallMarginPercent.toFixed(1)}% overall margin
+                                        {grossProfitSummary.overallMarginPercent.toFixed(1)}% overall margin
                                     </span>
                                 </div>
 
@@ -309,6 +316,9 @@ const MobileCOGSProfitability: FC = () => {
                                                     <div className="flex items-center justify-between">
                                                         <p className="text-sm text-gray-900 dark:text-white truncate flex-1 mr-2">
                                                             {item.productName}
+                                                            {item.variantName && item.variantName !== 'Default' && (
+                                                                <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">– {item.variantName}</span>
+                                                            )}
                                                         </p>
                                                         <div className="flex items-center gap-1 flex-shrink-0">
                                                             {isPositive ? (

@@ -1,8 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Notify } from 'notiflix';
 import { getErrorMessage } from '../utils/api-error-handler';
 import inventoryValuationService from '../services/inventory-valuation.service';
 import { useSettings } from './useSettings';
+import { usePagination } from './usePagination';
 
 /**
  * Hook for COGS & Profitability reporting
@@ -20,14 +21,24 @@ export const useCOGSReport = () => {
     const [endDate, setEndDate] = useState(today);
 
     // Period COGS
-    const [periodCOGS, setPeriodCOGS] = useState<PeriodCOGSResult | null>(null);
-    const [salesCOGS, setSalesCOGS] = useState<PeriodCOGSFromSalesResult | null>(null);
+    const [periodCOGSItems, setPeriodCOGSItems] = useState<PeriodCOGSProductItem[]>([]);
+    const [periodCOGSSummary, setPeriodCOGSSummary] = useState<PeriodCOGSSummary | null>(null);
+    const [salesCOGSItems, setSalesCOGSItems] = useState<PeriodCOGSProductItem[]>([]);
+    const [salesCOGSSummary, setSalesCOGSSummary] = useState<PeriodCOGSFromSalesResult['summary'] | null>(null);
     const [isLoadingCOGS, setIsLoadingCOGS] = useState(false);
     const [showCrossCheck, setShowCrossCheck] = useState(false);
 
     // Gross profit
-    const [grossProfit, setGrossProfit] = useState<GrossProfitByProductResult | null>(null);
+    const [grossProfitItems, setGrossProfitItems] = useState<GrossProfitProductItem[]>([]);
+    const [grossProfitSummary, setGrossProfitSummary] = useState<GrossProfitSummary | null>(null);
     const [isLoadingProfit, setIsLoadingProfit] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Pagination
+    const {
+        page, perPage, totalRows, setTotalRows,
+        handlePageChange, handlePerRowsChange, resetPage,
+    } = usePagination({ initialPerPage: 15 });
 
     const branchId = setup?.branchId || '';
 
@@ -48,8 +59,12 @@ export const useCOGSReport = () => {
                 );
             }
             const [cogsResult, salesResult] = await Promise.all(promises);
-            setPeriodCOGS(cogsResult);
-            if (salesResult) setSalesCOGS(salesResult);
+            setPeriodCOGSItems(cogsResult.items);
+            setPeriodCOGSSummary(cogsResult.summary);
+            if (salesResult) {
+                setSalesCOGSItems(salesResult.items);
+                setSalesCOGSSummary(salesResult.summary);
+            }
         } catch (error: any) {
             Notify.failure(getErrorMessage(error, 'Failed to load period COGS'));
             console.error('Load period COGS error:', error);
@@ -59,23 +74,48 @@ export const useCOGSReport = () => {
     }, [startDate, endDate, branchId]);
 
     /**
-     * Load gross profit by product
+     * Load gross profit by product (paginated)
      */
     const loadGrossProfit = useCallback(async () => {
         if (!startDate || !endDate) return;
         setIsLoadingProfit(true);
         try {
-            const result = await inventoryValuationService.getGrossProfitByProduct(
-                startDate, endDate, branchId || undefined
-            );
-            setGrossProfit(result);
+            const result = await inventoryValuationService.getGrossProfitByProduct({
+                startDate,
+                endDate,
+                page,
+                perPage,
+                search: searchTerm || undefined,
+                branchId: branchId || undefined,
+            });
+            setGrossProfitItems(result.items);
+            setGrossProfitSummary(result.summary);
+            setTotalRows(result.pagination.totalItems);
         } catch (error: any) {
+            setGrossProfitItems([]);
+            setGrossProfitSummary(null);
+            setTotalRows(0);
             Notify.failure(getErrorMessage(error, 'Failed to load gross profit data'));
             console.error('Load gross profit error:', error);
         } finally {
             setIsLoadingProfit(false);
         }
-    }, [startDate, endDate, branchId]);
+    }, [startDate, endDate, page, perPage, searchTerm, branchId, setTotalRows]);
+
+    /**
+     * Search handler — resets to page 1
+     */
+    const handleSearch = useCallback((value: string) => {
+        setSearchTerm(value);
+        resetPage();
+    }, [resetPage]);
+
+    /**
+     * Reload gross profit when pagination/search/dates change
+     */
+    useEffect(() => {
+        loadGrossProfit();
+    }, [loadGrossProfit]);
 
     /**
      * Load all data for the current date range
@@ -90,8 +130,8 @@ export const useCOGSReport = () => {
     /**
      * COGS discrepancy (if cross-check enabled)
      */
-    const cogsDiscrepancy = periodCOGS && salesCOGS
-        ? Math.abs(periodCOGS.totalCOGS - salesCOGS.totalCOGS)
+    const cogsDiscrepancy = periodCOGSSummary && salesCOGSSummary
+        ? Math.abs(periodCOGSSummary.totalCOGS - salesCOGSSummary.totalCOGS)
         : null;
 
     const hasDiscrepancy = cogsDiscrepancy !== null && cogsDiscrepancy > 0.01;
@@ -103,8 +143,10 @@ export const useCOGSReport = () => {
         endDate,
         setEndDate,
         // COGS
-        periodCOGS,
-        salesCOGS,
+        periodCOGSItems,
+        periodCOGSSummary,
+        salesCOGSItems,
+        salesCOGSSummary,
         isLoadingCOGS,
         loadPeriodCOGS,
         showCrossCheck,
@@ -112,9 +154,18 @@ export const useCOGSReport = () => {
         cogsDiscrepancy,
         hasDiscrepancy,
         // Gross profit
-        grossProfit,
+        grossProfitItems,
+        grossProfitSummary,
         isLoadingProfit,
         loadGrossProfit,
+        // Search & Pagination
+        searchTerm,
+        handleSearch,
+        page,
+        perPage,
+        totalRows,
+        handlePageChange,
+        handlePerRowsChange,
         // Combined
         loadAll,
         branchId,

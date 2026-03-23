@@ -189,7 +189,9 @@ const StockCountModal: FC<StockCountModalProps> = ({
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Stock Count</h2>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                Reconcile physical count with system records
+                                {selected
+                                    ? <>{selected.name} — <span className="font-semibold">{selected.variantName}</span></>
+                                    : 'Reconcile physical count with system records'}
                             </p>
                         </div>
                     </div>

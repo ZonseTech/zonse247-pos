@@ -169,7 +169,6 @@ const DesktopInventoryForm: FunctionComponent<DesktopInventoryFormProps> = ({
                             <PageHeader
                                 title={productId ? 'Edit Inventory Item' : 'Add Inventory Item'}
                                 description="Manage product details and pricing"
-                                icon={<HiOutlineDocumentPlus className="w-8 h-8 text-sky-500" />}
                                 showBackButton
                             />
 
@@ -240,7 +239,6 @@ const DesktopInventoryForm: FunctionComponent<DesktopInventoryFormProps> = ({
                                     </FormFieldCard>
                                 )}
 
-                                {/* Stock Movement History - Only show when editing existing product */}
                                 {productId && item && item.variants && item.variants.length > 0 && (
                                     <FormFieldCard title="Stock Movement History">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -271,15 +269,8 @@ const DesktopInventoryForm: FunctionComponent<DesktopInventoryFormProps> = ({
                                 )}
 
                                 <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
-                                    <Button
-                                        type="button"
-                                        theme="danger"
-                                        onClick={() => navigate(ROUTES.INVENTORY)}
-                                        disabled={isSubmitting || loading}
-                                    >
-                                        <X className="w-4 h-4 mr-2" />
-                                        Cancel
-                                    </Button>
+                                    <div/>
+                                    
                                     <Button
                                         type="submit"
                                         theme="success"
@@ -320,7 +311,6 @@ const DesktopInventoryForm: FunctionComponent<DesktopInventoryFormProps> = ({
                                     onNewVariantChange={isNewVariant ? setNewVariantData : undefined}
                                 />
 
-                                {/* Stock Movement Modal */}
                                 {movementModalVariant && item && (
                                     <StockMovementModal
                                         isOpen={!!movementModalVariant}

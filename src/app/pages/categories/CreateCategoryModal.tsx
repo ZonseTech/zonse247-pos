@@ -2,9 +2,9 @@ import * as Yup from 'yup';
 import { Notify } from 'notiflix';
 import { Form, Formik } from 'formik'
 import { Fragment, FunctionComponent, PropsWithChildren, useEffect, useState } from 'react'
-import { HiOutlinePlus, } from 'react-icons/hi'
-import { Palette, FileText, } from 'lucide-react';
-import { Modal, Button } from '../../components'
+import { Plus, Palette, FileText, Check } from 'lucide-react';
+import { Box, Flex, Text, TextArea, Checkbox, Button } from '@radix-ui/themes';
+import { Modal } from '../../components'
 import FormWrapper from '../../components/FormWrapper'
 import FormInput from '../../components/FormInput';
 import categoriesService from '../../services/category.service';
@@ -160,10 +160,10 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
             {showAddButton && (
                 <Button
                     onClick={() => handleAddCategoryClicked(true)}
-                    iconLeft={HiOutlinePlus}
-                    layout="primary"
-                    theme="primary"
+                    variant="solid"
+                    highContrast
                 >
+                    <Plus size={16} />
                     Add Category
                 </Button>
             )}
@@ -192,86 +192,90 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
                                     placeholder="e.g., Electronics, Clothing, Food"
                                 />
 
-                                <div className="space-y-2">
-                                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        <FileText className="w-4 h-4 text-gray-400" />
-                                        Description
-                                    </label>
-                                    <textarea
+                                <Box>
+                                    <Flex align="center" gap="2" mb="2">
+                                        <FileText size={16} className="text-gray-400" />
+                                        <Text as="label" size="2" weight="medium">Description</Text>
+                                    </Flex>
+                                    <TextArea
                                         name="description"
                                         placeholder="Add a brief description for this category..."
                                         value={values.description || ''}
                                         onChange={(e) => setFieldValue('description', e.target.value)}
                                         rows={3}
-                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                                     />
                                     {errors.description && touched.description && (
-                                        <p className="text-sm text-red-500 dark:text-red-400">
+                                        <Text size="2" color="red">
                                             {errors.description}
-                                        </p>
+                                        </Text>
                                     )}
-                                </div>
+                                </Box>
 
-                                <div className="space-y-2">
-                                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        <Palette className="w-4 h-4 text-purple-500" />
-                                        Category Color
-                                    </label>
-                                    <div className="flex flex-wrap gap-2">
+                                <Box>
+                                    <Flex align="center" gap="2" mb="2">
+                                        <Palette size={16} className="text-purple-500" />
+                                        <Text as="label" size="2" weight="medium">Category Color</Text>
+                                    </Flex>
+                                    <Flex wrap="wrap" gap="2">
                                         {predefinedColors.map(({ color, name }) => (
-                                            <button
+                                            <Flex
                                                 key={color}
-                                                type="button"
-                                                onClick={() => setFieldValue('color', color)}
-                                                title={name}
-                                                className={`w-8 h-8 rounded-lg border-2 transition-all ${values.color === color
-                                                    ? 'border-gray-900 dark:border-white scale-110'
-                                                    : 'border-transparent hover:border-gray-300 dark:hover:border-gray-500'
-                                                    }`}
-                                                style={{ backgroundColor: color }}
+                                                asChild
                                             >
-                                                {values.color === color && (
-                                                    <svg className="w-4 h-4 text-white mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                )}
-                                            </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFieldValue('color', color)}
+                                                    title={name}
+                                                    className={`w-8 h-8 rounded-lg border-2 transition-all cursor-pointer ${values.color === color
+                                                        ? 'border-gray-900 dark:border-white scale-110'
+                                                        : 'border-transparent hover:border-gray-300 dark:hover:border-gray-500'
+                                                        }`}
+                                                    style={{ backgroundColor: color }}
+                                                >
+                                                    {values.color === color && (
+                                                        <Check size={16} className="text-white mx-auto" strokeWidth={3} />
+                                                    )}
+                                                </button>
+                                            </Flex>
                                         ))}
-                                    </div>
+                                    </Flex>
                                     {errors.color && touched.color && (
-                                        <p className="text-sm text-red-500 dark:text-red-400">
+                                        <Text size="2" color="red">
                                             {errors.color}
-                                        </p>
+                                        </Text>
                                     )}
-                                </div>
+                                </Box>
 
                                 {showDefaultOption && (
-                                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
-                                        <label className="flex items-start gap-2 cursor-not-allowed">
-                                            <input
-                                                type="checkbox"
-                                                name="isDefault"
-                                                checked={values.isDefault || false}
-                                                readOnly
-                                                disabled
-                                                className="mt-0.5 w-4 h-4 text-amber-500 border-amber-300 rounded"
-                                            />
-                                            <div>
-                                                <span className="text-sm font-medium text-amber-900 dark:text-amber-200">
-                                                    Set as Default Category
-                                                </span>
-                                                <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
-                                                    First category will be set as default
-                                                </p>
-                                            </div>
-                                        </label>
-                                    </div>
+                                    <Box className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+                                        <Flex asChild align="start" gap="2">
+                                            <label className="cursor-not-allowed">
+                                                <Checkbox
+                                                    name="isDefault"
+                                                    checked={values.isDefault || false}
+                                                    disabled
+                                                    color="orange"
+                                                    mt="1"
+                                                />
+                                                <Box>
+                                                    <Text as="span" size="2" weight="medium" className="text-amber-900 dark:text-amber-200">
+                                                        Set as Default Category
+                                                    </Text>
+                                                    <Text as="p" size="1" className="text-amber-700 dark:text-amber-400" mt="1">
+                                                        First category will be set as default
+                                                    </Text>
+                                                </Box>
+                                            </label>
+                                        </Flex>
+                                    </Box>
                                 )}
 
                                 <Button
                                     type="submit"
-                                    block={true}
+                                    variant="solid"
+                                    highContrast
                                     loading={isSubmitting}
+                                    style={{ width: '100%' }}
                                 >
                                     {isEditing ? 'Update Category' : 'Submit'}
                                 </Button>

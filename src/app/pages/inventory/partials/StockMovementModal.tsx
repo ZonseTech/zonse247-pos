@@ -41,9 +41,8 @@ const typeColors: Record<StockMovementType, string> = {
     TRANSFER_OUT: 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400',
     DAMAGE: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
     EXPIRY: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-    STOCK_TAKE: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400',
-    PRODUCTION: 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400',
-    CONSUMPTION: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400',
+    OPENING_BALANCE: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400',
+    RETURN_TO_SUPPLIER: 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400',
 };
 
 const typeLabels: Record<StockMovementType, string> = {
@@ -55,9 +54,8 @@ const typeLabels: Record<StockMovementType, string> = {
     TRANSFER_OUT: 'Transfer Out',
     DAMAGE: 'Damage',
     EXPIRY: 'Expiry',
-    STOCK_TAKE: 'Stock Take',
-    PRODUCTION: 'Production',
-    CONSUMPTION: 'Consumption',
+    OPENING_BALANCE: 'Opening Balance',
+    RETURN_TO_SUPPLIER: 'Return to Supplier',
 };
 
 const StockMovementModal: React.FC<StockMovementModalProps> = ({

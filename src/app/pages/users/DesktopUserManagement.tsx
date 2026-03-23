@@ -7,10 +7,11 @@ import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import { HiOutlinePlus, HiOutlineUsers } from 'react-icons/hi2';
 import { getTableStyles } from '../../utils/table-styles';
-import { Button, ZonseThemeContext, ComponentLoader } from '../../components';
+import { ZonseThemeContext, ComponentLoader } from '../../components';
 import { useUsers } from '../../hooks/useUsers';
 import { getUserTableColumns } from './partials/UserTableColumns';
 import { ROUTES } from '../../utils/constants';
+import { Box, Button, Flex, Heading, Text } from '@radix-ui/themes';
 
 const DesktopUserManagement: FunctionComponent = () => {
     const navigate = useNavigate();
@@ -91,61 +92,66 @@ const DesktopUserManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="max-w-full">
+            <Box className="max-w-full">
                 <PageHeader
                     title='Staffs Management'
                     description='Manage user accounts, roles, and permissions'
                     icon={<HiOutlineUsers className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                     action={
                         <Button
+                            size="2"
+                            variant="solid"
+                            color="sky"
                             onClick={handleAddUser}
-                            theme='primary'
-                            className="flex items-center"
+                            className="cursor-pointer"
                         >
-                            <HiOutlinePlus className="w-4 h-4 mr-2" />
-                            <span>Add Staff</span>
+                            <HiOutlinePlus className="w-4 h-4" />
+                            Add Staff
                         </Button>
                     }
                 />
 
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <div className="overflow-hidden">
-                        <DataTable
-                            columns={columns}
-                            data={users}
-                            theme={mode as string}
-                            progressPending={isLoading}
-                            progressComponent={<ComponentLoader loading={isLoading} />}
-                            highlightOnHover
-                            striped
-                            responsive
-                            pagination
-                            paginationServer
-                            paginationTotalRows={totalRows}
-                            paginationPerPage={perPage}
-                            paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
-                            onChangeRowsPerPage={handlePerRowsChange}
-                            onChangePage={handlePageChange}
-                            fixedHeader
-                            fixedHeaderScrollHeight="calc(100vh - 420px)"
-                            customStyles={getTableStyles(mode)}
-                            noDataComponent={
-                                <div className="flex flex-col items-center justify-center py-12">
-                                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                                        <Users className="w-8 h-8 text-gray-400" />
-                                    </div>
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                                        No users found
-                                    </h3>
-                                    <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm">
-                                        Add your first user to get started.
-                                    </p>
-                                </div>
-                            }
-                        />
-                    </div>
-                </div>
-            </div>
+                <Box className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <DataTable
+                        columns={columns}
+                        data={users}
+                        theme={mode as string}
+                        progressPending={isLoading}
+                        progressComponent={<ComponentLoader loading={isLoading} />}
+                        highlightOnHover
+                        striped
+                        responsive
+                        pagination
+                        paginationServer
+                        paginationTotalRows={totalRows}
+                        paginationPerPage={perPage}
+                        paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
+                        onChangeRowsPerPage={handlePerRowsChange}
+                        onChangePage={handlePageChange}
+                        fixedHeader
+                        fixedHeaderScrollHeight="calc(100vh - 420px)"
+                        customStyles={getTableStyles(mode)}
+                        noDataComponent={
+                            <Flex direction="column" align="center" justify="center" py="9">
+                                <Flex
+                                    align="center"
+                                    justify="center"
+                                    mb="4"
+                                    className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full"
+                                >
+                                    <Users className="w-8 h-8 text-gray-400" />
+                                </Flex>
+                                <Heading as="h3" size="3" weight="medium" mb="2">
+                                    No users found
+                                </Heading>
+                                <Text as="p" size="2" color="gray" align="center" className="max-w-sm">
+                                    Add your first user to get started.
+                                </Text>
+                            </Flex>
+                        }
+                    />
+                </Box>
+            </Box>
         </AppLayout>
     );
 };

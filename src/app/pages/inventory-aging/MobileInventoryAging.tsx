@@ -1,4 +1,4 @@
-import { FC, useState, useCallback, useEffect } from 'react';
+import { FC, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import {
     ArrowLeft,
@@ -10,8 +10,10 @@ import {
     Search,
     X,
     RefreshCw,
-    Loader2,
+    ChevronLeft,
+    ChevronRight,
 } from 'lucide-react';
+import { IconButton, Flex, SegmentedControl, Spinner } from '@radix-ui/themes';
 import classNames from 'classnames';
 import { useInventoryAging, BUCKET_KEYS, BUCKET_LABELS, BUCKET_COLORS, type BucketKey } from '../../hooks/useInventoryAging';
 import { formatCurrency } from '../../utils';
@@ -34,25 +36,28 @@ const STATUS_BADGE: Record<string, string> = {
 const MobileInventoryAging: FC = () => {
     const navigate = useNavigate();
     const [isSearchVisible, setIsSearchVisible] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const searchInputRef = useRef<HTMLInputElement>(null);
 
     const {
-        agingData,
+        items,
+        summary,
         isLoading,
+        searchTerm,
+        handleSearch,
         thresholdDays,
-        setThresholdDays,
+        handleThresholdChange,
         statusFilter,
-        setStatusFilter,
+        handleStatusFilterChange,
         loadAgingReport,
         getBucketChartData,
-        getFilteredItems,
         valueAtRisk,
+        hasNextPage,
+        hasPrevPage,
+        nextPage,
+        prevPage,
+        pageLabel,
     } = useInventoryAging();
-
-    useEffect(() => {
-        loadAgingReport();
-    }, [loadAgingReport]);
 
     const handleRefresh = useCallback(async () => {
         setIsRefreshing(true);
@@ -62,24 +67,14 @@ const MobileInventoryAging: FC = () => {
 
     const handleSearchToggle = useCallback(() => {
         setIsSearchVisible((prev) => {
-            if (prev) setSearchTerm('');
+            if (!prev) {
+                setTimeout(() => searchInputRef.current?.focus(), 100);
+            } else {
+                handleSearch('');
+            }
             return !prev;
         });
-    }, []);
-
-    const handleThresholdChange = (days: number) => {
-        setThresholdDays(days);
-        loadAgingReport(days);
-    };
-
-    const items = getFilteredItems();
-    const filteredItems = searchTerm.trim()
-        ? items.filter(
-            (item) =>
-                item.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.sku?.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-        : items;
+    }, [handleSearch]);
 
     const bucketChartData = getBucketChartData();
     const maxBucketValue = Math.max(...bucketChartData.map((b) => b.totalValue), 1);
@@ -92,12 +87,12 @@ const MobileInventoryAging: FC = () => {
                     <div className="flex items-center gap-2 px-4 py-3">
                         <Search className="w-5 h-5 text-gray-400 flex-shrink-0" />
                         <input
+                            ref={searchInputRef}
                             type="text"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => handleSearch(e.target.value)}
                             placeholder="Search products, SKU..."
                             className="flex-1 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 outline-none"
-                            autoFocus
                         />
                         <button onClick={handleSearchToggle} className="p-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
                             <X className="w-5 h-5" />
@@ -117,21 +112,26 @@ const MobileInventoryAging: FC = () => {
                                 <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Aging</h1>
                             </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                            <button onClick={handleSearchToggle} className="p-2 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <Flex align="center" gap="1">
+                            <IconButton
+                                size="2"
+                                variant="ghost"
+                                color="gray"
+                                onClick={handleSearchToggle}
+                            >
                                 <Search className="w-5 h-5" />
-                            </button>
-                            <button
+                            </IconButton>
+                            <IconButton
+                                size="2"
+                                variant="ghost"
+                                color="gray"
                                 onClick={handleRefresh}
                                 disabled={isLoading || isRefreshing}
-                                className={classNames(
-                                    'p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 transition-all',
-                                    (isLoading || isRefreshing) && 'animate-spin'
-                                )}
+                                className={(isLoading || isRefreshing) ? 'animate-spin' : ''}
                             >
                                 <RefreshCw className="w-5 h-5" />
-                            </button>
-                        </div>
+                            </IconButton>
+                        </Flex>
                     </div>
                 )}
             </div>
@@ -142,20 +142,20 @@ const MobileInventoryAging: FC = () => {
                     <div className="flex items-center gap-1.5 px-2.5 py-1 bg-sky-50 dark:bg-sky-900/30 rounded-lg flex-shrink-0">
                         <Package className="w-4 h-4 text-sky-500" />
                         <span className="text-sm font-semibold text-sky-600 dark:text-sky-400">
-                            {agingData?.totalItems ?? '—'}
+                            {summary?.totalItems ?? '—'}
                         </span>
                     </div>
                     <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 dark:bg-amber-900/30 rounded-lg flex-shrink-0">
                         <AlertTriangle className="w-4 h-4 text-amber-500" />
                         <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
-                            {agingData?.totalSlowMovers ?? '—'}
+                            {summary?.totalSlowMovers ?? '—'}
                         </span>
                         <span className="text-[10px] text-amber-500 hidden sm:inline">slow</span>
                     </div>
                     <div className="flex items-center gap-1.5 px-2.5 py-1 bg-red-50 dark:bg-red-900/30 rounded-lg flex-shrink-0">
                         <PackageX className="w-4 h-4 text-red-500" />
                         <span className="text-sm font-semibold text-red-600 dark:text-red-400">
-                            {agingData?.totalNeverSold ?? '—'}
+                            {summary?.totalNeverSold ?? '—'}
                         </span>
                         <span className="text-[10px] text-red-500 hidden sm:inline">never</span>
                     </div>
@@ -170,7 +170,7 @@ const MobileInventoryAging: FC = () => {
 
             {/* Controls: Threshold + Status Filter */}
             <div className="flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2">
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+                <Flex align="center" gap="2" justify="between">
                     <select
                         value={thresholdDays}
                         onChange={(e) => handleThresholdChange(Number(e.target.value))}
@@ -180,29 +180,40 @@ const MobileInventoryAging: FC = () => {
                             <option key={d} value={d}>{d}d threshold</option>
                         ))}
                     </select>
-                    {STATUS_FILTERS.map(({ value, label }) => (
-                        <button
-                            key={value}
-                            onClick={() => setStatusFilter(value)}
-                            className={classNames(
-                                'px-3 py-1.5 text-xs font-semibold rounded-full whitespace-nowrap transition-all active:scale-95 flex-shrink-0',
-                                statusFilter === value
-                                    ? 'bg-amber-500 text-white'
-                                    : 'border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400'
-                            )}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
+                    <SegmentedControl.Root
+                        size="1"
+                        value={statusFilter}
+                        onValueChange={(value) => handleStatusFilterChange(value as 'all' | 'active' | 'slow' | 'dead')}
+                    >
+                        {STATUS_FILTERS.map(({ value, label }) => (
+                            <SegmentedControl.Item key={value} value={value}>
+                                {label}
+                            </SegmentedControl.Item>
+                        ))}
+                    </SegmentedControl.Root>
+                </Flex>
             </div>
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto overscroll-contain">
-                {isLoading && !agingData ? (
-                    <div className="flex flex-col items-center justify-center py-16">
-                        <Loader2 className="w-8 h-8 text-amber-500 animate-spin mb-3" />
+                {isLoading && items.length === 0 ? (
+                    <Flex align="center" justify="center" direction="column" py="9" gap="3">
+                        <Spinner size="3" />
                         <p className="text-sm text-gray-500 dark:text-gray-400">Loading aging report...</p>
+                    </Flex>
+                ) : !isLoading && items.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-16 px-6">
+                        <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700/50 rounded-2xl flex items-center justify-center mb-4">
+                            <Clock className="w-10 h-10 text-gray-400" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 text-center">
+                            No items found
+                        </h3>
+                        <p className="text-gray-500 dark:text-gray-400 text-center max-w-xs text-sm">
+                            {searchTerm || statusFilter !== 'all'
+                                ? 'Try adjusting your filters.'
+                                : 'Aging data will appear here.'}
+                        </p>
                     </div>
                 ) : (
                     <>
@@ -240,65 +251,75 @@ const MobileInventoryAging: FC = () => {
                         )}
 
                         {/* Items List */}
-                        {filteredItems.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-16 px-6">
-                                <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700/50 rounded-2xl flex items-center justify-center mb-4">
-                                    <Clock className="w-10 h-10 text-gray-400" />
-                                </div>
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 text-center">
-                                    No items found
-                                </h3>
-                                <p className="text-gray-500 dark:text-gray-400 text-center max-w-xs text-sm">
-                                    {searchTerm || statusFilter !== 'all'
-                                        ? 'Try adjusting your filters.'
-                                        : 'Aging data will appear here.'}
-                                </p>
-                            </div>
-                        ) : (
-                            <div className="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700/50">
-                                {filteredItems.map((item) => (
-                                    <div
-                                        key={item.inventoryId}
-                                        className="flex items-center gap-3 px-4 py-3"
-                                    >
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                                {item.productName}
-                                            </p>
-                                            <div className="flex items-center gap-2 mt-0.5">
-                                                {item.sku && (
-                                                    <span className="text-[10px] font-mono text-gray-400 dark:text-gray-500">
-                                                        {item.sku}
-                                                    </span>
-                                                )}
-                                                <span className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded ${STATUS_BADGE[item.status] || ''}`}>
-                                                    {item.status}
+                        <div className="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700/50">
+                            {items.map((item) => (
+                                <div
+                                    key={item.inventoryId}
+                                    className="flex items-center gap-3 px-4 py-3"
+                                >
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                            {item.productName}
+                                            {item.variantName && item.variantName !== 'Default' && (
+                                                <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">– {item.variantName}</span>
+                                            )}
+                                        </p>
+                                        <div className="flex items-center gap-2 mt-0.5">
+                                            {item.sku && (
+                                                <span className="text-[10px] font-mono text-gray-400 dark:text-gray-500">
+                                                    {item.sku}
                                                 </span>
-                                            </div>
-                                        </div>
-                                        <div className="text-right flex-shrink-0">
-                                            <p className="text-sm font-bold text-gray-900 dark:text-white">
-                                                {formatCurrency(item.stockValue, true)}
-                                            </p>
-                                            <p className={`text-[10px] font-medium ${item.daysSinceLastSale === null
-                                                    ? 'text-gray-400'
-                                                    : item.daysSinceLastSale > 180
-                                                        ? 'text-red-500'
-                                                        : item.daysSinceLastSale > 90
-                                                            ? 'text-amber-500'
-                                                            : 'text-gray-400'
-                                                }`}>
-                                                {item.daysSinceLastSale !== null ? `${item.daysSinceLastSale}d idle` : 'Never sold'}
-                                            </p>
+                                            )}
+                                            <span className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded ${STATUS_BADGE[item.status] || ''}`}>
+                                                {item.status}
+                                            </span>
                                         </div>
                                     </div>
-                                ))}
-
-                                <div className="text-center py-6 text-sm text-gray-500 dark:text-gray-400">
-                                    Showing {filteredItems.length} of {agingData?.totalItems ?? 0} items
+                                    <div className="text-right flex-shrink-0">
+                                        <p className="text-sm font-bold text-gray-900 dark:text-white">
+                                            {formatCurrency(item.stockValue, true)}
+                                        </p>
+                                        <p className={`text-[10px] font-medium ${item.daysSinceLastSale === null
+                                            ? 'text-gray-400'
+                                            : item.daysSinceLastSale > 180
+                                                ? 'text-red-500'
+                                                : item.daysSinceLastSale > 90
+                                                    ? 'text-amber-500'
+                                                    : 'text-gray-400'
+                                            }`}>
+                                            {item.daysSinceLastSale !== null ? `${item.daysSinceLastSale}d idle` : 'Never sold'}
+                                        </p>
+                                    </div>
                                 </div>
+                            ))}
+
+                            {/* Pagination */}
+                            <div className="flex items-center justify-between px-4 py-3">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                    {pageLabel}
+                                </span>
+                                <Flex gap="2">
+                                    <IconButton
+                                        size="1"
+                                        variant="soft"
+                                        color="gray"
+                                        disabled={!hasPrevPage || isLoading}
+                                        onClick={prevPage}
+                                    >
+                                        <ChevronLeft className="w-4 h-4" />
+                                    </IconButton>
+                                    <IconButton
+                                        size="1"
+                                        variant="soft"
+                                        color="gray"
+                                        disabled={!hasNextPage || isLoading}
+                                        onClick={nextPage}
+                                    >
+                                        <ChevronRight className="w-4 h-4" />
+                                    </IconButton>
+                                </Flex>
                             </div>
-                        )}
+                        </div>
                     </>
                 )}
             </div>

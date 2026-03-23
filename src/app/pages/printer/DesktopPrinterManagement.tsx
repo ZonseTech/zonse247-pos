@@ -1,5 +1,6 @@
 import { Confirm, Notify } from 'notiflix';
 import { Printer, Radar, ListTodo } from 'lucide-react';
+import { Box, Card, Flex, Text } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
 import { HiOutlinePrinter } from 'react-icons/hi2';
 import { SearchBar } from '../../components/SearchBar';
@@ -135,13 +136,13 @@ const DesktopPrinterManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="max-w-full">
+            <Box className="max-w-full">
                 <PageHeader
                     title='Printers'
                     description='Manage your printer devices and print settings'
                     icon={<HiOutlinePrinter className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                     action={
-                        <div className='flex items-center justify-between gap-2'>
+                        <Flex align="center" justify="between" gap="2">
                             <SearchBar value={searchTerm} onChange={setSearchTerm} />
                             <Button onClick={() => navigate(ROUTES.PRINT_JOBS)} icon={ListTodo} layout="outline" theme='neutral'>
                                 <span className='hidden md:block'>Print Jobs</span>
@@ -149,39 +150,37 @@ const DesktopPrinterManagement: FunctionComponent = () => {
                             <Button onClick={() => handleDiscoverPrinters()} icon={Radar} layout="primary" theme='primary' disabled={isDiscovering}>
                                 <span className='hidden md:block'>{isDiscovering ? 'Discovering...' : 'Discover Printers'}</span>
                             </Button>
-                        </div>
+                        </Flex>
                     }
                 />
 
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <div className="overflow-hidden">
-                        <DataTable
-                            columns={columns}
-                            data={printers}
-                            theme={mode as string}
-                            progressPending={isLoading}
-                            highlightOnHover
-                            striped
-                            responsive
-                            pagination
-                            paginationServer
-                            paginationTotalRows={totalRows}
-                            paginationPerPage={perPage}
-                            paginationRowsPerPageOptions={[10, 15, 25, 50]}
-                            onChangeRowsPerPage={handlePerRowsChange}
-                            onChangePage={handlePageChange}
-                            fixedHeader
-                            customStyles={getTableStyles(mode)}
-                            noDataComponent={
-                                <div className="text-center py-12 dark:bg-gray-800">
-                                    <Printer className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                                    <p className="text-gray-500 dark:text-gray-400 font-medium">
-                                        {searchTerm ? 'No printers found.' : 'No printers.'}
-                                    </p>
-                                </div>
-                            }
-                        />
-                    </div>
+                <Card size="2" className="overflow-hidden">
+                    <DataTable
+                        columns={columns}
+                        data={printers}
+                        theme={mode as string}
+                        progressPending={isLoading}
+                        highlightOnHover
+                        striped
+                        responsive
+                        pagination
+                        paginationServer
+                        paginationTotalRows={totalRows}
+                        paginationPerPage={perPage}
+                        paginationRowsPerPageOptions={[10, 15, 25, 50]}
+                        onChangeRowsPerPage={handlePerRowsChange}
+                        onChangePage={handlePageChange}
+                        fixedHeader
+                        customStyles={getTableStyles(mode)}
+                        noDataComponent={
+                            <Flex direction="column" align="center" py="9" className="dark:bg-gray-800">
+                                <Printer className="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4" />
+                                <Text size="2" color="gray" weight="medium">
+                                    {searchTerm ? 'No printers found.' : 'No printers.'}
+                                </Text>
+                            </Flex>
+                        }
+                    />
 
                     <EditPrinterModal
                         isOpen={showEditModal}
@@ -190,8 +189,8 @@ const DesktopPrinterManagement: FunctionComponent = () => {
                         onSave={handleSaveEditModal}
                         onDelete={deletePrinter}
                     />
-                </div>
-            </div>
+                </Card>
+            </Box>
 
             <DiscoveryModal
                 isOpen={showDiscoveryModal} isDiscovering={isDiscovering}

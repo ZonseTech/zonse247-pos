@@ -1,6 +1,6 @@
-import { FunctionComponent } from 'react';
-import { Select } from '../../../components';
-import DatePicker from 'react-datepicker';
+import { FunctionComponent, useCallback } from 'react';
+import { Flex, Select } from '@radix-ui/themes';
+import MobileDateFilter from '../../../components/reports/MobileDateFilter';
 import dayjs from 'dayjs';
 
 interface FiltersProps {
@@ -21,7 +21,7 @@ const Filters: FunctionComponent<FiltersProps> = ({
     onEndDateChange,
 }) => {
     const movementTypes: { value: StockMovementType | ''; label: string }[] = [
-        { value: '', label: 'All Types' },
+        { value: '', label: 'All Stock Types' },
         { value: 'PURCHASE_RECEIPT', label: 'Purchase Receipt' },
         { value: 'SALE', label: 'Sale' },
         { value: 'RETURN', label: 'Return' },
@@ -34,42 +34,34 @@ const Filters: FunctionComponent<FiltersProps> = ({
         { value: 'RETURN_TO_SUPPLIER', label: 'Return to Supplier' },
     ];
 
-    return (
-        <div className="flex flex-col md:flex-row gap-4">
-            <Select
-                value={movementTypeFilter}
-                onChange={(e) => onMovementTypeChange(e.target.value as StockMovementType | '')}
-                className="md:w-64"
-            >
-                {movementTypes.map((type) => (
-                    <option key={type.value} value={type.value}>
-                        {type.label}
-                    </option>
-                ))}
-            </Select>
+    const handleDateChange = useCallback((start: Date | null, end: Date | null) => {
+        onStartDateChange(start ? dayjs(start).format('YYYY-MM-DD') : '');
+        onEndDateChange(end ? dayjs(end).format('YYYY-MM-DD') : '');
+    }, [onStartDateChange, onEndDateChange]);
 
-            <div className="flex gap-2">
-                <DatePicker
-                    selected={startDate ? new Date(startDate) : null}
-                    onChange={((date: Date | null) => onStartDateChange(date ? dayjs(date).format('YYYY-MM-DD') : '')) as any}
-                    dateFormat="yyyy-MM-dd"
-                    placeholderText="Start Date"
-                    isClearable
-                    className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                    portalId="datepicker-portal"
-                />
-                <DatePicker
-                    selected={endDate ? new Date(endDate) : null}
-                    onChange={((date: Date | null) => onEndDateChange(date ? dayjs(date).format('YYYY-MM-DD') : '')) as any}
-                    dateFormat="yyyy-MM-dd"
-                    placeholderText="End Date"
-                    isClearable
-                    minDate={startDate ? new Date(startDate) : undefined}
-                    className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                    portalId="datepicker-portal"
-                />
-            </div>
-        </div>
+    return (
+        <Flex direction={{ initial: 'column', md: 'row' }} gap="4" align="center">
+            <Select.Root
+                value={movementTypeFilter || '__all__'}
+                onValueChange={(val) => onMovementTypeChange(val === '__all__' ? '' : val as StockMovementType)}
+                size="2"
+            >
+                <Select.Trigger placeholder="All Types" className="md:min-w-[16rem]" />
+                <Select.Content>
+                    {movementTypes.map((type) => (
+                        <Select.Item key={type.value} value={type.value || '__all__'}>
+                            {type.label}
+                        </Select.Item>
+                    ))}
+                </Select.Content>
+            </Select.Root>
+
+            <MobileDateFilter
+                startDate={startDate ? new Date(startDate) : null}
+                endDate={endDate ? new Date(endDate) : null}
+                onChange={handleDateChange}
+            />
+        </Flex>
     );
 };
 

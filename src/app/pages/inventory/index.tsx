@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { Confirm, Notify } from 'notiflix';
 import { Package, Settings2, X, Plus, Download } from 'lucide-react';
 import DataTable, { type Themes, type ExpanderComponentProps } from 'react-data-table-component';
+import { Button, Badge, Box, Flex, Separator } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import TableSkeleton from '../../components/skeleton/TableSkeleton';
@@ -11,7 +12,8 @@ import { getTableStyles } from '../../utils/table-styles';
 import { formatCurrencyShort, formatCurrencyFull } from '../../utils';
 import { useInventoryStats } from '../../hooks/useInventoryStats';
 import InventorySummaryCards, { InventorySummaryCard } from './partials/InventorySummaryCards';
-import { Button, ZonseThemeContext, DateRangeFilter } from '../../components';
+import { ZonseThemeContext } from '../../components';
+import MobileDateFilter from '../../components/reports/MobileDateFilter';
 import { SearchBar } from '../../components/SearchBar';
 import { getInventoryTableColumns } from './partials/InventoryTableColumns';
 import StockStatusFilter from './partials/StockStatusFilter';
@@ -180,13 +182,14 @@ const InventoryManagement: FunctionComponent = () => {
     }, [handleVoidItem, loadInventory]);
 
     const handleClearFilters = useCallback(async () => {
+        handleSearch('');
         setActiveFilter('all');
         setCategoryId(undefined);
         setStartDate('');
         setEndDate('');
         applyFilters({ filter: 'all', search: '', categoryId: undefined, startDate: '', endDate: '' });
         fetchOverview({});
-    }, [setActiveFilter, setCategoryId, setStartDate, setEndDate, applyFilters, fetchOverview]);
+    }, [handleSearch, setActiveFilter, setCategoryId, setStartDate, setEndDate, applyFilters, fetchOverview]);
 
     const exportData = useCallback(() => {
         const headers = ['Name', 'Barcode', 'Category', 'Total Quantity', 'Reserved', 'Unit', 'Cost Price', 'Sell Price', 'Reorder Point', 'Variants', 'Status'];
@@ -258,8 +261,7 @@ const InventoryManagement: FunctionComponent = () => {
         fetchOverview(statsQuery);
     }, [loadInventory, fetchOverview, statsQuery]);
 
-    const handleDateChange = useCallback((dates: [Date | null, Date | null]) => {
-        const [start, end] = dates;
+    const handleDateChange = useCallback((start: Date | null, end: Date | null) => {
         setStartDate(start ? start.toISOString().split('T')[0] : '');
         setEndDate(end ? end.toISOString().split('T')[0] : '');
     }, [setStartDate, setEndDate]);
@@ -274,148 +276,150 @@ const InventoryManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="max-w-full">
-                <PageHeader
-                    icon={<Package className="w-8 h-8 text-sky-500" />}
-                    title="Inventory"
-                    description="Manage your inventory items, track stock levels, and monitor expiration dates."
-                    action={
-                        <Button
-                            icon={Plus}
-                            layout="primary"
-                            onClick={handleAddItem}
-                            theme="primary">
-                            Add Item
-                        </Button>
-                    }
+            <PageHeader
+                icon={<Package className="w-8 h-8 text-sky-500" />}
+                title="Inventory"
+                description="Manage your inventory items, track stock levels, and monitor expiration dates."
+                action={
+                    <Button
+                        size="2"
+                        onClick={handleAddItem}
+                    >
+                        <Plus className="w-4 h-4" />
+                        Add Item
+                    </Button>
+                }
+            />
+
+            <Box className="rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <Flex
+                    direction={{ initial: 'column', sm: 'row' }}
+                    align={{ initial: 'start', sm: 'center' }}
+                    justify="between"
+                    gap={{ initial: '2', sm: '3' }}
+                    px="4"
+                    py="3"
+                    className="border-b border-gray-200 dark:border-gray-700"
                 >
-                    <div className="sticky top-16 z-40 p-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600 shadow-sm">
-                        <div className="flex flex-col gap-4">
-                            <div className="flex justify-between items-center gap-3">
-                                <SearchBar
-                                    placeholder="Search by name, barcode, SKU..."
-                                    value={searchTerm}
-                                    onChange={handleSearch}
-                                    className="flex-1 max-w-xs"
-                                />
-
-                                <div className="flex items-center gap-2">
-                                    <DateRangeFilter
-                                        startDate={startDate ? new Date(startDate) : null}
-                                        endDate={endDate ? new Date(endDate) : null}
-                                        onChange={handleDateChange}
-                                    />
-
-                                    <button
-                                        onClick={exportData}
-                                        className="flex items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors duration-200 text-sm font-medium text-gray-700 dark:text-gray-200"
-                                    >
-                                        <Download className="w-4 h-4" />
-                                        Export
-                                    </button>
-
-                                    {hasActiveFilters && (
-                                        <button
-                                            onClick={handleClearFilters}
-                                            className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-500 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
-                                        >
-                                            <X className="w-4 h-4" />
-                                            Clear
-                                        </button>
-                                    )}
-
-                                    {selectedRows.length > 0 && (
-                                        <button
-                                            onClick={() => setIsBulkActionsOpen(true)}
-                                            className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 border border-purple-200 dark:border-purple-700 rounded-lg transition-colors duration-200"
-                                        >
-                                            <Settings2 className="w-4 h-4" />
-                                            Bulk ({selectedRows.length})
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col gap-3">
-                                <StockStatusFilter
-                                    selectedStatus={activeFilter}
-                                    onChange={(status) => {
-                                        setActiveFilter(status);
-                                        applyFilters({ filter: status });
-                                    }}
-                                />
-
-                                <CategoryFilter
-                                    selectedCategory={categoryId || 'all'}
-                                    onChange={handleFilterByCategory}
-                                    categories={categories}
-                                    isLoading={false}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </PageHeader>
-
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-
-                    <InventorySummaryCards
-                        cards={inventorySummaryCards}
-                        isLoading={statsLoading && !overview}
+                    <SearchBar
+                        placeholder="Search by name, barcode, SKU..."
+                        value={searchTerm}
+                        onChange={handleSearch}
+                        className="w-full sm:flex-1 sm:max-w-xs"
                     />
 
-                    <div className="overflow-x-auto">
-                        <DataTable
-                            columns={columns}
-                            data={data}
-                            theme={mode as Themes}
-                            progressPending={isLoading}
-                            progressComponent={<TableSkeleton rows={perPage} columns={6} showCheckbox showActions />}
-                            highlightOnHover
-                            responsive
-                            pagination
-                            paginationServer
-                            paginationTotalRows={totalRows}
-                            paginationPerPage={perPage}
-                            paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
-                            onChangeRowsPerPage={handlePerRowsChange}
-                            onChangePage={handlePageChange}
-                            selectableRows
-                            selectableRowsHighlight
-                            onSelectedRowsChange={handleRowSelected}
-                            clearSelectedRows={toggleCleared}
-                            expandableRows
-                            expandableRowsComponent={ExpandedVariantRow as React.ComponentType<ExpanderComponentProps<ApiProduct>>}
-                            expandableRowsHideExpander
-                            expandOnRowClicked
-                            expandableRowDisabled={(row) => (row.variantCount ?? 1) <= 1}
-                            customStyles={getTableStyles(mode)}
-                            persistTableHead
-                            fixedHeader
-                            noDataComponent={
-                                <TableEmptyState
-                                    icon={<Package />}
-                                    title="No inventory found"
-                                    description={
-                                        hasActiveFilters
-                                            ? 'Try adjusting your search, date, status, or category filters to find items.'
-                                            : 'Inventory items will appear here once they are added.'
-                                    }
-                                    action={
-                                        hasActiveFilters ? (
-                                            <button
-                                                onClick={handleClearFilters}
-                                                className="text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-sm"
-                                            >
-                                                Clear filters
-                                            </button>
-                                        ) : undefined
-                                    }
-                                />
+                    <Flex align="center" gap="2" wrap="wrap">
+                        <MobileDateFilter
+                            startDate={startDate ? new Date(startDate) : null}
+                            endDate={endDate ? new Date(endDate) : null}
+                            onChange={handleDateChange}
+                            align="right"
+                        />
+
+                        <Button variant="outline" color="gray" size="2" onClick={exportData}>
+                            <Download className="w-4 h-4" />
+                            <span className="hidden sm:inline">Export</span>
+                        </Button>
+
+                        {hasActiveFilters && (
+                            <Button variant="soft" color="red" size="2" onClick={handleClearFilters}>
+                                <X className="w-4 h-4" />
+                                <span className="hidden sm:inline">Clear</span>
+                            </Button>
+                        )}
+
+                        {selectedRows.length > 0 && (
+                            <Button
+                                variant="soft"
+                                color="purple"
+                                size="2"
+                                onClick={() => setIsBulkActionsOpen(true)}
+                            >
+                                <Settings2 className="w-4 h-4" />
+                                Bulk
+                                <Badge color="purple" variant="solid" size="1">
+                                    {selectedRows.length}
+                                </Badge>
+                            </Button>
+                        )}
+                    </Flex>
+                </Flex>
+
+                <Flex direction="column" gap="2" px="4" py="3" className="border-b border-gray-200 dark:border-gray-700">
+                    <StockStatusFilter
+                        selectedStatus={activeFilter}
+                        onChange={(status) => {
+                            setActiveFilter(status);
+                            applyFilters({ filter: status });
+                        }}
+                    />
+                    <CategoryFilter
+                        selectedCategory={categoryId || 'all'}
+                        onChange={handleFilterByCategory}
+                        categories={categories}
+                        isLoading={false}
+                    />
+                </Flex>
+
+                <Box px="4">
+                    <InventorySummaryCards
+                        cards={inventorySummaryCards}
+                        isLoading={statsLoading}
+                    />
+                </Box>
+
+                <DataTable
+                    columns={columns}
+                    data={data}
+                    theme={mode as Themes}
+                    progressPending={isLoading}
+                    progressComponent={<TableSkeleton rows={perPage} columns={6} showCheckbox showActions />}
+                    highlightOnHover
+                    responsive
+                    pagination
+                    paginationServer
+                    paginationTotalRows={totalRows}
+                    paginationPerPage={perPage}
+                    paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
+                    onChangeRowsPerPage={handlePerRowsChange}
+                    onChangePage={handlePageChange}
+                    selectableRows
+                    selectableRowsHighlight
+                    onSelectedRowsChange={handleRowSelected}
+                    clearSelectedRows={toggleCleared}
+                    expandableRows
+                    expandableRowsComponent={ExpandedVariantRow as React.ComponentType<ExpanderComponentProps<ApiProduct>>}
+                    expandableRowsHideExpander
+                    expandOnRowClicked
+                    expandableRowDisabled={(row) => (row.variantCount ?? 1) <= 1}
+                    customStyles={getTableStyles(mode)}
+                    persistTableHead
+                    fixedHeader
+                    noDataComponent={
+                        <TableEmptyState
+                            icon={<Package />}
+                            title="No inventory found"
+                            description={
+                                hasActiveFilters
+                                    ? 'Try adjusting your search, date, status, or category filters to find items.'
+                                    : 'Inventory items will appear here once they are added.'
+                            }
+                            action={
+                                hasActiveFilters ? (
+                                    <Button
+                                        variant="ghost"
+                                        color="sky"
+                                        size="2"
+                                        onClick={handleClearFilters}
+                                    >
+                                        Clear filters
+                                    </Button>
+                                ) : undefined
                             }
                         />
-                    </div>
-                </div>
-            </div>
+                    }
+                />
+            </Box>
 
             <BulkActionsModal
                 isOpen={isBulkActionsOpen}

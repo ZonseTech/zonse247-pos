@@ -1,11 +1,11 @@
-import { Fragment } from 'react'
+import { Box } from '@radix-ui/themes'
 import type { FC, PropsWithChildren } from 'react'
 
 const AppLayout: FC<PropsWithChildren> = ({ children }) => {
     return (
-        <Fragment>
+        <Box minHeight="100%" px="4" pt="4" pb="4" overflowX="hidden">
             {children}
-        </Fragment>
+        </Box>
     )
 }
 

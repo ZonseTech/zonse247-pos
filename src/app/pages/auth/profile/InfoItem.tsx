@@ -1,5 +1,6 @@
 import { FunctionComponent } from 'react';
 import { LucideIcon } from 'lucide-react';
+import { Flex, Box, Text } from '@radix-ui/themes';
 
 type Props = {
     icon: LucideIcon;
@@ -9,17 +10,20 @@ type Props = {
 
 const InfoItem: FunctionComponent<Props> = ({ icon: Icon, label, value }) => {
     return (
-        <div className="flex items-center gap-3 py-3">
-            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-sky-50 dark:bg-sky-900/20 flex items-center justify-center">
+        <Flex align="center" gap="3" py="3">
+            <Flex
+                flexShrink="0"
+                align="center"
+                justify="center"
+                className="w-10 h-10 rounded-lg bg-sky-50 dark:bg-sky-900/20"
+            >
                 <Icon className="w-5 h-5 text-sky-500 dark:text-sky-400" />
-            </div>
-            <div className="min-w-0 flex-1">
-                <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {value}
-                </p>
-            </div>
-        </div>
+            </Flex>
+            <Box minWidth="0" flexGrow="1">
+                <Text as="p" size="1" color="gray">{label}</Text>
+                <Text as="p" size="2" weight="medium" truncate>{value}</Text>
+            </Box>
+        </Flex>
     );
 };
 

@@ -1,5 +1,7 @@
-import { FunctionComponent, useState, useEffect, useRef } from 'react';
+import { FunctionComponent, useState, useEffect } from 'react';
 import { Search, Shield, X, Check } from 'lucide-react';
+import { Flex, Box, Text, Badge, Spinner, IconButton, ScrollArea, TextField } from '@radix-ui/themes';
+import * as Popover from '@radix-ui/react-popover';
 import roleService from '../../../services/role.service';
 import { Notify } from 'notiflix';
 import { ROLE_IDS } from '../../../constants/roles';
@@ -24,7 +26,6 @@ interface RoleSearchProps {
     touched?: boolean;
 }
 
-// Admin roles that should be excluded from selection
 const ADMIN_ROLE_IDS = [
     ROLE_IDS.SUPER_ADMIN,
     ROLE_IDS.ADMIN,
@@ -46,18 +47,6 @@ export const RoleSearch: FunctionComponent<RoleSearchProps> = ({
     const [filteredRoles, setFilteredRoles] = useState<Role[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-    const dropdownRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
 
     useEffect(() => {
         if (tenantId) {
@@ -135,7 +124,7 @@ export const RoleSearch: FunctionComponent<RoleSearchProps> = ({
         setSearchTerm('');
     };
 
-    const handleInputClick = () => {
+    const handleTriggerClick = () => {
         if (!tenantId || disabled) {
             if (!tenantId) {
                 Notify.warning('Please select a tenant first');
@@ -146,116 +135,141 @@ export const RoleSearch: FunctionComponent<RoleSearchProps> = ({
     };
 
     return (
-        <div className="relative" ref={dropdownRef}>
-            <div className="relative">
-                {selectedRole ? (
-                    <div className="flex items-center justify-between p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
-                        <div className="flex items-center space-x-3 flex-1">
-                            <Shield className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                            <div className="flex-1">
-                                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                    {selectedRole.displayName}
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                    {selectedRole.name}
-                                    {selectedRole.isSystemRole && ' • System Role'}
-                                </p>
-                            </div>
-                        </div>
-                        {!disabled && (
-                            <button
-                                type="button"
-                                onClick={handleClearSelection}
-                                className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
+        <Box>
+            <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
+                <Popover.Trigger asChild>
+                    <div>
+                        {selectedRole ? (
+                            <Flex
+                                align="center"
+                                justify="between"
+                                p="3"
+                                className="border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700"
                             >
-                                <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                            </button>
+                                <Flex align="center" gap="3" flexGrow="1">
+                                    <Shield className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                                    <Box>
+                                        <Text as="p" size="2" weight="medium">
+                                            {selectedRole.displayName}
+                                        </Text>
+                                        <Text as="p" size="1" color="gray">
+                                            {selectedRole.name}
+                                            {selectedRole.isSystemRole && ' • System Role'}
+                                        </Text>
+                                    </Box>
+                                </Flex>
+                                {!disabled && (
+                                    <IconButton
+                                        size="1"
+                                        variant="ghost"
+                                        color="gray"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleClearSelection();
+                                        }}
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </IconButton>
+                                )}
+                            </Flex>
+                        ) : (
+                            <Box className="relative" onClick={handleTriggerClick}>
+                                <TextField.Root
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder={tenantId ? "Search for a role..." : "Select tenant first..."}
+                                    disabled={!tenantId || disabled}
+                                    color={error && touched ? 'red' : undefined}
+                                    size="2"
+                                >
+                                    <TextField.Slot>
+                                        <Search className="w-4 h-4 text-gray-400" />
+                                    </TextField.Slot>
+                                </TextField.Root>
+                            </Box>
                         )}
                     </div>
-                ) : (
-                    <div className="relative">
-                        <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            onClick={handleInputClick}
-                            placeholder={tenantId ? "Search for a role..." : "Select tenant first..."}
-                            disabled={!tenantId || disabled}
-                            className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent dark:bg-gray-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed ${error && touched
-                                ? 'border-red-500 dark:border-red-500'
-                                : 'border-gray-300 dark:border-gray-600'
-                                }`}
-                        />
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    </div>
-                )}
-            </div>
+                </Popover.Trigger>
+
+                <Popover.Portal>
+                    <Popover.Content
+                        className="z-50 w-[var(--radix-popover-trigger-width)] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg"
+                        sideOffset={4}
+                        align="start"
+                    >
+                        <ScrollArea style={{ maxHeight: 240 }}>
+                            {isLoading ? (
+                                <Flex align="center" justify="center" p="4">
+                                    <Spinner size="2" />
+                                </Flex>
+                            ) : filteredRoles.length > 0 ? (
+                                <Flex direction="column">
+                                    {filteredRoles.map((role) => (
+                                        <button
+                                            key={role.roleId}
+                                            type="button"
+                                            onClick={() => handleSelectRole(role)}
+                                            disabled={role.isActive === false}
+                                            className={`w-full text-left px-4 py-3 transition-colors ${role.isActive === false
+                                                ? 'opacity-50 cursor-not-allowed'
+                                                : 'hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
+                                                }`}
+                                        >
+                                            <Flex align="center" gap="3">
+                                                <Shield className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                                                <Box flexGrow="1" minWidth="0">
+                                                    <Flex align="center" gap="2">
+                                                        <Text size="2" weight="medium">
+                                                            {role.displayName}
+                                                        </Text>
+                                                        {role.isSystemRole && (
+                                                            <Badge size="1" variant="soft" color="purple">
+                                                                System
+                                                            </Badge>
+                                                        )}
+                                                        {role.isActive === false && (
+                                                            <Badge size="1" variant="soft" color="red">
+                                                                Inactive
+                                                            </Badge>
+                                                        )}
+                                                    </Flex>
+                                                    <Text as="p" size="1" color="gray">
+                                                        {role.name}
+                                                    </Text>
+                                                    {role.description && (
+                                                        <Text as="p" size="1" color="gray" className="opacity-70">
+                                                            {role.description}
+                                                        </Text>
+                                                    )}
+                                                </Box>
+                                                {selectedRole?.roleId === role.roleId && (
+                                                    <Check className="w-4 h-4 text-sky-500 flex-shrink-0" />
+                                                )}
+                                            </Flex>
+                                        </button>
+                                    ))}
+                                </Flex>
+                            ) : searchTerm ? (
+                                <Flex align="center" justify="center" p="4">
+                                    <Text size="2" color="gray">
+                                        No roles found matching "{searchTerm}"
+                                    </Text>
+                                </Flex>
+                            ) : (
+                                <Flex align="center" justify="center" p="4">
+                                    <Text size="2" color="gray">
+                                        {tenantId ? 'No roles available' : 'Please select a tenant first'}
+                                    </Text>
+                                </Flex>
+                            )}
+                        </ScrollArea>
+                    </Popover.Content>
+                </Popover.Portal>
+            </Popover.Root>
 
             {error && touched && (
-                <p className="mt-1 text-sm text-red-500 dark:text-red-400">{error}</p>
+                <Text as="p" size="1" color="red" mt="1">{error}</Text>
             )}
-
-            {isOpen && !selectedRole && (
-                <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                    {isLoading ? (
-                        <div className="p-4 text-center text-gray-500 dark:text-gray-400">
-                            <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-sky-500"></div>
-                        </div>
-                    ) : filteredRoles.length > 0 ? (
-                        <ul>
-                            {filteredRoles.map((role) => (
-                                <li key={role.roleId}>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleSelectRole(role)}
-                                        disabled={role.isActive === false}
-                                        className={`w-full text-left px-4 py-3 flex items-center space-x-3 transition-colors ${role.isActive === false
-                                            ? 'opacity-50 cursor-not-allowed'
-                                            : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                                            }`}
-                                    >
-                                        <Shield className="w-5 h-5 text-gray-400" />
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                                    {role.displayName}
-                                                </p>
-                                                {role.isSystemRole && (
-                                                    <span className="px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
-                                                        System
-                                                    </span>
-                                                )}
-                                                {role.isActive === false && (
-                                                    <span className="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                                                        Inactive
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                {role.name}
-                                            </p>
-                                            {role.description && (
-                                                <p className="text-xs text-gray-400 dark:text-gray-500">
-                                                    {role.description}
-                                                </p>
-                                            )}
-                                        </div>
-                                        <Check className="w-4 h-4 text-transparent" />
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : searchTerm ? (
-                        <div className="p-4 text-center text-gray-500 dark:text-gray-400">
-                            No roles found matching "{searchTerm}"
-                        </div>
-                    ) : (
-                        <div className="p-4 text-center text-gray-500 dark:text-gray-400">
-                            {tenantId ? 'No roles available' : 'Please select a tenant first'}
-                        </div>
-                    )}
-                </div>
-            )}
-        </div>
+        </Box>
     );
 };

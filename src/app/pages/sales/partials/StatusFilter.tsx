@@ -1,6 +1,7 @@
 import { FC } from "react";
-import { HiOutlineCheckCircle, HiOutlineClock, HiOutlineXCircle, HiOutlineBan, HiOutlineReceiptRefund } from "react-icons/hi";
-import { useIsMobile } from '../../../hooks/useMediaQuery';
+import { CheckCircle, Clock, XCircle, Ban, RotateCcw } from "lucide-react";
+import { useIsMobile, useIsEBN } from '../../../hooks/useMediaQuery';
+import { Flex, Text, Button, Select } from '@radix-ui/themes';
 
 interface StatusFilterProps {
     selectedStatus: SaleStatus | TransactionStatus | 'all';
@@ -8,107 +9,75 @@ interface StatusFilterProps {
     compact?: boolean;
 }
 
-/**
- * Status options supporting both new SaleStatus and legacy TransactionStatus
- */
-const statusOptions: Array<{ value: SaleStatus | TransactionStatus | 'all'; label: string; icon: any; color: string }> = [
-    { value: 'all', label: 'All', icon: HiOutlineCheckCircle, color: 'gray' },
-    { value: 'COMPLETED', label: 'Completed', icon: HiOutlineCheckCircle, color: 'green' },
-    { value: 'PENDING', label: 'Pending', icon: HiOutlineClock, color: 'yellow' },
-    { value: 'VOIDED', label: 'Voided', icon: HiOutlineXCircle, color: 'red' },
-    { value: 'RETURNED', label: 'Returned', icon: HiOutlineReceiptRefund, color: 'blue' },
+type RadixColor = 'cyan' | 'green' | 'yellow' | 'red' | 'sky';
+
+const statusOptions: Array<{ value: SaleStatus | TransactionStatus | 'all'; label: string; icon: any; color: RadixColor }> = [
+    { value: 'all', label: 'All', icon: CheckCircle, color: 'cyan' },
+    { value: 'COMPLETED', label: 'Completed', icon: CheckCircle, color: 'green' },
+    { value: 'PENDING', label: 'Pending', icon: Clock, color: 'yellow' },
+    { value: 'VOIDED', label: 'Voided', icon: XCircle, color: 'red' },
+    { value: 'RETURNED', label: 'Returned', icon: RotateCcw, color: 'sky' },
 ];
 
-export const StatusFilter: FC<StatusFilterProps> = ({ selectedStatus, onChange, compact = false }) => {
+export const StatusFilter: FC<StatusFilterProps> = ({ selectedStatus, onChange }) => {
     const isMobile = useIsMobile();
+    const isEBN = useIsEBN();
 
-    const getColorClasses = (status: string, isSelected: boolean) => {
-        const baseClasses = "transition-all duration-200";
-
-        if (isSelected) {
-            const colors = {
-                gray: "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600",
-                green: "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700",
-                yellow: "bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700",
-                red: "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700",
-                blue: "bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 border-sky-300 dark:border-sky-700",
-            };
-            return `${baseClasses} ${colors[status as keyof typeof colors]}`;
-        }
-
-        return `${baseClasses} bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50`;
-    };
-
-    // Mobile: render as dropdown
     if (isMobile) {
-        const selectedOption = statusOptions.find(opt => opt.value === selectedStatus);
-        const SelectedIcon = selectedOption?.icon || HiOutlineCheckCircle;
-
         return (
-            <div className="flex items-center gap-2 w-full">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Status:</span>
-                <div className="relative flex-1">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                        <SelectedIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                    </div>
-                    <select
-                        value={selectedStatus}
-                        onChange={(e) => onChange(e.target.value as SaleStatus | TransactionStatus | 'all')}
-                        className="w-full h-10 pl-10 pr-8 
-                            appearance-none cursor-pointer
-                            rounded-lg text-sm font-medium
-                            bg-white dark:bg-gray-800 
-                            text-gray-700 dark:text-gray-200
-                            border border-gray-300 dark:border-gray-600
-                            focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400
-                            focus:border-sky-500 dark:focus:border-sky-400
-                            transition-colors"
-                    >
-                        {statusOptions.map((option) => (
-                            <option
-                                key={option.value}
-                                value={option.value}
-                                className="bg-white dark:bg-gray-800"
-                            >
-                                {option.label}
-                            </option>
-                        ))}
-                    </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                        <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
+            <Flex align="center" gap="2" width="100%">
+                <Text size="2" weight="medium" className="text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                    Status:
+                </Text>
+                <Select.Root value={selectedStatus} onValueChange={(v) => onChange(v as SaleStatus | TransactionStatus | 'all')}>
+                    <Select.Trigger
+                        variant="surface"
+                        placeholder="Select status"
+                        className="flex-1"
+                    />
+                    <Select.Content position="popper">
+                        {statusOptions.map((option) => {
+                            const Icon = option.icon;
+                            return (
+                                <Select.Item key={option.value} value={option.value}>
+                                    <Flex align="center" gap="2">
+                                        <Icon className="w-4 h-4" />
+                                        {option.label}
+                                    </Flex>
+                                </Select.Item>
+                            );
+                        })}
+                    </Select.Content>
+                </Select.Root>
+            </Flex>
         );
     }
 
-    // Desktop: render as button group
     return (
-        <div className={compact ? "flex flex-wrap items-center gap-1" : "flex flex-wrap items-center gap-2"}>
-            <span className={compact
-                ? "text-[10px] font-medium text-gray-700 dark:text-gray-300 mr-0.5"
-                : "text-sm font-medium text-gray-700 dark:text-gray-300 mr-1"
-            }>Status:</span>
-            {statusOptions.map((option) => {
-                const Icon = option.icon;
-                const isSelected = selectedStatus === option.value;
+        <Flex align="center" gap="2" wrap="wrap">
+            <Text size={isEBN ? '1' : '2'} weight="medium" className="text-gray-700 dark:text-gray-300 mr-1">
+                Status:
+            </Text>
+            <Flex align="center" gap="1" className={`overflow-x-auto ${isEBN ? 'scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600' : ''}`}>
+                {statusOptions.map((option) => {
+                    const Icon = option.icon;
+                    const isSelected = selectedStatus === option.value;
 
-                return (
-                    <button
-                        key={option.value}
-                        onClick={() => onChange(option.value)}
-                        className={compact
-                            ? `flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium rounded border ${getColorClasses(option.color, isSelected)}`
-                            : `flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border ${getColorClasses(option.color, isSelected)}`
-                        }
-                    >
-                        <Icon className={compact ? "w-3 h-3" : "w-4 h-4"} />
-                        <span>{compact ? option.label.substring(0, 4) : option.label}</span>
-                    </button>
-                );
-            })}
-        </div>
+                    return (
+                        <Button
+                            key={option.value}
+                            size={isEBN ? '1' : '2'}
+                            variant={isSelected ? 'soft' : 'outline'}
+                            color={isSelected ? option.color : 'gray'}
+                            onClick={() => onChange(option.value)}
+                            className="whitespace-nowrap"
+                        >
+                            <Icon className={isEBN ? 'w-3 h-3' : 'w-4 h-4'} />
+                            {option.label}
+                        </Button>
+                    );
+                })}
+            </Flex>
+        </Flex>
     );
 };

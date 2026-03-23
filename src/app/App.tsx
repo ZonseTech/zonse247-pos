@@ -2,6 +2,7 @@ import Modal from 'react-modal'
 import { store } from './store'
 import AppRoutes from './routes'
 import { Suspense } from 'react'
+import { Theme, Flex, Spinner, Text, Box } from '@radix-ui/themes'
 import { Provider } from 'react-redux'
 import { HashRouter } from "react-router"
 import { useEffect, useState } from 'react';
@@ -54,48 +55,54 @@ const App: FunctionComponent = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-screen">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading...</p>
-                </div>
-            </div>
+            <Flex align="center" justify="center" height="100vh">
+                <Flex direction="column" align="center" gap="4">
+                    <Spinner size="3" />
+                    <Text size="2" color="gray">Loading...</Text>
+                </Flex>
+            </Flex>
         );
     }
 
     return (
         <ZonseUIKitContext usePreferences>
-            <Provider store={store}>
-                <AuthProvider>
-                    <BranchProvider>
-                        <LayoutProvider>
-                            <AppProvider>
-                                <DataManager />
-                                {CLIENT_TYPE === 'mobile' && (
-                                    <div
-                                        className="fixed top-0 left-0 right-0 bg-sky-500 z-[9999]"
-                                        style={{ height: 'max(var(--safe-area-inset-top), var(--status-bar-height))' }}
-                                    />
-                                )}
-                                <div className="app-container bg-gray-100 dark:bg-gray-900">
-                                    <HashRouter>
-                                        <NavigationProgress />
-                                        <Suspense fallback={<EnhancedPageLoader />}>
-                                            {showOnboarding ? (
-                                                <OnboardingFlow
-                                                    onComplete={handleOnboardingComplete}
-                                                    error={saveError}
-                                                />
-                                            ) : <AppRoutes appSettings={setup} />}
-                                        </Suspense>
-                                    </HashRouter>
-                                    <ToastContainer />
-                                </div>
-                            </AppProvider>
-                        </LayoutProvider>
-                    </BranchProvider>
-                </AuthProvider>
-            </Provider>
+            <Theme appearance="inherit" accentColor="cyan" radius="medium" scaling="100%">
+                <Provider store={store}>
+                    <AuthProvider>
+                        <BranchProvider>
+                            <LayoutProvider>
+                                <AppProvider>
+                                    <DataManager />
+                                    {CLIENT_TYPE === 'mobile' && (
+                                        <Box
+                                            position="fixed"
+                                            top="0"
+                                            left="0"
+                                            right="0"
+                                            className="bg-sky-500 z-[9999]"
+                                            style={{ height: 'max(var(--safe-area-inset-top), var(--status-bar-height))' }}
+                                        />
+                                    )}
+                                    <Box className="app-container">
+                                        <HashRouter>
+                                            <NavigationProgress />
+                                            <Suspense fallback={<EnhancedPageLoader />}>
+                                                {showOnboarding ? (
+                                                    <OnboardingFlow
+                                                        onComplete={handleOnboardingComplete}
+                                                        error={saveError}
+                                                    />
+                                                ) : <AppRoutes appSettings={setup} />}
+                                            </Suspense>
+                                        </HashRouter>
+                                        <ToastContainer />
+                                    </Box>
+                                </AppProvider>
+                            </LayoutProvider>
+                        </BranchProvider>
+                    </AuthProvider>
+                </Provider>
+            </Theme>
         </ZonseUIKitContext>
     );
 }

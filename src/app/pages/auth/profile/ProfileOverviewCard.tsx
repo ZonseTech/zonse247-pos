@@ -1,6 +1,7 @@
 import { FunctionComponent } from 'react';
-import Card from '../../../components/card/Card';
 import { BadgeCheckIcon } from 'lucide-react';
+import { Card, Flex, Box, Text, Heading, Badge } from '@radix-ui/themes';
+import * as Avatar from '@radix-ui/react-avatar';
 
 const formatRoleName = (role: string | null | undefined): string => {
     if (!role) return 'User';
@@ -16,57 +17,55 @@ type Props = {
 
 const ProfileOverviewCard: FunctionComponent<Props> = ({ user }) => {
     return (
-        <Card className="p-6">
-            <div className="flex flex-col md:flex-row md:items-center gap-6">
-                {/* Avatar Section */}
-                <div className="flex-shrink-0">
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-sky-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-                        {user?.fullname?.charAt(0)?.toUpperCase() || 'U'}
-                    </div>
-                </div>
+        <Card size="3">
+            <Flex direction={{ initial: 'column', md: 'row' }} align={{ md: 'center' }} gap="6">
+                <Box flexShrink="0">
+                    <Avatar.Root className="w-24 h-24 rounded-full overflow-hidden inline-flex items-center justify-center bg-gradient-to-br from-sky-500 to-purple-600 shadow-lg">
+                        <Avatar.Fallback className="w-full h-full flex items-center justify-center text-white text-3xl font-bold">
+                            {user?.fullname?.charAt(0)?.toUpperCase() || 'U'}
+                        </Avatar.Fallback>
+                    </Avatar.Root>
+                </Box>
 
-                {/* User Info */}
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 flex-wrap">
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <Box flexGrow="1" minWidth="0">
+                    <Flex align="center" gap="3" wrap="wrap">
+                        <Heading as="h2" size="6" weight="bold">
                             {user?.fullname || 'User'}
-                        </h2>
-                        <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${user?.status === 'active'
-                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                                }`}
+                        </Heading>
+                        <Badge
+                            color={user?.status === 'active' ? 'green' : 'red'}
+                            variant="soft"
+                            size="1"
                         >
                             {user?.status?.charAt(0).toUpperCase() + (user?.status?.slice(1) || '')}
-                        </span>
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-400 mt-1">@{user?.username}</p>
-                    <div className="flex items-center gap-2 mt-2">
+                        </Badge>
+                    </Flex>
+                    <Text as="p" size="2" color="gray" mt="1">@{user?.username}</Text>
+                    <Flex align="center" gap="2" mt="2">
                         <BadgeCheckIcon className="w-4 h-4 text-sky-500 dark:text-sky-400" />
-                        <span className="text-sm font-medium text-sky-500 dark:text-sky-400">
+                        <Text size="2" weight="medium" color="sky">
                             {formatRoleName(user?.roleName)}
-                        </span>
-                    </div>
-                </div>
+                        </Text>
+                    </Flex>
+                </Box>
 
-                {/* Quick Stats */}
-                <div className="grid grid-cols-2 gap-4 md:gap-6">
-                    <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                <Flex gap={{ initial: '4', md: '6' }} className="grid grid-cols-2">
+                    <Box className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+                        <Text as="p" size="6" weight="bold">
                             {user?.permissions?.length || 0}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Permissions</p>
-                    </div>
-                    <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                        </Text>
+                        <Text as="p" size="1" color="gray">Permissions</Text>
+                    </Box>
+                    <Box className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+                        <Text as="p" size="6" weight="bold">
                             {user?.accessibleBranches?.includes('*')
                                 ? 'All'
                                 : user?.accessibleBranches?.length || 0}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Branches</p>
-                    </div>
-                </div>
-            </div>
+                        </Text>
+                        <Text as="p" size="1" color="gray">Branches</Text>
+                    </Box>
+                </Flex>
+            </Flex>
         </Card>
     );
 };

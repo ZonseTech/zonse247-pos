@@ -85,7 +85,8 @@ interface StockMovement {
     inventory?: {
         variant: {
             id: string;
-            sku: string;
+            variantName: string;
+            sku: string | null;
         } | null;
         product: {
             id: string;
