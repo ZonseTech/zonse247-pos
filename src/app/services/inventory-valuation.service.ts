@@ -135,11 +135,31 @@ const inventoryValuationService = {
         branchId?: string
     ): Promise<PeriodCOGSFromSalesResult> {
         return api
-            .get<ApiResponse<PeriodCOGSFromSalesResult>>(
+            .get<ApiResponse<any>>(
                 endpoints.cogsPeriodFromSales,
                 { startDate, endDate, ...(branchId && { branchId }) }
             )
-            .then((res) => res.data.data)
+            .then((res) => {
+                const raw = res.data.data;
+                return {
+                    items: raw.items ?? raw.byProduct ?? [],
+                    pagination: raw.pagination ?? {
+                        currentPage: 1,
+                        totalPages: 1,
+                        totalItems: (raw.items ?? raw.byProduct ?? []).length,
+                        itemsPerPage: (raw.items ?? raw.byProduct ?? []).length,
+                    },
+                    summary: raw.summary ?? {
+                        tenantId: raw.tenantId,
+                        branchId: raw.branchId,
+                        startDate: raw.startDate,
+                        endDate: raw.endDate,
+                        totalCOGS: raw.totalCOGS ?? 0,
+                        saleCount: raw.saleCount ?? 0,
+                        totalUnitsSold: raw.totalUnitsSold ?? 0,
+                    },
+                };
+            })
             .catch((err) => {
                 throw err;
             });
@@ -174,14 +194,17 @@ const inventoryValuationService = {
      * Groups items into buckets (0-30, 31-60, …, 365+, never)
      */
     async getInventoryAging(
-        thresholdDays?: number,
-        branchId?: string
+        query: InventoryAgingQuery = {}
     ): Promise<InventoryAgingResult> {
+        const params: Record<string, any> = {};
+        Object.keys(query).forEach((key) => {
+            const value = (query as any)[key];
+            if (value !== undefined && value !== null && value !== '') {
+                params[key] = value;
+            }
+        });
         return api
-            .get<InventoryAgingResponse>(endpoints.aging, {
-                ...(thresholdDays !== undefined && { thresholdDays }),
-                ...(branchId && { branchId }),
-            })
+            .get<InventoryAgingResponse>(endpoints.aging, params)
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
