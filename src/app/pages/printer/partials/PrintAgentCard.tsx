@@ -1,4 +1,5 @@
 import { Activity, Play, Square, Settings, AlertCircle } from 'lucide-react';
+import { Badge, Callout, Card, Flex, Text } from '@radix-ui/themes';
 import { Button } from '../../../components';
 
 interface PrintAgentCardProps {
@@ -24,6 +25,13 @@ const getAgentStatusColor = (status?: string) => {
     return colors[status || ''] || colors.STOPPED;
 };
 
+const getAgentBadgeColor = (status?: string): 'green' | 'gray' | 'red' | 'yellow' => {
+    const map: Record<string, 'green' | 'gray' | 'red' | 'yellow'> = {
+        RUNNING: 'green', STOPPED: 'gray', ERROR: 'red', STARTING: 'yellow', STOPPING: 'yellow',
+    };
+    return map[status || ''] || 'gray';
+};
+
 export const PrintAgentCard = ({
     agentStatus,
     permissions,
@@ -36,31 +44,32 @@ export const PrintAgentCard = ({
     onShowSetup
 }: PrintAgentCardProps) => {
     const agentColors = getAgentStatusColor(agentStatus?.status);
+    const badgeColor = getAgentBadgeColor(agentStatus?.status);
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-4 mx-4 md:mx-0">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    <div className={`p-3 rounded-lg ${agentColors.bg}`}>
+        <Card size="2" className="mb-4 mx-4 md:mx-0">
+            <Flex direction={{ initial: 'column', lg: 'row' }} align={{ lg: 'center' }} justify="between" gap="4">
+                <Flex align="center" gap="4">
+                    <Flex align="center" justify="center" className={`p-3 rounded-lg ${agentColors.bg}`}>
                         <Activity className={`w-6 h-6 ${agentColors.text}`} />
-                    </div>
-                    <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">Print Agent</h3>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${agentColors.bg} ${agentColors.text}`}>
+                    </Flex>
+                    <Flex direction="column" gap="1">
+                        <Text size="3" weight="bold">Print Agent</Text>
+                        <Flex align="center" gap="2" wrap="wrap">
+                            <Badge color={badgeColor} variant="soft" size="1">
                                 {agentStatus?.status || 'UNKNOWN'}
-                            </span>
+                            </Badge>
                             {agentStatus?.isRunning && (
                                 <>
-                                    <span className="text-xs text-gray-500 dark:text-gray-400">• {agentStatus.connectedPrinters} printer(s)</span>
-                                    <span className="text-xs text-gray-500 dark:text-gray-400">• {agentStatus.processedJobs} processed</span>
+                                    <Text size="1" color="gray">• {agentStatus.connectedPrinters} printer(s)</Text>
+                                    <Text size="1" color="gray">• {agentStatus.processedJobs} processed</Text>
                                 </>
                             )}
-                            {agentStatus?.lastError && <span className="text-xs text-red-500">• Error occurred</span>}
-                        </div>
-                    </div>
-                </div>
-                <div className="flex items-center gap-2">
+                            {agentStatus?.lastError && <Text size="1" color="red">• Error occurred</Text>}
+                        </Flex>
+                    </Flex>
+                </Flex>
+                <Flex align="center" gap="2">
                     {!agentStatus?.isRunning ? (
                         <Button onClick={onStart} icon={Play} theme="success" size="small" disabled={isStarting || agentLoading}>
                             {isStarting ? 'Starting...' : 'Start Agent'}
@@ -73,21 +82,21 @@ export const PrintAgentCard = ({
                     <Button onClick={onShowSetup} icon={Settings} layout="outline" theme="neutral" size="small">
                         {!isMobile && 'Setup'}
                     </Button>
-                </div>
-            </div>
+                </Flex>
+            </Flex>
 
             {permissions?.missingPermissions?.length > 0 && (
-                <div className="mt-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
-                    <div className="flex items-start gap-2">
-                        <AlertCircle className="w-5 h-5 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                        <div>
-                            <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Missing Permissions</p>
-                            <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">{permissions.missingPermissions.join(', ')}</p>
-                            {permissions.instructions && <p className="text-xs text-amber-500 dark:text-amber-400 mt-1">{permissions.instructions}</p>}
-                        </div>
-                    </div>
-                </div>
+                <Callout.Root color="amber" size="1" mt="4">
+                    <Callout.Icon>
+                        <AlertCircle className="w-5 h-5" />
+                    </Callout.Icon>
+                    <Callout.Text>
+                        <Text size="2" weight="medium">Missing Permissions</Text>
+                        <Text size="1" as="p" mt="1">{permissions.missingPermissions.join(', ')}</Text>
+                        {permissions.instructions && <Text size="1" as="p" color="gray" mt="1">{permissions.instructions}</Text>}
+                    </Callout.Text>
+                </Callout.Root>
             )}
-        </div>
+        </Card>
     );
 };
