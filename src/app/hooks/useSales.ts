@@ -3,6 +3,7 @@ import { Notify } from 'notiflix';
 import { getErrorMessage } from '../utils/api-error-handler';
 import dayjs from 'dayjs';
 import salesService from '../services/sales.service';
+import { useDebouncedSearch } from './useDebouncedSearch';
 
 /**
  * Hook for managing sales (migrated from transactions)
@@ -16,7 +17,7 @@ export const useSales = () => {
     const [perPage, setPerPage] = useState(10);
     const [totalRows, setTotalRows] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState("");
+    const { searchTerm, debouncedTerm, setSearchTerm, clearSearch } = useDebouncedSearch(300);
     const [startDate, setStartDate] = useState<Date | null>(today);
     const [endDate, setEndDate] = useState<Date | null>(today);
     const [selectedStatus, setSelectedStatus] = useState<SaleStatus | TransactionStatus | 'all'>('all');
@@ -33,8 +34,8 @@ export const useSales = () => {
                 perPage,
             };
 
-            if (searchTerm) {
-                queryParams.search = searchTerm;
+            if (debouncedTerm) {
+                queryParams.search = debouncedTerm;
             }
 
             if (startDate) {
@@ -66,7 +67,7 @@ export const useSales = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [searchTerm, startDate, endDate, selectedStatus, selectedPaymentMethod, page, perPage]);
+    }, [debouncedTerm, startDate, endDate, selectedStatus, selectedPaymentMethod, page, perPage]);
 
     const getPaginatedData = useCallback(() => {
         return sales;
@@ -75,7 +76,7 @@ export const useSales = () => {
     const handleSearch = useCallback((value: string) => {
         setSearchTerm(value);
         setPage(1);
-    }, []);
+    }, [setSearchTerm]);
 
     const handleDateChange = useCallback((dates: [Date | null, Date | null]) => {
         const [start, end] = dates;
@@ -86,13 +87,13 @@ export const useSales = () => {
 
     const clearFilters = useCallback(() => {
         const today = new Date();
-        setSearchTerm("");
+        clearSearch();
         setStartDate(today);
         setEndDate(today);
         setSelectedStatus('all');
         setSelectedPaymentMethod('all');
         setPage(1);
-    }, []);
+    }, [clearSearch]);
 
     const handleStatusChange = useCallback((status: SaleStatus | TransactionStatus | 'all') => {
         setSelectedStatus(status);
