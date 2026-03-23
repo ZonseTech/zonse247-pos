@@ -1,9 +1,10 @@
 import { FunctionComponent, useCallback, useEffect } from 'react';
-import { DollarSign, RefreshCw } from 'lucide-react';
-import { Button, Box, Flex, Text } from '@radix-ui/themes';
+import { DollarSign } from 'lucide-react';
+import { Box, Flex, Text } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
-import { DateRangeFilter } from '../../components';
+import MobileDateFilter from '../../components/reports/MobileDateFilter';
+import { SearchBar } from '../../components/SearchBar';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useCOGSReport } from '../../hooks/useCOGSReport';
 import GrossProfitTable from './partials/GrossProfitTable';
@@ -31,8 +32,7 @@ const COGSProfitability: FunctionComponent = () => {
         loadAll();
     }, [loadAll]);
 
-    const handleDateChange = useCallback((dates: [Date | null, Date | null]) => {
-        const [start, end] = dates;
+    const handleDateChange = useCallback((start: Date | null, end: Date | null) => {
         setStartDate(start ? start.toISOString().split('T')[0] : '');
         setEndDate(end ? end.toISOString().split('T')[0] : '');
     }, [setStartDate, setEndDate]);
@@ -44,7 +44,7 @@ const COGSProfitability: FunctionComponent = () => {
     return (
         <AppLayout>
             <PageHeader
-                icon={<DollarSign className="w-7 h-7 sm:w-8 sm:h-8 text-red-500 dark:text-red-400" />}
+                icon={<DollarSign className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                 title="COGS & Profitability"
                 description="Cost of Goods Sold analysis and gross profit by product"
             />
@@ -60,22 +60,19 @@ const COGSProfitability: FunctionComponent = () => {
                     className="border-b border-gray-200 dark:border-gray-700"
                 >
                     <Flex align="center" gap="2" wrap="wrap">
-                        <DateRangeFilter
+                        <MobileDateFilter
                             startDate={startDate ? new Date(startDate) : null}
                             endDate={endDate ? new Date(endDate) : null}
                             onChange={handleDateChange}
                         />
                     </Flex>
 
-                    <Button
-                        variant="solid"
-                        size="2"
-                        onClick={loadAll}
-                        disabled={isLoadingProfit}
-                    >
-                        <RefreshCw className={`w-3.5 h-3.5 ${isLoadingProfit ? 'animate-spin' : ''}`} />
-                        Refresh
-                    </Button>
+                    <SearchBar
+                        placeholder="Search products..."
+                        value={searchTerm}
+                        onChange={handleSearch}
+                        className="w-full sm:flex-1 sm:max-w-xs"
+                    />
                 </Flex>
 
                 <GrossProfitTable
@@ -83,7 +80,6 @@ const COGSProfitability: FunctionComponent = () => {
                     summary={grossProfitSummary}
                     isLoading={isLoadingProfit}
                     searchTerm={searchTerm}
-                    onSearch={handleSearch}
                     totalRows={totalRows}
                     perPage={perPage}
                     onPageChange={handlePageChange}
