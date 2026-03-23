@@ -31,7 +31,8 @@ const InventoryCharts: FunctionComponent = () => {
     const {
         startDate, setStartDate,
         endDate, setEndDate,
-        periodCOGS, salesCOGS,
+        periodCOGSItems, periodCOGSSummary,
+        salesCOGSItems, salesCOGSSummary,
         isLoadingCOGS,
         showCrossCheck, setShowCrossCheck,
         cogsDiscrepancy, hasDiscrepancy,
@@ -110,8 +111,10 @@ const InventoryCharts: FunctionComponent = () => {
                 </div>
                 <div className="p-4">
                     <PeriodCOGSChart
-                        periodCOGS={periodCOGS}
-                        salesCOGS={salesCOGS}
+                        items={periodCOGSItems}
+                        summary={periodCOGSSummary}
+                        salesItems={salesCOGSItems}
+                        salesSummary={salesCOGSSummary}
                         showCrossCheck={showCrossCheck}
                         isLoading={isLoadingCOGS}
                         cogsDiscrepancy={cogsDiscrepancy}
