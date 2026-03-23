@@ -103,7 +103,6 @@ export const getInventoryTableColumns = ({
                 name: 'Barcode',
                 selector: (row) => getDefaultVariant(row)?.primaryBarcode || '-',
                 sortable: true,
-                width: '110px',
                 cell: (row) => {
                     const variant = getDefaultVariant(row);
                     return (
@@ -146,7 +145,6 @@ export const getInventoryTableColumns = ({
                 name: 'Cost',
                 selector: (row) => getDefaultVariant(row)?.costPrice || 0,
                 sortable: true,
-                width: '85px',
                 cell: (row) => {
                     const variant = getDefaultVariant(row);
                     return (
@@ -160,7 +158,6 @@ export const getInventoryTableColumns = ({
                 name: 'Sell',
                 selector: (row) => getDefaultVariant(row)?.sellingPrice || 0,
                 sortable: true,
-                width: '85px',
                 cell: (row) => {
                     const variant = getDefaultVariant(row);
                     return (
@@ -174,7 +171,6 @@ export const getInventoryTableColumns = ({
                 name: 'Qty',
                 selector: (row) => row.totalAvailableQuantity ?? 0,
                 sortable: true,
-                width: '75px',
                 cell: (row) => {
                     const variant = getDefaultVariant(row);
                     const qty = row.totalAvailableQuantity ?? 0;
@@ -197,7 +193,6 @@ export const getInventoryTableColumns = ({
                 name: 'Min',
                 selector: (row) => getDefaultVariant(row)?.inventory?.reorderPoint || 0,
                 sortable: true,
-                width: '55px',
                 cell: (row) => {
                     const variant = getDefaultVariant(row);
                     return (
@@ -211,7 +206,6 @@ export const getInventoryTableColumns = ({
                 name: 'Expiry',
                 selector: (row) => getDefaultVariant(row)?.expirationDate ? new Date(getDefaultVariant(row)!.expirationDate!).getTime() : 0,
                 sortable: true,
-                width: '80px',
                 cell: (row) => {
                     const variant = getDefaultVariant(row);
                     const status = getExpirationStatus(variant?.expirationDate);
@@ -233,7 +227,6 @@ export const getInventoryTableColumns = ({
                 name: 'Status',
                 selector: (row) => row.isActive ? 'active' : 'inactive',
                 sortable: true,
-                width: '70px',
                 cell: (row) => {
                     const status = row.isActive ? 'active' : 'inactive';
                     const colorClass = status === 'active'
@@ -279,7 +272,6 @@ export const getInventoryTableColumns = ({
                         </div>
                     );
                 },
-                width: '95px',
                 right: true,
             },
         ];
@@ -290,7 +282,6 @@ export const getInventoryTableColumns = ({
             name: 'Product',
             selector: (row) => row.name || '-',
             sortable: true,
-            minWidth: '200px',
             cell: (row) => {
                 const variantCount = row.variantCount ?? row.variants?.length ?? 1;
                 const hasMultipleVariants = variantCount > 1;
@@ -332,7 +323,6 @@ export const getInventoryTableColumns = ({
             name: 'SKU / Barcode',
             selector: (row) => getDefaultVariant(row)?.sku || getDefaultVariant(row)?.primaryBarcode || '-',
             sortable: true,
-            width: '150px',
             cell: (row) => {
                 const variant = getDefaultVariant(row);
                 const sku = variant?.sku;
@@ -367,7 +357,6 @@ export const getInventoryTableColumns = ({
             name: 'Unit Price',
             selector: (row) => getDefaultVariant(row)?.sellingPrice || 0,
             sortable: true,
-            width: '110px',
             cell: (row) => {
                 const variant = getDefaultVariant(row);
                 const hasPromo = variant?.promoPrice && variant.promoPrice > 0;
@@ -390,7 +379,6 @@ export const getInventoryTableColumns = ({
             name: 'Avg Cost',
             selector: (row) => getAverageCost(row),
             sortable: true,
-            width: '120px',
             cell: (row) => {
                 const avgCost = getAverageCost(row);
                 const variant = getDefaultVariant(row);
@@ -415,7 +403,6 @@ export const getInventoryTableColumns = ({
             name: 'Stock',
             selector: (row) => row.totalAvailableQuantity ?? 0,
             sortable: true,
-            width: '120px',
             cell: (row) => {
                 const variant = getDefaultVariant(row);
                 const qty = row.totalAvailableQuantity ?? 0;
@@ -447,7 +434,6 @@ export const getInventoryTableColumns = ({
             name: 'Stock Value',
             selector: (row) => getStockValue(row),
             sortable: true,
-            width: '110px',
             cell: (row) => {
                 const stockValue = getStockValue(row);
                 const variant = getDefaultVariant(row);
@@ -476,7 +462,6 @@ export const getInventoryTableColumns = ({
                 return nearest ? dayjs(nearest.date).valueOf() : 0;
             },
             sortable: true,
-            width: '120px',
             cell: (row) => {
                 const nearest = getNearestExpiry(row.variants);
                 if (!nearest) return <span className="text-gray-400 text-xs">No expiry</span>;
@@ -512,7 +497,6 @@ export const getInventoryTableColumns = ({
                 return qty <= 0 ? 0 : qty <= reorderPoint ? 1 : 2;
             },
             sortable: true,
-            width: '100px',
             cell: (row) => {
                 const variant = getDefaultVariant(row);
                 const qty = row.totalAvailableQuantity ?? 0;
@@ -531,7 +515,7 @@ export const getInventoryTableColumns = ({
             cell: (row) => {
                 const productId = row.id?.toString() || '';
                 const isInactive = !row.isActive;
-                const isDiscontinued = row.status === 'DISCONTINUED';
+                const isDiscontinued = (row as any).status === 'DISCONTINUED';
                 const disableStockActions = isInactive || isDiscontinued;
                 return (
                     <div className="flex items-center space-x-0.5">
@@ -590,7 +574,6 @@ export const getInventoryTableColumns = ({
                     </div>
                 );
             },
-            width: '190px',
             right: true,
         },
     ];
