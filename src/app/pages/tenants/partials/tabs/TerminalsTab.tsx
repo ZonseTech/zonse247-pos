@@ -281,8 +281,6 @@ const TerminalsTab: FunctionComponent<TerminalsTabProps> = memo(({ terminals, lo
                     </div>
                 }
                 customStyles={getTableStyles(mode)}
-                fixedHeader
-                fixedHeaderScrollHeight="calc(100vh - 450px)"
             />
         </Fragment>
     );
