@@ -61,7 +61,7 @@ const UserMobileCard: FC<UserMobileCardProps> = ({
                             </Text>
                             <Flex align="center" gap="2" wrap="wrap">
                                 {(user.roleName || user.roleId) && (
-                                    <Text size="1" weight="medium" color="sky">
+                                    <Text size="1" weight="medium" >
                                         {user.roleName || user.roleId}
                                     </Text>
                                 )}
