@@ -11,7 +11,7 @@ import FormSearchableSelect from '../../components/FormSearchableSelect';
 import SupplierSearchSelect from '../../components/SupplierSearchSelect';
 import FormSkeleton from '../../components/skeleton/FormSkeleton';
 import { useSupplierReturnForm } from './partials/useSupplierReturnForm';
-import { GRNFieldWatcher } from './partials/FieldWatchers';
+import { SupplierFieldWatcher, GRNFieldWatcher } from './partials/FieldWatchers';
 import ReturnStatusCard from './partials/ReturnStatusCard';
 import ReturnItemsView from './partials/ReturnItemsView';
 import CreditNotesView from './partials/CreditNotesView';
@@ -43,11 +43,14 @@ const SupplierReturnForm: FunctionComponent = () => {
         returnId,
         loading,
         returnData,
+        selectedSupplierId,
         poOptions,
         grnOptions,
         initialValues,
         handleSubmit,
+        handleSupplierChanged,
         handleGRNSelected,
+        handleGRNCleared,
         handleApprove,
         handleShip,
         handleComplete,
@@ -64,6 +67,8 @@ const SupplierReturnForm: FunctionComponent = () => {
     const pageIcon = isView
         ? <Eye className="w-8 h-8 text-orange-500" />
         : <RotateCcw className="w-8 h-8 text-orange-500" />;
+
+    const hasSupplier = !!selectedSupplierId;
 
     if (loading && !returnData && returnId) {
         return (
@@ -84,10 +89,16 @@ const SupplierReturnForm: FunctionComponent = () => {
                     initialValues={initialValues}
                     validationSchema={!isView ? validationSchema : undefined}
                 >
-                    {({ isSubmitting }) => (
+                    {({ isSubmitting, values }) => (
                         <Form>
                             {!isView && (
-                                <GRNFieldWatcher onGRNSelected={handleGRNSelected} />
+                                <>
+                                    <SupplierFieldWatcher onSupplierChanged={handleSupplierChanged} />
+                                    <GRNFieldWatcher
+                                        onGRNSelected={handleGRNSelected}
+                                        onGRNCleared={handleGRNCleared}
+                                    />
+                                </>
                             )}
 
                             <PageHeader
@@ -124,22 +135,31 @@ const SupplierReturnForm: FunctionComponent = () => {
 
                                 {!isView && (
                                     <>
+                                        {/* ── Step 1: Select Supplier ── */}
+                                        <FormFieldCard title="Supplier">
+                                            <Box p="5">
+                                                <SupplierSearchSelect name="supplierId" required />
+                                            </Box>
+                                        </FormFieldCard>
+
+                                        {/* ── Step 2: Link to GRN / PO (only after supplier selected) ── */}
                                         <FormFieldCard title="Return Details">
                                             <Box className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5" p="5">
-                                                <SupplierSearchSelect name="supplierId" required />
                                                 <FormSearchableSelect
                                                     label="Goods Receipt (optional)"
                                                     name="goodsReceiptId"
                                                     options={grnOptions}
-                                                    placeholder="Link to GRN..."
+                                                    placeholder={hasSupplier ? 'Link to GRN...' : 'Select a supplier first'}
                                                     isClearable
+                                                    disabled={!hasSupplier}
                                                 />
                                                 <FormSearchableSelect
                                                     label="Purchase Order (optional)"
                                                     name="purchaseOrderId"
                                                     options={poOptions}
-                                                    placeholder="Link to PO..."
+                                                    placeholder={hasSupplier ? 'Link to PO...' : 'Select a supplier first'}
                                                     isClearable
+                                                    disabled={!hasSupplier || !!values.goodsReceiptId}
                                                 />
                                                 <FormSearchableSelect
                                                     label="Reason"
@@ -154,6 +174,7 @@ const SupplierReturnForm: FunctionComponent = () => {
                                             </Box>
                                         </FormFieldCard>
 
+                                        {/* ── Step 3: Return Items ── */}
                                         <ReturnItemsForm />
 
                                         <Flex justify="end" gap="3" pt="2">
