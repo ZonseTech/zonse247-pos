@@ -1,21 +1,32 @@
 import { FunctionComponent, useCallback, useContext, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { RotateCcw, Settings2 } from 'lucide-react';
+import { RotateCcw, Settings2, Plus, FilterX, FileEdit, Truck, CheckCircle2, XCircle } from 'lucide-react';
 import DataTable, { type Themes } from 'react-data-table-component';
+import { Box, Flex, Text, Select, Button, IconButton } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
-import { HiOutlinePlus } from 'react-icons/hi2';
-import { HiOutlineFilter } from 'react-icons/hi';
 import MobilePagination from '../../components/MobilePagination';
 import { getTableStyles } from '../../utils/table-styles';
-import { Button, ZonseThemeContext, Select, ComponentLoader } from '../../components';
+import { ZonseThemeContext, ComponentLoader, SummaryCards } from '../../components';
+import type { SummaryCardItem } from '../../components';
 import { useSupplierReturns } from '../../hooks/useSupplierReturns';
 import { getSupplierReturnTableColumns } from './partials/SupplierReturnTableColumns';
 import { SupplierReturnMobileList } from './partials/SupplierReturnMobileCard';
-import SupplierReturnSummaryCards from './partials/SupplierReturnSummaryCards';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { Confirm } from 'notiflix';
+
+const STATUS_OPTIONS: { value: string; label: string }[] = [
+    { value: 'all', label: 'All Status' },
+    { value: 'DRAFT', label: 'Draft' },
+    { value: 'APPROVED', label: 'Approved' },
+    { value: 'SHIPPED', label: 'Shipped' },
+    { value: 'COMPLETED', label: 'Completed' },
+    { value: 'CANCELLED', label: 'Cancelled' },
+];
+
+const formatCurrency = (value: number) =>
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'MWK' }).format(value);
 
 const SupplierReturnManagement: FunctionComponent = () => {
     const isMobile = useIsMobile();
@@ -43,6 +54,58 @@ const SupplierReturnManagement: FunctionComponent = () => {
     } = useSupplierReturns();
 
     const hasActiveFilters = useMemo(() => !!statusFilter, [statusFilter]);
+
+    const summaryCards: SummaryCardItem[] = useMemo(() => {
+        const drafts = returns.filter(r => r.status === 'DRAFT').length;
+        const shipped = returns.filter(r => r.status === 'SHIPPED').length;
+        const completed = returns.filter(r => r.status === 'COMPLETED').length;
+        const totalValue = returns
+            .filter(r => r.status !== 'CANCELLED')
+            .reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+
+        return [
+            {
+                title: 'Total Returns',
+                value: totalRows,
+                icon: <RotateCcw className="w-5 h-5" />,
+                bgColor: 'bg-sky-50 dark:bg-sky-900/20',
+                iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
+                textColor: 'text-sky-500 dark:text-sky-400',
+            },
+            {
+                title: 'Drafts',
+                value: drafts,
+                icon: <FileEdit className="w-5 h-5" />,
+                bgColor: 'bg-gray-50 dark:bg-gray-800/40',
+                iconBgColor: 'bg-gray-100 dark:bg-gray-700',
+                textColor: 'text-gray-500 dark:text-gray-400',
+            },
+            {
+                title: 'In Transit',
+                value: shipped,
+                icon: <Truck className="w-5 h-5" />,
+                bgColor: 'bg-purple-50 dark:bg-purple-900/20',
+                iconBgColor: 'bg-purple-100 dark:bg-purple-900/40',
+                textColor: 'text-purple-500 dark:text-purple-400',
+            },
+            {
+                title: 'Completed',
+                value: completed,
+                icon: <CheckCircle2 className="w-5 h-5" />,
+                bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
+                iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
+                textColor: 'text-emerald-500 dark:text-emerald-400',
+            },
+            {
+                title: 'Total Value',
+                value: formatCurrency(totalValue),
+                icon: <XCircle className="w-5 h-5" />,
+                bgColor: 'bg-indigo-50 dark:bg-indigo-900/20',
+                iconBgColor: 'bg-indigo-100 dark:bg-indigo-900/40',
+                textColor: 'text-indigo-500 dark:text-indigo-400',
+            },
+        ];
+    }, [returns, totalRows]);
 
     // ── Handlers ────────────────────────────────────────────────────────────
 
@@ -130,63 +193,82 @@ const SupplierReturnManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="max-w-full">
+            <Box className="max-w-full">
                 <PageHeader
                     icon={<RotateCcw className="w-7 h-7 sm:w-8 sm:h-8 text-orange-500 dark:text-orange-400" />}
                     title="Supplier Returns"
                     description="Manage returns to suppliers and track credit notes"
                     action={
-                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                            <Select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value as SupplierReturnStatusType | '')}
-                                className="h-10 px-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-400 focus:border-orange-500 dark:focus:border-orange-400 transition-colors w-full sm:w-48"
+                        <Flex direction={{ initial: 'column', sm: 'row' }} gap={{ initial: '2', sm: '3' }} align="center">
+                            <Select.Root
+                                value={statusFilter || 'all'}
+                                onValueChange={(val) => setStatusFilter(val === 'all' ? '' : val as SupplierReturnStatusType)}
                             >
-                                <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">All Status</option>
-                                <option value="DRAFT" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">Draft</option>
-                                <option value="APPROVED" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">Approved</option>
-                                <option value="SHIPPED" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">Shipped</option>
-                                <option value="COMPLETED" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">Completed</option>
-                                <option value="CANCELLED" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">Cancelled</option>
-                            </Select>
+                                <Select.Trigger
+                                    variant="surface"
+                                    placeholder="All Status"
+                                    className="w-full sm:w-48"
+                                />
+                                <Select.Content position="popper">
+                                    {STATUS_OPTIONS.map((opt) => (
+                                        <Select.Item key={opt.value} value={opt.value}>
+                                            {opt.label}
+                                        </Select.Item>
+                                    ))}
+                                </Select.Content>
+                            </Select.Root>
 
                             {selectedRows.length > 0 && !isMobile && (
-                                <div className="flex items-center gap-2 px-4 py-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-md">
+                                <Flex align="center" gap="2" px="4" py="2" className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-md">
                                     <Settings2 className="w-4 h-4 text-orange-500 dark:text-orange-400" />
-                                    <span className="text-sm font-medium text-orange-900 dark:text-orange-100">
+                                    <Text size="2" weight="medium" className="text-orange-900 dark:text-orange-100">
                                         {selectedRows.length} selected
-                                    </span>
-                                </div>
+                                    </Text>
+                                </Flex>
                             )}
 
                             {hasActiveFilters && (
-                                <button
+                                <Button
+                                    variant="outline"
+                                    color="red"
+                                    size="2"
                                     onClick={handleClearFilters}
-                                    className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-500 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
                                 >
-                                    <HiOutlineFilter className="w-4 h-4" />
-                                    <span>Clear</span>
-                                </button>
+                                    <FilterX className="w-4 h-4" />
+                                    Clear
+                                </Button>
                             )}
-                            <Button
-                                icon={HiOutlinePlus}
-                                layout={isMobile ? 'outline' : 'primary'}
-                                onClick={handleAdd}
-                                className="!px-3 sm:!px-4 !py-2 sm:!py-2.5"
-                                theme="primary"
-                            >
-                                {!isMobile && <span className="hidden md:block">New Return</span>}
-                            </Button>
-                        </div>
+
+                            {isMobile ? (
+                                <IconButton
+                                    variant="outline"
+                                    color="cyan"
+                                    size="2"
+                                    onClick={handleAdd}
+                                    aria-label="New Return"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                </IconButton>
+                            ) : (
+                                <Button size="2" onClick={handleAdd}>
+                                    <Plus className="w-4 h-4" />
+                                    <span className="hidden md:inline">New Return</span>
+                                </Button>
+                            )}
+                        </Flex>
                     }
                 />
 
-                {/* Main content */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <SupplierReturnSummaryCards returns={returns} isLoading={isLoading} />
+                <Box className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <SummaryCards
+                        cards={summaryCards}
+                        isLoading={isLoading}
+                        variant="embedded"
+                        gridClassName="grid-cols-2 sm:grid-cols-3 md:grid-cols-5"
+                    />
 
                     {isMobile ? (
-                        <div className="overflow-hidden">
+                        <Box className="overflow-hidden">
                             {isLoading ? (
                                 <SupplierReturnMobileList
                                     returns={[]}
@@ -199,27 +281,30 @@ const SupplierReturnManagement: FunctionComponent = () => {
                                     isLoading={true}
                                 />
                             ) : returns.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-12 px-4">
-                                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                                <Flex direction="column" align="center" justify="center" py="9" px="4">
+                                    <Flex align="center" justify="center" className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
                                         <RotateCcw className="w-8 h-8 text-gray-400" />
-                                    </div>
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2 text-center">
+                                    </Flex>
+                                    <Text as="p" size="4" weight="medium" align="center" className="text-gray-900 dark:text-white mb-2">
                                         {hasActiveFilters ? 'No matching returns' : 'No returns yet'}
-                                    </h3>
-                                    <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm text-sm">
+                                    </Text>
+                                    <Text as="p" size="2" color="gray" align="center" className="max-w-sm">
                                         {hasActiveFilters
                                             ? 'Try adjusting your filters.'
                                             : 'Create a supplier return to start the return process.'}
-                                    </p>
+                                    </Text>
                                     {hasActiveFilters && (
-                                        <button
+                                        <Button
+                                            variant="ghost"
+                                            color="cyan"
+                                            size="2"
+                                            mt="4"
                                             onClick={handleClearFilters}
-                                            className="mt-4 text-orange-500 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300 font-medium text-sm"
                                         >
                                             Clear filters
-                                        </button>
+                                        </Button>
                                     )}
-                                </div>
+                                </Flex>
                             ) : (
                                 <>
                                     <SupplierReturnMobileList
@@ -235,9 +320,9 @@ const SupplierReturnManagement: FunctionComponent = () => {
                                     <MobilePagination page={page} totalRows={totalRows} perPage={perPage} onPageChange={setPage} />
                                 </>
                             )}
-                        </div>
+                        </Box>
                     ) : (
-                        <div className="overflow-hidden">
+                        <Box className="overflow-hidden">
                             <DataTable
                                 columns={columns}
                                 data={returns}
@@ -255,33 +340,31 @@ const SupplierReturnManagement: FunctionComponent = () => {
                                 highlightOnHover
                                 striped
                                 responsive
-                                fixedHeader
                                 selectableRows
                                 selectableRowsHighlight
                                 onSelectedRowsChange={handleRowSelected}
                                 clearSelectedRows={toggleCleared}
-                                fixedHeaderScrollHeight="calc(100vh - 480px)"
                                 persistTableHead
                                 noDataComponent={
-                                    <div className="flex flex-col items-center justify-center py-12 dark:bg-gray-800 flex-1">
-                                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                                    <Flex direction="column" align="center" justify="center" py="9" className="dark:bg-gray-800 flex-1">
+                                        <Flex align="center" justify="center" className="h-16 w-16 rounded-full bg-gray-100 dark:bg-gray-700">
                                             <RotateCcw className="h-8 w-8 text-gray-400 dark:text-gray-500" />
-                                        </div>
-                                        <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                        </Flex>
+                                        <Text as="p" size="4" weight="bold" className="mt-4 text-gray-900 dark:text-gray-100">
                                             {hasActiveFilters ? 'No matching returns' : 'No returns yet'}
-                                        </h3>
-                                        <p className="mt-2 max-w-sm text-center text-sm text-gray-600 dark:text-gray-400">
+                                        </Text>
+                                        <Text as="p" size="2" color="gray" align="center" className="mt-2 max-w-sm">
                                             {hasActiveFilters
                                                 ? 'Try adjusting your filters.'
                                                 : 'Create a supplier return to start the return process.'}
-                                        </p>
-                                    </div>
+                                        </Text>
+                                    </Flex>
                                 }
                             />
-                        </div>
+                        </Box>
                     )}
-                </div>
-            </div>
+                </Box>
+            </Box>
         </AppLayout>
     );
 };

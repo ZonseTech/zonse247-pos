@@ -1,21 +1,30 @@
 import { FunctionComponent, useCallback, useContext, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { FileText, Settings2 } from 'lucide-react';
+import { FileText, Settings2, Plus, FilterX, Clock, CheckCircle2, AlertCircle, DollarSign, CreditCard } from 'lucide-react';
 import DataTable, { type Themes } from 'react-data-table-component';
+import { Box, Flex, Text, Select, Button, IconButton } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
-import { HiOutlinePlus } from 'react-icons/hi2';
-import { HiOutlineFilter } from 'react-icons/hi';
 import MobilePagination from '../../components/MobilePagination';
 import { getTableStyles } from '../../utils/table-styles';
-import { Button, ZonseThemeContext, Select, ComponentLoader } from '../../components';
+import { ZonseThemeContext, ComponentLoader, SummaryCards } from '../../components';
+import type { SummaryCardItem } from '../../components';
 import { useSupplierInvoices } from '../../hooks/useSupplierInvoices';
 import { getSupplierInvoiceTableColumns } from './partials/SupplierInvoiceTableColumns';
 import { SupplierInvoiceMobileList } from './partials/SupplierInvoiceMobileCard';
-import SupplierInvoiceSummaryCards, { type SupplierInvoiceSummaryCard } from './partials/SupplierInvoiceSummaryCards';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { Confirm } from 'notiflix';
+
+const STATUS_OPTIONS: { value: string; label: string }[] = [
+    { value: 'all', label: 'All Status' },
+    { value: 'PENDING', label: 'Pending' },
+    { value: 'PARTIALLY_PAID', label: 'Partially Paid' },
+    { value: 'PAID', label: 'Paid' },
+    { value: 'OVERDUE', label: 'Overdue' },
+    { value: 'CANCELLED', label: 'Cancelled' },
+    { value: 'DISPUTED', label: 'Disputed' },
+];
 
 const formatCurrency = (value: number) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'MWK' }).format(value);
@@ -46,7 +55,7 @@ const SupplierInvoiceManagement: FunctionComponent = () => {
     const hasActiveFilters = useMemo(() => !!statusFilter, [statusFilter]);
 
     // Summary cards
-    const summaryCards: SupplierInvoiceSummaryCard[] = useMemo(() => {
+    const summaryCards: SummaryCardItem[] = useMemo(() => {
         const pendingCount = invoices.filter(i => i.status === 'PENDING').length;
         const partialPaidCount = invoices.filter(i => i.status === 'PARTIALLY_PAID').length;
         const paidCount = invoices.filter(i => i.status === 'PAID').length;
@@ -58,7 +67,7 @@ const SupplierInvoiceManagement: FunctionComponent = () => {
             {
                 title: 'Total Invoices',
                 value: totalRows,
-                icon: 'total' as const,
+                icon: <FileText className="w-5 h-5" />,
                 bgColor: 'bg-indigo-50 dark:bg-indigo-900/20',
                 iconBgColor: 'bg-indigo-100 dark:bg-indigo-900/40',
                 textColor: 'text-indigo-500 dark:text-indigo-400',
@@ -66,7 +75,7 @@ const SupplierInvoiceManagement: FunctionComponent = () => {
             {
                 title: 'Pending',
                 value: pendingCount,
-                icon: 'pending' as const,
+                icon: <Clock className="w-5 h-5" />,
                 bgColor: 'bg-amber-50 dark:bg-amber-900/20',
                 iconBgColor: 'bg-amber-100 dark:bg-amber-900/40',
                 textColor: 'text-amber-500 dark:text-amber-400',
@@ -74,7 +83,7 @@ const SupplierInvoiceManagement: FunctionComponent = () => {
             {
                 title: 'Partially Paid',
                 value: partialPaidCount,
-                icon: 'pending' as const,
+                icon: <CreditCard className="w-5 h-5" />,
                 bgColor: 'bg-blue-50 dark:bg-blue-900/20',
                 iconBgColor: 'bg-blue-100 dark:bg-blue-900/40',
                 textColor: 'text-blue-500 dark:text-blue-400',
@@ -82,7 +91,7 @@ const SupplierInvoiceManagement: FunctionComponent = () => {
             {
                 title: 'Paid',
                 value: paidCount,
-                icon: 'paid' as const,
+                icon: <CheckCircle2 className="w-5 h-5" />,
                 bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
                 iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
                 textColor: 'text-emerald-500 dark:text-emerald-400',
@@ -90,7 +99,7 @@ const SupplierInvoiceManagement: FunctionComponent = () => {
             {
                 title: 'Overdue',
                 value: overdueCount,
-                icon: 'overdue' as const,
+                icon: <AlertCircle className="w-5 h-5" />,
                 bgColor: 'bg-red-50 dark:bg-red-900/20',
                 iconBgColor: 'bg-red-100 dark:bg-red-900/40',
                 textColor: 'text-red-500 dark:text-red-400',
@@ -98,7 +107,7 @@ const SupplierInvoiceManagement: FunctionComponent = () => {
             {
                 title: 'Outstanding',
                 value: formatCurrency(totalOutstanding),
-                icon: 'outstanding' as const,
+                icon: <DollarSign className="w-5 h-5" />,
                 bgColor: 'bg-violet-50 dark:bg-violet-900/20',
                 iconBgColor: 'bg-violet-100 dark:bg-violet-900/40',
                 textColor: 'text-violet-500 dark:text-violet-400',
@@ -181,78 +190,85 @@ const SupplierInvoiceManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="max-w-full">
+            <Box className="max-w-full">
                 <PageHeader
                     icon={<FileText className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-500 dark:text-indigo-400" />}
                     title="Supplier Invoices"
                     description="Manage supplier invoices and track payment obligations"
                     action={
-                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                            <Select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value as InvoiceStatusType | '')}
-                                className="h-10 px-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors w-full sm:w-48"
+                        <Flex direction={{ initial: 'column', sm: 'row' }} gap={{ initial: '2', sm: '3' }} align="center">
+                            <Select.Root
+                                value={statusFilter || 'all'}
+                                onValueChange={(val) => setStatusFilter(val === 'all' ? '' : val as InvoiceStatusType)}
                             >
-                                <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                    All Status
-                                </option>
-                                <option value="PENDING" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                    Pending
-                                </option>
-                                <option value="PARTIALLY_PAID" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                    Partially Paid
-                                </option>
-                                <option value="PAID" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                    Paid
-                                </option>
-                                <option value="OVERDUE" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                    Overdue
-                                </option>
-                                <option value="CANCELLED" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                    Cancelled
-                                </option>
-                                <option value="DISPUTED" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                    Disputed
-                                </option>
-                            </Select>
+                                <Select.Trigger
+                                    variant="surface"
+                                    placeholder="All Status"
+                                    className="w-full sm:w-48"
+                                />
+                                <Select.Content position="popper">
+                                    {STATUS_OPTIONS.map((opt) => (
+                                        <Select.Item key={opt.value} value={opt.value}>
+                                            {opt.label}
+                                        </Select.Item>
+                                    ))}
+                                </Select.Content>
+                            </Select.Root>
 
                             {selectedRows.length > 0 && !isMobile && (
-                                <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-md">
+                                <Flex align="center" gap="2" px="4" py="2" className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-md">
                                     <Settings2 className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
-                                    <span className="text-sm font-medium text-indigo-900 dark:text-indigo-100">
+                                    <Text size="2" weight="medium" className="text-indigo-900 dark:text-indigo-100">
                                         {selectedRows.length} selected
-                                    </span>
-                                </div>
+                                    </Text>
+                                </Flex>
                             )}
 
                             {hasActiveFilters && (
-                                <button
+                                <Button
+                                    variant="outline"
+                                    color="red"
+                                    size="2"
                                     onClick={handleClearFilters}
-                                    className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-500 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
                                 >
-                                    <HiOutlineFilter className="w-4 h-4" />
-                                    <span>Clear</span>
-                                </button>
+                                    <FilterX className="w-4 h-4" />
+                                    Clear
+                                </Button>
                             )}
-                            <Button
-                                icon={HiOutlinePlus}
-                                layout={isMobile ? 'outline' : 'primary'}
-                                onClick={handleAdd}
-                                className="!px-3 sm:!px-4 !py-2 sm:!py-2.5"
-                                theme="primary"
-                            >
-                                {!isMobile && <span className="hidden md:block">New Invoice</span>}
-                            </Button>
-                        </div>
+
+                            {isMobile ? (
+                                <IconButton
+                                    variant="outline"
+                                    color="indigo"
+                                    size="2"
+                                    onClick={handleAdd}
+                                    aria-label="New Invoice"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                </IconButton>
+                            ) : (
+                                <Button
+                                    size="2"
+                                    onClick={handleAdd}
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    <span className="hidden md:inline">New Invoice</span>
+                                </Button>
+                            )}
+                        </Flex>
                     }
                 />
 
-                {/* Main content */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <SupplierInvoiceSummaryCards cards={summaryCards} isLoading={isLoading} />
+                <Box className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <SummaryCards
+                        cards={summaryCards}
+                        isLoading={isLoading}
+                        variant="embedded"
+                        gridClassName="grid-cols-2 md:grid-cols-3 lg:grid-cols-6"
+                    />
 
                     {isMobile ? (
-                        <div className="overflow-hidden">
+                        <Box className="overflow-hidden">
                             {isLoading ? (
                                 <SupplierInvoiceMobileList
                                     invoices={[]}
@@ -264,27 +280,30 @@ const SupplierInvoiceManagement: FunctionComponent = () => {
                                     isLoading={true}
                                 />
                             ) : invoices.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-12 px-4">
-                                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                                <Flex direction="column" align="center" justify="center" py="9" px="4">
+                                    <Flex align="center" justify="center" className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
                                         <FileText className="w-8 h-8 text-gray-400" />
-                                    </div>
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2 text-center">
+                                    </Flex>
+                                    <Text as="p" size="4" weight="medium" align="center" className="text-gray-900 dark:text-white mb-2">
                                         {hasActiveFilters ? 'No matching invoices' : 'No invoices yet'}
-                                    </h3>
-                                    <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm text-sm">
+                                    </Text>
+                                    <Text as="p" size="2" color="gray" align="center" className="max-w-sm">
                                         {hasActiveFilters
                                             ? 'Try adjusting your filters.'
                                             : 'Create a supplier invoice to track payment obligations.'}
-                                    </p>
+                                    </Text>
                                     {hasActiveFilters && (
-                                        <button
+                                        <Button
+                                            variant="ghost"
+                                            color="indigo"
+                                            size="2"
+                                            mt="4"
                                             onClick={handleClearFilters}
-                                            className="mt-4 text-indigo-500 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium text-sm"
                                         >
                                             Clear filters
-                                        </button>
+                                        </Button>
                                     )}
-                                </div>
+                                </Flex>
                             ) : (
                                 <>
                                     <SupplierInvoiceMobileList
@@ -299,9 +318,9 @@ const SupplierInvoiceManagement: FunctionComponent = () => {
                                     <MobilePagination page={page} totalRows={totalRows} perPage={perPage} onPageChange={setPage} />
                                 </>
                             )}
-                        </div>
+                        </Box>
                     ) : (
-                        <div className="overflow-hidden">
+                        <Box className="overflow-hidden">
                             <DataTable
                                 columns={columns}
                                 data={invoices}
@@ -319,33 +338,31 @@ const SupplierInvoiceManagement: FunctionComponent = () => {
                                 highlightOnHover
                                 striped
                                 responsive
-                                fixedHeader
                                 selectableRows
                                 selectableRowsHighlight
                                 onSelectedRowsChange={handleRowSelected}
                                 clearSelectedRows={toggleCleared}
-                                fixedHeaderScrollHeight="calc(100vh - 480px)"
                                 persistTableHead
                                 noDataComponent={
-                                    <div className="flex flex-col items-center justify-center py-12 dark:bg-gray-800 flex-1">
-                                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                                    <Flex direction="column" align="center" justify="center" py="9" className="dark:bg-gray-800 flex-1">
+                                        <Flex align="center" justify="center" className="h-16 w-16 rounded-full bg-gray-100 dark:bg-gray-700">
                                             <FileText className="h-8 w-8 text-gray-400 dark:text-gray-500" />
-                                        </div>
-                                        <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                        </Flex>
+                                        <Text as="p" size="4" weight="bold" className="mt-4 text-gray-900 dark:text-gray-100">
                                             {hasActiveFilters ? 'No matching invoices' : 'No invoices yet'}
-                                        </h3>
-                                        <p className="mt-2 max-w-sm text-center text-sm text-gray-600 dark:text-gray-400">
+                                        </Text>
+                                        <Text as="p" size="2" color="gray" align="center" className="mt-2 max-w-sm">
                                             {hasActiveFilters
                                                 ? 'Try adjusting your filters.'
                                                 : 'Create a supplier invoice to track payment obligations.'}
-                                        </p>
-                                    </div>
+                                        </Text>
+                                    </Flex>
                                 }
                             />
-                        </div>
+                        </Box>
                     )}
-                </div>
-            </div>
+                </Box>
+            </Box>
         </AppLayout>
     );
 };

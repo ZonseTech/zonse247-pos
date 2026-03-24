@@ -93,7 +93,7 @@ export const getCategoryColumns = (
                         <IconButton
                             size="1"
                             variant="ghost"
-                            color="sky"
+
                             onClick={() => onEdit(row)}
                         >
                             <Edit2 className="w-4 h-4" />
@@ -177,7 +177,7 @@ export const getMobileCategoryColumns = (
                         <IconButton
                             size="1"
                             variant="ghost"
-                            color="sky"
+
                             onClick={() => onEdit(row)}
                         >
                             <Edit2 className="w-4 h-4" />

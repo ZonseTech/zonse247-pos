@@ -26,6 +26,12 @@ interface PurchaseRequisition {
     rejectedAt?: Date | string | null;
     rejectedBy?: string | null;
     rejectedReason?: string | null;
+    supplierId?: string | null;
+    supplier?: {
+        id: string;
+        name: string;
+        code?: string;
+    } | null;
     version: number;
     deletedAt?: Date | string | null;
     createdAt: Date | string;
@@ -81,6 +87,7 @@ interface PurchaseRequisitionWithItems extends PurchaseRequisition {
  * Create requisition input
  */
 interface CreateRequisitionInput {
+    supplierId?: string;
     notes?: string;
     items: {
         variantId: string;
@@ -93,6 +100,7 @@ interface CreateRequisitionInput {
  * Update requisition input (only PENDING)
  */
 interface UpdateRequisitionInput {
+    supplierId?: string;
     notes?: string;
     items?: {
         variantId: string;

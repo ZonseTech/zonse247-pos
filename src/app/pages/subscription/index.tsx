@@ -87,7 +87,6 @@ const SubscriptionManagement: FunctionComponent = () => {
                         setPerPage(newPerPage);
                     }}
                     onChangePage={setPage}
-                    fixedHeader
                     customStyles={getTableStyles(mode)}
                     noDataComponent={
                         <div className="flex flex-col items-center justify-center py-12">

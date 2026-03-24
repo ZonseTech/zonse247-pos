@@ -10,7 +10,8 @@ export default defineConfig({
 				'bindings',
 				'file-uri-to-path',
 				'node:sqlite',
-				// Native modules for serial/USB communication
+				'bufferutil',
+				'utf-8-validate',
 				'serialport',
 				'@serialport/bindings-cpp',
 				'@serialport/bindings-interface',

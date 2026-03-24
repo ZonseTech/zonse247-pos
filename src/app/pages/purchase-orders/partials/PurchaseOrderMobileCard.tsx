@@ -1,6 +1,8 @@
 import { FC } from 'react';
 import { Eye, CheckCircle, XCircle, Send, Package, Calendar, Truck } from 'lucide-react';
+import { Box, Flex, Text, Badge, IconButton, Skeleton } from '@radix-ui/themes';
 import dayjs from 'dayjs';
+import { poStatusColorMap, poStatusLabelMap } from './PurchaseOrderTableColumns';
 
 interface PurchaseOrderMobileCardProps {
     purchaseOrder: PurchaseOrder;
@@ -10,51 +12,6 @@ interface PurchaseOrderMobileCardProps {
     onView: (po: PurchaseOrder) => void;
 }
 
-const statusConfig: Record<PurchaseOrderStatus, { bg: string; text: string; dot: string; label: string }> = {
-    DRAFT: {
-        bg: 'bg-gray-100 dark:bg-gray-700',
-        text: 'text-gray-800 dark:text-gray-300',
-        dot: 'bg-gray-500',
-        label: 'Draft'
-    },
-    PENDING: {
-        bg: 'bg-yellow-100 dark:bg-yellow-900/30',
-        text: 'text-yellow-800 dark:text-yellow-400',
-        dot: 'bg-yellow-500',
-        label: 'Pending'
-    },
-    SENT: {
-        bg: 'bg-indigo-100 dark:bg-indigo-900/30',
-        text: 'text-indigo-800 dark:text-indigo-400',
-        dot: 'bg-indigo-500',
-        label: 'Sent'
-    },
-    SHIPPED: {
-        bg: 'bg-purple-100 dark:bg-purple-900/30',
-        text: 'text-purple-800 dark:text-purple-400',
-        dot: 'bg-purple-500',
-        label: 'Shipped'
-    },
-    PARTIALLY_RECEIVED: {
-        bg: 'bg-sky-100 dark:bg-sky-900/30',
-        text: 'text-sky-800 dark:text-sky-400',
-        dot: 'bg-sky-500',
-        label: 'Partial'
-    },
-    RECEIVED: {
-        bg: 'bg-green-100 dark:bg-green-900/30',
-        text: 'text-green-800 dark:text-green-400',
-        dot: 'bg-green-500',
-        label: 'Received'
-    },
-    CANCELLED: {
-        bg: 'bg-red-100 dark:bg-red-900/30',
-        text: 'text-red-800 dark:text-red-400',
-        dot: 'bg-red-500',
-        label: 'Cancelled'
-    },
-};
-
 const PurchaseOrderMobileCard: FC<PurchaseOrderMobileCardProps> = ({
     purchaseOrder,
     onReceive,
@@ -62,52 +19,49 @@ const PurchaseOrderMobileCard: FC<PurchaseOrderMobileCardProps> = ({
     onCancel,
     onView,
 }) => {
-    const config = statusConfig[purchaseOrder.status] || statusConfig.DRAFT;
+    const color = poStatusColorMap[purchaseOrder.status] || 'gray';
+    const label = poStatusLabelMap[purchaseOrder.status] || purchaseOrder.status;
     const total = purchaseOrder.totalAmount || purchaseOrder.items?.reduce((sum, item) => sum + (item.totalPrice || 0), 0) || 0;
 
     return (
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
-            <div className="flex items-start justify-between gap-3 mb-3">
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-base font-bold text-sky-500 dark:text-sky-400">
+        <Box className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+            <Flex justify="between" gap="3" mb="3">
+                <Box className="flex-1 min-w-0">
+                    <Flex align="center" gap="2" mb="1">
+                        <Text size="3" weight="bold" className="text-sky-500 dark:text-sky-400">
                             {purchaseOrder.poNumber}
-                        </h3>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full mr-1 ${config.dot}`}></span>
-                            {config.label}
-                        </span>
-                    </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                        </Text>
+                        <Badge variant="soft" color={color} radius="full">
+                            {label}
+                        </Badge>
+                    </Flex>
+                    <Text size="2" color="gray" className="truncate block">
                         {purchaseOrder.supplier?.name || 'N/A'}
-                    </p>
-                </div>
+                    </Text>
+                </Box>
 
-                {/* Total amount */}
-                <div className="text-right flex-shrink-0">
-                    <p className="text-lg font-bold text-gray-900 dark:text-white">
+                <Box className="text-right flex-shrink-0">
+                    <Text size="5" weight="bold" className="text-gray-900 dark:text-white">
                         {new Intl.NumberFormat('en-US', {
                             style: 'currency',
                             currency: 'MWK',
                             minimumFractionDigits: 0,
                         }).format(total)}
-                    </p>
-                </div>
-            </div>
+                    </Text>
+                </Box>
+            </Flex>
 
-            {/* Info row */}
-            <div className="flex items-center gap-4 mb-3 text-sm text-gray-600 dark:text-gray-400">
-                <div className="flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5" />
-                    <span>{dayjs(purchaseOrder.orderDate).format('MMM D, YYYY')}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                    <Package className="w-3.5 h-3.5" />
-                    <span>{purchaseOrder.items?.length || 0} item{(purchaseOrder.items?.length || 0) !== 1 ? 's' : ''}</span>
-                </div>
-            </div>
+            <Flex align="center" gap="4" mb="3">
+                <Flex align="center" gap="1">
+                    <Calendar className="w-3.5 h-3.5 text-gray-500" />
+                    <Text size="2" color="gray">{dayjs(purchaseOrder.orderDate).format('MMM D, YYYY')}</Text>
+                </Flex>
+                <Flex align="center" gap="1">
+                    <Package className="w-3.5 h-3.5 text-gray-500" />
+                    <Text size="2" color="gray">{purchaseOrder.items?.length || 0} item{(purchaseOrder.items?.length || 0) !== 1 ? 's' : ''}</Text>
+                </Flex>
+            </Flex>
 
-            {/* Receive progress bar for partial/received POs */}
             {(() => {
                 const totalOrdered = purchaseOrder.items?.reduce((s, i) => s + i.orderedQuantity, 0) || 0;
                 const totalReceived = purchaseOrder.items?.reduce((s, i) => s + (i.receivedQuantity || 0), 0) || 0;
@@ -116,67 +70,51 @@ const PurchaseOrderMobileCard: FC<PurchaseOrderMobileCardProps> = ({
                 if ((!isPartial && !isFullyReceived) || totalOrdered === 0) return null;
                 const progress = Math.round((totalReceived / totalOrdered) * 100);
                 return (
-                    <div className="mb-3">
-                        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-                            <span>Received</span>
-                            <span className="font-medium">{totalReceived}/{totalOrdered} ({progress}%)</span>
-                        </div>
+                    <Box mb="3">
+                        <Flex justify="between" mb="1">
+                            <Text size="1" color="gray">Received</Text>
+                            <Text size="1" weight="medium" color="gray">{totalReceived}/{totalOrdered} ({progress}%)</Text>
+                        </Flex>
                         <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                             <div
                                 className={`h-full rounded-full transition-all ${isFullyReceived ? 'bg-green-500' : 'bg-sky-500'}`}
                                 style={{ width: `${progress}%` }}
                             />
                         </div>
-                    </div>
+                    </Box>
                 );
             })()}
 
-            {/* Expected delivery */}
             {purchaseOrder.expectedDeliveryDate && (
-                <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 mb-3">
-                    <Truck className="w-3.5 h-3.5" />
-                    <span>Expected: {dayjs(purchaseOrder.expectedDeliveryDate).format('MMM D, YYYY')}</span>
-                </div>
+                <Flex align="center" gap="1" mb="3">
+                    <Truck className="w-3.5 h-3.5 text-gray-500" />
+                    <Text size="2" color="gray">Expected: {dayjs(purchaseOrder.expectedDeliveryDate).format('MMM D, YYYY')}</Text>
+                </Flex>
             )}
 
-            {/* Actions */}
-            <div className="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
-                <button
-                    onClick={() => onView(purchaseOrder)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-sky-500 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
-                >
+            <Flex align="center" gap="2" pt="3" className="border-t border-gray-100 dark:border-gray-700">
+                <IconButton variant="ghost" size="1" onClick={() => onView(purchaseOrder)}>
                     <Eye className="w-4 h-4" />
-                    <span>View</span>
-                </button>
+                </IconButton>
                 {(purchaseOrder.status === 'DRAFT' || purchaseOrder.status === 'PENDING') && (
-                    <button
-                        onClick={() => onSend(purchaseOrder)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-indigo-500 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
-                    >
+                    <IconButton variant="ghost" color="indigo" size="1" onClick={() => onSend(purchaseOrder)}>
                         <Send className="w-4 h-4" />
-                        <span>Send</span>
-                    </button>
+                    </IconButton>
                 )}
                 {(purchaseOrder.status === 'SENT' || purchaseOrder.status === 'SHIPPED' || purchaseOrder.status === 'PARTIALLY_RECEIVED') && (
-                    <button
-                        onClick={() => onReceive(purchaseOrder)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-green-500 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
-                    >
+                    <IconButton variant="ghost" color="green" size="1" onClick={() => onReceive(purchaseOrder)}>
                         <CheckCircle className="w-4 h-4" />
-                        <span>Receive</span>
-                    </button>
+                    </IconButton>
                 )}
                 {(purchaseOrder.status === 'DRAFT' || purchaseOrder.status === 'PENDING' || purchaseOrder.status === 'SENT') && (
-                    <button
-                        onClick={() => onCancel(purchaseOrder)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ml-auto"
-                    >
-                        <XCircle className="w-4 h-4" />
-                        <span>Cancel</span>
-                    </button>
+                    <Box className="ml-auto">
+                        <IconButton variant="ghost" color="red" size="1" onClick={() => onCancel(purchaseOrder)}>
+                            <XCircle className="w-4 h-4" />
+                        </IconButton>
+                    </Box>
                 )}
-            </div>
-        </div>
+            </Flex>
+        </Box>
     );
 };
 
@@ -199,32 +137,32 @@ export const PurchaseOrderMobileList: FC<PurchaseOrderMobileListProps> = ({
 }) => {
     if (isLoading) {
         return (
-            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+            <Box className="divide-y divide-gray-200 dark:divide-gray-700">
                 {[...Array(5)].map((_, i) => (
-                    <div key={i} className="p-4 animate-pulse">
-                        <div className="flex items-start justify-between gap-3 mb-3">
-                            <div className="flex-1 space-y-2">
-                                <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32" />
-                                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24" />
-                            </div>
-                            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20" />
-                        </div>
-                        <div className="flex gap-4 mb-3">
-                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24" />
-                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16" />
-                        </div>
-                        <div className="flex gap-2 pt-3">
-                            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16" />
-                            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-20" />
-                        </div>
-                    </div>
+                    <Box key={i} p="4">
+                        <Flex justify="between" gap="3" mb="3">
+                            <Flex direction="column" gap="2" className="flex-1">
+                                <Skeleton><Text size="3">PO-000000</Text></Skeleton>
+                                <Skeleton><Text size="2">Supplier Name</Text></Skeleton>
+                            </Flex>
+                            <Skeleton><Text size="4">MWK 0000</Text></Skeleton>
+                        </Flex>
+                        <Flex gap="4" mb="3">
+                            <Skeleton><Text size="2">Jan 1, 2024</Text></Skeleton>
+                            <Skeleton><Text size="2">0 items</Text></Skeleton>
+                        </Flex>
+                        <Flex gap="2" pt="3">
+                            <Skeleton><Box style={{ width: 64, height: 32 }} /></Skeleton>
+                            <Skeleton><Box style={{ width: 80, height: 32 }} /></Skeleton>
+                        </Flex>
+                    </Box>
                 ))}
-            </div>
+            </Box>
         );
     }
 
     return (
-        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        <Box className="divide-y divide-gray-200 dark:divide-gray-700">
             {purchaseOrders.map((po) => (
                 <PurchaseOrderMobileCard
                     key={po.id}
@@ -235,7 +173,7 @@ export const PurchaseOrderMobileList: FC<PurchaseOrderMobileListProps> = ({
                     onView={onView}
                 />
             ))}
-        </div>
+        </Box>
     );
 };
 

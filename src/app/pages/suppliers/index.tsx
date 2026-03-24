@@ -1,7 +1,7 @@
 import { FC, useCallback, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { Confirm, Notify } from 'notiflix';
-import { Truck, Plus, X } from 'lucide-react';
+import { Truck, TruckIcon, Plus, X, Package, DollarSign } from 'lucide-react';
 import DataTable, { type Themes } from 'react-data-table-component';
 import { HiOutlineMenuAlt4 } from 'react-icons/hi';
 import { Button, Box, Flex } from '@radix-ui/themes';
@@ -9,13 +9,13 @@ import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import TableSkeleton from '../../components/skeleton/TableSkeleton';
 import TableEmptyState from '../../components/TableEmptyState';
-import { ZonseThemeContext } from '../../components';
+import { ZonseThemeContext, SummaryCards } from '../../components';
+import type { SummaryCardItem } from '../../components';
 import { SearchBar } from '../../components/SearchBar';
 import { getTableStyles } from '../../utils/table-styles';
 import { useSuppliers } from '../../hooks/useSuppliers';
 import { getSupplierTableColumns } from './partials/SupplierTableColumns';
 import { SupplierMobileList } from './partials/SupplierMobileCard';
-import SupplierSummaryCards, { SupplierSummaryCard } from './partials/SupplierSummaryCards';
 import { SupplierStatusFilter } from './partials/SupplierStatusFilter';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
@@ -46,7 +46,7 @@ const SupplierManagement: FC = () => {
     const hasActiveFilters = useMemo(() => !!searchTerm || !!statusFilter, [searchTerm, statusFilter]);
 
     // Calculate summary stats
-    const summaryCards: SupplierSummaryCard[] = useMemo(() => {
+    const summaryCards: SummaryCardItem[] = useMemo(() => {
         const allSuppliers = suppliers || [];
         const activeCount = allSuppliers.filter(s => s.isActive).length;
         const inactiveCount = allSuppliers.filter(s => !s.isActive).length;
@@ -56,7 +56,7 @@ const SupplierManagement: FC = () => {
             {
                 title: 'Total Suppliers',
                 value: totalRows,
-                icon: 'total',
+                icon: <Truck className="w-5 h-5" />,
                 bgColor: 'bg-sky-50 dark:bg-sky-900/20',
                 iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
                 textColor: 'text-sky-500 dark:text-sky-400',
@@ -64,7 +64,7 @@ const SupplierManagement: FC = () => {
             {
                 title: 'Active',
                 value: activeCount,
-                icon: 'active',
+                icon: <TruckIcon className="w-5 h-5" />,
                 bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
                 iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
                 textColor: 'text-emerald-500 dark:text-emerald-400',
@@ -72,7 +72,7 @@ const SupplierManagement: FC = () => {
             {
                 title: 'Inactive',
                 value: inactiveCount,
-                icon: 'inactive',
+                icon: <Package className="w-5 h-5" />,
                 bgColor: 'bg-gray-50 dark:bg-gray-700/50',
                 iconBgColor: 'bg-gray-100 dark:bg-gray-600',
                 textColor: 'text-gray-600 dark:text-gray-400',
@@ -80,7 +80,7 @@ const SupplierManagement: FC = () => {
             {
                 title: 'Total Orders',
                 value: totalOrders,
-                icon: 'orders',
+                icon: <DollarSign className="w-5 h-5" />,
                 bgColor: 'bg-amber-50 dark:bg-amber-900/20',
                 iconBgColor: 'bg-amber-100 dark:bg-amber-900/40',
                 textColor: 'text-amber-500 dark:text-amber-400',
@@ -196,9 +196,12 @@ const SupplierManagement: FC = () => {
                 </Flex>
 
                 {/* Summary Cards */}
-                <Box px="4">
-                    <SupplierSummaryCards cards={summaryCards} isLoading={isLoading} />
-                </Box>
+                <SummaryCards
+                    cards={summaryCards}
+                    isLoading={isLoading}
+                    variant="embedded"
+                    gridClassName="grid-cols-2 md:grid-cols-4"
+                />
 
                 {/* Mobile Card List / Desktop DataTable */}
                 {isMobile ? (
@@ -221,7 +224,7 @@ const SupplierManagement: FC = () => {
                                 }
                                 action={
                                     hasActiveFilters ? (
-                                        <Button variant="ghost" color="sky" size="2" onClick={handleClearFilters}>
+                                        <Button variant="ghost" size="2" onClick={handleClearFilters}>
                                             Clear filters
                                         </Button>
                                     ) : undefined
@@ -288,7 +291,6 @@ const SupplierManagement: FC = () => {
                         paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
                         onChangeRowsPerPage={handlePerRowsChange}
                         onChangePage={handlePageChange}
-                        fixedHeader
                         noDataComponent={
                             <TableEmptyState
                                 icon={<HiOutlineMenuAlt4 />}
@@ -300,7 +302,7 @@ const SupplierManagement: FC = () => {
                                 }
                                 action={
                                     hasActiveFilters ? (
-                                        <Button variant="ghost" color="sky" size="2" onClick={handleClearFilters}>
+                                        <Button variant="ghost" size="2" onClick={handleClearFilters}>
                                             Clear filters
                                         </Button>
                                     ) : undefined

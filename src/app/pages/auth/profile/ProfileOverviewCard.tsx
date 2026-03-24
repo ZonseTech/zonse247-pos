@@ -43,7 +43,7 @@ const ProfileOverviewCard: FunctionComponent<Props> = ({ user }) => {
                     <Text as="p" size="2" color="gray" mt="1">@{user?.username}</Text>
                     <Flex align="center" gap="2" mt="2">
                         <BadgeCheckIcon className="w-4 h-4 text-sky-500 dark:text-sky-400" />
-                        <Text size="2" weight="medium" color="sky">
+                        <Text size="2" weight="medium" >
                             {formatRoleName(user?.roleName)}
                         </Text>
                     </Flex>

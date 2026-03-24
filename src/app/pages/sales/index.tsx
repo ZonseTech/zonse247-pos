@@ -201,7 +201,7 @@ const SalesPage: FC = () => {
                                 }
                                 action={
                                     hasActiveFilters ? (
-                                        <Button variant="ghost" color="sky" size="2" onClick={clearFilters}>
+                                        <Button variant="ghost" size="2" onClick={clearFilters}>
                                             Clear filters
                                         </Button>
                                     ) : undefined
@@ -268,7 +268,6 @@ const SalesPage: FC = () => {
                         paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
                         onChangeRowsPerPage={handlePerRowsChange}
                         onChangePage={handlePageChange}
-                        fixedHeader
                         noDataComponent={
                             <TableEmptyState
                                 icon={<HiOutlineMenuAlt4 />}
@@ -280,7 +279,7 @@ const SalesPage: FC = () => {
                                 }
                                 action={
                                     hasActiveFilters ? (
-                                        <Button variant="ghost" color="sky" size="2" onClick={clearFilters}>
+                                        <Button variant="ghost" size="2" onClick={clearFilters}>
                                             Clear filters
                                         </Button>
                                     ) : undefined

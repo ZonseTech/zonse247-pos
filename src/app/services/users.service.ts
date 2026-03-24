@@ -182,7 +182,7 @@ const usersService = {
 
 	async toggleStatus(userId: string, status: UserStatus): Promise<User> {
 		try {
-			const response = await api.put<ApiResponse<User>>(`${endpoints.toggleStatus}/${userId}`, { status } as any);
+			const response = await api.put<ApiResponse<User>>(`${endpoints.update}/${userId}`, { status } as any);
 			return response.data.data!;
 		} catch (err) {
 			console.error('Error toggling user status:', err);

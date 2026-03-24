@@ -1,21 +1,28 @@
 import { FunctionComponent, useCallback, useContext, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { Package, Settings2, Clock, CheckCircle2, FileCheck, Plus, X } from 'lucide-react';
+import { Package, Settings2, Clock, CheckCircle2, FileCheck, Plus, FilterX } from 'lucide-react';
 import DataTable, { type Themes } from 'react-data-table-component';
+import { Box, Flex, Text, Select, Button, IconButton } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
-import TableSkeleton from '../../components/skeleton/TableSkeleton';
-import TableEmptyState from '../../components/TableEmptyState';
-import SummaryCards, { type SummaryCardItem } from '../../components/stats/SummaryCards';
 import MobilePagination from '../../components/MobilePagination';
 import { getTableStyles } from '../../utils/table-styles';
-import { Button, ZonseThemeContext, Select } from '../../components';
+import { ZonseThemeContext, ComponentLoader, SummaryCards } from '../../components';
+import type { SummaryCardItem } from '../../components';
 import { useGoodsReceipts } from '../../hooks/useGoodsReceipts';
 import { getGoodsReceiptTableColumns } from './partials/GoodsReceiptTableColumns';
 import { GoodsReceiptMobileList } from './partials/GoodsReceiptMobileCard';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { Confirm } from 'notiflix';
+
+const STATUS_OPTIONS: { value: string; label: string }[] = [
+    { value: 'all', label: 'All Status' },
+    { value: 'DRAFT', label: 'Draft' },
+    { value: 'VERIFIED', label: 'Verified' },
+    { value: 'POSTED', label: 'Posted' },
+    { value: 'CANCELLED', label: 'Cancelled' },
+];
 
 const GoodsReceiptManagement: FunctionComponent = () => {
     const isMobile = useIsMobile();
@@ -42,7 +49,6 @@ const GoodsReceiptManagement: FunctionComponent = () => {
 
     const hasActiveFilters = useMemo(() => !!statusFilter, [statusFilter]);
 
-    // Summary cards
     const summaryCards: SummaryCardItem[] = useMemo(() => {
         const draftCount = goodsReceipts.filter(g => g.status === 'DRAFT').length;
         const verifiedCount = goodsReceipts.filter(g => g.status === 'VERIFIED').length;
@@ -83,8 +89,6 @@ const GoodsReceiptManagement: FunctionComponent = () => {
             },
         ];
     }, [goodsReceipts, totalRows]);
-
-    // ── Handlers ────────────────────────────────────────────────────────────
 
     const handleAddGRN = useCallback(() => {
         navigate(ROUTES.GOODS_RECEIPT_FORM);
@@ -154,77 +158,84 @@ const GoodsReceiptManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="max-w-full">
+            <Box className="max-w-full">
                 <PageHeader
                     icon={<Package className="w-7 h-7 sm:w-8 sm:h-8 text-teal-500 dark:text-teal-400" />}
                     title="Goods Receipts"
                     description="Record and verify received goods against purchase orders"
                     action={
-                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                            <Select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value as GRNStatusType | '')}
-                                className="h-10 px-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500 dark:focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-400 transition-colors w-full sm:w-48"
+                        <Flex direction={{ initial: 'column', sm: 'row' }} gap={{ initial: '2', sm: '3' }} align="center">
+                            <Select.Root
+                                value={statusFilter || 'all'}
+                                onValueChange={(val) => setStatusFilter(val === 'all' ? '' : val as GRNStatusType)}
                             >
-                                <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                    All Status
-                                </option>
-                                <option value="DRAFT" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                    Draft
-                                </option>
-                                <option value="VERIFIED" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                    Verified
-                                </option>
-                                <option value="POSTED" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                    Posted
-                                </option>
-                                <option value="CANCELLED" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                    Cancelled
-                                </option>
-                            </Select>
+                                <Select.Trigger
+                                    variant="surface"
+                                    placeholder="All Status"
+                                    className="w-full sm:w-48"
+                                />
+                                <Select.Content position="popper">
+                                    {STATUS_OPTIONS.map((opt) => (
+                                        <Select.Item key={opt.value} value={opt.value}>
+                                            {opt.label}
+                                        </Select.Item>
+                                    ))}
+                                </Select.Content>
+                            </Select.Root>
 
                             {selectedRows.length > 0 && !isMobile && (
-                                <div className="flex items-center gap-2 px-4 py-2 bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-md">
+                                <Flex align="center" gap="2" px="4" py="2" className="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-md">
                                     <Settings2 className="w-4 h-4 text-teal-500 dark:text-teal-400" />
-                                    <span className="text-sm font-medium text-teal-900 dark:text-teal-100">
+                                    <Text size="2" weight="medium" className="text-teal-900 dark:text-teal-100">
                                         {selectedRows.length} selected
-                                    </span>
-                                </div>
+                                    </Text>
+                                </Flex>
                             )}
 
                             {hasActiveFilters && (
-                                <button
+                                <Button
+                                    variant="outline"
+                                    color="red"
+                                    size="2"
                                     onClick={handleClearFilters}
-                                    className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-500 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-700"
                                 >
-                                    <X className="w-4 h-4" />
-                                    <span>Clear</span>
-                                </button>
+                                    <FilterX className="w-4 h-4" />
+                                    Clear
+                                </Button>
                             )}
-                            <Button
-                                icon={Plus}
-                                layout={isMobile ? 'outline' : 'primary'}
-                                onClick={handleAddGRN}
-                                className="!px-3 sm:!px-4 !py-2 sm:!py-2.5"
-                                theme="primary"
-                            >
-                                {!isMobile && <span className="hidden md:block">New GRN</span>}
-                            </Button>
-                        </div>
+
+                            {isMobile ? (
+                                <IconButton
+                                    variant="outline"
+                                    size="2"
+                                    onClick={handleAddGRN}
+                                    aria-label="New Goods Receipt"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                </IconButton>
+                            ) : (
+                                <Button
+                                    size="2"
+                                    onClick={handleAddGRN}
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    <span className="hidden md:inline">New GRN</span>
+                                </Button>
+                            )}
+                        </Flex>
                     }
                 />
 
-                {/* Main content */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <Box className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                     <SummaryCards
                         cards={summaryCards}
                         isLoading={isLoading}
-                        skeletonCount={4}
                         variant="embedded"
+                        gridClassName="grid-cols-2 md:grid-cols-4"
                     />
 
                     {isMobile ? (
-                        <div className="overflow-hidden">
+                        <Box className="overflow-hidden">
                             {isLoading ? (
                                 <GoodsReceiptMobileList
                                     goodsReceipts={[]}
@@ -235,25 +246,30 @@ const GoodsReceiptManagement: FunctionComponent = () => {
                                     isLoading={true}
                                 />
                             ) : goodsReceipts.length === 0 ? (
-                                <TableEmptyState
-                                    icon={<Package />}
-                                    title={hasActiveFilters ? 'No matching goods receipts' : 'No goods receipts yet'}
-                                    description={
-                                        hasActiveFilters
+                                <Flex direction="column" align="center" justify="center" py="9" px="4">
+                                    <Flex align="center" justify="center" className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
+                                        <Package className="w-8 h-8 text-gray-400" />
+                                    </Flex>
+                                    <Text as="p" size="4" weight="medium" align="center" className="text-gray-900 dark:text-white mb-2">
+                                        {hasActiveFilters ? 'No matching goods receipts' : 'No goods receipts yet'}
+                                    </Text>
+                                    <Text as="p" size="2" color="gray" align="center" className="max-w-sm">
+                                        {hasActiveFilters
                                             ? 'Try adjusting your filters.'
-                                            : 'Create a GRN from an existing purchase order.'
-                                    }
-                                    action={
-                                        hasActiveFilters ? (
-                                            <button
-                                                onClick={handleClearFilters}
-                                                className="text-teal-500 hover:text-teal-800 dark:text-teal-400 dark:hover:text-teal-300 font-medium text-sm"
-                                            >
-                                                Clear filters
-                                            </button>
-                                        ) : undefined
-                                    }
-                                />
+                                            : 'Create a GRN from an existing purchase order.'}
+                                    </Text>
+                                    {hasActiveFilters && (
+                                        <Button
+                                            variant="ghost"
+                                            color="teal"
+                                            size="2"
+                                            mt="4"
+                                            onClick={handleClearFilters}
+                                        >
+                                            Clear filters
+                                        </Button>
+                                    )}
+                                </Flex>
                             ) : (
                                 <>
                                     <GoodsReceiptMobileList
@@ -267,15 +283,15 @@ const GoodsReceiptManagement: FunctionComponent = () => {
                                     <MobilePagination page={page} totalRows={totalRows} perPage={perPage} onPageChange={setPage} />
                                 </>
                             )}
-                        </div>
+                        </Box>
                     ) : (
-                        <div className="overflow-hidden">
+                        <Box className="overflow-hidden">
                             <DataTable
                                 columns={columns}
                                 data={goodsReceipts}
                                 theme={mode as Themes}
                                 progressPending={isLoading}
-                                progressComponent={<TableSkeleton rows={10} columns={6} showCheckbox showActions />}
+                                progressComponent={<ComponentLoader loading={isLoading} />}
                                 pagination
                                 paginationServer
                                 paginationTotalRows={totalRows}
@@ -285,29 +301,33 @@ const GoodsReceiptManagement: FunctionComponent = () => {
                                 onChangePage={handlePageChange}
                                 customStyles={getTableStyles(mode)}
                                 highlightOnHover
+                                striped
                                 responsive
-                                fixedHeader
                                 selectableRows
                                 selectableRowsHighlight
                                 onSelectedRowsChange={handleRowSelected}
                                 clearSelectedRows={toggleCleared}
                                 persistTableHead
                                 noDataComponent={
-                                    <TableEmptyState
-                                        icon={<Package />}
-                                        title={hasActiveFilters ? 'No matching goods receipts' : 'No goods receipts yet'}
-                                        description={
-                                            hasActiveFilters
+                                    <Flex direction="column" align="center" justify="center" py="9" className="dark:bg-gray-800 flex-1">
+                                        <Flex align="center" justify="center" className="h-16 w-16 rounded-full bg-gray-100 dark:bg-gray-700">
+                                            <Package className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                                        </Flex>
+                                        <Text as="p" size="4" weight="bold" className="mt-4 text-gray-900 dark:text-gray-100">
+                                            {hasActiveFilters ? 'No matching goods receipts' : 'No goods receipts yet'}
+                                        </Text>
+                                        <Text as="p" size="2" color="gray" align="center" className="mt-2 max-w-sm">
+                                            {hasActiveFilters
                                                 ? 'Try adjusting your filters.'
-                                                : 'Create a GRN from an existing purchase order.'
-                                        }
-                                    />
+                                                : 'Create a GRN from an existing purchase order.'}
+                                        </Text>
+                                    </Flex>
                                 }
                             />
-                        </div>
+                        </Box>
                     )}
-                </div>
-            </div>
+                </Box>
+            </Box>
         </AppLayout>
     );
 };

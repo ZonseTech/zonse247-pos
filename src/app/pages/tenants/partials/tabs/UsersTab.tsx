@@ -155,8 +155,6 @@ const UsersTab: FunctionComponent<UsersTabProps> = memo(({ users, loading, tenan
                     </div>
                 }
                 customStyles={getTableStyles(mode)}
-                fixedHeader
-                fixedHeaderScrollHeight="calc(100vh - 450px)"
             />
         </Fragment>
     );

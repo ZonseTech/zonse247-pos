@@ -180,7 +180,6 @@ const CustomerManagement: FunctionComponent = () => {
                             paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
                             onChangeRowsPerPage={handlePerRowsChange}
                             onChangePage={handlePageChange}
-                            fixedHeader
                             customStyles={getTableStyles(mode)}
                             noDataComponent={
                                 <div className="text-center py-12 sm:py-16 px-4">

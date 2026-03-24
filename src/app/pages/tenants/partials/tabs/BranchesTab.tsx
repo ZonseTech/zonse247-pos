@@ -148,8 +148,6 @@ const BranchesTab: FunctionComponent<BranchesTabProps> = memo(({ branches, loadi
                     </div>
                 }
                 customStyles={getTableStyles(mode)}
-                fixedHeader
-                fixedHeaderScrollHeight="calc(100vh - 450px)"
             />
         </Fragment>
     );

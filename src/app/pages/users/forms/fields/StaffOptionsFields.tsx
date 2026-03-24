@@ -38,7 +38,7 @@ const StaffOptionsFields: FunctionComponent<StaffOptionsFieldsProps> = ({
                         <Switch
                             checked={trackAttendance}
                             onCheckedChange={handleTrackAttendanceChange}
-                            color="sky"
+
                             size="2"
                         />
                     </label>
@@ -51,7 +51,7 @@ const StaffOptionsFields: FunctionComponent<StaffOptionsFieldsProps> = ({
                         <Switch
                             checked={allowAppAccess}
                             onCheckedChange={handleAllowAppAccessChange}
-                            color="sky"
+
                             size="2"
                         />
                     </label>

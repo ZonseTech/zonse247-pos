@@ -175,8 +175,6 @@ const AccountTerminalsTab: FunctionComponent<TerminalsTabProps> = memo(({ termin
                 </div>
             }
             customStyles={getTableStyles(mode)}
-            fixedHeader
-            fixedHeaderScrollHeight="calc(100vh - 450px)"
         />
     );
 });

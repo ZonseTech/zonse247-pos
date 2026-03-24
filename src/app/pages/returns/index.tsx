@@ -221,7 +221,7 @@ const ReturnsPage: FC = () => {
                                 }
                                 action={
                                     hasActiveFilters ? (
-                                        <Button variant="ghost" color="sky" size="2" onClick={handleClearFilters}>
+                                        <Button variant="ghost" size="2" onClick={handleClearFilters}>
                                             Clear filters
                                         </Button>
                                     ) : undefined
@@ -289,7 +289,6 @@ const ReturnsPage: FC = () => {
                         paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
                         onChangeRowsPerPage={handlePerRowsChange}
                         onChangePage={handlePageChange}
-                        fixedHeader
                         noDataComponent={
                             <TableEmptyState
                                 icon={<HiOutlineMenuAlt4 />}
@@ -301,7 +300,7 @@ const ReturnsPage: FC = () => {
                                 }
                                 action={
                                     hasActiveFilters ? (
-                                        <Button variant="ghost" color="sky" size="2" onClick={handleClearFilters}>
+                                        <Button variant="ghost" size="2" onClick={handleClearFilters}>
                                             Clear filters
                                         </Button>
                                     ) : undefined

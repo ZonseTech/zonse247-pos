@@ -120,7 +120,7 @@ export const getUserTableColumns = ({
                             <IconButton
                                 size="1"
                                 variant="ghost"
-                                color="sky"
+
                                 onClick={() => onEdit(row)}
                             >
                                 <Edit2 className="w-4 h-4" />

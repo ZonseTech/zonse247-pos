@@ -22,6 +22,10 @@ export function buildNavMenuGroups(user: User | null): NavMenuGroup[] {
         opsItems.push({ label: 'Point of Sale', route: ROUTES.POS, accelerator: 'CommandOrControl+P' });
     }
 
+    if (hasAnyPermission(user, ['products.view', 'products.create', 'sales.create', 'refunds.process'])) {
+        opsItems.push({ label: 'Customers', route: ROUTES.CUSTOMERS });
+    }
+
     if (hasAnyPermission(user, ['reports.sales.daily', 'reports.sales.detailed', 'payments.view'])) {
         opsItems.push({ label: 'Sales', route: ROUTES.SALES_HUB_SALES, accelerator: 'CommandOrControl+T' });
     }
@@ -33,7 +37,7 @@ export function buildNavMenuGroups(user: User | null): NavMenuGroup[] {
     const mgmtItems: NavMenuGroup['items'] = [];
 
     if (hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {
-        mgmtItems.push({ label: 'Inventory', route: ROUTES.INVENTORY });
+        mgmtItems.push({ label: 'Inventory', route: ROUTES.INVENTORY_HUB });
         mgmtItems.push({ label: 'Procurement', route: ROUTES.PROCUREMENT_SUPPLIERS });
     }
 

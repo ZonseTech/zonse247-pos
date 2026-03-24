@@ -269,8 +269,6 @@ const PrintJobsManagement: FunctionComponent = () => {
                                 paginationRowsPerPageOptions={[10, 15, 25, 50]}
                                 onChangeRowsPerPage={(n, p) => { setPage(p); setPerPage(n); }}
                                 onChangePage={setPage}
-                                fixedHeader
-                                fixedHeaderScrollHeight="calc(100vh - 550px)"
                                 customStyles={getTableStyles(mode)}
                                 noDataComponent={
                                     <Flex direction="column" align="center" py="9" className="dark:bg-gray-800">

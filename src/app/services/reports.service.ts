@@ -140,7 +140,7 @@ const reportsService = {
     endpoints,
 
     /**
-     * GET /api/v1/reports/summary
+     * GET /v1/reports/summary
      * Fetches the report summary data for mobile reports
      */
     async getSummary(query: ReportSummaryQuery = {}): Promise<ReportSummary> {
@@ -153,7 +153,7 @@ const reportsService = {
     },
 
     /**
-     * GET /api/v1/reports/total-sales
+     * GET /v1/reports/total-sales
      * Fetches the total sales data for the revenue report
      */
     async getTotalSales(query: TotalSalesQuery = {}): Promise<TotalSalesResponse> {
@@ -166,7 +166,7 @@ const reportsService = {
     },
 
     /**
-     * GET /api/v1/reports/gross-profit
+     * GET /v1/reports/gross-profit
      * Fetches the gross profit data for the profit report
      */
     async getGrossProfit(query: GrossProfitQuery = {}): Promise<GrossProfitResponse> {
@@ -179,7 +179,7 @@ const reportsService = {
     },
 
     /**
-     * GET /api/v1/reports/receipt-count
+     * GET /v1/reports/receipt-count
      * Fetches the receipt count data for the sales count report
      */
     async getReceiptCount(query: ReceiptCountQuery = {}): Promise<ReceiptCountResponse> {
@@ -192,7 +192,7 @@ const reportsService = {
     },
 
     /**
-     * GET /api/v1/reports/payment-modes
+     * GET /v1/reports/payment-modes
      * Fetches the payment modes breakdown data
      */
     async getPaymentModes(query: PaymentModesQuery = {}): Promise<PaymentModesResponse> {
@@ -205,7 +205,7 @@ const reportsService = {
     },
 
     /**
-     * GET /api/v1/reports/top-stocks
+     * GET /v1/reports/top-stocks
      * Fetches the top 10 selling stocks data
      */
     async getTopStocks(query: TopStocksQuery = {}): Promise<TopStocksResponse> {
@@ -218,7 +218,7 @@ const reportsService = {
     },
 
     /**
-     * GET /api/v1/reports/top-category
+     * GET /v1/reports/top-category
      * Fetches the top category data with order count and total price
      */
     async getTopCategory(query: TopCategoryQuery = {}): Promise<TopCategoryResponse> {

@@ -1,4 +1,4 @@
-import api from './http.service';
+import { liveApi, getAuthHeaders } from './live-api.service';
 
 /**
  * Purchase Order Service
@@ -27,8 +27,9 @@ const purchaseOrderService = {
      * IMPORTANT: This does NOT change inventory until received
      */
     async createPurchaseOrder(payload: CreatePurchaseOrderInput): Promise<PurchaseOrder> {
-        return api
-            .post<PurchaseOrderResponse>(endpoints.create, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<PurchaseOrderResponse>(endpoints.create, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -50,8 +51,9 @@ const purchaseOrderService = {
             }
         });
 
-        return api
-            .get<PurchaseOrderListResponse>(endpoints.list, params)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<PurchaseOrderListResponse>(endpoints.list, { headers, params })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -62,8 +64,9 @@ const purchaseOrderService = {
      * GET /purchase-orders/:id - Get purchase order by ID
      */
     async getPurchaseOrder(purchaseOrderId: string): Promise<PurchaseOrder> {
-        return api
-            .get<PurchaseOrderResponse>(endpoints.get(purchaseOrderId))
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<PurchaseOrderResponse>(endpoints.get(purchaseOrderId), { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -91,10 +94,12 @@ const purchaseOrderService = {
         purchaseOrderId: string,
         payload: ReceivePurchaseOrderInput
     ): Promise<PurchaseOrder> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .post<PurchaseOrderResponse>(
                 endpoints.receive(purchaseOrderId),
-                payload as any
+                payload,
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -113,8 +118,9 @@ const purchaseOrderService = {
         expectedDeliveryDate?: string;
         notes?: string;
     }): Promise<PurchaseOrder> {
-        return api
-            .post<PurchaseOrderResponse>(endpoints.fromRequisition, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<PurchaseOrderResponse>(endpoints.fromRequisition, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -128,10 +134,12 @@ const purchaseOrderService = {
         purchaseOrderId: string,
         payload: UpdatePurchaseOrderInput
     ): Promise<PurchaseOrder> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .put<PurchaseOrderResponse>(
                 endpoints.update(purchaseOrderId),
-                payload as any
+                payload,
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -143,10 +151,12 @@ const purchaseOrderService = {
      * POST /purchase-orders/:id/send — Mark PO as sent to supplier (DRAFT → SENT)
      */
     async sendPurchaseOrder(purchaseOrderId: string): Promise<PurchaseOrder> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .post<PurchaseOrderResponse>(
                 endpoints.send(purchaseOrderId),
-                {} as any
+                {},
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -159,10 +169,12 @@ const purchaseOrderService = {
      * Only allowed for DRAFT or SENT status
      */
     async cancelPurchaseOrder(purchaseOrderId: string): Promise<void> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .post(
                 endpoints.cancel(purchaseOrderId),
-                {}
+                {},
+                { headers }
             )
             .then(() => undefined)
             .catch((err) => {
@@ -175,8 +187,9 @@ const purchaseOrderService = {
      * Only DRAFT or CANCELLED POs can be deleted
      */
     async deletePurchaseOrder(purchaseOrderId: string): Promise<void> {
-        return api
-            .delete(endpoints.delete(purchaseOrderId))
+        const headers = await getAuthHeaders();
+        return liveApi
+            .delete(endpoints.delete(purchaseOrderId), { headers })
             .then(() => undefined)
             .catch((err) => {
                 throw err;

@@ -26,14 +26,12 @@ const ForceChangePassword: FunctionComponent = () => {
 
     const handleSuccess = useCallback(async () => {
         try {
-            // Re-fetch user to confirm forcePasswordChange is now false
             if (user?.userId) {
                 const freshUser = await usersService.show(user.userId);
                 updateUser({ ...freshUser, forcePasswordChange: false });
             }
         } catch {
-            // Best-effort — the local API already cleared the flag on
-            // successful password change.
+            // 
         }
 
         Notify.success('Password changed successfully. You may continue.');
@@ -43,7 +41,6 @@ const ForceChangePassword: FunctionComponent = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
             <div className="w-full max-w-lg">
-                {/* Warning banner */}
                 <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 dark:border-amber-600 dark:bg-amber-900/30 p-4">
                     <ShieldAlertIcon className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
                     <div>
@@ -57,7 +54,6 @@ const ForceChangePassword: FunctionComponent = () => {
                     </div>
                 </div>
 
-                {/* Reuse existing change-password forms */}
                 {isNativeMobile ? (
                     <MobileChangePasswordForm
                         userId={user?.userId || ''}

@@ -67,6 +67,7 @@ const cartSlice = createSlice({
                     variantId: variantId,  // Variant ID (required for API v1.6.0+)
                     productId: item.productId?.toString(),
                     name: decodeHtmlEntities(itemName),
+                    variantName: item.variantName || undefined,
                     purchasePrice: parseFloat(item.costPrice?.toString() || '0'),
                     sellingPrice: price,
                     discount: item.discount ?? 0,

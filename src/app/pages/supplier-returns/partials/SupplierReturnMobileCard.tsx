@@ -1,5 +1,6 @@
 import type { FunctionComponent } from 'react';
 import { Eye, CheckCircle, Truck, PackageCheck, Ban, Trash2 } from 'lucide-react';
+import { Badge, Box, Flex, IconButton, Text, Tooltip } from '@radix-ui/themes';
 import { returnStatusConfig } from './SupplierReturnTableColumns';
 
 const formatCurrency = (value: number) =>
@@ -27,94 +28,122 @@ const SupplierReturnMobileCard: FunctionComponent<SupplierReturnMobileCardProps>
     const cfg = returnStatusConfig[returnItem.status];
 
     return (
-        <div className="p-4 border-b border-gray-100 dark:border-gray-700 last:border-b-0">
-            <div className="flex items-start justify-between mb-2">
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
+        <Box p="4" className="border-b border-gray-100 dark:border-gray-700 last:border-b-0">
+            <Flex justify="between" align="start" mb="2">
+                <Box className="flex-1 min-w-0">
+                    <Flex align="center" gap="2" mb="1">
+                        <Text size="2" weight="bold">
                             {returnItem.returnNumber}
-                        </span>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text}`}>
+                        </Text>
+                        <Badge variant="soft" color={cfg.color} radius="full" size="1">
                             {cfg.label}
-                        </span>
-                    </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                        </Badge>
+                    </Flex>
+                    <Text as="p" size="2" color="gray" truncate>
                         {returnItem.supplier?.name || '—'}
-                    </p>
+                    </Text>
                     {returnItem.purchaseOrder?.poNumber && (
-                        <p className="text-xs text-sky-600 dark:text-sky-400 mt-0.5">
+                        <Text as="p" size="1" className="text-sky-600 dark:text-sky-400 mt-0.5">
                             PO: {returnItem.purchaseOrder.poNumber}
-                        </p>
+                        </Text>
                     )}
-                </div>
-                <div className="text-right flex-shrink-0 ml-3">
-                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                </Box>
+                <Box className="text-right flex-shrink-0 ml-3">
+                    <Text as="p" size="2" weight="bold">
                         {formatCurrency(returnItem.totalAmount)}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    </Text>
+                    <Text as="p" size="1" color="gray">
                         {returnItem.items?.length || 0} item(s)
-                    </p>
-                </div>
-            </div>
+                    </Text>
+                </Box>
+            </Flex>
 
-            <div className="flex items-center justify-between mt-3">
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {returnItem.returnDate && (
-                        <span>
-                            {new Date(returnItem.returnDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        </span>
-                    )}
-                </div>
-                <div className="flex items-center gap-1">
-                    <button
-                        onClick={() => onView(returnItem)}
-                        className="p-1.5 text-gray-500 hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
-                    >
-                        <Eye className="w-4 h-4" />
-                    </button>
-                    {returnItem.status === 'DRAFT' && (
-                        <button
-                            onClick={() => onApprove(returnItem)}
-                            className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+            <Flex justify="between" align="center" mt="3">
+                <Text size="1" color="gray">
+                    {returnItem.returnDate
+                        ? new Date(returnItem.returnDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                        : ''}
+                </Text>
+                <Flex align="center" gap="1">
+                    <Tooltip content="View">
+                        <IconButton
+                            variant="ghost"
+                            color="gray"
+                            size="1"
+                            onClick={() => onView(returnItem)}
+                            aria-label="View return"
                         >
-                            <CheckCircle className="w-4 h-4" />
-                        </button>
+                            <Eye className="w-4 h-4" />
+                        </IconButton>
+                    </Tooltip>
+                    {returnItem.status === 'DRAFT' && (
+                        <Tooltip content="Approve">
+                            <IconButton
+                                variant="ghost"
+                                color="blue"
+                                size="1"
+                                onClick={() => onApprove(returnItem)}
+                                aria-label="Approve return"
+                            >
+                                <CheckCircle className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
                     )}
                     {returnItem.status === 'APPROVED' && (
-                        <button
-                            onClick={() => onShip(returnItem)}
-                            className="p-1.5 text-gray-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors"
-                        >
-                            <Truck className="w-4 h-4" />
-                        </button>
+                        <Tooltip content="Ship">
+                            <IconButton
+                                variant="ghost"
+                                color="purple"
+                                size="1"
+                                onClick={() => onShip(returnItem)}
+                                aria-label="Ship return"
+                            >
+                                <Truck className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
                     )}
                     {returnItem.status === 'SHIPPED' && (
-                        <button
-                            onClick={() => onComplete(returnItem)}
-                            className="p-1.5 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
-                        >
-                            <PackageCheck className="w-4 h-4" />
-                        </button>
+                        <Tooltip content="Complete">
+                            <IconButton
+                                variant="ghost"
+                                color="green"
+                                size="1"
+                                onClick={() => onComplete(returnItem)}
+                                aria-label="Complete return"
+                            >
+                                <PackageCheck className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
                     )}
                     {['DRAFT', 'APPROVED'].includes(returnItem.status) && (
-                        <button
-                            onClick={() => onCancel(returnItem)}
-                            className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                        >
-                            <Ban className="w-4 h-4" />
-                        </button>
+                        <Tooltip content="Cancel">
+                            <IconButton
+                                variant="ghost"
+                                color="red"
+                                size="1"
+                                onClick={() => onCancel(returnItem)}
+                                aria-label="Cancel return"
+                            >
+                                <Ban className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
                     )}
                     {returnItem.status === 'DRAFT' && (
-                        <button
-                            onClick={() => onDelete(returnItem)}
-                            className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </button>
+                        <Tooltip content="Delete">
+                            <IconButton
+                                variant="ghost"
+                                color="red"
+                                size="1"
+                                onClick={() => onDelete(returnItem)}
+                                aria-label="Delete return"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
                     )}
-                </div>
-            </div>
-        </div>
+                </Flex>
+            </Flex>
+        </Box>
     );
 };
 
@@ -143,24 +172,24 @@ export const SupplierReturnMobileList: FunctionComponent<SupplierReturnMobileLis
 }) => {
     if (isLoading) {
         return (
-            <div className="divide-y divide-gray-100 dark:divide-gray-700">
+            <Box className="divide-y divide-gray-100 dark:divide-gray-700">
                 {[1, 2, 3].map((i) => (
-                    <div key={i} className="p-4 animate-pulse">
-                        <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1">
-                                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 mb-1" />
-                                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-24" />
-                            </div>
-                            <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-20" />
-                        </div>
-                    </div>
+                    <Box key={i} p="4" className="animate-pulse">
+                        <Flex justify="between" align="start" mb="2">
+                            <Box className="flex-1">
+                                <Box className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 mb-1" />
+                                <Box className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-24" />
+                            </Box>
+                            <Box className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-20" />
+                        </Flex>
+                    </Box>
                 ))}
-            </div>
+            </Box>
         );
     }
 
     return (
-        <div className="divide-y divide-gray-100 dark:divide-gray-700">
+        <Box className="divide-y divide-gray-100 dark:divide-gray-700">
             {returns.map((r) => (
                 <SupplierReturnMobileCard
                     key={r.id}
@@ -173,7 +202,7 @@ export const SupplierReturnMobileList: FunctionComponent<SupplierReturnMobileLis
                     onDelete={onDelete}
                 />
             ))}
-        </div>
+        </Box>
     );
 };
 

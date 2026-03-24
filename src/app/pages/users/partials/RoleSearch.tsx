@@ -1,6 +1,6 @@
-import { FunctionComponent, useState, useEffect } from 'react';
-import { Search, Shield, X, Check } from 'lucide-react';
-import { Flex, Box, Text, Badge, Spinner, IconButton, ScrollArea, TextField } from '@radix-ui/themes';
+import { FunctionComponent, useState, useEffect, useRef } from 'react';
+import { Search, Shield, X, Check, ChevronDown } from 'lucide-react';
+import { Flex, Box, Text, Spinner, IconButton, ScrollArea, TextField } from '@radix-ui/themes';
 import * as Popover from '@radix-ui/react-popover';
 import roleService from '../../../services/role.service';
 import { Notify } from 'notiflix';
@@ -47,6 +47,7 @@ export const RoleSearch: FunctionComponent<RoleSearchProps> = ({
     const [filteredRoles, setFilteredRoles] = useState<Role[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+    const searchInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (tenantId) {
@@ -136,27 +137,30 @@ export const RoleSearch: FunctionComponent<RoleSearchProps> = ({
 
     return (
         <Box>
-            <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
+            <Popover.Root open={isOpen} onOpenChange={(open) => {
+                setIsOpen(open);
+                if (!open) setSearchTerm('');
+            }}>
                 <Popover.Trigger asChild>
-                    <div>
+                    <button
+                        type="button"
+                        onClick={handleTriggerClick}
+                        disabled={!tenantId || disabled}
+                        className={`w-full text-left rounded-lg border transition-colors ${error && touched
+                            ? 'border-red-500 dark:border-red-500'
+                            : 'border-gray-300 dark:border-gray-600'
+                            } ${!tenantId || disabled
+                                ? 'opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-600'
+                                : 'cursor-pointer hover:border-gray-400 dark:hover:border-gray-500 bg-white dark:bg-gray-800'
+                            }`}
+                    >
                         {selectedRole ? (
-                            <Flex
-                                align="center"
-                                justify="between"
-                                p="3"
-                                className="border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700"
-                            >
+                            <Flex align="center" justify="between" p="3">
                                 <Flex align="center" gap="3" flexGrow="1">
                                     <Shield className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                                    <Box>
-                                        <Text as="p" size="2" weight="medium">
-                                            {selectedRole.displayName}
-                                        </Text>
-                                        <Text as="p" size="1" color="gray">
-                                            {selectedRole.name}
-                                            {selectedRole.isSystemRole && ' • System Role'}
-                                        </Text>
-                                    </Box>
+                                    <Text size="2" weight="medium" className="text-gray-900 dark:text-white">
+                                        {selectedRole.displayName}
+                                    </Text>
                                 </Flex>
                                 {!disabled && (
                                     <IconButton
@@ -173,22 +177,15 @@ export const RoleSearch: FunctionComponent<RoleSearchProps> = ({
                                 )}
                             </Flex>
                         ) : (
-                            <Box className="relative" onClick={handleTriggerClick}>
-                                <TextField.Root
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    placeholder={tenantId ? "Search for a role..." : "Select tenant first..."}
-                                    disabled={!tenantId || disabled}
-                                    color={error && touched ? 'red' : undefined}
-                                    size="2"
-                                >
-                                    <TextField.Slot>
-                                        <Search className="w-4 h-4 text-gray-400" />
-                                    </TextField.Slot>
-                                </TextField.Root>
-                            </Box>
+                            <Flex align="center" gap="2" p="2" px="3">
+                                <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                <Text size="2" color="gray" className="flex-1">
+                                    {tenantId ? 'Search for a role...' : 'Select tenant first...'}
+                                </Text>
+                                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                            </Flex>
                         )}
-                    </div>
+                    </button>
                 </Popover.Trigger>
 
                 <Popover.Portal>
@@ -196,7 +193,24 @@ export const RoleSearch: FunctionComponent<RoleSearchProps> = ({
                         className="z-50 w-[var(--radix-popover-trigger-width)] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg"
                         sideOffset={4}
                         align="start"
+                        onOpenAutoFocus={(e) => {
+                            e.preventDefault();
+                            searchInputRef.current?.focus();
+                        }}
                     >
+                        <Box p="2" className="border-b border-gray-200 dark:border-gray-700">
+                            <TextField.Root
+                                ref={searchInputRef}
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Type to filter roles..."
+                                size="2"
+                            >
+                                <TextField.Slot>
+                                    <Search className="w-4 h-4 text-gray-400" />
+                                </TextField.Slot>
+                            </TextField.Root>
+                        </Box>
                         <ScrollArea style={{ maxHeight: 240 }}>
                             {isLoading ? (
                                 <Flex align="center" justify="center" p="4">
@@ -216,32 +230,9 @@ export const RoleSearch: FunctionComponent<RoleSearchProps> = ({
                                                 }`}
                                         >
                                             <Flex align="center" gap="3">
-                                                <Shield className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                                                <Box flexGrow="1" minWidth="0">
-                                                    <Flex align="center" gap="2">
-                                                        <Text size="2" weight="medium">
-                                                            {role.displayName}
-                                                        </Text>
-                                                        {role.isSystemRole && (
-                                                            <Badge size="1" variant="soft" color="purple">
-                                                                System
-                                                            </Badge>
-                                                        )}
-                                                        {role.isActive === false && (
-                                                            <Badge size="1" variant="soft" color="red">
-                                                                Inactive
-                                                            </Badge>
-                                                        )}
-                                                    </Flex>
-                                                    <Text as="p" size="1" color="gray">
-                                                        {role.name}
-                                                    </Text>
-                                                    {role.description && (
-                                                        <Text as="p" size="1" color="gray" className="opacity-70">
-                                                            {role.description}
-                                                        </Text>
-                                                    )}
-                                                </Box>
+                                                <Text size="2" weight="medium" style={{ color: 'var(--gray-12)' }} className="flex-1">
+                                                    {role.displayName}
+                                                </Text>
                                                 {selectedRole?.roleId === role.roleId && (
                                                     <Check className="w-4 h-4 text-sky-500 flex-shrink-0" />
                                                 )}

@@ -101,7 +101,6 @@ const Login: FunctionComponent = () => {
     return (
         <AuthLayout
             className='max-w-md'
-            showKeyboard={!isMobile && keyboardSettings.enabled}
             keyboard={
                 <InputKeyboard
                     variant="full"

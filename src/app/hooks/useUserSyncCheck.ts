@@ -19,7 +19,7 @@ import { ROUTES } from '../utils/constants';
  * See: USER_SYNC_FRONTEND_GUIDE.txt §3A
  */
 
-const CHECK_INTERVAL_MS = 30_000; // align with SyncJobService interval
+const CHECK_INTERVAL_MS = 30_000;
 
 export const useUserSyncCheck = () => {
     const { user, forceSignout, updateUser } = useAuth();
@@ -36,7 +36,6 @@ export const useUserSyncCheck = () => {
         try {
             const freshUser = await usersService.show(user.userId);
 
-            // ── Scenario 3 (guide): Admin deactivated the user ──────────
             if (freshUser.status && freshUser.status !== 'active') {
                 forceSignout(
                     'Your account has been deactivated. Contact your admin.'
@@ -44,20 +43,15 @@ export const useUserSyncCheck = () => {
                 return;
             }
 
-            // ── Scenario 2 (guide): Admin force-reset the password ──────
             if (freshUser.forcePasswordChange) {
-                // Update local context so the change-password page can access it
                 updateUser(freshUser);
 
-                // Avoid redirect loop if already on the change-password page
                 if (location.pathname !== ROUTES.CHANGE_PASSWORD) {
                     navigate(ROUTES.CHANGE_PASSWORD, { replace: true });
                 }
                 return;
             }
 
-            // Keep user context in sync with any other profile fields that
-            // may have changed through a server-side pull (username, role, etc.)
             const hasChanges =
                 freshUser.username !== user.username ||
                 freshUser.fullname !== user.fullname ||
@@ -70,8 +64,6 @@ export const useUserSyncCheck = () => {
                 updateUser(freshUser);
             }
         } catch (error) {
-            // Silently fail — the local API may be briefly unavailable during
-            // a sync cycle.  The next interval will retry.
             console.warn('[useUserSyncCheck] Check failed:', error);
         } finally {
             isCheckingRef.current = false;
@@ -81,13 +73,10 @@ export const useUserSyncCheck = () => {
     useEffect(() => {
         if (!user?.userId) return;
 
-        // Initial check on mount / user change
         performCheck();
 
-        // Periodic checks aligned with SyncJobService interval
         timerRef.current = setInterval(performCheck, CHECK_INTERVAL_MS);
 
-        // Also listen for app resume (Capacitor / visibility change)
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 performCheck();

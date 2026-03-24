@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { Form, Formik, FieldArray } from 'formik';
-import { FunctionComponent, useState, useEffect, useMemo } from 'react';
+import { FunctionComponent, useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { ClipboardList, Plus, Trash2, Eye, X, Loader2, CheckCircle2, Package } from 'lucide-react';
 import { Notify, Report, Confirm } from 'notiflix';
@@ -8,10 +8,10 @@ import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import { Button, FormFieldCard } from '../../components';
 import FormInput from '../../components/FormInput';
-import FormSearchableSelect from '../../components/FormSearchableSelect';
+import ProductSearchSelect, { formatProductLabel } from '../../components/ProductSearchSelect';
+import SupplierSearchSelect, { formatSupplierLabel } from '../../components/SupplierSearchSelect';
 import { ROUTES } from '../../utils/constants';
 import { usePurchaseRequisitions } from '../../hooks/usePurchaseRequisitions';
-import { useProducts } from '../../hooks/useProducts';
 import FormSkeleton from '../../components/skeleton/FormSkeleton';
 import { getErrorMessage } from '../../utils/api-error-handler';
 
@@ -19,7 +19,6 @@ const PurchaseRequisitionForm: FunctionComponent = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { create, getById, updateRequisition } = usePurchaseRequisitions();
-    const { products } = useProducts();
 
     const requisitionId = (location.state as any)?.requisitionId;
     const isEditMode = (location.state as any)?.edit === true;
@@ -51,21 +50,40 @@ const PurchaseRequisitionForm: FunctionComponent = () => {
         }
     };
 
-    // Map products (which are flattened variants) to select options
-    const variantOptions = useMemo(() =>
-        products.map(p => ({
-            label: `${p.name} - ${p.variantName} (${p.sku || 'No SKU'})`,
-            value: p.id, // This is the variant ID
-        })),
-        [products]
+    // Build initial option for edit/view mode so AsyncSelect can display selected values
+    const getInitialOptionForItem = useCallback(
+        (variantId: string) => {
+            if (!requisition) return null;
+            const reqItem = requisition.items.find(i => i.variantId === variantId);
+            if (!reqItem?.variant) return null;
+            return {
+                label: formatProductLabel({
+                    name: reqItem.variant.product?.name || '',
+                    variantName: reqItem.variant.variantName || '',
+                    sku: reqItem.variant.sku,
+                }),
+                value: reqItem.variantId,
+            };
+        },
+        [requisition]
     );
 
+    const getInitialOptionForSupplier = useCallback(() => {
+        if (!requisition?.supplier) return null;
+        return {
+            label: formatSupplierLabel(requisition.supplier),
+            value: requisition.supplierId!,
+        };
+    }, [requisition]);
+
     const defaultValues = {
+        supplierId: '',
         notes: '',
         items: [{ variantId: '', requestedQuantity: 1, notes: '' }],
     };
 
     const initialValues = requisition ? {
+        supplierId: requisition.supplierId || '',
         notes: requisition.notes || '',
         items: requisition.items.map(item => ({
             variantId: item.variantId,
@@ -95,6 +113,7 @@ const PurchaseRequisitionForm: FunctionComponent = () => {
         setLoading(true);
         try {
             const payload: CreateRequisitionInput = {
+                supplierId: values.supplierId || undefined,
                 notes: values.notes || undefined,
                 items: values.items.map(item => ({
                     variantId: item.variantId,
@@ -112,7 +131,7 @@ const PurchaseRequisitionForm: FunctionComponent = () => {
                     'Go to Requisitions',
                     () => { /* stay */ },
                     () => {
-                        navigate(ROUTES.PURCHASE_REQUISITIONS);
+                        navigate(ROUTES.PROCUREMENT_REQUISITIONS);
                     }
                 );
             } else {
@@ -126,7 +145,7 @@ const PurchaseRequisitionForm: FunctionComponent = () => {
                         resetForm();
                     },
                     () => {
-                        navigate(ROUTES.PURCHASE_REQUISITIONS);
+                        navigate(ROUTES.PROCUREMENT_REQUISITIONS);
                     }
                 );
             }
@@ -199,7 +218,6 @@ const PurchaseRequisitionForm: FunctionComponent = () => {
                             />
 
                             <div className="mt-6 space-y-6">
-                                {/* Status + Info Card (View Mode) */}
                                 {isViewMode && requisition && (
                                     <FormFieldCard title="Requisition Info">
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -241,9 +259,15 @@ const PurchaseRequisitionForm: FunctionComponent = () => {
                                     </FormFieldCard>
                                 )}
 
-                                {/* Notes */}
                                 <FormFieldCard title="Details">
-                                    <div className="grid grid-cols-1 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <SupplierSearchSelect
+                                            name="supplierId"
+                                            label="Preferred Supplier"
+                                            placeholder="Select a preferred supplier (optional)..."
+                                            disabled={!canEdit}
+                                            initialOption={getInitialOptionForSupplier()}
+                                        />
                                         <FormInput
                                             label="Notes"
                                             name="notes"
@@ -253,7 +277,6 @@ const PurchaseRequisitionForm: FunctionComponent = () => {
                                     </div>
                                 </FormFieldCard>
 
-                                {/* Items */}
                                 <FormFieldCard title="Requisition Items">
                                     <FieldArray name="items">
                                         {({ push, remove }) => (
@@ -278,7 +301,6 @@ const PurchaseRequisitionForm: FunctionComponent = () => {
                                                 ) : (
                                                     <div className="space-y-3">
                                                         {values.items.map((item, index) => {
-                                                            // Get the matching requisition item for view mode (shows approved qty)
                                                             const reqItem = requisition?.items?.[index];
 
                                                             return (
@@ -303,13 +325,11 @@ const PurchaseRequisitionForm: FunctionComponent = () => {
                                                                     </div>
 
                                                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                                                        <FormSearchableSelect
-                                                                            label="Product / Variant"
+                                                                        <ProductSearchSelect
                                                                             name={`items.${index}.variantId`}
-                                                                            options={variantOptions}
-                                                                            placeholder="Search product..."
                                                                             required
                                                                             disabled={!canEdit}
+                                                                            initialOption={getInitialOptionForItem(item.variantId)}
                                                                         />
                                                                         <FormInput
                                                                             label="Requested Qty"
@@ -327,7 +347,6 @@ const PurchaseRequisitionForm: FunctionComponent = () => {
                                                                         />
                                                                     </div>
 
-                                                                    {/* Show approved quantity in view mode */}
                                                                     {isViewMode && reqItem && reqItem.approvedQuantity != null && (
                                                                         <div className="mt-2 text-sm">
                                                                             <span className="text-gray-500 dark:text-gray-400">Approved Qty: </span>
@@ -350,7 +369,6 @@ const PurchaseRequisitionForm: FunctionComponent = () => {
                                                     </div>
                                                 )}
 
-                                                {/* Summary */}
                                                 {values.items.length > 0 && (
                                                     <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-600">
                                                         <div className="text-lg">
@@ -371,20 +389,8 @@ const PurchaseRequisitionForm: FunctionComponent = () => {
                                     </FieldArray>
                                 </FormFieldCard>
 
-                                {/* Form Actions */}
                                 <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
-                                    <Button
-                                        type="button"
-                                        theme={isViewMode ? "primary" : "danger"}
-                                        onClick={() => navigate(ROUTES.PURCHASE_REQUISITIONS)}
-                                        disabled={isSubmitting || loading}
-                                    >
-                                        <X className="w-4 h-4 mr-2" />
-                                        {isViewMode ? 'Back to List' : 'Cancel'}
-                                    </Button>
-
                                     <div className="flex items-center gap-3">
-                                        {/* Edit button in view mode for PENDING requisitions */}
                                         {isViewMode && requisition?.status === 'PENDING' && (
                                             <Button
                                                 type="button"

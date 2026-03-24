@@ -1,5 +1,6 @@
 import { TableColumn } from 'react-data-table-component';
 import { Eye, CheckCircle, XCircle, Ban, Package, ShoppingCart } from 'lucide-react';
+import { Flex, Text, Badge, IconButton, Tooltip, Progress } from '@radix-ui/themes';
 import dayjs from 'dayjs';
 
 interface RequisitionTableActionsProps {
@@ -10,37 +11,20 @@ interface RequisitionTableActionsProps {
     onCreatePO?: (req: PurchaseRequisitionWithItems) => void;
 }
 
-const statusConfig: Record<RequisitionStatusType, { bg: string; text: string; dot: string; label: string }> = {
-    PENDING: {
-        bg: 'bg-yellow-100 dark:bg-yellow-900/30',
-        text: 'text-yellow-800 dark:text-yellow-400',
-        dot: 'bg-yellow-500',
-        label: 'Pending',
-    },
-    APPROVED: {
-        bg: 'bg-green-100 dark:bg-green-900/30',
-        text: 'text-green-800 dark:text-green-400',
-        dot: 'bg-green-500',
-        label: 'Approved',
-    },
-    PARTIALLY_APPROVED: {
-        bg: 'bg-sky-100 dark:bg-sky-900/30',
-        text: 'text-sky-800 dark:text-sky-400',
-        dot: 'bg-sky-500',
-        label: 'Partial',
-    },
-    REJECTED: {
-        bg: 'bg-red-100 dark:bg-red-900/30',
-        text: 'text-red-800 dark:text-red-400',
-        dot: 'bg-red-500',
-        label: 'Rejected',
-    },
-    CANCELLED: {
-        bg: 'bg-gray-100 dark:bg-gray-700',
-        text: 'text-gray-800 dark:text-gray-300',
-        dot: 'bg-gray-500',
-        label: 'Cancelled',
-    },
+const statusColorMap: Record<RequisitionStatusType, 'yellow' | 'green' | 'sky' | 'red' | 'gray'> = {
+    PENDING: 'yellow',
+    APPROVED: 'green',
+    PARTIALLY_APPROVED: 'sky',
+    REJECTED: 'red',
+    CANCELLED: 'gray',
+};
+
+const statusLabelMap: Record<RequisitionStatusType, string> = {
+    PENDING: 'Pending',
+    APPROVED: 'Approved',
+    PARTIALLY_APPROVED: 'Partial',
+    REJECTED: 'Rejected',
+    CANCELLED: 'Cancelled',
 };
 
 export const getRequisitionTableColumns = ({
@@ -53,27 +37,25 @@ export const getRequisitionTableColumns = ({
         {
             name: 'Requisition #',
             cell: (row) => (
-                <div className="py-2">
-                    <div className="font-semibold text-sky-500 dark:text-sky-400">
+                <Flex direction="column" py="2">
+                    <Text size="2" weight="bold" className="text-sky-500 dark:text-sky-400">
                         {row.requisitionNumber}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    </Text>
+                    <Text size="1" color="gray" className="mt-0.5">
                         {dayjs(row.createdAt).format('MMM D, YYYY')}
-                    </div>
-                </div>
+                    </Text>
+                </Flex>
             ),
             sortable: true,
         },
         {
             name: 'Requested By',
             cell: (row) => (
-                <div className="py-2">
-                    <div className="font-medium text-gray-900 dark:text-gray-100">
-                        {row.requestedByUser
-                            ? row.requestedByUser.fullname
-                            : 'N/A'}
-                    </div>
-                </div>
+                <Text size="2" weight="medium">
+                    {row.requestedByUser
+                        ? row.requestedByUser.fullname
+                        : 'N/A'}
+                </Text>
             ),
             sortable: true,
             grow: 2,
@@ -81,10 +63,12 @@ export const getRequisitionTableColumns = ({
         {
             name: 'Items',
             cell: (row) => (
-                <div className="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300">
+                <Flex align="center" gap="1">
                     <Package className="w-3.5 h-3.5 text-gray-400" />
-                    <span>{row.items?.length || 0} item{(row.items?.length || 0) !== 1 ? 's' : ''}</span>
-                </div>
+                    <Text size="2" color="gray">
+                        {row.items?.length || 0} item{(row.items?.length || 0) !== 1 ? 's' : ''}
+                    </Text>
+                </Flex>
             ),
         },
         {
@@ -101,24 +85,24 @@ export const getRequisitionTableColumns = ({
                     : 0;
 
                 return (
-                    <div className="text-right min-w-[70px]">
+                    <Flex direction="column" align="end" className="min-w-[70px]">
                         {isPartiallyApproved ? (
                             <>
-                                <div className="font-semibold text-gray-900 dark:text-gray-100">
-                                    <span className="text-sky-600 dark:text-sky-400">{totalApproved}</span>
-                                    <span className="text-gray-400 dark:text-gray-500"> / {totalRequested}</span>
-                                </div>
+                                <Text size="2" weight="bold">
+                                    <Text as="span" className="text-sky-600 dark:text-sky-400">{totalApproved}</Text>
+                                    <Text as="span" color="gray"> / {totalRequested}</Text>
+                                </Text>
                                 <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mt-1">
                                     <div className="h-full rounded-full bg-sky-500" style={{ width: `${approvalPercent}%` }} />
                                 </div>
-                                <span className="text-[10px] text-gray-500 dark:text-gray-400">{approvalPercent}% approved</span>
+                                <Text size="1" color="gray">{approvalPercent}% approved</Text>
                             </>
                         ) : (
-                            <div className="font-semibold text-gray-900 dark:text-gray-100">
+                            <Text size="2" weight="bold">
                                 {totalRequested}
-                            </div>
+                            </Text>
                         )}
-                    </div>
+                    </Flex>
                 );
             },
             sortable: true,
@@ -127,12 +111,12 @@ export const getRequisitionTableColumns = ({
         {
             name: 'Status',
             cell: (row) => {
-                const config = statusConfig[row.status] || statusConfig.PENDING;
+                const color = statusColorMap[row.status] || 'gray';
+                const label = statusLabelMap[row.status] || row.status;
                 return (
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${config.dot}`}></span>
-                        {config.label}
-                    </span>
+                    <Badge variant="soft" color={color as any} size="1" radius="full">
+                        {label}
+                    </Badge>
                 );
             },
             sortable: true,
@@ -140,49 +124,64 @@ export const getRequisitionTableColumns = ({
         {
             name: 'Actions',
             cell: (row) => (
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => onView(row)}
-                        className="p-2 text-sky-500 hover:text-sky-800 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
-                        title="View details"
-                    >
-                        <Eye className="w-4 h-4" />
-                    </button>
+                <Flex align="center" gap="1">
+                    <Tooltip content="View details">
+                        <IconButton
+                            variant="ghost"
+
+                            size="1"
+                            onClick={() => onView(row)}
+                        >
+                            <Eye className="w-4 h-4" />
+                        </IconButton>
+                    </Tooltip>
                     {row.status === 'PENDING' && (
                         <>
-                            <button
-                                onClick={() => onApprove(row)}
-                                className="p-2 text-green-500 hover:text-green-800 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
-                                title="Approve requisition"
-                            >
-                                <CheckCircle className="w-4 h-4" />
-                            </button>
-                            <button
-                                onClick={() => onReject(row)}
-                                className="p-2 text-red-500 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                                title="Reject requisition"
-                            >
-                                <XCircle className="w-4 h-4" />
-                            </button>
-                            <button
-                                onClick={() => onCancel(row)}
-                                className="p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/20 rounded-lg transition-colors"
-                                title="Cancel requisition"
-                            >
-                                <Ban className="w-4 h-4" />
-                            </button>
+                            <Tooltip content="Approve">
+                                <IconButton
+                                    variant="ghost"
+                                    color="green"
+                                    size="1"
+                                    onClick={() => onApprove(row)}
+                                >
+                                    <CheckCircle className="w-4 h-4" />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip content="Reject">
+                                <IconButton
+                                    variant="ghost"
+                                    color="red"
+                                    size="1"
+                                    onClick={() => onReject(row)}
+                                >
+                                    <XCircle className="w-4 h-4" />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip content="Cancel">
+                                <IconButton
+                                    variant="ghost"
+                                    color="gray"
+                                    size="1"
+                                    onClick={() => onCancel(row)}
+                                >
+                                    <Ban className="w-4 h-4" />
+                                </IconButton>
+                            </Tooltip>
                         </>
                     )}
                     {(row.status === 'APPROVED' || row.status === 'PARTIALLY_APPROVED') && onCreatePO && (
-                        <button
-                            onClick={() => onCreatePO(row)}
-                            className="p-2 text-indigo-500 hover:text-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors"
-                            title="Create Purchase Order"
-                        >
-                            <ShoppingCart className="w-4 h-4" />
-                        </button>
+                        <Tooltip content="Create Purchase Order">
+                            <IconButton
+                                variant="ghost"
+                                color="iris"
+                                size="1"
+                                onClick={() => onCreatePO(row)}
+                            >
+                                <ShoppingCart className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
                     )}
-                </div>
+                </Flex>
             ),
             right: true,
         },

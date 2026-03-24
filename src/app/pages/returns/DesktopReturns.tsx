@@ -219,7 +219,6 @@ const DesktopReturns: FC = () => {
                             paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
                             onChangeRowsPerPage={handlePerRowsChange}
                             onChangePage={handlePageChange}
-                            fixedHeader
                             noDataComponent={
                                 <div className={isEBN ? "flex flex-col items-center justify-center py-6" : "flex flex-col items-center justify-center py-12"}>
                                     <div className={isEBN

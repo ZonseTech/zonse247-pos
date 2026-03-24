@@ -1,4 +1,4 @@
-import api from './http.service';
+import { liveApi, getAuthHeaders } from './live-api.service';
 
 /**
  * Supplier Service
@@ -30,8 +30,9 @@ const supplierService = {
      * POST /suppliers - Create a new supplier
      */
     async createSupplier(payload: CreateSupplierPayload): Promise<Supplier> {
-        return api
-            .post<SupplierResponse>(endpoints.create, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<SupplierResponse>(endpoints.create, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -51,8 +52,9 @@ const supplierService = {
             }
         });
 
-        return api
-            .get<SupplierListResponse>(endpoints.list, params)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<SupplierListResponse>(endpoints.list, { headers, params })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -67,8 +69,12 @@ const supplierService = {
         tenantId?: string,
         branchId?: string
     ): Promise<Supplier> {
-        return api
-            .get<SupplierResponse>(`${endpoints.get}/${supplierId}`, tenantId && branchId ? { tenantId, branchId } : {})
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<SupplierResponse>(`${endpoints.get}/${supplierId}`, {
+                headers,
+                params: tenantId && branchId ? { tenantId, branchId } : {},
+            })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -83,8 +89,12 @@ const supplierService = {
         tenantId: string,
         branchId: string
     ): Promise<Supplier> {
-        return api
-            .get<SupplierResponse>(`${endpoints.byCode}/${encodeURIComponent(code)}`, { tenantId, branchId })
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<SupplierResponse>(`${endpoints.byCode}/${encodeURIComponent(code)}`, {
+                headers,
+                params: { tenantId, branchId },
+            })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -99,8 +109,12 @@ const supplierService = {
         tenantId: string,
         branchId: string
     ): Promise<Supplier[]> {
-        return api
-            .get<ApiResponse<{ suppliers?: Supplier[] }>>(`${endpoints.search}`, { term, tenantId, branchId })
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<ApiResponse<{ suppliers?: Supplier[] }>>(`${endpoints.search}`, {
+                headers,
+                params: { term, tenantId, branchId },
+            })
             .then((res) => {
                 const data = res.data.data;
                 return Array.isArray(data) ? data : (data?.suppliers || []);
@@ -117,8 +131,9 @@ const supplierService = {
         supplierId: string,
         payload: UpdateSupplierPayload
     ): Promise<Supplier> {
-        return api
-            .put<SupplierResponse>(`${endpoints.update}/${supplierId}`, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .put<SupplierResponse>(`${endpoints.update}/${supplierId}`, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -133,8 +148,12 @@ const supplierService = {
         tenantId?: string,
         branchId?: string
     ): Promise<void> {
-        return api
-            .delete(`${endpoints.delete}/${supplierId}`, tenantId && branchId ? { tenantId, branchId } : {})
+        const headers = await getAuthHeaders();
+        return liveApi
+            .delete(`${endpoints.delete}/${supplierId}`, {
+                headers,
+                params: tenantId && branchId ? { tenantId, branchId } : {},
+            })
             .then(() => undefined)
             .catch((err) => {
                 throw err;
@@ -154,8 +173,12 @@ const supplierService = {
         lastOrderDate?: string;
         averageOrderValue: number;
     }> {
-        return api
-            .get<ApiResponse<any>>(`${endpoints.stats}/${supplierId}`, { tenantId, branchId })
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<ApiResponse<any>>(`${endpoints.stats}/${supplierId}`, {
+                headers,
+                params: { tenantId, branchId },
+            })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;

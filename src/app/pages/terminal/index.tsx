@@ -350,8 +350,6 @@ const TerminalManagement: FunctionComponent = () => {
                                 paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
                                 onChangeRowsPerPage={handlePerRowsChange}
                                 onChangePage={handlePageChange}
-                                fixedHeader
-                                fixedHeaderScrollHeight="calc(100vh - 420px)"
                                 customStyles={getTableStyles(mode)}
                                 noDataComponent={
                                     <div className="text-center py-12">
