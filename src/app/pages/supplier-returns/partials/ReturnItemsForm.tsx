@@ -19,9 +19,9 @@ const ReturnItemsForm: FunctionComponent = () => {
                 <FieldArray name="items">
                     {({ push, remove }) => (
                         <Flex direction="column" gap="4">
-                            {values.items.map((_item, index) => (
+                            {values.items.map((item, index) => (
                                 <Box
-                                    key={index}
+                                    key={`${index}-${item.variantId}`}
                                     className="grid grid-cols-1 sm:grid-cols-12 gap-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30"
                                     p="4"
                                 >
@@ -30,6 +30,11 @@ const ReturnItemsForm: FunctionComponent = () => {
                                             name={`items.${index}.variantId`}
                                             label="Product Variant"
                                             required
+                                            initialOption={
+                                                item.variantId && item.displayName
+                                                    ? { label: item.displayName, value: item.variantId }
+                                                    : null
+                                            }
                                         />
                                     </Box>
                                     <Box className="sm:col-span-2">
