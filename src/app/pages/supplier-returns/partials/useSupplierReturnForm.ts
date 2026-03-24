@@ -7,6 +7,7 @@ import { useGoodsReceipts } from '../../../hooks/useGoodsReceipts';
 import { ROUTES } from '../../../utils/constants';
 import { getErrorMessage } from '../../../utils/api-error-handler';
 import type { ReturnFormValues, ReturnFormItem, FormMode } from './types';
+import { EMPTY_ITEM } from './types';
 
 export const useSupplierReturnForm = () => {
     const navigate = useNavigate();
@@ -25,6 +26,7 @@ export const useSupplierReturnForm = () => {
     // ── Local state ───────────────────────────────────────────────────────
     const [loading, setLoading] = useState(false);
     const [returnData, setReturnData] = useState<SupplierReturnWithItems | null>(null);
+    const [selectedSupplierId, setSelectedSupplierId] = useState('');
 
     // ── Load existing return (view mode) ──────────────────────────────────
     useEffect(() => {
@@ -43,39 +45,67 @@ export const useSupplierReturnForm = () => {
         }
     }, [returnId]);
 
-    // ── PO options (RECEIVED / PARTIALLY_RECEIVED / SHIPPED / SENT) ──────
-    const poOptions = useMemo(
-        () => purchaseOrders
-            .filter(po => ['RECEIVED', 'PARTIALLY_RECEIVED', 'SHIPPED', 'SENT'].includes(po.status))
-            .map(po => ({
-                label: `${po.poNumber} — ${po.supplier?.name || 'Unknown'}`,
-                value: po.id,
-            })),
+    // ── Helper: resolve supplier for a GRN ────────────────────────────────
+    const getGRNSupplierId = useCallback(
+        (grn: GoodsReceiptWithItems) =>
+            grn.purchaseOrder?.supplierId
+            || purchaseOrders.find(p => p.id === grn.purchaseOrderId)?.supplierId
+            || '',
         [purchaseOrders],
     );
 
-    // ── GRN options (POSTED) ──────────────────────────────────────────────
-    const grnOptions = useMemo(
-        () => goodsReceipts
-            .filter(g => g.status === 'POSTED')
+    // ── PO options — filtered by selected supplier ────────────────────────
+    const poOptions = useMemo(() => {
+        if (!selectedSupplierId) return [];
+        return purchaseOrders
+            .filter(po =>
+                po.supplierId === selectedSupplierId
+                && ['RECEIVED', 'PARTIALLY_RECEIVED', 'SHIPPED', 'SENT'].includes(po.status),
+            )
+            .map(po => ({
+                label: `${po.poNumber} — ${po.supplier?.name || 'Unknown'}`,
+                value: po.id,
+            }));
+    }, [purchaseOrders, selectedSupplierId]);
+
+    // ── GRN options — filtered by selected supplier ───────────────────────
+    const grnOptions = useMemo(() => {
+        if (!selectedSupplierId) return [];
+        return goodsReceipts
+            .filter(g =>
+                g.status === 'POSTED'
+                && getGRNSupplierId(g) === selectedSupplierId,
+            )
             .map(g => ({
                 label: `${g.receiptNumber} — ${g.purchaseOrder?.poNumber || 'No PO'}`,
                 value: g.id,
-            })),
-        [goodsReceipts],
+            }));
+    }, [goodsReceipts, selectedSupplierId, getGRNSupplierId]);
+
+    // ── Supplier changed → reset dependent fields ─────────────────────────
+    const handleSupplierChanged = useCallback(
+        (supplierId: string, setFieldValue: (field: string, value: any) => void) => {
+            setSelectedSupplierId(supplierId);
+            // Clear all dependent fields to prevent stale cross-supplier data
+            setFieldValue('goodsReceiptId', '');
+            setFieldValue('purchaseOrderId', '');
+            setFieldValue('items', [{ ...EMPTY_ITEM }]);
+        },
+        [],
     );
 
-    // ── GRN selected → auto-populate supplier, PO, items ─────────────────
+    // ── GRN selected → auto-populate PO & items ──────────────────────────
     const handleGRNSelected = useCallback(
         (grnId: string, setFieldValue: (field: string, value: any) => void) => {
             const grn = goodsReceipts.find(g => g.id === grnId);
             if (!grn) return;
 
-            // Set supplier from GRN's PO
-            if (grn.purchaseOrder) {
-                const po = purchaseOrders.find(p => p.id === grn.purchaseOrderId);
-                if (po?.supplierId) setFieldValue('supplierId', po.supplierId);
-                setFieldValue('purchaseOrderId', grn.purchaseOrderId);
+            // Set PO from GRN (only if PO is in available options)
+            if (grn.purchaseOrderId) {
+                const poInList = purchaseOrders.find(p => p.id === grn.purchaseOrderId);
+                if (poInList) {
+                    setFieldValue('purchaseOrderId', grn.purchaseOrderId);
+                }
             }
 
             // Populate items from GRN items
@@ -95,6 +125,15 @@ export const useSupplierReturnForm = () => {
             }
         },
         [goodsReceipts, purchaseOrders],
+    );
+
+    // ── GRN cleared → reset auto-populated PO & items ────────────────────
+    const handleGRNCleared = useCallback(
+        (setFieldValue: (field: string, value: any) => void) => {
+            setFieldValue('purchaseOrderId', '');
+            setFieldValue('items', [{ ...EMPTY_ITEM }]);
+        },
+        [],
     );
 
     // ── Formik values ─────────────────────────────────────────────────────
@@ -231,11 +270,14 @@ export const useSupplierReturnForm = () => {
         returnId,
         loading,
         returnData,
+        selectedSupplierId,
         poOptions,
         grnOptions,
         initialValues,
         handleSubmit,
+        handleSupplierChanged,
         handleGRNSelected,
+        handleGRNCleared,
         handleApprove,
         handleShip,
         handleComplete,
