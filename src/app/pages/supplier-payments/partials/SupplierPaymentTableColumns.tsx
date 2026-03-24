@@ -1,37 +1,18 @@
 import { TableColumn } from 'react-data-table-component';
 import { Eye, Ban } from 'lucide-react';
+import { Badge, Flex, IconButton, Text, Tooltip } from '@radix-ui/themes';
 
 interface PaymentColumnOptions {
     onView: (payment: SupplierPaymentWithAllocations) => void;
     onVoid: (payment: SupplierPaymentWithAllocations) => void;
 }
 
-export const paymentStatusConfig: Record<PaymentStatusType, { label: string; bg: string; text: string }> = {
-    PENDING: {
-        label: 'Pending',
-        bg: 'bg-amber-100 dark:bg-amber-900/30',
-        text: 'text-amber-700 dark:text-amber-300',
-    },
-    COMPLETED: {
-        label: 'Completed',
-        bg: 'bg-emerald-100 dark:bg-emerald-900/30',
-        text: 'text-emerald-700 dark:text-emerald-300',
-    },
-    FAILED: {
-        label: 'Failed',
-        bg: 'bg-red-100 dark:bg-red-900/30',
-        text: 'text-red-700 dark:text-red-300',
-    },
-    REFUNDED: {
-        label: 'Refunded',
-        bg: 'bg-orange-100 dark:bg-orange-900/30',
-        text: 'text-orange-700 dark:text-orange-300',
-    },
-    CANCELLED: {
-        label: 'Voided',
-        bg: 'bg-gray-100 dark:bg-gray-700',
-        text: 'text-gray-600 dark:text-gray-300',
-    },
+export const paymentStatusConfig: Record<PaymentStatusType, { label: string; color: 'orange' | 'green' | 'red' | 'gray' }> = {
+    PENDING: { label: 'Pending', color: 'orange' },
+    COMPLETED: { label: 'Completed', color: 'green' },
+    FAILED: { label: 'Failed', color: 'red' },
+    REFUNDED: { label: 'Refunded', color: 'orange' },
+    CANCELLED: { label: 'Voided', color: 'gray' },
 };
 
 const formatCurrency = (value: number) =>
@@ -46,9 +27,9 @@ export const getSupplierPaymentTableColumns = ({
             selector: (row) => row.paymentNumber,
             sortable: true,
             cell: (row) => (
-                <span className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                <Text size="2" weight="medium">
                     {row.paymentNumber}
-                </span>
+                </Text>
             ),
             minWidth: '170px',
             grow: 1,
@@ -58,9 +39,9 @@ export const getSupplierPaymentTableColumns = ({
             selector: (row) => row.supplier?.name || '',
             sortable: true,
             cell: (row) => (
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate block">
+                <Text size="2" weight="medium" truncate>
                     {row.supplier?.name || '—'}
-                </span>
+                </Text>
             ),
             minWidth: '160px',
             grow: 2,
@@ -72,9 +53,9 @@ export const getSupplierPaymentTableColumns = ({
             cell: (row) => {
                 const cfg = paymentStatusConfig[row.status];
                 return (
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text}`}>
+                    <Badge variant="soft" color={cfg.color} radius="full" size="1">
                         {cfg.label}
-                    </span>
+                    </Badge>
                 );
             },
             minWidth: '120px',
@@ -84,9 +65,9 @@ export const getSupplierPaymentTableColumns = ({
             selector: (row) => row.amount,
             sortable: true,
             cell: (row) => (
-                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                <Text size="2" weight="bold">
                     {formatCurrency(row.amount)}
-                </span>
+                </Text>
             ),
             minWidth: '140px',
             grow: 1,
@@ -96,9 +77,9 @@ export const getSupplierPaymentTableColumns = ({
             name: 'Method',
             selector: (row) => row.paymentMethod || '',
             cell: (row) => (
-                <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">
+                <Text size="2" color="gray" className="capitalize">
                     {row.paymentMethod || '—'}
-                </span>
+                </Text>
             ),
             minWidth: '120px',
             grow: 1,
@@ -107,9 +88,9 @@ export const getSupplierPaymentTableColumns = ({
             name: 'Invoices',
             selector: (row) => row.allocations?.length || 0,
             cell: (row) => (
-                <span className="text-sm text-gray-700 dark:text-gray-300">
+                <Text size="2" color="gray">
                     {row.allocations?.length || 0}
-                </span>
+                </Text>
             ),
             minWidth: '80px',
         },
@@ -118,7 +99,7 @@ export const getSupplierPaymentTableColumns = ({
             selector: (row) => row.paymentDate?.toString() || '',
             sortable: true,
             cell: (row) => (
-                <span className="text-sm text-gray-600 dark:text-gray-400">
+                <Text size="2" color="gray">
                     {row.paymentDate
                         ? new Date(row.paymentDate).toLocaleDateString('en-US', {
                             month: 'short',
@@ -126,7 +107,7 @@ export const getSupplierPaymentTableColumns = ({
                             year: 'numeric',
                         })
                         : '—'}
-                </span>
+                </Text>
             ),
             minWidth: '130px',
             grow: 1,
@@ -134,24 +115,32 @@ export const getSupplierPaymentTableColumns = ({
         {
             name: 'Actions',
             cell: (row) => (
-                <div className="flex items-center gap-1">
-                    <button
-                        onClick={() => onView(row)}
-                        className="p-1.5 text-gray-500 hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
-                        title="View"
-                    >
-                        <Eye className="w-4 h-4" />
-                    </button>
-                    {row.status === 'COMPLETED' && (
-                        <button
-                            onClick={() => onVoid(row)}
-                            className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                            title="Void Payment"
+                <Flex align="center" gap="1">
+                    <Tooltip content="View">
+                        <IconButton
+                            variant="ghost"
+                            color="gray"
+                            size="1"
+                            onClick={() => onView(row)}
+                            aria-label="View payment"
                         >
-                            <Ban className="w-4 h-4" />
-                        </button>
+                            <Eye className="w-4 h-4" />
+                        </IconButton>
+                    </Tooltip>
+                    {row.status === 'COMPLETED' && (
+                        <Tooltip content="Void Payment">
+                            <IconButton
+                                variant="ghost"
+                                color="red"
+                                size="1"
+                                onClick={() => onVoid(row)}
+                                aria-label="Void payment"
+                            >
+                                <Ban className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
                     )}
-                </div>
+                </Flex>
             ),
             minWidth: '100px',
             right: true,
