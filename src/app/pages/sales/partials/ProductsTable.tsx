@@ -56,9 +56,7 @@ const ProductsTable: FunctionComponent<Props> = ({ soldProducts }) => {
 					striped
 					responsive
 					pagination
-					fixedHeader
 					paginationPerPage={20}
-					fixedHeaderScrollHeight="calc(100vh - 350px)"
 				/>
 			</div>
 		</div>
