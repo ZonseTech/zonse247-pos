@@ -158,8 +158,6 @@ export const PermissionsTab: React.FC<PermissionTabProps> = ({ permissions }) =>
                     paginationTotalRows={totalRows}
                     onChangeRowsPerPage={handlePerRowsChange}
                     onChangePage={handlePageChange}
-                    fixedHeader
-                    fixedHeaderScrollHeight="calc(100vh - 450px)"
                     customStyles={getTableStyles(mode)}
                     noDataComponent={
                         <div className="text-center py-8">
