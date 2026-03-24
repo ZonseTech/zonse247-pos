@@ -201,7 +201,7 @@ export const useSupplierReturnForm = () => {
                     'Add Another',
                     'Go to Returns',
                     () => resetForm(),
-                    () => navigate(ROUTES.SUPPLIER_RETURNS),
+                    () => navigate(ROUTES.PROCUREMENT_RETURNS),
                 );
             } catch (error: any) {
                 Report.failure('Error', getErrorMessage(error, 'Failed to create return'), 'Okay');
@@ -261,7 +261,7 @@ export const useSupplierReturnForm = () => {
         Confirm.show(
             'Delete Return', `Permanently delete draft return ${returnData.returnNumber}?`,
             'Yes, Delete', 'Cancel',
-            async () => { await deleteReturn(returnData.id); navigate(ROUTES.SUPPLIER_RETURNS); },
+            async () => { await deleteReturn(returnData.id); navigate(ROUTES.PROCUREMENT_RETURNS); },
         );
     }, [returnData, deleteReturn, navigate]);
 

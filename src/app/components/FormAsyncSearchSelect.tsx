@@ -55,7 +55,7 @@ const FormAsyncSearchSelect: React.FC<FormAsyncSearchSelectProps> = ({
         } else if (!field.value) {
             setSelectedOption(null);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initValStr]);
 
     const handleChange = (option: SingleValue<Option>) => {
