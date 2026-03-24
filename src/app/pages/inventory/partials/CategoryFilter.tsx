@@ -95,7 +95,6 @@ export const CategoryFilter: FC<CategoryFilterProps> = ({
 				className={`overflow-x-auto ${isEBN ? 'scrollbar-hide max-w-[400px]' : 'flex-wrap'}`}
 				style={isEBN ? { scrollbarWidth: 'none', msOverflowStyle: 'none' } : {}}
 			>
-				{/* All Categories */}
 				<Button
 					size={isEBN ? '1' : '2'}
 					variant={selectedCategory === 'all' || !selectedCategory ? 'soft' : 'outline'}
