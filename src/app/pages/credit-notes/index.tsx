@@ -169,12 +169,10 @@ const CreditNoteManagement: FunctionComponent = () => {
                                 highlightOnHover
                                 striped
                                 responsive
-                                fixedHeader
                                 selectableRows
                                 selectableRowsHighlight
                                 onSelectedRowsChange={handleRowSelected}
                                 clearSelectedRows={toggleCleared}
-                                fixedHeaderScrollHeight="calc(100vh - 480px)"
                                 persistTableHead
                                 noDataComponent={
                                     <div className="flex flex-col items-center justify-center py-12 dark:bg-gray-800 flex-1">
