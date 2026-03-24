@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { Form, Formik, FieldArray, useFormikContext, type FormikHelpers } from 'formik';
+import { Form, Formik, useFormikContext, type FormikHelpers } from 'formik';
 import { FunctionComponent, FC, useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import {
@@ -12,6 +12,7 @@ import PageHeader from '../../components/page/PageHeader';
 import { Button, FormFieldCard } from '../../components';
 import FormInput from '../../components/FormInput';
 import FormSearchableSelect from '../../components/FormSearchableSelect';
+import SupplierSearchSelect from '../../components/SupplierSearchSelect';
 import { ROUTES } from '../../utils/constants';
 import { useGoodsReceipts } from '../../hooks/useGoodsReceipts';
 import { usePurchaseOrders } from '../../hooks/usePurchaseOrders';
@@ -47,9 +48,30 @@ interface GRNFormItem {
 
 interface GRNFormValues {
     purchaseOrderId: string;
+    _supplierFilter: string;
     notes: string;
     items: GRNFormItem[];
 }
+
+// ─── Supplier Field Watcher ──────────────────────────────────────────────────
+// Watches the _supplierFilter Formik field and triggers onChange callback.
+
+const SupplierFieldWatcher: FC<{
+    onChange: (supplierId: string) => void;
+}> = ({ onChange }) => {
+    const { values } = useFormikContext<GRNFormValues>();
+    const [lastId, setLastId] = useState('');
+
+    useEffect(() => {
+        const id = values._supplierFilter || '';
+        if (id !== lastId) {
+            setLastId(id);
+            onChange(id);
+        }
+    }, [values._supplierFilter]);
+
+    return null;
+};
 
 // ─── PO Field Watcher ───────────────────────────────────────────────────────
 // Watches Formik's purchaseOrderId value and loads PO details when changed.
@@ -88,6 +110,8 @@ const GoodsReceiptForm: FunctionComponent = () => {
     const {
         purchaseOrders,
         getPurchaseOrder,
+        setSupplierFilter,
+        setPerPage,
     } = usePurchaseOrders();
 
     // ── Routing state ───────────────────────────────────────────────────
@@ -98,6 +122,7 @@ const GoodsReceiptForm: FunctionComponent = () => {
     // ── Local state ─────────────────────────────────────────────────────
     const [loading, setLoading] = useState(false);
     const [goodsReceipt, setGoodsReceipt] = useState<GoodsReceiptWithItems | null>(null);
+    const [selectedSupplierId, setSelectedSupplierId] = useState<string>('');
     const [selectedPO, setSelectedPO] = useState<PurchaseOrder | null>(null);
     const [loadingPO, setLoadingPO] = useState(false);
 
@@ -124,6 +149,17 @@ const GoodsReceiptForm: FunctionComponent = () => {
             handlePOSelected(preSelectedPOId);
         }
     }, [preSelectedPOId]);
+
+    // ── Load more POs and apply supplier filter ─────────────────────────
+    useEffect(() => {
+        setPerPage(100);
+    }, []);
+
+    const handleSupplierChange = useCallback((supplierId: string) => {
+        setSelectedSupplierId(supplierId);
+        setSupplierFilter(supplierId);
+        setSelectedPO(null);
+    }, [setSupplierFilter]);
 
     // ── PO options (only show receivable POs) ───────────────────────────
     const poOptions = useMemo(
@@ -183,6 +219,7 @@ const GoodsReceiptForm: FunctionComponent = () => {
     // ── Formik values ───────────────────────────────────────────────────
     const defaultValues: GRNFormValues = {
         purchaseOrderId: preSelectedPOId || '',
+        _supplierFilter: '',
         notes: '',
         items: [],
     };
@@ -191,6 +228,7 @@ const GoodsReceiptForm: FunctionComponent = () => {
         if (isViewMode && goodsReceipt) {
             return {
                 purchaseOrderId: goodsReceipt.purchaseOrderId,
+                _supplierFilter: selectedSupplierId,
                 notes: goodsReceipt.notes || '',
                 items: goodsReceipt.items.map(item => {
                     const vName = item.variant?.variantName || '';
@@ -218,13 +256,14 @@ const GoodsReceiptForm: FunctionComponent = () => {
         if (selectedPO) {
             return {
                 purchaseOrderId: selectedPO.id,
+                _supplierFilter: selectedSupplierId,
                 notes: '',
                 items: buildItemsFromPO(selectedPO),
             };
         }
 
         return defaultValues;
-    }, [isViewMode, goodsReceipt, selectedPO]);
+    }, [isViewMode, goodsReceipt, selectedPO, selectedSupplierId]);
 
     // ── Validation ──────────────────────────────────────────────────────
     const validationSchema = Yup.object().shape({
@@ -279,7 +318,7 @@ const GoodsReceiptForm: FunctionComponent = () => {
                         navigate(ROUTES.GOODS_RECEIPT_FORM, { state: { goodsReceiptId: grn.id } });
                     }
                 },
-                () => navigate(ROUTES.GOODS_RECEIPTS),
+                () => navigate(ROUTES.PROCUREMENT_GOODS_RECEIPTS),
             );
         } catch (error: any) {
             const errorMessage = getErrorMessage(error, 'Failed to create goods receipt');
@@ -479,11 +518,18 @@ const GoodsReceiptForm: FunctionComponent = () => {
                                 {!isViewMode && (
                                     <FormFieldCard title="Purchase Order">
                                         <div className="space-y-4">
+                                            <SupplierSearchSelect
+                                                name="_supplierFilter"
+                                                label="Filter by Supplier"
+                                                placeholder="Search supplier to filter POs..."
+                                            />
+                                            <SupplierFieldWatcher onChange={handleSupplierChange} />
+
                                             <FormSearchableSelect
                                                 label="Select Purchase Order"
                                                 name="purchaseOrderId"
                                                 options={poOptions}
-                                                placeholder="Search by PO number or supplier..."
+                                                placeholder={selectedSupplierId ? 'Select a PO from this supplier...' : 'Select a supplier first or search all POs...'}
                                                 required
                                             />
                                             <POFieldWatcher
@@ -677,15 +723,7 @@ const GoodsReceiptForm: FunctionComponent = () => {
 
                                 {/* ── Footer Actions ─────────────────────────── */}
                                 <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
-                                    <Button
-                                        type="button"
-                                        theme={isViewMode ? 'primary' : 'danger'}
-                                        onClick={() => navigate(ROUTES.GOODS_RECEIPTS)}
-                                        disabled={isSubmitting || loading}
-                                    >
-                                        <X className="w-4 h-4 mr-2" />
-                                        {isViewMode ? 'Back to List' : 'Cancel'}
-                                    </Button>
+                                    <div />
                                     {!isViewMode && (
                                         <Button
                                             type="submit"
