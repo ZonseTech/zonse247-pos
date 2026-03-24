@@ -43,6 +43,7 @@ interface CartItem {
     variantId: string;          // Required: Variant ID (the sellable unit)
     productId?: string;         // Optional: Parent product ID for reference
     name: string;
+    variantName?: string;
     categoryId: string;
     sellingPrice: number;
     discount: number;
