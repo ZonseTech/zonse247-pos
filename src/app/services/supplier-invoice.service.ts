@@ -1,4 +1,4 @@
-import api from './http.service';
+import { liveApi, getAuthHeaders } from './live-api.service';
 
 /**
  * Supplier Invoice Service
@@ -30,8 +30,9 @@ const supplierInvoiceService = {
     async createInvoice(
         payload: CreateSupplierInvoiceInput
     ): Promise<SupplierInvoiceWithItems> {
-        return api
-            .post<SupplierInvoiceResponse>(endpoints.create, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<SupplierInvoiceResponse>(endpoints.create, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -52,8 +53,9 @@ const supplierInvoiceService = {
             }
         });
 
-        return api
-            .get<SupplierInvoiceListResponse>(endpoints.list, params)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<SupplierInvoiceListResponse>(endpoints.list, { headers, params })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -64,8 +66,9 @@ const supplierInvoiceService = {
      * GET /supplier-invoices/:id — Get single invoice
      */
     async getInvoice(invoiceId: string): Promise<SupplierInvoiceWithItems> {
-        return api
-            .get<SupplierInvoiceResponse>(endpoints.get(invoiceId))
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<SupplierInvoiceResponse>(endpoints.get(invoiceId), { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -79,10 +82,12 @@ const supplierInvoiceService = {
         invoiceId: string,
         payload: UpdateSupplierInvoiceInput
     ): Promise<SupplierInvoiceWithItems> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .put<SupplierInvoiceResponse>(
                 endpoints.update(invoiceId),
-                payload as any
+                payload,
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -97,12 +102,14 @@ const supplierInvoiceService = {
     async threeWayMatch(
         purchaseOrderId: string
     ): Promise<ThreeWayMatchResult[]> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .get<ThreeWayMatchResponse>(
-                endpoints.threeWayMatch(purchaseOrderId)
+                endpoints.threeWayMatch(purchaseOrderId),
+                { headers }
             )
             .then((res) => {
-                const data = res.data.data;
+                const data = res.data.data as any;
                 return Array.isArray(data) ? data : (data?.matches || []);
             })
             .catch((err) => {
@@ -114,8 +121,9 @@ const supplierInvoiceService = {
      * POST /supplier-invoices/:id/cancel — Cancel a PENDING invoice
      */
     async cancelInvoice(invoiceId: string): Promise<void> {
-        return api
-            .post(endpoints.cancel(invoiceId), {})
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post(endpoints.cancel(invoiceId), {}, { headers })
             .then(() => undefined)
             .catch((err) => {
                 throw err;
@@ -129,10 +137,12 @@ const supplierInvoiceService = {
         invoiceId: string,
         reason?: string
     ): Promise<SupplierInvoiceWithItems> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .post<SupplierInvoiceResponse>(
                 endpoints.dispute(invoiceId),
-                { reason } as any
+                { reason },
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -147,9 +157,11 @@ const supplierInvoiceService = {
     async getSupplierBalance(
         supplierId: string
     ): Promise<{ totalOutstanding: number; invoiceCount: number }> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .get<SupplierBalanceResponse>(
-                endpoints.supplierBalance(supplierId)
+                endpoints.supplierBalance(supplierId),
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -161,8 +173,9 @@ const supplierInvoiceService = {
      * DELETE /supplier-invoices/:id — Soft-delete PENDING or CANCELLED invoice
      */
     async deleteInvoice(invoiceId: string): Promise<void> {
-        return api
-            .delete(endpoints.delete(invoiceId))
+        const headers = await getAuthHeaders();
+        return liveApi
+            .delete(endpoints.delete(invoiceId), { headers })
             .then(() => undefined)
             .catch((err) => {
                 throw err;

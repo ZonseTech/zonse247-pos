@@ -1,4 +1,4 @@
-import api from './http.service';
+import { liveApi, getAuthHeaders } from './live-api.service';
 
 /**
  * Supplier Return Service
@@ -41,8 +41,9 @@ const supplierReturnService = {
     async createReturn(
         payload: CreateSupplierReturnInput
     ): Promise<SupplierReturnWithItems> {
-        return api
-            .post<SupplierReturnResponse>(endpoints.create, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<SupplierReturnResponse>(endpoints.create, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -63,8 +64,9 @@ const supplierReturnService = {
             }
         });
 
-        return api
-            .get<SupplierReturnListResponse>(endpoints.list, params)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<SupplierReturnListResponse>(endpoints.list, { headers, params })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -77,8 +79,9 @@ const supplierReturnService = {
     async getReturn(
         supplierReturnId: string
     ): Promise<SupplierReturnWithItems> {
-        return api
-            .get<SupplierReturnResponse>(endpoints.get(supplierReturnId))
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<SupplierReturnResponse>(endpoints.get(supplierReturnId), { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -92,10 +95,12 @@ const supplierReturnService = {
         supplierReturnId: string,
         payload: UpdateSupplierReturnInput
     ): Promise<SupplierReturnWithItems> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .put<SupplierReturnResponse>(
                 endpoints.update(supplierReturnId),
-                payload as any
+                payload,
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -111,10 +116,12 @@ const supplierReturnService = {
         supplierReturnId: string,
         notes?: string
     ): Promise<SupplierReturnWithItems> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .post<SupplierReturnResponse>(
                 endpoints.approve(supplierReturnId),
-                { notes } as any
+                { notes },
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -130,10 +137,12 @@ const supplierReturnService = {
         supplierReturnId: string,
         notes?: string
     ): Promise<SupplierReturnWithItems> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .post<SupplierReturnResponse>(
                 endpoints.ship(supplierReturnId),
-                { notes } as any
+                { notes },
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -153,10 +162,12 @@ const supplierReturnService = {
         supplierReturnId: string,
         notes?: string
     ): Promise<SupplierReturnWithItems> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .post<SupplierReturnResponse>(
                 endpoints.complete(supplierReturnId),
-                { notes } as any
+                { notes },
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -171,10 +182,12 @@ const supplierReturnService = {
         supplierReturnId: string,
         notes?: string
     ): Promise<SupplierReturnWithItems> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .post<SupplierReturnResponse>(
                 endpoints.cancel(supplierReturnId),
-                { notes } as any
+                { notes },
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -186,8 +199,9 @@ const supplierReturnService = {
      * DELETE /supplier-returns/:id — Delete (DRAFT only)
      */
     async deleteReturn(supplierReturnId: string): Promise<void> {
-        return api
-            .delete(endpoints.delete(supplierReturnId))
+        const headers = await getAuthHeaders();
+        return liveApi
+            .delete(endpoints.delete(supplierReturnId), { headers })
             .then(() => undefined)
             .catch((err) => {
                 throw err;
@@ -210,8 +224,9 @@ const supplierReturnService = {
             }
         });
 
-        return api
-            .get<CreditNoteListResponse>(endpoints.creditNotes, params)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<CreditNoteListResponse>(endpoints.creditNotes, { headers, params })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -226,10 +241,12 @@ const supplierReturnService = {
         creditNoteId: string,
         payload: ApplySupplierCreditNoteInput
     ): Promise<SupplierCreditNote> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .post<ApiResponse<SupplierCreditNote>>(
                 endpoints.applyCreditNote(creditNoteId),
-                payload as any
+                payload,
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {

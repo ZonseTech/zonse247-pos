@@ -1,4 +1,4 @@
-import api from './http.service';
+import { liveApi, getAuthHeaders } from './live-api.service';
 
 /**
  * Supplier Payment Service
@@ -26,8 +26,9 @@ const supplierPaymentService = {
     async createPayment(
         payload: CreateSupplierPaymentInput
     ): Promise<SupplierPaymentWithAllocations> {
-        return api
-            .post<SupplierPaymentResponse>(endpoints.create, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<SupplierPaymentResponse>(endpoints.create, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -48,8 +49,9 @@ const supplierPaymentService = {
             }
         });
 
-        return api
-            .get<SupplierPaymentListResponse>(endpoints.list, params)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<SupplierPaymentListResponse>(endpoints.list, { headers, params })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -62,8 +64,9 @@ const supplierPaymentService = {
     async getPayment(
         paymentId: string
     ): Promise<SupplierPaymentWithAllocations> {
-        return api
-            .get<SupplierPaymentResponse>(endpoints.get(paymentId))
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<SupplierPaymentResponse>(endpoints.get(paymentId), { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -76,9 +79,11 @@ const supplierPaymentService = {
     async getPaymentsForInvoice(
         invoiceId: string
     ): Promise<SupplierPaymentWithAllocations[]> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .get<ApiResponse<{ payments?: SupplierPaymentWithAllocations[] }>>(
-                endpoints.byInvoice(invoiceId)
+                endpoints.byInvoice(invoiceId),
+                { headers }
             )
             .then((res) => {
                 const data = res.data.data;
@@ -97,8 +102,9 @@ const supplierPaymentService = {
         paymentId: string,
         reason?: string
     ): Promise<void> {
-        return api
-            .post(endpoints.void(paymentId), { reason } as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post(endpoints.void(paymentId), { reason }, { headers })
             .then(() => undefined)
             .catch((err) => {
                 throw err;

@@ -1,4 +1,4 @@
-import api from './http.service';
+import { liveApi, getAuthHeaders } from './live-api.service';
 
 /**
  * Goods Receipt Service
@@ -34,8 +34,9 @@ const goodsReceiptService = {
     async createGoodsReceipt(
         payload: CreateGoodsReceiptInput
     ): Promise<GoodsReceiptWithItems> {
-        return api
-            .post<GoodsReceiptResponse>(endpoints.create, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<GoodsReceiptResponse>(endpoints.create, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -56,8 +57,9 @@ const goodsReceiptService = {
             }
         });
 
-        return api
-            .get<GoodsReceiptListResponse>(endpoints.list, params)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<GoodsReceiptListResponse>(endpoints.list, { headers, params })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -70,8 +72,9 @@ const goodsReceiptService = {
     async getGoodsReceipt(
         goodsReceiptId: string
     ): Promise<GoodsReceiptWithItems> {
-        return api
-            .get<GoodsReceiptResponse>(endpoints.get(goodsReceiptId))
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<GoodsReceiptResponse>(endpoints.get(goodsReceiptId), { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -85,10 +88,12 @@ const goodsReceiptService = {
         goodsReceiptId: string,
         payload: UpdateGoodsReceiptInput
     ): Promise<GoodsReceiptWithItems> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .put<GoodsReceiptResponse>(
                 endpoints.update(goodsReceiptId),
-                payload as any
+                payload,
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -104,10 +109,12 @@ const goodsReceiptService = {
         goodsReceiptId: string,
         payload?: VerifyGoodsReceiptInput
     ): Promise<GoodsReceiptWithItems> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .post<GoodsReceiptResponse>(
                 endpoints.verify(goodsReceiptId),
-                (payload ?? {}) as any
+                payload ?? {},
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -127,10 +134,12 @@ const goodsReceiptService = {
         goodsReceiptId: string,
         payload?: PostGoodsReceiptInput
     ): Promise<GoodsReceiptWithItems> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .post<GoodsReceiptResponse>(
                 endpoints.post(goodsReceiptId),
-                (payload ?? {}) as any
+                payload ?? {},
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -142,8 +151,9 @@ const goodsReceiptService = {
      * POST /goods-receipts/:id/cancel — Cancel a GRN (DRAFT or VERIFIED only)
      */
     async cancelGoodsReceipt(goodsReceiptId: string): Promise<void> {
-        return api
-            .post(endpoints.cancel(goodsReceiptId), {})
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post(endpoints.cancel(goodsReceiptId), {}, { headers })
             .then(() => undefined)
             .catch((err) => {
                 throw err;
@@ -154,8 +164,9 @@ const goodsReceiptService = {
      * DELETE /goods-receipts/:id — Soft-delete a GRN (DRAFT or CANCELLED only)
      */
     async deleteGoodsReceipt(goodsReceiptId: string): Promise<void> {
-        return api
-            .delete(endpoints.delete(goodsReceiptId))
+        const headers = await getAuthHeaders();
+        return liveApi
+            .delete(endpoints.delete(goodsReceiptId), { headers })
             .then(() => undefined)
             .catch((err) => {
                 throw err;

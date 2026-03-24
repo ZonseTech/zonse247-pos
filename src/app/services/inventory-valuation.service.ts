@@ -1,8 +1,7 @@
-import api from './http.service';
+import { liveApi, getAuthHeaders } from './live-api.service';
 
 /**
  * Inventory Valuation Service
- * Aligned with zonse247-pos-api v1.6.1
  *
  * Costing methods: WEIGHTED_AVERAGE | FIFO | LIFO (per-item configurable)
  * Base path: /inventory-valuation
@@ -49,8 +48,9 @@ const inventoryValuationService = {
                 params[key] = value;
             }
         });
-        return api
-            .get<ValuationSummaryResponse>(endpoints.summary, params)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<ValuationSummaryResponse>(endpoints.summary, { headers, params })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -62,8 +62,9 @@ const inventoryValuationService = {
      * Returns WAC/FIFO/LIFO values + cost layers
      */
     async getItemValuation(inventoryId: string): Promise<ItemValuation> {
-        return api
-            .get<ItemValuationResponse>(endpoints.itemValuation(inventoryId))
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<ItemValuationResponse>(endpoints.itemValuation(inventoryId), { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -77,8 +78,9 @@ const inventoryValuationService = {
     async getCostLayers(
         inventoryId: string
     ): Promise<Array<{ id: string; remainingQuantity: number; unitCost: number; layerDate: string }>> {
-        return api
-            .get<ApiResponse<any>>(endpoints.costLayers(inventoryId))
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<ApiResponse<any>>(endpoints.costLayers(inventoryId), { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -96,8 +98,9 @@ const inventoryValuationService = {
         quantity: number;
         overrideMethod?: 'WEIGHTED_AVERAGE' | 'FIFO' | 'LIFO';
     }): Promise<COGSResult> {
-        return api
-            .post<COGSResponse>(endpoints.cogsPreview, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<COGSResponse>(endpoints.cogsPreview, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -113,11 +116,15 @@ const inventoryValuationService = {
         endDate: string,
         branchId?: string
     ): Promise<PeriodCOGSResult> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .get<PeriodCOGSResponse>(endpoints.cogsPeriod, {
-                startDate,
-                endDate,
-                ...(branchId && { branchId }),
+                headers,
+                params: {
+                    startDate,
+                    endDate,
+                    ...(branchId && { branchId }),
+                },
             })
             .then((res) => res.data.data)
             .catch((err) => {
@@ -134,10 +141,11 @@ const inventoryValuationService = {
         endDate: string,
         branchId?: string
     ): Promise<PeriodCOGSFromSalesResult> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .get<ApiResponse<any>>(
                 endpoints.cogsPeriodFromSales,
-                { startDate, endDate, ...(branchId && { branchId }) }
+                { headers, params: { startDate, endDate, ...(branchId && { branchId }) } }
             )
             .then((res) => {
                 const raw = res.data.data;
@@ -181,8 +189,9 @@ const inventoryValuationService = {
                 params[key] = value;
             }
         });
-        return api
-            .get<GrossProfitResponse>(endpoints.grossProfitByProduct, params)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<GrossProfitResponse>(endpoints.grossProfitByProduct, { headers, params })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -203,8 +212,9 @@ const inventoryValuationService = {
                 params[key] = value;
             }
         });
-        return api
-            .get<InventoryAgingResponse>(endpoints.aging, params)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<InventoryAgingResponse>(endpoints.aging, { headers, params })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -220,10 +230,12 @@ const inventoryValuationService = {
         inventoryId: string;
         newMethod: 'WEIGHTED_AVERAGE' | 'FIFO' | 'LIFO';
     }): Promise<ChangeCostingMethodResult> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .put<ApiResponse<ChangeCostingMethodResult>>(
                 endpoints.costingMethod,
-                payload as any
+                payload,
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -242,8 +254,9 @@ const inventoryValuationService = {
         openingDate?: string;
         notes?: string;
     }): Promise<void> {
-        return api
-            .post(endpoints.openingBalance, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post(endpoints.openingBalance, payload, { headers })
             .then(() => undefined)
             .catch((err) => {
                 throw err;
@@ -257,8 +270,9 @@ const inventoryValuationService = {
     async rebuildCostLayers(payload: {
         inventoryId: string;
     }): Promise<{ layersCreated: number; layersConsumed: number }> {
-        return api
-            .post<ApiResponse<any>>(endpoints.rebuildLayers, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<ApiResponse<any>>(endpoints.rebuildLayers, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;

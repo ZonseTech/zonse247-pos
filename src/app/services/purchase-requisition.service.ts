@@ -1,4 +1,4 @@
-import api from './http.service';
+import { liveApi, getAuthHeaders } from './live-api.service';
 
 /**
  * Purchase Requisition Service
@@ -30,8 +30,9 @@ const purchaseRequisitionService = {
     async createRequisition(
         payload: CreateRequisitionInput
     ): Promise<PurchaseRequisitionWithItems> {
-        return api
-            .post<RequisitionResponse>(endpoints.create, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<RequisitionResponse>(endpoints.create, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -52,8 +53,9 @@ const purchaseRequisitionService = {
             }
         });
 
-        return api
-            .get<RequisitionListResponse>(endpoints.list, params)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<RequisitionListResponse>(endpoints.list, { headers, params })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -66,8 +68,9 @@ const purchaseRequisitionService = {
     async getRequisition(
         requisitionId: string
     ): Promise<PurchaseRequisitionWithItems> {
-        return api
-            .get<RequisitionResponse>(endpoints.get(requisitionId))
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<RequisitionResponse>(endpoints.get(requisitionId), { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -81,10 +84,12 @@ const purchaseRequisitionService = {
         requisitionId: string,
         payload: UpdateRequisitionInput
     ): Promise<PurchaseRequisitionWithItems> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .put<RequisitionResponse>(
                 endpoints.update(requisitionId),
-                payload as any
+                payload,
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -99,10 +104,12 @@ const purchaseRequisitionService = {
         requisitionId: string,
         payload?: ApproveRequisitionInput
     ): Promise<PurchaseRequisitionWithItems> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .post<RequisitionResponse>(
                 endpoints.approve(requisitionId),
-                (payload ?? {}) as any
+                payload ?? {},
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -117,10 +124,12 @@ const purchaseRequisitionService = {
         requisitionId: string,
         payload?: RejectRequisitionInput
     ): Promise<PurchaseRequisitionWithItems> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .post<RequisitionResponse>(
                 endpoints.reject(requisitionId),
-                (payload ?? {}) as any
+                payload ?? {},
+                { headers }
             )
             .then((res) => res.data.data)
             .catch((err) => {
@@ -132,8 +141,9 @@ const purchaseRequisitionService = {
      * POST /purchase-requisitions/:id/cancel — Cancel a requisition
      */
     async cancelRequisition(requisitionId: string): Promise<void> {
-        return api
-            .post(endpoints.cancel(requisitionId), {})
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post(endpoints.cancel(requisitionId), {}, { headers })
             .then(() => undefined)
             .catch((err) => {
                 throw err;
@@ -144,8 +154,9 @@ const purchaseRequisitionService = {
      * DELETE /purchase-requisitions/:id — Soft-delete a requisition
      */
     async deleteRequisition(requisitionId: string): Promise<void> {
-        return api
-            .delete(endpoints.delete(requisitionId))
+        const headers = await getAuthHeaders();
+        return liveApi
+            .delete(endpoints.delete(requisitionId), { headers })
             .then(() => undefined)
             .catch((err) => {
                 throw err;
