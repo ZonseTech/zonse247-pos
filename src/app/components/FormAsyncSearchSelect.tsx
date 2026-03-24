@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useField, useFormikContext } from 'formik';
 import AsyncSelect from 'react-select/async';
 import { SingleValue, StylesConfig } from 'react-select';
@@ -45,15 +45,21 @@ const FormAsyncSearchSelect: React.FC<FormAsyncSearchSelectProps> = ({
     const { setFieldValue, setFieldTouched } = useFormikContext();
     const isMobile = useIsMobile();
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const selectedOptionRef = useRef<Option | null>(initialOption);
+    const [selectedOption, setSelectedOption] = useState<Option | null>(initialOption);
 
-    // Track the currently selected option so AsyncSelect can display it
-    if (initialOption && !selectedOptionRef.current) {
-        selectedOptionRef.current = initialOption;
-    }
+    // Sync when initialOption changes (e.g., programmatic auto-fill from GRN)
+    const initValStr = initialOption ? `${initialOption.value}|${initialOption.label}` : '';
+    useEffect(() => {
+        if (initialOption) {
+            setSelectedOption(initialOption);
+        } else if (!field.value) {
+            setSelectedOption(null);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initValStr]);
 
     const handleChange = (option: SingleValue<Option>) => {
-        selectedOptionRef.current = option || null;
+        setSelectedOption(option || null);
         setFieldValue(name, option ? option.value : '', true);
     };
 
@@ -96,10 +102,10 @@ const FormAsyncSearchSelect: React.FC<FormAsyncSearchSelectProps> = ({
     const currentValue = (() => {
         if (!field.value) return null;
         if (
-            selectedOptionRef.current &&
-            String(selectedOptionRef.current.value) === String(field.value)
+            selectedOption &&
+            String(selectedOption.value) === String(field.value)
         ) {
-            return selectedOptionRef.current;
+            return selectedOption;
         }
         return null;
     })();
