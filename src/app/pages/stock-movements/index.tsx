@@ -199,7 +199,6 @@ const StockMovements: FunctionComponent = () => {
                     highlightOnHover
                     responsive
                     persistTableHead
-                    fixedHeader
                     noDataComponent={
                         <TableEmptyState
                             icon={<Activity />}
