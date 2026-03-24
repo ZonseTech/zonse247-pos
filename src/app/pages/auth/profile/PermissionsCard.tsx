@@ -41,7 +41,7 @@ const PermissionsCard: FunctionComponent<Props> = ({ permissions }) => {
                                 <Heading as="h3" size="4" weight="bold">
                                     Permissions
                                 </Heading>
-                                <Badge color="sky" variant="soft" size="1">
+                                <Badge variant="soft" size="1">
                                     {permissions?.length || 0}
                                 </Badge>
                             </Flex>
