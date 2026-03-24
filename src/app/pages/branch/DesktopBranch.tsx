@@ -59,8 +59,6 @@ const DesktopBranch: FunctionComponent<DesktopBranchProps> = ({
                     onPerPageChange(newPerPage, newPage);
                 }}
                 onChangePage={onPageChange}
-                fixedHeader
-                fixedHeaderScrollHeight="calc(100vh - 420px)"
                 customStyles={getTableStyles(mode)}
                 noDataComponent={
                     <div className="text-center py-12">
