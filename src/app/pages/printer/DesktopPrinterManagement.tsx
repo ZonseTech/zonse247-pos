@@ -170,7 +170,6 @@ const DesktopPrinterManagement: FunctionComponent = () => {
                         paginationRowsPerPageOptions={[10, 15, 25, 50]}
                         onChangeRowsPerPage={handlePerRowsChange}
                         onChangePage={handlePageChange}
-                        fixedHeader
                         customStyles={getTableStyles(mode)}
                         noDataComponent={
                             <Flex direction="column" align="center" py="9" className="dark:bg-gray-800">
