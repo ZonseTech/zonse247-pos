@@ -101,7 +101,7 @@ const DesktopUserManagement: FunctionComponent = () => {
                         <Button
                             size="2"
                             variant="solid"
-                            color="sky"
+
                             onClick={handleAddUser}
                             className="cursor-pointer"
                         >
@@ -128,8 +128,6 @@ const DesktopUserManagement: FunctionComponent = () => {
                         paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
                         onChangeRowsPerPage={handlePerRowsChange}
                         onChangePage={handlePageChange}
-                        fixedHeader
-                        fixedHeaderScrollHeight="calc(100vh - 420px)"
                         customStyles={getTableStyles(mode)}
                         noDataComponent={
                             <Flex direction="column" align="center" justify="center" py="9">
