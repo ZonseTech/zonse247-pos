@@ -11,18 +11,15 @@ import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import { Button, FormFieldCard } from '../../components';
 import FormInput from '../../components/FormInput';
-import FormSearchableSelect from '../../components/FormSearchableSelect';
+import ProductSearchSelect, { formatProductLabel } from '../../components/ProductSearchSelect';
+import SupplierSearchSelect, { formatSupplierLabel } from '../../components/SupplierSearchSelect';
 import { ROUTES } from '../../utils/constants';
 import { usePurchaseOrders } from '../../hooks/usePurchaseOrders';
 import { usePurchaseRequisitions } from '../../hooks/usePurchaseRequisitions';
-import { useSuppliers } from '../../hooks/useSuppliers';
-import { useProducts } from '../../hooks/useProducts';
 import FormSkeleton from '../../components/skeleton/FormSkeleton';
 import ReceiveModal from './partials/ReceiveModal';
-import { poStatusConfig } from './partials/PurchaseOrderTableColumns';
+import { poStatusColorMap, poStatusLabelMap } from './partials/PurchaseOrderTableColumns';
 import { getErrorMessage } from '../../utils/api-error-handler';
-
-// ─── Helpers ────────────────────────────────────────────────────────────────
 
 const formatCurrency = (value: number) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'MWK' }).format(value);
@@ -32,7 +29,36 @@ const formatDate = (d?: Date | string | null) => {
     return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 };
 
-// ─── Types ──────────────────────────────────────────────────────────────────
+const poStatusBgMap: Record<string, string> = {
+    DRAFT: 'bg-gray-100 dark:bg-gray-700',
+    PENDING: 'bg-yellow-100 dark:bg-yellow-900/30',
+    SENT: 'bg-indigo-100 dark:bg-indigo-900/30',
+    SHIPPED: 'bg-purple-100 dark:bg-purple-900/30',
+    PARTIALLY_RECEIVED: 'bg-sky-100 dark:bg-sky-900/30',
+    RECEIVED: 'bg-green-100 dark:bg-green-900/30',
+    CANCELLED: 'bg-red-100 dark:bg-red-900/30',
+};
+
+const poStatusTextMap: Record<string, string> = {
+    DRAFT: 'text-gray-800 dark:text-gray-300',
+    PENDING: 'text-yellow-800 dark:text-yellow-400',
+    SENT: 'text-indigo-800 dark:text-indigo-400',
+    SHIPPED: 'text-purple-800 dark:text-purple-400',
+    PARTIALLY_RECEIVED: 'text-sky-800 dark:text-sky-400',
+    RECEIVED: 'text-green-800 dark:text-green-400',
+    CANCELLED: 'text-red-800 dark:text-red-400',
+};
+
+const poStatusConfig: Record<string, { bg: string; text: string; label: string }> = Object.fromEntries(
+    Object.keys(poStatusLabelMap).map(key => [
+        key,
+        {
+            bg: poStatusBgMap[key] || '',
+            text: poStatusTextMap[key] || '',
+            label: poStatusLabelMap[key as PurchaseOrderStatus],
+        },
+    ])
+);
 
 interface POFormItem {
     variantId: string;
@@ -64,9 +90,6 @@ const PurchaseOrderForm: FunctionComponent = () => {
         getPurchaseOrder,
     } = usePurchaseOrders();
     const { getById: getRequisition } = usePurchaseRequisitions();
-    const { suppliers } = useSuppliers();
-    const { products } = useProducts();
-
     // ── Routing state ─────────────────────────────────────────────────────
     const purchaseOrderId = (location.state as any)?.purchaseOrderId;
     const requisitionIdFromState = (location.state as any)?.requisitionId;
@@ -119,19 +142,6 @@ const PurchaseOrderForm: FunctionComponent = () => {
     }, [isFromRequisition, requisitionIdFromState]);
 
     // ── Options ───────────────────────────────────────────────────────────
-    const supplierOptions = useMemo(
-        () => suppliers.map(s => ({ label: s.name, value: s.id })),
-        [suppliers],
-    );
-
-    const variantOptions = useMemo(
-        () => products.map(p => ({
-            label: `${p.name} - ${p.variantName} (${p.sku || 'No SKU'})`,
-            value: p.id, // variant ID
-        })),
-        [products],
-    );
-
     // Map of approved quantities per variantId (from requisition)
     const approvedQtyMap = useMemo(() => {
         if (!requisition) return new Map<string, number>();
@@ -140,6 +150,26 @@ const PurchaseOrderForm: FunctionComponent = () => {
                 item.variantId,
                 item.approvedQuantity ?? item.requestedQuantity,
             ])
+        );
+    }, [requisition]);
+
+    // ── Pre-built initial options for ProductSearchSelect (from-requisition) ─
+    const requisitionOptionMap = useMemo(() => {
+        if (!requisition) return new Map<string, { label: string; value: string }>();
+        return new Map(
+            requisition.items
+                .filter(item => item.variant)
+                .map(item => [
+                    item.variantId,
+                    {
+                        label: formatProductLabel({
+                            name: item.variant!.product?.name || 'Unknown',
+                            variantName: item.variant!.variantName,
+                            sku: item.variant!.sku,
+                        }),
+                        value: item.variantId,
+                    },
+                ])
         );
     }, [requisition]);
 
@@ -172,7 +202,7 @@ const PurchaseOrderForm: FunctionComponent = () => {
 
         if (formMode === 'create-from-requisition' && requisition) {
             return {
-                supplierId: '',
+                supplierId: requisition.supplierId || '',
                 expectedDeliveryDate: '',
                 notes: requisition.notes
                     ? `From Requisition ${requisition.requisitionNumber}: ${requisition.notes}`
@@ -188,6 +218,23 @@ const PurchaseOrderForm: FunctionComponent = () => {
 
         return defaultValues;
     }, [formMode, purchaseOrder, requisition]);
+
+    // ── Pre-built initial option for SupplierSearchSelect ─────────────────
+    const supplierInitialOption = useMemo(() => {
+        if (formMode === 'create-from-requisition' && requisition?.supplier) {
+            return {
+                label: formatSupplierLabel(requisition.supplier),
+                value: requisition.supplierId!,
+            };
+        }
+        if (formMode === 'view' && purchaseOrder?.supplier) {
+            return {
+                label: formatSupplierLabel(purchaseOrder.supplier),
+                value: purchaseOrder.supplierId,
+            };
+        }
+        return null;
+    }, [formMode, requisition, purchaseOrder]);
 
     // ── Validation ────────────────────────────────────────────────────────
     const validationSchema = Yup.object().shape({
@@ -251,7 +298,7 @@ const PurchaseOrderForm: FunctionComponent = () => {
                 'Add Another',
                 'Go to Purchase Orders',
                 () => resetForm(),
-                () => navigate(ROUTES.PURCHASE_ORDERS),
+                () => navigate(ROUTES.PROCUREMENT_PURCHASE_ORDERS),
             );
         } catch (error: any) {
             const errorMessage = getErrorMessage(error, 'Failed to create purchase order');
@@ -366,21 +413,18 @@ const PurchaseOrderForm: FunctionComponent = () => {
                                                 </span>
                                             </div>
                                             <div className="flex flex-wrap gap-2">
-                                                {/* Send — for DRAFT & PENDING */}
                                                 {['DRAFT', 'PENDING'].includes(purchaseOrder.status) && (
                                                     <Button type="button" theme="primary" onClick={handleSend}>
                                                         <Send className="w-4 h-4 mr-2" />
                                                         Send to Supplier
                                                     </Button>
                                                 )}
-                                                {/* Quick Receive — for SENT, SHIPPED, PARTIALLY_RECEIVED */}
                                                 {['SENT', 'SHIPPED', 'PARTIALLY_RECEIVED'].includes(purchaseOrder.status) && (
                                                     <Button type="button" theme="success" onClick={() => setReceivingPO(purchaseOrder)}>
                                                         <Package className="w-4 h-4 mr-2" />
                                                         Quick Receive
                                                     </Button>
                                                 )}
-                                                {/* Cancel — for DRAFT & SENT */}
                                                 {['DRAFT', 'SENT'].includes(purchaseOrder.status) && (
                                                     <Button type="button" theme="danger" layout="outline" onClick={handleCancel}>
                                                         <Ban className="w-4 h-4 mr-2" />
@@ -390,7 +434,6 @@ const PurchaseOrderForm: FunctionComponent = () => {
                                             </div>
                                         </div>
 
-                                        {/* Info grid */}
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-5 pt-5 border-t border-gray-200 dark:border-gray-700">
                                             <div>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">Supplier</p>
@@ -436,7 +479,6 @@ const PurchaseOrderForm: FunctionComponent = () => {
                                     </div>
                                 )}
 
-                                {/* ── From-Requisition Banner ──────────────────── */}
                                 {formMode === 'create-from-requisition' && requisition && (
                                     <div className="flex items-center gap-3 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
                                         <ClipboardList className="w-5 h-5 text-indigo-500 flex-shrink-0" />
@@ -448,17 +490,14 @@ const PurchaseOrderForm: FunctionComponent = () => {
                                     </div>
                                 )}
 
-                                {/* ── Order Details Card ───────────────────────── */}
                                 {formMode !== 'view' && (
                                     <FormFieldCard title="Order Details">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <FormSearchableSelect
-                                                label="Supplier"
+                                            <SupplierSearchSelect
                                                 name="supplierId"
-                                                options={supplierOptions}
-                                                placeholder="Search and select supplier..."
                                                 required
                                                 disabled={isDisabled}
+                                                initialOption={supplierInitialOption}
                                             />
 
                                             <FormInput
@@ -480,10 +519,8 @@ const PurchaseOrderForm: FunctionComponent = () => {
                                     </FormFieldCard>
                                 )}
 
-                                {/* ── Items Card ───────────────────────────────── */}
                                 <FormFieldCard title={formMode === 'view' ? 'Order Items' : 'Items'}>
                                     {formMode === 'view' && purchaseOrder ? (
-                                        /* ── View-mode items table ─────── */
                                         <div className="space-y-3">
                                             {purchaseOrder.items.map((item, index) => {
                                                 const vName = item.variant?.variantName || '';
@@ -551,7 +588,6 @@ const PurchaseOrderForm: FunctionComponent = () => {
                                             </div>
                                         </div>
                                     ) : (
-                                        /* ── Create-mode items (FieldArray) ─────── */
                                         <FieldArray name="items">
                                             {({ push, remove }) => (
                                                 <div className="space-y-4">
@@ -595,13 +631,12 @@ const PurchaseOrderForm: FunctionComponent = () => {
                                                                     </div>
                                                                     <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                                                                         <div className="md:col-span-2">
-                                                                            <FormSearchableSelect
-                                                                                label="Product Variant"
+                                                                            <ProductSearchSelect
                                                                                 name={`items.${index}.variantId`}
-                                                                                options={variantOptions}
-                                                                                placeholder="Search product..."
+                                                                                label="Product Variant"
                                                                                 required
                                                                                 disabled={formMode === 'create-from-requisition'}
+                                                                                initialOption={requisitionOptionMap.get(item.variantId) ?? null}
                                                                             />
                                                                         </div>
                                                                         <div>
@@ -658,15 +693,6 @@ const PurchaseOrderForm: FunctionComponent = () => {
 
                                 {/* ── Actions ──────────────────────────────────── */}
                                 <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
-                                    <Button
-                                        type="button"
-                                        theme={formMode === 'view' ? 'primary' : 'danger'}
-                                        onClick={() => navigate(ROUTES.PURCHASE_ORDERS)}
-                                        disabled={isSubmitting || loading}
-                                    >
-                                        <X className="w-4 h-4 mr-2" />
-                                        {formMode === 'view' ? 'Back to List' : 'Cancel'}
-                                    </Button>
                                     {formMode !== 'view' && (
                                         <Button
                                             type="submit"
