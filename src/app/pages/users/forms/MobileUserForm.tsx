@@ -96,7 +96,7 @@ const MobileUserForm: FunctionComponent = () => {
                                         <>
                                             <Flex align="center" gap="2" py="3">
                                                 <Separator size="4" />
-                                                <Text size="1" weight="bold" color="sky" className="uppercase tracking-wider whitespace-nowrap">
+                                                <Text size="1" weight="bold" className="uppercase tracking-wider whitespace-nowrap">
                                                     Attendance & Salary
                                                 </Text>
                                                 <Separator size="4" />
@@ -121,7 +121,7 @@ const MobileUserForm: FunctionComponent = () => {
                                         <>
                                             <Flex align="center" gap="2" py="3">
                                                 <Separator size="4" />
-                                                <Text size="1" weight="bold" color="sky" className="uppercase tracking-wider whitespace-nowrap">
+                                                <Text size="1" weight="bold" className="uppercase tracking-wider whitespace-nowrap">
                                                     Access & Permissions
                                                 </Text>
                                                 <Separator size="4" />
