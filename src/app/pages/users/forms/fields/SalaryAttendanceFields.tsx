@@ -57,7 +57,7 @@ const SalaryAttendanceFields: FunctionComponent<SalaryAttendanceFieldsProps> = (
                         <Switch
                             checked={allowSelfAttendance}
                             onCheckedChange={onAllowSelfAttendanceChange}
-                            color="sky"
+
                             size="2"
                         />
                     </label>
