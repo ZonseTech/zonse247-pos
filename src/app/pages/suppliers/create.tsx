@@ -142,7 +142,7 @@ const SupplierForm: FunctionComponent = () => {
             if (isEditMode) {
                 await update(supplierId, payload as any);
                 Report.success('Success', 'Supplier updated successfully', 'Okay', () => {
-                    navigate(ROUTES.SUPPLIERS);
+                    navigate(ROUTES.PROCUREMENT_SUPPLIERS);
                 });
             } else {
                 await create(payload as any);
@@ -155,7 +155,7 @@ const SupplierForm: FunctionComponent = () => {
                         resetForm();
                     },
                     () => {
-                        navigate(ROUTES.SUPPLIERS);
+                        navigate(ROUTES.PROCUREMENT_SUPPLIERS);
                     }
                 );
             }
@@ -199,7 +199,6 @@ const SupplierForm: FunctionComponent = () => {
                             />
 
                             <div className="mt-6 space-y-6">
-                                {/* Balance Widget (edit mode only) */}
                                 {isEditMode && supplierId && (
                                     <SupplierBalanceWidget
                                         supplierId={supplierId}
@@ -297,15 +296,6 @@ const SupplierForm: FunctionComponent = () => {
                                 </FormFieldCard>
 
                                 <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
-                                    <Button
-                                        type="button"
-                                        theme="danger"
-                                        onClick={() => navigate(ROUTES.SUPPLIERS)}
-                                        disabled={isSubmitting || loading}
-                                    >
-                                        <X className="w-4 h-4 mr-2" />
-                                        Cancel
-                                    </Button>
                                     <Button
                                         type="submit"
                                         theme="success"
