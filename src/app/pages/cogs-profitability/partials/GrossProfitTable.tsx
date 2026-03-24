@@ -357,7 +357,6 @@ const GrossProfitTable: FC<GrossProfitTableProps> = ({
                 highlightOnHover
                 responsive
                 persistTableHead
-                fixedHeader
                 defaultSortFieldId={6}
                 defaultSortAsc={false}
                 noDataComponent={
