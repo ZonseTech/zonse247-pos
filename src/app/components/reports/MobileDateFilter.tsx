@@ -184,7 +184,6 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
             >
                 <IconButton
                     variant="ghost"
-                    color="sky"
                     size={{ initial: '3', md: '2' }}
                     onClick={handlePrevDate}
                     aria-label="Previous date"
@@ -203,7 +202,6 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
 
                 <IconButton
                     variant="ghost"
-                    color="sky"
                     size={{ initial: '3', md: '2' }}
                     onClick={handleNextDate}
                     aria-label="Next date"
@@ -221,7 +219,7 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
                                 Cancel
                             </Button>
                             <Text size="3" weight="bold">Select Date Range</Text>
-                            <Button variant="ghost" color="sky" size="2" onClick={handleApply}>
+                            <Button variant="ghost" size="2" onClick={handleApply}>
                                 Apply
                             </Button>
                         </Flex>
@@ -260,7 +258,7 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
                                 Cancel
                             </Button>
                             <Text size="2" weight="bold">Select Date Range</Text>
-                            <Button variant="ghost" color="sky" size="2" onClick={handleApply}>
+                            <Button variant="ghost" size="2" onClick={handleApply}>
                                 Apply
                             </Button>
                         </Flex>
