@@ -166,7 +166,6 @@ const CategoriesManager: FunctionComponent = () => {
                             setPerPage(newPerPage);
                         }}
                         onChangePage={setPage}
-                        fixedHeader
                         persistTableHead
                         customStyles={getTableStyles(mode)}
                         noDataComponent={
