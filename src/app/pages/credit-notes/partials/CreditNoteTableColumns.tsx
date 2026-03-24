@@ -1,21 +1,24 @@
 import { TableColumn } from 'react-data-table-component';
 import { Eye } from 'lucide-react';
 
-export const creditNoteStatusConfig: Record<CreditNoteStatusType, { label: string; bg: string; text: string }> = {
+export const creditNoteStatusConfig: Record<CreditNoteStatusType, { label: string; bg: string; text: string; color: string }> = {
     PENDING: {
         label: 'Pending',
         bg: 'bg-amber-100 dark:bg-amber-900/30',
         text: 'text-amber-700 dark:text-amber-300',
+        color: 'amber',
     },
     APPLIED: {
         label: 'Applied',
         bg: 'bg-emerald-100 dark:bg-emerald-900/30',
         text: 'text-emerald-700 dark:text-emerald-300',
+        color: 'green',
     },
     CANCELLED: {
         label: 'Cancelled',
         bg: 'bg-red-100 dark:bg-red-900/30',
         text: 'text-red-700 dark:text-red-300',
+        color: 'red',
     },
 };
 
