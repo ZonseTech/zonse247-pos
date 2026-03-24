@@ -97,7 +97,7 @@ app.whenReady().then(async () => {
 	});
 
 	sessionService.onSessionChange(async (session) => {
-		const liveApiUrl = import.meta.env.VITE_LIVE_API_URL || 'https://api.zonse247.com/api/v1';
+		const liveApiUrl = import.meta.env.VITE_LIVE_API_URL || 'https://api.zonse247.com/v1';
 		const setup = await SecureSettingsService.getAppSetup();
 
 		if (session.token && setup?.tenantId && setup?.branchId && setup?.terminalId) {
