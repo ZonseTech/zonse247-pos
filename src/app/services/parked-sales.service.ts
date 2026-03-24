@@ -5,13 +5,13 @@ import api from './http.service';
  * For temporarily saving sales that will be completed later
  * 
  * API Endpoints:
- * - POST /api/v1/sales/parked - Park a sale
- * - GET /api/v1/sales/parked/list - List all parked sales
- * - GET /api/v1/sales/parked/count - Get parked sales count by status
- * - GET /api/v1/sales/parked/:holdOrderId - Get a specific parked sale
- * - PUT /api/v1/sales/parked/:holdOrderId - Update a parked sale
- * - POST /api/v1/sales/parked/:holdOrderId/resume - Resume a parked sale
- * - DELETE /api/v1/sales/parked/:holdOrderId - Delete a parked sale
+ * - POST /v1/sales/parked - Park a sale
+ * - GET /v1/sales/parked/list - List all parked sales
+ * - GET /v1/sales/parked/count - Get parked sales count by status
+ * - GET /v1/sales/parked/:holdOrderId - Get a specific parked sale
+ * - PUT /v1/sales/parked/:holdOrderId - Update a parked sale
+ * - POST /v1/sales/parked/:holdOrderId/resume - Resume a parked sale
+ * - DELETE /v1/sales/parked/:holdOrderId - Delete a parked sale
  */
 
 const endpoints = {
@@ -42,7 +42,7 @@ const parkedSalesService = {
     endpoints,
 
     /**
-     * POST /api/v1/sales/parked - Park a sale
+     * POST /v1/sales/parked - Park a sale
      * 
      * What happens:
      * 1. Cart items are saved with current prices
@@ -60,7 +60,7 @@ const parkedSalesService = {
     },
 
     /**
-     * GET /api/v1/sales/parked/list - List all parked sales with filters
+     * GET /v1/sales/parked/list - List all parked sales with filters
      */
     async list(query: Partial<ParkedSaleListQuery> = {}): Promise<{ parkedSales: ParkedSale[]; pagination: any }> {
         return api
@@ -72,7 +72,7 @@ const parkedSalesService = {
     },
 
     /**
-     * GET /api/v1/sales/parked/count - Get parked sales count by status
+     * GET /v1/sales/parked/count - Get parked sales count by status
      */
     async getCount(query: { branchId?: string; userId?: string; status?: ParkedSaleStatus } = {}): Promise<ParkedSalesCountResponse> {
         return api
@@ -84,7 +84,7 @@ const parkedSalesService = {
     },
 
     /**
-     * GET /api/v1/sales/parked/:holdOrderId - Get a specific parked sale
+     * GET /v1/sales/parked/:holdOrderId - Get a specific parked sale
      */
     async show(holdOrderId: string): Promise<ParkedSale> {
         return api
@@ -96,7 +96,7 @@ const parkedSalesService = {
     },
 
     /**
-     * PUT /api/v1/sales/parked/:holdOrderId - Update a parked sale
+     * PUT /v1/sales/parked/:holdOrderId - Update a parked sale
      */
     async update(holdOrderId: string, payload: Partial<CreateParkedSalePayload>): Promise<ParkedSale> {
         return api
@@ -108,7 +108,7 @@ const parkedSalesService = {
     },
 
     /**
-     * POST /api/v1/sales/parked/:holdOrderId/resume - Resume a parked sale (load to cart)
+     * POST /v1/sales/parked/:holdOrderId/resume - Resume a parked sale (load to cart)
      * 
      * What happens:
      * 1. Parked sale status is updated to RESUMED
@@ -125,7 +125,7 @@ const parkedSalesService = {
     },
 
     /**
-     * DELETE /api/v1/sales/parked/:holdOrderId - Delete a parked sale
+     * DELETE /v1/sales/parked/:holdOrderId - Delete a parked sale
      */
     async delete(holdOrderId: string): Promise<boolean> {
         return api
