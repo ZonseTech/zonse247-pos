@@ -1,5 +1,6 @@
 import { TableColumn } from 'react-data-table-component';
 import { Eye, CheckCircle, Truck, PackageCheck, Ban, Trash2 } from 'lucide-react';
+import { Badge, Box, Flex, IconButton, Text, Tooltip } from '@radix-ui/themes';
 
 interface ReturnColumnOptions {
     onView: (r: SupplierReturnWithItems) => void;
@@ -10,32 +11,12 @@ interface ReturnColumnOptions {
     onDelete: (r: SupplierReturnWithItems) => void;
 }
 
-export const returnStatusConfig: Record<SupplierReturnStatusType, { label: string; bg: string; text: string }> = {
-    DRAFT: {
-        label: 'Draft',
-        bg: 'bg-gray-100 dark:bg-gray-700',
-        text: 'text-gray-600 dark:text-gray-300',
-    },
-    APPROVED: {
-        label: 'Approved',
-        bg: 'bg-blue-100 dark:bg-blue-900/30',
-        text: 'text-blue-700 dark:text-blue-300',
-    },
-    SHIPPED: {
-        label: 'Shipped',
-        bg: 'bg-purple-100 dark:bg-purple-900/30',
-        text: 'text-purple-700 dark:text-purple-300',
-    },
-    COMPLETED: {
-        label: 'Completed',
-        bg: 'bg-emerald-100 dark:bg-emerald-900/30',
-        text: 'text-emerald-700 dark:text-emerald-300',
-    },
-    CANCELLED: {
-        label: 'Cancelled',
-        bg: 'bg-red-100 dark:bg-red-900/30',
-        text: 'text-red-700 dark:text-red-300',
-    },
+export const returnStatusConfig: Record<SupplierReturnStatusType, { label: string; color: 'gray' | 'blue' | 'purple' | 'green' | 'red' }> = {
+    DRAFT: { label: 'Draft', color: 'gray' },
+    APPROVED: { label: 'Approved', color: 'blue' },
+    SHIPPED: { label: 'Shipped', color: 'purple' },
+    COMPLETED: { label: 'Completed', color: 'green' },
+    CANCELLED: { label: 'Cancelled', color: 'red' },
 };
 
 const formatCurrency = (value: number) =>
@@ -54,9 +35,9 @@ export const getSupplierReturnTableColumns = ({
             selector: (row) => row.returnNumber,
             sortable: true,
             cell: (row) => (
-                <span className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                <Text size="2" weight="medium">
                     {row.returnNumber}
-                </span>
+                </Text>
             ),
             minWidth: '160px',
             grow: 1,
@@ -66,16 +47,16 @@ export const getSupplierReturnTableColumns = ({
             selector: (row) => row.supplier?.name || '',
             sortable: true,
             cell: (row) => (
-                <div className="text-sm py-1">
-                    <span className="font-medium text-gray-900 dark:text-gray-100 truncate block">
+                <Box py="1">
+                    <Text as="p" size="2" weight="medium" truncate>
                         {row.supplier?.name || '—'}
-                    </span>
+                    </Text>
                     {row.purchaseOrder?.poNumber && (
-                        <p className="text-xs text-sky-600 dark:text-sky-400">
+                        <Text as="p" size="1" className="text-sky-600 dark:text-sky-400">
                             PO: {row.purchaseOrder.poNumber}
-                        </p>
+                        </Text>
                     )}
-                </div>
+                </Box>
             ),
             minWidth: '160px',
             grow: 2,
@@ -87,9 +68,9 @@ export const getSupplierReturnTableColumns = ({
             cell: (row) => {
                 const cfg = returnStatusConfig[row.status];
                 return (
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text}`}>
+                    <Badge variant="soft" color={cfg.color} radius="full" size="1">
                         {cfg.label}
-                    </span>
+                    </Badge>
                 );
             },
             minWidth: '120px',
@@ -98,9 +79,9 @@ export const getSupplierReturnTableColumns = ({
             name: 'Items',
             selector: (row) => row.items?.length || 0,
             cell: (row) => (
-                <span className="text-sm text-gray-700 dark:text-gray-300">
+                <Text size="2" color="gray">
                     {row.items?.length || 0}
-                </span>
+                </Text>
             ),
             minWidth: '80px',
         },
@@ -109,9 +90,9 @@ export const getSupplierReturnTableColumns = ({
             selector: (row) => row.totalAmount,
             sortable: true,
             cell: (row) => (
-                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                <Text size="2" weight="bold">
                     {formatCurrency(row.totalAmount)}
-                </span>
+                </Text>
             ),
             minWidth: '140px',
             grow: 1,
@@ -122,7 +103,7 @@ export const getSupplierReturnTableColumns = ({
             selector: (row) => row.returnDate?.toString() || '',
             sortable: true,
             cell: (row) => (
-                <span className="text-sm text-gray-600 dark:text-gray-400">
+                <Text size="2" color="gray">
                     {row.returnDate
                         ? new Date(row.returnDate).toLocaleDateString('en-US', {
                             month: 'short',
@@ -130,7 +111,7 @@ export const getSupplierReturnTableColumns = ({
                             year: 'numeric',
                         })
                         : '—'}
-                </span>
+                </Text>
             ),
             minWidth: '130px',
             grow: 1,
@@ -138,65 +119,89 @@ export const getSupplierReturnTableColumns = ({
         {
             name: 'Actions',
             cell: (row) => (
-                <div className="flex items-center gap-1">
-                    <button
-                        onClick={() => onView(row)}
-                        className="p-1.5 text-gray-500 hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
-                        title="View"
-                    >
-                        <Eye className="w-4 h-4" />
-                    </button>
+                <Flex align="center" gap="1">
+                    <Tooltip content="View">
+                        <IconButton
+                            variant="ghost"
+                            color="gray"
+                            size="1"
+                            onClick={() => onView(row)}
+                            aria-label="View return"
+                        >
+                            <Eye className="w-4 h-4" />
+                        </IconButton>
+                    </Tooltip>
 
                     {row.status === 'DRAFT' && (
-                        <button
-                            onClick={() => onApprove(row)}
-                            className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                            title="Approve"
-                        >
-                            <CheckCircle className="w-4 h-4" />
-                        </button>
+                        <Tooltip content="Approve">
+                            <IconButton
+                                variant="ghost"
+                                color="blue"
+                                size="1"
+                                onClick={() => onApprove(row)}
+                                aria-label="Approve return"
+                            >
+                                <CheckCircle className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
                     )}
 
                     {row.status === 'APPROVED' && (
-                        <button
-                            onClick={() => onShip(row)}
-                            className="p-1.5 text-gray-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors"
-                            title="Ship"
-                        >
-                            <Truck className="w-4 h-4" />
-                        </button>
+                        <Tooltip content="Ship">
+                            <IconButton
+                                variant="ghost"
+                                color="purple"
+                                size="1"
+                                onClick={() => onShip(row)}
+                                aria-label="Ship return"
+                            >
+                                <Truck className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
                     )}
 
                     {row.status === 'SHIPPED' && (
-                        <button
-                            onClick={() => onComplete(row)}
-                            className="p-1.5 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
-                            title="Complete"
-                        >
-                            <PackageCheck className="w-4 h-4" />
-                        </button>
+                        <Tooltip content="Complete">
+                            <IconButton
+                                variant="ghost"
+                                color="green"
+                                size="1"
+                                onClick={() => onComplete(row)}
+                                aria-label="Complete return"
+                            >
+                                <PackageCheck className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
                     )}
 
                     {['DRAFT', 'APPROVED'].includes(row.status) && (
-                        <button
-                            onClick={() => onCancel(row)}
-                            className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                            title="Cancel"
-                        >
-                            <Ban className="w-4 h-4" />
-                        </button>
+                        <Tooltip content="Cancel">
+                            <IconButton
+                                variant="ghost"
+                                color="red"
+                                size="1"
+                                onClick={() => onCancel(row)}
+                                aria-label="Cancel return"
+                            >
+                                <Ban className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
                     )}
 
                     {row.status === 'DRAFT' && (
-                        <button
-                            onClick={() => onDelete(row)}
-                            className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                            title="Delete"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </button>
+                        <Tooltip content="Delete">
+                            <IconButton
+                                variant="ghost"
+                                color="red"
+                                size="1"
+                                onClick={() => onDelete(row)}
+                                aria-label="Delete return"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
                     )}
-                </div>
+                </Flex>
             ),
             minWidth: '180px',
             right: true,
