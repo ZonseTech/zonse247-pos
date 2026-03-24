@@ -121,7 +121,6 @@ const TenantsManagement: FunctionComponent = () => {
                         setPerPage(newPerPage);
                     }}
                     onChangePage={setPage}
-                    fixedHeader
                     customStyles={getTableStyles(mode)}
                     noDataComponent={
                         <div className="text-center py-8">
