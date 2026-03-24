@@ -33,7 +33,7 @@ export function buildNavMenuGroups(user: User | null): NavMenuGroup[] {
     const mgmtItems: NavMenuGroup['items'] = [];
 
     if (hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {
-        mgmtItems.push({ label: 'Inventory', route: ROUTES.INVENTORY });
+        mgmtItems.push({ label: 'Inventory', route: ROUTES.INVENTORY_HUB });
         mgmtItems.push({ label: 'Procurement', route: ROUTES.PROCUREMENT_SUPPLIERS });
     }
 
