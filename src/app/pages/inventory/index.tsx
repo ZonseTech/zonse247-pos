@@ -394,7 +394,6 @@ const InventoryManagement: FunctionComponent = () => {
                     expandableRowDisabled={(row) => (row.variantCount ?? 1) <= 1}
                     customStyles={getTableStyles(mode)}
                     persistTableHead
-                    fixedHeader
                     noDataComponent={
                         <TableEmptyState
                             icon={<Package />}
@@ -408,7 +407,7 @@ const InventoryManagement: FunctionComponent = () => {
                                 hasActiveFilters ? (
                                     <Button
                                         variant="ghost"
-                                        color="sky"
+
                                         size="2"
                                         onClick={handleClearFilters}
                                     >
