@@ -6,7 +6,7 @@ import {
 	shell,
 } from 'electron';
 import { ROUTES } from '../app/utils/constants';
-import { hasAnyPermission, hasPermission } from '../app/utils';
+import { hasAnyPermission } from '../app/utils';
 import { buildNavMenuGroups, navGroupsToElectronMenu } from '../app/navigation/partials/navMenuConfig';
 
 export default class MenuBuilder {
@@ -64,7 +64,6 @@ export default class MenuBuilder {
 	buildDefaultTemplate(): Array<MenuItemConstructorOptions> {
 		const template: Array<MenuItemConstructorOptions> = [];
 
-		// ── File menu ──────────────────────────────────────────────────────
 		const fileSubmenu: Array<MenuItemConstructorOptions> = [];
 
 		if (hasAnyPermission(this.user, ['products.create', 'products.edit'])) {
@@ -96,7 +95,6 @@ export default class MenuBuilder {
 			submenu: fileSubmenu,
 		});
 
-		// ── Navigation menus from shared config ────────────────────────────
 		const navGroups = buildNavMenuGroups(this.user);
 		const navMenus = navGroupsToElectronMenu(
 			navGroups,
@@ -104,7 +102,6 @@ export default class MenuBuilder {
 		);
 		template.push(...navMenus);
 
-		// ── View menu ──────────────────────────────────────────────────────
 		const viewSubmenu: Array<MenuItemConstructorOptions> = [];
 
 		if (!app.isPackaged) {
@@ -121,7 +118,6 @@ export default class MenuBuilder {
 			});
 		}
 
-		// ── Window menu ────────────────────────────────────────────────────
 		const windowSubmenu: Array<MenuItemConstructorOptions> = [
 			{
 				label: 'Toggle Menu Bar',
@@ -167,7 +163,6 @@ export default class MenuBuilder {
 			submenu: windowSubmenu,
 		});
 
-		// ── Help menu ──────────────────────────────────────────────────────
 		template.push({
 			label: 'Help',
 			submenu: [
