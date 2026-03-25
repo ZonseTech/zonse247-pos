@@ -1,4 +1,4 @@
-import api from './http.service';
+import { liveApi, getAuthHeaders } from './live-api.service';
 
 /**
  * Stock Movement Service
@@ -57,8 +57,9 @@ const stockMovementService = {
         endDate?: string,
         movementType?: StockMovementType
     ): Promise<StockMovement[]> {
-        return api
-            .get<StockMovementListResponse>(`${endpoints.byProduct}/${productId}`, { tenantId, branchId, limit, page, startDate, endDate, movementType })
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<StockMovementListResponse>(`${endpoints.byProduct}/${productId}`, { headers, params: { tenantId, branchId, limit, page, startDate, endDate, movementType } })
             .then((res) => res.data.data.movements)
             .catch((err) => {
                 throw err;
@@ -79,8 +80,9 @@ const stockMovementService = {
         endDate?: string,
         movementType?: StockMovementType
     ): Promise<StockMovement[]> {
-        return api
-            .get<StockMovementListResponse>(`${endpoints.byVariant}/${variantId}`, { tenantId, branchId, limit, page, startDate, endDate, movementType })
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<StockMovementListResponse>(`${endpoints.byVariant}/${variantId}`, { headers, params: { tenantId, branchId, limit, page, startDate, endDate, movementType } })
             .then((res) => res.data.data.movements)
             .catch((err) => {
                 throw err;
@@ -102,8 +104,9 @@ const stockMovementService = {
             }
         });
 
-        return api
-            .get<StockMovementListResponse>(endpoints.byBranch, params)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<StockMovementListResponse>(endpoints.byBranch, { headers, params })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -116,8 +119,9 @@ const stockMovementService = {
     async listStockMovements(
         query: StockMovementListQuery
     ): Promise<StockMovementListResponse['data']> {
-        return api
-            .get<StockMovementListResponse>(endpoints.list, query)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<StockMovementListResponse>(endpoints.list, { headers, params: query })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -131,8 +135,9 @@ const stockMovementService = {
     async createStockMovement(
         payload: CreateStockMovementPayload
     ): Promise<StockMovement> {
-        return api
-            .post<StockMovementResponse>(endpoints.create, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<StockMovementResponse>(endpoints.create, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -145,8 +150,9 @@ const stockMovementService = {
      * Auth header provides tenantId, branchId, and performedBy.
      */
     async adjustStock(payload: StockAdjustmentPayload): Promise<StockMovement> {
-        return api
-            .post<StockMovementResponse>(endpoints.adjust, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<StockMovementResponse>(endpoints.adjust, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -158,8 +164,9 @@ const stockMovementService = {
      * Moves stock from available to damaged
      */
     async damageStock(payload: DamageStockPayload): Promise<StockMovement> {
-        return api
-            .post<StockMovementResponse>(endpoints.damage, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<StockMovementResponse>(endpoints.damage, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -176,8 +183,9 @@ const stockMovementService = {
         transferOut: StockMovement;
         transferIn: StockMovement;
     }> {
-        return api
-            .post<ApiResponse<any>>(endpoints.transfer, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<ApiResponse<any>>(endpoints.transfer, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -199,8 +207,9 @@ const stockMovementService = {
         newQuantity: number;
         variance: number;
     }> {
-        return api
-            .post<ApiResponse<any>>(endpoints.stockCount, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<ApiResponse<any>>(endpoints.stockCount, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -217,8 +226,9 @@ const stockMovementService = {
         expiryDate?: string;
         notes?: string;
     }): Promise<StockMovement> {
-        return api
-            .post<StockMovementResponse>(endpoints.expiry, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<StockMovementResponse>(endpoints.expiry, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -232,8 +242,9 @@ const stockMovementService = {
         originalMovementId: string;
         reason: string;
     }): Promise<StockMovement> {
-        return api
-            .post<StockMovementResponse>(endpoints.correction, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<StockMovementResponse>(endpoints.correction, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -246,8 +257,9 @@ const stockMovementService = {
     async syncMovements(
         movements: SyncMovementInput[]
     ): Promise<BulkSyncResult> {
-        return api
-            .post<ApiResponse<BulkSyncResult>>(endpoints.sync, { movements } as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<ApiResponse<BulkSyncResult>>(endpoints.sync, { movements }, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -258,8 +270,9 @@ const stockMovementService = {
      * GET /stock-movements/:id — Get single stock movement
      */
     async getStockMovement(movementId: string): Promise<StockMovement> {
-        return api
-            .get<StockMovementResponse>(endpoints.get(movementId))
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<StockMovementResponse>(endpoints.get(movementId), { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -270,8 +283,9 @@ const stockMovementService = {
      * POST /stock-movements/recalculate/:inventoryId — Rebuild single item from movements
      */
     async recalculateInventory(inventoryId: string): Promise<void> {
-        return api
-            .post(endpoints.recalculate(inventoryId), {})
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post(endpoints.recalculate(inventoryId), {}, { headers })
             .then(() => undefined)
             .catch((err) => {
                 throw err;
@@ -282,8 +296,9 @@ const stockMovementService = {
      * POST /stock-movements/recalculate-branch — Rebuild all branch inventory
      */
     async recalculateBranch(): Promise<void> {
-        return api
-            .post(endpoints.recalculateBranch, {})
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post(endpoints.recalculateBranch, {}, { headers })
             .then(() => undefined)
             .catch((err) => {
                 throw err;
@@ -302,8 +317,9 @@ const stockMovementService = {
         performedBy: string;
         notes?: string;
     }): Promise<StockMovement> {
-        return api
-            .post<StockMovementResponse>(endpoints.stockTake, payload as any)
+        const headers = await getAuthHeaders();
+        return liveApi
+            .post<StockMovementResponse>(endpoints.stockTake, payload, { headers })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -326,8 +342,9 @@ const stockMovementService = {
         movementCount: number;
         totalValue: number;
     }> {
-        return api
-            .get<ApiResponse<any>>(endpoints.summary, { tenantId, branchId, startDate, endDate, movementType })
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<ApiResponse<any>>(endpoints.summary, { headers, params: { tenantId, branchId, startDate, endDate, movementType } })
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -344,10 +361,11 @@ const stockMovementService = {
         startDate?: string,
         endDate?: string
     ): Promise<StockMovementSummary> {
-        return api
+        const headers = await getAuthHeaders();
+        return liveApi
             .get<ApiResponse<StockMovementSummary>>(
                 `${endpoints.productSummary}/${productId}`,
-                { tenantId, branchId, startDate, endDate }
+                { headers, params: { tenantId, branchId, startDate, endDate } }
             )
             .then((res) => res.data.data)
             .catch((err) => {
