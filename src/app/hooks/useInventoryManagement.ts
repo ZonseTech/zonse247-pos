@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'react-toastify';
 import inventoryService from '../services/inventory.service';
 import { Confirm, Notify } from 'notiflix';
@@ -13,12 +13,14 @@ export const useInventoryManagement = () => {
     const [data, setData] = useState<ApiProduct[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
     const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
     const [activeFilter, setActiveFilter] = useState('all');
     const [startDate, setStartDate] = useState<string>("");
     const [endDate, setEndDate] = useState<string>("");
     const [inventory, setInventory] = useState<ApiProduct[]>([]);
     const [selectedItem, setSelectedItem] = useState<ApiProduct | null>(null);
+    const searchTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
     const dispatch = useAppDispatch()
     const categories = useAppSelector((state) => state.inventory.categories)
@@ -36,7 +38,7 @@ export const useInventoryManagement = () => {
             const response = await inventoryService.list({
                 page,
                 perPage,
-                search: filters?.search ?? searchTerm,
+                search: filters?.search ?? debouncedSearchTerm,
                 categoryId: filters?.categoryId ?? categoryId,
                 filter: filters?.filter ?? activeFilter,
                 startDate: filters?.startDate ?? startDate,
@@ -59,19 +61,23 @@ export const useInventoryManagement = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [page, perPage, searchTerm, categoryId, activeFilter, startDate, endDate]);
+    }, [page, perPage, debouncedSearchTerm, categoryId, activeFilter, startDate, endDate]);
 
-    /**
-     * Auto-apply filters when dependencies change
-     * Debounces search input by 300ms for better performance
-     */
+    // Debounce search term — waits 500ms after user stops typing before triggering API call
     useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            applyFilters();
-        }, searchTerm ? 300 : 0); // Debounce search by 300ms, instant for other changes
+        if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+        searchTimerRef.current = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 500);
+        return () => {
+            if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+        };
+    }, [searchTerm]);
 
-        return () => clearTimeout(timeoutId);
-    }, [searchTerm, categoryId, activeFilter, startDate, endDate, page, perPage, applyFilters]);
+    // Auto-apply filters when debounced search or other filter values change
+    useEffect(() => {
+        applyFilters();
+    }, [debouncedSearchTerm, categoryId, activeFilter, startDate, endDate, page, perPage]);
 
     const loadInventory = useCallback(async () => {
         try {
@@ -127,9 +133,9 @@ export const useInventoryManagement = () => {
         );
     };
 
-    const handleSearch = (value: string) => {
+    const handleSearch = useCallback((value: string) => {
         setSearchTerm(value);
-    };
+    }, []);
 
     const handleFilterByCategory = (categoryId: string) => {
         setCategoryId(categoryId || undefined);
@@ -159,6 +165,7 @@ export const useInventoryManagement = () => {
         perPage,
         inventory,
         searchTerm,
+        debouncedSearchTerm,
         selectedItem,
         activeFilter,
         categoryId,
