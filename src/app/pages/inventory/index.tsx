@@ -115,6 +115,7 @@ const InventoryManagement: FunctionComponent = () => {
         totalRows,
         categories,
         searchTerm,
+        debouncedSearchTerm,
         categoryId,
         startDate,
         endDate,
@@ -135,12 +136,12 @@ const InventoryManagement: FunctionComponent = () => {
     } = useInventoryManagement();
 
     const statsQuery = useMemo(() => ({
-        search: searchTerm || undefined,
+        search: debouncedSearchTerm || undefined,
         filter: activeFilter !== 'all' ? activeFilter : undefined,
         categoryId: categoryId || undefined,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
-    }), [searchTerm, activeFilter, categoryId, startDate, endDate]);
+    }), [debouncedSearchTerm, activeFilter, categoryId, startDate, endDate]);
 
     useEffect(() => {
         fetchOverview(statsQuery);
@@ -305,6 +306,7 @@ const InventoryManagement: FunctionComponent = () => {
                         placeholder="Search by name, barcode, SKU..."
                         value={searchTerm}
                         onChange={handleSearch}
+                        debounce={500}
                         className="w-full sm:flex-1 sm:max-w-xs"
                     />
 
