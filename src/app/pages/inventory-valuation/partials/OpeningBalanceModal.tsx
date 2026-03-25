@@ -49,7 +49,7 @@ const OpeningBalanceModal: FC<OpeningBalanceModalProps> = ({ isOpen, onClose, on
         setIsSubmitting(true);
         try {
             await onSubmit({
-                inventoryId: selected.id,
+                inventoryId: selected.inventoryId,
                 quantity: qty,
                 unitCost: cost,
                 openingDate: openingDate || undefined,
