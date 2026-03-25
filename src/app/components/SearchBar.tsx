@@ -1,4 +1,4 @@
-import { FunctionComponent, ChangeEvent } from 'react';
+import { FunctionComponent, ChangeEvent, useState, useEffect, useRef, useCallback } from 'react';
 import { HiOutlineSearch, HiX } from 'react-icons/hi';
 import { TextField, IconButton } from '@radix-ui/themes';
 
@@ -9,6 +9,9 @@ interface SearchBarProps {
     placeholder?: string;
     className?: string;
     compact?: boolean;
+    /** When set, the component manages its own local state for instant display
+     *  and only calls onChange after the user stops typing for this many ms. */
+    debounce?: number;
 }
 
 export const SearchBar: FunctionComponent<SearchBarProps> = ({
@@ -17,27 +20,54 @@ export const SearchBar: FunctionComponent<SearchBarProps> = ({
     onClear,
     placeholder = 'Search...',
     className = '',
-    compact = false
+    compact = false,
+    debounce
 }) => {
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        onChange(e.target.value);
-    };
+    const [localValue, setLocalValue] = useState(value);
+    const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-    const handleClear = () => {
+    // Sync local state when parent value changes externally (e.g. clear filters)
+    useEffect(() => {
+        setLocalValue(value);
+    }, [value]);
+
+    const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+        const newValue = e.target.value;
+        setLocalValue(newValue);
+
+        if (debounce) {
+            if (timerRef.current) clearTimeout(timerRef.current);
+            timerRef.current = setTimeout(() => onChange(newValue), debounce);
+        } else {
+            onChange(newValue);
+        }
+    }, [debounce, onChange]);
+
+    const handleClear = useCallback(() => {
+        if (timerRef.current) clearTimeout(timerRef.current);
+        setLocalValue('');
         onChange('');
         onClear?.();
-    };
+    }, [onChange, onClear]);
+
+    useEffect(() => {
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current);
+        };
+    }, []);
+
+    const displayValue = debounce ? localValue : value;
 
     return (
         <div className={className}>
             <TextField.Root
                 size={compact ? '1' : '2'}
                 placeholder={placeholder}
-                value={value}
+                value={displayValue}
                 onChange={handleChange}
             >
                 <TextField.Slot side="right">
-                    {value && (
+                    {displayValue && (
                         <IconButton
                             type="button"
                             size="1"
