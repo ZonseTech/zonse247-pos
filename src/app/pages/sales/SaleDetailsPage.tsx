@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthProvider';
 import { useApp } from '../../context/AppProvider';
 import { useBranch } from '../../context/BranchContext';
 import { useMraCompliance } from '../../hooks/useMraCompliance';
+import { useReceiptActions } from '../../hooks/useReceiptActions';
 import returnsService from '../../services/returns.service';
 import { Report } from 'notiflix';
 import AppLayout from '../../layouts/AppLayout';
@@ -27,14 +28,8 @@ import {
     ReceiptLoadingState,
     ReceiptErrorState,
 } from './partials/receipt';
-import {
-    Printer,
-    Copy,
-    CheckCircle,
-    RotateCcw,
-    Download,
-    Share2,
-} from 'lucide-react';
+import { Flex, IconButton, Tooltip } from '@radix-ui/themes';
+import { Printer, Copy, CheckCircle, RotateCcw, Download, Share2 } from 'lucide-react';
 
 const SaleDetailsPage: FunctionComponent = () => {
     const { saleId } = useParams<{ saleId: string }>();
@@ -50,7 +45,11 @@ const SaleDetailsPage: FunctionComponent = () => {
     const [error, setError] = useState<string | null>(null);
     const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
-    const [copied, setCopied] = useState(false);
+
+    const { isSharing, copiedSaleId, handleCopyRef, handleShare, handleDownload } = useReceiptActions({
+        receiptRef,
+        storeName: currentBranch?.branchName,
+    });
 
     const fetchSaleDetails = useCallback(async () => {
         if (!saleId || !user?.tenantId || !user?.branchId) {
@@ -97,18 +96,6 @@ const SaleDetailsPage: FunctionComponent = () => {
 
     const handleBack = useCallback(() => navigate(ROUTES.SALES), [navigate]);
 
-    const handleCopyRef = useCallback(async () => {
-        const ref = getSaleRef(sale);
-        if (ref === 'N/A') return;
-        try {
-            await navigator.clipboard.writeText(ref);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        } catch (err) {
-            console.error('Failed to copy:', err);
-        }
-    }, [sale]);
-
     const handlePrint = useCallback(async () => {
         if (!sale) return;
 
@@ -152,48 +139,69 @@ const SaleDetailsPage: FunctionComponent = () => {
                     showBackButton
                     onBack={handleBack}
                     action={
-                        <div className="flex items-center gap-1">
-                            <button
-                                onClick={handleCopyRef}
-                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                                aria-label="Copy reference"
-                            >
-                                {copied ? (
-                                    <CheckCircle className="w-5 h-5 text-emerald-500" />
-                                ) : (
-                                    <Copy className="w-5 h-5 text-gray-400" />
-                                )}
-                            </button>
-                            <button
-                                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                                aria-label="Share receipt"
-                            >
-                                <Share2 className="w-5 h-5 text-sky-600 dark:text-sky-400" />
-                            </button>
-                            <button
-                                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                                aria-label="Download receipt"
-                            >
-                                <Download className="w-5 h-5 text-sky-600 dark:text-sky-400" />
-                            </button>
-                            <button
-                                onClick={handlePrint}
-                                disabled={isPrinting}
-                                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-                                aria-label="Print receipt"
-                            >
-                                <Printer className={`w-5 h-5 ${isPrinting ? 'text-sky-500 animate-pulse' : 'text-sky-600 dark:text-sky-400'}`} />
-                            </button>
-                            {saleData.canReturn && !saleData.refundSummary.isFullyRefunded && (
-                                <button
-                                    onClick={() => setIsReturnModalOpen(true)}
-                                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                                    aria-label="Initiate return"
+                        <Flex gap="1" align="center">
+                            <Tooltip content={copiedSaleId === sale.id ? 'Copied!' : 'Copy reference'}>
+                                <IconButton
+                                    variant="ghost"
+                                    size="2"
+                                    color={copiedSaleId === sale.id ? 'green' : 'gray'}
+                                    onClick={() => handleCopyRef(sale)}
+                                    aria-label="Copy reference"
                                 >
-                                    <RotateCcw className="w-5 h-5 text-sky-600 dark:text-sky-400" />
-                                </button>
+                                    {copiedSaleId === sale.id ? <CheckCircle size={18} /> : <Copy size={18} />}
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip content="Share receipt">
+                                <IconButton
+                                    variant="ghost"
+                                    size="2"
+                                    color="cyan"
+                                    onClick={() => handleShare(sale)}
+                                    disabled={isSharing}
+                                    aria-label="Share receipt"
+                                    className={isSharing ? 'animate-pulse' : ''}
+                                >
+                                    <Share2 size={18} />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip content="Download receipt">
+                                <IconButton
+                                    variant="ghost"
+                                    size="2"
+                                    color="cyan"
+                                    onClick={() => handleDownload(sale)}
+                                    aria-label="Download receipt"
+                                >
+                                    <Download size={18} />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip content="Print receipt">
+                                <IconButton
+                                    variant="ghost"
+                                    size="2"
+                                    color="cyan"
+                                    onClick={handlePrint}
+                                    disabled={isPrinting}
+                                    aria-label="Print receipt"
+                                    className={isPrinting ? 'animate-pulse' : ''}
+                                >
+                                    <Printer size={18} />
+                                </IconButton>
+                            </Tooltip>
+                            {saleData.canReturn && !saleData.refundSummary.isFullyRefunded && (
+                                <Tooltip content="Initiate return">
+                                    <IconButton
+                                        variant="ghost"
+                                        size="2"
+                                        color="cyan"
+                                        onClick={() => setIsReturnModalOpen(true)}
+                                        aria-label="Initiate return"
+                                    >
+                                        <RotateCcw size={18} />
+                                    </IconButton>
+                                </Tooltip>
                             )}
-                        </div>
+                        </Flex>
                     }
                 />
 
@@ -253,7 +261,6 @@ const SaleDetailsPage: FunctionComponent = () => {
                 </div>
             </div>
 
-            {/* Return Modal */}
             {sale && (
                 <InitiateReturnModal
                     isOpen={isReturnModalOpen}

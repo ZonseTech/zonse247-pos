@@ -22,7 +22,6 @@ import {
 	TerminalRoutes,
 	TenantRoutes,
 	PrinterRoutes,
-	SubscriptionRoutes,
 	SystemRoutes,
 	ErrorRoutes,
 	AccountInfoRoutes,
@@ -57,7 +56,6 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 					{TerminalRoutes}
 					{TenantRoutes}
 					{PrinterRoutes}
-					{SubscriptionRoutes}
 
 					{SystemRoutes}
 					{AccountInfoRoutes}

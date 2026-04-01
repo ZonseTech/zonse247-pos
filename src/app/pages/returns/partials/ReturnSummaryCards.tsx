@@ -1,5 +1,11 @@
 import React from 'react';
-import { RotateCcw, CheckCircle, Clock, PackageX, DollarSign } from 'lucide-react';
+import { RotateCcw, CheckCircle, Clock, PackageX, DollarSign, LucideIcon } from 'lucide-react';
+import * as Tooltip from '@radix-ui/react-tooltip';
+import * as Popover from '@radix-ui/react-popover';
+import * as Avatar from '@radix-ui/react-avatar';
+import * as Separator from '@radix-ui/react-separator';
+import { useIsEBN, useIsMobile } from '../../../hooks/useMediaQuery';
+import classNames from 'classnames';
 
 export interface ReturnSummaryCard {
     title: string;
@@ -13,124 +19,211 @@ export interface ReturnSummaryCard {
 interface ReturnSummaryCardsProps {
     cards: ReturnSummaryCard[];
     isLoading?: boolean;
-    compact?: boolean;
-    mobile?: boolean;
 }
 
-const getIcon = (title: string) => {
-    switch (title) {
-        case 'Total Returns':
-            return RotateCcw;
-        case 'Pending Restock':
-            return Clock;
-        case 'Restocked':
-            return CheckCircle;
-        case 'Damaged':
-            return PackageX;
-        case 'Total Refunded':
-            return DollarSign;
-        default:
-            return RotateCcw;
-    }
+const iconMap: Record<string, LucideIcon> = {
+    'Total Returns': RotateCcw,
+    'Pending Restock': Clock,
+    'Restocked': CheckCircle,
+    'Damaged': PackageX,
+    'Total Refunded': DollarSign,
 };
 
-// Get short title for mobile
-const getShortTitle = (title: string) => {
-    switch (title) {
-        case 'Total Returns':
-            return 'Returns';
-        case 'Pending Restock':
-            return 'Pending';
-        case 'Restocked':
-            return 'Stocked';
-        case 'Damaged':
-            return 'Damaged';
-        case 'Total Refunded':
-            return 'Refunded';
-        default:
-            return title;
-    }
+const getIcon = (title: string): LucideIcon => {
+    return iconMap[title] || RotateCcw;
 };
 
-const ReturnSummaryCards: React.FC<ReturnSummaryCardsProps> = ({ cards, isLoading, compact = false, mobile = false }) => {
+// --- Card content variants ---
+
+interface CardContentProps {
+    card: ReturnSummaryCard;
+    Icon: LucideIcon;
+}
+
+const EBNCardContent: React.FC<CardContentProps> = ({ card, Icon }) => (
+    <div className="flex items-center gap-2">
+        <Avatar.Root className={classNames(card.iconBgColor, 'p-1.5 rounded-lg flex-shrink-0 inline-flex items-center justify-center')}>
+            <Avatar.Fallback delayMs={0}>
+                <Icon className={classNames('w-4 h-4', card.textColor)} />
+            </Avatar.Fallback>
+        </Avatar.Root>
+        <div className="flex-1 min-w-0 overflow-hidden">
+            <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400 leading-tight truncate">{card.title}</p>
+            <p className={classNames('text-xs font-bold leading-tight truncate', card.textColor)}>{card.displayValue}</p>
+        </div>
+    </div>
+);
+
+const MobileCardContent: React.FC<CardContentProps> = ({ card, Icon }) => (
+    <div className="flex items-center gap-2">
+        <Avatar.Root className={classNames(card.iconBgColor, 'p-2 rounded-lg flex-shrink-0 inline-flex items-center justify-center')}>
+            <Avatar.Fallback delayMs={0}>
+                <Icon className={classNames('w-4 h-4', card.textColor)} />
+            </Avatar.Fallback>
+        </Avatar.Root>
+        <div className="flex-1 min-w-0 overflow-hidden">
+            <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400 leading-tight truncate">{card.title}</p>
+            <p className={classNames('text-xs font-bold leading-tight truncate', card.textColor)}>{card.displayValue}</p>
+        </div>
+    </div>
+);
+
+const DesktopCardContent: React.FC<CardContentProps> = ({ card, Icon }) => (
+    <div className="flex items-center gap-2 sm:gap-3">
+        <Avatar.Root className={classNames(card.iconBgColor, 'p-2 sm:p-2.5 rounded-lg flex-shrink-0 inline-flex items-center justify-center')}>
+            <Avatar.Fallback delayMs={0}>
+                <Icon className={classNames('w-4 h-4 sm:w-5 sm:h-5', card.textColor)} />
+            </Avatar.Fallback>
+        </Avatar.Root>
+        <div className="flex-1 min-w-0 overflow-hidden">
+            <p className="text-[10px] sm:text-xs font-medium text-gray-500 dark:text-gray-400 truncate">{card.title}</p>
+            <p className={classNames('text-sm sm:text-lg font-bold truncate', card.textColor)}>{card.displayValue}</p>
+        </div>
+    </div>
+);
+
+const PopoverFullValue: React.FC<CardContentProps> = ({ card, Icon }) => (
+    <div className="flex items-center gap-3">
+        <Avatar.Root className={classNames(card.iconBgColor, 'p-2 rounded-lg flex-shrink-0 inline-flex items-center justify-center')}>
+            <Avatar.Fallback delayMs={0}>
+                <Icon className={classNames('w-5 h-5', card.textColor)} />
+            </Avatar.Fallback>
+        </Avatar.Root>
+        <div>
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400">{card.title}</p>
+            <p className={classNames('text-base font-bold whitespace-nowrap', card.textColor)}>{card.displayValue}</p>
+        </div>
+    </div>
+);
+
+// --- Skeleton ---
+const SkeletonCard: React.FC<{ isEBN: boolean }> = ({ isEBN }) => (
+    <div
+        className={classNames(
+            'bg-gray-50 dark:bg-gray-700/50 animate-pulse',
+            isEBN ? 'rounded-lg p-2' : 'rounded-lg p-3 sm:p-4',
+        )}
+    >
+        <div className={classNames('flex items-center', isEBN ? 'gap-2' : 'gap-2 sm:gap-3')}>
+            <div className={classNames(
+                'bg-gray-200 dark:bg-gray-600 flex-shrink-0 rounded-lg',
+                isEBN ? 'w-8 h-8' : 'w-8 h-8 sm:w-10 sm:h-10',
+            )} />
+            <div className="flex-1 min-w-0">
+                <div className={classNames('bg-gray-200 dark:bg-gray-600 rounded', isEBN ? 'h-2.5 w-12 mb-1' : 'h-3 w-14 mb-1.5')} />
+                <div className={classNames('bg-gray-200 dark:bg-gray-600 rounded', isEBN ? 'h-4 w-16' : 'h-5 w-20')} />
+            </div>
+        </div>
+    </div>
+);
+
+const ReturnSummaryCards: React.FC<ReturnSummaryCardsProps> = ({ cards, isLoading }) => {
+    const isEBN = useIsEBN();
+    const isMobile = useIsMobile();
+
+    const gridClass = classNames(
+        isEBN
+            ? 'grid grid-cols-4 gap-1.5 p-2'
+            : 'grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 py-3 sm:py-4',
+    );
+
     if (isLoading) {
         return (
-            <div className={`grid ${mobile ? 'grid-cols-4 gap-1.5 p-2' : compact ? 'grid-cols-4 gap-1 p-2' : 'grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 p-3 sm:p-4'} border-b border-gray-200 dark:border-gray-700`}>
-                {[1, 2, 3, 4].map((i) => (
-                    <div
-                        key={i}
-                        className={`bg-gray-50 dark:bg-gray-700/50 ${mobile ? 'rounded-lg p-2' : compact ? 'rounded-lg p-1.5' : 'rounded-xl p-3 sm:p-4'} animate-pulse`}
-                    >
-                        {mobile ? (
-                            <div className="flex flex-col items-center text-center">
-                                <div className="w-6 h-6 bg-gray-200 dark:bg-gray-600 rounded-lg mb-1" />
-                                <div className="h-2 bg-gray-200 dark:bg-gray-600 rounded w-10 mb-1" />
-                                <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-6" />
-                            </div>
-                        ) : (
-                            <div className={`flex items-center ${compact ? 'gap-1' : 'gap-2 sm:gap-3'}`}>
-                                <div className={`${compact ? 'w-5 h-5' : 'w-8 h-8 sm:w-10 sm:h-10'} bg-gray-200 dark:bg-gray-600 rounded-lg flex-shrink-0`} />
-                                <div className="flex-1 min-w-0">
-                                    <div className={`${compact ? 'h-2' : 'h-3'} bg-gray-200 dark:bg-gray-600 rounded w-12 mb-1`} />
-                                    <div className={`${compact ? 'h-3' : 'h-4 sm:h-5'} bg-gray-200 dark:bg-gray-600 rounded w-8`} />
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </div>
+            <>
+                <div className={gridClass}>
+                    {[1, 2, 3, 4].map((i) => (
+                        <SkeletonCard key={i} isEBN={isEBN} />
+                    ))}
+                </div>
+                <Separator.Root decorative className="h-px bg-gray-200 dark:bg-gray-700" />
+            </>
         );
     }
 
     return (
-        <div className={`grid ${mobile ? 'grid-cols-4 gap-1.5 p-2' : compact ? 'grid-cols-4 gap-1 p-2' : 'grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 p-3 sm:p-4'} border-b border-gray-200 dark:border-gray-700`}>
-            {cards.map((card, idx) => {
-                const Icon = getIcon(card.title);
+        <Tooltip.Provider delayDuration={300}>
+            <div className={gridClass}>
+                {cards.map((card, idx) => {
+                    const Icon = getIcon(card.title);
+                    const contentProps: CardContentProps = { card, Icon };
+                    const isRightSide = isMobile ? idx % 2 === 1 : idx >= 2;
 
-                // Mobile layout - vertical centered cards
-                if (mobile) {
-                    return (
-                        <div
-                            key={idx}
-                            className={`${card.bgColor} rounded-lg p-2 transition-all duration-150 active:scale-95`}
-                        >
-                            <div className="flex flex-col items-center text-center">
-                                <div className={`${card.iconBgColor} p-1.5 rounded-lg mb-1`}>
-                                    <Icon className={`w-3.5 h-3.5 ${card.textColor}`} />
-                                </div>
-                                <p className="text-[8px] font-medium text-gray-500 dark:text-gray-400 leading-tight">
-                                    {getShortTitle(card.title)}
-                                </p>
-                                <p className={`text-sm font-bold ${card.textColor} leading-tight`}>
-                                    {card.displayValue}
-                                </p>
-                            </div>
-                        </div>
+                    const cardBody = isEBN
+                        ? <EBNCardContent {...contentProps} />
+                        : isMobile
+                            ? <MobileCardContent {...contentProps} />
+                            : <DesktopCardContent {...contentProps} />;
+
+                    const cardClassName = classNames(
+                        card.bgColor,
+                        'transition-all duration-200',
+                        isEBN
+                            ? 'rounded-lg p-2 hover:shadow-sm cursor-pointer select-none'
+                            : [
+                                'rounded-lg p-2 sm:p-4 hover:shadow-md',
+                                (isMobile) && 'cursor-pointer select-none',
+                            ],
                     );
-                }
 
-                return (
-                    <div
-                        key={idx}
-                        className={`${card.bgColor} ${compact ? 'rounded-lg p-1.5' : 'rounded-xl p-3 sm:p-4'} transition-all duration-200 hover:shadow-md active:scale-[0.98]`}
-                    >
-                        <div className={`flex items-center ${compact ? 'gap-1' : 'gap-2 sm:gap-3'}`}>
-                            <div className={`${card.iconBgColor} ${compact ? 'p-1' : 'p-2 sm:p-2.5'} rounded-lg flex-shrink-0`}>
-                                <Icon className={`${compact ? 'w-3 h-3' : 'w-4 h-4 sm:w-5 sm:h-5'} ${card.textColor}`} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className={`${compact ? 'text-[8px]' : 'text-[10px] sm:text-xs'} font-medium text-gray-500 dark:text-gray-400 truncate`}>
-                                    {compact ? getShortTitle(card.title) : card.title}
-                                </p>
-                                <p className={`${compact ? 'text-[11px]' : 'text-sm sm:text-lg'} font-bold ${card.textColor} truncate`}>
-                                    {card.displayValue}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                );
-            })}
-        </div>
+                    // Mobile/EBN: use Popover for full value
+                    if (isMobile || isEBN) {
+                        return (
+                            <Popover.Root key={idx}>
+                                <Popover.Trigger asChild>
+                                    <button type="button" className={classNames(cardClassName, 'text-left w-full')}>
+                                        {cardBody}
+                                    </button>
+                                </Popover.Trigger>
+                                <Popover.Portal>
+                                    <Popover.Content
+                                        side="bottom"
+                                        align={isRightSide ? 'end' : 'start'}
+                                        sideOffset={isEBN ? 4 : 8}
+                                        className={classNames(
+                                            card.bgColor,
+                                            'rounded-lg shadow-2xl border border-gray-200 dark:border-gray-600 p-3',
+                                            'z-50 whitespace-nowrap',
+                                            'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+                                            'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
+                                        )}
+                                    >
+                                        <PopoverFullValue {...contentProps} />
+                                    </Popover.Content>
+                                </Popover.Portal>
+                            </Popover.Root>
+                        );
+                    }
+
+                    // Desktop: use Tooltip
+                    return (
+                        <Tooltip.Root key={idx}>
+                            <Tooltip.Trigger asChild>
+                                <div className={cardClassName}>
+                                    {cardBody}
+                                </div>
+                            </Tooltip.Trigger>
+                            <Tooltip.Portal>
+                                <Tooltip.Content
+                                    side="bottom"
+                                    sideOffset={6}
+                                    className={classNames(
+                                        'z-50 rounded-lg px-3 py-2 shadow-lg',
+                                        'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900',
+                                        'text-xs font-semibold',
+                                        'data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0',
+                                        'data-[state=closed]:animate-out data-[state=closed]:fade-out-0',
+                                    )}
+                                >
+                                    {card.title}: {card.displayValue}
+                                    <Tooltip.Arrow className="fill-gray-900 dark:fill-gray-100" />
+                                </Tooltip.Content>
+                            </Tooltip.Portal>
+                        </Tooltip.Root>
+                    );
+                })}
+            </div>
+            <Separator.Root decorative className="h-px bg-gray-200 dark:bg-gray-700" />
+        </Tooltip.Provider>
     );
 };
 

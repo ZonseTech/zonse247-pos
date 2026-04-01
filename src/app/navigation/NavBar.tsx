@@ -1,5 +1,4 @@
 import { useState, useEffect, type FunctionComponent } from 'react';
-import { useNavigate } from 'react-router-dom';
 import useNavGroups from './partials/useNavGroups';
 import type { NavItemBase } from '../../types/navigation';
 import { Sidebar, MobileDrawer } from './components';

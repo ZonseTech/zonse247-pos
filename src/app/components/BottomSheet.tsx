@@ -37,27 +37,20 @@ const BottomSheet: FunctionComponent<BottomSheetProps> = ({
     }, [isOpen]);
 
     const sheetClass = classNames(
-        'absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-sm shadow-2xl z-50 max-h-[85%] flex flex-col safe-area-bottom',
+        'fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-2xl shadow-2xl z-[51] max-h-[85vh] flex flex-col safe-area-bottom',
         className
     );
-
-    // Find the main content container to portal into
-    const getPortalContainer = () => {
-        // Try to find the main content area
-        const mainContent = document.querySelector('main');
-        return mainContent || document.body;
-    };
 
     const content = (
         <AnimatePresence>
             {isOpen && (
-                <div className="absolute inset-0 z-40">
+                <div className="fixed inset-0 z-50">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute inset-0 bg-black/50"
+                        className="fixed inset-0 bg-black/50"
                         onClick={onClose}
                     />
 
@@ -120,7 +113,7 @@ const BottomSheet: FunctionComponent<BottomSheetProps> = ({
         </AnimatePresence>
     );
 
-    return createPortal(content, getPortalContainer());
+    return createPortal(content, document.body);
 };
 
 export default BottomSheet;

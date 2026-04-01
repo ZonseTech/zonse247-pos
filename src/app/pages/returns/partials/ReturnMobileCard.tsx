@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { HiOutlineClock, HiOutlineEye } from 'react-icons/hi2';
-import { RotateCcw, Trash2, User, Package, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
+import { RotateCcw, Trash2, User, Package, CheckCircle, Clock, AlertTriangle, MoreVertical } from 'lucide-react';
 import dayjs from 'dayjs';
 import { formatCurrency } from '../../../utils';
 
@@ -55,6 +55,9 @@ const ReturnMobileCard: React.FC<ReturnMobileCardProps> = ({
     onRestock,
     onCancel,
 }) => {
+    const [showActions, setShowActions] = useState(false);
+    const actionsRef = useRef<HTMLDivElement>(null);
+
     const hasPendingRestock = returnData.returnItems.some(
         (item) => item.restockStatus === 'pending'
     );
@@ -66,93 +69,133 @@ const ReturnMobileCard: React.FC<ReturnMobileCardProps> = ({
     const restockStatus = getRestockStatus(returnData);
     const StatusIcon = restockStatus.icon;
 
+    const hasContextActions = hasPendingRestock || canCancel;
+
+    // Close actions when tapping outside
+    useEffect(() => {
+        if (!showActions) return;
+        const handleClickOutside = (e: MouseEvent) => {
+            if (actionsRef.current && !actionsRef.current.contains(e.target as Node)) {
+                setShowActions(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showActions]);
+
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3 shadow-sm active:scale-[0.99] transition-transform">
-            {/* Header - Return ID & Status */}
-            <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                    <span className="font-semibold text-gray-900 dark:text-white text-xs truncate">
-                        {returnData.returnNumber || returnData.returnTransaction?.refNumber || '-'}
-                    </span>
-                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium flex items-center gap-0.5 flex-shrink-0 ${restockStatus.color}`}>
-                        <StatusIcon className="w-2.5 h-2.5" />
-                        {restockStatus.label}
-                    </span>
-                </div>
-                <div className="flex items-center gap-1 text-[10px] text-gray-500 dark:text-gray-400 flex-shrink-0 ml-1">
-                    <HiOutlineClock className="w-3 h-3" />
-                    <span>{(returnData.createdAt || returnData.returnTransaction?.date) ? dayjs(returnData.createdAt || returnData.returnTransaction?.date).format('DD MMM') : '-'}</span>
-                </div>
-            </div>
-
-            {/* Financial Details */}
-            <div className="grid grid-cols-3 gap-1.5 mb-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                <div className="text-center">
-                    <p className="text-[9px] text-gray-500 dark:text-gray-400 mb-0.5">Refund</p>
-                    <p className="font-bold text-sky-500 dark:text-sky-400 text-xs">
-                        {formatCurrency(returnData.refundAmount || 0)}
-                    </p>
-                </div>
-                <div className="text-center border-x border-gray-200 dark:border-gray-600">
-                    <p className="text-[9px] text-gray-500 dark:text-gray-400 mb-0.5">Items</p>
-                    <p className="font-semibold text-gray-900 dark:text-white text-xs">
-                        {returnData.returnItems?.length || 0}
-                    </p>
-                </div>
-                <div className="text-center">
-                    <p className="text-[9px] text-gray-500 dark:text-gray-400 mb-0.5">Qty</p>
-                    <p className="font-medium text-gray-900 dark:text-white text-xs">
-                        {returnData.returnItems?.reduce((sum, item) => sum + (typeof item.returnedQuantity === 'string' ? parseInt(item.returnedQuantity, 10) : item.returnedQuantity), 0) || 0}
-                    </p>
-                </div>
-            </div>
-
-            {/* Meta Information & Customer - Combined Row */}
-            <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-gray-100 dark:border-gray-700">
-                <div className="flex items-center gap-1.5 text-[10px] text-gray-600 dark:text-gray-300 min-w-0">
-                    <Package className="w-3 h-3 text-gray-400 flex-shrink-0" />
-                    <span className="truncate">{returnData.originalSale?.saleNumber || returnData.originalTransaction?.refNumber || '-'}</span>
-                </div>
-                <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <div className="w-5 h-5 bg-sky-100 dark:bg-sky-900/50 rounded-full flex items-center justify-center">
-                        <User className="w-2.5 h-2.5 text-sky-500 dark:text-sky-300" />
+        <div
+            className="relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700
+                       active:scale-[0.99] transition-transform touch-manipulation"
+            onClick={() => onViewDetails(returnData)}
+        >
+            <div className="p-3.5">
+                {/* Header row: Return ID, Status, Time, Actions */}
+                <div className="flex items-center justify-between mb-2.5">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <span className="font-semibold text-gray-900 dark:text-white text-sm truncate">
+                            {returnData.returnNumber || returnData.returnTransaction?.refNumber || '-'}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium flex items-center gap-0.5 flex-shrink-0 ${restockStatus.color}`}>
+                            <StatusIcon className="w-2.5 h-2.5" />
+                            {restockStatus.label}
+                        </span>
                     </div>
-                    <span className="text-[10px] text-gray-600 dark:text-gray-300 max-w-[80px] truncate">
-                        {returnData.originalSale?.customer?.name || returnData.originalTransaction?.customer?.name || 'Walk-in'}
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <span className="text-[11px] text-gray-400 dark:text-gray-500">
+                            {(returnData.createdAt || returnData.returnTransaction?.date) ? dayjs(returnData.createdAt || returnData.returnTransaction?.date).format('DD MMM, HH:mm') : '-'}
+                        </span>
+                        {hasContextActions && (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setShowActions(prev => !prev); }}
+                                className="p-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300
+                                         hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors -mr-1"
+                                aria-label="Actions"
+                            >
+                                <MoreVertical className="w-4 h-4" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Financial row: Refund prominent, Items + Qty secondary */}
+                <div className="flex items-baseline justify-between mb-2.5">
+                    <span className="text-lg font-bold text-sky-600 dark:text-sky-400">
+                        {formatCurrency(returnData.refundAmount || 0)}
                     </span>
+                    <div className="flex items-center gap-3 text-xs">
+                        <span className="text-gray-500 dark:text-gray-400">
+                            Items <span className="font-medium text-gray-700 dark:text-gray-300">{returnData.returnItems?.length || 0}</span>
+                        </span>
+                        <span className="text-gray-500 dark:text-gray-400">
+                            Qty <span className="font-medium text-gray-700 dark:text-gray-300">
+                                {returnData.returnItems?.reduce((sum, item) => sum + (typeof item.returnedQuantity === 'string' ? parseInt(item.returnedQuantity, 10) : item.returnedQuantity), 0) || 0}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+
+                {/* Meta row: Original sale, Customer */}
+                <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center gap-1">
+                        <Package className="w-3 h-3 text-gray-400" />
+                        <span className="truncate max-w-[120px]">{returnData.originalSale?.saleNumber || returnData.originalTransaction?.refNumber || '-'}</span>
+                    </div>
+                    <div className="flex items-center gap-1 ml-auto">
+                        <div className="w-4 h-4 bg-sky-100 dark:bg-sky-900/50 rounded-full flex items-center justify-center flex-shrink-0">
+                            <User className="w-2.5 h-2.5 text-sky-500 dark:text-sky-300" />
+                        </div>
+                        <span className="truncate max-w-[90px]">
+                            {returnData.originalSale?.customer?.name || returnData.originalTransaction?.customer?.name || 'Walk-in'}
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            {/* Actions - Touch Friendly */}
-            <div className="flex items-center gap-1.5">
-                <button
-                    onClick={() => onViewDetails(returnData)}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs font-medium text-sky-500 dark:text-sky-400 bg-sky-50 dark:bg-sky-900/30 hover:bg-sky-100 dark:hover:bg-sky-900/50 active:bg-sky-200 dark:active:bg-sky-900/70 rounded-lg transition-colors duration-150"
+            {/* Context menu */}
+            {showActions && (
+                <div
+                    ref={actionsRef}
+                    className="absolute top-10 right-3 z-20 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700
+                             shadow-lg min-w-[150px] py-1 animate-in fade-in-0 zoom-in-95 duration-150"
                 >
-                    <HiOutlineEye className="w-4 h-4" />
-                    <span>View</span>
-                </button>
-                {hasPendingRestock && !isCancelled && (
                     <button
-                        onClick={() => onRestock(returnData)}
-                        className="flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-medium text-emerald-500 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 active:bg-emerald-200 dark:active:bg-emerald-900/70 rounded-lg transition-colors duration-150"
+                        onClick={(e) => { e.stopPropagation(); setShowActions(false); onViewDetails(returnData); }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300
+                                 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                     >
-                        <RotateCcw className="w-4 h-4" />
-                        <span>Restock</span>
+                        <HiOutlineEye className="w-4 h-4 text-sky-500" />
+                        View Details
                     </button>
-                )}
-                {canCancel && (
-                    <button
-                        onClick={() => onCancel(
-                            returnData.returnId || returnData.returnTransaction?.transactionId || '',
-                            returnData.returnNumber || returnData.returnTransaction?.refNumber || ''
-                        )}
-                        className="flex items-center justify-center p-2.5 text-xs font-medium text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 active:bg-red-200 dark:active:bg-red-900/70 rounded-lg transition-colors duration-150"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
-                )}
-            </div>
+                    {hasPendingRestock && !isCancelled && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setShowActions(false); onRestock(returnData); }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-emerald-600 dark:text-emerald-400
+                                     hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                            Restock Items
+                        </button>
+                    )}
+                    {canCancel && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowActions(false);
+                                onCancel(
+                                    returnData.returnId || returnData.returnTransaction?.transactionId || '',
+                                    returnData.returnNumber || returnData.returnTransaction?.refNumber || ''
+                                );
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-red-600 dark:text-red-400
+                                     hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                            Cancel Return
+                        </button>
+                    )}
+                </div>
+            )}
         </div>
     );
 };
@@ -165,6 +208,27 @@ interface ReturnMobileListProps {
     isLoading?: boolean;
 }
 
+/** Skeleton card for loading state */
+const ReturnMobileCardSkeleton: React.FC = () => (
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3.5 animate-pulse">
+        <div className="flex justify-between mb-2.5">
+            <div className="flex items-center gap-2">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24" />
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-full w-16" />
+            </div>
+            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20" />
+        </div>
+        <div className="flex justify-between mb-2.5">
+            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-24" />
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32" />
+        </div>
+        <div className="flex gap-3">
+            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-24" />
+            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20 ml-auto" />
+        </div>
+    </div>
+);
+
 export const ReturnMobileList: React.FC<ReturnMobileListProps> = ({
     returns,
     onViewDetails,
@@ -174,34 +238,20 @@ export const ReturnMobileList: React.FC<ReturnMobileListProps> = ({
 }) => {
     if (isLoading) {
         return (
-            <div className="space-y-3 p-3">
-                {[1, 2, 3].map((i) => (
-                    <div
-                        key={i}
-                        className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3 animate-pulse"
-                    >
-                        <div className="flex justify-between mb-2">
-                            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20" />
-                            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-14" />
-                        </div>
-                        <div className="grid grid-cols-3 gap-1.5 mb-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                            <div className="h-6 bg-gray-200 dark:bg-gray-600 rounded" />
-                            <div className="h-6 bg-gray-200 dark:bg-gray-600 rounded" />
-                            <div className="h-6 bg-gray-200 dark:bg-gray-600 rounded" />
-                        </div>
-                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-28 mb-2" />
-                        <div className="flex gap-1.5">
-                            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded flex-1" />
-                            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-10" />
-                        </div>
-                    </div>
+            <div className="space-y-2 px-3 py-3">
+                {[1, 2, 3, 4, 5].map((i) => (
+                    <ReturnMobileCardSkeleton key={i} />
                 ))}
             </div>
         );
     }
 
+    if (returns.length === 0) {
+        return null;
+    }
+
     return (
-        <div className="space-y-3 p-3">
+        <div className="space-y-2 px-3 py-2">
             {returns.map((returnData) => (
                 <ReturnMobileCard
                     key={returnData.returnId || returnData.returnTransaction?.transactionId}
@@ -215,4 +265,5 @@ export const ReturnMobileList: React.FC<ReturnMobileListProps> = ({
     );
 };
 
+export { ReturnMobileCardSkeleton };
 export default ReturnMobileCard;

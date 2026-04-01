@@ -68,7 +68,6 @@ export function buildNavMenuGroups(user: User | null): NavMenuGroup[] {
         groups.push({
             label: 'Admin',
             items: [
-                { label: 'Subscriptions', route: ROUTES.SUBSCRIPTIONS },
                 { label: 'Tenants', route: ROUTES.TENANTS },
             ],
         });

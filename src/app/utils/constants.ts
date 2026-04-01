@@ -16,8 +16,6 @@ export enum ROUTES {
 	SALES = '/sales',
 	SALE_DETAILS = '/sales/:saleId',
 	TODAY_SALES = '/today-sales',
-	RECEIPTS = '/receipts',
-	RECEIPT_DETAILS = '/receipts/:saleId',
 	RETURNS = '/returns',
 
 	SALES_HUB = '/sales-hub',
@@ -76,10 +74,6 @@ export enum ROUTES {
 	INVENTORY_HUB_AGING = '/inventory-hub/aging',
 	INVENTORY_HUB_CHARTS = '/inventory-hub/charts',
 	SALES_HISTORY = '/sales-history',
-
-	SUBSCRIPTIONS = '/subscriptions',
-	SUBSCRIPTION_BILLING = '/subscriptions/billing',
-	BILLING_CHECKOUT_FORM = '/subscriptions/billing/checkout-form',
 
 	TENANTS = '/tenants',
 	TENANT_DETAILS = '/tenants/details',

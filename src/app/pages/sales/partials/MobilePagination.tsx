@@ -1,5 +1,6 @@
 import { FunctionComponent } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Flex, Text, IconButton } from '@radix-ui/themes';
 
 interface MobilePaginationProps {
     currentPage: number;
@@ -34,32 +35,34 @@ const MobilePagination: FunctionComponent<MobilePaginationProps> = ({
     };
 
     return (
-        <div className="flex items-center justify-between py-4 px-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-                {startItem}-{endItem} of {totalItems}
-            </p>
-            <div className="flex items-center gap-2">
-                <button
+        <Flex align="center" justify="between" py="3" px="3">
+            <Text size="1" color="gray">
+                <Text weight="medium">{startItem}–{endItem}</Text> of {totalItems}
+            </Text>
+            <Flex align="center" gap="2">
+                <IconButton
+                    variant="outline"
+                    size="3"
                     onClick={handlePrevious}
                     disabled={currentPage === 1}
-                    className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     aria-label="Previous page"
                 >
                     <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
+                </IconButton>
+                <Text size="1" weight="medium" className="min-w-[48px] text-center tabular-nums">
+                    {currentPage} / {totalPages}
+                </Text>
+                <IconButton
+                    variant="outline"
+                    size="3"
                     onClick={handleNext}
                     disabled={currentPage === totalPages}
-                    className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     aria-label="Next page"
                 >
                     <ChevronRight className="w-5 h-5" />
-                </button>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[60px] text-center">
-                    {currentPage} / {totalPages}
-                </span>
-            </div>
-        </div>
+                </IconButton>
+            </Flex>
+        </Flex>
     );
 };
 

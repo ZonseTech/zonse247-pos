@@ -1,37 +1,74 @@
-import { FunctionComponent, useCallback, useContext, useEffect, useState, useMemo } from 'react';
+import { FunctionComponent, useCallback, useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { Confirm, Notify } from 'notiflix';
-import { Package, Settings2, X, Plus, Download } from 'lucide-react';
-import DataTable, { type Themes, type ExpanderComponentProps } from 'react-data-table-component';
-import { Button, Badge, Box, Flex, Separator } from '@radix-ui/themes';
+import { Package, Plus, ShoppingBag, FolderTree, ArrowLeftRight, Calculator, TrendingUp, Clock } from 'lucide-react';
+import { Button } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
+import FloatingHubNavButton, { type HubNavLink } from '../../components/buttons/FloatingHubNavButton';
 import PageHeader from '../../components/page/PageHeader';
-import TableSkeleton from '../../components/skeleton/TableSkeleton';
-import TableEmptyState from '../../components/TableEmptyState';
-import { getTableStyles } from '../../utils/table-styles';
+import MobilePageHeader from '../../components/page/MobilePageHeader';
 import { formatCurrencyShort, formatCurrencyFull } from '../../utils';
 import { useInventoryStats } from '../../hooks/useInventoryStats';
-import InventorySummaryCards, { InventorySummaryCard } from './partials/InventorySummaryCards';
-import { ZonseThemeContext } from '../../components';
-import MobileDateFilter from '../../components/reports/MobileDateFilter';
-import { SearchBar } from '../../components/SearchBar';
-import { getInventoryTableColumns } from './partials/InventoryTableColumns';
-import StockStatusFilter from './partials/StockStatusFilter';
-import CategoryFilter from './partials/CategoryFilter';
+import { useIsMobile } from '../../hooks/useMediaQuery';
+import { InventorySummaryCard } from './partials/InventorySummaryCards';
 import BulkActionsModal from './partials/BulkActionsModal';
 import AdjustQuantityModal from './partials/AdjustQuantityModal';
 import ConvertToVariantModal from './partials/ConvertToVariantModal';
 import StockMovementModal from './partials/StockMovementModal';
-import ExpandedVariantRow from './partials/ExpandedVariantRow';
+import DesktopInventoryView from './partials/DesktopInventoryView';
+import MobileInventoryView from './partials/MobileInventoryView';
+import { useInventoryModals } from './hooks/useInventoryModals';
 import { useInventoryManagement } from '../../hooks/useInventoryManagement';
 import { ROUTES } from '../../utils/constants';
 
 const InventoryManagement: FunctionComponent = () => {
     const navigate = useNavigate();
-    const { mode } = useContext(ZonseThemeContext);
+    const isMobile = useIsMobile();
 
+    // Data & stats
     const { stats, isLoading: statsLoading, fetchAllStats, fetchOverview } = useInventoryStats();
     const { overview } = stats;
+
+    const {
+        isLoading,
+        data,
+        totalRows,
+        categories,
+        searchTerm,
+        debouncedSearchTerm,
+        categoryId,
+        startDate,
+        endDate,
+        perPage,
+        page,
+        loadInventory,
+        loadCategories,
+        handleSearch,
+        handleVoidItem,
+        handleFilterByCategory,
+        handlePageChange,
+        handlePerRowsChange,
+        setActiveFilter,
+        setCategoryId,
+        setStartDate,
+        setEndDate,
+        activeFilter,
+        applyFilters
+    } = useInventoryManagement();
+
+    const modals = useInventoryModals();
+
+    const hubLinks: HubNavLink[] = useMemo(() => [
+        { id: 'inventory', label: 'Products', path: ROUTES.INVENTORY, icon: <ShoppingBag className="w-4 h-4" /> },
+        { id: 'categories', label: 'Categories', path: ROUTES.CATEGORIES, icon: <FolderTree className="w-4 h-4" /> },
+        { id: 'stock-movements', label: 'Stock Movements', path: ROUTES.STOCK_MOVEMENTS, icon: <ArrowLeftRight className="w-4 h-4" /> },
+        { id: 'valuation', label: 'Valuation', path: ROUTES.INVENTORY_VALUATION, icon: <Calculator className="w-4 h-4" /> },
+        { id: 'cogs', label: 'COGS & Profit', path: ROUTES.COGS_PROFITABILITY, icon: <TrendingUp className="w-4 h-4" /> },
+        { id: 'aging', label: 'Aging', path: ROUTES.INVENTORY_AGING, icon: <Clock className="w-4 h-4" /> },
+    ], []);
+
+    const [selectedRows, setSelectedRows] = useState<ApiProduct[]>([]);
+    const [toggleCleared, setToggleCleared] = useState(false);
 
     const inventorySummaryCards: InventorySummaryCard[] = useMemo(() => {
         if (!overview) return [];
@@ -96,45 +133,6 @@ const InventoryManagement: FunctionComponent = () => {
         ];
     }, [overview]);
 
-    const [selectedRows, setSelectedRows] = useState<ApiProduct[]>([]);
-    const [toggleCleared, setToggleCleared] = useState(false);
-    const [isBulkActionsOpen, setIsBulkActionsOpen] = useState(false);
-
-    const [isAdjustQuantityOpen, setIsAdjustQuantityOpen] = useState(false);
-    const [selectedItemForAdjust, setSelectedItemForAdjust] = useState<ApiProduct | null>(null);
-
-    const [isConvertToVariantOpen, setIsConvertToVariantOpen] = useState(false);
-    const [selectedItemForConvert, setSelectedItemForConvert] = useState<ApiProduct | null>(null);
-
-    const [isStockMovementOpen, setIsStockMovementOpen] = useState(false);
-    const [selectedItemForMovements, setSelectedItemForMovements] = useState<ApiProduct | null>(null);
-
-    const {
-        isLoading,
-        data,
-        totalRows,
-        categories,
-        searchTerm,
-        debouncedSearchTerm,
-        categoryId,
-        startDate,
-        endDate,
-        perPage,
-        loadInventory,
-        loadCategories,
-        handleSearch,
-        handleVoidItem,
-        handleFilterByCategory,
-        handlePageChange,
-        handlePerRowsChange,
-        setActiveFilter,
-        setCategoryId,
-        setStartDate,
-        setEndDate,
-        activeFilter,
-        applyFilters
-    } = useInventoryManagement();
-
     const statsQuery = useMemo(() => ({
         search: debouncedSearchTerm || undefined,
         filter: activeFilter !== 'all' ? activeFilter : undefined,
@@ -151,6 +149,10 @@ const InventoryManagement: FunctionComponent = () => {
         loadCategories();
         fetchAllStats(statsQuery);
     }, []);
+
+    const hasActiveFilters = useMemo(() => {
+        return activeFilter !== 'all' || !!categoryId || !!startDate || !!endDate || !!searchTerm;
+    }, [activeFilter, categoryId, startDate, endDate, searchTerm]);
 
     const handleAddItem = useCallback(() => {
         navigate(ROUTES.INVENTORY_FORM);
@@ -176,9 +178,7 @@ const InventoryManagement: FunctionComponent = () => {
                 }
             },
             undefined,
-            {
-                okButtonBackground: '#ef4444',
-            }
+            { okButtonBackground: '#ef4444' }
         );
     }, [handleVoidItem, loadInventory]);
 
@@ -191,6 +191,11 @@ const InventoryManagement: FunctionComponent = () => {
         applyFilters({ filter: 'all', search: '', categoryId: undefined, startDate: '', endDate: '' });
         fetchOverview({});
     }, [handleSearch, setActiveFilter, setCategoryId, setStartDate, setEndDate, applyFilters, fetchOverview]);
+
+    const handleDateChange = useCallback((start: Date | null, end: Date | null) => {
+        setStartDate(start ? start.toISOString().split('T')[0] : '');
+        setEndDate(end ? end.toISOString().split('T')[0] : '');
+    }, [setStartDate, setEndDate]);
 
     const exportData = useCallback(() => {
         const headers = ['Name', 'Barcode', 'Category', 'Total Quantity', 'Reserved', 'Unit', 'Cost Price', 'Sell Price', 'Reorder Point', 'Variants', 'Status'];
@@ -222,35 +227,21 @@ const InventoryManagement: FunctionComponent = () => {
         link.click();
     }, [data]);
 
-    const hasActiveFilters = useMemo(() => {
-        return activeFilter !== 'all' || !!categoryId || !!startDate || !!endDate || !!searchTerm;
-    }, [activeFilter, categoryId, startDate, endDate, searchTerm]);
-
     const handleRowSelected = useCallback((state: { selectedRows: ApiProduct[] }) => {
         setSelectedRows(state.selectedRows);
     }, []);
 
-    const handleAdjustQuantity = useCallback((item: ApiProduct) => {
-        setSelectedItemForAdjust(item);
-        setIsAdjustQuantityOpen(true);
-    }, []);
-
-    const handleConvertToVariant = useCallback((item: ApiProduct) => {
-        setSelectedItemForConvert(item);
-        setIsConvertToVariantOpen(true);
-    }, []);
-
-    const handleViewStockMovements = useCallback((item: ApiProduct) => {
-        setSelectedItemForMovements(item);
-        setIsStockMovementOpen(true);
-    }, []);
+    const handleFilterChange = useCallback((status: string) => {
+        setActiveFilter(status);
+        applyFilters({ filter: status });
+    }, [setActiveFilter, applyFilters]);
 
     const handleBulkSuccess = useCallback(() => {
-        setToggleCleared(!toggleCleared);
+        setToggleCleared(prev => !prev);
         setSelectedRows([]);
         loadInventory();
         fetchOverview(statsQuery);
-    }, [toggleCleared, loadInventory, fetchOverview, statsQuery]);
+    }, [loadInventory, fetchOverview, statsQuery]);
 
     const handleAdjustSuccess = useCallback(() => {
         loadInventory();
@@ -262,205 +253,126 @@ const InventoryManagement: FunctionComponent = () => {
         fetchOverview(statsQuery);
     }, [loadInventory, fetchOverview, statsQuery]);
 
-    const handleDateChange = useCallback((start: Date | null, end: Date | null) => {
-        setStartDate(start ? start.toISOString().split('T')[0] : '');
-        setEndDate(end ? end.toISOString().split('T')[0] : '');
-    }, [setStartDate, setEndDate]);
-
-    const columns = getInventoryTableColumns({
-        onEdit: handleEdit,
-        onDelete: handleDelete,
-        onAdjustQuantity: handleAdjustQuantity,
-        onConvertToVariant: handleConvertToVariant,
-        onViewStockMovements: handleViewStockMovements,
-    });
-
     return (
         <AppLayout>
-            <PageHeader
-                icon={<Package className="w-8 h-8 text-sky-500" />}
-                title="Inventory"
-                description="Manage your inventory items, track stock levels, and monitor expiration dates."
-                action={
-                    <Button
-                        size="2"
-                        onClick={handleAddItem}
-                    >
-                        <Plus className="w-4 h-4" />
-                        Add Item
-                    </Button>
-                }
-            />
-
-            <Box className="rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <Flex
-                    direction={{ initial: 'column', sm: 'row' }}
-                    align={{ initial: 'start', sm: 'center' }}
-                    justify="between"
-                    gap={{ initial: '2', sm: '3' }}
-                    px="4"
-                    py="3"
-                    className="border-b border-gray-200 dark:border-gray-700"
-                >
-                    <SearchBar
-                        placeholder="Search by name, barcode, SKU..."
-                        value={searchTerm}
-                        onChange={handleSearch}
-                        debounce={500}
-                        className="w-full sm:flex-1 sm:max-w-xs"
+            {isMobile ? (
+                <>
+                    <MobilePageHeader
+                        title="Inventory"
+                        showLeftButton={true}
                     />
-
-                    <Flex align="center" gap="2" wrap="wrap">
-                        <MobileDateFilter
-                            startDate={startDate ? new Date(startDate) : null}
-                            endDate={endDate ? new Date(endDate) : null}
-                            onChange={handleDateChange}
-                            align="right"
-                        />
-
-                        <Button variant="outline" color="gray" size="2" onClick={exportData}>
-                            <Download className="w-4 h-4" />
-                            <span className="hidden sm:inline">Export</span>
-                        </Button>
-
-                        {hasActiveFilters && (
-                            <Button variant="soft" color="red" size="2" onClick={handleClearFilters}>
-                                <X className="w-4 h-4" />
-                                <span className="hidden sm:inline">Clear</span>
-                            </Button>
-                        )}
-
-                        {selectedRows.length > 0 && (
-                            <Button
-                                variant="soft"
-                                color="purple"
-                                size="2"
-                                onClick={() => setIsBulkActionsOpen(true)}
-                            >
-                                <Settings2 className="w-4 h-4" />
-                                Bulk
-                                <Badge color="purple" variant="solid" size="1">
-                                    {selectedRows.length}
-                                </Badge>
-                            </Button>
-                        )}
-                    </Flex>
-                </Flex>
-
-                <Flex direction="column" gap="2" px="4" py="3" className="border-b border-gray-200 dark:border-gray-700">
-                    <StockStatusFilter
-                        selectedStatus={activeFilter}
-                        onChange={(status) => {
-                            setActiveFilter(status);
-                            applyFilters({ filter: status });
-                        }}
-                    />
-                    <CategoryFilter
-                        selectedCategory={categoryId || 'all'}
-                        onChange={handleFilterByCategory}
+                    <MobileInventoryView
+                        data={data}
+                        isLoading={isLoading}
+                        totalRows={totalRows}
                         categories={categories}
-                        isLoading={false}
+                        summaryCards={inventorySummaryCards}
+                        statsLoading={statsLoading}
+                        searchTerm={searchTerm}
+                        onSearch={handleSearch}
+                        activeFilter={activeFilter}
+                        onFilterChange={handleFilterChange}
+                        categoryId={categoryId}
+                        onCategoryChange={handleFilterByCategory}
+                        startDate={startDate}
+                        endDate={endDate}
+                        onDateChange={handleDateChange}
+                        hasActiveFilters={hasActiveFilters}
+                        onClearFilters={handleClearFilters}
+                        onExport={exportData}
+                        page={page ?? 1}
+                        perPage={perPage}
+                        onPageChange={handlePageChange}
+                        onAddItem={handleAddItem}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        onAdjustQuantity={modals.openAdjustQuantity}
+                        onViewStockMovements={modals.openStockMovement}
+                        selectedRowCount={selectedRows.length}
+                        onBulkActions={modals.openBulkActions}
                     />
-                </Flex>
-
-                <Box px="4">
-                    <InventorySummaryCards
-                        cards={inventorySummaryCards}
-                        isLoading={statsLoading}
+                </>
+            ) : (
+                <>
+                    <PageHeader
+                        icon={<Package className="w-8 h-8 text-sky-500" />}
+                        title="Inventory"
+                        description="Manage your inventory items, track stock levels, and monitor expiration dates."
+                        action={
+                            <Button size="2" onClick={handleAddItem}>
+                                <Plus className="w-4 h-4" />
+                                Add Item
+                            </Button>
+                        }
                     />
-                </Box>
+                    <DesktopInventoryView
+                        data={data}
+                        isLoading={isLoading}
+                        totalRows={totalRows}
+                        perPage={perPage}
+                        categories={categories}
+                        summaryCards={inventorySummaryCards}
+                        statsLoading={statsLoading}
+                        searchTerm={searchTerm}
+                        onSearch={handleSearch}
+                        activeFilter={activeFilter}
+                        onFilterChange={handleFilterChange}
+                        categoryId={categoryId}
+                        onCategoryChange={handleFilterByCategory}
+                        startDate={startDate}
+                        endDate={endDate}
+                        onDateChange={handleDateChange}
+                        hasActiveFilters={hasActiveFilters}
+                        onClearFilters={handleClearFilters}
+                        onExport={exportData}
+                        onPageChange={handlePageChange}
+                        onPerRowsChange={handlePerRowsChange}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        onAdjustQuantity={modals.openAdjustQuantity}
+                        onConvertToVariant={modals.openConvertToVariant}
+                        onViewStockMovements={modals.openStockMovement}
+                        selectedRows={selectedRows}
+                        onSelectedRowsChange={handleRowSelected}
+                        toggleCleared={toggleCleared}
+                        onBulkActions={modals.openBulkActions}
+                        applyFilters={applyFilters}
+                    />
+                </>
+            )}
 
-                <DataTable
-                    columns={columns}
-                    data={data}
-                    theme={mode as Themes}
-                    progressPending={isLoading}
-                    progressComponent={<TableSkeleton rows={perPage} columns={6} showCheckbox showActions />}
-                    highlightOnHover
-                    responsive
-                    pagination
-                    paginationServer
-                    paginationTotalRows={totalRows}
-                    paginationPerPage={perPage}
-                    paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
-                    onChangeRowsPerPage={handlePerRowsChange}
-                    onChangePage={handlePageChange}
-                    selectableRows
-                    selectableRowsHighlight
-                    onSelectedRowsChange={handleRowSelected}
-                    clearSelectedRows={toggleCleared}
-                    expandableRows
-                    expandableRowsComponent={ExpandedVariantRow as React.ComponentType<ExpanderComponentProps<ApiProduct>>}
-                    expandableRowsHideExpander
-                    expandOnRowClicked
-                    expandableRowDisabled={(row) => (row.variantCount ?? 1) <= 1}
-                    customStyles={getTableStyles(mode)}
-                    persistTableHead
-                    noDataComponent={
-                        <TableEmptyState
-                            icon={<Package />}
-                            title="No inventory found"
-                            description={
-                                hasActiveFilters
-                                    ? 'Try adjusting your search, date, status, or category filters to find items.'
-                                    : 'Inventory items will appear here once they are added.'
-                            }
-                            action={
-                                hasActiveFilters ? (
-                                    <Button
-                                        variant="ghost"
-
-                                        size="2"
-                                        onClick={handleClearFilters}
-                                    >
-                                        Clear filters
-                                    </Button>
-                                ) : undefined
-                            }
-                        />
-                    }
-                />
-            </Box>
+            {isMobile && <FloatingHubNavButton links={hubLinks} />}
 
             <BulkActionsModal
-                isOpen={isBulkActionsOpen}
-                onClose={() => setIsBulkActionsOpen(false)}
+                isOpen={modals.isBulkActionsOpen}
+                onClose={modals.closeBulkActions}
                 selectedItems={selectedRows}
                 categories={categories}
                 onSuccess={handleBulkSuccess}
             />
 
             <AdjustQuantityModal
-                isOpen={isAdjustQuantityOpen}
-                onClose={() => {
-                    setIsAdjustQuantityOpen(false);
-                    setSelectedItemForAdjust(null);
-                }}
-                item={selectedItemForAdjust}
+                isOpen={modals.isAdjustQuantityOpen}
+                onClose={modals.closeAdjustQuantity}
+                item={modals.selectedItemForAdjust}
                 onSuccess={handleAdjustSuccess}
             />
 
             <ConvertToVariantModal
-                isOpen={isConvertToVariantOpen}
-                onClose={() => {
-                    setIsConvertToVariantOpen(false);
-                    setSelectedItemForConvert(null);
-                }}
-                item={selectedItemForConvert}
+                isOpen={modals.isConvertToVariantOpen}
+                onClose={modals.closeConvertToVariant}
+                item={modals.selectedItemForConvert}
                 onSuccess={handleConvertSuccess}
             />
 
-            {selectedItemForMovements && selectedItemForMovements.variants?.[0] && (
+            {modals.selectedItemForMovements && modals.selectedItemForMovements.variants?.[0] && (
                 <StockMovementModal
-                    isOpen={isStockMovementOpen}
-                    onClose={() => {
-                        setIsStockMovementOpen(false);
-                        setSelectedItemForMovements(null);
-                    }}
-                    variantId={selectedItemForMovements.variants[0].id}
-                    variantName={selectedItemForMovements.variants[0].variantName || 'Default'}
-                    productName={selectedItemForMovements.name}
-                    sku={selectedItemForMovements.variants[0].sku}
+                    isOpen={modals.isStockMovementOpen}
+                    onClose={modals.closeStockMovement}
+                    variantId={modals.selectedItemForMovements.variants[0].id}
+                    variantName={modals.selectedItemForMovements.variants[0].variantName || 'Default'}
+                    productName={modals.selectedItemForMovements.name}
+                    sku={modals.selectedItemForMovements.variants[0].sku}
                 />
             )}
         </AppLayout>
