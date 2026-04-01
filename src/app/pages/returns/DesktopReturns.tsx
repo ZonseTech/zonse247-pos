@@ -196,8 +196,6 @@ const DesktopReturns: FC = () => {
                     <ReturnSummaryCards
                         cards={summaryCards}
                         isLoading={isLoading}
-                        compact={isEBN}
-                        mobile={false}
                     />
 
                     <div className="overflow-hidden">
