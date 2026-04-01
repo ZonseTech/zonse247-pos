@@ -23,6 +23,13 @@ export const businessTypes = [
     { label: 'Service Based', value: 'SERVICE_BASED' }
 ];
 
+export const subscriptionStatuses = [
+    { label: 'Active', value: 'ACTIVE' },
+    { label: 'Suspended', value: 'SUSPENDED' },
+    { label: 'Cancelled', value: 'CANCELLED' },
+    { label: 'Trial', value: 'TRIAL' }
+];
+
 export const statuses = [
     { label: 'Pending', value: 'pending' },
     { label: 'Active', value: 'active' },
