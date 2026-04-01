@@ -1,9 +1,10 @@
 import { FunctionComponent, useCallback, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { ShoppingCart, Plus, SlidersHorizontal } from 'lucide-react';
+import { ShoppingCart, Plus, SlidersHorizontal, Users, ClipboardList, PackageCheck, FileText, Wallet, RotateCcw, CreditCard } from 'lucide-react';
 import { Box, Button } from '@radix-ui/themes';
 import { Confirm } from 'notiflix';
 import AppLayout from '../../layouts/AppLayout';
+import FloatingHubNavButton, { type HubNavLink } from '../../components/buttons/FloatingHubNavButton';
 import PageHeader from '../../components/page/PageHeader';
 import MobilePageHeader from '../../components/page/MobilePageHeader';
 import { usePurchaseOrders } from '../../hooks/usePurchaseOrders';
@@ -43,6 +44,17 @@ const PurchaseOrderManagement: FunctionComponent = () => {
     } = usePurchaseOrders();
 
     const totalPages = Math.ceil(totalRows / perPage);
+
+    const hubLinks: HubNavLink[] = useMemo(() => [
+        { id: 'suppliers', label: 'Suppliers', path: ROUTES.SUPPLIERS, icon: <Users className="w-4 h-4" /> },
+        { id: 'requisitions', label: 'Requisitions', path: ROUTES.PURCHASE_REQUISITIONS, icon: <ClipboardList className="w-4 h-4" /> },
+        { id: 'purchase-orders', label: 'Purchase Orders', path: ROUTES.PURCHASE_ORDERS, icon: <ShoppingCart className="w-4 h-4" /> },
+        { id: 'goods-receipts', label: 'Goods Receipts', path: ROUTES.GOODS_RECEIPTS, icon: <PackageCheck className="w-4 h-4" /> },
+        { id: 'invoices', label: 'Invoices', path: ROUTES.SUPPLIER_INVOICES, icon: <FileText className="w-4 h-4" /> },
+        { id: 'payments', label: 'Payments', path: ROUTES.SUPPLIER_PAYMENTS, icon: <Wallet className="w-4 h-4" /> },
+        { id: 'returns', label: 'Returns', path: ROUTES.SUPPLIER_RETURNS, icon: <RotateCcw className="w-4 h-4" /> },
+        { id: 'credit-notes', label: 'Credit Notes', path: ROUTES.CREDIT_NOTES, icon: <CreditCard className="w-4 h-4" /> },
+    ], []);
 
     const hasActiveFilters = useMemo(() => !!statusFilter || !!searchTerm, [statusFilter, searchTerm]);
     const activeFilterCount = useMemo(() => (statusFilter ? 1 : 0) + (searchTerm ? 1 : 0), [statusFilter, searchTerm]);
@@ -219,6 +231,8 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                     )}
                 </button>
             )}
+
+            {isMobile && <FloatingHubNavButton links={hubLinks} />}
 
             {receivingPO && (
                 <ReceiveModal
