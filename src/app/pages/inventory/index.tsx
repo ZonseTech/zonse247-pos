@@ -1,9 +1,10 @@
 import { FunctionComponent, useCallback, useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { Confirm, Notify } from 'notiflix';
-import { Package, Plus } from 'lucide-react';
+import { Package, Plus, ShoppingBag, FolderTree, ArrowLeftRight, Calculator, TrendingUp, Clock } from 'lucide-react';
 import { Button } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
+import FloatingHubNavButton, { type HubNavLink } from '../../components/buttons/FloatingHubNavButton';
 import PageHeader from '../../components/page/PageHeader';
 import MobilePageHeader from '../../components/page/MobilePageHeader';
 import { formatCurrencyShort, formatCurrencyFull } from '../../utils';
@@ -56,6 +57,15 @@ const InventoryManagement: FunctionComponent = () => {
     } = useInventoryManagement();
 
     const modals = useInventoryModals();
+
+    const hubLinks: HubNavLink[] = useMemo(() => [
+        { id: 'inventory', label: 'Products', path: ROUTES.INVENTORY, icon: <ShoppingBag className="w-4 h-4" /> },
+        { id: 'categories', label: 'Categories', path: ROUTES.CATEGORIES, icon: <FolderTree className="w-4 h-4" /> },
+        { id: 'stock-movements', label: 'Stock Movements', path: ROUTES.STOCK_MOVEMENTS, icon: <ArrowLeftRight className="w-4 h-4" /> },
+        { id: 'valuation', label: 'Valuation', path: ROUTES.INVENTORY_VALUATION, icon: <Calculator className="w-4 h-4" /> },
+        { id: 'cogs', label: 'COGS & Profit', path: ROUTES.COGS_PROFITABILITY, icon: <TrendingUp className="w-4 h-4" /> },
+        { id: 'aging', label: 'Aging', path: ROUTES.INVENTORY_AGING, icon: <Clock className="w-4 h-4" /> },
+    ], []);
 
     const [selectedRows, setSelectedRows] = useState<ApiProduct[]>([]);
     const [toggleCleared, setToggleCleared] = useState(false);
@@ -330,6 +340,8 @@ const InventoryManagement: FunctionComponent = () => {
                     />
                 </>
             )}
+
+            {isMobile && <FloatingHubNavButton links={hubLinks} />}
 
             <BulkActionsModal
                 isOpen={modals.isBulkActionsOpen}
