@@ -16,8 +16,6 @@ export enum ROUTES {
 	SALES = '/sales',
 	SALE_DETAILS = '/sales/:saleId',
 	TODAY_SALES = '/today-sales',
-	RECEIPTS = '/receipts',
-	RECEIPT_DETAILS = '/receipts/:saleId',
 	RETURNS = '/returns',
 
 	SALES_HUB = '/sales-hub',
