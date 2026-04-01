@@ -59,7 +59,7 @@ const config: ForgeConfig = {
 		executableName: 'zonse247_pos',
 		icon: path.join(__dirname, 'build', 'icon'),
 		asar: {
-			unpack: '**/{*.node,*.dll,**/prebuilds/**/*,better-sqlite3/**/*,serialport/**/*,@serialport/**/*,usb/**/*,node-gyp-build/**/*}',
+			unpack: '**/{*.node,*.dll,**/prebuilds/**/*}',
 		},
 		extraResource: [
 			path.join(
@@ -108,12 +108,8 @@ const config: ForgeConfig = {
 		}),
 		new MakerSquirrel({
 			name: 'zonse247_pos',
-			authors: 'Zonse247 Devs',
-			description: 'Zonse247 POS - Point of Sale System',
 			exe: 'zonse247_pos.exe',
 			setupExe: `Zonse247_POS_Setup_v${version}.exe`,
-			setupIcon: path.join(__dirname, 'build', 'icon.ico'),
-			title: `Zonse247 POS ${version}`,
 			noMsi: true,
 		}),
 		new MakerZIP({}, ['darwin', 'linux']),
