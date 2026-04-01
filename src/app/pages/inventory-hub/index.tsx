@@ -4,6 +4,7 @@ import AppLayout from '../../layouts/AppLayout';
 import { ComponentLoader } from '../../components';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import { Suspense, useCallback, type FunctionComponent } from 'react';
+import { HubProvider } from '../../context/HubContext';
 
 const INVENTORY_TABS = [
     { id: 'products', label: 'Products', path: ROUTES.INVENTORY_HUB_PRODUCTS },
@@ -56,7 +57,9 @@ const InventoryHubPage: FunctionComponent = () => {
                 </Tabs.List>
 
                 <Suspense fallback={<ComponentLoader loading={true} />}>
-                    <Outlet />
+                    <HubProvider value={true}>
+                        <Outlet />
+                    </HubProvider>
                 </Suspense>
             </Tabs.Root>
         </AppLayout>

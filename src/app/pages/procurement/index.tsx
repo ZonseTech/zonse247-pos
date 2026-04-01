@@ -4,6 +4,7 @@ import AppLayout from '../../layouts/AppLayout';
 import { ComponentLoader } from '../../components';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import { Suspense, useCallback, type FunctionComponent } from 'react';
+import { HubProvider } from '../../context/HubContext';
 
 const PROCUREMENT_TABS = [
     { id: 'suppliers', label: 'Suppliers', path: ROUTES.PROCUREMENT_SUPPLIERS },
@@ -57,7 +58,9 @@ const ProcurementPage: FunctionComponent = () => {
                 </Tabs.List>
 
                 <Suspense fallback={<ComponentLoader loading={true} />}>
-                    <Outlet />
+                    <HubProvider value={true}>
+                        <Outlet />
+                    </HubProvider>
                 </Suspense>
             </Tabs.Root>
         </AppLayout>

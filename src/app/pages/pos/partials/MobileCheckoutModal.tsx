@@ -265,7 +265,7 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
 
         handleNewTransaction()
 
-        navigate(ROUTES.RECEIPT_DETAILS.replace(':saleId', saleId));
+        navigate(ROUTES.SALE_DETAILS.replace(':saleId', saleId));
     };
 
     if (!isOpen) return null;

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect, useRef, lazy, Suspense, type FunctionComponent } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef, lazy, Suspense, Fragment, type FunctionComponent } from 'react';
 import { HiOutlineDocumentChartBar } from 'react-icons/hi2';
 import dayjs from 'dayjs';
 import { toast } from 'react-toastify';
@@ -6,6 +6,7 @@ import { getErrorMessage } from '../../utils/api-error-handler';
 
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
+import { useIsInsideHub } from '../../context/HubContext';
 import LoadingState from '../../components/loader/LoadingState';
 import { MobileDateFilter, ReportCard, ReportCardProps } from '../../components/reports';
 import { formatCurrency } from '../../utils';
@@ -38,6 +39,8 @@ const defaultSummary: ReportSummary = {
 };
 
 const DesktopReports: FunctionComponent = () => {
+    const isInsideHub = useIsInsideHub();
+    const Wrapper = isInsideHub ? Fragment : AppLayout;
     const [startDate, setStartDate] = useState<Date | null>(new Date());
     const [endDate, setEndDate] = useState<Date | null>(new Date());
     const [summary, setSummary] = useState<ReportSummary | null>(null);
@@ -173,17 +176,19 @@ const DesktopReports: FunctionComponent = () => {
     };
 
     return (
-        <AppLayout>
+        <Wrapper>
             <div className="h-full flex flex-col">
-                <PageHeader
-                    icon={<HiOutlineDocumentChartBar className="h-5 w-5" />}
-                    title={activeReport ? getActiveReportTitle() : 'Reports'}
-                    description={
-                        activeReport
-                            ? `Detailed ${getActiveReportTitle().toLowerCase()} analysis`
-                            : 'View detailed reports and analytics for your business'
-                    }
-                />
+                {!isInsideHub && (
+                    <PageHeader
+                        icon={<HiOutlineDocumentChartBar className="h-5 w-5" />}
+                        title={activeReport ? getActiveReportTitle() : 'Reports'}
+                        description={
+                            activeReport
+                                ? `Detailed ${getActiveReportTitle().toLowerCase()} analysis`
+                                : 'View detailed reports and analytics for your business'
+                        }
+                    />
+                )}
 
                 <div className="px-4 lg:px-6 pb-2 flex flex-wrap items-center gap-4">
                     {activeReport && (
@@ -241,7 +246,7 @@ const DesktopReports: FunctionComponent = () => {
                     )}
                 </div>
             </div>
-        </AppLayout>
+        </Wrapper>
     );
 };
 
