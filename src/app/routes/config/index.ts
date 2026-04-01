@@ -13,6 +13,5 @@ export {
     TenantRoutes,
     PrinterRoutes,
 } from './management.routes'
-export { SubscriptionRoutes } from './subscription.routes'
 export { SystemRoutes, ErrorRoutes } from './system.routes'
 export { AccountInfoRoutes } from './account-info.routes'

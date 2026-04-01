@@ -18,7 +18,6 @@ import {
     Package,
     ShoppingCart as POIcon,
 } from 'lucide-react';
-import { LucideSubscript } from 'lucide-react';
 import { RiGroup3Line } from 'react-icons/ri';
 
 import { ROUTES } from '../../utils/constants';
@@ -176,15 +175,6 @@ const useNavGroups = (): UseNavGroupsReturn => {
                 key: 'admin',
                 label: 'Administration',
                 items: [
-                    {
-                        id: 'subscriptions',
-                        label: 'Subscriptions',
-                        icon: ic(LucideSubscript),
-                        route: ROUTES.SUBSCRIPTIONS,
-                        onClick: () => navigate(ROUTES.SUBSCRIPTIONS),
-                        showOnDesktop: true,
-                        showOnMobile: true,
-                    },
                     {
                         id: 'tenants',
                         label: 'Tenants',

@@ -4,9 +4,7 @@ import { Button, FormFieldCard, OfflinePlaceholder } from '../../components';
 import FormInput from '../../components/FormInput';
 import FormWrapper from '../../components/FormWrapper';
 import FormSearchableSelect from '../../components/FormSearchableSelect';
-import { Dropdown, DropdownOption } from '../../components/Dropdown';
 import { Fragment, useState, useEffect, useMemo } from 'react';
-import subscriptionPlanService from '../../services/subscription-plan.service';
 import type { ChangeEvent, FunctionComponent } from 'react';
 import tenantService from '../../services/tenant.service';
 import CountryPicker from '../../components/CountryPicker';
@@ -29,7 +27,6 @@ import {
     businessTypes,
     msonkhoStatuses,
     statuses,
-    subscriptionStatuses
 } from '../../utils/tenant-status';
 
 const TenantFormModal: FunctionComponent = () => {
@@ -40,33 +37,8 @@ const TenantFormModal: FunctionComponent = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [tenant, setTenant] = useState<Tenant | null>(null);
-    const [subscriptionPlans, setSubscriptionPlans] = useState<DropdownOption<SubscriptionPlan>[]>([]);
-    const [loadingPlans, setLoadingPlans] = useState(false);
 
     const { tenantId } = location.state || {};
-
-    useEffect(() => {
-        const fetchSubscriptionPlans = async () => {
-            setLoadingPlans(true);
-            try {
-                const plans = await subscriptionPlanService.list();
-                const formattedPlans: DropdownOption<SubscriptionPlan>[] = plans.map((plan) => ({
-                    value: plan.subscriptionPlanId,
-                    label: plan.displayName || plan.name,
-                    description: plan.description,
-                    data: plan,
-                }));
-                setSubscriptionPlans(formattedPlans);
-            } catch (error: any) {
-                console.error('Error fetching subscription plans:', error);
-                Notify.failure('Failed to load subscription plans');
-            } finally {
-                setLoadingPlans(false);
-            }
-        };
-
-        fetchSubscriptionPlans();
-    }, []);
 
     useEffect(() => {
         const fetchTenant = async () => {
@@ -101,7 +73,6 @@ const TenantFormModal: FunctionComponent = () => {
         country: 'MW',
         mraPortalUsername: '',
         msonkhoOnlineStatus: 'PENDING',
-        subscriptionPlan: '',
         registeredAt: '',
         subscriptionStatus: 'trial',
         trialEndsAt: '',
@@ -116,7 +87,6 @@ const TenantFormModal: FunctionComponent = () => {
         trialEndsAt: (tenant?.trialEndsAt) ?? '',
         businessType: tenant?.businessType ?? 'PRODUCT_BASED',
         msonkhoOnlineStatus: tenant?.msonkhoOnlineStatus ?? 'PENDING',
-        subscriptionStatus: tenant?.subscriptionStatus ?? 'trial',
         status: tenant?.status ?? 'pending',
     }, 'tenantId');
 

@@ -23,13 +23,6 @@ export const businessTypes = [
     { label: 'Service Based', value: 'SERVICE_BASED' }
 ];
 
-export const subscriptionStatuses = [
-    { label: 'Active', value: 'ACTIVE' },
-    { label: 'Suspended', value: 'SUSPENDED' },
-    { label: 'Cancelled', value: 'CANCELLED' },
-    { label: 'Trial', value: 'TRIAL' }
-];
-
 export const statuses = [
     { label: 'Pending', value: 'pending' },
     { label: 'Active', value: 'active' },
@@ -41,11 +34,4 @@ export const msonkhoStatuses = [
     { label: 'Verified', value: 'VERIFIED' },
     { label: 'Pending', value: 'PENDING' },
     { label: 'Failed', value: 'FAILED' }
-];
-
-export const subscriptionPlans = [
-    { label: 'Basic', value: 'BASIC' },
-    { label: 'Standard', value: 'STANDARD' },
-    { label: 'Premium', value: 'PREMIUM' },
-    { label: 'Enterprise', value: 'ENTERPRISE' }
 ];

@@ -75,10 +75,6 @@ export enum ROUTES {
 	INVENTORY_HUB_CHARTS = '/inventory-hub/charts',
 	SALES_HISTORY = '/sales-history',
 
-	SUBSCRIPTIONS = '/subscriptions',
-	SUBSCRIPTION_BILLING = '/subscriptions/billing',
-	BILLING_CHECKOUT_FORM = '/subscriptions/billing/checkout-form',
-
 	TENANTS = '/tenants',
 	TENANT_DETAILS = '/tenants/details',
 	TENANT_FORM = '/tenants/form',
