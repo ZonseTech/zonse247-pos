@@ -24,6 +24,7 @@ import { RiGroup3Line } from 'react-icons/ri';
 import { ROUTES } from '../../utils/constants';
 import { useAuth } from '../../context/AuthProvider';
 import { hasAnyPermission, hasPermission, hasRole, isElectron } from '../../utils';
+import { useIsNativeMobile } from '../../hooks/useMediaQuery';
 import type { NavGroup, NavItemBase, UseNavGroupsReturn } from '../../../types/navigation';
 
 
@@ -32,6 +33,7 @@ const ic = (Icon: any, cls = 'h-5 w-5') => <Icon className={cls} />;
 const useNavGroups = (): UseNavGroupsReturn => {
     const navigate = useNavigate();
     const { user, signout } = useAuth();
+    const isNativeMobile = useIsNativeMobile();
 
     const groups = useMemo<NavGroup[]>(() => {
         const result: NavGroup[] = [];
@@ -68,8 +70,10 @@ const useNavGroups = (): UseNavGroupsReturn => {
                 id: 'sales',
                 label: 'Sales',
                 icon: ic(HiOutlinePresentationChartBar),
-                route: ROUTES.SALES_HUB,
-                onClick: () => navigate(ROUTES.SALES_HUB_SALES),
+                route: isNativeMobile ? ROUTES.SALES : ROUTES.SALES_HUB,
+                onClick: isNativeMobile
+                    ? () => navigate(ROUTES.SALES)
+                    : () => navigate(ROUTES.SALES_HUB_SALES),
                 shortcut: 'Ctrl+T',
                 showOnDesktop: true,
                 showOnMobile: true,
@@ -88,13 +92,12 @@ const useNavGroups = (): UseNavGroupsReturn => {
         const mgmtItems: NavItemBase[] = [];
 
         if (hasAnyPermission(user, ['products.view', 'products.create', 'sales.create', 'refunds.process'])) {
-            const isDesktop = isElectron();
             mgmtItems.push({
                 id: 'inventory',
                 label: 'Inventory',
                 icon: ic(Package),
-                route: isDesktop ? ROUTES.INVENTORY : ROUTES.INVENTORY_HUB,
-                onClick: isDesktop
+                route: isNativeMobile ? ROUTES.INVENTORY : ROUTES.INVENTORY_HUB,
+                onClick: isNativeMobile
                     ? () => navigate(ROUTES.INVENTORY)
                     : () => navigate(`${ROUTES.INVENTORY_HUB}/products`),
                 showOnDesktop: true,
@@ -103,15 +106,14 @@ const useNavGroups = (): UseNavGroupsReturn => {
         }
 
         if (hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {
-            const isDesktop = isElectron();
             mgmtItems.push({
                 id: 'procurement',
                 label: 'Procurement',
                 icon: ic(POIcon),
-                route: isDesktop ? ROUTES.SUPPLIERS : ROUTES.PROCUREMENT,
-                onClick: isDesktop
-                    ? () => navigate(ROUTES.SUPPLIERS)
-                    : () => navigate(ROUTES.PROCUREMENT_SUPPLIERS),
+                route: isNativeMobile ? ROUTES.PURCHASE_ORDERS : ROUTES.SUPPLIERS,
+                onClick: isNativeMobile
+                    ? () => navigate(ROUTES.PURCHASE_ORDERS)
+                    : () => navigate(ROUTES.SUPPLIERS),
                 showOnDesktop: true,
                 showOnMobile: true,
             });
@@ -241,7 +243,7 @@ const useNavGroups = (): UseNavGroupsReturn => {
         });
 
         return result.sort((a, b) => a.order - b.order);
-    }, [user, navigate, signout]);
+    }, [user, navigate, signout, isNativeMobile]);
 
     const flatItems = useMemo<NavItemBase[]>(() => {
         const items: NavItemBase[] = [];

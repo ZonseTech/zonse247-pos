@@ -1,6 +1,6 @@
 import { useState, type FunctionComponent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { X, Building2, ChevronRight } from 'lucide-react';
+import { X, Building2, ChevronRight, LogOut } from 'lucide-react';
 import classNames from 'classnames';
 import { version } from '../../../../package.json';
 import { useIsMobile } from '../../hooks/useMediaQuery';
@@ -153,7 +153,7 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
     const isMobile = useIsMobile();
     const navigate = useNavigate();
     const location = useLocation();
-    const { user } = useAuth();
+    const { user, signout } = useAuth();
     const { currentBranch, accessibleBranches } = useBranch();
     const [isBranchModalOpen, setIsBranchModalOpen] = useState(false);
     const isDesktopApp = isElectron();
@@ -319,6 +319,19 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
                                     />
                                 ))}
                         </div>
+                    </div>
+
+                    <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                        <button
+                            onClick={() => {
+                                onClose();
+                                signout(() => navigate(ROUTES.LOGIN, { replace: true }));
+                            }}
+                            className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:scale-[0.98] transition-all duration-150"
+                        >
+                            <LogOut size={18} />
+                            <span className="text-sm font-medium">Logout</span>
+                        </button>
                     </div>
                 </div>
             </div>
