@@ -1,7 +1,9 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ChevronRight, ChevronLeft, CalendarRange } from 'lucide-react';
 import { DateRangePicker, RangeKeyDict, createStaticRanges } from 'react-date-range';
-import { Box, Flex, Text, IconButton, Button } from '@radix-ui/themes';
+import { Box, Flex, IconButton } from '@radix-ui/themes';
+import * as Popover from '@radix-ui/react-popover';
+import classNames from 'classnames';
 import dayjs from 'dayjs';
 
 import 'react-date-range/dist/styles.css';
@@ -20,6 +22,8 @@ interface MobileDateFilterProps {
     endDate: Date | null;
     onChange: (start: Date | null, end: Date | null) => void;
     align?: 'left' | 'right';
+    /** Remove outer padding and border-y — use when embedded inside a sheet/card */
+    compact?: boolean;
 }
 
 const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
@@ -27,6 +31,7 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
     endDate,
     onChange,
     align = 'left',
+    compact = false,
 }) => {
     const [showPicker, setShowPicker] = useState(false);
     const [dateRange, setDateRange] = useState<DateRange[]>([
@@ -37,7 +42,6 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
         },
     ]);
     const isMobile = useIsMobile();
-    const pickerRef = useRef<HTMLDivElement>(null);
 
     const staticRanges = useMemo(() => createStaticRanges([
         {
@@ -174,13 +178,41 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
         ? dayjs(endDate).isSame(dayjs(), 'day') || dayjs(endDate).isAfter(dayjs(), 'day')
         : false;
 
+    const pickerHeader = (
+        <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-700">
+            <button
+                type="button"
+                className="px-2 py-1 text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded transition-colors"
+                onClick={handleCancel}
+            >
+                Cancel
+            </button>
+            <span className={classNames(
+                'font-bold text-zinc-900 dark:text-zinc-100',
+                isMobile ? 'text-base' : 'text-sm',
+            )}>
+                Select Date Range
+            </span>
+            <button
+                type="button"
+                className="px-2 py-1 text-sm font-medium text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-900/30 rounded transition-colors"
+                onClick={handleApply}
+            >
+                Apply
+            </button>
+        </div>
+    );
+
     return (
-        <Box position="relative" width={{ initial: '100%', md: 'auto' }} py="2" ref={pickerRef}>
+        <Box width={{ initial: '100%', md: 'auto' }} py={compact ? '0' : '2'}>
             <Flex
                 align="center"
                 justify="between"
                 width="100%"
-                className="bg-white dark:bg-gray-800 border-y md:border md:rounded-lg border-gray-200 dark:border-gray-700"
+                className={classNames(
+                    'bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700',
+                    compact ? 'border rounded-lg' : 'border-y md:border md:rounded-lg',
+                )}
             >
                 <IconButton
                     variant="ghost"
@@ -191,14 +223,74 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
                     <ChevronLeft size={18} />
                 </IconButton>
 
-                <Flex asChild align="center" justify="center" gap="2" flexGrow="1" py={{ initial: '3', md: '1' }} px={{ initial: '0', md: '4' }}>
-                    <button onClick={() => setShowPicker(true)}>
-                        <CalendarRange size={18} className="text-sky-500 dark:text-sky-400" />
-                        <Text size="2" weight="medium">
-                            {getDisplayText()}
-                        </Text>
-                    </button>
-                </Flex>
+                {isMobile ? (
+                    <Flex
+                        asChild
+                        align="center"
+                        justify="center"
+                        gap="2"
+                        flexGrow="1"
+                        py="3"
+                    >
+                        <button onClick={() => setShowPicker(true)}>
+                            <CalendarRange size={18} className="text-cyan-500 dark:text-cyan-400" />
+                            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                                {getDisplayText()}
+                            </span>
+                        </button>
+                    </Flex>
+                ) : (
+                    <Popover.Root open={showPicker} onOpenChange={setShowPicker}>
+                        <Popover.Trigger asChild>
+                            <Flex
+                                asChild
+                                align="center"
+                                justify="center"
+                                gap="2"
+                                flexGrow="1"
+                                py="1"
+                                px="4"
+                                className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors rounded"
+                            >
+                                <button type="button">
+                                    <CalendarRange size={18} className="text-cyan-500 dark:text-cyan-400" />
+                                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                                        {getDisplayText()}
+                                    </span>
+                                </button>
+                            </Flex>
+                        </Popover.Trigger>
+                        <Popover.Portal>
+                            <Popover.Content
+                                side="bottom"
+                                align={align === 'right' ? 'end' : 'start'}
+                                sideOffset={8}
+                                className={classNames(
+                                    'bg-white dark:bg-zinc-800 rounded-lg shadow-2xl',
+                                    'border border-zinc-200 dark:border-zinc-700 overflow-hidden',
+                                    'z-[9999]',
+                                    'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+                                    'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
+                                )}
+                            >
+                                {pickerHeader}
+                                <Box className="date-range-picker-desktop text-zinc-900 dark:text-zinc-300">
+                                    <DateRangePicker
+                                        onChange={handleSelect}
+                                        moveRangeOnFirstSelection={false}
+                                        months={2}
+                                        ranges={dateRange}
+                                        direction="horizontal"
+                                        staticRanges={staticRanges}
+                                        inputRanges={[]}
+                                        rangeColors={['#0ea5e9']}
+                                        maxDate={new Date()}
+                                    />
+                                </Box>
+                            </Popover.Content>
+                        </Popover.Portal>
+                    </Popover.Root>
+                )}
 
                 <IconButton
                     variant="ghost"
@@ -212,18 +304,23 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
             </Flex>
 
             {showPicker && isMobile && (
-                <Box position="fixed" inset="0" className="z-[9999] flex items-end justify-center bg-black/50">
-                    <Box className="bg-white dark:bg-gray-800 rounded-sm w-full max-h-[90vh] overflow-hidden animate-slide-up">
-                        <Flex justify="between" align="center" px="4" py="3" className="border-b border-gray-200 dark:border-gray-700">
-                            <Button variant="ghost" color="gray" size="2" onClick={handleCancel}>
-                                Cancel
-                            </Button>
-                            <Text size="3" weight="bold">Select Date Range</Text>
-                            <Button variant="ghost" size="2" onClick={handleApply}>
-                                Apply
-                            </Button>
+                <Flex
+                    position="fixed"
+                    inset="0"
+                    align="end"
+                    justify="center"
+                    className="z-[9999] bg-black/50"
+                    onClick={handleCancel}
+                >
+                    <Box
+                        className="bg-white dark:bg-zinc-800 rounded-t-xl w-full max-h-[90vh] overflow-hidden animate-slide-up"
+                        onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                    >
+                        <Flex justify="center" pt="2" pb="0">
+                            <Box className="w-10 h-1 rounded-full bg-zinc-300 dark:bg-zinc-600" />
                         </Flex>
-                        <Box className="overflow-auto max-h-[calc(90vh-60px)] date-range-picker-mobile">
+                        {pickerHeader}
+                        <Box className="overflow-auto max-h-[calc(90vh-80px)] date-range-picker-mobile text-zinc-900 dark:text-zinc-300">
                             <DateRangePicker
                                 onChange={handleSelect}
                                 moveRangeOnFirstSelection={false}
@@ -237,46 +334,7 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
                             />
                         </Box>
                     </Box>
-                </Box>
-            )}
-
-            {showPicker && !isMobile && (
-                <Box position="fixed" inset="0" className="z-[9999]" onClick={handleCancel}>
-                    <Box
-                        position="absolute"
-                        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
-                        style={{
-                            top: (pickerRef.current?.getBoundingClientRect().bottom ?? 0) + 8,
-                            ...(align === 'right'
-                                ? { right: Math.max(8, window.innerWidth - (pickerRef.current?.getBoundingClientRect().right ?? 0)) }
-                                : { left: Math.max(8, pickerRef.current?.getBoundingClientRect().left ?? 0) }),
-                        }}
-                        onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                    >
-                        <Flex justify="between" align="center" px="4" py="3" className="border-b border-gray-200 dark:border-gray-700">
-                            <Button variant="ghost" color="gray" size="2" onClick={handleCancel}>
-                                Cancel
-                            </Button>
-                            <Text size="2" weight="bold">Select Date Range</Text>
-                            <Button variant="ghost" size="2" onClick={handleApply}>
-                                Apply
-                            </Button>
-                        </Flex>
-                        <Box className="date-range-picker-desktop">
-                            <DateRangePicker
-                                onChange={handleSelect}
-                                moveRangeOnFirstSelection={false}
-                                months={2}
-                                ranges={dateRange}
-                                direction="horizontal"
-                                staticRanges={staticRanges}
-                                inputRanges={[]}
-                                rangeColors={['#0ea5e9']}
-                                maxDate={new Date()}
-                            />
-                        </Box>
-                    </Box>
-                </Box>
+                </Flex>
             )}
         </Box>
     );
