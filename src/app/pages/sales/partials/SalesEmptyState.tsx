@@ -1,19 +1,25 @@
 import { FunctionComponent } from 'react';
 import { Receipt } from 'lucide-react';
+import { Flex, Heading, Text } from '@radix-ui/themes';
 
 const SalesEmptyState: FunctionComponent = () => {
     return (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-                <Receipt className="w-8 h-8 text-gray-400 dark:text-gray-500" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+        <Flex direction="column" align="center" justify="center" py="9" px="4">
+            <Flex
+                align="center"
+                justify="center"
+                mb="4"
+                className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full"
+            >
+                <Receipt className="w-8 h-8 text-gray-400" />
+            </Flex>
+            <Heading as="h3" size="3" weight="medium" mb="2" align="center">
                 No sales today
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            </Heading>
+            <Text as="p" size="2" color="gray" align="center">
                 Sales made today will appear here
-            </p>
-        </div>
+            </Text>
+        </Flex>
     );
 };
 

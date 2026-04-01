@@ -1,40 +1,44 @@
-import { FC, useContext, useState, useCallback } from "react";
-import DataTable, { type Themes } from "react-data-table-component";
-import { HiOutlineMenuAlt4 } from "react-icons/hi";
-import { ReceiptEuro, Plus, Download, X } from "lucide-react";
-import { Button, Box, Flex } from "@radix-ui/themes";
+import { FC, Fragment, useState, useCallback, useMemo } from "react";
+import { ReceiptEuro, Plus, SlidersHorizontal } from "lucide-react";
+import { Button, Box } from "@radix-ui/themes";
 import AppLayout from "../../layouts/AppLayout";
 import PageHeader from "../../components/page/PageHeader";
-import TableSkeleton from "../../components/skeleton/TableSkeleton";
-import TableEmptyState from "../../components/TableEmptyState";
-import { ZonseThemeContext } from "../../components";
-import MobileDateFilter from "../../components/reports/MobileDateFilter";
-import { SearchBar } from "../../components/SearchBar";
-import { getTableStyles } from "../../utils/table-styles";
+import MobilePageHeader from "../../components/page/MobilePageHeader";
+import { useIsInsideHub } from "../../context/HubContext";
 import { useSales } from "../../hooks/useSales";
 import { useSaleSummary } from "../../hooks/useSaleSummary";
 import { usePaymentMethods } from "../../hooks/usePaymentMethods";
 import { useMraCompliance } from "../../hooks/useMraCompliance";
 import { getSaleTableColumns } from "./partials/SaleTableColumns";
-import { StatusFilter } from "./partials/StatusFilter";
-import { PaymentMethodFilter } from "./partials/PaymentMethodFilter";
 import SaleDetailsModal from "./partials/SaleDetailsModal";
 import SaleSummaryCards from "./partials/SaleSummaryCards";
-import { SaleMobileList } from "./partials/SaleMobileCard";
+import SalesToolbar from "./partials/SalesToolbar";
+import SalesFilters from "./partials/SalesFilters";
+import SalesFilterSheet from "./partials/SalesFilterSheet";
+import ActiveFilterChips from "./partials/ActiveFilterChips";
+import SalesMobileView from "./partials/SalesMobileView";
+import SalesDesktopView from "./partials/SalesDesktopView";
 import InitiateReturnModal from "../returns/partials/InitiateReturnModal";
 import { useNavigate } from "react-router";
 import { ROUTES } from "../../utils/constants";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 
+type SaleOrTransaction = (Sale | Transaction) & {
+    saleNumber?: string;
+    refNumber?: string;
+    transactionId?: string;
+};
+
 const SalesPage: FC = () => {
     const navigate = useNavigate();
     const isMobile = useIsMobile();
-    const { mode } = useContext(ZonseThemeContext);
+    const isInsideHub = useIsInsideHub();
     const { isMraEnabled } = useMraCompliance();
-    const [isOpenDetails, setIsOpenDetails] = useState<boolean>(false);
+    const [isOpenDetails, setIsOpenDetails] = useState(false);
     const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
-    const [isReturnModalOpen, setIsReturnModalOpen] = useState<boolean>(false);
+    const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
     const [saleForReturn, setSaleForReturn] = useState<Sale | null>(null);
+    const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
     const {
         page,
@@ -48,7 +52,7 @@ const SalesPage: FC = () => {
         perPage,
         getPaginatedData,
         handleSearch,
-        handleDateChange: handleDateChangeTuple,
+        handleDateChange,
         handleStatusChange,
         handlePaymentMethodChange,
         clearFilters,
@@ -60,13 +64,6 @@ const SalesPage: FC = () => {
 
     const totalPages = Math.ceil(totalRows / perPage);
 
-    const handleDateChange = useCallback(
-        (start: Date | null, end: Date | null) => {
-            handleDateChangeTuple([start, end]);
-        },
-        [handleDateChangeTuple],
-    );
-
     const { paymentMethods, isLoading: isLoadingPaymentMethods } = usePaymentMethods();
 
     const { isLoadingSummary, getSummaryCards, loadSummary } = useSaleSummary({
@@ -77,19 +74,11 @@ const SalesPage: FC = () => {
         selectedPaymentMethod,
     });
 
-    type SaleOrTransaction = (Sale | Transaction) & {
-        saleNumber?: string;
-        refNumber?: string;
-        transactionId?: string;
-    };
-
     const handleViewDetails = useCallback((sale: SaleOrTransaction) => {
         const saleId = sale.id || (sale as Sale).saleNumber;
         if (!isMobile && saleId) {
-            // Desktop: Navigate to details page
             navigate(ROUTES.SALE_DETAILS.replace(':saleId', saleId));
         } else {
-            // Mobile: Use modal
             setSelectedSale(sale as Sale);
             setIsOpenDetails(true);
         }
@@ -103,78 +92,116 @@ const SalesPage: FC = () => {
     const columns = getSaleTableColumns({
         onViewDetails: handleViewDetails,
         onInitiateReturn: handleInitiateReturn,
-        isMraEnabled,  // Pass MRA compliance status to show/hide MRA status column
+        isMraEnabled,
     });
 
     const hasActiveFilters = !!(searchTerm || startDate || selectedStatus !== 'all' || selectedPaymentMethod !== 'all');
 
+    const activeFilterCount = useMemo(() => {
+        let count = 0;
+        if (searchTerm) count++;
+        if (startDate) count++;
+        if (selectedStatus !== 'all') count++;
+        if (selectedPaymentMethod !== 'all') count++;
+        return count;
+    }, [searchTerm, startDate, selectedStatus, selectedPaymentMethod]);
+
+    const handleOpenFilters = useCallback(() => {
+        setIsFilterSheetOpen(true);
+    }, []);
+
+    const handleCloseFilters = useCallback(() => {
+        setIsFilterSheetOpen(false);
+    }, []);
+
+    // Individual clear handlers for filter chips
+    const handleClearSearch = useCallback(() => handleSearch(""), [handleSearch]);
+    const handleClearDate = useCallback(() => handleDateChange([null, null]), [handleDateChange]);
+    const handleClearStatus = useCallback(() => handleStatusChange("all"), [handleStatusChange]);
+    const handleClearPaymentMethod = useCallback(() => handlePaymentMethodChange("all"), [handlePaymentMethodChange]);
+
+    const handleReturnSuccess = useCallback(() => {
+        loadSales();
+        loadSummary();
+        setIsReturnModalOpen(false);
+        setSaleForReturn(null);
+    }, [loadSales, loadSummary]);
+
+    const handleReturnClose = useCallback(() => {
+        setIsReturnModalOpen(false);
+        setSaleForReturn(null);
+    }, []);
+
+    const Wrapper = isInsideHub ? Fragment : AppLayout;
+
     return (
-        <AppLayout>
-            <PageHeader
-                title="Sales"
-                description="Manage and view all sales transactions"
-                icon={<ReceiptEuro className="w-8 h-8 text-sky-500 dark:text-sky-400" />}
-                action={
-                    <Button size="2" onClick={() => navigate(ROUTES.POS)}>
-                        <Plus className="w-4 h-4" />
-                        New Sale
-                    </Button>
-                }
-            />
-
-            <Box className="rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <Flex
-                    direction={{ initial: 'column', sm: 'row' }}
-                    align={{ initial: 'start', sm: 'center' }}
-                    justify="between"
-                    gap={{ initial: '2', sm: '3' }}
-                    px="4"
-                    py="3"
-                    className="border-b border-gray-200 dark:border-gray-700"
-                >
-                    <SearchBar
-                        placeholder="Search transactions..."
-                        value={searchTerm}
-                        onChange={handleSearch}
-                        className="w-full sm:flex-1 sm:max-w-xs"
+        <Wrapper>
+            {/* Header: full on desktop, compact on mobile — hidden inside hub tabs */}
+            {!isInsideHub && (
+                isMobile ? (
+                    <MobilePageHeader
+                        title="Sales"
+                        showLeftButton={true}
                     />
-
-                    <Flex align="center" gap="2" wrap="wrap">
-                        <MobileDateFilter
-                            startDate={startDate ? new Date(startDate) : null}
-                            endDate={endDate ? new Date(endDate) : null}
-                            onChange={handleDateChange}
-                            align="right"
-                        />
-
-                        <Button variant="outline" color="gray" size="2" onClick={exportData}>
-                            <Download className="w-4 h-4" />
-                            <span className="hidden sm:inline">Export</span>
-                        </Button>
-
-                        {hasActiveFilters && (
-                            <Button variant="soft" color="red" size="2" onClick={clearFilters}>
-                                <X className="w-4 h-4" />
-                                <span className="hidden sm:inline">Clear</span>
+                ) : (
+                    <PageHeader
+                        title="Sales"
+                        description="Manage and view all sales transactions"
+                        icon={<ReceiptEuro className="w-8 h-8 text-sky-500 dark:text-sky-400" />}
+                        action={
+                            <Button size="2" onClick={() => navigate(ROUTES.POS)}>
+                                <Plus className="w-4 h-4" />
+                                New Sale
                             </Button>
-                        )}
-                    </Flex>
-                </Flex>
+                        }
+                    />
+                )
+            )}
 
-                <Flex direction="column" gap="2" px="4" py="3" className="border-b border-gray-200 dark:border-gray-700">
-                    <StatusFilter
+            <Box className="sm:rounded-lg shadow-sm border-y sm:border border-gray-200 dark:border-gray-700 sm:overflow-clip -mx-2 sm:mx-0">
+                {/* Toolbar: search + filter button + export */}
+                <SalesToolbar
+                    searchTerm={searchTerm}
+                    startDate={startDate}
+                    endDate={endDate}
+                    hasActiveFilters={hasActiveFilters}
+                    activeFilterCount={activeFilterCount}
+                    onSearch={handleSearch}
+                    onDateChange={handleDateChange}
+                    onExport={exportData}
+                    onClearFilters={clearFilters}
+                />
+
+                {/* Mobile: active filter chips (inline, scrollable) */}
+                {isMobile && hasActiveFilters && (
+                    <ActiveFilterChips
+                        searchTerm={searchTerm}
+                        startDate={startDate}
+                        endDate={endDate}
                         selectedStatus={selectedStatus}
-                        onChange={handleStatusChange}
-                    />
-                    <PaymentMethodFilter
                         selectedPaymentMethod={selectedPaymentMethod}
-                        onChange={handlePaymentMethodChange}
                         paymentMethods={paymentMethods}
-                        isLoading={isLoadingPaymentMethods}
+                        onClearSearch={handleClearSearch}
+                        onClearDate={handleClearDate}
+                        onClearStatus={handleClearStatus}
+                        onClearPaymentMethod={handleClearPaymentMethod}
+                        onClearAll={clearFilters}
                     />
-                </Flex>
+                )}
 
-                <Box px="4">
+                {/* Desktop: inline filter rows (always visible) */}
+                {!isMobile && (
+                    <SalesFilters
+                        selectedStatus={selectedStatus}
+                        selectedPaymentMethod={selectedPaymentMethod}
+                        paymentMethods={paymentMethods}
+                        isLoadingPaymentMethods={isLoadingPaymentMethods}
+                        onStatusChange={handleStatusChange}
+                        onPaymentMethodChange={handlePaymentMethodChange}
+                    />
+                )}
+
+                <Box px={{ initial: "2", sm: "4" }}>
                     <SaleSummaryCards
                         cards={getSummaryCards()}
                         isLoading={isLoadingSummary}
@@ -182,114 +209,72 @@ const SalesPage: FC = () => {
                 </Box>
 
                 {isMobile ? (
-                    <div className="overflow-hidden">
-                        {isLoading ? (
-                            <SaleMobileList
-                                transactions={[]}
-                                onViewDetails={handleViewDetails}
-                                onInitiateReturn={handleInitiateReturn}
-                                isLoading={true}
-                            />
-                        ) : getPaginatedData().length === 0 ? (
-                            <TableEmptyState
-                                icon={<HiOutlineMenuAlt4 />}
-                                title="No sales found"
-                                description={
-                                    hasActiveFilters
-                                        ? "Try adjusting your filters to find sales."
-                                        : "Sales will appear here once they are created."
-                                }
-                                action={
-                                    hasActiveFilters ? (
-                                        <Button variant="ghost" size="2" onClick={clearFilters}>
-                                            Clear filters
-                                        </Button>
-                                    ) : undefined
-                                }
-                            />
-                        ) : (
-                            <>
-                                <SaleMobileList
-                                    transactions={getPaginatedData()}
-                                    onViewDetails={handleViewDetails}
-                                    onInitiateReturn={handleInitiateReturn}
-                                    isLoading={false}
-                                />
-
-                                <Flex
-                                    align="center"
-                                    justify="between"
-                                    px="4"
-                                    py="3"
-                                    className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50"
-                                >
-                                    <span className="text-xs text-gray-600 dark:text-gray-400">
-                                        Page {page} of {totalPages} ({totalRows} total)
-                                    </span>
-                                    <Flex align="center" gap="2">
-                                        <Button
-                                            variant="ghost"
-                                            color="gray"
-                                            size="1"
-                                            onClick={() => handlePageChange(page - 1)}
-                                            disabled={page <= 1}
-                                        >
-                                            ‹
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            color="gray"
-                                            size="1"
-                                            onClick={() => handlePageChange(page + 1)}
-                                            disabled={page >= totalPages}
-                                        >
-                                            ›
-                                        </Button>
-                                    </Flex>
-                                </Flex>
-                            </>
-                        )}
-                    </div>
+                    <SalesMobileView
+                        data={getPaginatedData()}
+                        isLoading={isLoading}
+                        hasActiveFilters={hasActiveFilters}
+                        page={page}
+                        totalPages={totalPages}
+                        totalRows={totalRows}
+                        perPage={perPage}
+                        onViewDetails={handleViewDetails}
+                        onInitiateReturn={handleInitiateReturn}
+                        onPageChange={handlePageChange}
+                        onClearFilters={clearFilters}
+                    />
                 ) : (
-                    <DataTable
+                    <SalesDesktopView
                         columns={columns}
                         data={getPaginatedData()}
-                        theme={mode as Themes}
-                        customStyles={getTableStyles(mode)}
-                        progressPending={isLoading}
-                        progressComponent={<TableSkeleton rows={perPage} columns={8} showCheckbox={false} showActions />}
-                        highlightOnHover
-                        striped
-                        responsive
-                        pagination
-                        paginationServer
-                        paginationTotalRows={totalRows}
-                        paginationPerPage={perPage}
-                        paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
-                        onChangeRowsPerPage={handlePerRowsChange}
-                        onChangePage={handlePageChange}
-                        noDataComponent={
-                            <TableEmptyState
-                                icon={<HiOutlineMenuAlt4 />}
-                                title="No transactions found"
-                                description={
-                                    hasActiveFilters
-                                        ? "Try adjusting your search, date, status, or payment method filters to find transactions."
-                                        : "Transactions will appear here once they are created."
-                                }
-                                action={
-                                    hasActiveFilters ? (
-                                        <Button variant="ghost" size="2" onClick={clearFilters}>
-                                            Clear filters
-                                        </Button>
-                                    ) : undefined
-                                }
-                            />
-                        }
+                        isLoading={isLoading}
+                        hasActiveFilters={hasActiveFilters}
+                        perPage={perPage}
+                        totalRows={totalRows}
+                        onPageChange={handlePageChange}
+                        onPerRowsChange={handlePerRowsChange}
+                        onClearFilters={clearFilters}
                     />
                 )}
             </Box>
 
+            {/* Mobile: Filter bottom sheet */}
+            {isMobile && (
+                <SalesFilterSheet
+                    isOpen={isFilterSheetOpen}
+                    onClose={handleCloseFilters}
+                    selectedStatus={selectedStatus}
+                    onStatusChange={handleStatusChange}
+                    selectedPaymentMethod={selectedPaymentMethod}
+                    onPaymentMethodChange={handlePaymentMethodChange}
+                    paymentMethods={paymentMethods}
+                    isLoadingPaymentMethods={isLoadingPaymentMethods}
+                    startDate={startDate}
+                    endDate={endDate}
+                    onDateChange={handleDateChange}
+                    hasActiveFilters={hasActiveFilters}
+                    onClearFilters={clearFilters}
+                />
+            )}
+
+            {/* Mobile: floating filter button */}
+            {isMobile && (
+                <button
+                    onClick={handleOpenFilters}
+                    className="fixed bottom-20 right-4 z-30 w-14 h-14 rounded-full bg-sky-500 text-white shadow-lg
+                             flex items-center justify-center active:scale-95 transition-transform
+                             hover:bg-sky-600 focus:outline-none focus:ring-4 focus:ring-sky-200 dark:focus:ring-sky-900"
+                    aria-label="Open filters"
+                >
+                    <SlidersHorizontal className="w-5 h-5" />
+                    {activeFilterCount > 0 && (
+                        <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1 text-[11px] font-bold text-white bg-red-500 rounded-full ring-2 ring-white dark:ring-gray-900">
+                            {activeFilterCount}
+                        </span>
+                    )}
+                </button>
+            )}
+
+            {/* Modals */}
             {isMobile && (
                 <SaleDetailsModal
                     sale={selectedSale}
@@ -302,20 +287,12 @@ const SalesPage: FC = () => {
             {saleForReturn && (
                 <InitiateReturnModal
                     isOpen={isReturnModalOpen}
-                    onClose={() => {
-                        setIsReturnModalOpen(false);
-                        setSaleForReturn(null);
-                    }}
+                    onClose={handleReturnClose}
                     sale={saleForReturn}
-                    onSuccess={() => {
-                        loadSales();
-                        loadSummary();
-                        setIsReturnModalOpen(false);
-                        setSaleForReturn(null);
-                    }}
+                    onSuccess={handleReturnSuccess}
                 />
             )}
-        </AppLayout>
+        </Wrapper>
     );
 };
 
