@@ -15,3 +15,6 @@ export {
 } from './management.routes'
 export { SystemRoutes, ErrorRoutes } from './system.routes'
 export { AccountInfoRoutes } from './account-info.routes'
+export { ServiceOrderRoutes } from './service-orders.routes'
+export { ServiceRoutes } from './services.routes'
+export { LoyaltyRoutes } from './loyalty.routes'
