@@ -7,6 +7,7 @@ import { useUsers } from '../../hooks/useUsers';
 import { useSuppliers } from '../../hooks/useSuppliers';
 import { formatCurrency } from '../../utils';
 import { ROUTES } from '../../utils/constants';
+import useBusinessFeatures from '../../hooks/useBusinessFeatures';
 
 interface SummaryCardProps {
     label: string;
@@ -44,6 +45,7 @@ const MobileMoreReportsPage: FunctionComponent = () => {
     const { customers, totalRows: totalCustomers } = useCustomers();
     const { totalRows: totalUsers, users } = useUsers();
     const { suppliers, totalRows: totalSuppliers } = useSuppliers();
+    const { showRetail, showServices } = useBusinessFeatures();
 
     const stats = useMemo(() => {
         const items = inventory || [];
@@ -102,39 +104,49 @@ const MobileMoreReportsPage: FunctionComponent = () => {
                             onClick={() => navigate(ROUTES.CUSTOMERS)}
                         />
                         <SummaryCard
-                            label="Low Stock"
-                            value={stats.lowStockCount}
-                            variant={stats.lowStockCount === 0 ? 'success' : 'danger'}
-                            onClick={() => navigate(ROUTES.ITEMS)}
-                        />
-                        <SummaryCard
                             label="Staff"
                             value={staffCount}
                             onClick={() => navigate(ROUTES.USERS)}
                         />
-                        <SummaryCard
-                            label="Suppliers"
-                            value={totalSuppliers || suppliers.length}
-                            onClick={() => navigate(ROUTES.SUPPLIERS)}
-                        />
-                        <SummaryCard
-                            label="Items"
-                            value={stats.totalItems}
-                            onClick={() => navigate(ROUTES.ITEMS)}
-                        />
-                        <SummaryCard
-                            label="Stock Value Cost Price"
-                            value={formatCurrency(stats.totalCostValue, true)}
-                        />
-                        <SummaryCard
-                            label="Stock Value Selling Price"
-                            value={formatCurrency(stats.totalSellingValue, true)}
-                        />
-
-                        <SummaryCard
-                            label="Potential Profit"
-                            value={formatCurrency(stats.potentialProfit, true)}
-                        />
+                        {showServices && (
+                            <SummaryCard
+                                label="Services"
+                                value="Manage"
+                                onClick={() => navigate(ROUTES.SERVICES)}
+                            />
+                        )}
+                        {showRetail && (
+                            <>
+                                <SummaryCard
+                                    label="Low Stock"
+                                    value={stats.lowStockCount}
+                                    variant={stats.lowStockCount === 0 ? 'success' : 'danger'}
+                                    onClick={() => navigate(ROUTES.ITEMS)}
+                                />
+                                <SummaryCard
+                                    label="Suppliers"
+                                    value={totalSuppliers || suppliers.length}
+                                    onClick={() => navigate(ROUTES.SUPPLIERS)}
+                                />
+                                <SummaryCard
+                                    label="Items"
+                                    value={stats.totalItems}
+                                    onClick={() => navigate(ROUTES.ITEMS)}
+                                />
+                                <SummaryCard
+                                    label="Stock Value Cost Price"
+                                    value={formatCurrency(stats.totalCostValue, true)}
+                                />
+                                <SummaryCard
+                                    label="Stock Value Selling Price"
+                                    value={formatCurrency(stats.totalSellingValue, true)}
+                                />
+                                <SummaryCard
+                                    label="Potential Profit"
+                                    value={formatCurrency(stats.potentialProfit, true)}
+                                />
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
