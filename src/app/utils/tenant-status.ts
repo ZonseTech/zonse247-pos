@@ -20,7 +20,13 @@ export const getStatusColor = (status: string): string => {
 
 export const businessTypes = [
     { label: 'Product Based', value: 'PRODUCT_BASED' },
-    { label: 'Service Based', value: 'SERVICE_BASED' }
+    { label: 'Service Based', value: 'SERVICE_BASED' },
+    { label: 'Hybrid (Products & Services)', value: 'HYBRID' },
+    { label: 'Salon & Beauty', value: 'SALON' },
+    { label: 'Repair & Maintenance', value: 'REPAIR' },
+    { label: 'Tattoo & Piercing', value: 'TATTOO' },
+    { label: 'Med Spa', value: 'MED_SPA' },
+    { label: 'Fitness & Gym', value: 'FITNESS' },
 ];
 
 export const subscriptionStatuses = [
