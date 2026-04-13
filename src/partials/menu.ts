@@ -12,12 +12,13 @@ import { buildNavMenuGroups, navGroupsToElectronMenu } from '../app/navigation/p
 export default class MenuBuilder {
 	mainWindow: BrowserWindow;
 	private user: User | null = null;
+	private businessType: BusinessType | null = null;
 
 	constructor(mainWindow: BrowserWindow) {
 		this.mainWindow = mainWindow;
 	}
 
-	buildMenu(user?: User): Menu {
+	buildMenu(user?: User, businessType?: BusinessType): Menu {
 		if (
 			process.env.NODE_ENV === 'development' ||
 			process.env.DEBUG_PROD === 'true'
@@ -26,6 +27,7 @@ export default class MenuBuilder {
 		}
 
 		this.user = user || null;
+		this.businessType = businessType || null;
 		const menu = Menu.buildFromTemplate(this.buildDefaultTemplate());
 		Menu.setApplicationMenu(menu);
 		return menu;
@@ -95,7 +97,7 @@ export default class MenuBuilder {
 			submenu: fileSubmenu,
 		});
 
-		const navGroups = buildNavMenuGroups(this.user);
+		const navGroups = buildNavMenuGroups(this.user, this.businessType);
 		const navMenus = navGroupsToElectronMenu(
 			navGroups,
 			(route) => this.navigateTo(route),
