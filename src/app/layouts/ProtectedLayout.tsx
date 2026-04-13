@@ -4,7 +4,6 @@ import { Outlet } from "react-router"
 import { type FunctionComponent } from "react"
 import { isElectron } from "../../helpers/index.helper"
 import { useIsMobile, useIsNativeMobile, useIsEBN } from "../hooks/useMediaQuery"
-import { useUserSyncCheck } from "../hooks/useUserSyncCheck"
 import SocketWrapper from "../components/SocketWrapper"
 import { PageHeaderProvider, PageHeaderSlot } from "../context/PageHeaderContext"
 
@@ -14,8 +13,6 @@ const ProtectedLayout: FunctionComponent = () => {
 	const isNotDesktopEnv = !isElectron()
 	const isNativeMobile = useIsNativeMobile();
 	const showWebNav = isNotDesktopEnv && !isNativeMobile && !isEBN
-
-	useUserSyncCheck();
 
 	return (
 		<SocketWrapper>
