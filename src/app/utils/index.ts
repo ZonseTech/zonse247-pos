@@ -1,16 +1,16 @@
 export * from './settings.helper';
 
-export const hasPermission = (user: User, permField: string): boolean => {
+export const hasPermission = (user: User | null, permField: string): boolean => {
 	if (!user) return false;
-	return user?.permissions?.includes(permField);
+	return user.permissions?.includes(permField) ?? false;
 };
 
-export const hasRole = (user: User, role: string): boolean => {
+export const hasRole = (user: User | null, role: string): boolean => {
 	if (!user) return false;
-	return user?.roleId === role || user?.role?.roleId === role || user?.role?.name === role;
+	return user.roleId === role || user.role?.roleId === role || user.role?.name === role;
 };
 
-export const hasAnyPermission = (user: User, permissions: Array<string>) => {
+export const hasAnyPermission = (user: User | null, permissions: Array<string>): boolean => {
 	return permissions.some(permission => hasPermission(user, permission));
 };
 
