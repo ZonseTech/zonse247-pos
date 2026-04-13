@@ -69,7 +69,7 @@ export const fetchInventory = createAsyncThunk(
 
             const totalPages = firstResponse.pagination?.totalPages || 1
             if (totalPages > 1 && !params.page) {
-                const pagePromises = []
+                const pagePromises: ReturnType<typeof productService.listProducts>[] = []
                 for (let page = 2; page <= totalPages; page++) {
                     pagePromises.push(productService.listProducts({ ...baseParams, page }))
                 }
@@ -147,6 +147,7 @@ export const fetchAllInventoryData = createAsyncThunk(
     async (_, { dispatch }) => {
         await Promise.all([
             dispatch(fetchInventory({})),
+            dispatch(fetchCategories()),
         ])
     }
 )
@@ -167,6 +168,7 @@ export const fetchAllInventoryDataWithCache = createAsyncThunk(
 
         await Promise.all([
             dispatch(fetchInventory({})),
+            dispatch(fetchCategories()),
         ])
     }
 )
