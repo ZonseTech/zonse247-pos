@@ -71,29 +71,33 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
         }
     };
 
-    const isMinimum = quantity <= 0;
+    const isMinimum = quantity <= 1;
     const isAtMaxStock = !isDefaultItem && maxStock !== undefined && quantity >= maxStock;
 
     return (
         <div className={classNames(
-            "inline-flex items-center bg-gray-50 dark:bg-gray-800 overflow-hidden shadow-sm",
-            compact ? "rounded-lg" : "rounded-xl",
-            isActive ? 'ring-2 ring-sky-500 dark:ring-sky-400 shadow-sky-500/20' : 'ring-1 ring-gray-200 dark:ring-gray-700',
-            isAtMaxStock ? 'ring-2 ring-orange-400 dark:ring-orange-500 shadow-orange-500/20' : ''
+            "inline-flex items-center overflow-hidden border transition-colors",
+            compact ? "rounded-md h-7" : "rounded-md h-8",
+            isActive
+                ? 'border-sky-500 dark:border-sky-400'
+                : isAtMaxStock
+                    ? 'border-orange-400 dark:border-orange-500'
+                    : 'border-gray-300 dark:border-gray-600',
         )}>
             <button
                 onClick={onDecrease}
                 disabled={isMinimum}
                 className={classNames(
-                    "flex items-center justify-center text-gray-600 dark:text-gray-300",
-                    "bg-white dark:bg-gray-700 hover:bg-sky-50 dark:hover:bg-sky-900/30 hover:text-sky-500 dark:hover:text-sky-400",
-                    "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-700 disabled:hover:text-gray-600",
-                    "focus:outline-none active:scale-95 transition-all duration-200",
-                    compact ? "w-6 h-6" : "w-10 h-10"
+                    "flex items-center justify-center",
+                    "text-gray-500 dark:text-gray-400",
+                    "bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700",
+                    "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-gray-50 dark:disabled:hover:bg-gray-800",
+                    "focus:outline-none transition-colors",
+                    compact ? "w-6 h-full" : "w-8 h-full"
                 )}
                 title="Decrease quantity"
             >
-                <HiMinus className={compact ? "h-3 w-3" : "h-4 w-4"} />
+                <HiMinus className={compact ? "h-2.5 w-2.5" : "h-3.5 w-3.5"} />
             </button>
 
             <input
@@ -105,12 +109,11 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
                 onFocus={handleInputFocus}
                 onClick={handleInputClick}
                 className={classNames(
-                    "text-center font-bold text-gray-900 dark:text-gray-100",
-                    "bg-white dark:bg-gray-800 border-x border-gray-200 dark:border-gray-700",
-                    "focus:outline-none transition-all duration-200",
+                    "text-center font-medium text-gray-900 dark:text-gray-100",
+                    "bg-white dark:bg-gray-900 border-x border-gray-300 dark:border-gray-600",
+                    "focus:outline-none transition-colors",
                     "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
-                    isActive ? 'bg-sky-50 dark:bg-sky-900/30 text-sky-500 dark:text-sky-400' : '',
-                    compact ? "w-10 h-6 text-xs" : "w-14 h-10 text-base"
+                    compact ? "w-8 h-full text-xs" : "w-10 h-full text-sm"
                 )}
                 min="0"
             />
@@ -119,15 +122,16 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
                 onClick={onIncrease}
                 disabled={isAtMaxStock}
                 className={classNames(
-                    "flex items-center justify-center text-gray-600 dark:text-gray-300",
-                    "bg-white dark:bg-gray-700 hover:bg-sky-50 dark:hover:bg-sky-900/30 hover:text-sky-500 dark:hover:text-sky-400",
-                    "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-700 disabled:hover:text-gray-600",
-                    "focus:outline-none active:scale-95 transition-all duration-200",
-                    compact ? "w-6 h-6" : "w-10 h-10"
+                    "flex items-center justify-center",
+                    "text-gray-500 dark:text-gray-400",
+                    "bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700",
+                    "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-gray-50 dark:disabled:hover:bg-gray-800",
+                    "focus:outline-none transition-colors",
+                    compact ? "w-6 h-full" : "w-8 h-full"
                 )}
                 title={isAtMaxStock ? `Maximum stock reached (${maxStock})` : "Increase quantity"}
             >
-                <HiPlus className={compact ? "h-3 w-3" : "h-4 w-4"} />
+                <HiPlus className={compact ? "h-2.5 w-2.5" : "h-3.5 w-3.5"} />
             </button>
         </div>
     );
