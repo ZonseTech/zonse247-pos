@@ -9,6 +9,7 @@ interface TransactionSuccessModalProps {
     refNumber: string;
     onComplete: () => void;
     autoCloseDelay?: number;
+    loyaltyPointsEarned?: number;
 }
 
 const TransactionSuccessModal: FunctionComponent<TransactionSuccessModalProps> = ({
@@ -18,6 +19,7 @@ const TransactionSuccessModal: FunctionComponent<TransactionSuccessModalProps> =
     refNumber,
     onComplete,
     autoCloseDelay = 3000,
+    loyaltyPointsEarned,
 }) => {
     useEffect(() => {
         if (isOpen) {
@@ -88,6 +90,14 @@ const TransactionSuccessModal: FunctionComponent<TransactionSuccessModalProps> =
                                 <span className="text-gray-600 dark:text-gray-400">Change</span>
                                 <span className="font-bold text-emerald-600 dark:text-emerald-400 text-lg">
                                     {formatCurrency(changeAmount)}
+                                </span>
+                            </div>
+                        )}
+                        {loyaltyPointsEarned != null && loyaltyPointsEarned > 0 && (
+                            <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-600">
+                                <span className="text-gray-600 dark:text-gray-400">Points Earned</span>
+                                <span className="font-bold text-sky-600 dark:text-sky-400">
+                                    +{loyaltyPointsEarned.toLocaleString()} pts
                                 </span>
                             </div>
                         )}
