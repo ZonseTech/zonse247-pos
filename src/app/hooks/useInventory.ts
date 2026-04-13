@@ -34,6 +34,8 @@ import {
     setLoading,
     clearUserData,
 } from '../store/slices/uiSlice'
+import { clearServices } from '../store/slices/serviceSlice'
+import { clearStaff } from '../store/slices/staffSlice'
 import { Notify } from 'notiflix'
 
 export const useInventory = () => {
@@ -41,6 +43,7 @@ export const useInventory = () => {
     const { isAuthenticated, user: authUser } = useAuth()
 
     const inventory = useAppSelector((state) => state.inventory.inventory)
+    const categories = useAppSelector((state) => state.inventory.categories)
     const inventoryLoading = useAppSelector((state) => state.inventory.loading)
 
     const cart = useAppSelector((state) => state.cart.items)
@@ -64,6 +67,8 @@ export const useInventory = () => {
         if (!isAuthenticated) {
             dispatch(clearInventory())
             dispatch(clearCustomers())
+            dispatch(clearServices())
+            dispatch(clearStaff())
             dispatch(clearUserData())
             dispatch(clearCart())
 
@@ -77,7 +82,7 @@ export const useInventory = () => {
 
     /**
      * Add item to cart using variantId (the `id` field from InventoryItem)
-     * Validates stock availability before adding
+     * Validates stock availability before adding (skipped for services)
      */
     const handleAddToCart = (item: InventoryItem) => {
         if (!isAuthenticated) {
@@ -89,24 +94,26 @@ export const useInventory = () => {
         const quantity = parseInt(item?.orderItems?.toString() || '0') || 1
         const existingItem = cart.find(cartItem => cartItem.variantId === variantId)
         const isDefaultItem = item.isDefault === true
+        const isService = item.trackInventory === false
 
-        if (!isDefaultItem) {
+        // Only validate stock for tracked products (not services or default items)
+        if (!isDefaultItem && !isService) {
             // Find by variant ID (the `id` field)
             const currentInventoryItem = inventory.find(p => p.id === variantId)
-            
+
             // Check if item is marked as OUT_OF_STOCK
             const itemStatus = currentInventoryItem?.status || item.status || ''
             if (itemStatus.toUpperCase() === 'OUT_OF_STOCK') {
                 Notify.failure(`${item.displayName || item.name} is out of stock.`)
                 return
             }
-            
+
             // Use inventory item quantity if found, otherwise use the item's own quantity
             const availableStock = parseInt((
-                currentInventoryItem?.quantity || 
-                currentInventoryItem?.availableQuantity || 
-                item.quantity || 
-                item.availableQuantity || 
+                currentInventoryItem?.quantity ||
+                currentInventoryItem?.availableQuantity ||
+                item.quantity ||
+                item.availableQuantity ||
                 '0'
             ).toString())
             const currentCartQuantity = existingItem ? existingItem.quantity : 0
@@ -126,20 +133,13 @@ export const useInventory = () => {
 
         dispatch(addToCart(item))
 
-        if (!existingItem) {
-            if (!isDefaultItem) {
-                const currentInventoryItem = inventory.find(p => p.id === variantId)
+        // Only adjust inventory stock for tracked products
+        if (!isDefaultItem && !isService) {
+            const currentInventoryItem = inventory.find(p => p.id === variantId)
+            if (currentInventoryItem) {
                 dispatch(updateInventoryStock({
                     id: variantId,
-                    newStock: parseInt((currentInventoryItem?.quantity || currentInventoryItem?.availableQuantity || '0').toString()) - quantity
-                }))
-            }
-        } else {
-            if (!isDefaultItem) {
-                const currentInventoryItem = inventory.find(p => p.id === variantId)
-                dispatch(updateInventoryStock({
-                    id: variantId,
-                    newStock: parseInt((currentInventoryItem?.quantity || currentInventoryItem?.availableQuantity || '0').toString()) - quantity
+                    newStock: parseInt((currentInventoryItem.quantity || currentInventoryItem.availableQuantity || '0').toString()) - quantity
                 }))
             }
         }
@@ -147,7 +147,7 @@ export const useInventory = () => {
 
     /**
      * Remove item from cart by variantId
-     * Restores inventory stock when item is removed
+     * Restores inventory stock when a tracked product is removed (not services)
      */
     const handleRemoveFromCart = (variantId: string) => {
         if (!isAuthenticated) return
@@ -155,7 +155,8 @@ export const useInventory = () => {
         const itemToRemove = cart.find(item => item.variantId === variantId)
         dispatch(removeFromCart(variantId))
 
-        if (itemToRemove) {
+        // Only restore stock for tracked products
+        if (itemToRemove && !itemToRemove.isDefault && itemToRemove.trackInventory !== false) {
             const inventoryItem = inventory.find(p => p.id === variantId)
             if (inventoryItem) {
                 dispatch(updateInventoryStock({
@@ -168,7 +169,7 @@ export const useInventory = () => {
 
     /**
      * Update cart item quantity by variantId
-     * Validates stock availability and adjusts inventory
+     * Validates stock availability and adjusts inventory (skipped for services)
      */
     const handleUpdateQuantity = (variantId: string, quantity: number) => {
         if (!isAuthenticated) return
@@ -176,10 +177,18 @@ export const useInventory = () => {
         const prevItem = cart.find(item => item.variantId === variantId)
         if (!prevItem) return
 
+        // If quantity drops to 0 or below, remove the item entirely
+        if (quantity <= 0) {
+            handleRemoveFromCart(variantId)
+            return
+        }
+
         const inventoryItem = inventory.find(p => p.id === variantId)
         const isDefaultItem = prevItem.isDefault === true
+        const isService = inventoryItem ? inventoryItem.trackInventory === false : prevItem.trackInventory === false
 
-        if (!isDefaultItem && inventoryItem) {
+        // Only validate stock for tracked products
+        if (!isDefaultItem && !isService && inventoryItem) {
             const currentInventoryStock = parseInt((inventoryItem.quantity || inventoryItem.availableQuantity || '0').toString())
             const difference = prevItem.quantity - quantity
 
@@ -194,7 +203,8 @@ export const useInventory = () => {
 
         dispatch(updateQuantity({ id: variantId, quantity }))
 
-        if (prevItem && inventoryItem) {
+        // Only adjust inventory stock for tracked products
+        if (!isDefaultItem && !isService && inventoryItem) {
             const difference = prevItem.quantity - quantity
             dispatch(updateInventoryStock({
                 id: variantId,
@@ -205,12 +215,13 @@ export const useInventory = () => {
 
     /**
      * Clear all items from cart
-     * Restores inventory stock for all removed items
+     * Restores inventory stock for tracked products only (not services)
      */
     const handleClearCart = () => {
         if (!isAuthenticated) return
 
         cart.forEach(item => {
+            if (item.trackInventory === false) return
             const inventoryItem = inventory.find(p => p.id === item.variantId)
             if (inventoryItem) {
                 dispatch(updateInventoryStock({
@@ -240,6 +251,7 @@ export const useInventory = () => {
 
     return {
         inventory,
+        categories,
         cart,
         customers,
         user,
