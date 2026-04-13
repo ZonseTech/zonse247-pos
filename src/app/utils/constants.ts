@@ -22,6 +22,7 @@ export enum ROUTES {
 	SALES_HUB_SALES = '/sales-hub/sales',
 	SALES_HUB_REPORTS = '/sales-hub/reports',
 	SALES_HUB_RETURNS = '/sales-hub/returns',
+	SALES_HUB_SERVICE_ORDERS = '/sales-hub/service-orders',
 	CATEGORIES = '/categories',
 	CUSTOMERS = '/customers',
 	ITEMS = '/items',
@@ -96,6 +97,16 @@ export enum ROUTES {
 	SETTINGS_SECURITY = '/settings/security',
 	LANDING_PAGE = '/landing-page',
 	GET_STARTED = '/sign-in',
+
+	SERVICE_ORDERS = '/service-orders',
+	SERVICE_ORDER_CREATE = '/service-orders/create',
+	SERVICE_ORDER_DETAILS = '/service-orders/:id',
+	TODAY_SERVICE_ORDERS = '/today-service-orders',
+
+	SERVICES = '/services',
+	SERVICE_FORM = '/services/form',
+
+	LOYALTY_PROGRAM = '/loyalty-program',
 }
 
 export enum PermissionScope {
