@@ -17,6 +17,9 @@ import {
 import {
     Package,
     ShoppingCart as POIcon,
+    ClipboardList,
+    Wrench,
+    HeartHandshake,
 } from 'lucide-react';
 import { RiGroup3Line } from 'react-icons/ri';
 
@@ -24,6 +27,7 @@ import { ROUTES } from '../../utils/constants';
 import { useAuth } from '../../context/AuthProvider';
 import { hasAnyPermission, hasPermission, hasRole, isElectron } from '../../utils';
 import { useIsNativeMobile } from '../../hooks/useMediaQuery';
+import useBusinessFeatures from '../../hooks/useBusinessFeatures';
 import type { NavGroup, NavItemBase, UseNavGroupsReturn } from '../../../types/navigation';
 
 
@@ -33,6 +37,7 @@ const useNavGroups = (): UseNavGroupsReturn => {
     const navigate = useNavigate();
     const { user, signout } = useAuth();
     const isNativeMobile = useIsNativeMobile();
+    const { showRetail, showServices } = useBusinessFeatures();
 
     const groups = useMemo<NavGroup[]>(() => {
         const result: NavGroup[] = [];
@@ -72,7 +77,7 @@ const useNavGroups = (): UseNavGroupsReturn => {
                 route: isNativeMobile ? ROUTES.SALES : ROUTES.SALES_HUB,
                 onClick: isNativeMobile
                     ? () => navigate(ROUTES.SALES)
-                    : () => navigate(ROUTES.SALES_HUB_SALES),
+                    : () => navigate(showServices ? ROUTES.SALES_HUB_SERVICE_ORDERS : ROUTES.SALES_HUB_SALES),
                 shortcut: 'Ctrl+T',
                 showOnDesktop: true,
                 showOnMobile: true,
@@ -113,6 +118,30 @@ const useNavGroups = (): UseNavGroupsReturn => {
                 onClick: isNativeMobile
                     ? () => navigate(ROUTES.PURCHASE_ORDERS)
                     : () => navigate(ROUTES.SUPPLIERS),
+                showOnDesktop: true,
+                showOnMobile: true,
+            });
+        }
+
+        if (showServices) {
+            mgmtItems.push({
+                id: 'services',
+                label: 'Services',
+                icon: ic(Wrench),
+                route: ROUTES.SERVICES,
+                onClick: () => navigate(ROUTES.SERVICES),
+                showOnDesktop: true,
+                showOnMobile: true,
+            });
+        }
+
+        if (hasAnyPermission(user, ['settings.branch.manage'])) {
+            mgmtItems.push({
+                id: 'loyalty-program',
+                label: 'Loyalty Program',
+                icon: ic(HeartHandshake),
+                route: ROUTES.LOYALTY_PROGRAM,
+                onClick: () => navigate(ROUTES.LOYALTY_PROGRAM),
                 showOnDesktop: true,
                 showOnMobile: true,
             });
@@ -233,7 +262,7 @@ const useNavGroups = (): UseNavGroupsReturn => {
         });
 
         return result.sort((a, b) => a.order - b.order);
-    }, [user, navigate, signout, isNativeMobile]);
+    }, [user, navigate, signout, isNativeMobile, showRetail, showServices]);
 
     const flatItems = useMemo<NavItemBase[]>(() => {
         const items: NavItemBase[] = [];
