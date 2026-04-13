@@ -1,5 +1,4 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router';
 import { useAuth } from '../context/AuthProvider';
 import usersService from '../services/users.service';
 import { ROUTES } from '../utils/constants';
@@ -21,20 +20,27 @@ import { ROUTES } from '../utils/constants';
 
 const CHECK_INTERVAL_MS = 30_000;
 
+/** Read current hash path without React Router dependency */
+const getCurrentPath = () => window.location.hash.replace('#', '') || '/';
+
+/** Navigate via hash — works anywhere, no Router context needed */
+const hashNavigate = (path: string) => { window.location.hash = `#${path}`; };
+
 export const useUserSyncCheck = () => {
     const { user, forceSignout, updateUser } = useAuth();
-    const navigate = useNavigate();
-    const location = useLocation();
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const isCheckingRef = useRef(false);
+    const userRef = useRef(user);
+    userRef.current = user;
 
     const performCheck = useCallback(async () => {
-        if (!user?.userId || isCheckingRef.current) return;
+        const currentUser = userRef.current;
+        if (!currentUser?.userId || isCheckingRef.current) return;
 
         isCheckingRef.current = true;
 
         try {
-            const freshUser = await usersService.show(user.userId);
+            const freshUser = await usersService.show(currentUser.userId);
 
             if (freshUser.status && freshUser.status !== 'active') {
                 forceSignout(
@@ -46,19 +52,19 @@ export const useUserSyncCheck = () => {
             if (freshUser.forcePasswordChange) {
                 updateUser(freshUser);
 
-                if (location.pathname !== ROUTES.CHANGE_PASSWORD) {
-                    navigate(ROUTES.CHANGE_PASSWORD, { replace: true });
+                if (getCurrentPath() !== ROUTES.CHANGE_PASSWORD) {
+                    hashNavigate(ROUTES.CHANGE_PASSWORD);
                 }
                 return;
             }
 
             const hasChanges =
-                freshUser.username !== user.username ||
-                freshUser.fullname !== user.fullname ||
-                freshUser.roleId !== user.roleId ||
-                freshUser.status !== user.status ||
-                freshUser.email !== user.email ||
-                freshUser.phone !== user.phone;
+                freshUser.username !== currentUser.username ||
+                freshUser.fullname !== currentUser.fullname ||
+                freshUser.roleId !== currentUser.roleId ||
+                freshUser.status !== currentUser.status ||
+                freshUser.email !== currentUser.email ||
+                freshUser.phone !== currentUser.phone;
 
             if (hasChanges) {
                 updateUser(freshUser);
@@ -68,7 +74,7 @@ export const useUserSyncCheck = () => {
         } finally {
             isCheckingRef.current = false;
         }
-    }, [user, forceSignout, updateUser, navigate, location.pathname]);
+    }, [forceSignout, updateUser]);
 
     useEffect(() => {
         if (!user?.userId) return;
