@@ -74,6 +74,7 @@ const cartSlice = createSlice({
                     quantity: isDefaultItem ? 0 : quantity,
                     categoryId: item.categoryId?.toString() || '',
                     isDefault: item.isDefault,
+                    trackInventory: item.trackInventory ?? true,
                 })
             }
         },
