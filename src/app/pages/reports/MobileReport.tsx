@@ -13,6 +13,7 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
 import { useBranch } from '../../context/BranchContext';
+import useBusinessFeatures from '../../hooks/useBusinessFeatures';
 
 const TotalSalesReport = lazy(() => import('./TotalSalesReport'));
 const GrossProfitReport = lazy(() => import('./GrossProfitReport'));
@@ -51,6 +52,7 @@ const MobileReport: React.FC = () => {
     const reportContentRef = useRef<HTMLDivElement>(null);
     const detailContentRef = useRef<HTMLDivElement>(null);
     const { currentBranch } = useBranch();
+    const { showRetail, showServices } = useBusinessFeatures();
 
     const generateFetchKey = (start: Date | null, end: Date | null): string => {
         const startStr = start ? dayjs(start).format('YYYY-MM-DD') : '';
@@ -95,62 +97,123 @@ const MobileReport: React.FC = () => {
         fetchSummary(startDate, endDate);
     }, []);
 
-    const reportData: ReportData[] = useMemo(() => [
-        {
-            id: 'total-sales',
-            name: 'Total Sales',
-            title: 'REVENUE',
-            value: formatCurrency(summary?.totalSales ?? 0, true),
-            description: 'Revenue from all transactions',
-            hasData: (summary?.totalSales ?? 0) > 0,
-        },
-        {
-            id: 'gross-profit',
-            name: 'Gross Profit (Selling Price - Cost Price)',
-            title: 'Profit',
-            value: formatCurrency(summary?.grossProfit ?? 0, true),
-            description: 'Selling price minus cost price',
-            hasData: (summary?.grossProfit ?? 0) !== 0,
-        },
-        {
-            id: 'top-stocks',
-            name: 'Top Stocks',
-            title: 'Top Stocks',
-            value: `${summary?.topStocks ?? 0} items`,
-            description: 'Best performing inventory items',
-            hasData: (summary?.topStocks ?? 0) > 0,
-        },
-        {
-            id: 'top-category',
-            name: 'Top Category',
-            title: 'Top Category Report',
-            value: summary?.topCategory || 'N/A',
-            description: 'Highest selling category',
-            hasData: !!summary?.topCategory,
-        },
-        {
+    const reportData: ReportData[] = useMemo(() => {
+        const so = summary?.serviceOrders;
+        const hasCombined = showRetail && showServices;
+        const cards: ReportData[] = [];
+
+        if (hasCombined) {
+            cards.push({
+                id: 'total-sales',
+                name: 'Combined Revenue',
+                title: 'REVENUE',
+                value: formatCurrency(summary?.combinedRevenue ?? 0, true),
+                description: 'Total revenue from product sales and services',
+                hasData: (summary?.combinedRevenue ?? 0) > 0,
+            });
+        } else if (showRetail) {
+            cards.push({
+                id: 'total-sales',
+                name: 'Total Sales',
+                title: 'REVENUE',
+                value: formatCurrency(summary?.totalSales ?? 0, true),
+                description: 'Revenue from product sales',
+                hasData: (summary?.totalSales ?? 0) > 0,
+            });
+        } else {
+            cards.push({
+                id: 'total-sales',
+                name: 'Service Revenue',
+                title: 'REVENUE',
+                value: formatCurrency(so?.totalRevenue ?? 0, true),
+                description: 'Revenue from service orders',
+                hasData: (so?.totalRevenue ?? 0) > 0,
+            });
+        }
+
+        if (hasCombined) {
+            cards.push({
+                id: 'gross-profit',
+                name: 'Combined Gross Profit',
+                title: 'Profit',
+                value: formatCurrency(summary?.combinedGrossProfit ?? 0, true),
+                description: 'Profit from products and services',
+                hasData: (summary?.combinedGrossProfit ?? 0) !== 0,
+            });
+        } else if (showRetail) {
+            cards.push({
+                id: 'gross-profit',
+                name: 'Gross Profit (Selling Price - Cost Price)',
+                title: 'Profit',
+                value: formatCurrency(summary?.grossProfit ?? 0, true),
+                description: 'Selling price minus cost price',
+                hasData: (summary?.grossProfit ?? 0) !== 0,
+            });
+        } else {
+            cards.push({
+                id: 'gross-profit',
+                name: 'Service Gross Profit',
+                title: 'Profit',
+                value: formatCurrency(so?.grossProfit ?? 0, true),
+                description: 'Service revenue minus material costs',
+                hasData: (so?.grossProfit ?? 0) !== 0,
+            });
+        }
+
+        if (showServices && so) {
+            cards.push({
+                id: null,
+                name: 'Service Orders',
+                title: 'Service Orders',
+                value: String(so.orderCount ?? 0),
+                description: `Material cost: ${formatCurrency(so.totalConsumptionCost ?? 0, true)}`,
+                hasData: (so.orderCount ?? 0) > 0,
+            });
+        }
+
+        if (showRetail) {
+            cards.push({
+                id: 'top-stocks',
+                name: 'Top Stocks',
+                title: 'Top Stocks',
+                value: `${summary?.topStocks ?? 0} items`,
+                description: 'Best performing inventory items',
+                hasData: (summary?.topStocks ?? 0) > 0,
+            });
+            cards.push({
+                id: 'top-category',
+                name: 'Top Category',
+                title: 'Top Category Report',
+                value: summary?.topCategory || 'N/A',
+                description: 'Highest selling category',
+                hasData: !!summary?.topCategory,
+            });
+        }
+
+        cards.push({
             id: 'receipt-count',
             name: 'Total Receipt Count',
             title: 'Sales count',
             value: String(summary?.receiptCount ?? 0),
             description: '',
             hasData: (summary?.receiptCount ?? 0) > 0,
-        },
-        {
+        });
+
+        cards.push({
             id: 'payment-modes',
             name: 'Payment Modes',
             title: 'Payment Modes Report',
             value: `${summary?.paymentModes ?? 0} methods`,
             hasData: (summary?.paymentModes ?? 0) > 0,
-        },
-    ], [summary]);
+        });
+
+        return cards;
+    }, [summary, showRetail, showServices]);
     const hasNoData = useMemo(() => {
         if (!summary) return true;
-        return (
-            summary.totalSales === 0 &&
-            summary.grossProfit === 0 &&
-            summary.receiptCount === 0
-        );
+        const hasProductData = summary.totalSales > 0 || summary.grossProfit > 0 || summary.receiptCount > 0;
+        const hasServiceData = (summary.serviceOrders?.totalRevenue ?? 0) > 0 || (summary.serviceOrders?.orderCount ?? 0) > 0;
+        return !hasProductData && !hasServiceData;
     }, [summary]);
     const handleDateChange = useCallback((start: Date | null, end: Date | null): void => {
         setStartDate(start);
