@@ -52,6 +52,7 @@ interface CartItem {
     variancePrice?: number;
     quantity: number;
     isDefault?: boolean;
+    trackInventory?: boolean;
     categoryDetails?: Category;
     productDetails?: Product;
 }
