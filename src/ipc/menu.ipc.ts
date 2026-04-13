@@ -3,12 +3,12 @@ import { version } from '../../package.json';
 import { ipcMain, BrowserWindow, dialog } from 'electron';
 
 export function setupMenuIPC() {
-    ipcMain.handle('menu:rebuild', async (event, user) => {
+    ipcMain.handle('menu:rebuild', async (event, user, businessType) => {
         const win = BrowserWindow.fromWebContents(event.sender);
         if (!win) return;
 
         const menuBuilder = new MenuBuilder(win);
-        menuBuilder.buildMenu(user);
+        menuBuilder.buildMenu(user, businessType);
     });
 
     ipcMain.handle('menu:restore-database', async (event) => {
