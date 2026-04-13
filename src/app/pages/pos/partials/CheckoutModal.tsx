@@ -7,12 +7,15 @@ import EPayment from './EPayment';
 import CashPayment from './CashPayment';
 import BankTransfer from './BankTransfer';
 import { DesktopProcessingView, TransactionSuccessModal, ProcessingStep } from './desktop-checkout';
-import { FunctionComponent, useState, useEffect } from 'react';
+import CheckoutLoyaltyWidget from './CheckoutLoyaltyWidget';
+import loyaltyService from '../../../services/loyalty.service';
+import { FunctionComponent, useState, useEffect, useCallback } from 'react';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useInventory } from '../../../hooks/useInventory';
 import { useAuth } from '../../../context/AuthProvider';
 import { useApp } from '../../../context/AppProvider';
 import salesService from '../../../services/sales.service';
+import serviceOrderService from '../../../services/service-order.service';
 import { usePrintReceipt } from '../../../hooks/usePrintReceipt';
 import { generateReferenceNumber } from '../../../utils';
 import { DEFAULT_SEED_KEY } from '../../../constants';
@@ -24,6 +27,10 @@ interface CheckoutModalProps {
     onClose: () => void;
     focusManager: ReturnType<typeof useFocusManager>;
     paymentMethodId: typeof CHECKOUT[keyof typeof CHECKOUT];
+    /** When checking out a completed service order, link the sale to it */
+    serviceOrderId?: string;
+    /** Called after a successful sale linked to a service order */
+    onServiceOrderSaleComplete?: () => void;
 }
 
 export const CHECKOUT = {
@@ -49,7 +56,9 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     isOpen,
     onClose,
     paymentMethodId,
-    focusManager
+    focusManager,
+    serviceOrderId,
+    onServiceOrderSaleComplete,
 }) => {
     const {
         discount,
@@ -88,7 +97,22 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
         total: number;
         changeAmount: number;
         refNumber: string;
+        loyaltyPointsEarned?: number;
     } | null>(null);
+
+    // Loyalty redemption state
+    const [loyaltyDiscount, setLoyaltyDiscount] = useState(0);
+    const [loyaltyMemberId, setLoyaltyMemberId] = useState<string | null>(null);
+    const [loyaltyRedeemPoints, setLoyaltyRedeemPoints] = useState(0);
+
+    const handleLoyaltyRedemptionChange = useCallback((discount: number, memberId: string | null, points: number) => {
+        setLoyaltyDiscount(discount);
+        setLoyaltyMemberId(memberId);
+        setLoyaltyRedeemPoints(points);
+    }, []);
+
+    // Effective total after loyalty discount
+    const effectiveTotal = Math.max(0, total - loyaltyDiscount);
 
     const simulateDelay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -164,8 +188,8 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 ? (subtotal * discount) / 100
                 : discount;
 
-            // Total discount = item-level + cart-level
-            const calculatedDiscountAmount = totalItemDiscounts + cartDiscountAmount;
+            // Total discount = item-level + cart-level + loyalty redemption
+            const calculatedDiscountAmount = totalItemDiscounts + cartDiscountAmount + loyaltyDiscount;
 
             // Calculate tax amount (tax is always percentage, applied on discounted subtotal)
             const taxableAmount = subtotal - calculatedDiscountAmount;
@@ -173,19 +197,20 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
             const refNumber = generateReferenceNumber()
             const salePayload: CreateSalePayload = {
-                tenantId: user.tenantId,
-                branchId: user.currentBranchId || user.branchId,
-                userId: user.userId,
+                tenantId: user!.tenantId,
+                branchId: user!.currentBranchId || user!.branchId,
+                userId: user!.userId,
                 terminalId: (settings as any)?.terminalId || 'default',
                 customerId: selectedCustomer?.customerId !== 'walk-in' && selectedCustomer?.customerId !== DEFAULT_SEED_KEY
                     ? selectedCustomer?.customerId
                     : undefined,
-                amountPaid: values.cashTendered ? parseFloat(values.cashTendered) : total,
+                serviceOrderId: serviceOrderId || undefined,
+                amountPaid: values.cashTendered ? parseFloat(values.cashTendered) : effectiveTotal,
                 paymentMethodId: values.paymentMethodId,
                 subtotal,
                 taxAmount: calculatedTaxAmount,
                 discountAmount: calculatedDiscountAmount,
-                totalAmount: total,
+                totalAmount: effectiveTotal,
                 otherCharges: otherCharges.length > 0 ? otherCharges.map(charge => ({
                     type: charge.type,
                     label: charge.label,
@@ -200,7 +225,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                         ? (itemPrice * (item.discount || 0)) / 100
                         : (item.discount || 0) * itemQty;
                     return {
-                        variantId: item.variantId || item.productId, // Use variantId for API v1.6.0+
+                        variantId: (item.variantId || item.productId)!, // Use variantId for API v1.6.0+
                         productId: item.productId,
                         quantity: itemQty,
                         unitPrice: item.sellingPrice,
@@ -213,8 +238,21 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
             const sale = await salesService.store(salePayload);
 
+            // Redeem loyalty points if applicable (link to sale)
+            if (loyaltyMemberId && loyaltyRedeemPoints > 0) {
+                try {
+                    await loyaltyService.redeemPoints(loyaltyMemberId, {
+                        points: loyaltyRedeemPoints,
+                        saleId: sale.id,
+                        description: 'Redeemed at checkout',
+                    });
+                } catch {
+                    console.warn('Failed to redeem loyalty points — sale already completed');
+                }
+            }
+
             const saleRefNumber = (sale as any).saleNumber || refNumber;
-            const saleChangeAmount = sale.changeAmount || (values.cashTendered ? Math.max(0, parseFloat(values.cashTendered) - total) : 0);
+            const saleChangeAmount = sale.changeAmount || (values.cashTendered ? Math.max(0, parseFloat(values.cashTendered) - effectiveTotal) : 0);
 
             // Step 3: Printing (Fire-and-forget - doesn't block UI)
             // Uses cached receipt settings for fast printing
@@ -226,15 +264,29 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 includeLogo: settings?.showStoreLogo || false,
             });
 
+            // Record payment against service order if linked
+            if (serviceOrderId) {
+                try {
+                    await serviceOrderService.recordPayment(serviceOrderId, [{
+                        paymentMethodId: values.paymentMethodId,
+                        amount: values.cashTendered ? parseFloat(values.cashTendered) : total,
+                    }]);
+                } catch {
+                    // Non-blocking: sale already completed, just log
+                    console.warn('Failed to record payment on service order');
+                }
+            }
+
             // Step 4: Completed - Show success modal immediately (don't wait for print)
             setProcessingStep('completed');
             await simulateDelay(300);
 
             setProcessingStep(null);
             setSuccessData({
-                total: (sale as any).totalAmount || total,
+                total: (sale as any).totalAmount || effectiveTotal,
                 changeAmount: saleChangeAmount,
                 refNumber: saleRefNumber,
+                loyaltyPointsEarned: sale.loyalty?.pointsEarned,
             });
             setShowSuccessModal(true);
 
@@ -260,10 +312,16 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     const handleTransactionComplete = () => {
         setShowSuccessModal(false);
         setSuccessData(null);
+        setLoyaltyDiscount(0);
+        setLoyaltyMemberId(null);
+        setLoyaltyRedeemPoints(0);
         clearCart();
         reloadInventory();
         setProcessing(false);
         focusManager.clearFocus();
+        if (serviceOrderId) {
+            onServiceOrderSaleComplete?.();
+        }
         onClose();
     };
 
@@ -272,7 +330,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
         switch (paymentMethodId) {
             case CHECKOUT.CASH:
-                return parseFloat(values.cashTendered || '0') >= total;
+                return parseFloat(values.cashTendered || '0') >= effectiveTotal;
             case CHECKOUT.E_PAYMENT:
                 return values.phoneNumber.length >= 9;
             case CHECKOUT.BANK_TRANSFER:
@@ -366,10 +424,22 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                                 isEBN ? "p-2" : "p-3 md:p-6"
                             )}>
 
+                                {selectedCustomer && !selectedCustomer.isDefault && selectedCustomer.customerId !== DEFAULT_SEED_KEY && (
+                                    <div className={isEBN ? "mb-2" : "mb-4"}>
+                                        <CheckoutLoyaltyWidget
+                                            customerId={selectedCustomer.customerId}
+                                            isDefault={!!selectedCustomer.isDefault}
+                                            total={total}
+                                            compact={isEBN}
+                                            onRedemptionChange={handleLoyaltyRedemptionChange}
+                                        />
+                                    </div>
+                                )}
+
                                 {paymentMethodId === CHECKOUT.CASH && (
                                     <CashPayment
                                         compact={isEBN}
-                                        total={total}
+                                        total={effectiveTotal}
                                         values={values}
                                         onValueChange={setFieldValue}
                                         focusManager={focusManager}
@@ -379,7 +449,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                                 {paymentMethodId === CHECKOUT.E_PAYMENT && (
                                     <EPayment
                                         compact={isEBN}
-                                        total={total}
+                                        total={effectiveTotal}
                                         values={values}
                                         activeInput={activeInput}
                                         onValueChange={setFieldValue}
@@ -390,7 +460,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                                 {paymentMethodId === CHECKOUT.BANK_TRANSFER && (
                                     <BankTransfer
                                         compact={isEBN}
-                                        total={total}
+                                        total={effectiveTotal}
                                         values={values}
                                         activeInput={activeInput}
                                         onValueChange={setFieldValue}
@@ -439,6 +509,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                     total={successData.total}
                     changeAmount={successData.changeAmount}
                     refNumber={successData.refNumber}
+                    loyaltyPointsEarned={successData.loyaltyPointsEarned}
                     onComplete={handleTransactionComplete}
                     autoCloseDelay={3000}
                 />
