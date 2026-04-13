@@ -3,12 +3,16 @@ import cartReducer from './slices/cartSlice'
 import { configureStore } from '@reduxjs/toolkit'
 import inventoryReducer from './slices/inventorySlice'
 import customersReducer from './slices/customerSlice'
+import servicesReducer from './slices/serviceSlice'
+import staffReducer from './slices/staffSlice'
 
 export const store = configureStore({
     reducer: {
         inventory: inventoryReducer,
         cart: cartReducer,
         customers: customersReducer,
+        services: servicesReducer,
+        staff: staffReducer,
         ui: uiReducer,
     },
     middleware: (getDefaultMiddleware) =>
