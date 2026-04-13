@@ -1,5 +1,12 @@
 import api from './http.service';
 
+export interface ServiceOrderSummary {
+    totalRevenue: number;
+    orderCount: number;
+    totalConsumptionCost: number;
+    grossProfit: number;
+}
+
 export interface ReportSummary {
     totalSales: number;
     grossProfit: number;
@@ -7,6 +14,9 @@ export interface ReportSummary {
     topCategory: string;
     receiptCount: number;
     paymentModes: number;
+    serviceOrders?: ServiceOrderSummary;
+    combinedRevenue?: number;
+    combinedGrossProfit?: number;
 }
 
 export interface ReportSummaryQuery {
