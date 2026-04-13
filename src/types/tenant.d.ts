@@ -1,4 +1,13 @@
-type BusinessType = 'PRODUCT_BASED' | 'SERVICE_BASED';
+type BusinessType =
+    | 'PRODUCT_BASED'
+    | 'SERVICE_BASED'
+    | 'HYBRID'
+    | 'SALON'
+    | 'REPAIR'
+    | 'TATTOO'
+    | 'MED_SPA'
+    | 'FITNESS';
+
 type MsonkhoOnlineStatus = 'VERIFIED' | 'PENDING' | 'FAILED';
 type SubscriptionStatus = 'ACTIVE' | 'SUSPENDED' | 'CANCELLED' | 'TRIAL';
 type TenantStatus = 'pending' | 'active' | 'suspended' | 'cancelled';
