@@ -158,6 +158,9 @@ interface Sale {
     mraSaleStatus?: MraSaleStatus;      // Current MRA submission status
     mraFiscalCode?: string | null;      // Fiscal code from MRA verification
     mraVerificationUrl?: string | null; // URL for verifying the invoice
+
+    // Loyalty (present when customer earned points on this sale)
+    loyalty?: SaleLoyaltyInfo;
     mraInvoiceNumber?: string | null;   // MRA fiscal invoice number
     mraSubmittedAt?: Date | string | null;
     mraVerifiedAt?: Date | string | null;
@@ -223,6 +226,9 @@ interface CreateSalePayload {
     userId: string;
     terminalId?: string;
     customerId?: string;
+
+    // Link to service order (for service-based checkouts)
+    serviceOrderId?: string;
 
     // Payment - single payment (legacy)
     amountPaid: number;
