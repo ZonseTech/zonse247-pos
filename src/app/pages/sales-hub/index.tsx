@@ -3,33 +3,47 @@ import { ROUTES } from '../../utils/constants';
 import AppLayout from '../../layouts/AppLayout';
 import { ComponentLoader } from '../../components';
 import { Outlet, useLocation, useNavigate } from 'react-router';
-import { Suspense, useCallback, type FunctionComponent } from 'react';
+import { Suspense, useCallback, useMemo, type FunctionComponent } from 'react';
 import { HubProvider } from '../../context/HubContext';
 import PageHeader from '../../components/page/PageHeader';
+import useBusinessFeatures from '../../hooks/useBusinessFeatures';
 
-const SALES_TABS = [
-    { id: 'sales', label: 'Sales', path: ROUTES.SALES_HUB_SALES },
-    { id: 'reports', label: 'Reports', path: ROUTES.SALES_HUB_REPORTS },
-    { id: 'returns', label: 'Returns', path: ROUTES.SALES_HUB_RETURNS },
-] as const;
+interface SalesTab {
+    id: string;
+    label: string;
+    path: string;
+}
 
-const DEFAULT_TAB = 'sales';
-type SalesTabId = (typeof SALES_TABS)[number]['id'];
+const ALL_TABS: Record<string, SalesTab> = {
+    sales: { id: 'sales', label: 'Sales', path: ROUTES.SALES_HUB_SALES },
+    'service-orders': { id: 'service-orders', label: 'Service Orders', path: ROUTES.SALES_HUB_SERVICE_ORDERS },
+    reports: { id: 'reports', label: 'Reports', path: ROUTES.SALES_HUB_REPORTS },
+    returns: { id: 'returns', label: 'Returns', path: ROUTES.SALES_HUB_RETURNS },
+};
 
 const SalesHubPage: FunctionComponent = () => {
     const { pathname } = useLocation();
     const navigate = useNavigate();
+    const { showRetail, showServices } = useBusinessFeatures();
 
-    const segment = pathname.split('/').pop() || DEFAULT_TAB;
-    const activeTab: SalesTabId =
-        SALES_TABS.find((t) => t.id === segment)?.id ?? DEFAULT_TAB;
+    const tabs = useMemo<SalesTab[]>(() => {
+        if (showServices) {
+            return [ALL_TABS['service-orders'], ALL_TABS.sales, ALL_TABS.reports];
+        }
+        return [ALL_TABS.sales, ALL_TABS['service-orders'], ALL_TABS.reports];
+    }, [showServices]);
+
+    const defaultTab = tabs[0]?.id ?? 'reports';
+
+    const segment = pathname.split('/').pop() || defaultTab;
+    const activeTab = tabs.find((t) => t.id === segment)?.id ?? defaultTab;
 
     const handleTabChange = useCallback(
         (value: string) => {
-            const tab = SALES_TABS.find((t) => t.id === value);
+            const tab = tabs.find((t) => t.id === value);
             if (tab) navigate(tab.path, { replace: true });
         },
-        [navigate],
+        [navigate, tabs],
     );
 
     return (
@@ -44,7 +58,7 @@ const SalesHubPage: FunctionComponent = () => {
             <AppLayout>
                 <Tabs.Root value={activeTab} onValueChange={handleTabChange}>
                     <Tabs.List className="-mx-4 md:-mx-6 px-4 md:px-6 flex overflow-x-auto border-b border-gray-200 dark:border-gray-700 gap-0 scrollbar-none mb-4">
-                        {SALES_TABS.map((tab) => (
+                        {tabs.map((tab) => (
                             <Tabs.Trigger
                                 key={tab.id}
                                 value={tab.id}
