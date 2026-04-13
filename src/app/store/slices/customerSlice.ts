@@ -8,6 +8,8 @@ interface CustomersState {
     selectedCustomer: Customer | null
     loading: boolean
     error: string | null
+    lastFetched: number | null
+    cacheTimeout: number
 }
 
 const initialState: CustomersState = {
@@ -15,6 +17,8 @@ const initialState: CustomersState = {
     selectedCustomer: null,
     loading: false,
     error: null,
+    lastFetched: null,
+    cacheTimeout: 5 * 60 * 1000,
 }
 
 export const fetchCustomers = createAsyncThunk(
@@ -31,6 +35,25 @@ export const fetchCustomers = createAsyncThunk(
     }
 )
 
+export const fetchCustomersWithCache = createAsyncThunk(
+    'customers/fetchCustomersWithCache',
+    async (forceRefresh: boolean = false, { getState, dispatch }) => {
+        const state = getState() as { customers: CustomersState }
+        const now = Date.now()
+
+        if (
+            !forceRefresh &&
+            state.customers.lastFetched &&
+            (now - state.customers.lastFetched) < state.customers.cacheTimeout &&
+            state.customers.customers.length > 0
+        ) {
+            return
+        }
+
+        await dispatch(fetchCustomers())
+    }
+)
+
 const customersSlice = createSlice({
     name: 'customers',
     initialState,
@@ -44,6 +67,10 @@ const customersSlice = createSlice({
         clearCustomers: (state) => {
             state.customers = []
             state.selectedCustomer = null
+            state.lastFetched = null
+        },
+        invalidateCustomerCache: (state) => {
+            state.lastFetched = null
         },
     },
     extraReducers: (builder) => {
@@ -55,6 +82,7 @@ const customersSlice = createSlice({
             .addCase(fetchCustomers.fulfilled, (state, action) => {
                 state.loading = false
                 state.customers = action.payload
+                state.lastFetched = Date.now()
                 if (action.payload.length > 0 && !state.selectedCustomer) {
                     state.selectedCustomer = action.payload[0]
                 }
@@ -69,7 +97,8 @@ const customersSlice = createSlice({
 export const {
     setSelectedCustomer,
     setCustomers,
-    clearCustomers
+    clearCustomers,
+    invalidateCustomerCache,
 } = customersSlice.actions
 
 export default customersSlice.reducer
