@@ -141,7 +141,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
         });
 
         if (!item) {
-            item = await searchByBarcodeAPI(cleanedBarcode);
+            item = await searchByBarcodeAPI(cleanedBarcode) ?? undefined;
             // Check if the API result is available
             if (item) {
                 const quantity = parseFloat((item.quantity || item.availableQuantity || 0).toString());
@@ -265,7 +265,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
     }, [isActive]);
 
     useEffect(() => {
-        if (barcodeScannerInputRef) barcodeScannerInputRef.current.focus()
+        if (barcodeScannerInputRef?.current) barcodeScannerInputRef.current.focus()
     }, [])
 
     useEffect(() => {
@@ -327,7 +327,8 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                     type="text"
                     value={barcode}
                     onChange={handleInputChange}
-                    className={`flex-1 border-2 border-gray-800 focus:outline-none text-center transition-all duration-200 ${compact ? 'p-1 text-xs' : 'p-2 text-lg'} ${isActive ? 'ring-2 ring-gray-500 dark:ring-gray-400 bg-gray-50 dark:bg-gray-900/20' : ''
+                    autoFocus
+                    className={`flex-1 border-2 border-gray-800 dark:border-gray-600 focus:outline-none text-center text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 transition-all duration-200 ${compact ? 'p-1 text-xs' : 'p-2 text-lg'} ${isActive ? 'ring-2 ring-gray-500 dark:ring-gray-400 bg-gray-50 dark:bg-gray-700' : ''
                         }`}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
