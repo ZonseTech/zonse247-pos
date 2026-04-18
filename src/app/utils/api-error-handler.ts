@@ -230,7 +230,8 @@ export function parseApiError(error: unknown): ParsedApiError {
 		return defaultError;
 	}
 
-	const axiosError = error as any;
+	// Handle wrapped error format { error: <axiosError> } from HTTP interceptor
+	const axiosError = (error as any)?.error?.response ? (error as any).error : error as any;
 	const responseData = axiosError?.response?.data;
 	const statusCode = axiosError?.response?.status || 500;
 

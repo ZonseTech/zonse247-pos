@@ -2,6 +2,17 @@ import { ROUTES } from '../../utils/constants';
 import { hasAnyPermission, hasPermission, hasRole } from '../../utils';
 import type { MenuItemConstructorOptions } from 'electron';
 
+const FEATURE_MAP: Record<string, { showRetail: boolean; showServices: boolean }> = {
+    PRODUCT_BASED: { showRetail: true, showServices: false },
+    SERVICE_BASED: { showRetail: false, showServices: true },
+    HYBRID: { showRetail: true, showServices: true },
+    SALON: { showRetail: true, showServices: true },
+    REPAIR: { showRetail: true, showServices: true },
+    TATTOO: { showRetail: true, showServices: true },
+    MED_SPA: { showRetail: true, showServices: true },
+    FITNESS: { showRetail: false, showServices: true },
+};
+
 export interface NavMenuGroup {
     label: string;
     items: Array<{
@@ -13,12 +24,14 @@ export interface NavMenuGroup {
     }>;
 }
 
-export function buildNavMenuGroups(user: User | null): NavMenuGroup[] {
+export function buildNavMenuGroups(user: User | null, businessType?: BusinessType | null): NavMenuGroup[] {
     const groups: NavMenuGroup[] = [];
+    const bt = businessType ?? 'PRODUCT_BASED';
+    const { showRetail, showServices } = FEATURE_MAP[bt] ?? FEATURE_MAP.PRODUCT_BASED;
 
     const opsItems: NavMenuGroup['items'] = [];
 
-    if (hasAnyPermission(user, ['products.view', 'products.create', 'sales.create', 'refunds.process'])) {
+    if (showRetail && hasAnyPermission(user, ['products.view', 'products.create', 'sales.create', 'refunds.process'])) {
         opsItems.push({ label: 'Point of Sale', route: ROUTES.POS, accelerator: 'CommandOrControl+P' });
     }
 
@@ -27,7 +40,13 @@ export function buildNavMenuGroups(user: User | null): NavMenuGroup[] {
     }
 
     if (hasAnyPermission(user, ['reports.sales.daily', 'reports.sales.detailed', 'payments.view'])) {
-        opsItems.push({ label: 'Sales', route: ROUTES.SALES_HUB_SALES, accelerator: 'CommandOrControl+T' });
+        const salesLabel = showServices && !showRetail
+            ? 'Service Orders'
+            : showServices && showRetail
+                ? 'Sales & Orders'
+                : 'Sales';
+        const salesRoute = showServices ? ROUTES.SALES_HUB_SERVICE_ORDERS : ROUTES.SALES_HUB_SALES;
+        opsItems.push({ label: salesLabel, route: salesRoute, accelerator: 'CommandOrControl+T' });
     }
 
     if (opsItems.length > 0) {
@@ -36,9 +55,13 @@ export function buildNavMenuGroups(user: User | null): NavMenuGroup[] {
 
     const mgmtItems: NavMenuGroup['items'] = [];
 
-    if (hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {
+    if (showRetail && hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {
         mgmtItems.push({ label: 'Inventory', route: ROUTES.INVENTORY_HUB });
         mgmtItems.push({ label: 'Procurement', route: ROUTES.PROCUREMENT_SUPPLIERS });
+    }
+
+    if (showServices) {
+        mgmtItems.push({ label: 'Services', route: ROUTES.SERVICES });
     }
 
     if (user) {

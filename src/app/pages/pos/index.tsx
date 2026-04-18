@@ -1,16 +1,12 @@
-import { FunctionComponent } from 'react';
-import { useIsNativeMobile } from '../../hooks/useMediaQuery';
 import MobilePOS from './MobilePOS';
 import DesktopPOS from './DesktopPOS';
+import { FunctionComponent } from 'react';
+import { useIsNativeMobile } from '../../hooks/useMediaQuery';
 
 const POSSystem: FunctionComponent = () => {
     const isNativeMobile = useIsNativeMobile();
 
-    if (isNativeMobile) {
-        return <MobilePOS />;
-    }
-
-    return <DesktopPOS />;
+    return isNativeMobile ? <MobilePOS /> : <DesktopPOS />;
 };
 
 export default POSSystem;

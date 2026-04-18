@@ -27,6 +27,8 @@ interface FunctionButtonsProps {
     onPayCash?: () => void;
     onMultiplePayment?: () => void;
     compact?: boolean;
+    serviceMode?: boolean;
+    hasActiveOrder?: boolean;
 }
 
 const colorClasses: Record<ButtonColorType, { base: string; hover: string; active: string }> = {
@@ -65,13 +67,21 @@ const FunctionButtons: FunctionComponent<FunctionButtonsProps> = ({
     onPayCash,
     onMultiplePayment,
     compact = false,
+    serviceMode = false,
+    hasActiveOrder = false,
 }) => {
     const buttonConfigs: Array<FunctionButtonConfig> = [
         { label: 'VOID(F4)\nSALE', compactLabel: 'VOID\nF4', ebnLabel: 'VOID', colorType: 'red', action: 'void', shortcut: 'F4', priority: 'normal' },
-        { label: 'PARK(F7)\nSALE', compactLabel: 'PARK\nF7', ebnLabel: 'PARK', colorType: 'red', action: 'park', shortcut: 'F7', priority: 'normal' },
-        { label: 'PARKED(F3)\nSALES', compactLabel: 'PARKED\nF3', ebnLabel: 'PARKED', colorType: 'red', action: 'parked', shortcut: 'F3', priority: 'normal' },
+        serviceMode
+            ? hasActiveOrder
+                ? { label: 'UPDATE(F7)\nORDER', compactLabel: 'UPDATE\nF7', ebnLabel: 'UPDATE', colorType: 'blue', action: 'park', shortcut: 'F7', priority: 'normal' }
+                : { label: 'CREATE(F7)\nORDER', compactLabel: 'ORDER\nF7', ebnLabel: 'ORDER', colorType: 'blue', action: 'park', shortcut: 'F7', priority: 'normal' }
+            : { label: 'PARK(F7)\nSALE', compactLabel: 'PARK\nF7', ebnLabel: 'PARK', colorType: 'red', action: 'park', shortcut: 'F7', priority: 'normal' },
+        serviceMode
+            ? { label: 'SERVICE(F3)\nORDERS', compactLabel: 'ORDERS\nF3', ebnLabel: 'ORDERS', colorType: 'blue', action: 'parked', shortcut: 'F3', priority: 'normal' }
+            : { label: 'PARKED(F3)\nSALES', compactLabel: 'PARKED\nF3', ebnLabel: 'PARKED', colorType: 'red', action: 'parked', shortcut: 'F3', priority: 'normal' },
         { label: 'DRAWER\n(F6)', compactLabel: 'DRAWER\nF6', ebnLabel: 'DRAWER', colorType: 'blue', action: 'drawer', shortcut: 'F6', priority: 'normal' },
-        { label: 'ITEM(F2)\nLOOKUP', compactLabel: 'LOOKUP\nF2', ebnLabel: 'LOOKUP', colorType: 'blue', action: 'lookup', shortcut: 'F2', hiddenOnMobile: true, priority: 'normal' },
+        ...(!serviceMode ? [{ label: 'ITEM(F2)\nLOOKUP', compactLabel: 'LOOKUP\nF2', ebnLabel: 'LOOKUP', colorType: 'blue' as ButtonColorType, action: 'lookup', shortcut: 'F2', hiddenOnMobile: true, priority: 'normal' as const }] : []),
         { label: 'REPRINT\n(F11)', compactLabel: 'REPRINT\nF11', ebnLabel: 'REPRINT', colorType: 'blue', action: 'reprint', shortcut: 'F11', priority: 'normal' },
         { label: 'DISCOUNT\n(F5)', compactLabel: 'DISC\nF5', ebnLabel: 'DISC', colorType: 'orange', action: 'discount', shortcut: 'F5', priority: 'normal' },
         { label: 'SPLIT(F9)\nPAYMENT', compactLabel: 'SPLIT\nF9', ebnLabel: 'SPLIT', colorType: 'orange', action: 'multiple-payment', shortcut: 'F9', priority: 'high' },

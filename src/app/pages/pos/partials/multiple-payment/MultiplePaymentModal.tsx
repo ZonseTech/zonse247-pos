@@ -7,6 +7,7 @@ import { useAuth } from '../../../../context/AuthProvider';
 import { useApp } from '../../../../context/AppProvider';
 import { useIsEBN } from '../../../../hooks/useMediaQuery';
 import salesService from '../../../../services/sales.service';
+import serviceOrderService from '../../../../services/service-order.service';
 import { usePrintReceipt } from '../../../../hooks/usePrintReceipt';
 import { generateReferenceNumber, formatCurrency } from '../../../../utils';
 import { DEFAULT_SEED_KEY } from '../../../../constants';
@@ -27,6 +28,8 @@ import { DesktopProcessingView, TransactionSuccessModal, ProcessingStep } from '
 const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
     isOpen,
     onClose,
+    serviceOrderId,
+    onServiceOrderSaleComplete,
 }) => {
     const {
         discount,
@@ -150,6 +153,7 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
                 customerId: selectedCustomer?.customerId !== 'walk-in' && selectedCustomer?.customerId !== DEFAULT_SEED_KEY
                     ? selectedCustomer?.customerId
                     : undefined,
+                serviceOrderId: serviceOrderId || undefined,
 
                 amountPaid: totalPaid,
                 paymentMethodId: paymentEntries[0].paymentMethodId,
@@ -205,6 +209,19 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
                 includeLogo: settings?.showStoreLogo || false,
             });
 
+            // Record payment against service order if linked
+            if (serviceOrderId) {
+                try {
+                    await serviceOrderService.recordPayment(serviceOrderId, paymentEntries.map(p => ({
+                        paymentMethodId: p.paymentMethodId,
+                        amount: p.amount,
+                    })));
+                } catch {
+                    // Non-blocking: sale already completed, just log
+                    console.warn('Failed to record payment on service order');
+                }
+            }
+
             // Step 4: Completed - Show success modal immediately (don't wait for print)
             setProcessingStep('completed');
             await simulateDelay(300);
@@ -232,6 +249,9 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
         clearCart();
         reloadInventory();
         setProcessing(false);
+        if (serviceOrderId) {
+            onServiceOrderSaleComplete?.();
+        }
         onClose();
     };
 

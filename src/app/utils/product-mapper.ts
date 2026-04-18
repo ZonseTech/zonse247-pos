@@ -75,3 +75,43 @@ export function mapSearchResultToInventoryItem(searchResult: SearchProductResult
     }
     return mapProductToInventoryItem(searchResult.product);
 }
+
+/**
+ * Maps a Service entity (from /services API) to InventoryItem format
+ * so it can be displayed in the POS catalog and added to the cart.
+ */
+export function mapServiceToInventoryItem(service: Service): InventoryItem {
+    return {
+        id: service.id,
+        productId: service.id,
+        branchId: service.branchId,
+        tenantId: service.tenantId,
+        categoryId: service.categoryId || undefined,
+        name: service.name,
+        displayName: service.name,
+        description: service.description || undefined,
+        sku: service.sku || undefined,
+        sellingPrice: service.basePrice ?? 0,
+        costPrice: 0,
+        quantity: '0',
+        availableQuantity: 0,
+        trackInventory: false,
+        isTaxable: service.isTaxable,
+        isActive: service.isActive,
+        isDefault: false,
+        status: service.isActive ? 'ACTIVE' : 'INACTIVE',
+        imageUrl: service.imageUrl || undefined,
+        categoryDetails: service.category
+            ? { categoryId: service.category.categoryId, name: service.category.name }
+            : undefined,
+        createdAt: service.createdAt,
+        updatedAt: service.updatedAt,
+    } as InventoryItem;
+}
+
+/**
+ * Maps an array of Service entities to InventoryItem array
+ */
+export function mapServicesToInventoryItems(services: Service[]): InventoryItem[] {
+    return services.map(mapServiceToInventoryItem);
+}

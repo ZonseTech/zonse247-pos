@@ -16,7 +16,7 @@ interface ItemLookupModalProps {
     onClose: () => void;
     inventory: InventoryItem[];
     onAddToCart: (item: InventoryItem) => void;
-    barcodeScannerInputRef: React.RefObject<HTMLInputElement>;
+    barcodeScannerInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({

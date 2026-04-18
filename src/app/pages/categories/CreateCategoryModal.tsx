@@ -119,6 +119,10 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
                 const response = await categoriesService.store(values);
                 const createdCategory = response?.data || response;
 
+                // Close the Radix Dialog first so its focus trap
+                // does not block clicks on the Notiflix Confirm buttons
+                setIsOpenForm(false);
+
                 const diagOptions = {
                     title: "Category Created Successfully",
                     text: "Your category has been saved. What would you like to do next?",
@@ -134,9 +138,9 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
                     () => {
                         resetForm();
                         setCategoryValues({ categoryId: '', name: '', description: '', color: '#06B6D4', isDefault: false });
+                        setIsOpenForm(true);
                     },
                     () => {
-                        setIsOpenForm(false);
                         if (onClose) {
                             onClose();
                         }

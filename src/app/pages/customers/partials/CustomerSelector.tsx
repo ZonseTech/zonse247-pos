@@ -1,6 +1,7 @@
 import { Fragment, FunctionComponent, useState, useEffect, useMemo, ReactNode } from 'react';
 import { HiOutlineUser, HiOutlineUserGroup, HiOutlinePlus, HiOutlineSearch, HiOutlineUserCircle } from 'react-icons/hi';
 import { useInventory } from '../../../hooks/useInventory';
+import { useAppSelector } from '../../../hooks/redux';
 import { Modal } from '../../../components';
 import CustomerModal from './CustomerModal';
 
@@ -11,27 +12,17 @@ interface CustomerSelectorProps {
 
 const CustomerSelector: FunctionComponent<CustomerSelectorProps> = ({ compact = false, trigger }) => {
     const { customers, selectedCustomer, setSelectedCustomer, fetchCustomers } = useInventory();
+    const customersLoading = useAppSelector((state) => state.customers.loading);
     const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
     const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
 
     const defaultCustomer = useMemo(() => {
         return customers.find((customer) => customer.isDefault) || null;
     }, [customers]);
 
-    useEffect(() => {
-        const loadCustomers = async () => {
-            setIsLoading(true);
-            try {
-                await fetchCustomers();
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        loadCustomers();
-    }, []);
-
+    // Auto-select default customer when customers are loaded (no API call here —
+    // DataManager already loads customers at app bootstrap)
     useEffect(() => {
         if (!selectedCustomer && defaultCustomer) {
             setSelectedCustomer(defaultCustomer);
@@ -76,10 +67,10 @@ const CustomerSelector: FunctionComponent<CustomerSelectorProps> = ({ compact = 
                         <HiOutlineUserGroup className={compact ? 'w-3 h-3' : 'w-4 h-4'} />
                     )}
                     <span className="hidden md:inline">
-                        {isLoading ? 'Loading...' : (selectedCustomer?.name || 'Select Customer')}
+                        {customersLoading ? 'Loading...' : (selectedCustomer?.name || 'Select Customer')}
                     </span>
                     <span className="md:hidden">
-                        {isLoading ? '...' : (selectedCustomer?.isDefault ? selectedCustomer?.name?.split(' ')[0] : selectedCustomer?.name?.split(' ')[0] || 'Customer')}
+                        {customersLoading ? '...' : (selectedCustomer?.isDefault ? selectedCustomer?.name?.split(' ')[0] : selectedCustomer?.name?.split(' ')[0] || 'Customer')}
                     </span>
                 </button>
             )}
@@ -141,7 +132,7 @@ const CustomerSelector: FunctionComponent<CustomerSelectorProps> = ({ compact = 
                     </button>
 
                     <div className="max-h-96 overflow-y-auto space-y-2">
-                        {isLoading ? (
+                        {customersLoading ? (
                             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                                 <div className="animate-spin w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full mx-auto mb-2"></div>
                                 <p>Loading customers...</p>

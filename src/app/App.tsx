@@ -92,7 +92,7 @@ const App: FunctionComponent = () => {
                                                         onComplete={handleOnboardingComplete}
                                                         error={saveError}
                                                     />
-                                                ) : <AppRoutes appSettings={setup} />}
+                                                ) : <AppRoutes appSettings={setup!} />}
                                             </Suspense>
                                         </HashRouter>
                                         <ToastContainer />

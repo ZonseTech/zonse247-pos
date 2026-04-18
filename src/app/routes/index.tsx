@@ -25,6 +25,9 @@ import {
 	SystemRoutes,
 	ErrorRoutes,
 	AccountInfoRoutes,
+	ServiceOrderRoutes,
+	ServiceRoutes,
+	LoyaltyRoutes,
 } from './config'
 
 const ProtectedLayoutWithAuth = withProtectedRoute(ProtectedLayout)
@@ -59,6 +62,9 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 
 					{SystemRoutes}
 					{AccountInfoRoutes}
+					{ServiceOrderRoutes}
+					{ServiceRoutes}
+					{LoyaltyRoutes}
 
 					<Route path="*" element={<Navigate to="/not-found" />} />
 				</Route>

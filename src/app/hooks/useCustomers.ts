@@ -16,6 +16,11 @@ interface UseCustomersReturn {
     totalRows: number;
     handlePageChange: (page: number) => void;
     handlePerRowsChange: (newPerPage: number, page: number) => void;
+    nextPage: () => void;
+    prevPage: () => void;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+    pageLabel: string;
     deleteCustomer: (customerId: string) => Promise<void>;
     refreshCustomers: () => Promise<void>;
 }
@@ -29,6 +34,7 @@ export const useCustomers = (): UseCustomersReturn => {
     const {
         page, setPage, perPage, setPerPage, totalRows, setTotalRows,
         handlePageChange, handlePerRowsChange,
+        nextPage, prevPage, hasNextPage, hasPrevPage, pageLabel,
     } = usePagination();
 
     const loadCustomers = useCallback(async () => {
@@ -88,6 +94,11 @@ export const useCustomers = (): UseCustomersReturn => {
         totalRows,
         handlePageChange,
         handlePerRowsChange,
+        nextPage,
+        prevPage,
+        hasNextPage,
+        hasPrevPage,
+        pageLabel,
         deleteCustomer,
         refreshCustomers,
     };

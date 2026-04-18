@@ -27,8 +27,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
 
     menu: {
-        rebuild: (user: User) =>
-            ipcRenderer.invoke('menu:rebuild', user),
+        rebuild: (user: User, businessType?: BusinessType | null) =>
+            ipcRenderer.invoke('menu:rebuild', user, businessType),
         onNavigate: (callback: (route: string) => void) => {
             const listener = (_event: any, route: string) => callback(route);
             ipcRenderer.on('menu-navigate', listener);

@@ -19,6 +19,10 @@ export interface PaymentEntryState {
 export interface MultiplePaymentModalProps {
     isOpen: boolean;
     onClose: () => void;
+    /** When checking out a completed service order, link the sale to it */
+    serviceOrderId?: string;
+    /** Called after a successful sale linked to a service order */
+    onServiceOrderSaleComplete?: () => void;
 }
 
 export interface PaymentSummaryProps {

@@ -1,22 +1,24 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { useAuth } from '../context/AuthProvider';
+import { useBranch } from '../context/BranchContext';
 import { ROUTES } from '../utils/constants';
 
 export function useMenuHandler() {
     const navigate = useNavigate();
     const location = useLocation();
     const { signout, user } = useAuth();
+    const { currentBranch } = useBranch();
 
     useEffect(() => {
         if (!window.electronAPI?.menu) return;
 
         if (user) {
-            window.electronAPI.menu.rebuild(user);
+            window.electronAPI.menu.rebuild(user, currentBranch?.businessType ?? null);
         } else {
             window.electronAPI.menu.rebuild(null);
         }
-    }, [user]);
+    }, [user, currentBranch?.businessType]);
 
     useEffect(() => {
         if (!window.electronAPI?.menu) return;
