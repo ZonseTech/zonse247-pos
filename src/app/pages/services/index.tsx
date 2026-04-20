@@ -9,10 +9,9 @@ import PageHeader from '../../components/page/PageHeader';
 import MobilePageHeader from '../../components/page/MobilePageHeader';
 import TableSkeleton from '../../components/skeleton/TableSkeleton';
 import TableEmptyState from '../../components/TableEmptyState';
-import { ZonseThemeContext, SummaryCards } from '../../components';
+import { ZonseThemeContext } from '../../components';
 import { getTableStyles } from '../../utils/table-styles';
 import { useServices } from '../../hooks/useServices';
-import { useServiceSummary } from '../../hooks/useServiceSummary';
 import { getServiceTableColumns } from './partials/ServiceTableColumns';
 import { ServiceMobileList } from './partials/ServiceMobileCard';
 import ServiceToolbar from './partials/ServiceToolbar';
@@ -51,12 +50,6 @@ const Services: FC = () => {
         deleteService,
     } = useServices({ limit: 50 });
 
-    const { isLoading: isLoadingSummary, getSummaryCards, loadSummary } = useServiceSummary({
-        statusFilter,
-        pricingTypeFilter,
-        categoryFilter,
-    });
-
     // ─── Handlers ─────────────────────────────────────────────────────
     const handleEdit = useCallback(
         (service: Service) => navigate(ROUTES.SERVICE_FORM, { state: { serviceId: service.id } }),
@@ -74,7 +67,6 @@ const Services: FC = () => {
                     try {
                         await deleteService(service.id);
                         Notify.success('Service deleted successfully');
-                        loadSummary();
                     } catch (error: any) {
                         Notify.failure(getErrorMessage(error, 'Failed to delete service'));
                     }
@@ -83,7 +75,7 @@ const Services: FC = () => {
                 { okButtonBackground: '#ef4444', titleColor: '#ef4444' },
             );
         },
-        [deleteService, loadSummary],
+        [deleteService],
     );
 
     const handleToggleStatus = useCallback(
@@ -103,7 +95,6 @@ const Services: FC = () => {
                         Notify.success(`Service ${action}d`);
                         // Trigger reload
                         clearFilters();
-                        loadSummary();
                     } catch (error: any) {
                         Notify.failure(getErrorMessage(error, `Failed to ${action} service`));
                     }
@@ -115,7 +106,7 @@ const Services: FC = () => {
                 },
             );
         },
-        [clearFilters, loadSummary],
+        [clearFilters],
     );
 
     const columns = useMemo(
@@ -183,11 +174,6 @@ const Services: FC = () => {
                         onCategoryChange={setCategoryFilter}
                     />
                 )}
-
-                {/* Summary cards */}
-                <Box px={{ initial: '2', sm: '4' }} py="3">
-                    <SummaryCards cards={getSummaryCards()} isLoading={isLoadingSummary} skeletonCount={4} />
-                </Box>
 
                 {/* Content */}
                 {isMobile ? (

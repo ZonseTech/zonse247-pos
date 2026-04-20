@@ -14,6 +14,7 @@ import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useInventory } from '../../../hooks/useInventory';
 import { useAuth } from '../../../context/AuthProvider';
 import { useApp } from '../../../context/AppProvider';
+import useBusinessFeatures from '../../../hooks/useBusinessFeatures';
 import salesService from '../../../services/sales.service';
 import serviceOrderService from '../../../services/service-order.service';
 import { usePrintReceipt } from '../../../hooks/usePrintReceipt';
@@ -84,6 +85,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
 
     const { user } = useAuth()
     const { settings, printerOptions } = useApp()
+    const { showRetail } = useBusinessFeatures();
     const isEBN = useIsEBN();
 
     // Use optimized fire-and-forget printing hook
@@ -196,99 +198,137 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
             const calculatedTaxAmount = (taxableAmount * tax) / 100;
 
             const refNumber = generateReferenceNumber()
-            const salePayload: CreateSalePayload = {
-                tenantId: user!.tenantId,
-                branchId: user!.currentBranchId || user!.branchId,
-                userId: user!.userId,
-                terminalId: (settings as any)?.terminalId || 'default',
-                customerId: selectedCustomer?.customerId !== 'walk-in' && selectedCustomer?.customerId !== DEFAULT_SEED_KEY
-                    ? selectedCustomer?.customerId
-                    : undefined,
-                serviceOrderId: serviceOrderId || undefined,
-                amountPaid: values.cashTendered ? parseFloat(values.cashTendered) : effectiveTotal,
-                paymentMethodId: values.paymentMethodId,
-                subtotal,
-                taxAmount: calculatedTaxAmount,
-                discountAmount: calculatedDiscountAmount,
-                totalAmount: effectiveTotal,
-                otherCharges: otherCharges.length > 0 ? otherCharges.map(charge => ({
-                    type: charge.type,
-                    label: charge.label,
-                    value: charge.value,
-                    isPercentage: charge.isPercentage,
-                    amount: charge.isPercentage ? (subtotal * charge.value) / 100 : charge.value,
-                })) : undefined,
-                items: cart.map(item => {
-                    const itemPrice = item.quantity === 0 ? item.sellingPrice : item.sellingPrice * item.quantity;
-                    const itemQty = item.quantity === 0 ? 1 : item.quantity;
-                    const itemDiscountAmount = item.discountIsPercentage
-                        ? (itemPrice * (item.discount || 0)) / 100
-                        : (item.discount || 0) * itemQty;
-                    return {
-                        variantId: (item.variantId || item.productId)!, // Use variantId for API v1.6.0+
-                        productId: item.productId,
-                        quantity: itemQty,
-                        unitPrice: item.sellingPrice,
-                        taxAmount: 0,
-                        discountAmount: itemDiscountAmount,
-                    };
-                }),
-                notes: values.transactionId ? `Ref: ${values.transactionId}` : undefined,
-            };
 
-            const sale = await salesService.store(salePayload);
+            // For non-retail business with service order, use service order payment endpoint directly
+            // For retail, create a sale via /v1/sales endpoint
+            if (!showRetail && serviceOrderId) {
+                // Non-retail: POST /v1/service-orders/{id}/payments
+                const serviceOrderResult = await serviceOrderService.recordPayment(serviceOrderId, [{
+                    paymentMethodId: values.paymentMethodId,
+                    amount: values.cashTendered ? parseFloat(values.cashTendered) : effectiveTotal,
+                }]);
 
-            // Redeem loyalty points if applicable (link to sale)
-            if (loyaltyMemberId && loyaltyRedeemPoints > 0) {
-                try {
-                    await loyaltyService.redeemPoints(loyaltyMemberId, {
-                        points: loyaltyRedeemPoints,
-                        saleId: sale.id,
-                        description: 'Redeemed at checkout',
+                const saleChangeAmount = values.cashTendered ? Math.max(0, parseFloat(values.cashTendered) - effectiveTotal) : 0;
+
+                // Step 3: Printing
+                setProcessingStep('printing');
+                // For service orders, we may not have a sale ID, so skip printing if not available
+                if ((serviceOrderResult as any)?.saleId) {
+                    printReceipt((serviceOrderResult as any).saleId, {
+                        copies: settings?.receiptCopies || 1,
+                        includeHeader: true,
+                        includeFooter: true,
+                        includeLogo: settings?.showStoreLogo || false,
                     });
-                } catch {
-                    console.warn('Failed to redeem loyalty points — sale already completed');
                 }
-            }
 
-            const saleRefNumber = (sale as any).saleNumber || refNumber;
-            const saleChangeAmount = sale.changeAmount || (values.cashTendered ? Math.max(0, parseFloat(values.cashTendered) - effectiveTotal) : 0);
+                // Step 4: Completed
+                setProcessingStep('completed');
+                await simulateDelay(300);
 
-            // Step 3: Printing (Fire-and-forget - doesn't block UI)
-            // Uses cached receipt settings for fast printing
-            setProcessingStep('printing');
-            printReceipt(sale.id, {
-                copies: settings?.receiptCopies || 1,
-                includeHeader: true,
-                includeFooter: true,
-                includeLogo: settings?.showStoreLogo || false,
-            });
+                setProcessingStep(null);
+                setSuccessData({
+                    total: effectiveTotal,
+                    changeAmount: saleChangeAmount,
+                    refNumber: (serviceOrderResult as any)?.orderNumber || refNumber,
+                });
+                setShowSuccessModal(true);
+            } else {
+                // Retail: POST /v1/sales
+                const salePayload: CreateSalePayload = {
+                    tenantId: user!.tenantId,
+                    branchId: user!.currentBranchId || user!.branchId,
+                    userId: user!.userId,
+                    terminalId: (settings as any)?.terminalId || 'default',
+                    customerId: selectedCustomer?.customerId !== 'walk-in' && selectedCustomer?.customerId !== DEFAULT_SEED_KEY
+                        ? selectedCustomer?.customerId
+                        : undefined,
+                    serviceOrderId: serviceOrderId || undefined,
+                    amountPaid: values.cashTendered ? parseFloat(values.cashTendered) : effectiveTotal,
+                    paymentMethodId: values.paymentMethodId,
+                    subtotal,
+                    taxAmount: calculatedTaxAmount,
+                    discountAmount: calculatedDiscountAmount,
+                    totalAmount: effectiveTotal,
+                    otherCharges: otherCharges.length > 0 ? otherCharges.map(charge => ({
+                        type: charge.type,
+                        label: charge.label,
+                        value: charge.value,
+                        isPercentage: charge.isPercentage,
+                        amount: charge.isPercentage ? (subtotal * charge.value) / 100 : charge.value,
+                    })) : undefined,
+                    items: cart.map(item => {
+                        const itemPrice = item.quantity === 0 ? item.sellingPrice : item.sellingPrice * item.quantity;
+                        const itemQty = item.quantity === 0 ? 1 : item.quantity;
+                        const itemDiscountAmount = item.discountIsPercentage
+                            ? (itemPrice * (item.discount || 0)) / 100
+                            : (item.discount || 0) * itemQty;
+                        return {
+                            variantId: (item.variantId || item.productId)!, // Use variantId for API v1.6.0+
+                            productId: item.productId,
+                            quantity: itemQty,
+                            unitPrice: item.sellingPrice,
+                            taxAmount: 0,
+                            discountAmount: itemDiscountAmount,
+                        };
+                    }),
+                    notes: values.transactionId ? `Ref: ${values.transactionId}` : undefined,
+                };
 
-            // Record payment against service order if linked
-            if (serviceOrderId) {
-                try {
-                    await serviceOrderService.recordPayment(serviceOrderId, [{
-                        paymentMethodId: values.paymentMethodId,
-                        amount: values.cashTendered ? parseFloat(values.cashTendered) : total,
-                    }]);
-                } catch {
-                    // Non-blocking: sale already completed, just log
-                    console.warn('Failed to record payment on service order');
+                const sale = await salesService.store(salePayload);
+
+                // Redeem loyalty points if applicable (link to sale)
+                if (loyaltyMemberId && loyaltyRedeemPoints > 0) {
+                    try {
+                        await loyaltyService.redeemPoints(loyaltyMemberId, {
+                            points: loyaltyRedeemPoints,
+                            saleId: sale.id,
+                            description: 'Redeemed at checkout',
+                        });
+                    } catch {
+                        console.warn('Failed to redeem loyalty points — sale already completed');
+                    }
                 }
+
+                const saleRefNumber = (sale as any).saleNumber || refNumber;
+                const saleChangeAmount = sale.changeAmount || (values.cashTendered ? Math.max(0, parseFloat(values.cashTendered) - effectiveTotal) : 0);
+
+                // Step 3: Printing (Fire-and-forget - doesn't block UI)
+                // Uses cached receipt settings for fast printing
+                setProcessingStep('printing');
+                printReceipt(sale.id, {
+                    copies: settings?.receiptCopies || 1,
+                    includeHeader: true,
+                    includeFooter: true,
+                    includeLogo: settings?.showStoreLogo || false,
+                });
+
+                // Record payment against service order if linked (for retail with service order)
+                if (serviceOrderId) {
+                    try {
+                        await serviceOrderService.recordPayment(serviceOrderId, [{
+                            paymentMethodId: values.paymentMethodId,
+                            amount: values.cashTendered ? parseFloat(values.cashTendered) : total,
+                        }]);
+                    } catch {
+                        // Non-blocking: sale already completed, just log
+                        console.warn('Failed to record payment on service order');
+                    }
+                }
+
+                // Step 4: Completed - Show success modal immediately (don't wait for print)
+                setProcessingStep('completed');
+                await simulateDelay(300);
+
+                setProcessingStep(null);
+                setSuccessData({
+                    total: (sale as any).totalAmount || effectiveTotal,
+                    changeAmount: saleChangeAmount,
+                    refNumber: saleRefNumber,
+                    loyaltyPointsEarned: sale.loyalty?.pointsEarned,
+                });
+                setShowSuccessModal(true);
             }
-
-            // Step 4: Completed - Show success modal immediately (don't wait for print)
-            setProcessingStep('completed');
-            await simulateDelay(300);
-
-            setProcessingStep(null);
-            setSuccessData({
-                total: (sale as any).totalAmount || effectiveTotal,
-                changeAmount: saleChangeAmount,
-                refNumber: saleRefNumber,
-                loyaltyPointsEarned: sale.loyalty?.pointsEarned,
-            });
-            setShowSuccessModal(true);
 
         } catch (error: any) {
             setProcessing(false);

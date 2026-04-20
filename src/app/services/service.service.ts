@@ -37,19 +37,6 @@ const serviceService = {
     async delete(id: string): Promise<void> {
         await api.delete(`${BASE}/${id}`);
     },
-
-    async summary(query: ServiceSummaryQuery = {}): Promise<ServiceSummary> {
-        const params: Record<string, any> = {};
-        Object.keys(query).forEach((key) => {
-            const value = (query as any)[key];
-            if (value !== undefined && value !== null && value !== '') {
-                params[key] = value;
-            }
-        });
-        return api
-            .get<ApiResponse<ServiceSummary>>(`${BASE}/summary`, params)
-            .then((res) => res.data.data);
-    },
 };
 
 export default serviceService;

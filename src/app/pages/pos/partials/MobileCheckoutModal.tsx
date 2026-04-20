@@ -6,7 +6,9 @@ import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useInventory } from '../../../hooks/useInventory';
 import { useAuth } from '../../../context/AuthProvider';
 import { useApp } from '../../../context/AppProvider';
+import useBusinessFeatures from '../../../hooks/useBusinessFeatures';
 import salesService from '../../../services/sales.service';
+import serviceOrderService from '../../../services/service-order.service';
 import { usePrintReceipt } from '../../../hooks/usePrintReceipt';
 import { generateReferenceNumber } from '../../../utils';
 import { DEFAULT_SEED_KEY } from '../../../constants';
@@ -19,6 +21,10 @@ interface MobileCheckoutModalProps {
     onClose: () => void;
     focusManager: ReturnType<typeof useFocusManager>;
     paymentMethodId: typeof CHECKOUT[keyof typeof CHECKOUT];
+    /** When checking out a completed service order, link the sale to it */
+    serviceOrderId?: string;
+    /** Called after a successful sale linked to a service order */
+    onServiceOrderSaleComplete?: () => void;
 }
 
 export const CHECKOUT = {
@@ -44,7 +50,9 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
     isOpen,
     onClose,
     paymentMethodId,
-    focusManager
+    focusManager,
+    serviceOrderId,
+    onServiceOrderSaleComplete,
 }) => {
     const navigate = useNavigate();
     const {
@@ -62,6 +70,7 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
 
     const { user } = useAuth();
     const { settings } = useApp();
+    const { showRetail } = useBusinessFeatures();
 
     // Use optimized fire-and-forget printing hook
     const { printReceipt } = usePrintReceipt();
@@ -147,85 +156,147 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
             const calculatedTaxAmount = (taxableAmount * tax) / 100;
 
             const refNumber = generateReferenceNumber();
-            const salePayload: CreateSalePayload = {
-                tenantId: user.tenantId,
-                branchId: user.currentBranchId || user.branchId,
-                userId: user.userId,
-                terminalId: (settings as any)?.terminalId || 'default',
-                customerId: selectedCustomer?.customerId !== 'walk-in' && selectedCustomer?.customerId !== DEFAULT_SEED_KEY
-                    ? selectedCustomer?.customerId
-                    : undefined,
-                amountPaid: values.cashTendered ? parseFloat(values.cashTendered) : total,
-                paymentMethodId: values.paymentMethodId,
-                subtotal,
-                taxAmount: calculatedTaxAmount,
-                discountAmount: calculatedDiscountAmount,
-                totalAmount: total,
-                otherCharges: otherCharges.length > 0 ? otherCharges.map(charge => ({
-                    type: charge.type,
-                    label: charge.label,
-                    value: charge.value,
-                    isPercentage: charge.isPercentage,
-                    amount: charge.isPercentage ? (subtotal * charge.value) / 100 : charge.value,
-                })) : undefined,
-                items: cart.map(item => {
-                    const itemPrice = item.quantity === 0 ? item.sellingPrice : item.sellingPrice * item.quantity;
-                    const itemQty = item.quantity === 0 ? 1 : item.quantity;
-                    const itemDiscountAmount = item.discountIsPercentage
-                        ? (itemPrice * (item.discount || 0)) / 100
-                        : (item.discount || 0) * itemQty;
-                    return {
-                        variantId: item.variantId || item.productId, // Use variantId for API v1.6.0+
-                        productId: item.productId,
-                        quantity: itemQty,
-                        unitPrice: item.sellingPrice,
-                        taxAmount: 0,
-                        discountAmount: itemDiscountAmount,
-                    };
-                }),
-                notes: values.transactionId ? `Ref: ${values.transactionId}` : undefined,
-            };
 
-            const sale = await salesService.store(salePayload);
+            // For non-retail business with service order, use service order payment endpoint directly
+            // For retail, create a sale via /v1/sales endpoint
+            if (!showRetail && serviceOrderId) {
+                // Non-retail: POST /v1/service-orders/{id}/payments
+                const serviceOrderResult = await serviceOrderService.recordPayment(serviceOrderId, [{
+                    paymentMethodId: values.paymentMethodId,
+                    amount: values.cashTendered ? parseFloat(values.cashTendered) : total,
+                }]);
 
-            const saleDate = typeof sale.createdAt === 'string'
-                ? sale.createdAt
-                : sale.createdAt?.toISOString?.() || new Date().toISOString();
+                const calculatedChange = values.cashTendered
+                    ? Math.max(0, parseFloat(values.cashTendered) - total)
+                    : 0;
 
-            const calculatedChange = values.cashTendered
-                ? Math.max(0, parseFloat(values.cashTendered) - total)
-                : 0;
+                const completedSaleData = {
+                    id: (serviceOrderResult as any)?.id || serviceOrderId,
+                    refNumber: (serviceOrderResult as any)?.orderNumber || refNumber,
+                    transactionId: serviceOrderId,
+                    total: total,
+                    paid: values.cashTendered ? parseFloat(values.cashTendered) : total,
+                    changeAmount: calculatedChange,
+                    date: new Date().toISOString(),
+                    discount,
+                    subtotal,
+                    tax,
+                    phoneNumber: values.phoneNumber,
+                    userId: user!.userId,
+                    terminalId: (settings as any)?.terminalId || 'default',
+                    paymentMethodId: values.paymentMethodId,
+                    items: cart,
+                    user: user || undefined,
+                    customer: selectedCustomer || undefined,
+                    status: 'COMPLETED' as const,
+                };
 
-            const completedSaleData = {
-                id: sale.id,
-                refNumber: (sale as any).saleNumber || refNumber,
-                transactionId: sale.id,
-                total: (sale as any).totalAmount || total,
-                paid: (sale as any).amountPaid || (values.cashTendered ? parseFloat(values.cashTendered) : total),
-                changeAmount: sale.changeAmount || calculatedChange,
-                date: saleDate,
-                discount,
-                subtotal,
-                tax,
-                phoneNumber: values.phoneNumber,
-                userId: user.userId,
-                terminalId: (settings as any)?.terminalId || 'default',
-                paymentMethodId: values.paymentMethodId,
-                items: cart,
-                user,
-                customer: selectedCustomer,
-                status: sale.status || 'COMPLETED',
-            };
+                setChangeAmount(calculatedChange);
+                setCompletedSale(completedSaleData);
 
-            setChangeAmount(calculatedChange);
-            setCompletedSale(completedSaleData);
+                // Fire-and-forget printing (doesn't block UI)
+                setProcessingStep('printing');
+                if ((serviceOrderResult as any)?.saleId) {
+                    printReceipt((serviceOrderResult as any).saleId);
+                }
 
-            // Fire-and-forget printing (doesn't block UI)
-            // Uses cached receipt settings for fast printing
-            setProcessingStep('printing');
-            printReceipt(sale.id);
+                setProcessingStep('completed');
+            } else {
+                // Retail: POST /v1/sales
+                const salePayload: CreateSalePayload = {
+                    tenantId: user!.tenantId,
+                    branchId: user!.currentBranchId || user!.branchId,
+                    userId: user!.userId,
+                    terminalId: (settings as any)?.terminalId || 'default',
+                    customerId: selectedCustomer?.customerId !== 'walk-in' && selectedCustomer?.customerId !== DEFAULT_SEED_KEY
+                        ? selectedCustomer?.customerId
+                        : undefined,
+                    serviceOrderId: serviceOrderId || undefined,
+                    amountPaid: values.cashTendered ? parseFloat(values.cashTendered) : total,
+                    paymentMethodId: values.paymentMethodId,
+                    subtotal,
+                    taxAmount: calculatedTaxAmount,
+                    discountAmount: calculatedDiscountAmount,
+                    totalAmount: total,
+                    otherCharges: otherCharges.length > 0 ? otherCharges.map(charge => ({
+                        type: charge.type,
+                        label: charge.label,
+                        value: charge.value,
+                        isPercentage: charge.isPercentage,
+                        amount: charge.isPercentage ? (subtotal * charge.value) / 100 : charge.value,
+                    })) : undefined,
+                    items: cart.map(item => {
+                        const itemPrice = item.quantity === 0 ? item.sellingPrice : item.sellingPrice * item.quantity;
+                        const itemQty = item.quantity === 0 ? 1 : item.quantity;
+                        const itemDiscountAmount = item.discountIsPercentage
+                            ? (itemPrice * (item.discount || 0)) / 100
+                            : (item.discount || 0) * itemQty;
+                        return {
+                            variantId: (item.variantId || item.productId)!, // Use variantId for API v1.6.0+
+                            productId: item.productId,
+                            quantity: itemQty,
+                            unitPrice: item.sellingPrice,
+                            taxAmount: 0,
+                            discountAmount: itemDiscountAmount,
+                        };
+                    }),
+                    notes: values.transactionId ? `Ref: ${values.transactionId}` : undefined,
+                };
 
-            setProcessingStep('completed');
+                const sale = await salesService.store(salePayload);
+
+                const saleDate = typeof sale.createdAt === 'string'
+                    ? sale.createdAt
+                    : sale.createdAt?.toISOString?.() || new Date().toISOString();
+
+                const calculatedChange = values.cashTendered
+                    ? Math.max(0, parseFloat(values.cashTendered) - total)
+                    : 0;
+
+                const completedSaleData = {
+                    id: sale.id,
+                    refNumber: (sale as any).saleNumber || refNumber,
+                    transactionId: sale.id,
+                    total: (sale as any).totalAmount || total,
+                    paid: (sale as any).amountPaid || (values.cashTendered ? parseFloat(values.cashTendered) : total),
+                    changeAmount: sale.changeAmount || calculatedChange,
+                    date: saleDate,
+                    discount,
+                    subtotal,
+                    tax,
+                    phoneNumber: values.phoneNumber,
+                    userId: user!.userId,
+                    terminalId: (settings as any)?.terminalId || 'default',
+                    paymentMethodId: values.paymentMethodId,
+                    items: cart,
+                    user: user || undefined,
+                    customer: selectedCustomer || undefined,
+                    status: sale.status || ('COMPLETED' as const),
+                };
+
+                setChangeAmount(calculatedChange);
+                setCompletedSale(completedSaleData);
+
+                // Fire-and-forget printing (doesn't block UI)
+                // Uses cached receipt settings for fast printing
+                setProcessingStep('printing');
+                printReceipt(sale.id);
+
+                // Record payment against service order if linked (for retail with service order)
+                if (serviceOrderId) {
+                    try {
+                        await serviceOrderService.recordPayment(serviceOrderId, [{
+                            paymentMethodId: values.paymentMethodId,
+                            amount: values.cashTendered ? parseFloat(values.cashTendered) : total,
+                        }]);
+                    } catch {
+                        // Non-blocking: sale already completed, just log
+                        console.warn('Failed to record payment on service order');
+                    }
+                }
+
+                setProcessingStep('completed');
+            }
 
         } catch (error: any) {
             setProcessing(false);
@@ -253,6 +324,9 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
         reloadInventory();
         setProcessing(false);
         focusManager.clearFocus();
+        if (serviceOrderId) {
+            onServiceOrderSaleComplete?.();
+        }
         onClose();
     };
 
@@ -265,7 +339,9 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
 
         handleNewTransaction()
 
-        navigate(ROUTES.SALE_DETAILS.replace(':saleId', saleId));
+        if (ROUTES.SALE_DETAILS && saleId) {
+            navigate(ROUTES.SALE_DETAILS.replace(':saleId', saleId));
+        }
     };
 
     if (!isOpen) return null;

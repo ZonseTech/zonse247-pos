@@ -82,41 +82,6 @@ interface ServiceListResponse {
     };
 }
 
-// ─── Service Summary ─────────────────────────────────────────────────────────
-
-interface ServiceSummaryQuery {
-    categoryId?: string;
-    isActive?: 'true' | 'false';
-    pricingType?: ServicePricingType;
-}
-
-interface ServiceSummary {
-    totalServices: number;
-    activeServices: number;
-    inactiveServices: number;
-    pricing: {
-        averagePrice: number;
-        highestPrice: number;
-        lowestPrice: number;
-        servicesWithNoPrice: number;
-    };
-    byPricingType: Array<{
-        pricingType: ServicePricingType;
-        count: number;
-    }>;
-    byCategory: Array<{
-        categoryId: string | null;
-        categoryName: string;
-        count: number;
-    }>;
-    duration: {
-        averageDurationMin: number;
-        shortestDurationMin: number;
-        longestDurationMin: number;
-        servicesWithNoDuration: number;
-    };
-}
-
 // ─── Staff ───────────────────────────────────────────────────────────────────
 
 type EmploymentStatus = 'ACTIVE' | 'ON_LEAVE' | 'SUSPENDED' | 'TERMINATED' | 'RESIGNED';
@@ -330,7 +295,7 @@ interface ServiceOrderWithItems {
 // ─── Query types ──────────────────────────────────────────────────────────────
 
 interface ServiceOrderListQuery {
-    status?: ServiceOrderStatus;
+    status?: ServiceOrderStatus | ServiceOrderStatus[];
     customerId?: string;
     search?: string;
     paymentMethodId?: string;

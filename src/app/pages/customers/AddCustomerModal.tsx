@@ -8,19 +8,22 @@ import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { Notify } from 'notiflix';
 import customerSerive from '../../services/customers.service';
+import { useAuth } from '../../context/AuthProvider';
 
 type Props = {
     handleSelectedCustomer: (customer: Customer) => void
 }
 
 const AddCustomerModal: FunctionComponent<PropsWithChildren<Props>> = ({ handleSelectedCustomer }) => {
+    const { user, activeBranchId } = useAuth();
     const [isOpenForm, setIsOpenForm] = useState(false);
 
+    // Use auth context for tenant-scoped customer creation
     const initialCustomerValues: Customer = {
         customerId: '',
-        tenantId: '',
-        branchId: '',
-        userId: '',
+        tenantId: user?.tenantId || '',
+        branchId: activeBranchId || user?.branchId || '',
+        userId: user?.userId || '',
         name: '',
         phone: '',
         email: '',

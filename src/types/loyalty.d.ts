@@ -2,6 +2,7 @@
 
 interface LoyaltyProgram {
     loyaltyProgramId: string;
+    tenantId: string;  // Tenant-scoped loyalty program
     name: string;
     description?: string;
     pointsPerCurrency: number;
@@ -73,6 +74,7 @@ interface UpdateLoyaltyTierInput {
 
 interface LoyaltyMember {
     loyaltyMemberId: string;
+    tenantId: string;  // Tenant-scoped membership (inherited from customer)
     membershipNumber: string;
     availablePoints: number;
     lifetimePoints: number;
@@ -81,6 +83,7 @@ interface LoyaltyMember {
     enrolledAt: Date | string;
     customer: {
         customerId: string;
+        tenantId: string;  // Include tenant context in customer reference
         name: string;
         phone?: string;
         email?: string;

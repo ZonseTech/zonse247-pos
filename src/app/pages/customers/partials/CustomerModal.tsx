@@ -1,4 +1,4 @@
-import { FunctionComponent, useEffect } from 'react';
+import { FunctionComponent } from 'react';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { Notify } from 'notiflix';
@@ -6,6 +6,7 @@ import { Button, Modal } from '../../../components';
 import FormWrapper from '../../../components/FormWrapper';
 import FormInput from '../../../components/FormInput';
 import customerService from '../../../services/customers.service';
+import { useAuth } from '../../../context/AuthProvider';
 
 interface CustomerModalProps {
     isOpen: boolean;
@@ -22,14 +23,16 @@ const CustomerModal: FunctionComponent<CustomerModalProps> = ({
     customer,
     customersCount = 0,
 }) => {
+    const { user, activeBranchId } = useAuth();
     const isEditing = !!customer;
     const showDefaultOption = !isEditing && customersCount === 0;
 
+    // Use auth context for tenant-scoped customer creation
     const initialValues: Customer = {
         customerId: customer?.customerId || '',
-        tenantId: customer?.tenantId || '',
-        branchId: customer?.branchId || '',
-        userId: customer?.userId || '',
+        tenantId: customer?.tenantId || user?.tenantId || '',
+        branchId: customer?.branchId || activeBranchId || user?.branchId || '',
+        userId: customer?.userId || user?.userId || '',
         name: customer?.name || '',
         phone: customer?.phone || '',
         email: customer?.email || '',
