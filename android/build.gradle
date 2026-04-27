@@ -24,32 +24,32 @@ allprojects {
     }
 }
 
-// Force Java 17 compatibility for all subprojects
+// Force Java 21 compatibility for all subprojects
 subprojects {
     afterEvaluate { project ->
         if (project.hasProperty('android')) {
             project.android {
                 compileOptions {
-                    sourceCompatibility JavaVersion.VERSION_17
-                    targetCompatibility JavaVersion.VERSION_17
+                    sourceCompatibility JavaVersion.VERSION_21
+                    targetCompatibility JavaVersion.VERSION_21
                 }
             }
-            // Align Kotlin JVM toolchain and target with Java 17
+            // Align Kotlin JVM toolchain and target with Java 21
             if (project.extensions.findByName('kotlin') != null) {
                 project.kotlin {
-                    jvmToolchain(17)
+                    jvmToolchain(21)
                 }
                 project.android {
                     kotlinOptions {
-                        jvmTarget = "17"
+                        jvmTarget = "21"
                     }
                 }
             }
         }
         if (project.plugins.hasPlugin('java')) {
             java {
-                sourceCompatibility = JavaVersion.VERSION_17
-                targetCompatibility = JavaVersion.VERSION_17
+                sourceCompatibility = JavaVersion.VERSION_21
+                targetCompatibility = JavaVersion.VERSION_21
             }
         }
     }
