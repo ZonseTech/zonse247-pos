@@ -110,6 +110,7 @@ const config: ForgeConfig = {
 			name: 'zonse247_pos',
 			exe: 'zonse247_pos.exe',
 			setupExe: `Zonse247_POS_Setup_v${version}.exe`,
+			setupIcon: path.join(__dirname, 'build', 'icon.ico'),
 			noMsi: true,
 		}),
 		new MakerZIP({}, ['darwin', 'linux']),
