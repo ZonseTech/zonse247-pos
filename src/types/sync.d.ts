@@ -165,3 +165,99 @@ interface SyncResult {
 	errors: string[];
 	timestamp: string;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Force Data Sync types (see docs/FORCE_DATA_SYNC_FRONTEND_GUIDE.md)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** A logical table key the force resync iterates over (in dependency order). */
+type ForceResyncTable =
+	| 'customers'
+	| 'sales'
+	| 'saleItems'
+	| 'salePayments'
+	| 'returns'
+	| 'returnItems'
+	| 'stockMovements'
+	| 'orders'
+	| 'users';
+
+/** Direction of a force resync run. */
+type ForceResyncMode = 'pull' | 'push' | 'bidirectional';
+
+/** High-level state of a force resync run. */
+type ForceResyncStatus =
+	| 'idle'
+	| 'confirming'
+	| 'running'
+	| 'cancelling'
+	| 'completed'
+	| 'failed';
+
+/** Per-table progress entry surfaced to the UI. */
+interface ForceResyncTableProgress {
+	table: ForceResyncTable;
+	processed: number;
+	accepted: number;
+	rejected: number;
+	deferred: number;
+	status: 'pending' | 'running' | 'done' | 'deferred' | 'failed';
+	message?: string;
+	errors: string[];
+}
+
+/** Snapshot of overall progress. */
+interface ForceResyncProgress {
+	status: ForceResyncStatus;
+	mode: ForceResyncMode;
+	startedAt: string | null;
+	finishedAt: string | null;
+	currentTable: ForceResyncTable | null;
+	totalProcessed: number;
+	totalAccepted: number;
+	totalRejected: number;
+	totalDeferred: number;
+	tables: ForceResyncTableProgress[];
+	error?: string;
+}
+
+/** Body for `POST /v1/sync/<table>` push. */
+interface ForceResyncPushRequest<T = any> {
+	records: T[];
+}
+
+/** Body for `POST /v1/sync/pull`. */
+interface ForceResyncPullRequest {
+	since?: string | null;
+	tables?: ForceResyncTable[];
+	limit?: number;
+}
+
+/** Body for `POST /v1/sync/bidirectional`. */
+interface ForceResyncBidirectionalRequest<T = any> {
+	push?: Partial<Record<ForceResyncTable, T[]>>;
+	pullSince?: string | null;
+	pullTables?: ForceResyncTable[];
+	pullLimit?: number;
+}
+
+/** Generic per-table push/pull response shape. */
+interface ForceResyncOperationResult<T = any> {
+	tableName?: string;
+	accepted?: number;
+	rejected?: number;
+	records?: T[];
+	errors?: Array<{ id?: string; index?: number; message: string }>;
+	serverTime?: string;
+	lastSequence?: string;
+}
+
+/** Response from `GET /v1/sync/status`. */
+interface TerminalSyncStatusResponse {
+	terminalId: string;
+	tenantId: string;
+	branchId: string;
+	lastPushedAt: string | null;
+	lastPulledAt: string | null;
+	pending: Partial<Record<ForceResyncTable, number>>;
+}

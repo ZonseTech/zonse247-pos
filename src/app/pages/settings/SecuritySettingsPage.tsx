@@ -1,12 +1,13 @@
 import { FunctionComponent } from 'react';
 import FormInput from '../../components/FormInput';
 import { FormSwitch, FormFieldCard } from '../../components';
+import { ForceResyncCard } from './components/forceResync';
 
 const SecuritySettingsPage: FunctionComponent = () => {
     return (
         <div className="rounded-none">
             <div className="space-y-3">
-                <FormFieldCard >
+                <FormFieldCard>
                     <FormSwitch
                         name="autoSyncOnReconnect"
                         label="Auto sync on reconnect"
@@ -39,6 +40,8 @@ const SecuritySettingsPage: FunctionComponent = () => {
                         required
                     />
                 </FormFieldCard>
+
+                <ForceResyncCard />
             </div>
         </div>
     );
