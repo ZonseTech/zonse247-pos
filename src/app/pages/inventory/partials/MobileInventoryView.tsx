@@ -153,13 +153,11 @@ const MobileInventoryView: FC<MobileInventoryViewProps> = ({
     }, [handleObserver]);
 
     const handleTap = useCallback((item: ApiProduct) => {
-        if (item.variantCount && item.variantCount > 1) {
-            onEdit(item);
-        }
+        onEdit(item);
     }, [onEdit]);
 
     return (
-        <div className="flex flex-col h-full">
+        <>
             {/* Toolbar: search + filter button + export */}
             <InventoryToolbar
                 searchTerm={searchTerm}
@@ -196,7 +194,7 @@ const MobileInventoryView: FC<MobileInventoryViewProps> = ({
 
             <InventorySummaryCards cards={summaryCards} isLoading={statsLoading} />
 
-            <div className="flex-1 overflow-y-auto overscroll-contain">
+            <div>
                 {isLoading && accumulatedItems.length === 0 ? (
                     <div className="px-3 py-3 space-y-2">
                         {Array.from({ length: 6 }, (_, i) => (
@@ -290,7 +288,7 @@ const MobileInventoryView: FC<MobileInventoryViewProps> = ({
                 hasActiveFilters={hasActiveFilters}
                 onClearFilters={onClearFilters}
             />
-        </div>
+        </>
     );
 };
 
