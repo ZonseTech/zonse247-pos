@@ -2,12 +2,13 @@ import * as Yup from 'yup';
 import { Notify } from 'notiflix';
 import { Form, Formik } from 'formik'
 import { FunctionComponent, PropsWithChildren, useEffect, useState } from 'react'
-import { Plus, Palette, FileText, Check, X, FolderOpen } from 'lucide-react';
+import { Plus, Palette, FileText, Check, X, FolderOpen, WifiOff } from 'lucide-react';
 import { Box, Flex, Text, TextArea, Checkbox, Button, ScrollArea, Theme } from '@radix-ui/themes';
 import * as Dialog from '@radix-ui/react-dialog';
 import FormInput from '../../components/FormInput';
 import categoriesService from '../../services/category.service';
 import { Confirm } from 'notiflix/build/notiflix-confirm-aio';
+import { useConnectivity } from '../../hooks/useConnectivity';
 
 type Props = {
     category?: Category;
@@ -28,6 +29,7 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
     categoriesCount = 0,
 }) => {
     const [isOpenForm, setIsOpenForm] = useState(isOpen);
+    const { isOnline } = useConnectivity();
     const isEditing = !!category;
     const showDefaultOption = !isEditing && categoriesCount === 0;
 
@@ -98,6 +100,11 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
     }, [isOpen]);
 
     const handleSubmit = async (values: Partial<Category>, { resetForm, setSubmitting }) => {
+        if (!isOnline) {
+            Notify.failure('You need an internet connection to save categories.');
+            return;
+        }
+
         try {
             setSubmitting(true);
 
@@ -118,6 +125,20 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
             } else {
                 const response = await categoriesService.store(values);
                 const createdCategory = response?.data || response;
+
+                Notify.success('Category created successfully!');
+
+                // When used inline (e.g. from inventory form), close immediately
+                if (!showAddButton) {
+                    setIsOpenForm(false);
+                    if (onSuccess) {
+                        onSuccess?.(createdCategory);
+                    }
+                    if (onClose) {
+                        onClose();
+                    }
+                    return;
+                }
 
                 // Close the Radix Dialog first so its focus trap
                 // does not block clicks on the Notiflix Confirm buttons
@@ -160,17 +181,6 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
 
     return (
         <>
-            {showAddButton && (
-                <Button
-                    onClick={() => handleOpenChange(true)}
-                    variant="solid"
-                    highContrast
-                >
-                    <Plus size={16} />
-                    Add Category
-                </Button>
-            )}
-
             <Dialog.Root open={isOpenForm} onOpenChange={handleOpenChange}>
                 <Dialog.Portal>
                     <Theme appearance="inherit" accentColor="cyan">
@@ -219,6 +229,14 @@ const CreateCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
                             {/* Body */}
                             <ScrollArea scrollbars="vertical" className="flex-1">
                                 <Box p="4">
+                                    {!isOnline && (
+                                        <div className="flex items-center gap-2 p-3 mb-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700">
+                                            <WifiOff className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                                            <p className="text-sm text-amber-700 dark:text-amber-400">
+                                                Internet connection required to save categories.
+                                            </p>
+                                        </div>
+                                    )}
                                     <Formik
                                         initialValues={categoryValues}
                                         validationSchema={newCategoryValidationSchema}
