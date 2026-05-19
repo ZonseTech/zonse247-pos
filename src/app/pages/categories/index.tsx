@@ -243,7 +243,7 @@ const CategoriesManager: FunctionComponent = () => {
                 isOpen={showCreateModal || !!editingCategory}
                 onClose={handleModalClose}
                 onSuccess={handleModalSuccess}
-                showAddButton={false}
+                showAddButton={true}
                 categoriesCount={categories.length}
             />
         </Wrapper>
