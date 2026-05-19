@@ -73,7 +73,7 @@ const MobileStocks: FunctionComponent = () => {
                 product.variants?.some(v => v.primaryBarcode === result.barcode)
             );
             if (item) {
-                handleEdit(item);
+                handleAddToCartFromLookup(item);
             }
         }
     };
