@@ -1,6 +1,6 @@
 import { useInventory } from '../../../hooks/useInventory';
 import { FunctionComponent, useState, useEffect, Fragment, useRef } from 'react';
-import { Confirm } from 'notiflix';
+import { Notify } from 'notiflix';
 import { createPortal } from 'react-dom';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useScannerSettings, useScannerFeedback } from '../../../hooks/useScannerSettings';
@@ -142,19 +142,15 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
 
         if (!item) {
             item = await searchByBarcodeAPI(cleanedBarcode) ?? undefined;
-            // Check if the API result is available
+            // Warn if the API result has low/no stock
             if (item) {
                 const quantity = parseFloat((item.quantity || item.availableQuantity || 0).toString());
                 const isOutOfStock = item.status && item.status.toUpperCase() === 'OUT_OF_STOCK';
                 const isInactive = item.status && item.status.toLowerCase() !== 'active';
-                // Block items with zero/negative stock or marked as out of stock
-                if (quantity <= 0 || isOutOfStock || isInactive) {
-                    Confirm.show(
-                        'Product unavailable',
-                        `Product "${item.name || item.displayName}" is out of stock or inactive`,
-                        'OK'
-                    );
-                    return;
+                if (quantity <= 0 || isOutOfStock) {
+                    Notify.warning(`${item.name || item.displayName} is out of stock.`);
+                } else if (isInactive) {
+                    Notify.warning(`${item.name || item.displayName} is inactive.`);
                 }
             }
         }

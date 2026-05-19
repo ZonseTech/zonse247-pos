@@ -1,5 +1,6 @@
 import { Package, ArrowLeft, Check, ShoppingCart } from 'lucide-react';
 import { createPortal } from 'react-dom';
+import { Notify } from 'notiflix';
 import { formatCurrency } from '../../utils';
 import { useState, useEffect, FunctionComponent } from 'react';
 import { BsUpcScan } from 'react-icons/bs';
@@ -76,10 +77,10 @@ const MobileItemLookupModal: FunctionComponent<MobileItemLookupModalProps> = ({
     const navigate = useNavigate();
 
     const handleAddToCart = (item: InventoryItem) => {
-        // Validate stock before adding to cart
+        // Warn if stock is low or zero
         const availableStock = parseFloat((item.quantity || item.availableQuantity || 0).toString());
         if (availableStock <= 0) {
-            return; // Item is out of stock, don't add
+            Notify.warning(`${item.name || item.displayName} is out of stock.`);
         }
         onAddToCart(item);
         if (!multiSelect) {

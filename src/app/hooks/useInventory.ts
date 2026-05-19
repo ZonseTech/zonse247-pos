@@ -104,8 +104,7 @@ export const useInventory = () => {
             // Check if item is marked as OUT_OF_STOCK
             const itemStatus = currentInventoryItem?.status || item.status || ''
             if (itemStatus.toUpperCase() === 'OUT_OF_STOCK') {
-                Notify.failure(`${item.displayName || item.name} is out of stock.`)
-                return
+                Notify.warning(`${item.displayName || item.name} is out of stock.`)
             }
 
             // Use inventory item quantity if found, otherwise use the item's own quantity
@@ -119,15 +118,11 @@ export const useInventory = () => {
             const currentCartQuantity = existingItem ? existingItem.quantity : 0
             const newTotalQuantity = currentCartQuantity + quantity
 
-            // Block items with zero or negative stock
+            // Warn if items have zero or negative stock
             if (availableStock <= 0) {
-                Notify.failure(`${item.displayName || item.name} is out of stock.`)
-                return
-            }
-
-            if (newTotalQuantity > availableStock) {
-                Notify.failure(`Cannot add ${quantity} item(s). Only ${availableStock - currentCartQuantity} available in stock.`)
-                return
+                Notify.warning(`${item.displayName || item.name} is out of stock.`)
+            } else if (newTotalQuantity > availableStock) {
+                Notify.warning(`Low stock: only ${availableStock - currentCartQuantity} of ${item.displayName || item.name} available.`)
             }
         }
 
@@ -196,8 +191,7 @@ export const useInventory = () => {
 
             if (newInventoryStock < 0) {
                 const maxAllowedQuantity = prevItem.quantity + currentInventoryStock
-                Notify.failure(`Cannot set quantity to ${quantity}. Maximum available: ${maxAllowedQuantity}`)
-                return
+                Notify.warning(`Low stock: only ${maxAllowedQuantity} available for this item.`)
             }
         }
 

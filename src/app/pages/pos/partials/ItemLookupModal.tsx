@@ -1,5 +1,6 @@
 import { X, Package, Plus } from 'lucide-react';
 import { createPortal } from 'react-dom';
+import { Notify } from 'notiflix';
 import { useNavigate } from 'react-router';
 import { formatCurrency } from '../../../utils';
 import { ROUTES } from '../../../utils/constants';
@@ -84,15 +85,12 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
     }, [inventory, searchTerm, isOpen]);
 
     const handleAddToCart = (item: InventoryItem) => {
-        // Validate stock before adding to cart
+        // Warn if stock is low or zero
         const availableStock = parseFloat((item.quantity || item.availableQuantity || 0).toString());
-        // Block items with zero or negative stock
         if (availableStock <= 0) {
-            return; // Item is out of stock, don't add
-        }
-        // Block items marked as OUT_OF_STOCK
-        if (item.status && item.status.toUpperCase() === 'OUT_OF_STOCK') {
-            return;
+            Notify.warning(`${item.name || item.displayName} is out of stock.`);
+        } else if (item.status && item.status.toUpperCase() === 'OUT_OF_STOCK') {
+            Notify.warning(`${item.name || item.displayName} is marked as out of stock.`);
         }
         onAddToCart(item);
         barcodeScannerInputRef.current?.focus();
