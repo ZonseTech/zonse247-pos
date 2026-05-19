@@ -77,10 +77,11 @@ const ItemLookupModal: FunctionComponent<ItemLookupModalProps> = ({
     }, [inventory, searchTerm, isOpen]);
 
     const handleAddToCart = (item: InventoryItem) => {
-        // Warn if stock is low or zero
+        // Block items with zero or negative stock
         const availableStock = parseFloat((item.quantity || item.availableQuantity || 0).toString());
         if (availableStock <= 0) {
-            Notify.warning(`${item.name || item.displayName} is out of stock.`);
+            Notify.failure(`${item.name || item.displayName} is out of stock.`);
+            return;
         }
         onAddToCart(item);
         barcodeScannerInputRef.current?.focus();

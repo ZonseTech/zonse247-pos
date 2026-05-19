@@ -104,7 +104,8 @@ export const useInventory = () => {
             // Check if item is marked as OUT_OF_STOCK
             const itemStatus = currentInventoryItem?.status || item.status || ''
             if (itemStatus.toUpperCase() === 'OUT_OF_STOCK') {
-                Notify.warning(`${item.displayName || item.name} is out of stock.`)
+                Notify.failure(`${item.displayName || item.name} is out of stock.`)
+                return
             }
 
             // Use inventory item quantity if found, otherwise use the item's own quantity
@@ -118,10 +119,14 @@ export const useInventory = () => {
             const currentCartQuantity = existingItem ? existingItem.quantity : 0
             const newTotalQuantity = currentCartQuantity + quantity
 
-            // Warn if items have zero or negative stock
+            // Block items with zero or negative stock
             if (availableStock <= 0) {
-                Notify.warning(`${item.displayName || item.name} is out of stock.`)
-            } else if (newTotalQuantity > availableStock) {
+                Notify.failure(`${item.displayName || item.name} is out of stock.`)
+                return
+            }
+
+            // Warn but allow if quantity exceeds available stock (low stock)
+            if (newTotalQuantity > availableStock) {
                 Notify.warning(`Low stock: only ${availableStock - currentCartQuantity} of ${item.displayName || item.name} available.`)
             }
         }
