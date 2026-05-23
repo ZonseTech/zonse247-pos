@@ -24,8 +24,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint",
-    "ionic:build": "yarn build",
-    "ionic:serve": "yarn dev --open",
+    "ionic:build": "npm run build",
+    "ionic:serve": "npm run dev -- --open",
     "clean": "rm -rf dist",
     "db:verify-template": "node -e \"const fs = require('fs'); const path = require('path'); const dbPath = path.join('node_modules', 'zonse247-pos-api', 'dist', 'databases', 'template.db'); if (fs.existsSync(dbPath)) { console.log('✓ Template database found:', dbPath); const stats = fs.statSync(dbPath); console.log('  Size:', stats.size, 'bytes'); } else { console.error('✗ Template database not found'); process.exit(1); }\"",
     "db:status": "node -e \"const Database = require('better-sqlite3'); const path = require('path'); const dbPath = path.join('node_modules', 'zonse247-pos-api', 'dist', 'databases', 'template.db'); const db = new Database(dbPath, { readonly: true }); const meta = db.prepare('SELECT * FROM db_meta').all(); console.log('Database meta:', meta); db.close();\"",
@@ -34,7 +34,7 @@
     "make:win": "electron-forge make --platform win32 --arch x64",
     "make:linux": "electron-forge make --platform linux --arch x64",
     "make:mac": "electron-forge make --platform darwin --arch x64",
-    "postinstall": "electron-rebuild --force"
+    "postinstall": "electron-rebuild --force -o serialport,@serialport/bindings-cpp"
   },
   "dependencies": {
     "@capacitor-mlkit/barcode-scanning": "^7.0.0",
