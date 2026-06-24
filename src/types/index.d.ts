@@ -4,7 +4,7 @@ interface Till {
 	name: string;
 }
 
-type Mode = 'dark' | 'light' | string;
+type Mode = 'dark' | 'light' | string | undefined | null;
 
 interface TextInputProps {
 	id?: string;

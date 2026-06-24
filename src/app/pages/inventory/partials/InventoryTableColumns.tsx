@@ -25,7 +25,7 @@ const getStockStatusColor = (quantity: number, reorderPoint: number) => {
     return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
 };
 
-const getExpirationStatus = (expirationDate?: Date | string) => {
+const getExpirationStatus = (expirationDate?: Date | string | null) => {
     if (!expirationDate) return null;
     const expDate = dayjs(expirationDate);
     const today = dayjs();
