@@ -5,7 +5,6 @@ import { Notify, Report } from 'notiflix';
 import { Card, Flex, Box, Text, Heading, Button } from '@radix-ui/themes';
 import FormWrapper from '../../../components/FormWrapper';
 import FormInput from '../../../components/FormInput';
-import { KeyIcon } from 'lucide-react';
 import usersService from '../../../services/users.service';
 import { getErrorMessage } from '../../../utils/api-error-handler';
 
@@ -64,7 +63,6 @@ const ChangePasswordForm: FunctionComponent<Props> = ({ userId, onSuccess }) => 
     return (
         <Card size="3">
             <Flex align="center" gap="2" mb="6">
-                <KeyIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 <Heading as="h3" size="4" weight="bold">
                     Change Password
                 </Heading>
@@ -78,31 +76,27 @@ const ChangePasswordForm: FunctionComponent<Props> = ({ userId, onSuccess }) => 
                 {({ isSubmitting }) => (
                     <Form>
                         <FormWrapper>
-                            <Box className="space-y-4">
-                                <Box className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <FormInput
-                                        type={'password'}
-                                        name="oldPassword"
-                                        label="Current Password"
-                                        required
-                                        placeholder="Enter your current password"
-                                    />
-                                    <FormInput
-                                        type={'password'}
-                                        name="newPassword"
-                                        label="New Password"
-                                        required
-                                        placeholder="Enter new password"
-                                    />
-                                    <FormInput
-                                        type={'password'}
-                                        name="confirmPassword"
-                                        label="Confirm New Password"
-                                        required
-                                        placeholder="Confirm new password"
-                                    />
-                                </Box>
-                            </Box>
+                            <FormInput
+                                type={'password'}
+                                name="oldPassword"
+                                label="Current Password"
+                                required
+                                placeholder="Enter your current password"
+                            />
+                            <FormInput
+                                type={'password'}
+                                name="newPassword"
+                                label="New Password"
+                                required
+                                placeholder="Enter new password"
+                            />
+                            <FormInput
+                                type={'password'}
+                                name="confirmPassword"
+                                label="Confirm New Password"
+                                required
+                                placeholder="Confirm new password"
+                            />
                         </FormWrapper>
 
                         <Flex justify="end" mt="6">
