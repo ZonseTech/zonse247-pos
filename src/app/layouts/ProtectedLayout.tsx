@@ -39,12 +39,6 @@ const ProtectedLayout: FunctionComponent = () => {
 						<main className="flex-1 overflow-auto text-gray-700 dark:text-gray-300 relative z-0">
 							<Outlet />
 						</main>
-
-						{!isNativeMobile && (
-							<div className="border-t border-gray-200 dark:border-gray-700">
-								<Footer />
-							</div>
-						)}
 					</div>
 				</div>
 			</PageHeaderProvider>
