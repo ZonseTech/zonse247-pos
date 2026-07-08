@@ -33,7 +33,7 @@ export const getTableStyles = (mode: Mode): TableStyles => ({
 		style: {
 			backgroundColor: 'transparent',
 			borderBottomColor: mode === 'dark' ? '#374151' : '#e2e8f0',
-			minHeight: '52px',
+			minHeight: '20px',
 			'&:hover': {
 				backgroundColor: mode === 'dark' ? '#1f2937' : '#f1f5f9',
 				transform: 'translateY(-1px)',
@@ -48,7 +48,7 @@ export const getTableStyles = (mode: Mode): TableStyles => ({
 		style: {
 			color: mode === 'dark' ? '#e5e7eb' : '#334155',
 			fontSize: '14px',
-			padding: '16px',
+			padding: '8px',
 			transition: 'color 0.2s ease',
 		},
 	},

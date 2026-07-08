@@ -1,4 +1,3 @@
-import React from 'react';
 import { Edit2, Trash2, Eye, AlertTriangle, Package, PackagePlus, TrendingUp, Layers, History } from 'lucide-react';
 import { TableColumn } from 'react-data-table-component';
 import { formatCurrency } from '../../../utils';
@@ -279,7 +278,7 @@ export const getInventoryTableColumns = ({
 
     return [
         {
-            name: 'Product',
+            name: 'Product Name',
             selector: (row) => row.name || '-',
             sortable: true,
             cell: (row) => {
@@ -300,12 +299,12 @@ export const getInventoryTableColumns = ({
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
                             {row.categoryDetails?.name && (
-                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 rounded">
+                                <span className="px-1.5 py-0.5 hidden text-[10px] font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 rounded">
                                     {row.categoryDetails.name}
                                 </span>
                             )}
                             {row.brand && (
-                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                <span className="text-xs hidden text-gray-500 dark:text-gray-400">
                                     {row.brand}
                                 </span>
                             )}
@@ -319,40 +318,40 @@ export const getInventoryTableColumns = ({
                 );
             },
         },
-        {
-            name: 'SKU / Barcode',
-            selector: (row) => getDefaultVariant(row)?.sku || getDefaultVariant(row)?.primaryBarcode || '-',
-            sortable: true,
-            cell: (row) => {
-                const variant = getDefaultVariant(row);
-                const sku = variant?.sku;
-                const barcode = variant?.primaryBarcode;
-                const variantCount = row.variantCount ?? row.variants?.length ?? 1;
+        // {
+        //     name: 'SKU / Barcode',
+        //     selector: (row) => getDefaultVariant(row)?.sku || getDefaultVariant(row)?.primaryBarcode || '-',
+        //     sortable: true,
+        //     cell: (row) => {
+        //         const variant = getDefaultVariant(row);
+        //         const sku = variant?.sku;
+        //         const barcode = variant?.primaryBarcode;
+        //         const variantCount = row.variantCount ?? row.variants?.length ?? 1;
 
-                return (
-                    <div className="flex flex-col gap-0.5">
-                        {sku && (
-                            <span className="font-mono text-xs text-gray-700 dark:text-gray-300 truncate max-w-[130px]" title={sku}>
-                                {sku}
-                            </span>
-                        )}
-                        {barcode && (
-                            <span className="font-mono text-[10px] text-gray-500 dark:text-gray-500 truncate max-w-[130px]" title={barcode}>
-                                {barcode}
-                            </span>
-                        )}
-                        {!sku && !barcode && (
-                            <span className="text-gray-400">-</span>
-                        )}
-                        {variantCount > 1 && (
-                            <span className="text-[9px] text-blue-500 dark:text-blue-400">
-                                +{variantCount - 1} more barcodes
-                            </span>
-                        )}
-                    </div>
-                );
-            },
-        },
+        //         return (
+        //             <div className="flex flex-col gap-0.5">
+        //                 {sku && (
+        //                     <span className="font-mono text-xs text-gray-700 dark:text-gray-300 truncate max-w-[130px]" title={sku}>
+        //                         {sku}
+        //                     </span>
+        //                 )}
+        //                 {barcode && (
+        //                     <span className="font-mono text-[10px] text-gray-500 dark:text-gray-500 truncate max-w-[130px]" title={barcode}>
+        //                         {barcode}
+        //                     </span>
+        //                 )}
+        //                 {!sku && !barcode && (
+        //                     <span className="text-gray-400">-</span>
+        //                 )}
+        //                 {variantCount > 1 && (
+        //                     <span className="text-[9px] text-blue-500 dark:text-blue-400">
+        //                         +{variantCount - 1} more barcodes
+        //                     </span>
+        //                 )}
+        //             </div>
+        //         );
+        //     },
+        // },
         {
             name: 'Unit Price',
             selector: (row) => getDefaultVariant(row)?.sellingPrice || 0,
@@ -430,31 +429,31 @@ export const getInventoryTableColumns = ({
                 );
             },
         },
-        {
-            name: 'Stock Value',
-            selector: (row) => getStockValue(row),
-            sortable: true,
-            cell: (row) => {
-                const stockValue = getStockValue(row);
-                const variant = getDefaultVariant(row);
-                const retailValue = (row.totalAvailableQuantity ?? 0) * (variant?.sellingPrice ?? 0);
-                const margin = retailValue > 0 ? ((retailValue - stockValue) / retailValue) * 100 : 0;
+        // {
+        //     name: 'Stock Value',
+        //     selector: (row) => getStockValue(row),
+        //     sortable: true,
+        //     cell: (row) => {
+        //         const stockValue = getStockValue(row);
+        //         const variant = getDefaultVariant(row);
+        //         const retailValue = (row.totalAvailableQuantity ?? 0) * (variant?.sellingPrice ?? 0);
+        //         const margin = retailValue > 0 ? ((retailValue - stockValue) / retailValue) * 100 : 0;
 
-                return (
-                    <div className="flex flex-col">
-                        <span className="font-medium text-gray-900 dark:text-gray-100">
-                            {formatCurrency(stockValue)}
-                        </span>
-                        {margin > 0 && (
-                            <div className="flex items-center gap-0.5 text-[10px] text-green-600 dark:text-green-400">
-                                <TrendingUp className="w-3 h-3" />
-                                <span>{margin.toFixed(0)}% margin</span>
-                            </div>
-                        )}
-                    </div>
-                );
-            },
-        },
+        //         return (
+        //             <div className="flex flex-col">
+        //                 <span className="font-medium text-gray-900 dark:text-gray-100">
+        //                     {formatCurrency(stockValue)}
+        //                 </span>
+        //                 {margin > 0 && (
+        //                     <div className="flex items-center gap-0.5 text-[10px] text-green-600 dark:text-green-400">
+        //                         <TrendingUp className="w-3 h-3" />
+        //                         <span>{margin.toFixed(0)}% margin</span>
+        //                     </div>
+        //                 )}
+        //             </div>
+        //         );
+        //     },
+        // },
         {
             name: 'Expiry',
             selector: (row) => {
@@ -488,28 +487,28 @@ export const getInventoryTableColumns = ({
                 );
             },
         },
-        {
-            name: 'Status',
-            selector: (row) => {
-                const variant = getDefaultVariant(row);
-                const qty = row.totalAvailableQuantity ?? 0;
-                const reorderPoint = variant?.inventory?.reorderPoint ?? 0;
-                return qty <= 0 ? 0 : qty <= reorderPoint ? 1 : 2;
-            },
-            sortable: true,
-            cell: (row) => {
-                const variant = getDefaultVariant(row);
-                const qty = row.totalAvailableQuantity ?? 0;
-                const reorderPoint = variant?.inventory?.reorderPoint ?? 0;
-                const status = getStockStatusLabel(qty, reorderPoint);
+        // {
+        //     name: 'Status',
+        //     selector: (row) => {
+        //         const variant = getDefaultVariant(row);
+        //         const qty = row.totalAvailableQuantity ?? 0;
+        //         const reorderPoint = variant?.inventory?.reorderPoint ?? 0;
+        //         return qty <= 0 ? 0 : qty <= reorderPoint ? 1 : 2;
+        //     },
+        //     sortable: true,
+        //     cell: (row) => {
+        //         const variant = getDefaultVariant(row);
+        //         const qty = row.totalAvailableQuantity ?? 0;
+        //         const reorderPoint = variant?.inventory?.reorderPoint ?? 0;
+        //         const status = getStockStatusLabel(qty, reorderPoint);
 
-                return (
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${status.color}`}>
-                        {status.label}
-                    </span>
-                );
-            },
-        },
+        //         return (
+        //             <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${status.color}`}>
+        //                 {status.label}
+        //             </span>
+        //         );
+        //     },
+        // },
         {
             name: 'Actions',
             cell: (row) => {
