@@ -1,36 +1,32 @@
-import { useState, type FunctionComponent, useEffect } from "react"
-import { HiOutlineTag, HiOutlineCurrencyDollar } from "react-icons/hi"
-import { Percent } from "lucide-react"
+import { useState, useRef, type FunctionComponent, useEffect } from "react"
+import * as Dialog from '@radix-ui/react-dialog'
+import { Box, Flex, Text, Theme } from '@radix-ui/themes'
+import { Percent, Tag, X } from "lucide-react"
 import { useInventory } from '../../../hooks/useInventory'
-import { Modal, Input } from "../../../components"
 import { formatCurrency } from "../../../utils"
 import classNames from "classnames"
 
-type DiscountType = 'percentage' | 'amount';
+type DiscountType = 'percentage' | 'amount'
 
 interface DiscountModalProps {
-    isOpen: boolean;
-    onClose: () => void;
+    isOpen: boolean
+    onClose: () => void
 }
 
-const DiscountModal: FunctionComponent<DiscountModalProps> = ({
-    isOpen,
-    onClose,
-}) => {
-    const [discountType, setDiscountType] = useState<DiscountType>('percentage')
+const DiscountModal: FunctionComponent<DiscountModalProps> = ({ isOpen, onClose }) => {
+    const [discountType, setDiscountType] = useState<DiscountType>('amount')
     const [discountValue, setDiscountValue] = useState<string>('')
     const [error, setError] = useState<string>('')
 
     const { subtotal, discount, discountIsPercentage, setDiscount, cart } = useInventory()
 
-    // Reset form when modal opens
     useEffect(() => {
         if (isOpen) {
-            // Calculate current discount percentage or amount based on existing discount
             if (discount > 0) {
                 setDiscountType(discountIsPercentage ? 'percentage' : 'amount')
                 setDiscountValue(discount.toString())
             } else {
+                setDiscountType('amount')
                 setDiscountValue('')
             }
             setError('')
@@ -39,23 +35,18 @@ const DiscountModal: FunctionComponent<DiscountModalProps> = ({
 
     const calculateDiscountAmount = (): number => {
         const value = parseFloat(discountValue) || 0
-        if (discountType === 'percentage') {
-            return (subtotal * value) / 100
-        }
-        return value
+        return discountType === 'percentage' ? (subtotal * value) / 100 : value
     }
 
     const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value
-        // Allow only numbers and decimal point
         if (value === '' || /^\d*\.?\d*$/.test(value)) {
             setDiscountValue(value)
             setError('')
-
-            const numValue = parseFloat(value) || 0
-            if (discountType === 'percentage' && numValue > 100) {
+            const num = parseFloat(value) || 0
+            if (discountType === 'percentage' && num > 100) {
                 setError('Percentage cannot exceed 100%')
-            } else if (discountType === 'amount' && numValue > subtotal) {
+            } else if (discountType === 'amount' && num > subtotal) {
                 setError('Discount cannot exceed subtotal')
             }
         }
@@ -63,17 +54,8 @@ const DiscountModal: FunctionComponent<DiscountModalProps> = ({
 
     const handleApplyDiscount = () => {
         const discountAmount = calculateDiscountAmount()
-
-        if (discountAmount < 0) {
-            setError('Discount cannot be negative')
-            return
-        }
-
-        if (discountAmount > subtotal) {
-            setError('Discount cannot exceed subtotal')
-            return
-        }
-
+        if (discountAmount < 0) { setError('Discount cannot be negative'); return }
+        if (discountAmount > subtotal) { setError('Discount cannot exceed subtotal'); return }
         setDiscount(parseFloat(discountValue) || 0, discountType === 'percentage')
         onClose()
     }
@@ -85,210 +67,208 @@ const DiscountModal: FunctionComponent<DiscountModalProps> = ({
         onClose()
     }
 
-    const handleCloseModal = () => {
+    const handleTypeChange = (type: DiscountType) => {
+        setDiscountType(type)
+        setDiscountValue('')
         setError('')
-        onClose()
+        setTimeout(() => inputRef.current?.focus(), 0)
     }
 
     const handleQuickPercent = (percent: number) => {
         setDiscountType('percentage')
         setDiscountValue(percent.toString())
         setError('')
+        setTimeout(() => inputRef.current?.focus(), 0)
     }
+
+    const inputRef = useRef<HTMLInputElement>(null)
 
     const previewDiscount = calculateDiscountAmount()
     const newTotal = subtotal - previewDiscount
-
-    const isValidDiscount = discountValue !== '' &&
+    const isValidDiscount =
+        discountValue !== '' &&
         parseFloat(discountValue) >= 0 &&
         previewDiscount <= subtotal &&
         !error
 
     return (
-        <Modal
-            isOpen={isOpen}
-            onClose={handleCloseModal}
-            title="Apply Discount"
-            size="md"
-        >
-            <div className="p-6 space-y-6">
-                {/* Cart Summary */}
-                <div className="bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-xl p-4 border border-sky-100 dark:border-gray-600">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-sky-500 dark:bg-sky-500 rounded-lg flex items-center justify-center">
-                                <HiOutlineCurrencyDollar className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Subtotal</p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">{cart.length} items</p>
-                            </div>
-                        </div>
-                        <div className="text-right">
-                            <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{formatCurrency(subtotal)}</p>
-                        </div>
-                    </div>
-                </div>
+        <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <Dialog.Portal>
+                <Theme appearance="inherit" accentColor="sky">
+                    <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
+                    <Dialog.Content
+                        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm bg-white dark:bg-gray-900 shadow-2xl overflow-hidden outline-none"
+                        onOpenAutoFocus={(e) => { e.preventDefault(); inputRef.current?.focus() }}
+                    >
 
-                {/* Discount Type Toggle */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Discount Type
-                    </label>
-                    <div className="flex gap-2">
-                        <button
-                            type="button"
-                            onClick={() => { setDiscountType('percentage'); setDiscountValue(''); setError(''); }}
-                            className={classNames(
-                                "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all duration-200 border",
-                                discountType === 'percentage'
-                                    ? "bg-orange-500 text-white border-orange-500 shadow-md"
-                                    : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600"
-                            )}
-                        >
-                            <Percent size={18} />
-                            Percentage
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => { setDiscountType('amount'); setDiscountValue(''); setError(''); }}
-                            className={classNames(
-                                "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all duration-200 border",
-                                discountType === 'amount'
-                                    ? "bg-orange-500 text-white border-orange-500 shadow-md"
-                                    : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600"
-                            )}
-                        >
-                            <HiOutlineTag size={18} />
-                            Fixed Amount
-                        </button>
-                    </div>
-                </div>
-
-                {/* Quick Percentage Buttons */}
-                {discountType === 'percentage' && (
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Quick Select
-                        </label>
-                        <div className="grid grid-cols-4 gap-2">
-                            {[5, 10, 15, 20, 25, 30, 40, 50].map((percent) => (
-                                <button
-                                    key={percent}
-                                    type="button"
-                                    onClick={() => handleQuickPercent(percent)}
-                                    className={classNames(
-                                        "py-2 px-3 rounded-lg font-medium text-sm transition-all duration-200 border",
-                                        discountValue === percent.toString()
-                                            ? "bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400 border-orange-300 dark:border-orange-500"
-                                            : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600"
-                                    )}
-                                >
-                                    {percent}%
+                        {/* Header */}
+                        <Flex align="center" justify="between" px="4" py="3">
+                            <Dialog.Title asChild>
+                                <Text size="3" weight="bold" className="text-gray-900 dark:text-white">
+                                    Apply Discount
+                                </Text>
+                            </Dialog.Title>
+                            <Dialog.Close asChild>
+                                <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                    <X size={16} />
                                 </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                            </Dialog.Close>
+                        </Flex>
 
-                {/* Discount Input */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        {discountType === 'percentage' ? 'Discount Percentage' : 'Discount Amount'}
-                    </label>
-                    <div className="relative">
-                        <input
-                            type="text"
-                            inputMode="decimal"
-                            value={discountValue}
-                            onChange={handleValueChange}
-                            placeholder={discountType === 'percentage' ? 'Enter percentage' : 'Enter amount'}
-                            className={classNames(
-                                "w-full p-4 text-lg font-semibold bg-white dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-transparent transition-all duration-200 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500",
-                                error
-                                    ? "border-red-500 focus:ring-red-500"
-                                    : "border-gray-300 dark:border-gray-600 focus:ring-orange-500"
+                        <Box px="4" pb="4">
+                            <Flex direction="column" gap="3">
+
+                                {/* Subtotal row */}
+                                <Flex justify="between" align="center">
+                                    <Text size="2" color="gray">
+                                        Subtotal · {cart.length} {cart.length === 1 ? 'item' : 'items'}
+                                    </Text>
+                                    <Text size="3" weight="bold" className="text-gray-900 dark:text-white">
+                                        {formatCurrency(subtotal)}
+                                    </Text>
+                                </Flex>
+
+                                {/* Type toggle — segmented control */}
+                                <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleTypeChange('amount')}
+                                        className={classNames(
+                                            "flex-1 flex items-center justify-center gap-1.5 py-1.5 text-sm font-medium transition-colors",
+                                            discountType === 'amount'
+                                                ? "bg-sky-500 text-white shadow-sm"
+                                                : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                                        )}
+                                    >
+                                        <Tag size={13} />
+                                        Fixed Amount
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleTypeChange('percentage')}
+                                        className={classNames(
+                                            "flex-1 flex items-center justify-center gap-1.5 py-1.5 text-sm font-medium transition-colors",
+                                            discountType === 'percentage'
+                                                ? "bg-sky-500 text-white shadow-sm"
+                                                : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                                        )}
+                                    >
+                                        <Percent size={13} />
+                                        Percentage
+                                    </button>
+                                </div>
+
+                                {/* Quick percent chips */}
+                                {discountType === 'percentage' && (
+                                    <div className="grid grid-cols-4 gap-1.5">
+                                        {[5, 10, 15, 20, 25, 30, 40, 50].map((p) => (
+                                            <button
+                                                key={p}
+                                                type="button"
+                                                onClick={() => handleQuickPercent(p)}
+                                                className={classNames(
+                                                    "py-1.5 text-xs font-medium transition-colors",
+                                                    discountValue === p.toString()
+                                                        ? "bg-sky-100 dark:bg-sky-500/20 text-sky-700 dark:text-sky-400"
+                                                        : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                                )}
+                                            >
+                                                {p}%
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Input */}
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        inputMode="decimal"
+                                        value={discountValue}
+                                        onChange={handleValueChange}
+                                        ref={inputRef}
+                                        placeholder={discountType === 'percentage' ? '0' : '0.00'}
+                                        className={classNames(
+                                            "w-full px-3 py-2.5 pr-12 text-lg font-semibold border-0 outline-none bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 transition-colors",
+                                            error
+                                                ? "focus:bg-red-50 dark:focus:bg-red-900/20"
+                                                : "focus:bg-gray-200 dark:focus:bg-gray-700"
+                                        )}
+                                    />
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-400 dark:text-gray-500 pointer-events-none">
+                                        {discountType === 'percentage' ? '%' : 'MK'}
+                                    </span>
+                                </div>
+
+                                {error && (
+                                    <Text size="1" className="text-red-500 -mt-1">{error}</Text>
+                                )}
+
+                                {/* Preview */}
+                                {discountValue && !error && (
+                                    <Box className="bg-gray-50 dark:bg-gray-800" px="3" py="2">
+                                        <Flex justify="between" align="center" mb="1">
+                                            <Text size="1" color="gray">Discount</Text>
+                                            <Text size="1" className="text-green-600 dark:text-green-400 font-medium">
+                                                -{formatCurrency(previewDiscount)}
+                                                {discountType === 'percentage' && ` (${discountValue}%)`}
+                                            </Text>
+                                        </Flex>
+                                        <Flex justify="between" align="center">
+                                            <Text size="2" weight="medium" className="text-gray-700 dark:text-gray-200">New Total</Text>
+                                            <Text size="3" weight="bold" className="text-gray-900 dark:text-white">{formatCurrency(newTotal)}</Text>
+                                        </Flex>
+                                    </Box>
+                                )}
+
+                                {/* Active discount badge */}
+                                {discount > 0 && (
+                                    <Flex align="center" justify="between" className="bg-sky-50 dark:bg-sky-500/10 px-3 py-2">
+                                        <Text size="1" className="text-sky-700 dark:text-sky-400">Active discount</Text>
+                                        <Text size="1" weight="medium" className="text-sky-700 dark:text-sky-400">
+                                            -{formatCurrency(discount)}
+                                        </Text>
+                                    </Flex>
+                                )}
+
+                            </Flex>
+                        </Box>
+
+                        {/* Footer actions */}
+                        <div className="flex gap-2 px-4 pb-4">
+                            {discount > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={handleClearDiscount}
+                                    className="flex-1 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors outline-none"
+                                >
+                                    Clear
+                                </button>
                             )}
-                            autoFocus
-                        />
-                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">
-                            {discountType === 'percentage' ? '%' : 'MK'}
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className={classNames(
+                                    "py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors outline-none",
+                                    discount > 0 ? "px-4" : "flex-1"
+                                )}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleApplyDiscount}
+                                disabled={!isValidDiscount || cart.length === 0}
+                                className="flex-[2] py-2 text-sm font-medium bg-sky-500 hover:bg-sky-600 disabled:bg-gray-200 dark:disabled:bg-gray-700 text-white disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors outline-none disabled:cursor-not-allowed"
+                            >
+                                Apply
+                            </button>
                         </div>
-                    </div>
-                    {error && (
-                        <p className="mt-2 text-sm text-red-500 dark:text-red-400">{error}</p>
-                    )}
-                </div>
 
-                {/* Preview */}
-                {discountValue && !error && (
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-gray-700 dark:to-gray-600 rounded-xl p-4 border border-green-100 dark:border-gray-600 space-y-3">
-                        <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-600 dark:text-gray-300">Subtotal</span>
-                            <span className="font-medium text-gray-800 dark:text-gray-100">{formatCurrency(subtotal)}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                            <span className="text-green-500 dark:text-green-400">Discount</span>
-                            <span className="font-medium text-green-500 dark:text-green-400">
-                                -{formatCurrency(previewDiscount)}
-                                {discountType === 'percentage' && ` (${discountValue}%)`}
-                            </span>
-                        </div>
-                        <div className="border-t border-green-200 dark:border-gray-500 pt-3">
-                            <div className="flex items-center justify-between">
-                                <span className="font-semibold text-gray-800 dark:text-gray-100">New Total</span>
-                                <span className="text-xl font-bold text-gray-900 dark:text-white">{formatCurrency(newTotal)}</span>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Current Discount Info */}
-                {discount > 0 && (
-                    <div className="bg-orange-50 dark:bg-orange-500/10 rounded-lg p-3 border border-orange-200 dark:border-orange-500/30">
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm text-orange-700 dark:text-orange-400">
-                                Current discount applied
-                            </span>
-                            <span className="font-semibold text-orange-700 dark:text-orange-400">
-                                -{formatCurrency(discount)}
-                            </span>
-                        </div>
-                    </div>
-                )}
-
-                {/* Action Buttons */}
-                <div className="flex gap-3 pt-2">
-                    {discount > 0 && (
-                        <button
-                            onClick={handleClearDiscount}
-                            type="button"
-                            className="flex-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 py-3 px-6 rounded-lg font-medium transition-all duration-200 border border-gray-300 dark:border-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
-                        >
-                            Clear Discount
-                        </button>
-                    )}
-                    <button
-                        onClick={handleCloseModal}
-                        type="button"
-                        className={classNames(
-                            "bg-red-100 hover:bg-red-200 dark:bg-red-500 dark:hover:bg-red-500 text-red-700 dark:text-red-200 py-3 px-6 rounded-lg font-medium transition-all duration-200 border border-red-300 dark:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800",
-                            discount > 0 ? "" : "flex-1"
-                        )}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        onClick={handleApplyDiscount}
-                        type="button"
-                        disabled={!isValidDiscount || cart.length === 0}
-                        className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-3 px-6 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
-                    >
-                        Apply Discount
-                    </button>
-                </div>
-            </div>
-        </Modal>
+                    </Dialog.Content>
+                </Theme>
+            </Dialog.Portal>
+        </Dialog.Root>
     )
 }
 

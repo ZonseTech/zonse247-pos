@@ -5,6 +5,8 @@ import { useLayout } from '../../../context/LayoutContext';
 import { isElectron } from '../../../../helpers/index.helper';
 import useBusinessFeatures from '../../../hooks/useBusinessFeatures';
 
+const CLIENT_TYPE = import.meta.env.VITE_APP_CLIENT_TYPE || 'desktop'
+
 type PanelSize = '1' | '1/2' | '1/3' | '1/4' | '1/5' | '1/6' | '2/3' | '2/4' | '2/5' | '3/4' | '3/5' | '4/5' | '5/6' | 'full';
 
 export type POSMode = 'retail' | 'service';
@@ -134,7 +136,8 @@ export function usePOSLayout(overrides?: Partial<POSLayoutConfig>): POSLayoutCon
             base = LAYOUT_STANDARD_NO_KEYBOARD;
         }
 
-        const isSidebarVisible = !isElectron() && !isEBN && !isSidebarHidden;
+        const isDesktopEnv = isElectron() || CLIENT_TYPE === 'desktop'
+        const isSidebarVisible = !isDesktopEnv && !isSidebarHidden;
 
         return { ...base, isSidebarVisible, ...overrides };
     }, [isEBN, keyboardEnabled, isSidebarHidden, showRetail, overrides]);

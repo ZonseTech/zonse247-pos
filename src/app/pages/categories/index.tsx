@@ -122,35 +122,34 @@ const CategoriesManager: FunctionComponent = () => {
     return (
         <Wrapper>
             {/* Header */}
-            {!isInsideHub && (
-                isMobile ? (
+            {isMobile ? (
+                !isInsideHub && (
                     <MobilePageHeader
                         title="Categories"
                         showLeftButton={true}
                     />
-                ) : (
-                    <PageHeader
-                        title="Categories"
-                        description="Manage your product categories"
-                        icon={<FolderOpen className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
-                        action={
-                            <Flex align="center" gap="3">
-                                <SearchBar
-                                    value={searchTerm}
-                                    onChange={setSearchTerm}
-                                />
-                                <Button size="2" onClick={handleAddCategory}>
-                                    <Plus className="w-4 h-4" />
-                                    Add Category
-                                </Button>
-                            </Flex>
-                        }
-                    />
                 )
+            ) : (
+                <PageHeader
+                    title="Categories"
+                    description="Manage your product categories"
+                    icon={<FolderOpen className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
+                    action={
+                        <Flex align="center" gap="3">
+                            <SearchBar
+                                value={searchTerm}
+                                onChange={setSearchTerm}
+                            />
+                            <Button size="2" onClick={handleAddCategory}>
+                                <Plus className="w-4 h-4" />
+                                Add Category
+                            </Button>
+                        </Flex>
+                    }
+                />
             )}
 
             <Box className="sm:rounded-lg shadow-sm border-y sm:border border-gray-200 dark:border-gray-700 sm:overflow-clip -mx-2 sm:mx-0">
-                {/* Mobile: search bar inside the card */}
                 {isMobile && (
                     <Box px="3" pt="3" pb="1">
                         <SearchBar
@@ -159,13 +158,6 @@ const CategoriesManager: FunctionComponent = () => {
                         />
                     </Box>
                 )}
-
-                <Box px={{ initial: '2', sm: '4' }}>
-                    <CategorySummaryCards
-                        cards={summaryCards}
-                        isLoading={isLoading}
-                    />
-                </Box>
 
                 {isMobile ? (
                     <CategoriesMobileView

@@ -52,7 +52,7 @@ const ActionBar: FunctionComponent<ActionBarProps> = ({
     return (
         <div className={classNames(
             "fixed right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-30 transition-all duration-300",
-            isSidebarVisible ? "left-64" : "left-0",
+            isSidebarVisible ? "left-0 md:left-64" : "left-0",
             compact ? "bottom-8" : "bottom-16"
         )}>
             {showScannerInBar && (
