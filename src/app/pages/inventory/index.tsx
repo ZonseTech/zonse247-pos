@@ -386,7 +386,7 @@ const InventoryManagement: FunctionComponent = () => {
                     variantId={modals.selectedItemForMovements.variants[0].id}
                     variantName={modals.selectedItemForMovements.variants[0].variantName || 'Default'}
                     productName={modals.selectedItemForMovements.name}
-                    sku={modals.selectedItemForMovements.variants[0].sku}
+                    sku={modals.selectedItemForMovements.variants[0].sku!}
                 />
             )}
         </AppLayout>

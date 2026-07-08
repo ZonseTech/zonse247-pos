@@ -3,16 +3,17 @@ import Footer from "../components/Footer"
 import { Outlet } from "react-router"
 import { type FunctionComponent } from "react"
 import { isElectron } from "../../helpers/index.helper"
-import { useIsMobile, useIsNativeMobile, useIsEBN } from "../hooks/useMediaQuery"
+import { useIsMobile, useIsNativeMobile } from "../hooks/useMediaQuery"
 import SocketWrapper from "../components/SocketWrapper"
 import { PageHeaderProvider, PageHeaderSlot } from "../context/PageHeaderContext"
 
+const CLIENT_TYPE = import.meta.env.VITE_APP_CLIENT_TYPE || 'desktop'
+
 const ProtectedLayout: FunctionComponent = () => {
-	const isEBN = useIsEBN();
 	const isMobile = useIsMobile();
-	const isNotDesktopEnv = !isElectron()
 	const isNativeMobile = useIsNativeMobile();
-	const showWebNav = isNotDesktopEnv && !isNativeMobile && !isEBN
+	const isDesktopEnv = isElectron() || CLIENT_TYPE === 'desktop'
+	const showWebNav = !isDesktopEnv && !isNativeMobile
 
 	return (
 		<SocketWrapper>

@@ -9,7 +9,7 @@ import AuthLayout from "../../layouts/AuthLayout";
 import FormInput from "../../components/FormInput";
 import { useAuth } from "../../context/AuthProvider";
 import FormWrapper from "../../components/FormWrapper";
-import { useIsMobile, useIsEBN } from '../../hooks/useMediaQuery';
+import { useIsEBN } from '../../hooks/useMediaQuery';
 import InputKeyboard from "../../components/InputKeyboard";
 import { useKeyboardSettings } from '../../hooks/useKeyboardSettings';
 import { getErrorMessage } from '../../utils/api-error-handler';
@@ -22,14 +22,13 @@ interface AuthProps {
 
 const Login: FunctionComponent = () => {
     const auth = useAuth()
-    const isMobile = useIsMobile();
     const isEBN = useIsEBN();
     const navigate = useNavigate();
     const keyboardSettings = useKeyboardSettings();
     const [authError, setAuthError]: [string, Dispatch<SetStateAction<string>>] = useState('')
     const [activeField, setActiveField] = useState<'username' | 'password' | null>('username')
-    const usernameInputRef = useRef<HTMLInputElement>(null)
-    const passwordInputRef = useRef<HTMLInputElement>(null)
+    const usernameInputRef = useRef<any>(null)
+    const passwordInputRef = useRef<any>(null)
     const formikRef = useRef<any>(null)
 
     const loginProps: AuthProps = {

@@ -10,6 +10,8 @@ import { useInventoryAging } from '../../hooks/useInventoryAging';
 import { useCOGSReport } from '../../hooks/useCOGSReport';
 import AgingBucketChart from '../inventory-aging/partials/AgingBucketChart';
 import PeriodCOGSChart from '../cogs-profitability/partials/PeriodCOGSChart';
+import PageHeader from '../../components/page/PageHeader';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 const CHART_METRICS = [
     { value: 'totalValue' as const, label: 'Value' },
@@ -20,6 +22,7 @@ const CHART_METRICS = [
 const InventoryCharts: FunctionComponent = () => {
     const { mode } = useContext(ZonseThemeContext);
     const isDark = mode === 'dark';
+    const isMobile = useIsMobile();
     const [chartMetric, setChartMetric] = useState<'totalValue' | 'itemCount' | 'totalQuantity'>('totalValue');
 
     const {
@@ -54,6 +57,25 @@ const InventoryCharts: FunctionComponent = () => {
 
     return (
         <div className="space-y-6">
+            {!isMobile && (
+                <PageHeader
+                    title="Inventory Charts"
+                    description="Visual overview of stock aging and cost of goods sold"
+                    icon={<BarChart3 className="w-7 h-7 text-sky-500" />}
+                    action={
+                        <Button
+                            theme="primary"
+                            size="small"
+                            onClick={handleRefresh}
+                            disabled={isRefreshing}
+                        >
+                            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                            Refresh
+                        </Button>
+                    }
+                />
+            )}
+
             {/* Period COGS Chart */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div className="px-4 pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
