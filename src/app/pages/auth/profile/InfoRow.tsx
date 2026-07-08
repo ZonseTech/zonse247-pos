@@ -11,7 +11,7 @@ interface InfoRowProps {
 const InfoRow: FunctionComponent<InfoRowProps> = ({ icon, label, value, noBorder = false }) => (
     <Flex
         align="center"
-        px={{ initial: '4', sm: '6' }}
+        px={{ initial: '0', }}
         py={{ initial: '3', sm: '4' }}
         className={!noBorder ? 'border-b border-gray-100 dark:border-gray-700' : ''}
     >

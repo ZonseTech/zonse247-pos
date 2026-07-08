@@ -83,7 +83,7 @@ export const useStaffForm = (): UseStaffFormReturn => {
         branchId: stateTenantId ? '' : (authUser?.branchId || ''),
         roleId: '',
         trackAttendance: true,
-        allowAppAccess: false,
+        allowAppAccess: true,
         calculateAs: 'monthly',
         staffSalary: '',
         avgShiftHours: '',

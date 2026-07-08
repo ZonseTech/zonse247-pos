@@ -8,36 +8,38 @@ import {
     ShieldIcon,
     KeyRound,
     LogOut,
-    AtSignIcon,
-    UserIcon,
 } from 'lucide-react';
 import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi2';
-import { Flex, Box, Text, Heading, Badge, Card, Button, Separator } from '@radix-ui/themes';
+import { Flex, Box, Text, Heading, Badge, Card, Button, Theme } from '@radix-ui/themes';
 import * as Avatar from '@radix-ui/react-avatar';
+import * as Dialog from '@radix-ui/react-dialog';
+import { X } from 'lucide-react';
 import { useAuth } from '../../context/AuthProvider';
 import { useBranch } from '../../context/BranchContext';
 import { ThemeContext } from '../../context/ThemeContext';
 import PageHeader from '../../components/page/PageHeader';
 import { ROUTES } from '../../utils/constants';
 import { ChangePasswordForm, InfoRow, ActionRow, formatRoleName } from './profile';
+import AppLayout from '../../layouts/AppLayout';
 
 const DesktopMyProfile: FunctionComponent = () => {
     const navigate = useNavigate();
     const { user, signout } = useAuth();
     const { currentBranch } = useBranch();
     const { mode: theme, toggleMode } = useContext(ThemeContext);
-    const [activeTab, setActiveTab] = useState<'profile' | 'password' | null>(null);
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
     const handleLogout = () => {
         signout(() => navigate(ROUTES.LOGIN));
     };
 
     return (
-        <Box className="max-w-4xl mx-auto space-y-6" pt="4">
+        <AppLayout>
             <PageHeader
                 title="My Profile"
                 description="Manage your account settings"
                 icon={<User2Icon className="w-8 h-8 text-sky-500" />}
+                showBackButton
             />
 
             <Flex gap="6" direction={{ initial: 'column', lg: 'row' }}>
@@ -46,8 +48,8 @@ const DesktopMyProfile: FunctionComponent = () => {
                         <Flex
                             align="center"
                             gap="4"
-                            p="5"
-                            className="border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50"
+                            py="5"
+                            className="border-b border-gray-100 dark:border-gray-700"
                         >
                             <Avatar.Root className="w-16 h-16 rounded-full overflow-hidden inline-flex items-center justify-center bg-gray-200 dark:bg-gray-700">
                                 <Avatar.Fallback className="w-full h-full flex items-center justify-center text-gray-600 dark:text-gray-300 text-xl font-semibold">
@@ -75,16 +77,6 @@ const DesktopMyProfile: FunctionComponent = () => {
 
                         <Box className="divide-y divide-gray-100 dark:divide-gray-700">
                             <InfoRow
-                                icon={<UserIcon className="w-5 h-5 text-sky-500" />}
-                                label="Full Name"
-                                value={user?.fullname || 'Not set'}
-                            />
-                            <InfoRow
-                                icon={<AtSignIcon className="w-5 h-5 text-violet-500" />}
-                                label="Username"
-                                value={user?.username || 'Not set'}
-                            />
-                            <InfoRow
                                 icon={<MailIcon className="w-5 h-5 text-blue-500" />}
                                 label="Email"
                                 value={user?.email || 'Not set'}
@@ -102,7 +94,7 @@ const DesktopMyProfile: FunctionComponent = () => {
                             <InfoRow
                                 icon={<ShieldIcon className="w-5 h-5 text-orange-500" />}
                                 label="Role"
-                                value={formatRoleName(user?.roleName)}
+                                value={formatRoleName(user?.role?.name)}
                             />
                         </Box>
                     </Card>
@@ -110,7 +102,7 @@ const DesktopMyProfile: FunctionComponent = () => {
 
                 <Flex direction="column" gap="6" className="lg:flex-1">
                     <Card size="3" className="overflow-hidden">
-                        <Box p="4" className="border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+                        <Box pb="3" className="border-b border-gray-100 dark:border-gray-700">
                             <Text size="1" weight="bold" className="uppercase tracking-wide text-gray-900 dark:text-white">
                                 Settings
                             </Text>
@@ -120,8 +112,7 @@ const DesktopMyProfile: FunctionComponent = () => {
                                 icon={<KeyRound className="w-5 h-5 text-amber-500" />}
                                 label="Change Password"
                                 description="Update your account password"
-                                onTap={() => setActiveTab(activeTab === 'password' ? null : 'password')}
-                                active={activeTab === 'password'}
+                                onTap={() => setIsPasswordModalOpen(true)}
                             />
                             <ActionRow
                                 icon={
@@ -164,10 +155,30 @@ const DesktopMyProfile: FunctionComponent = () => {
                 </Flex>
             </Flex>
 
-            {activeTab === 'password' && (
-                <ChangePasswordForm userId={user?.userId || ''} />
-            )}
-        </Box>
+            <Dialog.Root
+                open={isPasswordModalOpen}
+                onOpenChange={(open) => setIsPasswordModalOpen(open)}
+            >
+                <Dialog.Portal>
+                    <Theme appearance="inherit" accentColor="cyan">
+                        <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
+                        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md max-h-[85vh] overflow-y-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl">
+                            <Dialog.Title className="sr-only">Change Password</Dialog.Title>
+                            <Dialog.Close asChild>
+                                <button className="absolute top-4 right-4 z-10 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </Dialog.Close>
+
+                            <ChangePasswordForm
+                                userId={user?.userId || ''}
+                                onSuccess={() => setIsPasswordModalOpen(false)}
+                            />
+                        </Dialog.Content>
+                    </Theme>
+                </Dialog.Portal>
+            </Dialog.Root>
+        </AppLayout>
     );
 };
 

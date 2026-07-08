@@ -7,7 +7,7 @@ import { version as appVersion } from '../../../../package.json';
 import { User, LogOut, Settings, ChevronUp } from 'lucide-react';
 import * as Popover from '@radix-ui/react-popover';
 import * as Separator from '@radix-ui/react-separator';
-import * as Avatar from '@radix-ui/react-avatar';
+import { formatRoleName } from '../../pages/auth/profile';
 
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || appVersion || '1.3.9';
 
@@ -24,13 +24,7 @@ const SidebarFooter: FunctionComponent = () => {
     };
 
     const displayName = user?.fullname || user?.username || 'User';
-    const roleName = user?.roleName || 'Staff';
-    const initials = displayName
-        .split(' ')
-        .map((n: string) => n[0])
-        .join('')
-        .slice(0, 2)
-        .toUpperCase();
+    const roleName = user?.role?.name || 'Staff';
 
     return (
         <div className="border-t border-gray-200/60 dark:border-gray-800/60 p-3">
@@ -43,18 +37,12 @@ const SidebarFooter: FunctionComponent = () => {
                             'data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-gray-800',
                         )}
                     >
-                        <Avatar.Root className="w-9 h-9 rounded-lg bg-sky-500 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                            <Avatar.Fallback className="text-white text-xs font-semibold">
-                                {initials}
-                            </Avatar.Fallback>
-                        </Avatar.Root>
-
                         <div className="flex-1 min-w-0 text-left">
                             <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                                 {displayName}
                             </p>
                             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                {roleName}
+                                {formatRoleName(roleName)}
                             </p>
                         </div>
 

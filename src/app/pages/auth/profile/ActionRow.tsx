@@ -6,7 +6,7 @@ interface ActionRowProps {
     icon: ReactNode;
     label: string;
     description?: string;
-    onTap: () => void;
+    onTap: (() => void) | undefined;
     noBorder?: boolean;
     active?: boolean;
     showChevron?: boolean;
@@ -24,7 +24,7 @@ const ActionRow: FunctionComponent<ActionRowProps> = ({
     <Flex
         asChild
         align="center"
-        px={{ initial: '4', sm: '5' }}
+        px={{ initial: '2' }}
         py={{ initial: '3', sm: '4' }}
         className={`cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 active:bg-gray-50 dark:active:bg-gray-700 transition-colors ${!noBorder ? 'border-b border-gray-100 dark:border-gray-700' : ''
             } ${active ? 'bg-sky-50 dark:bg-sky-900/20' : ''}`}

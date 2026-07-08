@@ -3,6 +3,7 @@ import { Edit2, Trash2, Key, Lock, LockOpen, Mail, Phone, Shield } from 'lucide-
 import { TableColumn } from 'react-data-table-component';
 import { Flex, Box, Text, Badge, IconButton, Tooltip } from '@radix-ui/themes';
 import usersService from '../../../services/users.service';
+import { formatRoleName } from '../../auth/profile';
 
 interface UserTableColumnsProps {
     onEdit: (user: User) => void;
@@ -36,14 +37,6 @@ export const getUserTableColumns = ({
             name: 'User',
             cell: (row: User) => (
                 <Flex align="center" gap="3" py="2">
-                    <Flex
-                        align="center"
-                        justify="center"
-                        flexShrink="0"
-                        className="w-10 h-10 bg-gradient-to-br from-sky-500 to-sky-600 rounded-full text-white font-semibold text-sm"
-                    >
-                        {getInitials(row.fullname || row.username || '')}
-                    </Flex>
                     <Box minWidth="0">
                         <Text as="p" size="2" weight="medium" truncate>
                             {row.fullname || '-'}
@@ -88,7 +81,7 @@ export const getUserTableColumns = ({
                 <Flex align="center" gap="1">
                     <Shield className="w-4 h-4 text-purple-500 dark:text-purple-400" />
                     <Text size="2" color="gray">
-                        {row.roleName || row.roleId || '-'}
+                        {formatRoleName(row?.role?.name || row.roleId, '-')}
                     </Text>
                 </Flex>
             ),
@@ -101,7 +94,7 @@ export const getUserTableColumns = ({
                 <Badge
                     size="1"
                     variant="soft"
-                    color={getStatusBadgeColor(row.status)}
+                    color={getStatusBadgeColor(row.status!)}
                 >
                     {row.status || 'unknown'}
                 </Badge>

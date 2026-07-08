@@ -49,7 +49,7 @@ const PageHeader: React.FC<PropsWithChildren<PageHeaderProps>> = ({
                     align="center"
                     gap={compact ? "2" : "3"}
                     py={compact ? "2" : "3"}
-                    px={{ initial: "4", md: "6" }}
+                    px={{ initial: "4" }}
                 >
                     <Flex
                         align="center"

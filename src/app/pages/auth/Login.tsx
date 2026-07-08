@@ -128,7 +128,7 @@ const Login: FunctionComponent = () => {
                             Sign in
                         </h1>
                         <FormWrapper>
-                            {(authError) && <Alert type="danger"><span>{authError}</span></Alert>}
+                            {(authError) && <Alert type="danger">{authError}</Alert>}
 
                             <FormInput
                                 inputRef={usernameInputRef}
