@@ -3,6 +3,8 @@ import { Building2, Check, ChevronDown, RefreshCw, AlertCircle } from 'lucide-re
 import { useBranch } from '../context/BranchContext';
 import { useAuth } from '../context/AuthProvider';
 import { isElectron } from '../utils';
+import { useBranchSubscription } from '../hooks/useBranchSubscription';
+import BranchSubscriptionLine from './BranchSubscriptionLine';
 
 interface BranchSwitcherProps {
     compact?: boolean;
@@ -22,7 +24,7 @@ interface BranchSwitcherProps {
  */
 const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
     compact = false,
-    className = '',
+    className = 'px-0 py-0 mx-0 my-0',
     onBranchSwitch
 }) => {
     const { user } = useAuth();
@@ -33,8 +35,8 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
         error,
         switchBranch,
         refreshBranches,
-        hasAccessToBranch
     } = useBranch();
+    const { label: subscriptionLabel, urgency: subscriptionUrgency } = useBranchSubscription();
 
     const [isOpen, setIsOpen] = useState(false);
     const [isSwitching, setIsSwitching] = useState(false);
@@ -43,9 +45,12 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
     if (isElectron()) {
         if (currentBranch) {
             return (
-                <div className={`flex items-center gap-2 px-3 py-2.5 text-sm text-gray-600 dark:text-gray-300 ${className}`}>
-                    <Building2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                    <span className="truncate flex-1">{currentBranch.branchName}</span>
+                <div className={`flex items-center gap-2 px-3 text-sm text-gray-600 dark:text-gray-300 ${className}`}>
+                    <Building2 className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                        <span className="truncate block">{currentBranch.branchName}</span>
+                        <BranchSubscriptionLine label={subscriptionLabel} urgency={subscriptionUrgency} className="mt-0.5" />
+                    </div>
                 </div>
             );
         }
@@ -82,16 +87,19 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
     if (!user || accessibleBranches.length <= 1) {
         if (currentBranch) {
             return (
-                <div className={`flex items-center gap-2 px-3 py-2.5 text-sm text-gray-600 dark:text-gray-300 ${className}`}>
-                    <Building2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                    <span className="truncate flex-1">{currentBranch.branchName}</span>
+                <div className={`flex items-center gap-2 px-3 text-sm text-gray-600 dark:text-gray-300 ${className}`}>
+                    <Building2 className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                        <span className="truncate block">{currentBranch.branchName}</span>
+                        <BranchSubscriptionLine label={subscriptionLabel} urgency={subscriptionUrgency} className="mt-0.5" />
+                    </div>
                 </div>
             );
         }
 
         if (isLoading) {
             return (
-                <div className={`flex items-center gap-2 px-3 py-2.5 text-sm text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 rounded-lg ${className}`}>
+                <div className={`flex items-center gap-2 px-3 text-sm text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 rounded-lg ${className}`}>
                     <RefreshCw className="w-4 h-4 animate-spin" />
                     <span>Loading branch...</span>
                 </div>
@@ -111,18 +119,20 @@ const BranchSwitcher: FunctionComponent<BranchSwitcherProps> = ({
                     flex items-center gap-2 transition-all duration-200
                     ${compact
                         ? 'px-3 py-2 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700'
-                        : 'px-4 py-2.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                        : 'px-4 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }
                     ${isOpen ? 'bg-gray-100 dark:bg-gray-700' : 'bg-white dark:bg-gray-800'}
                     ${(isLoading || isSwitching) ? 'opacity-50 cursor-wait' : ''}
                     text-gray-700 dark:text-gray-200
                 `}
             >
-                <Building2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                <span className="truncate max-w-[150px]">
-                    {currentBranch?.branchName || 'Select Branch'}
+                <span className="min-w-0 flex-1 text-left">
+                    <span className="truncate block">
+                        {currentBranch?.branchName || 'Select Branch'}
+                    </span>
+                    <BranchSubscriptionLine label={subscriptionLabel} urgency={subscriptionUrgency} className="mt-0.5" />
                 </span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {/* Dropdown Menu */}
