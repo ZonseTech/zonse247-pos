@@ -8,7 +8,7 @@ interface FormActionsProps {
     submitLabel: string;
     submitIcon?: ReactNode;
     cancelLabel?: string;
-    onCancel: () => void;
+    onCancel?: () => void;
     submitTheme?: ButtonTheme;
     cancelTheme?: ButtonTheme;
     loadingLabel?: string;
@@ -53,7 +53,7 @@ const FormActions: FunctionComponent<FormActionsProps> = ({
                         </>
                     )}
                 </Button>
-                <Button
+                {onCancel && (<Button
                     type="button"
                     theme={cancelTheme}
                     onClick={onCancel}
@@ -61,7 +61,7 @@ const FormActions: FunctionComponent<FormActionsProps> = ({
                     className="w-full"
                 >
                     {cancelLabel}
-                </Button>
+                </Button>)}
             </div>
         </div>
     );
