@@ -29,6 +29,7 @@ interface Branch {
     logoUrl?: string | null;
     isVirtualWarehouse: boolean;
     isActive: boolean;
+    branchSubscriptionId?: string | null;
     synced: number;
     mraApprovalStatus: MraApprovalStatus;
     mraApprovalDate?: string | null;
