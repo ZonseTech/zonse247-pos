@@ -10,10 +10,10 @@ export const formatDate = (date: string | Date | null | undefined): string => {
     });
 };
 
-export const formatRoleName = (role: string | null | undefined): string => {
+export const formatRoleName = (role: string | null | undefined, snake = '_'): string => {
     if (!role) return 'User';
     return role
-        .split('_')
+        .split(snake)
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ');
 };
