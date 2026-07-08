@@ -318,6 +318,7 @@ const InventoryManagement: FunctionComponent = () => {
                                 </Button>
                             ) : undefined
                         }
+                        showBackButton
                     />
                     <DesktopInventoryView
                         data={data}
