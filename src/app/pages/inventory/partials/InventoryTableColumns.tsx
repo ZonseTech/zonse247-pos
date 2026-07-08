@@ -282,7 +282,7 @@ export const getInventoryTableColumns = ({
 
     return [
         {
-            name: 'Product Name',
+            name: 'Name',
             selector: (row) => row.name || '-',
             sortable: true,
             cell: (row) => {
