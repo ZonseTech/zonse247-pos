@@ -10,12 +10,12 @@ interface InventoryToolbarProps {
     startDate: string;
     endDate: string;
     onDateChange: (start: Date | null, end: Date | null) => void;
-    onExport: () => void;
+    onExport?: () => void;
     onClearFilters: () => void;
     hasActiveFilters: boolean;
     activeFilterCount?: number;
     selectedRowCount: number;
-    onBulkActions: () => void;
+    onBulkActions?: () => void;
     isMobile?: boolean;
     onOpenFilters?: () => void;
 }
@@ -69,18 +69,20 @@ const InventoryToolbar: FC<InventoryToolbarProps> = ({
                     </button>
                 )}
 
-                <Tooltip content="Export">
-                    <button
-                        onClick={onExport}
-                        aria-label="Export inventory data"
-                        className="flex items-center justify-center w-9 h-9 rounded-lg flex-shrink-0
-                                 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400
-                                 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600
-                                 transition-colors touch-manipulation"
-                    >
-                        <Download className="w-4 h-4" />
-                    </button>
-                </Tooltip>
+                {onExport && (
+                    <Tooltip content="Export">
+                        <button
+                            onClick={onExport}
+                            aria-label="Export inventory data"
+                            className="flex items-center justify-center w-9 h-9 rounded-lg flex-shrink-0
+                                     border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400
+                                     hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600
+                                     transition-colors touch-manipulation"
+                        >
+                            <Download className="w-4 h-4" />
+                        </button>
+                    </Tooltip>
+                )}
             </Flex>
         );
     }
@@ -110,12 +112,14 @@ const InventoryToolbar: FC<InventoryToolbarProps> = ({
                     align="right"
                 />
 
-                <Tooltip content="Export inventory data">
-                    <Button variant="outline" color="gray" size="2" onClick={onExport} aria-label="Export inventory data">
-                        <Download className="w-4 h-4" />
-                        Export
-                    </Button>
-                </Tooltip>
+                {onExport && (
+                    <Tooltip content="Export inventory data">
+                        <Button variant="outline" color="gray" size="2" onClick={onExport} aria-label="Export inventory data">
+                            <Download className="w-4 h-4" />
+                            Export
+                        </Button>
+                    </Tooltip>
+                )}
 
                 {hasActiveFilters && (
                     <Tooltip content="Clear all filters">
@@ -126,7 +130,7 @@ const InventoryToolbar: FC<InventoryToolbarProps> = ({
                     </Tooltip>
                 )}
 
-                {selectedRowCount > 0 && (
+                {onBulkActions && selectedRowCount > 0 && (
                     <Button variant="soft" color="purple" size="2" onClick={onBulkActions}>
                         <Settings2 className="w-4 h-4" />
                         Bulk

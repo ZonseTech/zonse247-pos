@@ -29,7 +29,7 @@ interface MobileInventoryViewProps {
     onDateChange: (start: Date | null, end: Date | null) => void;
     hasActiveFilters: boolean;
     onClearFilters: () => void;
-    onExport: () => void;
+    onExport?: () => void;
 
     /** Pagination */
     page: number;
@@ -37,15 +37,15 @@ interface MobileInventoryViewProps {
     onPageChange: (page: number) => void;
 
     /** Item actions */
-    onAddItem: () => void;
-    onEdit: (item: ApiProduct) => void;
-    onDelete: (productId: string) => void;
+    onAddItem?: () => void;
+    onEdit?: (item: ApiProduct) => void;
+    onDelete?: (productId: string) => void;
     onAdjustQuantity?: (item: ApiProduct) => void;
     onViewStockMovements?: (item: ApiProduct) => void;
 
     /** Bulk */
     selectedRowCount: number;
-    onBulkActions: () => void;
+    onBulkActions?: () => void;
 }
 
 const MobileInventoryView: FC<MobileInventoryViewProps> = ({
@@ -153,7 +153,7 @@ const MobileInventoryView: FC<MobileInventoryViewProps> = ({
     }, [handleObserver]);
 
     const handleTap = useCallback((item: ApiProduct) => {
-        onEdit(item);
+        onEdit?.(item);
     }, [onEdit]);
 
     return (
@@ -263,15 +263,17 @@ const MobileInventoryView: FC<MobileInventoryViewProps> = ({
             </div>
 
             {/* Floating action button */}
-            <button
-                onClick={onAddItem}
-                className="fixed bottom-20 right-4 z-30 w-14 h-14 rounded-full bg-cyan-500 text-white shadow-lg
-                         flex items-center justify-center active:scale-95 transition-transform
-                         hover:bg-cyan-600 focus:outline-none focus:ring-4 focus:ring-cyan-200 dark:focus:ring-cyan-900"
-                aria-label="Add inventory item"
-            >
-                <Plus className="w-6 h-6" />
-            </button>
+            {onAddItem && (
+                <button
+                    onClick={onAddItem}
+                    className="fixed bottom-20 right-4 z-30 w-14 h-14 rounded-full bg-cyan-500 text-white shadow-lg
+                             flex items-center justify-center active:scale-95 transition-transform
+                             hover:bg-cyan-600 focus:outline-none focus:ring-4 focus:ring-cyan-200 dark:focus:ring-cyan-900"
+                    aria-label="Add inventory item"
+                >
+                    <Plus className="w-6 h-6" />
+                </button>
+            )}
 
             {/* Filter bottom sheet */}
             <InventoryFilterSheet

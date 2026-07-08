@@ -4,8 +4,8 @@ import { formatCurrency } from '../../../utils';
 import dayjs from 'dayjs';
 
 interface InventoryTableColumnsProps {
-    onEdit: (item: ApiProduct) => void;
-    onDelete: (productId: string) => void;
+    onEdit?: (item: ApiProduct) => void;
+    onDelete?: (productId: string) => void;
     onView?: (item: ApiProduct) => void;
     onAdjustQuantity?: (item: ApiProduct) => void;
     onConvertToVariant?: (item: ApiProduct) => void;
@@ -254,20 +254,24 @@ export const getInventoryTableColumns = ({
                                     <PackagePlus className="w-3.5 h-3.5" />
                                 </button>
                             )}
-                            <button
-                                onClick={() => onEdit(row)}
-                                className="p-1 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
-                                title="Edit"
-                            >
-                                <Edit2 className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                                onClick={() => onDelete(productId)}
-                                className="p-1 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                title="Delete"
-                            >
-                                <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {onEdit && (
+                                <button
+                                    onClick={() => onEdit(row)}
+                                    className="p-1 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
+                                    title="Edit"
+                                >
+                                    <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                            )}
+                            {onDelete && (
+                                <button
+                                    onClick={() => onDelete(productId)}
+                                    className="p-1 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                    title="Delete"
+                                >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                            )}
                         </div>
                     );
                 },
@@ -554,14 +558,16 @@ export const getInventoryTableColumns = ({
                                 <Layers className="w-4 h-4" />
                             </button>
                         ) : null}
-                        <button
-                            onClick={(e) => { e.stopPropagation(); onEdit(row); }}
-                            className="group p-1.5 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
-                            title="Edit Item"
-                        >
-                            <Edit2 className="w-4 h-4" />
-                        </button>
-                        {!isDiscontinued && (
+                        {onEdit && (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onEdit(row); }}
+                                className="group p-1.5 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
+                                title="Edit Item"
+                            >
+                                <Edit2 className="w-4 h-4" />
+                            </button>
+                        )}
+                        {onDelete && !isDiscontinued && (
                             <button
                                 onClick={(e) => { e.stopPropagation(); onDelete(productId); }}
                                 className="group p-1.5 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
