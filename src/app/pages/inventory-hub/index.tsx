@@ -37,7 +37,7 @@ const InventoryHubPage: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <Tabs.Root value={activeTab} onValueChange={handleTabChange}>
+            <Tabs.Root className='px-0 mx-0' value={activeTab} onValueChange={handleTabChange}>
                 <Tabs.List className="-mx-4 md:-mx-6 px-4 md:px-6 flex overflow-x-auto border-b border-gray-200 dark:border-gray-700 gap-0 scrollbar-none">
                     {INVENTORY_TABS.map((tab) => (
                         <Tabs.Trigger
