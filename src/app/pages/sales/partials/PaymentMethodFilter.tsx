@@ -108,7 +108,7 @@ export const PaymentMethodFilter: FC<PaymentMethodFilterProps> = ({
                 ref={scrollContainerRef}
                 align="center"
                 gap="1"
-                className={`overflow-x-auto ${isEBN ? 'scrollbar-hide max-w-[400px]' : 'flex-wrap'}`}
+                className={`overflow-x-auto ${isEBN ? 'scrollbar-hide' : 'flex-wrap'}`}
                 style={isEBN ? { scrollbarWidth: 'none', msOverflowStyle: 'none' } : {}}
             >
                 <Button
