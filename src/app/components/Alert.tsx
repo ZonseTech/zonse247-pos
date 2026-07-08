@@ -150,7 +150,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props,
 					</svg>
 				</button>
 			)}
-			<Icon className={iconCls} />
+			{/* <Icon className={iconCls} /> */}
 			{children}
 		</div>
 	)
