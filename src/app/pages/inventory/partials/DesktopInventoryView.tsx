@@ -37,24 +37,24 @@ interface DesktopInventoryViewProps {
     onDateChange: (start: Date | null, end: Date | null) => void;
     hasActiveFilters: boolean;
     onClearFilters: () => void;
-    onExport: () => void;
+    onExport?: () => void;
 
     /** Pagination */
     onPageChange: (page: number) => void;
     onPerRowsChange: (newPerPage: number, page: number) => void;
 
     /** Item actions */
-    onEdit: (item: ApiProduct) => void;
-    onDelete: (productId: string) => void;
-    onAdjustQuantity: (item: ApiProduct) => void;
-    onConvertToVariant: (item: ApiProduct) => void;
-    onViewStockMovements: (item: ApiProduct) => void;
+    onEdit?: (item: ApiProduct) => void;
+    onDelete?: (productId: string) => void;
+    onAdjustQuantity?: (item: ApiProduct) => void;
+    onConvertToVariant?: (item: ApiProduct) => void;
+    onViewStockMovements?: (item: ApiProduct) => void;
 
     /** Row selection */
     selectedRows: ApiProduct[];
     onSelectedRowsChange: (state: { selectedRows: ApiProduct[] }) => void;
     toggleCleared: boolean;
-    onBulkActions: () => void;
+    onBulkActions?: () => void;
 
     /** Filters apply */
     applyFilters: (params: Record<string, unknown>) => void;

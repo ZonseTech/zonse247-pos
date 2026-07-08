@@ -7,7 +7,8 @@ import AppLayout from '../../layouts/AppLayout';
 import FloatingHubNavButton, { type HubNavLink } from '../../components/buttons/FloatingHubNavButton';
 import PageHeader from '../../components/page/PageHeader';
 import MobilePageHeader from '../../components/page/MobilePageHeader';
-import { formatCurrencyShort, formatCurrencyFull } from '../../utils';
+import { formatCurrencyShort, formatCurrencyFull, hasPermission, hasAnyPermission } from '../../utils';
+import { useAuth } from '../../context/AuthProvider';
 import { useInventoryStats } from '../../hooks/useInventoryStats';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { InventorySummaryCard } from './partials/InventorySummaryCards';
@@ -24,6 +25,17 @@ import { ROUTES } from '../../utils/constants';
 const InventoryManagement: FunctionComponent = () => {
     const navigate = useNavigate();
     const isMobile = useIsMobile();
+    const { user } = useAuth();
+
+    const permissions = useMemo(() => ({
+        canCreate: hasPermission(user, 'products.create'),
+        canEdit: hasPermission(user, 'products.edit'),
+        canDelete: hasPermission(user, 'products.delete'),
+        canAdjustStock: hasPermission(user, 'inventory.adjust'),
+        canViewStockMovements: hasPermission(user, 'inventory.view'),
+        canExport: hasPermission(user, 'products.export'),
+        canBulkActions: hasAnyPermission(user, ['products.edit', 'inventory.adjust']),
+    }), [user]);
 
     // Data & stats
     const { stats, isLoading: statsLoading, fetchAllStats, fetchOverview } = useInventoryStats();
@@ -279,17 +291,17 @@ const InventoryManagement: FunctionComponent = () => {
                         onDateChange={handleDateChange}
                         hasActiveFilters={hasActiveFilters}
                         onClearFilters={handleClearFilters}
-                        onExport={exportData}
+                        onExport={permissions.canExport ? exportData : undefined}
                         page={page ?? 1}
                         perPage={perPage}
                         onPageChange={handlePageChange}
-                        onAddItem={handleAddItem}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                        onAdjustQuantity={modals.openAdjustQuantity}
-                        onViewStockMovements={modals.openStockMovement}
+                        onAddItem={permissions.canCreate ? handleAddItem : undefined}
+                        onEdit={permissions.canEdit ? handleEdit : undefined}
+                        onDelete={permissions.canDelete ? handleDelete : undefined}
+                        onAdjustQuantity={permissions.canAdjustStock ? modals.openAdjustQuantity : undefined}
+                        onViewStockMovements={permissions.canViewStockMovements ? modals.openStockMovement : undefined}
                         selectedRowCount={selectedRows.length}
-                        onBulkActions={modals.openBulkActions}
+                        onBulkActions={permissions.canBulkActions ? modals.openBulkActions : undefined}
                     />
                 </>
             ) : (
@@ -299,10 +311,12 @@ const InventoryManagement: FunctionComponent = () => {
                         title="Inventory"
                         description="Manage your inventory items, track stock levels, and monitor expiration dates."
                         action={
-                            <Button size="2" onClick={handleAddItem}>
-                                <Plus className="w-4 h-4" />
-                                Add Item
-                            </Button>
+                            permissions.canCreate ? (
+                                <Button size="2" onClick={handleAddItem}>
+                                    <Plus className="w-4 h-4" />
+                                    Add Item
+                                </Button>
+                            ) : undefined
                         }
                     />
                     <DesktopInventoryView
@@ -324,18 +338,18 @@ const InventoryManagement: FunctionComponent = () => {
                         onDateChange={handleDateChange}
                         hasActiveFilters={hasActiveFilters}
                         onClearFilters={handleClearFilters}
-                        onExport={exportData}
+                        onExport={permissions.canExport ? exportData : undefined}
                         onPageChange={handlePageChange}
                         onPerRowsChange={handlePerRowsChange}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                        onAdjustQuantity={modals.openAdjustQuantity}
-                        onConvertToVariant={modals.openConvertToVariant}
-                        onViewStockMovements={modals.openStockMovement}
+                        onEdit={permissions.canEdit ? handleEdit : undefined}
+                        onDelete={permissions.canDelete ? handleDelete : undefined}
+                        onAdjustQuantity={permissions.canAdjustStock ? modals.openAdjustQuantity : undefined}
+                        onConvertToVariant={permissions.canEdit ? modals.openConvertToVariant : undefined}
+                        onViewStockMovements={permissions.canViewStockMovements ? modals.openStockMovement : undefined}
                         selectedRows={selectedRows}
                         onSelectedRowsChange={handleRowSelected}
                         toggleCleared={toggleCleared}
-                        onBulkActions={modals.openBulkActions}
+                        onBulkActions={permissions.canBulkActions ? modals.openBulkActions : undefined}
                         applyFilters={applyFilters}
                     />
                 </>

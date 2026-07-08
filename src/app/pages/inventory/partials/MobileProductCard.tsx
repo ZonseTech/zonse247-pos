@@ -16,8 +16,8 @@ import dayjs from 'dayjs';
 
 interface MobileProductCardProps {
     item: ApiProduct;
-    onEdit: (item: ApiProduct) => void;
-    onDelete: (productId: string) => void;
+    onEdit?: (item: ApiProduct) => void;
+    onDelete?: (productId: string) => void;
     onAdjustQuantity?: (item: ApiProduct) => void;
     onViewStockMovements?: (item: ApiProduct) => void;
     onTap?: (item: ApiProduct) => void;
@@ -61,6 +61,8 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
         if (days <= 30) return { label: `${days}d left`, color: 'text-orange-600 dark:text-orange-400' };
         return null;
     })();
+
+    const hasAnyAction = !!(onAdjustQuantity || onViewStockMovements || onEdit || onDelete);
 
     const handleCardTap = useCallback(() => {
         if (showActions) {
@@ -127,15 +129,17 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
                             </div>
 
                             {/* Actions menu trigger */}
-                            <button
-                                ref={triggerRef}
-                                onClick={toggleActions}
-                                className="p-1.5 -mt-0.5 -mr-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300
-                                         hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                                aria-label="Actions"
-                            >
-                                <MoreVertical className="w-4.5 h-4.5" />
-                            </button>
+                            {hasAnyAction && (
+                                <button
+                                    ref={triggerRef}
+                                    onClick={toggleActions}
+                                    className="p-1.5 -mt-0.5 -mr-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300
+                                             hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                    aria-label="Actions"
+                                >
+                                    <MoreVertical className="w-4.5 h-4.5" />
+                                </button>
+                            )}
                         </div>
 
                         {/* Price and stock row */}
@@ -212,23 +216,29 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
                             Stock History
                         </button>
                     )}
-                    <button
-                        onClick={(e) => { e.stopPropagation(); setShowActions(false); onEdit(item); }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300
-                                 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                    >
-                        <Edit2 className="w-4 h-4 text-green-500" />
-                        Edit Item
-                    </button>
-                    <div className="mx-3 my-0.5 h-px bg-gray-100 dark:bg-gray-700" />
-                    <button
-                        onClick={(e) => { e.stopPropagation(); setShowActions(false); onDelete(item.id?.toString() || ''); }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-red-600 dark:text-red-400
-                                 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                        Delete Item
-                    </button>
+                    {onEdit && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setShowActions(false); onEdit(item); }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300
+                                     hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                        >
+                            <Edit2 className="w-4 h-4 text-green-500" />
+                            Edit Item
+                        </button>
+                    )}
+                    {onDelete && (
+                        <>
+                            <div className="mx-3 my-0.5 h-px bg-gray-100 dark:bg-gray-700" />
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setShowActions(false); onDelete(item.id?.toString() || ''); }}
+                                className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-red-600 dark:text-red-400
+                                         hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                Delete Item
+                            </button>
+                        </>
+                    )}
                 </div>,
                 document.body
             )}
