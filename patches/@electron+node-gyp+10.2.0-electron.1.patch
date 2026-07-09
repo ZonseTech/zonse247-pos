@@ -1,0 +1,135 @@
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSNew.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSNew.cpython-314.pyc
+new file mode 100644
+index 0000000..3b97e4c
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSNew.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSProject.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSProject.cpython-314.pyc
+new file mode 100644
+index 0000000..ccc3800
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSProject.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSSettings.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSSettings.cpython-314.pyc
+new file mode 100644
+index 0000000..7c3c5e6
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSSettings.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSToolFile.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSToolFile.cpython-314.pyc
+new file mode 100644
+index 0000000..7c70fba
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSToolFile.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSUserFile.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSUserFile.cpython-314.pyc
+new file mode 100644
+index 0000000..d994786
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSUserFile.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSUtil.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSUtil.cpython-314.pyc
+new file mode 100644
+index 0000000..2c38a9a
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSUtil.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSVersion.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSVersion.cpython-314.pyc
+new file mode 100644
+index 0000000..cf3218a
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/MSVSVersion.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/__init__.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/__init__.cpython-314.pyc
+new file mode 100644
+index 0000000..97a0960
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/__init__.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/common.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/common.cpython-314.pyc
+new file mode 100644
+index 0000000..f3e2c16
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/common.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/easy_xml.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/easy_xml.cpython-314.pyc
+new file mode 100644
+index 0000000..73b887a
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/easy_xml.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/input.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/input.cpython-314.pyc
+new file mode 100644
+index 0000000..7c16403
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/input.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/msvs_emulation.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/msvs_emulation.cpython-314.pyc
+new file mode 100644
+index 0000000..99f9fe7
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/msvs_emulation.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/ninja_syntax.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/ninja_syntax.cpython-314.pyc
+new file mode 100644
+index 0000000..75536f5
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/ninja_syntax.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/simple_copy.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/simple_copy.cpython-314.pyc
+new file mode 100644
+index 0000000..91a9d58
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/simple_copy.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/xcode_emulation.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/xcode_emulation.cpython-314.pyc
+new file mode 100644
+index 0000000..4b23226
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/__pycache__/xcode_emulation.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/generator/__pycache__/__init__.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/generator/__pycache__/__init__.cpython-314.pyc
+new file mode 100644
+index 0000000..3c98ec7
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/generator/__pycache__/__init__.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/generator/__pycache__/msvs.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/generator/__pycache__/msvs.cpython-314.pyc
+new file mode 100644
+index 0000000..5f3fc8e
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/generator/__pycache__/msvs.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/gyp/generator/__pycache__/ninja.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/gyp/generator/__pycache__/ninja.cpython-314.pyc
+new file mode 100644
+index 0000000..98ce551
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/gyp/generator/__pycache__/ninja.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/packaging/__pycache__/__init__.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/packaging/__pycache__/__init__.cpython-314.pyc
+new file mode 100644
+index 0000000..077774d
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/packaging/__pycache__/__init__.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/packaging/__pycache__/_structures.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/packaging/__pycache__/_structures.cpython-314.pyc
+new file mode 100644
+index 0000000..a792874
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/packaging/__pycache__/_structures.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/gyp/pylib/packaging/__pycache__/version.cpython-314.pyc b/node_modules/@electron/node-gyp/gyp/pylib/packaging/__pycache__/version.cpython-314.pyc
+new file mode 100644
+index 0000000..6c10ed7
+Binary files /dev/null and b/node_modules/@electron/node-gyp/gyp/pylib/packaging/__pycache__/version.cpython-314.pyc differ
+diff --git a/node_modules/@electron/node-gyp/lib/find-visualstudio.js b/node_modules/@electron/node-gyp/lib/find-visualstudio.js
+index 1b5ddf3..f3c88ee 100644
+--- a/node_modules/@electron/node-gyp/lib/find-visualstudio.js
++++ b/node_modules/@electron/node-gyp/lib/find-visualstudio.js
+@@ -119,7 +119,7 @@ class VisualStudioFinder {
+   }
+ 
+   async findVisualStudio2019OrNewerFromSpecifiedLocation () {
+-    return this.findVSFromSpecifiedLocation([2019, 2022])
++    return this.findVSFromSpecifiedLocation([2019, 2022, 2026])
+   }
+ 
+   async findVisualStudio2017FromSpecifiedLocation () {
+@@ -161,7 +161,7 @@ class VisualStudioFinder {
+   }
+ 
+   async findVisualStudio2019OrNewerUsingSetupModule () {
+-    return this.findNewVSUsingSetupModule([2019, 2022])
++    return this.findNewVSUsingSetupModule([2019, 2022, 2026])
+   }
+ 
+   async findVisualStudio2017UsingSetupModule () {
+@@ -222,7 +222,7 @@ class VisualStudioFinder {
+   // Invoke the PowerShell script to get information about Visual Studio 2019
+   // or newer installations
+   async findVisualStudio2019OrNewer () {
+-    return this.findNewVS([2019, 2022])
++    return this.findNewVS([2019, 2022, 2026])
+   }
+ 
+   // Invoke the PowerShell script to get information about Visual Studio 2017
+@@ -388,6 +388,10 @@ class VisualStudioFinder {
+       ret.versionYear = 2022
+       return ret
+     }
++    if (ret.versionMajor === 18) {
++      ret.versionYear = 2026
++      return ret
++    }
+     this.log.silly('- unsupported version:', ret.versionMajor)
+     return {}
+   }
+@@ -446,6 +450,8 @@ class VisualStudioFinder {
+       return 'v142'
+     } else if (versionYear === 2022) {
+       return 'v143'
++    } else if (versionYear === 2026) {
++      return 'v145'
+     }
+     this.log.silly('- invalid versionYear:', versionYear)
+     return null

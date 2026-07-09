@@ -168,4 +168,3 @@ android/capacitor-cordova-android-plugins/build/
 
 # Local libs/packages (uncomment if not needed in repo)
 # libs/
-package-lock.json
