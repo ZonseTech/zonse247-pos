@@ -33,7 +33,7 @@
     "make:win": "electron-forge make --platform win32 --arch x64",
     "make:linux": "electron-forge make --platform linux --arch x64",
     "make:mac": "electron-forge make --platform darwin --arch x64",
-    "postinstall": "patch-package && electron-rebuild --force --only @serialport/bindings-cpp,better-sqlite3,lzma-native,usb"
+    "postinstall": "electron-rebuild --force --only @serialport/bindings-cpp,better-sqlite3,lzma-native,usb"
   },
   "dependencies": {
     "@capacitor-mlkit/barcode-scanning": "^7.0.0",
