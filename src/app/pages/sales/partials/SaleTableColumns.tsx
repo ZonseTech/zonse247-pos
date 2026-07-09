@@ -1,7 +1,7 @@
 import React from 'react';
 import { TableColumn } from 'react-data-table-component';
 import { HiOutlineEye, HiOutlineClock, HiOutlineCheckCircle, HiOutlineExclamationCircle, HiOutlineClock as HiOutlineClockSmall } from 'react-icons/hi2';
-import { RotateCcw, Shield, ShieldOff, ShieldAlert, ShieldCheck, ShieldX } from 'lucide-react';
+import { RotateCcw, Shield, ShieldOff, ShieldAlert, ShieldCheck, ShieldX, Monitor } from 'lucide-react';
 import dayjs from 'dayjs';
 import { formatCurrency } from '../../../utils';
 import returnsService from '../../../services/returns.service';
@@ -321,29 +321,28 @@ export const getSaleTableColumns = ({
             ),
         },
         {
-            name: "Terminal",
-            selector: (row) => row.terminal?.terminalLabel || row.terminalId || '-',
-            cell: (row) => (
-                <span className="text-gray-600 dark:text-gray-400 text-sm">
-                    {row.terminal?.terminalLabel || row.terminalId || '-'}
-                </span>
-            ),
-        },
-        {
             name: "Cashier",
             selector: (row) => row.user?.fullname || row.user?.email || '-',
-            cell: (row) => (
-                <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-sky-100 dark:bg-sky-900 rounded-full flex items-center justify-center">
-                        <span className="text-xs font-medium text-sky-500 dark:text-sky-300">
-                            {(row.user?.fullname || row.user?.email || '-').charAt(0).toUpperCase()}
-                        </span>
+            cell: (row) => {
+                const cashierName = row.user?.fullname || row.user?.email || '-';
+                const terminalLabel = row.terminal?.terminalLabel || row.terminalId;
+
+                return (
+                    <div className="flex items-center gap-2 py-1 min-w-0">
+                        <div className="min-w-0">
+                            <div className="text-sm text-gray-700 dark:text-gray-300 truncate">
+                                {cashierName}
+                            </div>
+                            {terminalLabel && (
+                                <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 truncate">
+                                    <Monitor className="w-3 h-3 flex-shrink-0" />
+                                    <span className="truncate">{terminalLabel}</span>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                    <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
-                        {row.user?.fullname || row.user?.email || '-'}
-                    </span>
-                </div>
-            ),
+                );
+            },
         },
         // MRA Status column - only shown when MRA is enabled for the tenant
         ...(isMraEnabled ? [{
