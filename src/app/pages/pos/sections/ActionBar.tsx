@@ -3,10 +3,14 @@ import Panel from '../../../components/Panel';
 import BarcodeScanner from '../partials/BarcodeScanner';
 import FunctionButtons from '../partials/FunctionButtons';
 import CustomerSelector from '../../customers/partials/CustomerSelector';
+import SaleDateField from '../partials/SaleDateField';
 import classNames from 'classnames';
 import type { POSLayoutConfig } from '../hooks/usePOSLayout';
 import type { useFocusManager } from '../../../hooks/useFocusManager';
 import { CHECKOUT, type PaymentMethod } from '../partials/CheckoutModal';
+import { useAuth } from '../../../context/AuthProvider';
+import { useInventory } from '../../../hooks/useInventory';
+import { hasPermission } from '../../../utils';
 
 interface ActionBarProps {
     layout: POSLayoutConfig;
@@ -46,6 +50,9 @@ const ActionBar: FunctionComponent<ActionBarProps> = ({
     hasActiveOrder,
 }) => {
     const { compact, isSidebarVisible } = layout;
+    const { user } = useAuth();
+    const { saleDate, setSaleDate } = useInventory();
+    const canBackdateSale = hasPermission(user, 'sales.edit');
 
     const showScannerInBar = !layout.showCatalog;
 
@@ -72,6 +79,11 @@ const ActionBar: FunctionComponent<ActionBarProps> = ({
                             )}>
                                 SCAN/ENTER PRODUCT CODE
                             </label>
+                            {canBackdateSale && (
+                                <div className="block">
+                                    <SaleDateField value={saleDate} onChange={setSaleDate} compact />
+                                </div>
+                            )}
                             <div className="block">
                                 <CustomerSelector compact={compact} />
                             </div>
