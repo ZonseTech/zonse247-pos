@@ -20,6 +20,8 @@ interface CartState {
     taxName: string
     otherCharges: OtherCharge[]
     total: number
+    /** Backdated sale date (YYYY-MM-DD), set by users with sales.edit permission */
+    saleDate: string | null
 }
 
 const initialState: CartState = {
@@ -31,6 +33,7 @@ const initialState: CartState = {
     taxName: '',
     otherCharges: [],
     total: 0,
+    saleDate: null,
 }
 
 const cartSlice = createSlice({
@@ -135,6 +138,9 @@ const cartSlice = createSlice({
         clearOtherCharges: (state) => {
             state.otherCharges = []
         },
+        setSaleDate: (state, action: PayloadAction<string | null>) => {
+            state.saleDate = action.payload
+        },
         clearCart: (state) => {
             state.items = []
             state.subtotal = 0
@@ -144,6 +150,7 @@ const cartSlice = createSlice({
             state.taxName = ''
             state.otherCharges = []
             state.total = 0
+            state.saleDate = null
         },
         calculateTotals: (state) => {
             let totalPrice = 0
@@ -211,6 +218,7 @@ export const {
     addOtherCharge,
     removeOtherCharge,
     clearOtherCharges,
+    setSaleDate,
     clearCart,
     calculateTotals,
     setCart,
