@@ -18,7 +18,7 @@ import useBusinessFeatures from '../../../hooks/useBusinessFeatures';
 import salesService from '../../../services/sales.service';
 import serviceOrderService from '../../../services/service-order.service';
 import { usePrintReceipt } from '../../../hooks/usePrintReceipt';
-import { generateReferenceNumber } from '../../../utils';
+import { generateReferenceNumber, hasPermission } from '../../../utils';
 import { DEFAULT_SEED_KEY } from '../../../constants';
 import { useIsEBN } from '../../../hooks/useMediaQuery';
 import classNames from 'classnames';
@@ -72,6 +72,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
         clearCart,
         reloadInventory,
         selectedCustomer,
+        saleDate,
     } = useInventory();
 
     const saleFormValues: SaleFormValues = {
@@ -87,6 +88,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     const { settings, printerOptions } = useApp()
     const { showRetail } = useBusinessFeatures();
     const isEBN = useIsEBN();
+    const canBackdateSale = hasPermission(user, 'sales.edit');
 
     // Use optimized fire-and-forget printing hook
     const { printReceipt } = usePrintReceipt();
@@ -273,6 +275,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                         };
                     }),
                     notes: values.transactionId ? `Ref: ${values.transactionId}` : undefined,
+                    saleDate: canBackdateSale && saleDate ? saleDate : undefined,
                 };
 
                 const sale = await salesService.store(salePayload);

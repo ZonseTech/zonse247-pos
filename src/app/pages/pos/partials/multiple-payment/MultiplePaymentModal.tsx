@@ -10,7 +10,7 @@ import useBusinessFeatures from '../../../../hooks/useBusinessFeatures';
 import salesService from '../../../../services/sales.service';
 import serviceOrderService from '../../../../services/service-order.service';
 import { usePrintReceipt } from '../../../../hooks/usePrintReceipt';
-import { generateReferenceNumber, formatCurrency } from '../../../../utils';
+import { generateReferenceNumber, formatCurrency, hasPermission } from '../../../../utils';
 import { DEFAULT_SEED_KEY } from '../../../../constants';
 import {
     MultiplePaymentModalProps,
@@ -43,11 +43,13 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
         clearCart,
         reloadInventory,
         selectedCustomer,
+        saleDate,
     } = useInventory();
     const { user } = useAuth();
     const { settings } = useApp();
     const { showRetail } = useBusinessFeatures();
     const isEBN = useIsEBN();
+    const canBackdateSale = hasPermission(user, 'sales.edit');
 
     // Use optimized fire-and-forget printing hook
     const { printReceipt } = usePrintReceipt();
@@ -230,6 +232,7 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
                     notes: paymentEntries.length > 1
                         ? `Split payment: ${paymentEntries.map(p => `${getPaymentMethodLabel(p.paymentMethodId as PaymentMethodType)}: ${formatCurrency(p.amount)}`).join(', ')}`
                         : paymentEntries[0].reference ? `Ref: ${paymentEntries[0].reference}` : undefined,
+                    saleDate: canBackdateSale && saleDate ? saleDate : undefined,
                 };
 
                 const sale = await salesService.store(salePayload);

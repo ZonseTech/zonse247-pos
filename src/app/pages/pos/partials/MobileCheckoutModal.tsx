@@ -10,7 +10,7 @@ import useBusinessFeatures from '../../../hooks/useBusinessFeatures';
 import salesService from '../../../services/sales.service';
 import serviceOrderService from '../../../services/service-order.service';
 import { usePrintReceipt } from '../../../hooks/usePrintReceipt';
-import { generateReferenceNumber } from '../../../utils';
+import { generateReferenceNumber, hasPermission } from '../../../utils';
 import { DEFAULT_SEED_KEY } from '../../../constants';
 import { ROUTES } from '../../../utils/constants';
 import { ProcessingStep } from './mobile-checkout/ProcessingStepIndicator';
@@ -66,11 +66,14 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
         clearCart,
         reloadInventory,
         selectedCustomer,
+        saleDate,
+        setSaleDate,
     } = useInventory();
 
     const { user } = useAuth();
     const { settings } = useApp();
     const { showRetail } = useBusinessFeatures();
+    const canBackdateSale = hasPermission(user, 'sales.edit');
 
     // Use optimized fire-and-forget printing hook
     const { printReceipt } = usePrintReceipt();
@@ -241,11 +244,12 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
                         };
                     }),
                     notes: values.transactionId ? `Ref: ${values.transactionId}` : undefined,
+                    saleDate: canBackdateSale && saleDate ? saleDate : undefined,
                 };
 
                 const sale = await salesService.store(salePayload);
 
-                const saleDate = typeof sale.createdAt === 'string'
+                const saleDateDisplay = typeof sale.createdAt === 'string'
                     ? sale.createdAt
                     : sale.createdAt?.toISOString?.() || new Date().toISOString();
 
@@ -260,7 +264,7 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
                     total: (sale as any).totalAmount || total,
                     paid: (sale as any).amountPaid || (values.cashTendered ? parseFloat(values.cashTendered) : total),
                     changeAmount: sale.changeAmount || calculatedChange,
-                    date: saleDate,
+                    date: saleDateDisplay,
                     discount,
                     subtotal,
                     tax,
@@ -375,6 +379,9 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
             onClose={onClose}
             onSubmit={handleCompleteSale}
             onActiveInputChange={setActiveInput}
+            canBackdateSale={canBackdateSale}
+            saleDate={saleDate}
+            onSaleDateChange={setSaleDate}
         />
     );
 };

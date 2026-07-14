@@ -2,7 +2,7 @@
   "name": "zonse247_pos",
   "private": true,
   "productName": "zonse247_pos",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "zonse247 POS by Zonse247 Devs",
   "main": ".vite/build/main.js",
   "keywords": [
@@ -33,7 +33,7 @@
     "make:win": "electron-forge make --platform win32 --arch x64",
     "make:linux": "electron-forge make --platform linux --arch x64",
     "make:mac": "electron-forge make --platform darwin --arch x64",
-    "postinstall": "patch-package && electron-rebuild --force"
+    "postinstall": "electron-rebuild --force --only @serialport/bindings-cpp,better-sqlite3,usb"
   },
   "dependencies": {
     "@capacitor-mlkit/barcode-scanning": "^7.0.0",
@@ -76,7 +76,6 @@
     "axios": "^1.8.4",
     "classnames": "^2.5.1",
     "date-fns": "^4.2.1",
-    "dotenv": "^16.6.1",
     "electron-squirrel-startup": "^1.0.1",
     "electron-updater": "^6.6.2",
     "formik": "^2.4.6",
@@ -86,7 +85,6 @@
     "lucide-react": "^0.513.0",
     "notiflix": "^3.2.8",
     "nprogress": "^0.2.0",
-    "papaparse": "^5.5.3",
     "react": "^19.1.0",
     "react-data-table-component": "^7.7.0",
     "react-date-range": "^2.0.1",
@@ -107,10 +105,8 @@
     "redux-persist": "^6.0.0",
     "socket.io-client": "^4.8.3",
     "styled-components": "^6.3.9",
-    "usb": "^2.18.0",
-    "uuid": "^11.1.0",
     "yup": "^1.6.1",
-    "zonse247-pos-api": "file:libs/zonse247-pos-api-1.8.1.tgz",
+    "zonse247-pos-api": "file:libs/zonse247-pos-api-1.8.2.tgz",
     "zustand": "^5.0.5"
   },
   "devDependencies": {
@@ -139,7 +135,6 @@
     "autoprefixer": "^10.4.21",
     "electron": "37.1.0",
     "electron-builder": "^26.8.1",
-    "electron-rebuild": "^3.2.9",
     "electron-winstaller": "^5.4.0",
     "eslint": "^9.20.1",
     "eslint-plugin-react": "^7.32.2",

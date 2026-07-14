@@ -22,6 +22,7 @@ import {
     updateItemDiscount,
     setCart,
     setTotal,
+    setSaleDate,
     OtherCharge,
 } from '../store/slices/cartSlice'
 import {
@@ -54,6 +55,7 @@ export const useInventory = () => {
     const taxName = useAppSelector((state) => state.cart.taxName)
     const otherCharges = useAppSelector((state) => state.cart.otherCharges)
     const total = useAppSelector((state) => state.cart.total)
+    const saleDate = useAppSelector((state) => state.cart.saleDate)
 
     const customers = useAppSelector((state) => state.customers.customers)
     const selectedCustomer = useAppSelector((state) => state.customers.selectedCustomer)
@@ -263,6 +265,7 @@ export const useInventory = () => {
         taxName,
         otherCharges,
         total,
+        saleDate,
         isLoading: isLoading || inventoryLoading || customersLoading,
         setCart: (items: CartItem[]) => dispatch(setCart(items)),
         setTotal: (amount: number) => dispatch(setTotal(amount)),
@@ -276,6 +279,7 @@ export const useInventory = () => {
         addOtherCharge: (charge: OtherCharge) => dispatch(addOtherCharge(charge)),
         removeOtherCharge: (id: string) => dispatch(removeOtherCharge(id)),
         clearOtherCharges: () => dispatch(clearOtherCharges()),
+        setSaleDate: (date: string | null) => dispatch(setSaleDate(date)),
         reloadInventory,
         updateCustomPrice: (variantId: string, newPrice: number) =>
             dispatch(updateCustomPrice({ variantId, newPrice })),

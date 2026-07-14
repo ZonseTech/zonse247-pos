@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import EPayment from '../EPayment';
 import CashPayment from '../CashPayment';
 import BankTransfer from '../BankTransfer';
+import SaleDateField from '../SaleDateField';
 import { formatCurrency } from '../../../../utils';
 import { DEFAULT_SEED_KEY } from '../../../../constants';
 import { useFocusManager } from '../../../../hooks/useFocusManager';
@@ -22,6 +23,9 @@ interface PaymentFormViewProps {
     onClose: () => void;
     onSubmit: (values: SaleFormValues) => Promise<void>;
     onActiveInputChange: (input: ActiveInputType) => void;
+    canBackdateSale: boolean;
+    saleDate: string | null;
+    onSaleDateChange: (date: string | null) => void;
 }
 
 const getPaymentTitle = (paymentMethodId: PaymentMethod) => {
@@ -48,6 +52,9 @@ const PaymentFormView: FunctionComponent<PaymentFormViewProps> = ({
     onClose,
     onSubmit,
     onActiveInputChange,
+    canBackdateSale,
+    saleDate,
+    onSaleDateChange,
 }) => {
     const validationSchema = Yup.object({
         paymentMethodId: Yup.string().required('Payment method is required'),
@@ -107,6 +114,10 @@ const PaymentFormView: FunctionComponent<PaymentFormViewProps> = ({
                 {({ isSubmitting, values, setFieldValue }) => (
                     <Form className="flex flex-col flex-1 min-h-0">
                         <div className="flex-1 overflow-y-auto p-4">
+                            {canBackdateSale && (
+                                <SaleDateField value={saleDate} onChange={onSaleDateChange} />
+                            )}
+
                             {selectedCustomer && selectedCustomer.customerId !== DEFAULT_SEED_KEY && (
                                 <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                                     <div className="flex items-center gap-2">

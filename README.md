@@ -4,6 +4,39 @@
 - https://www.trifecta.xyz
 - https://bncpackaging.com/
 
+## Fresh Install Requirements
+
+### Prerequisites
+
+- Node.js and npm
+- **Visual Studio Build Tools 2022**, with the "Desktop development with C++" workload — required by `node-gyp`/`electron-rebuild` to compile this app's native modules (`@serialport/bindings-cpp`, `better-sqlite3`, `lzma-native`, `usb`) against Electron's ABI.
+  - Install via the Visual Studio Installer GUI, or unattended:
+    ```
+    winget install --id Microsoft.VisualStudio.2022.BuildTools --silent --accept-package-agreements --accept-source-agreements --override "--wait --quiet --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+    ```
+  - If the machine has a newer/pre-release Visual Studio (e.g. VS 18 / "2026"), install VS 2022 Build Tools alongside it — the `node-gyp` fork bundled with `@electron/rebuild` does not yet recognize newer major versions and will fail with `Could not find any Visual Studio installation to use` otherwise.
+
+### Install
+
+```
+npm install
+```
+
+This runs `postinstall` → `electron-rebuild --force --only @serialport/bindings-cpp,better-sqlite3,lzma-native,usb`, rebuilding only the native modules this app ships, against Electron's ABI.
+
+### Known limitation
+
+`bluetooth-serial-port` (an optional dependency pulled in by `zonse247-pos-api`) is intentionally excluded from the rebuild — it's unmaintained and fails to compile against modern V8/Electron. Bluetooth serial support is unavailable until it's replaced.
+
+### Troubleshooting
+
+- **`Could not find any Visual Studio installation to use`** — install VS 2022 Build Tools (see Prerequisites above).
+- **`Electron failed to install correctly, please delete node_modules/electron and try installing again`** — on some machines, antivirus/EDR real-time protection silently kills Node's zip-extraction process mid-write during `electron`'s own install step. Workaround:
+  1. `rm -rf node_modules/electron`
+  2. Manually extract the cached zip (`%LOCALAPPDATA%\electron\Cache\<hash>\electron-v<version>-win32-x64.zip`) with a non-Node tool, e.g. PowerShell's `Expand-Archive`, into `node_modules/electron/dist`
+  3. Write the binary name (e.g. `electron.exe`) into `node_modules/electron/path.txt`
+  4. Re-run `npm install`
+
 # Settings Key Features:
 
 - 200+ Configurable Settings organized into 7 logical tabs

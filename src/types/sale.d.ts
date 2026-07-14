@@ -267,6 +267,9 @@ interface CreateSalePayload {
 
     // Notes
     notes?: string;
+
+    // Backdate the sale (requires sales.edit permission); omit to use server "now"
+    saleDate?: string;
 }
 
 /**
