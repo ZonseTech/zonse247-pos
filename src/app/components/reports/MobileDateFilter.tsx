@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronRight, ChevronLeft, CalendarRange } from 'lucide-react';
-import { DateRangePicker, RangeKeyDict, createStaticRanges } from 'react-date-range';
+import { Calendar, DateRangePicker, RangeKeyDict, createStaticRanges } from 'react-date-range';
 import { Box, Flex, IconButton } from '@radix-ui/themes';
 import * as Popover from '@radix-ui/react-popover';
 import classNames from 'classnames';
@@ -24,6 +24,8 @@ interface MobileDateFilterProps {
     align?: 'left' | 'right';
     /** Remove outer padding and border-y — use when embedded inside a sheet/card */
     compact?: boolean;
+    /** 'single' shows a plain calendar and picks one day (start === end). Defaults to 'range'. */
+    mode?: 'range' | 'single';
 }
 
 const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
@@ -32,7 +34,9 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
     onChange,
     align = 'left',
     compact = false,
+    mode = 'range',
 }) => {
+    const isSingle = mode === 'single';
     const [showPicker, setShowPicker] = useState(false);
     const [dateRange, setDateRange] = useState<DateRange[]>([
         {
@@ -41,6 +45,7 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
             key: 'selection',
         },
     ]);
+    const [selectedDate, setSelectedDate] = useState<Date>(startDate || new Date());
     const isMobile = useIsMobile();
 
     const staticRanges = useMemo(() => createStaticRanges([
@@ -106,6 +111,16 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
         if (!startDate) return 'Select Date';
 
         const startFormatted = dayjs(startDate).format('D MMM, YYYY');
+
+        if (isSingle) {
+            const today = dayjs().format('D MMM, YYYY');
+            const yesterday = dayjs().subtract(1, 'day').format('D MMM, YYYY');
+
+            if (startFormatted === today) return 'Today';
+            if (startFormatted === yesterday) return 'Yesterday';
+            return startFormatted;
+        }
+
         const endFormatted = endDate ? dayjs(endDate).format('D MMM, YYYY') : '';
 
         if (startFormatted === endFormatted) {
@@ -134,8 +149,16 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
         }
     };
 
+    const handleSelectSingle = (date: Date): void => {
+        setSelectedDate(date);
+    };
+
     const handleApply = (): void => {
-        onChange(dateRange[0].startDate, dateRange[0].endDate);
+        if (isSingle) {
+            onChange(selectedDate, selectedDate);
+        } else {
+            onChange(dateRange[0].startDate, dateRange[0].endDate);
+        }
         setShowPicker(false);
     };
 
@@ -147,10 +170,19 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
                 key: 'selection',
             },
         ]);
+        setSelectedDate(startDate || new Date());
         setShowPicker(false);
     };
 
     const handlePrevDate = (): void => {
+        if (isSingle) {
+            if (!startDate) return;
+            const newDate = dayjs(startDate).subtract(1, 'day').toDate();
+            setSelectedDate(newDate);
+            onChange(newDate, newDate);
+            return;
+        }
+
         if (!startDate || !endDate) return;
 
         const daysDiff = dayjs(endDate).diff(dayjs(startDate), 'day') + 1;
@@ -162,6 +194,15 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
     };
 
     const handleNextDate = (): void => {
+        if (isSingle) {
+            if (!startDate) return;
+            const newDate = dayjs(startDate).add(1, 'day').toDate();
+            if (dayjs(newDate).isAfter(dayjs(), 'day')) return;
+            setSelectedDate(newDate);
+            onChange(newDate, newDate);
+            return;
+        }
+
         if (!startDate || !endDate) return;
 
         const daysDiff = dayjs(endDate).diff(dayjs(startDate), 'day') + 1;
@@ -191,7 +232,7 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
                 'font-bold text-zinc-900 dark:text-zinc-100',
                 isMobile ? 'text-base' : 'text-sm',
             )}>
-                Select Date Range
+                {isSingle ? 'Select Date' : 'Select Date Range'}
             </span>
             <button
                 type="button"
@@ -275,17 +316,26 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
                             >
                                 {pickerHeader}
                                 <Box className="date-range-picker-desktop text-zinc-900 dark:text-zinc-300">
-                                    <DateRangePicker
-                                        onChange={handleSelect}
-                                        moveRangeOnFirstSelection={false}
-                                        months={2}
-                                        ranges={dateRange}
-                                        direction="horizontal"
-                                        staticRanges={staticRanges}
-                                        inputRanges={[]}
-                                        rangeColors={['#0ea5e9']}
-                                        maxDate={new Date()}
-                                    />
+                                    {isSingle ? (
+                                        <Calendar
+                                            onChange={handleSelectSingle}
+                                            date={selectedDate}
+                                            color="#0ea5e9"
+                                            maxDate={new Date()}
+                                        />
+                                    ) : (
+                                        <DateRangePicker
+                                            onChange={handleSelect}
+                                            moveRangeOnFirstSelection={false}
+                                            months={2}
+                                            ranges={dateRange}
+                                            direction="horizontal"
+                                            staticRanges={staticRanges}
+                                            inputRanges={[]}
+                                            rangeColors={['#0ea5e9']}
+                                            maxDate={new Date()}
+                                        />
+                                    )}
                                 </Box>
                             </Popover.Content>
                         </Popover.Portal>
@@ -321,17 +371,26 @@ const MobileDateFilter: React.FC<MobileDateFilterProps> = ({
                         </Flex>
                         {pickerHeader}
                         <Box className="overflow-auto max-h-[calc(90vh-80px)] date-range-picker-mobile text-zinc-900 dark:text-zinc-300">
-                            <DateRangePicker
-                                onChange={handleSelect}
-                                moveRangeOnFirstSelection={false}
-                                months={1}
-                                ranges={dateRange}
-                                direction="vertical"
-                                staticRanges={staticRanges}
-                                inputRanges={[]}
-                                rangeColors={['#0ea5e9']}
-                                maxDate={new Date()}
-                            />
+                            {isSingle ? (
+                                <Calendar
+                                    onChange={handleSelectSingle}
+                                    date={selectedDate}
+                                    color="#0ea5e9"
+                                    maxDate={new Date()}
+                                />
+                            ) : (
+                                <DateRangePicker
+                                    onChange={handleSelect}
+                                    moveRangeOnFirstSelection={false}
+                                    months={1}
+                                    ranges={dateRange}
+                                    direction="vertical"
+                                    staticRanges={staticRanges}
+                                    inputRanges={[]}
+                                    rangeColors={['#0ea5e9']}
+                                    maxDate={new Date()}
+                                />
+                            )}
                         </Box>
                     </Box>
                 </Flex>
