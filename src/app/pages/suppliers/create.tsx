@@ -2,18 +2,32 @@ import * as Yup from 'yup';
 import { Form, Formik } from 'formik';
 import { FunctionComponent, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import { Truck, X, Loader2, CheckCircle2 } from 'lucide-react';
+import { Truck, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { Notify, Report, Confirm } from 'notiflix';
+import { Box, Flex, Grid, Text, Button } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
-import { Button, FormFieldCard } from '../../components';
-import FormInput from '../../components/FormInput';
 import FormSearchableSelect from '../../components/FormSearchableSelect';
+import TextInput from '../../components/TextInput';
+import FormStepper, { type FormStep } from '../../components/FormStepper';
 import { ROUTES } from '../../utils/constants';
 import { useSuppliers } from '../../hooks/useSuppliers';
 import { useSettings } from '../../hooks/useSettings';
 import SupplierBalanceWidget from './partials/SupplierBalanceWidget';
+import SupplierFormReview from './partials/SupplierFormReview';
 import { getErrorMessage } from '../../utils/api-error-handler';
+
+const FORM_STEPS: FormStep[] = [
+    { id: 1, label: 'Basic Information' },
+    { id: 2, label: 'Payment & Terms' },
+    { id: 3, label: 'Review & Confirm' },
+];
+
+const STEP_FIELDS: Record<number, string[]> = {
+    1: ['name', 'contactPerson', 'email', 'phone', 'address', 'taxId', 'identifierType', 'identifierNumber'],
+    2: ['paymentTerms', 'creditLimit', 'status'],
+    3: [],
+};
 
 const SupplierForm: FunctionComponent = () => {
     const navigate = useNavigate();
@@ -26,6 +40,8 @@ const SupplierForm: FunctionComponent = () => {
 
     const [loading, setLoading] = useState(false);
     const [supplier, setSupplier] = useState<Supplier | null>(null);
+    const [currentStep, setCurrentStep] = useState(1);
+    const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
     useEffect(() => {
         if (isEditMode) {
@@ -132,6 +148,11 @@ const SupplierForm: FunctionComponent = () => {
     }, [['identifierType', 'identifierNumber']]);
 
     const handleSubmit = async (values: typeof defaultSupplierValues, { resetForm }: any) => {
+        // Guard against implicit/accidental submission (e.g. pressing Enter) while not on the review step
+        if (currentStep !== FORM_STEPS.length) {
+            return;
+        }
+
         setLoading(true);
         try {
             const payload = {
@@ -153,6 +174,8 @@ const SupplierForm: FunctionComponent = () => {
                     'Go to Suppliers',
                     () => {
                         resetForm();
+                        setCurrentStep(1);
+                        setCompletedSteps([]);
                     },
                     () => {
                         navigate(ROUTES.PROCUREMENT_SUPPLIERS);
@@ -171,26 +194,56 @@ const SupplierForm: FunctionComponent = () => {
     if (loading && !supplier && supplierId) {
         return (
             <AppLayout>
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <div className="flex items-center justify-center h-64">
-                        <div className="text-gray-600 dark:text-gray-400">Loading supplier details...</div>
-                    </div>
-                </div>
+                <Box className="max-w-4xl mx-auto" px={{ initial: '4', sm: '6', lg: '8' }} py="6">
+                    <Flex align="center" justify="center" className="h-64">
+                        <Text color="gray">Loading supplier details...</Text>
+                    </Flex>
+                </Box>
             </AppLayout>
         );
     }
 
     return (
         <AppLayout>
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <Formik
-                    onSubmit={handleSubmit}
-                    enableReinitialize={true}
-                    initialValues={initialSupplierValues}
-                    validationSchema={supplierValidationSchema}
-                >
-                    {({ isSubmitting, values }) => (
-                        <Form>
+            <Formik
+                onSubmit={handleSubmit}
+                enableReinitialize={true}
+                initialValues={initialSupplierValues}
+                validationSchema={supplierValidationSchema}
+            >
+                {({ isSubmitting, values, touched, setTouched, validateForm, submitForm }) => {
+                    const isLastStep = currentStep === FORM_STEPS.length;
+
+                    const goToStep = (stepId: number) => setCurrentStep(stepId);
+
+                    const handleBack = () => setCurrentStep((step) => Math.max(step - 1, 1));
+
+                    const handleNext = async () => {
+                        const stepFields = STEP_FIELDS[currentStep] || [];
+                        const formErrors = await validateForm();
+                        const stepHasErrors = stepFields.some((field) => !!(formErrors as Record<string, unknown>)[field]);
+
+                        if (stepHasErrors) {
+                            setTouched({
+                                ...touched,
+                                ...stepFields.reduce((acc, field) => ({ ...acc, [field]: true }), {}),
+                            }, false);
+                            return;
+                        }
+
+                        setCompletedSteps((prev) => (prev.includes(currentStep) ? prev : [...prev, currentStep]));
+                        setCurrentStep((step) => Math.min(step + 1, FORM_STEPS.length));
+                    };
+
+                    return (
+                        <Form
+                            onKeyDown={(e) => {
+                                const target = e.target as HTMLElement;
+                                if (e.key === 'Enter' && !isLastStep && target.tagName !== 'TEXTAREA') {
+                                    e.preventDefault();
+                                }
+                            }}
+                        >
                             <PageHeader
                                 title={isEditMode ? 'Edit Supplier' : 'Add New Supplier'}
                                 description={isEditMode ? 'Update supplier information' : 'Required fields are marked with an asterisk (*)'}
@@ -198,7 +251,7 @@ const SupplierForm: FunctionComponent = () => {
                                 showBackButton
                             />
 
-                            <div className="mt-6 space-y-6">
+                            <Flex direction="column" gap="6">
                                 {isEditMode && supplierId && (
                                     <SupplierBalanceWidget
                                         supplierId={supplierId}
@@ -206,30 +259,37 @@ const SupplierForm: FunctionComponent = () => {
                                     />
                                 )}
 
-                                <FormFieldCard title="Basic Information">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <FormInput
+                                <FormStepper
+                                    steps={FORM_STEPS}
+                                    currentStep={currentStep}
+                                    completedSteps={completedSteps}
+                                    onStepClick={goToStep}
+                                />
+
+                                {currentStep === 1 && (
+                                    <Grid columns={{ initial: '1', md: '2' }} gap="4">
+                                        <TextInput
                                             label="Supplier Name"
                                             name="name"
                                             placeholder="ABC Wholesale Ltd"
                                             required
                                         />
 
-                                        <FormInput
+                                        <TextInput
                                             label="Contact Person"
                                             name="contactPerson"
                                             placeholder="John Doe"
                                             required
                                         />
 
-                                        <FormInput
+                                        <TextInput
                                             label="Email"
                                             name="email"
                                             type="email"
                                             placeholder="contact@supplier.com"
                                         />
 
-                                        <FormInput
+                                        <TextInput
                                             label="Phone"
                                             name="phone"
                                             type="tel"
@@ -237,14 +297,14 @@ const SupplierForm: FunctionComponent = () => {
                                             required
                                         />
 
-                                        <FormInput
+                                        <TextInput
                                             label="Address"
                                             name="address"
                                             required
                                             placeholder="Street address, city, country"
                                         />
 
-                                        <FormInput
+                                        <TextInput
                                             label="Tax ID / VAT Number"
                                             name="taxId"
                                             placeholder="123456789"
@@ -258,16 +318,16 @@ const SupplierForm: FunctionComponent = () => {
                                             isClearable
                                         />
 
-                                        <FormInput
+                                        <TextInput
                                             label="Supplier Identity"
                                             name="identifierNumber"
                                             placeholder="Enter identifier number"
                                         />
-                                    </div>
-                                </FormFieldCard>
+                                    </Grid>
+                                )}
 
-                                <FormFieldCard title="Payment & Terms">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {currentStep === 2 && (
+                                    <Grid columns={{ initial: '1', md: '2' }} gap="4">
                                         <FormSearchableSelect
                                             label="Payment Terms"
                                             name="paymentTerms"
@@ -276,7 +336,7 @@ const SupplierForm: FunctionComponent = () => {
                                             placeholder="Select payment terms"
                                         />
 
-                                        <FormInput
+                                        <TextInput
                                             label="Credit Limit"
                                             name="creditLimit"
                                             type="number"
@@ -292,33 +352,54 @@ const SupplierForm: FunctionComponent = () => {
                                             required
                                             placeholder="Select status"
                                         />
-                                    </div>
-                                </FormFieldCard>
+                                    </Grid>
+                                )}
 
-                                <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
+                                {currentStep === 3 && (
+                                    <SupplierFormReview
+                                        values={values}
+                                        paymentTermsOptions={paymentTermsOptions}
+                                        statusOptions={statusOptions}
+                                        identifierTypeOptions={identifierTypeOptions}
+                                        onEditStep={goToStep}
+                                    />
+                                )}
+
+                                <Flex justify="between" align="center" pt="4" className="border-t border-gray-200 dark:border-gray-700">
                                     <Button
-                                        type="submit"
-                                        theme="success"
-                                        disabled={isSubmitting || loading}
+                                        type="button"
+                                        variant="soft"
+                                        color="gray"
+                                        onClick={handleBack}
+                                        disabled={currentStep === 1}
                                     >
-                                        {isSubmitting || loading ? (
-                                            <>
-                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                                Saving...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <CheckCircle2 className="w-4 h-4 mr-2" />
-                                                {isEditMode ? 'Update Supplier' : 'Create Supplier'}
-                                            </>
-                                        )}
+                                        <ChevronLeft className="w-4 h-4" />
+                                        Back
                                     </Button>
-                                </div>
-                            </div>
+
+                                    {isLastStep ? (
+                                        <Button
+                                            type="button"
+                                            color="green"
+                                            loading={isSubmitting || loading}
+                                            disabled={isSubmitting || loading}
+                                            onClick={() => submitForm()}
+                                        >
+                                            <CheckCircle2 className="w-4 h-4" />
+                                            {isEditMode ? 'Update Supplier' : 'Create Supplier'}
+                                        </Button>
+                                    ) : (
+                                        <Button type="button" onClick={handleNext}>
+                                            Next
+                                            <ChevronRight className="w-4 h-4" />
+                                        </Button>
+                                    )}
+                                </Flex>
+                            </Flex>
                         </Form>
-                    )}
-                </Formik>
-            </div>
+                    );
+                }}
+            </Formik>
         </AppLayout>
     );
 };
