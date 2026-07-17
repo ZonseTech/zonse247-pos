@@ -12,6 +12,8 @@ export const useSuppliers = () => {
     const [perPage, setPerPage] = useState(10);
     const [totalRows, setTotalRows] = useState(0);
     const [statusFilter, setStatusFilter] = useState<SupplierStatus | ''>('');
+    const [startDate, setStartDate] = useState<string>('');
+    const [endDate, setEndDate] = useState<string>('');
 
     const loadSuppliers = useCallback(async () => {
 
@@ -23,6 +25,8 @@ export const useSuppliers = () => {
                 search: debouncedTerm || undefined,
                 status: statusFilter || undefined,
                 includeInactive: true,
+                startDate: startDate || undefined,
+                endDate: endDate || undefined,
             } as any);
 
             if (!result) {
@@ -41,7 +45,7 @@ export const useSuppliers = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [page, perPage, debouncedTerm, statusFilter]);
+    }, [page, perPage, debouncedTerm, statusFilter, startDate, endDate]);
 
     useEffect(() => {
         loadSuppliers();
@@ -104,6 +108,10 @@ export const useSuppliers = () => {
         totalRows,
         statusFilter,
         setStatusFilter,
+        startDate,
+        setStartDate,
+        endDate,
+        setEndDate,
         loadSuppliers,
         createSupplier,
         updateSupplier,
