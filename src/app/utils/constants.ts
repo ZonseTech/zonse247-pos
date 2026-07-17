@@ -38,6 +38,7 @@ export enum ROUTES {
 
 	SUPPLIERS = '/suppliers',
 	SUPPLIER_FORM = '/suppliers/form',
+	SUPPLIER_DETAILS = '/suppliers/:supplierId',
 	PROCUREMENT = '/procurement',
 	PURCHASE_ORDERS = '/purchase-orders',
 	PURCHASE_ORDER_FORM = '/purchase-orders/form',
