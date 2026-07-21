@@ -114,10 +114,10 @@ const useNavGroups = (): UseNavGroupsReturn => {
                 id: 'procurement',
                 label: 'Procurement',
                 icon: ic(POIcon),
-                route: isNativeMobile ? ROUTES.PURCHASE_ORDERS : ROUTES.SUPPLIERS,
+                route: isNativeMobile ? ROUTES.SUPPLIERS : ROUTES.PROCUREMENT_SUPPLIERS,
                 onClick: isNativeMobile
-                    ? () => navigate(ROUTES.PURCHASE_ORDERS)
-                    : () => navigate(ROUTES.SUPPLIERS),
+                    ? () => navigate(ROUTES.SUPPLIERS)
+                    : () => navigate(ROUTES.PROCUREMENT_SUPPLIERS),
                 showOnDesktop: true,
                 showOnMobile: true,
             });
