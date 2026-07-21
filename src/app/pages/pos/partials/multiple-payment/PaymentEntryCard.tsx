@@ -5,6 +5,7 @@ import { formatCurrency } from '../../../../utils';
 import { QUICK_AMOUNTS } from './constants';
 import { PaymentEntryCardProps, PAYMENT_METHODS } from './types';
 import { getPaymentMethodIcon, getPaymentMethodLabel, getPaymentMethodColor } from './utils';
+import { usePaymentServiceProviders } from '../../../../hooks/usePaymentServiceProviders';
 
 const PaymentEntryCard: FunctionComponent<PaymentEntryCardProps> = ({
     payment,
@@ -16,6 +17,9 @@ const PaymentEntryCard: FunctionComponent<PaymentEntryCardProps> = ({
     onRemove,
 }) => {
     const quickAmounts = [remaining, ...QUICK_AMOUNTS].filter(v => v > 0).slice(0, 5);
+    const { providers } = usePaymentServiceProviders(
+        payment.paymentMethodId !== PAYMENT_METHODS.CASH ? payment.paymentMethodId : undefined
+    );
 
     return (
         <div className={classNames(
@@ -100,6 +104,29 @@ const PaymentEntryCard: FunctionComponent<PaymentEntryCardProps> = ({
                                 {i === 0 ? 'Exact' : formatCurrency(amount)}
                             </button>
                         ))}
+                    </div>
+                )}
+
+                {/* Provider (bank / mobile money network, for non-cash) */}
+                {payment.paymentMethodId !== PAYMENT_METHODS.CASH && providers.length > 0 && (
+                    <div>
+                        <label className="block text-gray-500 dark:text-gray-400 text-xs font-medium mb-1.5">
+                            {payment.paymentMethodId === PAYMENT_METHODS.MOBILE_MONEY ? 'Network' : 'Bank'}
+                        </label>
+                        <select
+                            value={payment.providerId || ''}
+                            onChange={(e) => onUpdate(payment.id, 'providerId', e.target.value)}
+                            disabled={processing}
+                            className={classNames(
+                                "w-full border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent focus:bg-white dark:focus:bg-gray-700 disabled:opacity-50 transition-all",
+                                isEBN ? "px-3 py-2 text-sm" : "px-3 py-2.5 text-sm"
+                            )}
+                        >
+                            <option value="">Select...</option>
+                            {providers.map(provider => (
+                                <option key={provider.providerId} value={provider.providerId}>{provider.name}</option>
+                            ))}
+                        </select>
                     </div>
                 )}
 

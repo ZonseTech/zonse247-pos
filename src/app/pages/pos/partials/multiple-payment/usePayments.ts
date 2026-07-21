@@ -29,6 +29,7 @@ export const usePayments = (total: number, isOpen: boolean): UsePaymentsReturn =
             paymentMethodId: method,
             amount: currentRemaining > 0 ? currentRemaining.toFixed(2) : '',
             reference: '',
+            providerId: '',
             phoneNumber: '',
             notes: '',
         };

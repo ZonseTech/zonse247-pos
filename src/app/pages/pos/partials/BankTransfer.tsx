@@ -5,6 +5,7 @@ import { useKeyboardSettings } from '../../../hooks/useKeyboardSettings';
 import { FormikErrors } from 'formik';
 import FormInput from '../../../components/FormInput';
 import { useIsMobile } from '../../../hooks/useMediaQuery';
+import { usePaymentServiceProviders } from '../../../hooks/usePaymentServiceProviders';
 import { Smartphone, CreditCard } from 'lucide-react';
 import classNames from 'classnames';
 
@@ -17,9 +18,10 @@ interface BankTransferProps {
     compact?: boolean;
 }
 
+// ids match the "pos"/"bank-transfer" PaymentMethod leaves nested under "bank"
 export const TRANSFER_TYPES = [
-    { id: 'mobile-banking', name: 'Mobile Banking', icon: Smartphone, color: 'bg-sky-500' },
-    { id: 'pos-machine', name: 'POS Machine', icon: CreditCard, color: 'bg-purple-500' },
+    { id: 'bank-transfer', name: 'Bank Transfer', icon: Smartphone, color: 'bg-sky-500' },
+    { id: 'pos', name: 'POS Machine', icon: CreditCard, color: 'bg-purple-500' },
 ];
 
 const BankTransfer: FunctionComponent<BankTransferProps> = ({
@@ -35,12 +37,8 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
     const accountInputRef = useRef<HTMLInputElement>(null);
     const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const isVirtualKeyboardActive = useRef(false);
-    const [selectedTransferType, setSelectedTransferType] = useState('mobile-banking');
-
-    useEffect(() => {
-        onValueChange('paymentServiceProviderId', 'nb-bank');
-        onValueChange('transferType', 'mobile-banking');
-    }, [])
+    const [selectedTransferType, setSelectedTransferType] = useState(values.paymentMethodId || 'bank-transfer');
+    const { providers: banks } = usePaymentServiceProviders('bank');
 
     useEffect(() => {
         if (accountInputRef.current) {
@@ -50,7 +48,7 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
 
     const handleTransferTypeSelect = (typeId: string) => {
         setSelectedTransferType(typeId);
-        onValueChange('transferType', typeId);
+        onValueChange('paymentMethodId', typeId);
     };
 
     useEffect(() => {
@@ -229,11 +227,9 @@ const BankTransfer: FunctionComponent<BankTransferProps> = ({
                             name='paymentServiceProviderId'
                         >
                             <option value="">Select Bank</option>
-                            <option value="nb-bank">NB Bank</option>
-                            <option value="standard-bank">Standard Bank</option>
-                            <option value="fmb">FMB</option>
-                            <option value="nedbank">Nedbank</option>
-                            <option value="national-bank">National Bank of Malawi</option>
+                            {banks.map(bank => (
+                                <option key={bank.providerId} value={bank.providerId}>{bank.name}</option>
+                            ))}
                         </select>
                     </div>
 
