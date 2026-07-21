@@ -23,6 +23,20 @@ interface SalePaymentInput {
     notes?: string;
 }
 
+interface SalePaymentMethodInfo {
+    methodId: string;
+    name: string;
+    icon?: string;
+    /** Root category (e.g. Bank) when this method is a channel leaf (e.g. POS, Bank Transfer) */
+    parent?: SalePaymentMethodInfo;
+}
+
+interface SalePaymentProviderInfo {
+    providerId: string;
+    name: string;
+    logoUrl?: string;
+}
+
 interface SalePayment {
     id: string;
     saleId: string;
@@ -36,11 +50,8 @@ interface SalePayment {
     notes?: string | null;
     createdAt: Date | string;
     updatedAt: Date | string;
-    paymentMethod?: {
-        methodId: string;
-        name: string;
-        icon?: string;
-    };
+    paymentMethod?: SalePaymentMethodInfo;
+    provider?: SalePaymentProviderInfo;
 }
 
 interface SaleQueryParams {

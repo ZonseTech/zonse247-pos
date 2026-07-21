@@ -1,9 +1,11 @@
 type PaymentServiceProvider = {
     providerId: string;
     name: string;
+    type?: string;
     tenantId: string;
     branchId: string;
     userId: string;
+    paymentMethodId?: string | null;
     createdAt?: Date;
     updatedAt?: Date;
     logoUrl?: string;
