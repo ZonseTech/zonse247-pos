@@ -9,6 +9,7 @@ import InitApp from '../pages/landing/InitApp'
 import {
 	PublicAuthRoutes,
 	ProtectedAuthRoutes,
+	DashboardRoutes,
 	MobileTabRoutes,
 	DesktopPosRoute,
 	MobileReportRoutes,
@@ -44,6 +45,7 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 
 				<Route path="/" element={<ProtectedLayoutWithAuth />}>
 					{isNativeMobile ? MobileTabRoutes : DesktopPosRoute}
+					{DashboardRoutes}
 
 					{MobileReportRoutes}
 					{DesktopReportRoutes}
