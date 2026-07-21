@@ -1,5 +1,6 @@
 import { FunctionComponent } from "react";
 import { formatCurrency } from "../../../utils";
+import { composePaymentLabel } from "../../../utils/sale.helper";
 import { Banknote, CreditCard, Smartphone, Building2 } from "lucide-react";
 
 const getPaymentIcon = (methodName: string, compact: boolean = false) => {
@@ -91,7 +92,7 @@ const SaleSummary: FunctionComponent<{
                             <div key={payment.id || index} className={compact ? "flex justify-between items-center py-0.5" : "flex justify-between items-center py-1"}>
                                 <span className={`flex items-center gap-1.5 ${compact ? "text-[10px]" : "text-sm"} text-gray-700 dark:text-gray-300`}>
                                     {getPaymentIcon(payment.paymentMethod?.name || '', compact)}
-                                    {payment.paymentMethod?.name || payment.paymentMethodId || 'Unknown'}
+                                    {composePaymentLabel(payment)}
                                     {payment.reference && (
                                         <span className={`font-mono ${compact ? "text-[8px]" : "text-xs"} text-gray-400`}>
                                             ({payment.reference})

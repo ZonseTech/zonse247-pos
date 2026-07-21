@@ -1,5 +1,6 @@
 import { FunctionComponent } from 'react';
 import { formatCurrency } from '../../../../utils';
+import { composePaymentLabel } from '../../../../utils/sale.helper';
 
 interface ReceiptPaymentProps {
     payments?: SalePayment[];
@@ -23,7 +24,7 @@ const ReceiptPayment: FunctionComponent<ReceiptPaymentProps> = ({
                 <>
                     {payments.map((payment, idx) => (
                         <div key={idx} className="flex justify-between">
-                            <span>{payment.paymentMethod?.name || payment.paymentMethodId}:</span>
+                            <span>{composePaymentLabel(payment)}:</span>
                             <span>{formatCurrency(payment.amount, true)}</span>
                         </div>
                     ))}

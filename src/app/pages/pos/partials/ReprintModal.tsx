@@ -7,6 +7,7 @@ import { useAuth } from '../../../context/AuthProvider';
 import printerService from '../../../services/printer.service';
 import salesService from '../../../services/sales.service';
 import { formatCurrency, formatDate } from '../../../utils';
+import { getPaymentMethodName } from '../../../utils/sale.helper';
 import { useIsEBN, useIsMobile } from '../../../hooks/useMediaQuery';
 import classNames from 'classnames';
 
@@ -174,19 +175,10 @@ const ReprintModal: FunctionComponent<ReprintModalProps> = ({
     }, [isOpen, selectedSale, isPrinting]);
 
     const getPaymentDisplay = (sale: Sale) => {
-        // Check for split payments
-        if (sale.payments && sale.payments.length > 1) {
-            return { name: 'Split Payment', icon: '💳' };
-        }
-        // Use the paymentMethod object from the API response
-        if (sale.paymentMethod) {
-            return { name: sale.paymentMethod.name, icon: sale.paymentMethod.icon || '💳' };
-        }
-        // Fallback to first payment's method
-        if (sale.payments?.[0]?.paymentMethod) {
-            return { name: sale.payments[0].paymentMethod.name, icon: sale.payments[0].paymentMethod.icon || '💳' };
-        }
-        return { name: 'Unknown', icon: '💳' };
+        const icon = sale.payments && sale.payments.length > 1
+            ? '💳'
+            : sale.paymentMethod?.icon || sale.payments?.[0]?.paymentMethod?.icon || '💳';
+        return { name: getPaymentMethodName(sale), icon };
     };
 
     if (!isOpen) return null;

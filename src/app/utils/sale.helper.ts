@@ -51,17 +51,32 @@ export const getDiscountAmount = (sale: Sale | Transaction | null): number => {
     return (sale as Sale).discountAmount || (sale as Transaction).discount || 0;
 };
 
+// Compose a human-readable payment label from a single payment entry, e.g.
+// "Bank - Bank Transfer - NBS Bank", "Mobile Money - TNM Mpamba", or "Cash".
+export const composePaymentLabel = (
+    payment: { paymentMethodId?: string; paymentMethod?: SalePaymentMethodInfo; provider?: SalePaymentProviderInfo } | null | undefined
+): string => {
+    if (!payment) return 'Cash';
+
+    const method = payment.paymentMethod;
+    const methodLabel = method?.parent
+        ? `${method.parent.name} - ${method.name}`
+        : (method?.name || payment.paymentMethodId || 'Cash');
+
+    return payment.provider?.name ? `${methodLabel} - ${payment.provider.name}` : methodLabel;
+};
+
 // Payment method name helper
 export const getPaymentMethodName = (sale: Sale | Transaction | null): string => {
     if (!sale) return 'Cash';
 
     // Multiple payments
     if (sale.payments && sale.payments.length > 0) {
-        return sale.payments.map(p => p.paymentMethod?.name || p.paymentMethodId).join(', ');
+        return sale.payments.map(p => composePaymentLabel(p)).join(', ');
     }
 
     // Single payment
-    return sale.paymentMethod?.name || sale.paymentMethodId || 'Cash';
+    return composePaymentLabel({ paymentMethodId: (sale as Sale).paymentMethodId, paymentMethod: (sale as Sale).paymentMethod });
 };
 
 // Status configuration type

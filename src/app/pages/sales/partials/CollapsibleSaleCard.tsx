@@ -1,6 +1,7 @@
 import { FunctionComponent } from 'react';
 import { Eye, RotateCcw, Trash2, Share2, Printer, Copy, CheckCircle, Download } from 'lucide-react';
 import { formatCurrency, formatDate } from '../../../utils';
+import { getPaymentMethodName } from '../../../utils/sale.helper';
 import { Flex, Text, Button, Separator, IconButton, Badge } from '@radix-ui/themes';
 import * as Collapsible from '@radix-ui/react-collapsible';
 import dayjs from 'dayjs';
@@ -36,19 +37,6 @@ interface CollapsibleSaleCardProps {
     };
 }
 
-const getPaymentName = (paymentMethodId?: string): string => {
-    switch (paymentMethodId) {
-        case 'cash':
-            return 'Cash';
-        case 'mobile-money':
-            return 'Mobile Money';
-        case 'bank-transfer':
-            return 'Bank Transfer';
-        default:
-            return paymentMethodId || 'Cash';
-    }
-};
-
 const STATUS_CONFIG: Record<string, { color: 'green' | 'orange' | 'red' | 'blue' | 'gray'; label: string }> = {
     COMPLETED: { color: 'green', label: 'Completed' },
     PENDING: { color: 'orange', label: 'Pending' },
@@ -78,9 +66,7 @@ const CollapsibleSaleCard: FunctionComponent<CollapsibleSaleCardProps> = ({
     const itemCount = sale.items?.length || 0;
     const dateFormat = showFullDate ? 'MMM D, YYYY h:mm A' : 'h:mm A';
     const customerName = sale.customer?.name || 'Walk-in Customer';
-    const paymentMethodName = sale.payments && sale.payments.length > 0
-        ? sale.payments.map(p => p.paymentMethod?.name || p.paymentMethodId).join(', ')
-        : getPaymentName(sale.paymentMethodId);
+    const paymentMethodName = getPaymentMethodName(sale);
     const isCopied = copiedSaleId === sale.id;
     const status = sale.status?.toUpperCase() || 'COMPLETED';
     const statusConfig = STATUS_CONFIG[status] || STATUS_CONFIG.COMPLETED;

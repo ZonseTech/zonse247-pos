@@ -1,4 +1,5 @@
 import { formatCurrency, formatDate } from '../../../utils';
+import { getPaymentMethodName } from '../../../utils/sale.helper';
 import { Modal } from '../../../components';
 import {
 	type Dispatch,
@@ -138,9 +139,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 		if (!sale) return null;
 
 		const statusInfo = getStatusStyle(sale.status || 'pending');
-		const paymentMethodName = sale.payments && sale.payments.length > 0
-			? sale.payments.map(p => p.paymentMethod?.name || p.paymentMethodId).join(', ')
-			: sale.paymentMethod?.name || sale.paymentMethodId || 'Cash';
+		const paymentMethodName = getPaymentMethodName(sale);
 
 		const mraSaleStatus = (sale as Sale).mraSaleStatus;
 		const mraStatusInfo = mraSaleStatus && mraSaleStatus !== 'NOT_APPLICABLE'

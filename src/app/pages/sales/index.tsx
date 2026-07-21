@@ -8,6 +8,7 @@ import { useIsInsideHub } from "../../context/HubContext";
 import { useSales } from "../../hooks/useSales";
 import { useSaleSummary } from "../../hooks/useSaleSummary";
 import { usePaymentMethods } from "../../hooks/usePaymentMethods";
+import { getLeafPaymentMethods } from "../../utils/paymentMethod.helper";
 import { useMraCompliance } from "../../hooks/useMraCompliance";
 import { getSaleTableColumns } from "./partials/SaleTableColumns";
 import SaleDetailsModal from "./partials/SaleDetailsModal";
@@ -64,7 +65,10 @@ const SalesPage: FC = () => {
 
     const totalPages = Math.ceil(totalRows / perPage);
 
-    const { paymentMethods, isLoading: isLoadingPaymentMethods } = usePaymentMethods();
+    const { paymentMethods: allPaymentMethods, isLoading: isLoadingPaymentMethods } = usePaymentMethods();
+    // Filter out parent-only nodes (e.g. "Bank") - only leaves (Cash, POS, Bank
+    // Transfer, Mobile Money, ...) are ever actually used on a SalePayment.
+    const paymentMethods = useMemo(() => getLeafPaymentMethods(allPaymentMethods), [allPaymentMethods]);
 
     const { isLoadingSummary, getSummaryCards, loadSummary } = useSaleSummary({
         searchTerm,
