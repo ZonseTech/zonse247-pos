@@ -8,6 +8,7 @@ import {
     HiOutlinePresentationChartBar,
     HiOutlinePrinter,
     HiOutlineUserGroup,
+    HiOutlineViewGrid,
 } from 'react-icons/hi';
 import {
     HiOutlineBuildingOffice2,
@@ -43,6 +44,16 @@ const useNavGroups = (): UseNavGroupsReturn => {
         const result: NavGroup[] = [];
 
         const opsItems: NavItemBase[] = [];
+
+        opsItems.push({
+            id: 'dashboard',
+            label: 'Dashboard',
+            icon: ic(HiOutlineViewGrid),
+            route: ROUTES.DASHBOARD,
+            onClick: () => navigate(ROUTES.DASHBOARD),
+            showOnDesktop: true,
+            showOnMobile: true,
+        });
 
         if (hasAnyPermission(user, ['products.view', 'products.create', 'sales.create', 'refunds.process'])) {
             opsItems.push({
