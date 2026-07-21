@@ -8,19 +8,26 @@ import type { DashboardDataPoint } from '../../../services/dashboard.service';
 import { formatCurrency, formatCurrencyShort } from '../../../utils';
 import { ROUTES } from '../../../utils/constants';
 
-// Presentation-only styling for well-known payment method names; anything
-// else falls back to a color from the palette below, cycled by position.
-const KNOWN_PAYMENT_STYLES: Record<string, { color: string; icon: LucideIcon }> = {
-    Cash: { color: '#0ea5e9', icon: Wallet },
-    Card: { color: '#10b981', icon: CreditCard },
-    'Mobile Money': { color: '#f59e0b', icon: Smartphone },
-    'Bank Transfer': { color: '#8b5cf6', icon: Landmark },
+// The breakdown groups by the specific provider used (e.g. "TNM Mpamba",
+// "NBS Bank") when there is one, falling back to the leaf method name (Cash,
+// Credit Card, ...) otherwise - see dashboard.service.ts. Since bank/mobile
+// money provider names vary per tenant (any Malawian bank, etc.), icon
+// selection is pattern-based rather than an exact-name lookup; unmatched
+// labels are assumed to be a bank (the dominant "other" category here).
+const getPaymentMethodIcon = (label: string): LucideIcon => {
+    const lower = label.toLowerCase();
+    if (lower.includes('cash')) return Wallet;
+    if (lower.includes('card')) return CreditCard;
+    if (lower.includes('mobile') || lower.includes('money') || lower.includes('mpamba') || lower.includes('airtel')) return Smartphone;
+    return Landmark;
 };
 
-const FALLBACK_COLORS = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'];
+const FALLBACK_COLORS = ['#0ea5e9', '#8b5cf6', '#f59e0b', '#10b981', '#ec4899', '#14b8a6'];
 
-const getPaymentMethodStyle = (label: string, index: number) =>
-    KNOWN_PAYMENT_STYLES[label] ?? { color: FALLBACK_COLORS[index % FALLBACK_COLORS.length], icon: Wallet };
+const getPaymentMethodStyle = (label: string, index: number) => ({
+    color: FALLBACK_COLORS[index % FALLBACK_COLORS.length],
+    icon: getPaymentMethodIcon(label),
+});
 
 export interface PaymentMethodsChartProps {
     data: DashboardDataPoint[];
