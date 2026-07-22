@@ -21,6 +21,9 @@ const endpoints = {
 
     // Statistics
     stats: 'suppliers/stats',
+
+    // Product history
+    products: (id: string) => `suppliers/${id}/products`,
 };
 
 const supplierService = {
@@ -155,6 +158,19 @@ const supplierService = {
                 params: tenantId && branchId ? { tenantId, branchId } : {},
             })
             .then(() => undefined)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * GET /suppliers/:id/products - Products historically supplied by this supplier
+     */
+    async getSupplierProductHistory(supplierId: string): Promise<SupplierProductHistoryItem[]> {
+        const headers = await getAuthHeaders();
+        return liveApi
+            .get<SupplierProductHistoryResponse>(endpoints.products(supplierId), { headers })
+            .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
             });

@@ -1,14 +1,16 @@
 import { FC } from 'react';
-import { Edit2, Trash2, Phone, Mail, MapPin, User, Building2 } from 'lucide-react';
+import { Eye, Edit2, Trash2, Phone, Mail, MapPin, User } from 'lucide-react';
 
 interface SupplierMobileCardProps {
     supplier: Supplier;
+    onView: (supplierId: string) => void;
     onEdit: (supplierId: string) => void;
     onDelete: (supplierId: string) => void;
 }
 
 const SupplierMobileCard: FC<SupplierMobileCardProps> = ({
     supplier,
+    onView,
     onEdit,
     onDelete,
 }) => {
@@ -70,6 +72,13 @@ const SupplierMobileCard: FC<SupplierMobileCardProps> = ({
                     {/* Actions */}
                     <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                         <button
+                            onClick={() => onView(supplier.id)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        >
+                            <Eye className="w-4 h-4" />
+                            <span>View</span>
+                        </button>
+                        <button
                             onClick={() => onEdit(supplier.id)}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-sky-500 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
                         >
@@ -92,6 +101,7 @@ const SupplierMobileCard: FC<SupplierMobileCardProps> = ({
 
 interface SupplierMobileListProps {
     suppliers: Supplier[];
+    onView: (supplierId: string) => void;
     onEdit: (supplierId: string) => void;
     onDelete: (supplierId: string) => void;
     isLoading?: boolean;
@@ -99,6 +109,7 @@ interface SupplierMobileListProps {
 
 export const SupplierMobileList: FC<SupplierMobileListProps> = ({
     suppliers,
+    onView,
     onEdit,
     onDelete,
     isLoading = false,
@@ -128,6 +139,7 @@ export const SupplierMobileList: FC<SupplierMobileListProps> = ({
                 <SupplierMobileCard
                     key={supplier.id}
                     supplier={supplier}
+                    onView={onView}
                     onEdit={onEdit}
                     onDelete={onDelete}
                 />

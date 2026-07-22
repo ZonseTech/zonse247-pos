@@ -122,6 +122,8 @@ interface SupplierListQuery {
     search?: string;
     status?: SupplierStatus;
     includeInactive?: boolean;
+    startDate?: string;
+    endDate?: string;
 }
 
 /**
@@ -148,4 +150,31 @@ interface SupplierListResponse {
             itemsPerPage: number;
         };
     };
+}
+
+/**
+ * A single product historically supplied by a supplier, aggregated from purchase order history
+ */
+interface SupplierProductHistoryItem {
+    variantId: string;
+    productId: string;
+    productName: string;
+    variantName: string;
+    sku: string | null;
+    unit: string;
+    totalOrdered: number;
+    totalReceived: number;
+    lastUnitPrice: number;
+    lastOrderDate: Date | string;
+    lastPoNumber: string;
+    orderCount: number;
+}
+
+/**
+ * Supplier product history response
+ */
+interface SupplierProductHistoryResponse {
+    success: boolean;
+    message: string;
+    data: SupplierProductHistoryItem[];
 }
