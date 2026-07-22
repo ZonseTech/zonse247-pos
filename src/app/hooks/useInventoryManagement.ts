@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'react-toastify';
 import inventoryService from '../services/inventory.service';
-import { Confirm, Notify } from 'notiflix';
 import { getErrorMessage } from '../utils/api-error-handler';
 import { useAppDispatch, useAppSelector } from './redux';
 import { fetchCategories, setCategories } from '../store/slices/inventorySlice';
@@ -108,30 +107,14 @@ export const useInventoryManagement = () => {
         }
     }, [perPage]);
 
-    const handleVoidItem = (uuid: string) => {
-        Confirm.show(
-            'Void Item',
-            'Are you sure you want to void this inventory item?',
-            'Yes, void it',
-            'Cancel',
-            function okCb() {
-                setIsLoading(true);
-
-                inventoryService
-                    .updateStatus(uuid, 'void')
-                    .then(() => {
-                        Notify.success('Item has been voided successfully');
-                        loadInventory();
-                    })
-                    .catch((error) => {
-                        Notify.failure(getErrorMessage(error, 'Failed to void item'));
-                    })
-                    .finally(() => {
-                        setIsLoading(false);
-                    });
-            }
-        );
-    };
+    const handleVoidItem = useCallback(async (uuid: string) => {
+        setIsLoading(true);
+        try {
+            await inventoryService.updateStatus(uuid, 'void');
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
 
     const handleSearch = useCallback((value: string) => {
         setSearchTerm(value);
