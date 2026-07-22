@@ -1,8 +1,9 @@
 import classNames from 'classnames';
 import { useConnectivity } from '../hooks/useConnectivity';
-import { useState, useEffect, FunctionComponent } from 'react'
+import { useState, FunctionComponent } from 'react'
 import { useIsEBN, useIsElectron } from '../hooks/useMediaQuery';
-import { Clock, Wifi, WifiOff, Server, ServerOff, Loader2, RefreshCw } from 'lucide-react';
+import { Wifi, WifiOff, Server, ServerOff, Loader2, RefreshCw } from 'lucide-react';
+import Timer from './timer/Timer';
 
 interface FooterProps {
     className?: string;
@@ -13,7 +14,6 @@ const Footer: FunctionComponent<FooterProps> = ({ className, compact: compactPro
     const isEBN = useIsEBN();
     const isDesktop = useIsElectron();
     const [isRefreshing, setIsRefreshing] = useState(false)
-    const [currentTime, setCurrentTime] = useState(new Date())
     const { isOnline, isServerConnected, serverChecking } = useConnectivity();
 
     const compact = compactProp ?? isEBN;
@@ -23,34 +23,14 @@ const Footer: FunctionComponent<FooterProps> = ({ className, compact: compactPro
         window.location.reload()
     }
 
-    useEffect(() => {
-        const updateTime = () => {
-            setCurrentTime(new Date())
-        }
-        const timer = setInterval(updateTime, 1000)
-        return () => clearInterval(timer)
-    }, [])
-
-    const formatTime = (date: Date) => {
-        return date.toLocaleTimeString('en-US', {
-            hour12: false,
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        })
-    }
-
     return (
         <div className={classNames(
             className || 'hidden md:flex',
             'justify-between items-center font-medium text-gray-600',
             compact ? 'text-xs py-1 px-3' : 'text-md mb-3 pt-3 px-4'
         )}>
-            <div className="flex items-center gap-1.5">
-                <Clock className={compact ? "w-4 h-4" : "w-6 h-6"} />
-                <span>{formatTime(currentTime)}</span>
-            </div>
-            <span className={compact ? "hidden lg:inline" : ""}>Zonse247 POS @ {currentTime.getFullYear()}</span>
+            <Timer showDate={false} iconClassName={compact ? "w-4 h-4" : "w-6 h-6"} />
+            <span className={compact ? "hidden lg:inline" : ""}>Zonse247 POS @ {new Date().getFullYear()}</span>
             <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
                     <div
