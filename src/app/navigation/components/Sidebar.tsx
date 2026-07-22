@@ -7,6 +7,9 @@ import type { SidebarProps } from './types';
 import type { NavItemBase } from '../../../types/navigation';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import * as Separator from '@radix-ui/react-separator';
+import { version as appVersion } from '../../../../package.json';
+
+const APP_VERSION = import.meta.env.VITE_APP_VERSION || appVersion || '1.3.9';
 
 const Sidebar: FunctionComponent<SidebarProps> = ({
     navGroups,
@@ -31,7 +34,10 @@ const Sidebar: FunctionComponent<SidebarProps> = ({
                                 Zonse247
                             </h2>
                             <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium tracking-wide uppercase">
-                                Point of Sale
+                                Point of Sale {' '}
+                                <span className="text-[8px] font-thin lowercase">
+                                    v{APP_VERSION}
+                                </span>
                             </p>
                         </div>
                     </div>
