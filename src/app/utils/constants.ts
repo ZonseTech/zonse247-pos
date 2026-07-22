@@ -19,11 +19,6 @@ export enum ROUTES {
 	TODAY_SALES = '/today-sales',
 	RETURNS = '/returns',
 
-	SALES_HUB = '/sales-hub',
-	SALES_HUB_SALES = '/sales-hub/sales',
-	SALES_HUB_REPORTS = '/sales-hub/reports',
-	SALES_HUB_RETURNS = '/sales-hub/returns',
-	SALES_HUB_SERVICE_ORDERS = '/sales-hub/service-orders',
 	CATEGORIES = '/categories',
 	CUSTOMERS = '/customers',
 	ITEMS = '/items',
