@@ -60,7 +60,7 @@ const RevenueChart: FunctionComponent<RevenueChartProps> = ({ data, isLoading, c
                                 tick={{ fontSize: 11, fill: '#9ca3af' }}
                                 axisLine={false}
                                 tickLine={false}
-                                tickFormatter={(value) => formatCurrencyShort(value)}
+                                tickFormatter={(value) => formatCurrencyShort(value, '')}
                                 width={56}
                             />
                             <Tooltip content={<RevenueTooltip />} cursor={{ fill: '#0ea5e9', fillOpacity: 0.08 }} />
