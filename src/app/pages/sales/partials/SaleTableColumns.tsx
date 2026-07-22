@@ -5,6 +5,7 @@ import { RotateCcw, Shield, ShieldOff, ShieldAlert, ShieldCheck, ShieldX, Monito
 import dayjs from 'dayjs';
 import { formatCurrency } from '../../../utils';
 import returnsService from '../../../services/returns.service';
+import { getPaymentMethodName } from '../../../utils/sale.helper';
 
 // Union type for both Sale and Transaction
 type SaleOrTransaction = (Sale | Transaction) & {
@@ -198,10 +199,10 @@ export const getSaleTableColumns = ({
             },
             {
                 name: "Method",
-                selector: (row) => row.paymentMethod?.name || '-',
+                selector: (row) => getPaymentMethodName(row),
                 cell: (row) => (
                     <span className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded text-[10px] font-medium">
-                        {row.paymentMethod?.name || '-'}
+                        {getPaymentMethodName(row)}
                     </span>
                 ),
                 minWidth: '85px',
@@ -313,10 +314,10 @@ export const getSaleTableColumns = ({
         },
         {
             name: "Method",
-            selector: (row) => row.paymentMethod?.name || '-',
+            selector: (row) => getPaymentMethodName(row),
             cell: (row) => (
                 <span className="px-2 py-1 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-full text-xs font-medium">
-                    {row.paymentMethod?.name || '-'}
+                    {getPaymentMethodName(row)}
                 </span>
             ),
         },

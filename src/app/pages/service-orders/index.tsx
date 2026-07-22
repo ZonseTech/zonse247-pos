@@ -18,6 +18,7 @@ import { getTableStyles } from '../../utils/table-styles';
 import { formatCurrency } from '../../utils';
 import { useServiceOrders } from '../../hooks/useServiceOrders';
 import { usePaymentMethods } from '../../hooks/usePaymentMethods';
+import { getLeafPaymentMethods } from '../../utils/paymentMethod.helper';
 import { PaymentMethodFilter } from '../sales/partials/PaymentMethodFilter';
 import { getServiceOrderTableColumns } from './partials/ServiceOrderTableColumns';
 import { ServiceOrderMobileList } from './partials/ServiceOrderMobileCard';
@@ -67,7 +68,8 @@ const ServiceOrders: FC = () => {
         cancelOrder,
     } = useServiceOrders();
 
-    const { paymentMethods, isLoading: isLoadingPaymentMethods } = usePaymentMethods();
+    const { paymentMethods: allPaymentMethods, isLoading: isLoadingPaymentMethods } = usePaymentMethods();
+    const paymentMethods = useMemo(() => getLeafPaymentMethods(allPaymentMethods), [allPaymentMethods]);
 
     const today = new Date().toISOString().slice(0, 10);
     const hasActiveFilters = useMemo(

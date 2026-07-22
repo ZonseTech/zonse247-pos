@@ -91,7 +91,7 @@ const Login: FunctionComponent = () => {
     const handleSubmit = async (values: AuthProps): Promise<void> => {
         try {
             const user = await auth.signin(values)
-            navigate(ROUTES.POS);
+            navigate(ROUTES.DASHBOARD);
         } catch (error: any) {
             setAuthError(getErrorMessage(error, 'Login failed. Please try again.'));
         }

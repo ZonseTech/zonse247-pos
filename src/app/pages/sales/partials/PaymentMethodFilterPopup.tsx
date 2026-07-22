@@ -1,15 +1,10 @@
-import { FunctionComponent } from 'react';
-import { Filter, Banknote, Smartphone, CreditCard, Check, X } from 'lucide-react';
+import { FunctionComponent, useMemo } from 'react';
+import { Filter, Banknote, Smartphone, CreditCard, Wallet, Check, X } from 'lucide-react';
 import { Text, IconButton, Theme } from '@radix-ui/themes';
 import * as Dialog from '@radix-ui/react-dialog';
 import FloatingFilterButton from '../../../components/buttons/FloatingFilterButton';
-
-interface PaymentMethod {
-    id: string;
-    label: string;
-    icon: typeof Banknote;
-    color: string;
-}
+import { usePaymentMethods } from '../../../hooks/usePaymentMethods';
+import { getLeafPaymentMethods } from '../../../utils/paymentMethod.helper';
 
 interface PaymentMethodFilterPopupProps {
     isOpen: boolean;
@@ -18,11 +13,13 @@ interface PaymentMethodFilterPopupProps {
     onSelect: (methodId: string | null) => void; fabClassName?: string;
 }
 
-const paymentMethods: PaymentMethod[] = [
-    { id: 'cash', label: 'Cash', icon: Banknote, color: 'text-green-500' },
-    { id: 'mobile-money', label: 'Mobile Money', icon: Smartphone, color: 'text-orange-600' },
-    { id: 'bank-transfer', label: 'Bank Transfer', icon: CreditCard, color: 'text-blue-600' },
-];
+const getMethodIcon = (name: string): { icon: typeof Banknote; color: string } => {
+    const lowerName = name.toLowerCase();
+    if (lowerName.includes('cash')) return { icon: Banknote, color: 'text-green-500' };
+    if (lowerName.includes('mobile')) return { icon: Smartphone, color: 'text-orange-600' };
+    if (lowerName.includes('bank') || lowerName.includes('pos')) return { icon: CreditCard, color: 'text-blue-600' };
+    return { icon: Wallet, color: 'text-gray-500' };
+};
 
 const PaymentMethodFilterPopup: FunctionComponent<PaymentMethodFilterPopupProps> = ({
     isOpen,
@@ -31,14 +28,16 @@ const PaymentMethodFilterPopup: FunctionComponent<PaymentMethodFilterPopupProps>
     onSelect,
     fabClassName,
 }) => {
-    const selectedMethod = paymentMethods.find(m => m.id === selectedPaymentMethod);
+    const { paymentMethods: allPaymentMethods } = usePaymentMethods();
+    const paymentMethods = useMemo(() => getLeafPaymentMethods(allPaymentMethods), [allPaymentMethods]);
+    const selectedMethod = paymentMethods.find(m => m.methodId === selectedPaymentMethod);
 
     return (
         <>
             <FloatingFilterButton
                 onClick={onToggle}
                 isActive={!!selectedPaymentMethod}
-                label={'Filter: ' + selectedMethod?.label}
+                label={'Filter: ' + selectedMethod?.name}
                 className={fabClassName}
             />
 
@@ -81,27 +80,30 @@ const PaymentMethodFilterPopup: FunctionComponent<PaymentMethodFilterPopupProps>
                                         )}
                                     </button>
 
-                                    {paymentMethods.map((method) => (
-                                        <button
-                                            key={method.id}
-                                            onClick={() => onSelect(method.id)}
-                                            className={`w-full flex items-center justify-between p-4 rounded-lg transition-colors ${
-                                                selectedPaymentMethod === method.id
-                                                    ? 'bg-sky-50 dark:bg-sky-900/30 border-2 border-sky-500'
-                                                    : 'bg-gray-50 dark:bg-gray-700 border-2 border-transparent'
-                                            }`}
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-                                                    <method.icon className={`w-5 h-5 ${method.color}`} />
+                                    {paymentMethods.map((method) => {
+                                        const { icon: Icon, color } = getMethodIcon(method.name);
+                                        return (
+                                            <button
+                                                key={method.methodId}
+                                                onClick={() => onSelect(method.methodId)}
+                                                className={`w-full flex items-center justify-between p-4 rounded-lg transition-colors ${
+                                                    selectedPaymentMethod === method.methodId
+                                                        ? 'bg-sky-50 dark:bg-sky-900/30 border-2 border-sky-500'
+                                                        : 'bg-gray-50 dark:bg-gray-700 border-2 border-transparent'
+                                                }`}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                                                        <Icon className={`w-5 h-5 ${color}`} />
+                                                    </div>
+                                                    <Text weight="medium">{method.name}</Text>
                                                 </div>
-                                                <Text weight="medium">{method.label}</Text>
-                                            </div>
-                                            {selectedPaymentMethod === method.id && (
-                                                <Check className="w-5 h-5 text-sky-500" />
-                                            )}
-                                        </button>
-                                    ))}
+                                                {selectedPaymentMethod === method.methodId && (
+                                                    <Check className="w-5 h-5 text-sky-500" />
+                                                )}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </Dialog.Content>

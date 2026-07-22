@@ -248,6 +248,13 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                     serviceOrderId: serviceOrderId || undefined,
                     amountPaid: values.cashTendered ? parseFloat(values.cashTendered) : effectiveTotal,
                     paymentMethodId: values.paymentMethodId,
+                    payments: [{
+                        paymentMethodId: values.paymentMethodId,
+                        amount: values.cashTendered ? parseFloat(values.cashTendered) : effectiveTotal,
+                        providerId: values.paymentMethodId === CHECKOUT.CASH ? undefined : values.paymentServiceProviderId || undefined,
+                        reference: values.transactionId || undefined,
+                        phoneNumber: values.phoneNumber || undefined,
+                    }],
                     subtotal,
                     taxAmount: calculatedTaxAmount,
                     discountAmount: calculatedDiscountAmount,

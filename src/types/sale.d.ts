@@ -123,7 +123,7 @@ interface Sale {
     amountPaid: number;
     changeAmount: number;
     paymentMethodId: string;
-    paymentMethod?: PaymentMethod;
+    paymentMethod?: SalePaymentMethodInfo;
 
     // Multiple payments support
     payments?: SalePayment[];

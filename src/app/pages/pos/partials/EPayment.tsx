@@ -6,6 +6,7 @@ import { Phone } from 'lucide-react';
 import { FormikErrors } from 'formik';
 import FormInput from '../../../components/FormInput';
 import { useIsMobile } from '../../../hooks/useMediaQuery';
+import { usePaymentServiceProviders } from '../../../hooks/usePaymentServiceProviders';
 import classNames from 'classnames';
 
 interface EPaymentProps {
@@ -17,10 +18,8 @@ interface EPaymentProps {
     compact?: boolean;
 }
 
-export const E_PAYMENT_METHODS = [
-    { id: 'airtel-money', name: 'Airtel Money', icon: Phone, color: 'bg-red-500' },
-    { id: 'tnm-mpamba', name: 'TNM Mpamba', icon: Phone, color: 'bg-yellow-500' },
-];
+// Providers don't carry a button color from the API, so cycle through a small palette
+const SUB_METHOD_COLORS = ['bg-red-500', 'bg-yellow-500', 'bg-blue-500', 'bg-emerald-500'];
 
 const EPayment: FunctionComponent<EPaymentProps> = ({
     total,
@@ -34,13 +33,17 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
     const keyboardSettings = useKeyboardSettings();
     const phoneInputRef = useRef<HTMLInputElement>(null);
     const referenceNumberInputRef = useRef<HTMLInputElement>(null);
-    const [selectedSubMethod, setSelectedSubMethod] = useState('airtel-money');
+    const [selectedSubMethod, setSelectedSubMethod] = useState('');
     const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const isVirtualKeyboardActive = useRef(false);
+    const { providers } = usePaymentServiceProviders('mobile-money');
 
     useEffect(() => {
-        if (selectedSubMethod) onValueChange('paymentServiceProviderId', selectedSubMethod)
-    }, [])
+        if (!selectedSubMethod && providers.length > 0) {
+            setSelectedSubMethod(providers[0].providerId);
+            onValueChange('paymentServiceProviderId', providers[0].providerId);
+        }
+    }, [providers])
 
     useEffect(() => {
         if (phoneInputRef.current) {
@@ -190,36 +193,33 @@ const EPayment: FunctionComponent<EPaymentProps> = ({
                             "grid grid-cols-2",
                             compact ? "gap-1" : "gap-2 md:gap-4"
                         )}>
-                            {E_PAYMENT_METHODS.map((method) => {
-                                const IconComponent = method.icon;
-                                return (
-                                    <button
-                                        key={method.id}
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            handleOnMethodSelect(method.id)
-                                        }}
-                                        className={classNames(
-                                            "rounded-none flex flex-col items-center transition-colors",
-                                            compact ? "p-2 gap-1" : "p-3 md:p-6 gap-2 md:gap-3",
-                                            selectedSubMethod === method.id
-                                                ? method.color + ' text-white'
-                                                : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                                        )}
-                                    >
-                                        <IconComponent className={compact ? "w-4 h-4" : "w-6 h-6 md:w-8 md:h-8"} />
-                                        <span className={classNames(
-                                            "font-bold text-center",
-                                            compact ? "text-[10px]" : "text-xs md:text-sm"
-                                        )}>{method.name}</span>
-                                    </button>
-                                );
-                            })}
+                            {providers.map((provider, index) => (
+                                <button
+                                    key={provider.providerId}
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handleOnMethodSelect(provider.providerId)
+                                    }}
+                                    className={classNames(
+                                        "rounded-none flex flex-col items-center transition-colors",
+                                        compact ? "p-2 gap-1" : "p-3 md:p-6 gap-2 md:gap-3",
+                                        selectedSubMethod === provider.providerId
+                                            ? SUB_METHOD_COLORS[index % SUB_METHOD_COLORS.length] + ' text-white'
+                                            : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                                    )}
+                                >
+                                    <Phone className={compact ? "w-4 h-4" : "w-6 h-6 md:w-8 md:h-8"} />
+                                    <span className={classNames(
+                                        "font-bold text-center",
+                                        compact ? "text-[10px]" : "text-xs md:text-sm"
+                                    )}>{provider.name}</span>
+                                </button>
+                            ))}
                         </div>
                     </div>
 
-                    {(selectedSubMethod === 'airtel-money' || selectedSubMethod === 'tnm-mpamba') && (
+                    {selectedSubMethod && (
                         <div className={compact ? "mb-2" : "mb-4 md:mb-6"}>
                             <h3 className={classNames(
                                 "font-bold text-black dark:text-gray-400",

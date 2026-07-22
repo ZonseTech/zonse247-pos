@@ -1,5 +1,6 @@
 export const PAYMENT_METHODS = {
     CASH: 'cash',
+    POS: 'pos',
     MOBILE_MONEY: 'mobile-money',
     BANK_TRANSFER: 'bank-transfer',
 } as const;

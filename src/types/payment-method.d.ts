@@ -5,6 +5,8 @@ interface PaymentMethod {
     tenantId: string;
     branchId: string;
     userId: string;
+    parentMethodId?: string | null;
+    children?: PaymentMethod[];
     createdAt?: string;
     updatedAt?: string;
     synced?: number;
