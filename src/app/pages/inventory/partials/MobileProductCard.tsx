@@ -230,7 +230,7 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
                         <>
                             <div className="mx-3 my-0.5 h-px bg-gray-100 dark:bg-gray-700" />
                             <button
-                                onClick={(e) => { e.stopPropagation(); setShowActions(false); onDelete(item.id?.toString() || ''); }}
+                                onClick={(e) => { e.stopPropagation(); setShowActions(false); onDelete(variant?.id?.toString() || item.id?.toString() || ''); }}
                                 className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-red-600 dark:text-red-400
                                          hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                             >
