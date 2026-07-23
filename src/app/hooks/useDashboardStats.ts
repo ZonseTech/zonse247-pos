@@ -9,13 +9,18 @@ import dashboardService, {
 } from '../services/dashboard.service';
 import { getErrorMessage } from '../utils/api-error-handler';
 
+export interface LowStockSection {
+    items: LowStockItem[];
+    totalCount: number;
+}
+
 export interface DashboardStats {
     summary: DashboardSummary | null;
     revenueTrend: DashboardDataPoint[];
     paymentMethods: DashboardDataPoint[];
     topProducts: TopSellingProduct[];
     recentSales: RecentSaleItem[];
-    lowStock: LowStockItem[];
+    lowStock: LowStockSection;
 }
 
 const EMPTY_STATS: DashboardStats = {
@@ -24,7 +29,7 @@ const EMPTY_STATS: DashboardStats = {
     paymentMethods: [],
     topProducts: [],
     recentSales: [],
-    lowStock: [],
+    lowStock: { items: [], totalCount: 0 },
 };
 
 export type DashboardLoadingState = Record<keyof DashboardStats, boolean>;
@@ -105,7 +110,9 @@ export const useDashboardStats = (query: { branchId?: string } = {}): UseDashboa
         load('paymentMethods', () => dashboardService.getPaymentMethods(query).then((res) => res.data));
         load('topProducts', () => dashboardService.getTopProducts(query).then((res) => res.data));
         load('recentSales', () => dashboardService.getRecentSales(query).then((res) => res.data));
-        load('lowStock', () => dashboardService.getLowStock(query).then((res) => res.data));
+        load('lowStock', () =>
+            dashboardService.getLowStock(query).then((res) => ({ items: res.data, totalCount: res.totalCount })),
+        );
     }, [query.branchId]);
 
     useEffect(() => {
