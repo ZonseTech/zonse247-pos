@@ -242,7 +242,8 @@ export const getInventoryTableColumns = ({
             {
                 name: '',
                 cell: (row) => {
-                    const productId = row.id?.toString() || '';
+                    // The delete/void endpoint operates on the variant, not the product
+                    const deleteTargetId = getDefaultVariant(row)?.id?.toString() || row.id?.toString() || '';
                     return (
                         <div className="flex items-center space-x-0.5">
                             {onAdjustQuantity && (
@@ -265,7 +266,7 @@ export const getInventoryTableColumns = ({
                             )}
                             {onDelete && (
                                 <button
-                                    onClick={() => onDelete(productId)}
+                                    onClick={() => onDelete(deleteTargetId)}
                                     className="p-1 rounded transition-colors text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                                     title="Delete"
                                 >
@@ -516,7 +517,8 @@ export const getInventoryTableColumns = ({
         {
             name: 'Actions',
             cell: (row) => {
-                const productId = row.id?.toString() || '';
+                // The delete/void endpoint operates on the variant, not the product
+                const deleteTargetId = getDefaultVariant(row)?.id?.toString() || row.id?.toString() || '';
                 const isInactive = !row.isActive;
                 const isDiscontinued = (row as any).status === 'DISCONTINUED';
                 const disableStockActions = isInactive || isDiscontinued;
@@ -569,7 +571,7 @@ export const getInventoryTableColumns = ({
                         )}
                         {onDelete && !isDiscontinued && (
                             <button
-                                onClick={(e) => { e.stopPropagation(); onDelete(productId); }}
+                                onClick={(e) => { e.stopPropagation(); onDelete(deleteTargetId); }}
                                 className="group p-1.5 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                                 title="Delete Item"
                             >

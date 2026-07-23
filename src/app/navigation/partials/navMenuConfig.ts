@@ -40,13 +40,8 @@ export function buildNavMenuGroups(user: User | null, businessType?: BusinessTyp
     }
 
     if (hasAnyPermission(user, ['reports.sales.daily', 'reports.sales.detailed', 'payments.view'])) {
-        const salesLabel = showServices && !showRetail
-            ? 'Service Orders'
-            : showServices && showRetail
-                ? 'Sales & Orders'
-                : 'Sales';
-        const salesRoute = showServices ? ROUTES.SALES_HUB_SERVICE_ORDERS : ROUTES.SALES_HUB_SALES;
-        opsItems.push({ label: salesLabel, route: salesRoute, accelerator: 'CommandOrControl+T' });
+        opsItems.push({ label: 'Sales', route: ROUTES.SALES, accelerator: 'CommandOrControl+T' });
+        opsItems.push({ label: 'Reports', route: ROUTES.REPORTS });
     }
 
     if (opsItems.length > 0) {

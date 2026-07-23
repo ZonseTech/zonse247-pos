@@ -49,7 +49,8 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
     const stockColorClass = getStockStatusColor(qty, minStock);
     const expirationStatus = getExpirationStatus(item.expirationDate);
     const isLowStock = qty <= minStock && qty > 0;
-    const productId = item.productId?.toString() || '';
+    // The delete/void endpoint operates on the variant ID (item.id), not the parent product ID
+    const deleteTargetId = item.id?.toString() || item.productId?.toString() || '';
 
     return (
         <div
@@ -199,7 +200,7 @@ const InventoryCard: React.FC<InventoryCardProps> = ({
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    onDelete(productId);
+                                    onDelete(deleteTargetId);
                                 }}
                                 className="flex-1 flex items-center justify-center gap-2 py-3 
                                     text-red-500 dark:text-red-400 

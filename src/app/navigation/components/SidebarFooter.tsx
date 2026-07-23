@@ -3,15 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../utils/constants';
 import { useAuth } from '../../context/AuthProvider';
 import { useState, type FunctionComponent } from 'react';
-import { version as appVersion } from '../../../../package.json';
 import { User, LogOut, Settings, ChevronUp, Wifi, WifiOff, Server, ServerOff, Loader2, RefreshCw } from 'lucide-react';
 import * as Popover from '@radix-ui/react-popover';
 import * as Separator from '@radix-ui/react-separator';
 import { formatRoleName } from '../../pages/auth/profile';
 import { useConnectivity } from '../../hooks/useConnectivity';
 import { useIsElectron } from '../../hooks/useMediaQuery';
-
-const APP_VERSION = import.meta.env.VITE_APP_VERSION || appVersion || '1.3.9';
+import Timer from '../../components/timer/Timer';
 
 const SidebarFooter: FunctionComponent = () => {
     const navigate = useNavigate();
@@ -135,9 +133,12 @@ const SidebarFooter: FunctionComponent = () => {
                     )}
                 </div>
 
-                <p className="text-[10px] text-gray-400 dark:text-gray-500">
-                    v{APP_VERSION}
-                </p>
+                <Timer
+                    showIcon={false}
+                    className="text-gray-400 dark:text-gray-500"
+                    dateClassName="text-[9px] uppercase tracking-wide"
+                    timeClassName="text-[10px] font-semibold text-gray-500 dark:text-gray-400"
+                />
             </div>
         </div>
     );

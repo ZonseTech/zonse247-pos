@@ -18,7 +18,7 @@ import {
 import {
     Package,
     ShoppingCart as POIcon,
-    ClipboardList,
+    FileBarChart2,
     Wrench,
     HeartHandshake,
 } from 'lucide-react';
@@ -85,11 +85,19 @@ const useNavGroups = (): UseNavGroupsReturn => {
                 id: 'sales',
                 label: 'Sales',
                 icon: ic(HiOutlinePresentationChartBar),
-                route: isNativeMobile ? ROUTES.SALES : ROUTES.SALES_HUB,
-                onClick: isNativeMobile
-                    ? () => navigate(ROUTES.SALES)
-                    : () => navigate(showServices ? ROUTES.SALES_HUB_SERVICE_ORDERS : ROUTES.SALES_HUB_SALES),
+                route: ROUTES.SALES,
+                onClick: () => navigate(ROUTES.SALES),
                 shortcut: 'Ctrl+T',
+                showOnDesktop: true,
+                showOnMobile: true,
+            });
+
+            opsItems.push({
+                id: 'reports',
+                label: 'Reports',
+                icon: ic(FileBarChart2),
+                route: ROUTES.REPORTS,
+                onClick: () => navigate(ROUTES.REPORTS),
                 showOnDesktop: true,
                 showOnMobile: true,
             });

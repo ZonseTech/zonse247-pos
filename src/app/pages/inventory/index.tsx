@@ -9,6 +9,7 @@ import PageHeader from '../../components/page/PageHeader';
 import MobilePageHeader from '../../components/page/MobilePageHeader';
 import { formatCurrencyShort, formatCurrencyFull, hasPermission, hasAnyPermission } from '../../utils';
 import { useAuth } from '../../context/AuthProvider';
+import { getErrorMessage } from '../../utils/api-error-handler';
 import { useInventoryStats } from '../../hooks/useInventoryStats';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { InventorySummaryCard } from './partials/InventorySummaryCards';
@@ -186,7 +187,7 @@ const InventoryManagement: FunctionComponent = () => {
                     Notify.success('Item deleted successfully');
                     loadInventory();
                 } catch (error) {
-                    Notify.failure('Failed to delete item');
+                    Notify.failure(getErrorMessage(error, 'Failed to delete item'));
                 }
             },
             undefined,

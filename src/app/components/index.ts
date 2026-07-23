@@ -18,6 +18,7 @@ export { default as FormFieldCard } from './card/FormFieldCard';
 export { default as ComponentLoader } from './ComponentLoader';
 export { DateRangeFilter } from './DateRangeFilter';
 export { default as TableEmptyState } from './TableEmptyState';
+export { default as Timer } from './timer/Timer';
 export { default as SummaryCards } from './stats/SummaryCards';
 export type { SummaryCardItem } from './stats/SummaryCards';
 export { default as HelperText } from './HelperText';
