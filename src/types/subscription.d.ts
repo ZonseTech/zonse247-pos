@@ -73,6 +73,14 @@ interface CreateBranchSubscriptionRequest {
 	paymentMethod?: string;
 }
 
+interface SubscribeBranchRequest {
+	branchId: string;
+	subscriptionPlanId: string;
+	subscriptionMonths?: number;
+	autoRenew?: boolean;
+	paymentMethod?: string;
+}
+
 interface UpdateBranchSubscriptionRequest {
 	status?: BranchSubscription['status'];
 	endsAt?: string;
