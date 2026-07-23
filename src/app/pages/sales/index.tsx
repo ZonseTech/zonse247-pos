@@ -12,6 +12,7 @@ import { getLeafPaymentMethods } from "../../utils/paymentMethod.helper";
 import { useMraCompliance } from "../../hooks/useMraCompliance";
 import { getSaleTableColumns } from "./partials/SaleTableColumns";
 import SaleDetailsModal from "./partials/SaleDetailsModal";
+import SaleItemsModal from "./partials/SaleItemsModal";
 import SaleSummaryCards from "./partials/SaleSummaryCards";
 import SalesToolbar from "./partials/SalesToolbar";
 import SalesFilters from "./partials/SalesFilters";
@@ -40,6 +41,8 @@ const SalesPage: FC = () => {
     const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
     const [saleForReturn, setSaleForReturn] = useState<Sale | null>(null);
     const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+    const [isItemsModalOpen, setIsItemsModalOpen] = useState(false);
+    const [saleForItems, setSaleForItems] = useState<Sale | null>(null);
 
     const {
         page,
@@ -93,9 +96,20 @@ const SalesPage: FC = () => {
         setIsReturnModalOpen(true);
     }, []);
 
+    const handleViewItems = useCallback((sale: SaleOrTransaction) => {
+        setSaleForItems(sale as Sale);
+        setIsItemsModalOpen(true);
+    }, []);
+
+    const handleCloseItems = useCallback(() => {
+        setIsItemsModalOpen(false);
+        setSaleForItems(null);
+    }, []);
+
     const columns = getSaleTableColumns({
         onViewDetails: handleViewDetails,
         onInitiateReturn: handleInitiateReturn,
+        onViewItems: handleViewItems,
         isMraEnabled,
     });
 
@@ -296,6 +310,12 @@ const SalesPage: FC = () => {
                     onSuccess={handleReturnSuccess}
                 />
             )}
+
+            <SaleItemsModal
+                isOpen={isItemsModalOpen}
+                onClose={handleCloseItems}
+                sale={saleForItems}
+            />
         </Wrapper>
     );
 };

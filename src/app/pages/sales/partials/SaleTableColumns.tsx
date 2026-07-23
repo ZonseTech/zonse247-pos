@@ -1,7 +1,7 @@
 import React from 'react';
 import { TableColumn } from 'react-data-table-component';
 import { HiOutlineEye, HiOutlineClock, HiOutlineCheckCircle, HiOutlineExclamationCircle, HiOutlineClock as HiOutlineClockSmall } from 'react-icons/hi2';
-import { RotateCcw, Shield, ShieldOff, ShieldAlert, ShieldCheck, ShieldX, Monitor } from 'lucide-react';
+import { RotateCcw, Shield, ShieldOff, ShieldAlert, ShieldCheck, ShieldX, Monitor, Package } from 'lucide-react';
 import dayjs from 'dayjs';
 import { formatCurrency } from '../../../utils';
 import returnsService from '../../../services/returns.service';
@@ -26,6 +26,7 @@ type SaleOrTransaction = (Sale | Transaction) & {
 interface TransactionTableColumnsProps {
     onViewDetails: (transaction: Transaction) => void;
     onInitiateReturn: (transaction: Transaction) => void;
+    onViewItems: (transaction: Transaction) => void;
     compact?: boolean;
     isMraEnabled?: boolean;  // Show MRA status column when true
 }
@@ -126,6 +127,7 @@ const MraStatusBadge: React.FC<{ status?: MraSaleStatus; fiscalCode?: string | n
 export const getSaleTableColumns = ({
     onViewDetails,
     onInitiateReturn,
+    onViewItems,
     compact = false,
     isMraEnabled = false,
 }: TransactionTableColumnsProps): TableColumn<Transaction>[] => {
@@ -220,7 +222,7 @@ export const getSaleTableColumns = ({
                 grow: 1,
             },
             {
-                width: "75px",
+                width: "100px",
                 name: "Actions",
                 cell: (row) => {
                     const canReturn = returnsService.canReturn(row);
@@ -237,6 +239,13 @@ export const getSaleTableColumns = ({
                                 title="View Details"
                             >
                                 <HiOutlineEye className='w-3.5 h-3.5' />
+                            </button>
+                            <button
+                                onClick={() => onViewItems(row)}
+                                className="p-1 text-purple-600 hover:text-purple-800 hover:bg-purple-50 dark:hover:bg-purple-900/50 rounded transition-colors duration-200"
+                                title="View Items"
+                            >
+                                <Package className='w-3.5 h-3.5' />
                             </button>
                             {showReturnButton && (
                                 <button
@@ -358,7 +367,7 @@ export const getSaleTableColumns = ({
             width: '130px',
         }] : []),
         {
-            width: "120px",
+            width: "150px",
             name: "Actions",
             cell: (row) => {
                 const canReturn = returnsService.canReturn(row as Transaction);
@@ -376,6 +385,13 @@ export const getSaleTableColumns = ({
                             title="View Details"
                         >
                             <HiOutlineEye className='w-4 h-4' />
+                        </button>
+                        <button
+                            onClick={() => onViewItems(row)}
+                            className="p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-50 dark:hover:bg-purple-900/50 rounded-md transition-colors duration-200"
+                            title="View Items"
+                        >
+                            <Package className='w-4 h-4' />
                         </button>
                         {showReturnButton && (
                             <button
