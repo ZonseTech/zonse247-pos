@@ -55,6 +55,7 @@ export interface LowStockItem {
 
 export interface LowStockResponse {
     data: LowStockItem[];
+    totalCount: number;
 }
 
 const endpoints = {
