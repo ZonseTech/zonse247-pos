@@ -135,7 +135,7 @@ const SupplierDetail: FC = () => {
     if (!supplier) {
         return (
             <AppLayout>
-                <Flex direction="column" align="center" justify="center" py="9" px="4">
+                <Flex direction="column" align="center" justify="center">
                     <Text color="gray">Supplier not found.</Text>
                 </Flex>
             </AppLayout>
@@ -149,7 +149,7 @@ const SupplierDetail: FC = () => {
                 description={supplier.code ? `Supplier · ${supplier.code}` : 'Supplier details'}
                 icon={<Truck className="w-8 h-8 text-sky-500 dark:text-sky-400" />}
                 showBackButton
-                onBack={() => navigate(ROUTES.SUPPLIERS)}
+                onBack={() => navigate(-1)}
             />
 
             <Flex direction="column" gap="5">
