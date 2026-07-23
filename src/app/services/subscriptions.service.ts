@@ -82,6 +82,26 @@ class SubscriptionService {
 	}
 
 	/**
+	 * Subscribe a branch to a plan, replacing its current subscription
+	 * Uses: POST /subscriptions/subscribe-branch
+	 */
+	async subscribeBranch(
+		subscriptionData: SubscribeBranchRequest
+	): Promise<BranchSubscription> {
+		try {
+			const response = await liveApi.post<ApiResponse<BranchSubscription>>(
+				`${this.endpoint}/subscribe-branch`,
+				subscriptionData,
+				{ headers: await getAuthHeaders() }
+			);
+			return response.data.data;
+		} catch (error) {
+			console.error('Error subscribing branch:', error);
+			throw error;
+		}
+	}
+
+	/**
 	 * Update an existing branch subscription
 	 */
 	async update(
