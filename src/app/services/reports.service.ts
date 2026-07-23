@@ -122,7 +122,7 @@ export interface TopStocksQuery {
 
 export interface TopCategoryItem {
     name: string;
-    count: number;
+    orderCount: number;
     totalPrice: number;
 }
 

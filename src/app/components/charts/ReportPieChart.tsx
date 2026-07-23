@@ -33,53 +33,52 @@ const ReportPieChart: React.FC<ReportPieChartProps> = ({
     }))
 
     return (
-        <div className={`bg-white dark:bg-gray-800 rounded-sm p-4 shadow-none ${className}`}>
-            <div style={{ height }}>
-                <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                        <Pie
-                            data={chartData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={50}
-                            outerRadius={80}
-                            paddingAngle={2}
-                            dataKey="value"
-                            nameKey="name"
-                            label={({ name, percent, x, y }) => (
-                                <text x={x} y={y} fill="#000000" fontSize={12} textAnchor={x > 200 ? 'start' : 'end'} dominantBaseline="central">
-                                    {`${name} ${(percent * 100).toFixed(0)}%`}
-                                </text>
-                            )}
-                            labelLine={{ stroke: '#000000', strokeWidth: 1 }}
-                        >
-                            {chartData.map((_, index) => (
-                                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                            ))}
-                        </Pie>
-                        <Tooltip
-                            formatter={formatTooltip}
-                            contentStyle={{
-                                backgroundColor: '#1f2937',
-                                border: 'none',
-                                borderRadius: '4px',
-                                color: '#fff',
-                                fontSize: '12px',
-                            }}
-                            labelStyle={{ color: '#9ca3af' }}
-                        />
-                        {showLegend && (
-                            <Legend
-                                verticalAlign="bottom"
-                                height={36}
-                                formatter={(value) => (
-                                    <span className="text-xs text-gray-600 dark:text-gray-400">{value}</span>
-                                )}
-                            />
+        <div className={className} style={{ height }}>
+            <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                    <Pie
+                        data={chartData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={80}
+                        paddingAngle={2}
+                        dataKey="value"
+                        nameKey="name"
+                        label={({ name, percent, x, y }) => (
+                            <text x={x} y={y} fill="currentColor" className="text-gray-600 dark:text-gray-300" fontSize={11} textAnchor={x > 200 ? 'start' : 'end'} dominantBaseline="central">
+                                {`${name} ${(percent * 100).toFixed(0)}%`}
+                            </text>
                         )}
-                    </PieChart>
-                </ResponsiveContainer>
-            </div>
+                        labelLine={{ stroke: '#9ca3af', strokeWidth: 1 }}
+                    >
+                        {chartData.map((_, index) => (
+                            <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                        ))}
+                    </Pie>
+                    <Tooltip
+                        formatter={formatTooltip}
+                        contentStyle={{
+                            backgroundColor: '#111827',
+                            border: 'none',
+                            borderRadius: '8px',
+                            color: '#fff',
+                            fontSize: '12px',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+                        }}
+                        labelStyle={{ color: '#9ca3af' }}
+                    />
+                    {showLegend && (
+                        <Legend
+                            verticalAlign="bottom"
+                            height={36}
+                            formatter={(value) => (
+                                <span className="text-xs text-gray-600 dark:text-gray-400">{value}</span>
+                            )}
+                        />
+                    )}
+                </PieChart>
+            </ResponsiveContainer>
         </div>
     )
 }

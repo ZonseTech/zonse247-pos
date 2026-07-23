@@ -64,7 +64,8 @@ const SubscribeBranchModal: FunctionComponent<SubscribeBranchModalProps> = ({
 
         setSubmitting(true);
         try {
-            await subscriptionService.store({
+            await subscriptionService.subscribeBranch({
+                branchId: selectedBranchId,
                 subscriptionPlanId: selectedPlanId,
                 subscriptionMonths,
                 autoRenew,

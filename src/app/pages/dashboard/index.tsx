@@ -18,7 +18,7 @@ const Dashboard: FunctionComponent = () => {
             <StatsRow
                 summary={stats.summary}
                 isSummaryLoading={loading.summary}
-                lowStockCount={stats.lowStock.length}
+                lowStockCount={stats.lowStock.totalCount}
                 isLowStockLoading={loading.lowStock}
             />
 
@@ -32,7 +32,7 @@ const Dashboard: FunctionComponent = () => {
                 <RecentSales sales={stats.recentSales} isLoading={loading.recentSales} className="xl:col-span-2" />
             </div>
 
-            <LowStockAlerts items={stats.lowStock} isLoading={loading.lowStock} className="mt-4" />
+            <LowStockAlerts items={stats.lowStock.items} isLoading={loading.lowStock} className="mt-4" />
         </AppLayout>
     );
 };

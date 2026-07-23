@@ -33,7 +33,9 @@ const LowStockAlerts: FunctionComponent<LowStockAlertsProps> = ({ items, isLoadi
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {items.map((item) => {
-                        const percentage = Math.min(100, Math.round((item.remaining / item.reorderPoint) * 100));
+                        const percentage = item.reorderPoint > 0
+                            ? Math.min(100, Math.round((item.remaining / item.reorderPoint) * 100))
+                            : 0;
                         return (
                             <div
                                 key={item.name}

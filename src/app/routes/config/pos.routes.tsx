@@ -4,7 +4,7 @@ import { ROUTES } from '../../utils/constants'
 import MobileTabLayout from '../../layouts/MobileTabLayout'
 
 const PointOfSale = lazy(() => import('../../pages/pos'))
-const MobileReport = lazy(() => import('../../pages/reports/MobileReport'))
+const MobileReport = lazy(() => import('../../pages/reports/MobileReports'))
 const TodaySales = lazy(() => import('../../pages/sales/TodaySales'))
 const MobileStocks = lazy(() => import('../../pages/inventory/MobileStocks'))
 const MobileMoreReportsPage = lazy(() => import('../../pages/reports/MobileMoreReportsPage'))
