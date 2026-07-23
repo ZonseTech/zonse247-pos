@@ -12,7 +12,6 @@ import {
 	DashboardRoutes,
 	MobileTabRoutes,
 	DesktopPosRoute,
-	MobileReportRoutes,
 	DesktopReportRoutes,
 	SalesRoutes,
 	InventoryRoutes,
@@ -47,7 +46,6 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 					{isNativeMobile ? MobileTabRoutes : DesktopPosRoute}
 					{DashboardRoutes}
 
-					{MobileReportRoutes}
 					{DesktopReportRoutes}
 					{SalesRoutes}
 					{InventoryRoutes}
