@@ -6,21 +6,25 @@ import { getErrorMessage } from '../utils/api-error-handler';
 import reportsService, {
     ReportSummary,
     TotalSalesResponse,
-    GrossProfitResponse,
+    NetProfitResponse,
     ReceiptCountResponse,
     PaymentModesResponse,
     TopStocksResponse,
     TopCategoryResponse,
+    ExpensesTrendResponse,
+    ExpensesByCategoryResponse,
 } from '../services/reports.service';
 import useBusinessFeatures from './useBusinessFeatures';
 
 export type ReportId =
     | 'total-sales'
-    | 'gross-profit'
+    | 'net-profit'
     | 'top-stocks'
     | 'top-category'
     | 'receipt-count'
     | 'payment-modes'
+    | 'expenses'
+    | 'expenses-by-category'
     | null;
 
 export type ReportVisualKey =
@@ -31,7 +35,9 @@ export type ReportVisualKey =
     | 'top-category'
     | 'receipt-count'
     | 'payment-modes'
-    | 'average-sale';
+    | 'average-sale'
+    | 'expenses'
+    | 'expenses-by-category';
 
 export interface ReportStatConfig {
     id: ReportId;
@@ -47,11 +53,13 @@ export interface ReportStatConfig {
 
 export interface ReportDetailRawData {
     'total-sales': TotalSalesResponse | null;
-    'gross-profit': GrossProfitResponse | null;
+    'net-profit': NetProfitResponse | null;
     'receipt-count': ReceiptCountResponse | null;
     'payment-modes': PaymentModesResponse | null;
     'top-stocks': TopStocksResponse | null;
     'top-category': TopCategoryResponse | null;
+    'expenses': ExpensesTrendResponse | null;
+    'expenses-by-category': ExpensesByCategoryResponse | null;
 }
 
 export type DetailLoadingState = Record<NonNullable<ReportId>, boolean>;
@@ -59,7 +67,8 @@ export type DetailErrorState = Partial<Record<NonNullable<ReportId>, string>>;
 
 const DEFAULT_SUMMARY: ReportSummary = {
     totalSales: 0,
-    grossProfit: 0,
+    expenses: 0,
+    netProfit: 0,
     topStocks: 0,
     topCategory: '',
     receiptCount: 0,
@@ -68,20 +77,24 @@ const DEFAULT_SUMMARY: ReportSummary = {
 
 const EMPTY_DETAIL_DATA: ReportDetailRawData = {
     'total-sales': null,
-    'gross-profit': null,
+    'net-profit': null,
     'receipt-count': null,
     'payment-modes': null,
     'top-stocks': null,
     'top-category': null,
+    'expenses': null,
+    'expenses-by-category': null,
 };
 
 const LOADING_ALL_DETAIL: DetailLoadingState = {
     'total-sales': true,
-    'gross-profit': true,
+    'net-profit': true,
     'receipt-count': true,
     'payment-modes': true,
     'top-stocks': true,
     'top-category': true,
+    'expenses': true,
+    'expenses-by-category': true,
 };
 
 const buildQuery = (start: Date | null, end: Date | null): { startDate?: string; endDate?: string } => {
@@ -209,11 +222,13 @@ export const useReportsSummary = () => {
         };
 
         loadDetail('total-sales', () => reportsService.getTotalSales(query));
-        loadDetail('gross-profit', () => reportsService.getGrossProfit(query));
+        loadDetail('net-profit', () => reportsService.getNetProfit(query));
         loadDetail('receipt-count', () => reportsService.getReceiptCount(query));
         loadDetail('payment-modes', () => reportsService.getPaymentModes(query));
         loadDetail('top-stocks', () => reportsService.getTopStocks(query));
         loadDetail('top-category', () => reportsService.getTopCategory(query));
+        loadDetail('expenses', () => reportsService.getExpensesTrend(query));
+        loadDetail('expenses-by-category', () => reportsService.getExpensesByCategory(query));
     }, []);
 
     useEffect(() => {
@@ -235,11 +250,13 @@ export const useReportsSummary = () => {
 
         const fetcherByKey: { [K in NonNullable<ReportId>]: () => Promise<ReportDetailRawData[K]> } = {
             'total-sales': () => reportsService.getTotalSales(query),
-            'gross-profit': () => reportsService.getGrossProfit(query),
+            'net-profit': () => reportsService.getNetProfit(query),
             'receipt-count': () => reportsService.getReceiptCount(query),
             'payment-modes': () => reportsService.getPaymentModes(query),
             'top-stocks': () => reportsService.getTopStocks(query),
             'top-category': () => reportsService.getTopCategory(query),
+            'expenses': () => reportsService.getExpensesTrend(query),
+            'expenses-by-category': () => reportsService.getExpensesByCategory(query),
         };
 
         setDetailLoading((prev) => ({ ...prev, [reportId]: true }));
@@ -285,14 +302,14 @@ export const useReportsSummary = () => {
         const profitValue = hasCombined
             ? summary?.combinedGrossProfit ?? 0
             : showRetail
-                ? summary?.grossProfit ?? 0
+                ? summary?.netProfit ?? 0
                 : so?.grossProfit ?? 0;
 
         const previousProfitValue = previousSummary
             ? (hasCombined
                 ? previousSummary.combinedGrossProfit ?? 0
                 : showRetail
-                    ? previousSummary.grossProfit ?? 0
+                    ? previousSummary.netProfit ?? 0
                     : prevSo?.grossProfit ?? 0)
             : 0;
 
@@ -333,7 +350,7 @@ export const useReportsSummary = () => {
 
         if (hasCombined) {
             cards.push({
-                id: 'gross-profit',
+                id: 'net-profit',
                 visualKey: 'profit',
                 name: 'Combined Gross Profit',
                 title: 'Profit',
@@ -344,18 +361,18 @@ export const useReportsSummary = () => {
             });
         } else if (showRetail) {
             cards.push({
-                id: 'gross-profit',
+                id: 'net-profit',
                 visualKey: 'profit',
-                name: 'Gross Profit',
+                name: 'Net Profit',
                 title: 'Profit',
-                value: formatCurrency(summary?.grossProfit ?? 0, true),
-                description: 'Selling price minus cost price',
-                hasData: (summary?.grossProfit ?? 0) !== 0,
+                value: formatCurrency(summary?.netProfit ?? 0, true),
+                description: 'Revenue minus cost, discounts, and approved expenses',
+                hasData: (summary?.netProfit ?? 0) !== 0,
                 delta: computeDelta(profitValue, previousProfitValue),
             });
         } else {
             cards.push({
-                id: 'gross-profit',
+                id: 'net-profit',
                 visualKey: 'profit',
                 name: 'Service Gross Profit',
                 title: 'Profit',
@@ -398,6 +415,27 @@ export const useReportsSummary = () => {
                 value: summary?.topCategory || 'N/A',
                 description: 'Highest selling category',
                 hasData: !!summary?.topCategory,
+            });
+
+            cards.push({
+                id: 'expenses',
+                visualKey: 'expenses',
+                name: 'Expenses',
+                title: 'Expenses',
+                value: formatCurrency(summary?.expenses ?? 0, true),
+                description: 'Approved business expenses',
+                hasData: (summary?.expenses ?? 0) > 0,
+                delta: computeDelta(summary?.expenses ?? 0, previousSummary?.expenses ?? 0),
+            });
+
+            cards.push({
+                id: 'expenses-by-category',
+                visualKey: 'expenses-by-category',
+                name: 'Expenses by Category',
+                title: 'Expenses by Category',
+                value: `${summary?.expenses ? formatCurrency(summary.expenses, true) : 'N/A'}`,
+                description: 'Approved expenses broken down by category',
+                hasData: (summary?.expenses ?? 0) > 0,
             });
         }
 
@@ -442,7 +480,7 @@ export const useReportsSummary = () => {
 
     const hasNoData = useMemo(() => {
         if (!summary) return true;
-        const hasProductData = summary.totalSales > 0 || summary.grossProfit > 0 || summary.receiptCount > 0;
+        const hasProductData = summary.totalSales > 0 || summary.netProfit > 0 || summary.receiptCount > 0;
         const hasServiceData = (summary.serviceOrders?.totalRevenue ?? 0) > 0 || (summary.serviceOrders?.orderCount ?? 0) > 0;
         return !hasProductData && !hasServiceData;
     }, [summary]);
