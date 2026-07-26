@@ -17,6 +17,7 @@ import {
 	InventoryRoutes,
 	SupplierRoutes,
 	ProcurementRoutes,
+	ExpenseRoutes,
 	UserRoutes,
 	BranchRoutes,
 	TerminalRoutes,
@@ -51,6 +52,7 @@ const AppRoutes: FunctionComponent<{ appSettings: SetupData }> = ({ appSettings 
 					{InventoryRoutes}
 					{SupplierRoutes}
 					{ProcurementRoutes}
+					{ExpenseRoutes}
 
 					{UserRoutes}
 					{ProtectedAuthRoutes}
