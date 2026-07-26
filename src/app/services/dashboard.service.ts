@@ -9,8 +9,10 @@ export interface DashboardSummary {
     revenueDelta: number;
     todaysSalesCount: number;
     salesDelta: number;
-    todaysGrossProfit: number;
-    grossProfitDelta: number;
+    todaysExpenses: number;
+    expensesDelta: number;
+    todaysNetProfit: number;
+    netProfitDelta: number;
 }
 
 export interface DashboardDataPoint {
@@ -23,6 +25,10 @@ export interface RevenueTrendResponse {
 }
 
 export interface PaymentMethodsResponse {
+    data: DashboardDataPoint[];
+}
+
+export interface ExpensesByCategoryResponse {
     data: DashboardDataPoint[];
 }
 
@@ -62,6 +68,7 @@ const endpoints = {
     summary: 'dashboard/summary',
     revenueTrend: 'dashboard/revenue-trend',
     paymentMethods: 'dashboard/payment-methods',
+    expensesByCategory: 'dashboard/expenses-by-category',
     topProducts: 'dashboard/top-products',
     recentSales: 'dashboard/recent-sales',
     lowStock: 'dashboard/low-stock',
@@ -103,6 +110,19 @@ const dashboardService = {
     async getPaymentMethods(query: DashboardQuery = {}): Promise<PaymentMethodsResponse> {
         return api
             .get<ApiResponse<PaymentMethodsResponse>>(endpoints.paymentMethods, query)
+            .then((res) => res.data.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * GET /v1/dashboard/expenses-by-category
+     * Fetches today's approved expenses grouped by category
+     */
+    async getExpensesByCategory(query: DashboardQuery = {}): Promise<ExpensesByCategoryResponse> {
+        return api
+            .get<ApiResponse<ExpensesByCategoryResponse>>(endpoints.expensesByCategory, query)
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
