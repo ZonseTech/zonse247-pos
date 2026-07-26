@@ -1,7 +1,7 @@
 import { type FunctionComponent, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Dialog from '@radix-ui/react-dialog';
-import { X, Package, Users, Truck, ShoppingCart, ClipboardList, UserPlus } from 'lucide-react';
+import { X, Package, Users, Truck, ShoppingCart, ClipboardList, UserPlus, Receipt } from 'lucide-react';
 import classNames from 'classnames';
 import { useQuickAction } from '../../context/QuickActionContext';
 import type { QuickActionType, QuickActionConfig } from '../../../types/navigation';
@@ -41,6 +41,11 @@ const QUICK_ACTIONS: QuickActionConfig[] = [
         label: 'New User',
         icon: <UserPlus size={20} />,
     },
+    {
+        type: 'new-expense',
+        label: 'Record Expense',
+        icon: <Receipt size={20} />,
+    },
 ];
 
 const ACTION_ROUTES: Record<QuickActionType, string> = {
@@ -50,6 +55,7 @@ const ACTION_ROUTES: Record<QuickActionType, string> = {
     'new-purchase-order': ROUTES.PURCHASE_ORDER_FORM,
     'new-requisition': ROUTES.PURCHASE_REQUISITION_FORM,
     'new-user': ROUTES.USER_FORM,
+    'new-expense': ROUTES.EXPENSES, // expense uses in-page modal
 };
 
 /**
