@@ -16,11 +16,19 @@ export const normalizeReportPoints = (
 
     switch (reportId) {
         case 'total-sales':
-        case 'gross-profit':
+        case 'net-profit':
         case 'receipt-count':
+        case 'expenses':
             return (rawData as ReportDetailRawData['total-sales'])![period].data.map((d) => ({
                 label: d.label,
                 value: d.value,
+            }));
+
+        case 'expenses-by-category':
+            return (rawData as ReportDetailRawData['expenses-by-category']).data.map((d) => ({
+                label: d.name,
+                value: d.totalAmount,
+                subtitle: `${d.count} expense${d.count === 1 ? '' : 's'}`,
             }));
 
         case 'payment-modes':
