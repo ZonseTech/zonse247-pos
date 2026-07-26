@@ -45,6 +45,9 @@ export enum ROUTES {
 	SUPPLIER_RETURN_FORM = '/supplier-returns/form',
 	CREDIT_NOTES = '/supplier-returns/credit-notes',
 
+	EXPENSES = '/expenses',
+	EXPENSE_CATEGORIES = '/expenses/categories',
+
 	PROCUREMENT_SUPPLIERS = '/procurement/suppliers',
 	PROCUREMENT_REQUISITIONS = '/procurement/requisitions',
 	PROCUREMENT_PURCHASE_ORDERS = '/procurement/purchase-orders',
