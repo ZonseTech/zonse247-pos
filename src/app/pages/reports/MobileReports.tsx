@@ -66,12 +66,14 @@ const MobileReports: React.FC = () => {
         const topStocks = reportCards.find((r) => r.visualKey === 'top-stocks');
         const topCategory = reportCards.find((r) => r.visualKey === 'top-category');
         const paymentModes = reportCards.find((r) => r.visualKey === 'payment-modes');
+        const expenses = reportCards.find((r) => r.visualKey === 'expenses');
 
         return `📊 Sales Report Summary\n\n` +
             `🏪 ${storeName}\n` +
             `📅 ${dateRange}\n\n` +
             `💰 ${revenue?.name}: ${revenue?.value ?? ''}\n` +
             `📈 ${profit?.name}: ${profit?.value ?? ''}\n` +
+            (expenses ? `💸 Expenses: ${expenses.value}\n` : '') +
             `🧾 Receipt Count: ${receipts?.value ?? ''}\n` +
             (topStocks ? `📦 Top Stocks: ${topStocks.value}\n` : '') +
             (topCategory ? `🏷️ Top Category: ${topCategory.value}\n` : '') +
