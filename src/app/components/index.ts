@@ -16,6 +16,8 @@ export { default as CardBody } from './card/CardBody';
 export { default as CollapsibleSection } from './card/CollapsibleSection';
 export { default as FormFieldCard } from './card/FormFieldCard';
 export { default as ComponentLoader } from './ComponentLoader';
+export { default as FormModal } from './FormModal';
+export type { FormModalSize } from './FormModal';
 export { DateRangeFilter } from './DateRangeFilter';
 export { default as TableEmptyState } from './TableEmptyState';
 export { default as Timer } from './timer/Timer';

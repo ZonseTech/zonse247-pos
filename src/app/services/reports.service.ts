@@ -9,7 +9,8 @@ export interface ServiceOrderSummary {
 
 export interface ReportSummary {
     totalSales: number;
-    grossProfit: number;
+    expenses: number;
+    netProfit: number;
     topStocks: number;
     topCategory: string;
     receiptCount: number;
@@ -46,22 +47,22 @@ export interface TotalSalesQuery {
     branchId?: string;
 }
 
-export interface GrossProfitDataPoint {
+export interface NetProfitDataPoint {
     label: string;
     value: number;
 }
 
-export interface GrossProfitTabData {
-    data: GrossProfitDataPoint[];
+export interface NetProfitTabData {
+    data: NetProfitDataPoint[];
 }
 
-export interface GrossProfitResponse {
-    hourly: GrossProfitTabData;
-    weekly: GrossProfitTabData;
-    monthly: GrossProfitTabData;
+export interface NetProfitResponse {
+    hourly: NetProfitTabData;
+    weekly: NetProfitTabData;
+    monthly: NetProfitTabData;
 }
 
-export interface GrossProfitQuery {
+export interface NetProfitQuery {
     startDate?: string;
     endDate?: string;
     branchId?: string;
@@ -136,14 +137,53 @@ export interface TopCategoryQuery {
     branchId?: string;
 }
 
+export interface ExpensesTrendDataPoint {
+    label: string;
+    value: number;
+}
+
+export interface ExpensesTrendTabData {
+    data: ExpensesTrendDataPoint[];
+}
+
+export interface ExpensesTrendResponse {
+    hourly: ExpensesTrendTabData;
+    weekly: ExpensesTrendTabData;
+    monthly: ExpensesTrendTabData;
+}
+
+export interface ExpensesTrendQuery {
+    startDate?: string;
+    endDate?: string;
+    branchId?: string;
+}
+
+export interface ExpensesByCategoryItem {
+    name: string;
+    count: number;
+    totalAmount: number;
+}
+
+export interface ExpensesByCategoryResponse {
+    data: ExpensesByCategoryItem[];
+}
+
+export interface ExpensesByCategoryQuery {
+    startDate?: string;
+    endDate?: string;
+    branchId?: string;
+}
+
 const endpoints = {
     summary: 'reports/summary',
     totalSales: 'reports/total-sales',
-    grossProfit: 'reports/gross-profit',
+    netProfit: 'reports/net-profit',
     receiptCount: 'reports/receipt-count',
     paymentModes: 'reports/payment-modes',
     topStocks: 'reports/top-stocks',
     topCategory: 'reports/top-categories',
+    expensesTrend: 'reports/expenses-trend',
+    expensesByCategory: 'reports/expenses-by-category',
 };
 
 const reportsService = {
@@ -176,12 +216,12 @@ const reportsService = {
     },
 
     /**
-     * GET /v1/reports/gross-profit
-     * Fetches the gross profit data for the profit report
+     * GET /v1/reports/net-profit
+     * Fetches the net profit data for the profit report
      */
-    async getGrossProfit(query: GrossProfitQuery = {}): Promise<GrossProfitResponse> {
+    async getNetProfit(query: NetProfitQuery = {}): Promise<NetProfitResponse> {
         return api
-            .get<ApiResponse<GrossProfitResponse>>(endpoints.grossProfit, query)
+            .get<ApiResponse<NetProfitResponse>>(endpoints.netProfit, query)
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;
@@ -234,6 +274,32 @@ const reportsService = {
     async getTopCategory(query: TopCategoryQuery = {}): Promise<TopCategoryResponse> {
         return api
             .get<ApiResponse<TopCategoryResponse>>(endpoints.topCategory, query)
+            .then((res) => res.data.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * GET /v1/reports/expenses-trend
+     * Fetches approved expenses for the expenses trend report
+     */
+    async getExpensesTrend(query: ExpensesTrendQuery = {}): Promise<ExpensesTrendResponse> {
+        return api
+            .get<ApiResponse<ExpensesTrendResponse>>(endpoints.expensesTrend, query)
+            .then((res) => res.data.data)
+            .catch((err) => {
+                throw err;
+            });
+    },
+
+    /**
+     * GET /v1/reports/expenses-by-category
+     * Fetches approved expenses grouped by category
+     */
+    async getExpensesByCategory(query: ExpensesByCategoryQuery = {}): Promise<ExpensesByCategoryResponse> {
+        return api
+            .get<ApiResponse<ExpensesByCategoryResponse>>(endpoints.expensesByCategory, query)
             .then((res) => res.data.data)
             .catch((err) => {
                 throw err;

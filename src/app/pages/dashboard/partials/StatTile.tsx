@@ -17,15 +17,15 @@ const StatTile: FunctionComponent<StatTileProps> = ({ label, value, delta, icon,
         <div className="relative overflow-hidden bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm p-5">
             <div className={`absolute inset-x-0 top-0 h-1 ${accent}`} />
             <div className="flex items-start justify-between">
-                <div>
+                <div className="min-w-0 flex-1">
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400">{label}</p>
                     {isLoading ? (
                         <div className="mt-2 h-7 w-20 rounded bg-gray-100 dark:bg-gray-700 animate-pulse" />
                     ) : (
-                        <p className="mt-1.5 text-2xl font-bold text-gray-900 dark:text-white tracking-tight">{value}</p>
+                        <p className="mt-1.5 text-xl font-bold text-gray-900 dark:text-white tracking-tight">{value}</p>
                     )}
                 </div>
-                <div className={`flex items-center justify-center w-10 h-10 rounded-xl ${accent} bg-opacity-10 dark:bg-opacity-20`}>
+                <div className={`flex items-center justify-center w-10 h-10 rounded-xl ${accent} bg-opacity-10 dark:bg-opacity-20 flex-shrink-0`}>
                     {icon}
                 </div>
             </div>

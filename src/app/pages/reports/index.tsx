@@ -1,4 +1,5 @@
 import { Fragment, useState, type FunctionComponent } from 'react';
+import { Navigate } from 'react-router';
 import { HiOutlineDocumentChartBar } from 'react-icons/hi2';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
@@ -14,9 +15,9 @@ import BreakdownListPreviewPanel from './partials/BreakdownListPreviewPanel';
 import PaymentMixPreviewPanel from './partials/PaymentMixPreviewPanel';
 import ReportDetailModal from './partials/ReportDetailModal';
 import { REPORT_VISUALS } from './partials/reportVisuals';
-import MobileReports from './MobileReports';
+import { ROUTES } from '../../utils/constants';
 
-const STAT_ROW_KEYS = new Set(['revenue', 'profit', 'service-orders', 'receipt-count', 'average-sale']);
+const STAT_ROW_KEYS = new Set(['revenue', 'profit', 'service-orders', 'average-sale', 'expenses']);
 
 const ReportsPage: FunctionComponent = () => {
     const isMobile = useIsMobile();
@@ -40,7 +41,7 @@ const ReportsPage: FunctionComponent = () => {
     const statCards = reportCards.filter((c) => STAT_ROW_KEYS.has(c.visualKey));
 
     if (isMobile) {
-        return <MobileReports />;
+        return <Navigate to={ROUTES.MOBILE_REPORT} replace />;
     }
 
     return (
@@ -129,16 +130,39 @@ const ReportsPage: FunctionComponent = () => {
                             </>
                         )}
                         <TrendPreviewPanel
-                            reportId="gross-profit"
-                            rawData={detailData['gross-profit']}
-                            isLoading={detailLoading['gross-profit']}
-                            error={detailErrors['gross-profit']}
-                            onRetry={() => retryDetail('gross-profit')}
+                            reportId="net-profit"
+                            rawData={detailData['net-profit']}
+                            isLoading={detailLoading['net-profit']}
+                            error={detailErrors['net-profit']}
+                            onRetry={() => retryDetail('net-profit')}
                             height={180}
                             showPeriodTabs={false}
-                            onViewDetails={() => setDetailReport('gross-profit')}
+                            onViewDetails={() => setDetailReport('net-profit')}
                         />
                     </div>
+
+                    {showRetail && (
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start">
+                            <TrendPreviewPanel
+                                reportId="expenses"
+                                rawData={detailData['expenses']}
+                                isLoading={detailLoading['expenses']}
+                                error={detailErrors['expenses']}
+                                onRetry={() => retryDetail('expenses')}
+                                height={180}
+                                showPeriodTabs={false}
+                                onViewDetails={() => setDetailReport('expenses')}
+                            />
+                            <BreakdownListPreviewPanel
+                                reportId="expenses-by-category"
+                                rawData={detailData['expenses-by-category']}
+                                isLoading={detailLoading['expenses-by-category']}
+                                error={detailErrors['expenses-by-category']}
+                                onRetry={() => retryDetail('expenses-by-category')}
+                                onViewDetails={() => setDetailReport('expenses-by-category')}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
 

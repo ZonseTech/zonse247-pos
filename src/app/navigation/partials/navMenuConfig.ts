@@ -59,6 +59,10 @@ export function buildNavMenuGroups(user: User | null, businessType?: BusinessTyp
         mgmtItems.push({ label: 'Services', route: ROUTES.SERVICES });
     }
 
+    if (hasAnyPermission(user, ['expenses.view', 'expenses.create'])) {
+        mgmtItems.push({ label: 'Expense Tracking', route: ROUTES.EXPENSES });
+    }
+
     if (user) {
         mgmtItems.push({ label: 'My Profile', route: ROUTES.MY_PROFILE, accelerator: 'CommandOrControl+Shift+P' });
     }

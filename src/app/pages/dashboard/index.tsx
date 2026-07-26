@@ -3,6 +3,7 @@ import DashboardHeader from './partials/DashboardHeader';
 import StatsRow from './partials/StatsRow';
 import RevenueChart from './partials/RevenueChart';
 import PaymentMethodsChart from './partials/PaymentMethodsChart';
+import ExpensesByCategoryChart from './partials/ExpensesByCategoryChart';
 import TopSellingProducts from './partials/TopSellingProducts';
 import RecentSales from './partials/RecentSales';
 import LowStockAlerts from './partials/LowStockAlerts';
@@ -22,9 +23,10 @@ const Dashboard: FunctionComponent = () => {
                 isLowStockLoading={loading.lowStock}
             />
 
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-4">
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 mb-4">
                 <RevenueChart data={stats.revenueTrend} isLoading={loading.revenueTrend} className="xl:col-span-2" />
                 <PaymentMethodsChart data={stats.paymentMethods} isLoading={loading.paymentMethods} />
+                <ExpensesByCategoryChart data={stats.expensesByCategory} isLoading={loading.expensesByCategory} />
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">

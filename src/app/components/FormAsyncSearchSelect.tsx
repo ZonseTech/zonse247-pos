@@ -130,7 +130,11 @@ const FormAsyncSearchSelect: React.FC<FormAsyncSearchSelectProps> = ({
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
             zIndex: 9999,
         }),
-        menuPortal: (provided) => ({ ...provided, zIndex: 9999 }),
+        // pointer-events must be re-enabled: Radix Dialog sets `pointer-events: none`
+        // on <body> while open, and only re-enables it on the dialog's own content
+        // node. This menu portals to document.body as a sibling, not a descendant,
+        // of Dialog.Content, so without this override its options are unclickable.
+        menuPortal: (provided) => ({ ...provided, zIndex: 9999, pointerEvents: 'auto' }),
         menuList: (provided) => ({ ...provided, maxHeight: '200px' }),
         option: (provided, state) => ({
             ...provided,
@@ -174,7 +178,11 @@ const FormAsyncSearchSelect: React.FC<FormAsyncSearchSelectProps> = ({
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2)',
             zIndex: 9999,
         }),
-        menuPortal: (provided) => ({ ...provided, zIndex: 9999 }),
+        // pointer-events must be re-enabled: Radix Dialog sets `pointer-events: none`
+        // on <body> while open, and only re-enables it on the dialog's own content
+        // node. This menu portals to document.body as a sibling, not a descendant,
+        // of Dialog.Content, so without this override its options are unclickable.
+        menuPortal: (provided) => ({ ...provided, zIndex: 9999, pointerEvents: 'auto' }),
         menuList: (provided) => ({ ...provided, maxHeight: '200px' }),
         option: (provided, state) => ({
             ...provided,
@@ -218,7 +226,11 @@ const FormAsyncSearchSelect: React.FC<FormAsyncSearchSelectProps> = ({
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
             zIndex: 9999,
         }),
-        menuPortal: (provided) => ({ ...provided, zIndex: 9999 }),
+        // pointer-events must be re-enabled: Radix Dialog sets `pointer-events: none`
+        // on <body> while open, and only re-enables it on the dialog's own content
+        // node. This menu portals to document.body as a sibling, not a descendant,
+        // of Dialog.Content, so without this override its options are unclickable.
+        menuPortal: (provided) => ({ ...provided, zIndex: 9999, pointerEvents: 'auto' }),
         menuList: (provided) => ({ ...provided, maxHeight: '200px' }),
         option: (provided, state) => ({
             ...provided,
@@ -262,7 +274,11 @@ const FormAsyncSearchSelect: React.FC<FormAsyncSearchSelectProps> = ({
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2)',
             zIndex: 9999,
         }),
-        menuPortal: (provided) => ({ ...provided, zIndex: 9999 }),
+        // pointer-events must be re-enabled: Radix Dialog sets `pointer-events: none`
+        // on <body> while open, and only re-enables it on the dialog's own content
+        // node. This menu portals to document.body as a sibling, not a descendant,
+        // of Dialog.Content, so without this override its options are unclickable.
+        menuPortal: (provided) => ({ ...provided, zIndex: 9999, pointerEvents: 'auto' }),
         menuList: (provided) => ({ ...provided, maxHeight: '200px' }),
         option: (provided, state) => ({
             ...provided,

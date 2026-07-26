@@ -39,7 +39,7 @@ const ReportStatTile: FunctionComponent<ReportStatTileProps> = ({
                     <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 truncate">
                         {name}
                     </p>
-                    <p className="mt-1.5 text-2xl font-bold text-gray-900 dark:text-white tracking-tight truncate">
+                    <p className="mt-1.5 text-xl font-bold text-gray-900 dark:text-white tracking-tight">
                         {value}
                     </p>
                     {description && (

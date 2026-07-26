@@ -1,5 +1,5 @@
 import type { FunctionComponent } from 'react';
-import { DollarSign, ShoppingCart, TrendingUp, AlertTriangle } from 'lucide-react';
+import { DollarSign, Receipt, TrendingUp, AlertTriangle } from 'lucide-react';
 import StatTile from './StatTile';
 import type { DashboardSummary } from '../../../services/dashboard.service';
 import { formatCurrency } from '../../../utils';
@@ -22,17 +22,17 @@ const StatsRow: FunctionComponent<StatsRowProps> = ({ summary, isSummaryLoading,
             isLoading={isSummaryLoading}
         />
         <StatTile
-            label="Today's Sales"
-            value={`${summary?.todaysSalesCount ?? 0}`}
-            delta={summary?.salesDelta}
-            icon={<ShoppingCart className="w-5 h-5 text-purple-500" />}
-            accent="bg-purple-500"
+            label="Today's Expenses"
+            value={formatCurrency(summary?.todaysExpenses ?? 0, true)}
+            delta={summary?.expensesDelta}
+            icon={<Receipt className="w-5 h-5 text-orange-500" />}
+            accent="bg-orange-500"
             isLoading={isSummaryLoading}
         />
         <StatTile
-            label="Gross Profit"
-            value={formatCurrency(summary?.todaysGrossProfit ?? 0, true)}
-            delta={summary?.grossProfitDelta}
+            label="Net Profit"
+            value={formatCurrency(summary?.todaysNetProfit ?? 0, true)}
+            delta={summary?.netProfitDelta}
             icon={<TrendingUp className="w-5 h-5 text-emerald-500" />}
             accent="bg-emerald-500"
             isLoading={isSummaryLoading}
