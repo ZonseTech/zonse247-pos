@@ -18,6 +18,7 @@ export interface DashboardStats {
     summary: DashboardSummary | null;
     revenueTrend: DashboardDataPoint[];
     paymentMethods: DashboardDataPoint[];
+    expensesByCategory: DashboardDataPoint[];
     topProducts: TopSellingProduct[];
     recentSales: RecentSaleItem[];
     lowStock: LowStockSection;
@@ -27,6 +28,7 @@ const EMPTY_STATS: DashboardStats = {
     summary: null,
     revenueTrend: [],
     paymentMethods: [],
+    expensesByCategory: [],
     topProducts: [],
     recentSales: [],
     lowStock: { items: [], totalCount: 0 },
@@ -38,6 +40,7 @@ const LOADING_ALL: DashboardLoadingState = {
     summary: true,
     revenueTrend: true,
     paymentMethods: true,
+    expensesByCategory: true,
     topProducts: true,
     recentSales: true,
     lowStock: true,
@@ -108,6 +111,7 @@ export const useDashboardStats = (query: { branchId?: string } = {}): UseDashboa
         load('summary', () => dashboardService.getSummary(query));
         load('revenueTrend', () => dashboardService.getRevenueTrend(query).then((res) => res.data));
         load('paymentMethods', () => dashboardService.getPaymentMethods(query).then((res) => res.data));
+        load('expensesByCategory', () => dashboardService.getExpensesByCategory(query).then((res) => res.data));
         load('topProducts', () => dashboardService.getTopProducts(query).then((res) => res.data));
         load('recentSales', () => dashboardService.getRecentSales(query).then((res) => res.data));
         load('lowStock', () =>
