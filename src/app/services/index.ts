@@ -17,6 +17,8 @@ import saleService from './sale.service';
 import inventoryService from './inventory.service';
 import barcodeScannerService from './barcode-scanner.service';
 import mraComplianceService from './mra-compliance.service';
+import expenseService from './expense.service';
+import expenseCategoryService from './expense-category.service';
 
 // Re-export live API utilities for centralized API access
 export {
@@ -44,6 +46,8 @@ export {
     inventoryService,
     barcodeScannerService,
     mraComplianceService,
+    expenseService,
+    expenseCategoryService,
 };
 
 // Re-export for convenience
@@ -60,6 +64,8 @@ export const inventoryWorkflow = {
     inventoryValuation: inventoryValuationService,
     sale: saleService,
     inventory: inventoryService,
+    expense: expenseService,
+    expenseCategory: expenseCategoryService,
 };
 
 export default inventoryWorkflow;
