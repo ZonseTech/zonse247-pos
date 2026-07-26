@@ -6,6 +6,7 @@ export { SalesRoutes } from './sales.routes'
 export { InventoryRoutes } from './inventory.routes'
 export { SupplierRoutes } from './suppliers.routes'
 export { ProcurementRoutes } from './procurement.routes'
+export { ExpenseRoutes } from './expenses.routes'
 export { UserRoutes } from './users.routes'
 export {
     BranchRoutes,
