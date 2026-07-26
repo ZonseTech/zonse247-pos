@@ -21,6 +21,7 @@ import {
     FileBarChart2,
     Wrench,
     HeartHandshake,
+    Receipt,
 } from 'lucide-react';
 import { RiGroup3Line } from 'react-icons/ri';
 
@@ -149,6 +150,18 @@ const useNavGroups = (): UseNavGroupsReturn => {
                 icon: ic(Wrench),
                 route: ROUTES.SERVICES,
                 onClick: () => navigate(ROUTES.SERVICES),
+                showOnDesktop: true,
+                showOnMobile: true,
+            });
+        }
+
+        if (hasAnyPermission(user, ['expenses.view', 'expenses.create'])) {
+            mgmtItems.push({
+                id: 'expenses',
+                label: 'Expenses',
+                icon: ic(Receipt),
+                route: ROUTES.EXPENSES,
+                onClick: () => navigate(ROUTES.EXPENSES),
                 showOnDesktop: true,
                 showOnMobile: true,
             });
