@@ -92,7 +92,8 @@ export type QuickActionType =
     | 'new-supplier'
     | 'new-purchase-order'
     | 'new-requisition'
-    | 'new-user';
+    | 'new-user'
+    | 'new-expense';
 
 export interface QuickActionConfig {
     type: QuickActionType;
