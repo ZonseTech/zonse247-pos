@@ -15,7 +15,7 @@ import { useNavigate, useLocation } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useAuth } from '../../context/AuthProvider';
 import { useIsMobile } from '../../hooks/useMediaQuery';
-import { hasRole } from '../../utils';
+import { hasPermission } from '../../utils';
 import MobilePlanSkeleton from '../../components/loader/MobilePlanSkeleton';
 import * as Yup from 'yup';
 import { capitalizeEachWord } from '../../utils';
@@ -36,7 +36,7 @@ const TerminalForm: FunctionComponent = () => {
     const effectiveTenantId = stateTenantId || authUser?.tenantId || '';
 
     const canSelectTenant = useMemo(() => {
-        return hasRole(authUser, 'admin');
+        return hasPermission(authUser, 'system.admin');
     }, [authUser]);
 
     useEffect(() => {
