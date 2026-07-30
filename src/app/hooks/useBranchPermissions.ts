@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useAuth } from '../context/AuthProvider';
-import { ROLE_IDS, ROLE_NAMES, isAdminRole, isManagerRole } from '../constants/roles';
+import { hasPermission } from '../utils';
 
 export interface BranchPermissions {
     canViewAllBranches: boolean;
@@ -13,69 +13,48 @@ export interface BranchPermissions {
     canManageMraApproval: boolean;
     userBranchId: string | null;
     userTenantId: string | null;
-    isTenantOwner: boolean;
-    isSuperAdmin: boolean;
-    isAdmin: boolean;
-    isBranchManager: boolean;
 }
 
 /**
- * Hook to determine branch management permissions based on user role
- * 
+ * Hook to determine branch management permissions based on the user's granted permissions
+ *
  * Permission levels:
- * - Super Admin: Full access across all tenants and branches
- * - Tenant Owner: Full access to all branches within their tenant
- * - Admin: Can manage all branches within their tenant
- * - Branch Manager: Can only view/edit their assigned branch
- * - Other roles: View only (if permitted)
+ * - branches.edit / branches.delete / branches.status.manage: tenant-wide (admin tier)
+ * - branches.edit.own: only the branch assigned to the user (branch-manager/manager tier)
+ * - branches.view: view branch list/details
  */
 export const useBranchPermissions = (): BranchPermissions => {
     const { user } = useAuth();
 
     return useMemo(() => {
-        const roleId = user?.roleId;
-        const roleName = user?.roleName;
         const userBranchId = user?.branchId || user?.currentBranchId || null;
         const userTenantId = user?.tenantId || null;
 
-        // Role checks
-        const isSuperAdmin = roleId === ROLE_IDS.SUPER_ADMIN || roleName === ROLE_NAMES.SUPER_ADMIN;
-        const isTenantOwner = roleId === ROLE_IDS.TENANT_OWNER || roleName === ROLE_NAMES.TENANT_OWNER;
-        const isAdmin = roleId === ROLE_IDS.ADMIN || roleName === ROLE_NAMES.ADMIN;
-        const isBranchManager = roleId === ROLE_IDS.BRANCH_MANAGER || roleName === ROLE_NAMES.BRANCH_MANAGER;
-        const isManager = roleId === ROLE_IDS.MANAGER || roleName === ROLE_NAMES.MANAGER;
+        const canViewAllBranches = hasPermission(user, 'branches.view');
+        const canCreateBranch = hasPermission(user, 'branches.create');
+        const canEditAnyBranch = hasPermission(user, 'branches.edit');
+        const canEditOwnBranch = hasPermission(user, 'branches.edit.own');
 
-        // High-level permission checks
-        const hasAdminAccess = isSuperAdmin || isTenantOwner || isAdmin;
-        const hasManagerAccess = hasAdminAccess || isBranchManager || isManager;
-
-        // Specific permissions
-        const canViewAllBranches = hasAdminAccess;
-        const canCreateBranch = isSuperAdmin || isTenantOwner || isAdmin;
-        
         const canEditBranch = (branchId: string): boolean => {
             if (branchId === '-1') return false; // Default branch cannot be edited
-            if (hasAdminAccess) return true;
-            if (isBranchManager || isManager) {
-                return branchId === userBranchId;
-            }
+            if (canEditAnyBranch) return true;
+            if (canEditOwnBranch) return branchId === userBranchId;
             return false;
         };
 
         const canDeleteBranch = (branchId: string): boolean => {
             if (branchId === '-1') return false; // Default branch cannot be deleted
-            // Only super admin, tenant owner, and admin can delete branches
-            return hasAdminAccess;
+            return hasPermission(user, 'branches.delete');
         };
 
         const canToggleStatus = (branchId: string): boolean => {
             if (branchId === '-1') return false;
-            return hasAdminAccess;
+            return hasPermission(user, 'branches.status.manage');
         };
 
-        const canViewTenantInfo = isSuperAdmin || isTenantOwner;
-        const canViewFinancials = hasAdminAccess;
-        const canManageMraApproval = isSuperAdmin || isTenantOwner;
+        const canViewTenantInfo = hasPermission(user, 'system.admin');
+        const canViewFinancials = hasPermission(user, 'reports.financial');
+        const canManageMraApproval = hasPermission(user, 'system.admin');
 
         return {
             canViewAllBranches,
@@ -88,10 +67,6 @@ export const useBranchPermissions = (): BranchPermissions => {
             canManageMraApproval,
             userBranchId,
             userTenantId,
-            isTenantOwner,
-            isSuperAdmin,
-            isAdmin,
-            isBranchManager,
         };
     }, [user]);
 };

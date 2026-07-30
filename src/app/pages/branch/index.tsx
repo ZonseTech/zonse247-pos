@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useAuth } from '../../context/AuthProvider';
-import { hasRole } from '../../utils';
+import { hasPermission } from '../../utils';
 import MobileBranch from './MobileBranch';
 import DesktopBranch from './DesktopBranch';
 
@@ -23,7 +23,7 @@ const BranchManagement: FunctionComponent = () => {
     const { user: authUser } = useAuth();
 
     const canViewStats = useMemo(() => {
-        return hasRole(authUser, 'admin') || hasRole(authUser, 'super-admin');
+        return hasPermission(authUser, 'system.admin');
     }, [authUser]);
 
     const {

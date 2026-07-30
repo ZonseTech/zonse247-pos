@@ -19,7 +19,7 @@ import { useAuth } from '../../context/AuthProvider';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useBranchPermissions } from '../../hooks/useBranchPermissions';
 import { businessTypes } from '../../utils/tenant-status';
-import { capitalizeEachWord, hasRole } from '../../utils';
+import { capitalizeEachWord, hasPermission } from '../../utils';
 import * as Yup from 'yup';
 import { useConnectivity } from '../../hooks/useConnectivity';
 import MobilePlanSkeleton from '../../components/loader/MobilePlanSkeleton';
@@ -59,7 +59,7 @@ const BranchForm: FunctionComponent = () => {
     const isViewOnly = branchId && !canEdit;
 
     const canSelectTenant = useMemo(() => {
-        return hasRole(authUser, 'admin');
+        return hasPermission(authUser, 'system.admin');
     }, [authUser]);
 
     const currencyOptions = [

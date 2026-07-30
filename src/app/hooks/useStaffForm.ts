@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthProvider';
 import { createStaffValidationSchema, updateStaffValidationSchema } from '../schemas/user.schema';
 import { parseApiError, mapErrorToFormikErrors, isDuplicateError, getErrorMessage } from '../utils/api-error-handler';
 import { ROUTES } from '../utils/constants';
-import { hasRole } from '../utils';
+import { hasPermission } from '../utils';
 
 export interface StaffFormValues {
     fullname: string;
@@ -52,7 +52,7 @@ export const useStaffForm = (): UseStaffFormReturn => {
     const effectiveTenantId = stateTenantId || authUser?.tenantId || '';
 
     const canSelectTenant = useMemo(() => {
-        return hasRole(authUser, 'admin');
+        return hasPermission(authUser, 'system.admin');
     }, [authUser]);
 
     useEffect(() => {
