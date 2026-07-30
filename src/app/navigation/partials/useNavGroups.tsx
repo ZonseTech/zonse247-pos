@@ -27,7 +27,7 @@ import { RiGroup3Line } from 'react-icons/ri';
 
 import { ROUTES } from '../../utils/constants';
 import { useAuth } from '../../context/AuthProvider';
-import { hasAnyPermission, hasPermission, hasRole, isElectron } from '../../utils';
+import { hasAnyPermission, hasPermission, isElectron } from '../../utils';
 import { useIsNativeMobile } from '../../hooks/useMediaQuery';
 import useBusinessFeatures from '../../hooks/useBusinessFeatures';
 import type { NavGroup, NavItemBase, UseNavGroupsReturn } from '../../../types/navigation';
@@ -231,7 +231,7 @@ const useNavGroups = (): UseNavGroupsReturn => {
             });
         }
 
-        if (hasRole(user, 'admin') || hasPermission(user, 'system.admin')) {
+        if (hasPermission(user, 'system.admin')) {
             result.push({
                 key: 'admin',
                 label: 'Administration',
