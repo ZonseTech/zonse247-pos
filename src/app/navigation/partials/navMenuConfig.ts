@@ -1,5 +1,5 @@
 import { ROUTES } from '../../utils/constants';
-import { hasAnyPermission, hasPermission, hasRole } from '../../utils';
+import { hasAnyPermission, hasPermission } from '../../utils';
 import type { MenuItemConstructorOptions } from 'electron';
 
 const FEATURE_MAP: Record<string, { showRetail: boolean; showServices: boolean }> = {
@@ -86,7 +86,7 @@ export function buildNavMenuGroups(user: User | null, businessType?: BusinessTyp
         });
     }
 
-    if (hasRole(user, 'admin') || hasPermission(user, 'system.admin')) {
+    if (hasPermission(user, 'system.admin')) {
         groups.push({
             label: 'Admin',
             items: [
