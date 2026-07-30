@@ -294,7 +294,11 @@ httpInstance.interceptors.response.use(
 				}
 				break;
 			case 403:
-				handleAuthError();
+				if ((response?.data as any)?.subscriptionStatus) {
+					handleAuthError();
+				} else {
+					error.message = (response?.data as any)?.message || message || '';
+				}
 				break;
 			case 404:
 				error.message = (response?.data as any)?.message || message || '';
