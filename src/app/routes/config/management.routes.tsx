@@ -1,6 +1,7 @@
 import { lazy } from 'react'
 import { Route } from 'react-router'
 import { ROUTES } from '../../utils/constants'
+import PermissionRoute from '../../navigation/PermissionRoute'
 
 const BranchManagement = lazy(() => import('../../pages/branch'))
 const BranchForm = lazy(() => import('../../pages/branch/create'))
@@ -28,9 +29,9 @@ export const TerminalRoutes = (
 
 export const TenantRoutes = (
     <>
-        <Route path={ROUTES.TENANTS} element={<TenantsManagement />} />
-        <Route path={ROUTES.TENANT_DETAILS} element={<TenantDetails />} />
-        <Route path={ROUTES.TENANT_FORM} element={<TenantForm />} />
+        <Route path={ROUTES.TENANTS} element={<PermissionRoute permission="system.admin"><TenantsManagement /></PermissionRoute>} />
+        <Route path={ROUTES.TENANT_DETAILS} element={<PermissionRoute permission="system.admin"><TenantDetails /></PermissionRoute>} />
+        <Route path={ROUTES.TENANT_FORM} element={<PermissionRoute permission="system.admin"><TenantForm /></PermissionRoute>} />
     </>
 )
 
