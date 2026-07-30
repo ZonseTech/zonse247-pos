@@ -15,15 +15,15 @@ const PrintJobsManagement = lazy(() => import('../../pages/printer/jobs'))
 
 export const BranchRoutes = (
     <>
-        <Route path={ROUTES.BRANCHES} element={<BranchManagement />} />
-        <Route path={ROUTES.BRANCH_FORM} element={<BranchForm />} />
+        <Route path={ROUTES.BRANCHES} element={<PermissionRoute permission="branches.view"><BranchManagement /></PermissionRoute>} />
+        <Route path={ROUTES.BRANCH_FORM} element={<PermissionRoute permission="branches.view"><BranchForm /></PermissionRoute>} />
     </>
 )
 
 export const TerminalRoutes = (
     <>
-        <Route path={ROUTES.TERMINALS} element={<TerminalManagement />} />
-        <Route path={ROUTES.TERMINAL_FORM} element={<TerminalForm />} />
+        <Route path={ROUTES.TERMINALS} element={<PermissionRoute permission="terminals.view"><TerminalManagement /></PermissionRoute>} />
+        <Route path={ROUTES.TERMINAL_FORM} element={<PermissionRoute permission="terminals.view"><TerminalForm /></PermissionRoute>} />
     </>
 )
 
