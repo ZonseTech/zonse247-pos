@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useAuth } from '../../context/AuthProvider';
-import { hasRole } from '../../utils';
+import { hasPermission } from '../../utils';
 import branchService from '../../services/branch.service';
 
 const TerminalManagement: FunctionComponent = () => {
@@ -32,7 +32,7 @@ const TerminalManagement: FunctionComponent = () => {
     const [loadingBranches, setLoadingBranches] = useState(false);
 
     const canViewStats = useMemo(() => {
-        return hasRole(authUser, 'admin');
+        return hasPermission(authUser, 'system.admin');
     }, [authUser]);
 
     // Load branches for filter dropdown
