@@ -9,6 +9,7 @@ const SecuritySettingsPage = lazy(() => import('../../pages/settings/SecuritySet
 const SettingsPage = lazy(() => import('../../pages/settings/SettingsPage'))
 const NotFound = lazy(() => import('../../pages/errors/NotFound'))
 const UnderConstruction = lazy(() => import('../../pages/errors/UnderConstruction'))
+const Forbidden = lazy(() => import('../../pages/errors/Forbidden'))
 
 export const SystemRoutes = (
     <>
@@ -26,5 +27,6 @@ export const ErrorRoutes = (
     <>
         <Route path="/not-found" element={<NotFound />} />
         <Route path="/under-construction" element={<UnderConstruction />} />
+        <Route path="/forbidden" element={<Forbidden />} />
     </>
 )
