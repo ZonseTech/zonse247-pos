@@ -11,6 +11,9 @@ interface BranchSearchProps {
     touched?: boolean;
     disabled?: boolean;
     disabledMessage?: string;
+    required?: boolean;
+    label?: string;
+    placeholder?: string;
 }
 
 const BranchSearch: FunctionComponent<BranchSearchProps> = ({
@@ -20,7 +23,10 @@ const BranchSearch: FunctionComponent<BranchSearchProps> = ({
     error,
     touched,
     disabled = false,
-    disabledMessage
+    disabledMessage,
+    required = true,
+    label = 'Branch',
+    placeholder,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -119,7 +125,7 @@ const BranchSearch: FunctionComponent<BranchSearchProps> = ({
     return (
         <div className="relative" ref={dropdownRef}>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Branch <span className="text-red-500">*</span>
+                {label} {required && <span className="text-red-500">*</span>}
             </label>
 
             <div className="relative">
@@ -158,7 +164,7 @@ const BranchSearch: FunctionComponent<BranchSearchProps> = ({
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             onClick={handleInputClick}
-                            placeholder={disabled ? "Branch auto-assigned" : (tenantId ? "Search for a branch..." : "Select tenant first...")}
+                            placeholder={disabled ? "Branch auto-assigned" : (tenantId ? (placeholder || "Search for a branch...") : "Select tenant first...")}
                             disabled={disabled || !tenantId}
                             className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent dark:text-white ${disabled
                                 ? 'bg-gray-100 dark:bg-gray-600 border-gray-200 dark:border-gray-500 opacity-50 cursor-not-allowed'

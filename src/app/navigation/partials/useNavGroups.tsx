@@ -13,7 +13,9 @@ import {
 import {
     HiOutlineBuildingOffice2,
     HiOutlineBuildingStorefront,
+    HiOutlineComputerDesktop,
     HiOutlineWrenchScrewdriver,
+    HiOutlineShieldCheck,
 } from 'react-icons/hi2';
 import {
     Package,
@@ -69,7 +71,7 @@ const useNavGroups = (): UseNavGroupsReturn => {
             });
         }
 
-        if (hasAnyPermission(user, ['products.view', 'products.create', 'sales.create', 'refunds.process'])) {
+        if (hasAnyPermission(user, ['customers.view', 'customers.create', 'customers.edit'])) {
             opsItems.push({
                 id: 'customers',
                 label: 'Customers',
@@ -115,7 +117,7 @@ const useNavGroups = (): UseNavGroupsReturn => {
 
         const mgmtItems: NavItemBase[] = [];
 
-        if (hasAnyPermission(user, ['products.view', 'products.create', 'sales.create', 'refunds.process'])) {
+        if (hasAnyPermission(user, ['products.view', 'inventory.view'])) {
             mgmtItems.push({
                 id: 'inventory',
                 label: 'Inventory',
@@ -129,7 +131,7 @@ const useNavGroups = (): UseNavGroupsReturn => {
             });
         }
 
-        if (hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {
+        if (hasAnyPermission(user, ['suppliers.view', 'suppliers.create', 'suppliers.edit', 'inventory.receive'])) {
             mgmtItems.push({
                 id: 'procurement',
                 label: 'Procurement',
@@ -167,7 +169,7 @@ const useNavGroups = (): UseNavGroupsReturn => {
             });
         }
 
-        if (hasAnyPermission(user, ['settings.branch.manage'])) {
+        if (hasAnyPermission(user, ['settings.loyalty.manage', 'customers.loyalty'])) {
             mgmtItems.push({
                 id: 'loyalty-program',
                 label: 'Loyalty Program',
@@ -191,6 +193,42 @@ const useNavGroups = (): UseNavGroupsReturn => {
             });
         }
 
+        if (hasPermission(user, 'branches.view')) {
+            mgmtItems.push({
+                id: 'branches',
+                label: 'Branches',
+                icon: ic(HiOutlineBuildingOffice2),
+                route: ROUTES.BRANCHES,
+                onClick: () => navigate(ROUTES.BRANCHES),
+                showOnDesktop: true,
+                showOnMobile: true,
+            });
+        }
+
+        if (hasPermission(user, 'terminals.view')) {
+            mgmtItems.push({
+                id: 'terminals',
+                label: 'Terminals',
+                icon: ic(HiOutlineComputerDesktop),
+                route: ROUTES.TERMINALS,
+                onClick: () => navigate(ROUTES.TERMINALS),
+                showOnDesktop: true,
+                showOnMobile: true,
+            });
+        }
+
+        if (hasPermission(user, 'roles.view')) {
+            mgmtItems.push({
+                id: 'roles-permissions',
+                label: 'Roles & Permissions',
+                icon: ic(HiOutlineShieldCheck),
+                route: ROUTES.ROLES_PERMISSIONS,
+                onClick: () => navigate(ROUTES.ROLES_PERMISSIONS),
+                showOnDesktop: true,
+                showOnMobile: true,
+            });
+        }
+
         if (mgmtItems.length > 0) {
             result.push({
                 key: 'management',
@@ -200,7 +238,7 @@ const useNavGroups = (): UseNavGroupsReturn => {
             });
         }
 
-        if (hasAnyPermission(user, ['settings.branch.manage'])) {
+        if (hasAnyPermission(user, ['settings.branch.manage', 'settings.tax.manage', 'settings.payment.manage', 'settings.receipt.manage', 'settings.loyalty.manage'])) {
             result.push({
                 key: 'settings',
                 label: 'Settings',

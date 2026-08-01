@@ -35,7 +35,7 @@ export function buildNavMenuGroups(user: User | null, businessType?: BusinessTyp
         opsItems.push({ label: 'Point of Sale', route: ROUTES.POS, accelerator: 'CommandOrControl+P' });
     }
 
-    if (hasAnyPermission(user, ['products.view', 'products.create', 'sales.create', 'refunds.process'])) {
+    if (hasAnyPermission(user, ['customers.view', 'customers.create', 'customers.edit'])) {
         opsItems.push({ label: 'Customers', route: ROUTES.CUSTOMERS });
     }
 
@@ -50,8 +50,11 @@ export function buildNavMenuGroups(user: User | null, businessType?: BusinessTyp
 
     const mgmtItems: NavMenuGroup['items'] = [];
 
-    if (showRetail && hasAnyPermission(user, ['products.view', 'products.create', 'products.edit'])) {
+    if (showRetail && hasAnyPermission(user, ['products.view', 'inventory.view'])) {
         mgmtItems.push({ label: 'Inventory', route: ROUTES.INVENTORY_HUB });
+    }
+
+    if (hasAnyPermission(user, ['suppliers.view', 'suppliers.create', 'suppliers.edit', 'inventory.receive'])) {
         mgmtItems.push({ label: 'Procurement', route: ROUTES.PROCUREMENT_SUPPLIERS });
     }
 
@@ -63,6 +66,10 @@ export function buildNavMenuGroups(user: User | null, businessType?: BusinessTyp
         mgmtItems.push({ label: 'Expense Tracking', route: ROUTES.EXPENSES });
     }
 
+    if (hasAnyPermission(user, ['settings.loyalty.manage', 'customers.loyalty'])) {
+        mgmtItems.push({ label: 'Loyalty Program', route: ROUTES.LOYALTY_PROGRAM });
+    }
+
     if (user) {
         mgmtItems.push({ label: 'My Profile', route: ROUTES.MY_PROFILE, accelerator: 'CommandOrControl+Shift+P' });
     }
@@ -71,11 +78,23 @@ export function buildNavMenuGroups(user: User | null, businessType?: BusinessTyp
         mgmtItems.push({ label: 'Staff Management', route: ROUTES.USERS });
     }
 
+    if (hasPermission(user, 'branches.view')) {
+        mgmtItems.push({ label: 'Branches', route: ROUTES.BRANCHES });
+    }
+
+    if (hasPermission(user, 'terminals.view')) {
+        mgmtItems.push({ label: 'Terminals', route: ROUTES.TERMINALS });
+    }
+
+    if (hasPermission(user, 'roles.view')) {
+        mgmtItems.push({ label: 'Roles & Permissions', route: ROUTES.ROLES_PERMISSIONS });
+    }
+
     if (mgmtItems.length > 0) {
         groups.push({ label: 'Management', items: mgmtItems });
     }
 
-    if (hasPermission(user, 'settings.branch.manage')) {
+    if (hasAnyPermission(user, ['settings.branch.manage', 'settings.tax.manage', 'settings.payment.manage', 'settings.receipt.manage', 'settings.loyalty.manage'])) {
         groups.push({
             label: 'Settings',
             items: [

@@ -1,37 +1,24 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { Users, Shield, Settings, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Notify, Confirm } from 'notiflix';
+import { Plus } from 'lucide-react';
 import { HiOutlineShieldCheck } from 'react-icons/hi2';
+import { Flex, Spinner, Button } from '@radix-ui/themes';
 import roleService from '../../services/role.service';
 import permissionService from '../../services/permission.service';
-import { RolesTab } from './partials/tabs/RolesTab';
-import { PermissionsTab } from './partials/tabs/PermissionsTab';
-import { AssignmentsTab } from './partials/tabs/AssignmentsTab';
-import { AssignPermissionsModal } from './partials/modals/AssignPermissionsModal';
-import PermissionModal from './partials/modals/PermissionModal';
-import RoleModal from './partials/modals/RoleModal';
-import { SearchFilter } from './partials/SearchFilter';
-import { LoadingSpinner } from './partials/LoadingSpinner';
+import { RolesTable } from './partials/RolesTable';
+import RoleModal from './partials/RoleModal';
+import { SearchBar } from '../../components/SearchBar';
 import AppLayout from '../../layouts/AppLayout';
-import { Notify } from 'notiflix';
 import PageHeader from '../../components/page/PageHeader';
+import { getErrorMessage } from '../../utils/api-error-handler';
 
-export default function RolePermissionAdmin() {
-  const [activeTab, setActiveTab] = useState('roles');
+export default function RolesPage() {
   const [roles, setRoles] = useState<Array<Role>>([]);
-  const [permissions, setPermissions] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [scopes, setScopes] = useState([]);
+  const [permissions, setPermissions] = useState<Array<Permission>>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedScope, setSelectedScope] = useState('all');
   const [showRoleModal, setShowRoleModal] = useState(false);
-  const [showPermissionModal, setShowPermissionModal] = useState(false);
-  const [showAssignModal, setShowAssignModal] = useState(false);
-  const [editingRole, setEditingRole] = useState(null);
-  const [editingPermission, setEditingPermission] = useState(null);
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [editingRole, setEditingRole] = useState<Role | null>(null);
 
   useEffect(() => {
     loadData();
@@ -40,112 +27,61 @@ export default function RolePermissionAdmin() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [rolesData, permissionsData, categoriesData, scopesData] = await Promise.all([
+      const [rolesData, permissionsData] = await Promise.all([
         roleService.list(),
         permissionService.list(),
-        permissionService.getCategories(),
-        permissionService.getScopes(),
       ]);
       setRoles(Array.isArray(rolesData.data) ? rolesData.data : []);
       setPermissions(Array.isArray(permissionsData.data) ? permissionsData.data : []);
-      setCategories(Array.isArray(categoriesData.data) ? categoriesData.data : []);
-      setScopes(Array.isArray(scopesData.data) ? scopesData.data : []);
     } catch (err) {
-      setError('Failed to load data');
       console.error(err);
+      Notify.failure('Failed to load roles and permissions');
     } finally {
       setLoading(false);
     }
   };
 
   const handleCreateRole = async (roleData) => {
-    try {
-      await roleService.create(roleData);
-      await loadData();
-      setShowRoleModal(false);
-      setEditingRole(null);
-    } catch (err) {
-      setError('Failed to create role');
-    }
+    await roleService.create(roleData);
+    await loadData();
+    setShowRoleModal(false);
+    setEditingRole(null);
   };
 
   const handleUpdateRole = async (roleData: Role) => {
-    try {
-      const result = await roleService.update(editingRole.uuid, roleData);
-      await loadData();
-      setShowRoleModal(false);
-      setEditingRole(null);
-      Notify.success(result.message)
-    } catch (err) {
-      setError('Failed to update role');
-    }
+    if (!editingRole) return;
+    const result = await roleService.update(editingRole.roleId, roleData);
+    await loadData();
+    setShowRoleModal(false);
+    setEditingRole(null);
+    Notify.success(result.message);
   };
 
-  const handleDeleteRole = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this role?')) {
-      try {
-        await roleService.delete(id);
-        await loadData();
-      } catch (err) {
-        setError('Failed to delete role');
+  const handleDeleteRole = (id: string) => {
+    Confirm.show(
+      'Delete Role',
+      'Are you sure you want to delete this role? This action cannot be undone.',
+      'Yes, Delete',
+      'Cancel',
+      async () => {
+        try {
+          await roleService.delete(id);
+          await loadData();
+        } catch (err) {
+          Notify.failure(getErrorMessage(err, 'Failed to delete role'));
+        }
+      },
+      () => { },
+      {
+        titleColor: '#ef4444',
+        okButtonBackground: '#ef4444',
       }
-    }
+    );
   };
 
-  const handleCreatePermission = async (permissionData) => {
-    try {
-      await permissionService.create(permissionData);
-      await loadData();
-      setShowPermissionModal(false);
-      setEditingPermission(null);
-    } catch (err) {
-      setError('Failed to create permission');
-    }
-  };
-
-  const handleUpdatePermission = async (permissionData) => {
-    try {
-      await permissionService.update(editingPermission.uuid, permissionData);
-      await loadData();
-      setShowPermissionModal(false);
-      setEditingPermission(null);
-    } catch (err) {
-      setError('Failed to update permission');
-    }
-  };
-
-  const handleDeletePermission = async (id) => {
-    if (window.confirm('Are you sure you want to delete this permission?')) {
-      try {
-        await permissionService.delete(id);
-        await loadData();
-      } catch (err) {
-        setError('Failed to delete permission');
-      }
-    }
-  };
-
-  const handleAssignPermissions = async (permissionUuids: Array<string>): Promise<void> => {
-    if (!selectedRole) {
-      throw new Error('No role selected');
-    }
-
-    try {
-      await roleService.assignPermissions(selectedRole.roleId, permissionUuids);
-      // await loadData();
-    } catch (err) {
-      console.error('Failed to assign permissions:', err);
-      throw err;
-    }
-  };
-
-  const handleBulkAssignPermissions = async (roleId: string, permissionUuids: Array<string>) => {
-    try {
-      await roleService.assignPermissions(roleId, permissionUuids);
-      await loadData();
-    } catch (err) {
-      setError('Failed to assign permissions');
-    }
+  const handleOpenCreateModal = () => {
+    setEditingRole(null);
+    setShowRoleModal(true);
   };
 
   const filteredRoles = roles.filter(role =>
@@ -153,164 +89,55 @@ export default function RolePermissionAdmin() {
     role.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const filteredPermissions = permissions.filter(permission => {
-    const matchesSearch = permission.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      permission.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || permission.category === selectedCategory;
-    const matchesScope = selectedScope === 'all' || permission.scope === selectedScope;
-    return matchesSearch && matchesCategory && matchesScope;
-  });
-
-  if (loading) {
-    return (
-      <LoadingSpinner />
-    );
-  }
-
   return (
     <AppLayout>
-      <div className="min-h-screen max-w-full ">
-        <PageHeader
-          title="Role & Permission"
-          description="Manage system roles and permissions"
-          icon={<HiOutlineShieldCheck className="w-8 h-8 text-sky-500 dark:text-sky-400" />}
-        />
-
-        {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-            <div className="flex">
-              <X className="h-5 w-5 text-red-400" />
-              <div className="ml-3">
-                <p className="text-sm text-red-800">{error}</p>
-              </div>
-              <button
-                onClick={() => setError(null)}
-                className="ml-auto -mx-1.5 -my-1.5 bg-red-50 text-red-500 rounded-lg p-1.5 hover:bg-red-100"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="border-b border-gray-200 mb-6">
-          <nav className="flex space-x-8">
-            <button
-              onClick={() => setActiveTab('roles')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'roles'
-                ? 'border-green-500 text-green-500'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-            >
-              <Users className="w-4 h-4 inline mr-2" />
-              Roles
-            </button>
-            <button
-              onClick={() => setActiveTab('permissions')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'permissions'
-                ? 'border-green-500 text-green-500'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-            >
-              <Shield className="w-4 h-4 inline mr-2" />
-              Permissions
-            </button>
-            <button
-              onClick={() => setActiveTab('assignments')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'assignments'
-                ? 'border-green-500 text-green-500'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-            >
-              <Settings className="w-4 h-4 inline mr-2" />
-              Role Assignments
-            </button>
-            <SearchFilter
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              showCategoryFilter={false}
-              showScopeFilter={false}
-              selectedCategory={selectedCategory}
-              selectedScope={selectedScope}
-              categories={categories}
-              scopes={scopes}
-              onCategoryChange={setSelectedCategory}
-              onScopeChange={setSelectedScope}
+      <PageHeader
+        title="Roles"
+        description="Manage system roles and their assigned permissions"
+        icon={<HiOutlineShieldCheck className="w-8 h-8 text-sky-500 dark:text-sky-400" />}
+        action={
+          <Flex align="center" gap="3">
+            <SearchBar
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Search roles..."
             />
-          </nav>
-        </div>
+            <Button onClick={handleOpenCreateModal}>
+              <Plus className="w-4 h-4" />
+              Create Role
+            </Button>
+          </Flex>
+        }
+      />
 
-        {activeTab === 'roles' && (
-          <RolesTab
+      {loading ? (
+        <Flex align="center" justify="center" py="9">
+          <Spinner size="3" />
+        </Flex>
+      ) : (
+        <>
+          <RolesTable
             roles={filteredRoles}
-            onCreateRole={() => setShowRoleModal(true)}
+            onCreateRole={handleOpenCreateModal}
             onEditRole={(role) => {
               setEditingRole(role);
               setShowRoleModal(true);
             }}
             onDeleteRole={handleDeleteRole}
-            onAssignPermissions={(role) => {
-              setSelectedRole(role);
-              setShowAssignModal(true);
-            }}
           />
-        )}
+        </>
+      )}
 
-        {activeTab === 'permissions' && (
-          <PermissionsTab
-            permissions={filteredPermissions}
-            onCreatePermission={() => setShowPermissionModal(true)}
-            onEditPermission={(permission) => {
-              setEditingPermission(permission);
-              setShowPermissionModal(true);
-            }}
-            onDeletePermission={handleDeletePermission}
-          />
-        )}
-
-        {activeTab === 'assignments' && (
-          <AssignmentsTab
-            roles={roles}
-            permissions={permissions}
-            onBulkAssign={handleBulkAssignPermissions}
-          />
-        )}
-
-        <RoleModal
-          isOpen={showRoleModal}
-          role={editingRole}
-          onSave={editingRole ? handleUpdateRole : handleCreateRole}
-          onClose={() => {
-            setShowRoleModal(false);
-            setEditingRole(null);
-          }}
-        />
-
-        <PermissionModal
-          isOpen={showPermissionModal}
-          permission={editingPermission}
-          categories={categories}
-          scopes={scopes}
-          onSave={editingPermission ? handleUpdatePermission : handleCreatePermission}
-          onClose={() => {
-            setShowPermissionModal(false);
-            setEditingPermission(null);
-          }}
-        />
-
-        {selectedRole && (
-          <AssignPermissionsModal
-            isOpen={showAssignModal}
-            role={selectedRole}
-            permissions={permissions}
-            onAssign={handleAssignPermissions}
-            onClose={() => {
-              setShowAssignModal(false);
-              setSelectedRole(null);
-            }}
-          />
-        )}
-      </div>
+      <RoleModal
+        isOpen={showRoleModal}
+        role={editingRole ?? undefined}
+        permissions={permissions}
+        onSave={editingRole ? handleUpdateRole : handleCreateRole}
+        onClose={() => {
+          setShowRoleModal(false);
+          setEditingRole(null);
+        }}
+      />
     </AppLayout>
   );
 }
