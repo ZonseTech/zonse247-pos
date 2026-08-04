@@ -64,6 +64,13 @@ export interface ReportDetailRawData {
 
 export type DetailLoadingState = Record<NonNullable<ReportId>, boolean>;
 export type DetailErrorState = Partial<Record<NonNullable<ReportId>, string>>;
+export type ReportDetailFlags = Partial<Record<NonNullable<ReportId>, boolean>>;
+
+interface UseReportsSummaryOptions {
+    enableSummary?: boolean;
+    enablePreviousSummary?: boolean;
+    enabledDetails?: ReportDetailFlags;
+}
 
 const DEFAULT_SUMMARY: ReportSummary = {
     totalSales: 0,
@@ -97,6 +104,21 @@ const LOADING_ALL_DETAIL: DetailLoadingState = {
     'expenses-by-category': true,
 };
 
+const normalizeDetailFlags = (enabledDetails?: ReportDetailFlags): DetailLoadingState => ({
+    'total-sales': enabledDetails?.['total-sales'] ?? true,
+    'net-profit': enabledDetails?.['net-profit'] ?? true,
+    'receipt-count': enabledDetails?.['receipt-count'] ?? true,
+    'payment-modes': enabledDetails?.['payment-modes'] ?? true,
+    'top-stocks': enabledDetails?.['top-stocks'] ?? true,
+    'top-category': enabledDetails?.['top-category'] ?? true,
+    'expenses': enabledDetails?.['expenses'] ?? true,
+    'expenses-by-category': enabledDetails?.['expenses-by-category'] ?? true,
+});
+
+const toDetailLoadingState = (enabledDetails: DetailLoadingState): DetailLoadingState => ({
+    ...enabledDetails,
+});
+
 const buildQuery = (start: Date | null, end: Date | null): { startDate?: string; endDate?: string } => {
     if (!start) return {};
     return {
@@ -127,14 +149,30 @@ const computeDelta = (current: number, previous: number): number | undefined => 
  * hook instance per page (desktop index.tsx and MobileReports.tsx each own one),
  * modeled on useDashboardStats.ts's per-section load/stale-guard/single-toast pattern.
  */
-export const useReportsSummary = () => {
+export const useReportsSummary = (options: UseReportsSummaryOptions = {}) => {
+    const enableSummary = options.enableSummary ?? true;
+    const enablePreviousSummary = options.enablePreviousSummary ?? enableSummary;
+    const enabledDetails = useMemo(
+        () => normalizeDetailFlags(options.enabledDetails),
+        [
+            options.enabledDetails?.['total-sales'],
+            options.enabledDetails?.['net-profit'],
+            options.enabledDetails?.['receipt-count'],
+            options.enabledDetails?.['payment-modes'],
+            options.enabledDetails?.['top-stocks'],
+            options.enabledDetails?.['top-category'],
+            options.enabledDetails?.['expenses'],
+            options.enabledDetails?.['expenses-by-category'],
+        ],
+    );
+
     const [startDate, setStartDate] = useState<Date | null>(new Date());
     const [endDate, setEndDate] = useState<Date | null>(new Date());
     const [summary, setSummary] = useState<ReportSummary | null>(null);
     const [previousSummary, setPreviousSummary] = useState<ReportSummary | null>(null);
     const [isSummaryLoading, setIsSummaryLoading] = useState(false);
     const [detailData, setDetailData] = useState<ReportDetailRawData>(EMPTY_DETAIL_DATA);
-    const [detailLoading, setDetailLoading] = useState<DetailLoadingState>(LOADING_ALL_DETAIL);
+    const [detailLoading, setDetailLoading] = useState<DetailLoadingState>(() => toDetailLoadingState(enabledDetails));
     const [detailErrors, setDetailErrors] = useState<DetailErrorState>({});
     const [activeReport, setActiveReport] = useState<ReportId>(null);
     const { showRetail, showServices } = useBusinessFeatures();
@@ -157,8 +195,8 @@ export const useReportsSummary = () => {
         const prevRange = getPreviousPeriod(start, end);
         const prevQuery = buildQuery(prevRange.start, prevRange.end);
 
-        setIsSummaryLoading(true);
-        setDetailLoading(LOADING_ALL_DETAIL);
+        setIsSummaryLoading(enableSummary);
+        setDetailLoading(toDetailLoadingState(enabledDetails));
         setDetailErrors({});
 
         let toastShown = false;
@@ -172,39 +210,51 @@ export const useReportsSummary = () => {
             return message;
         };
 
-        reportsService.getSummary(query)
-            .then((value) => {
-                if (isStale()) return;
-                setSummary(value);
-            })
-            .catch((err) => {
-                if (isStale()) return;
-                reportFailure('report summary', err);
-                setSummary(DEFAULT_SUMMARY);
-            })
-            .finally(() => {
-                if (isStale()) return;
-                setIsSummaryLoading(false);
-            });
+        if (enableSummary) {
+            reportsService.getSummary(query)
+                .then((value) => {
+                    if (isStale()) return;
+                    setSummary(value);
+                })
+                .catch((err) => {
+                    if (isStale()) return;
+                    reportFailure('report summary', err);
+                    setSummary(DEFAULT_SUMMARY);
+                })
+                .finally(() => {
+                    if (isStale()) return;
+                    setIsSummaryLoading(false);
+                });
+        } else {
+            setSummary(DEFAULT_SUMMARY);
+        }
 
         // Comparison-only fetch for deltas — a failure here just means no delta
         // badge, so it stays quiet (no toast) rather than reporting an error for
         // a metric the user didn't ask to see.
-        reportsService.getSummary(prevQuery)
-            .then((value) => {
-                if (isStale()) return;
-                setPreviousSummary(value);
-            })
-            .catch((err) => {
-                if (isStale()) return;
-                console.error('Error fetching previous-period report summary:', err);
-                setPreviousSummary(null);
-            });
+        if (enablePreviousSummary) {
+            reportsService.getSummary(prevQuery)
+                .then((value) => {
+                    if (isStale()) return;
+                    setPreviousSummary(value);
+                })
+                .catch((err) => {
+                    if (isStale()) return;
+                    console.error('Error fetching previous-period report summary:', err);
+                    setPreviousSummary(null);
+                });
+        } else {
+            setPreviousSummary(null);
+        }
 
         const loadDetail = <K extends NonNullable<ReportId>>(
             key: K,
             fetcher: () => Promise<ReportDetailRawData[K]>,
         ): void => {
+            if (!enabledDetails[key]) {
+                return;
+            }
+
             fetcher()
                 .then((value) => {
                     if (isStale()) return;
@@ -229,7 +279,7 @@ export const useReportsSummary = () => {
         loadDetail('top-category', () => reportsService.getTopCategory(query));
         loadDetail('expenses', () => reportsService.getExpensesTrend(query));
         loadDetail('expenses-by-category', () => reportsService.getExpensesByCategory(query));
-    }, []);
+    }, [enableSummary, enablePreviousSummary, enabledDetails]);
 
     useEffect(() => {
         fetchAll(startDate, endDate);
@@ -244,6 +294,10 @@ export const useReportsSummary = () => {
 
     /** Refetches a single detail report against the current date range — used by each panel's inline retry. */
     const retryDetail = useCallback((reportId: NonNullable<ReportId>) => {
+        if (!enabledDetails[reportId]) {
+            return;
+        }
+
         const capturedRequestId = requestIdRef.current;
         const isStale = () => !isMountedRef.current || requestIdRef.current !== capturedRequestId;
         const query = buildQuery(startDate, endDate);
@@ -277,7 +331,7 @@ export const useReportsSummary = () => {
                 if (isStale()) return;
                 setDetailLoading((prev) => ({ ...prev, [reportId]: false }));
             });
-    }, [startDate, endDate]);
+    }, [startDate, endDate, enabledDetails]);
 
     const reportCards: ReportStatConfig[] = useMemo(() => {
         const so = summary?.serviceOrders;

@@ -1,4 +1,4 @@
-import { useMemo, useState, type FunctionComponent, type ReactNode, type Ref } from 'react';
+import { useMemo, useState, type FunctionComponent, type ReactNode, type RefObject } from 'react';
 import * as Tabs from '@radix-ui/react-tabs';
 import { HiInformationCircle } from 'react-icons/hi';
 import PageHeader from '../../../components/page/PageHeader';
@@ -24,7 +24,7 @@ export interface ReportDetailViewProps {
     /** Extra controls (e.g. mobile share/download) rendered in the header's action slot */
     headerActions?: ReactNode;
     /** Ref on the scrollable content area, used by mobile share/download to capture a PNG */
-    contentRef?: Ref<HTMLDivElement>;
+    contentRef?: RefObject<HTMLDivElement | null>;
 }
 
 const ReportDetailView: FunctionComponent<ReportDetailViewProps> = ({
