@@ -9,17 +9,27 @@ import { getTableStyles } from '../../utils/table-styles';
 import { ZonseThemeContext, ComponentLoader } from '../../components';
 import { useExpenseCategories } from '../../hooks/useExpenseCategories';
 import CreateExpenseCategoryModal from './CreateExpenseCategoryModal';
+import { useAuth } from '../../context/AuthProvider';
+import { hasPermission } from '../../utils';
 
 const ExpenseCategoryManagement: FunctionComponent = () => {
     const { mode } = useContext(ZonseThemeContext);
     const { categories, isLoading, deleteCategory } = useExpenseCategories();
     const [editingCategory, setEditingCategory] = useState<ExpenseCategory | null>(null);
+    const { user } = useAuth();
+    const canManageCategories = hasPermission(user, 'expenses.manage_categories');
 
     const handleEdit = useCallback((category: ExpenseCategory) => {
+        if (!canManageCategories) {
+            return;
+        }
         setEditingCategory(category);
-    }, []);
+    }, [canManageCategories]);
 
     const handleDelete = useCallback((category: ExpenseCategory) => {
+        if (!canManageCategories) {
+            return;
+        }
         Confirm.show(
             'Delete Category',
             `Are you sure you want to delete "${category.name}"? This can't be undone, and only works if no expenses use this category.`,
@@ -29,7 +39,7 @@ const ExpenseCategoryManagement: FunctionComponent = () => {
                 await deleteCategory(category.categoryId);
             },
         );
-    }, [deleteCategory]);
+    }, [deleteCategory, canManageCategories]);
 
     const columns: TableColumn<ExpenseCategory>[] = [
         {
@@ -72,6 +82,7 @@ const ExpenseCategoryManagement: FunctionComponent = () => {
                             size="1"
                             onClick={() => handleEdit(row)}
                             aria-label="Edit category"
+                            disabled={!canManageCategories}
                         >
                             <Pencil className="w-4 h-4" />
                         </IconButton>
@@ -83,6 +94,7 @@ const ExpenseCategoryManagement: FunctionComponent = () => {
                             size="1"
                             onClick={() => handleDelete(row)}
                             aria-label="Delete category"
+                            disabled={!canManageCategories}
                         >
                             <Trash2 className="w-4 h-4" />
                         </IconButton>
@@ -102,7 +114,7 @@ const ExpenseCategoryManagement: FunctionComponent = () => {
                     title="Expense Categories"
                     description="Manage the categories used when recording expenses"
                     showBackButton
-                    action={<CreateExpenseCategoryModal />}
+                    action={<CreateExpenseCategoryModal disabled={!canManageCategories} />}
                 />
 
                 <Box className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -136,6 +148,7 @@ const ExpenseCategoryManagement: FunctionComponent = () => {
                 <CreateExpenseCategoryModal
                     category={editingCategory ?? undefined}
                     showAddButton={false}
+                    disabled={!canManageCategories}
                     isOpen={!!editingCategory}
                     onClose={() => setEditingCategory(null)}
                     onSuccess={() => setEditingCategory(null)}

@@ -8,6 +8,9 @@ interface ExpenseColumnOptions {
     onApprove: (expense: Expense) => void;
     onReject: (expense: Expense) => void;
     onVoid: (expense: Expense) => void;
+    canApprove?: boolean;
+    canReject?: boolean;
+    canVoid?: boolean;
 }
 
 export const expenseStatusConfig: Record<ExpenseStatusType, { label: string; bgColor: string; textColor: string }> = {
@@ -38,6 +41,9 @@ export const getExpenseTableColumns = ({
     onApprove,
     onReject,
     onVoid,
+    canApprove = true,
+    canReject = true,
+    canVoid = true,
 }: ExpenseColumnOptions): TableColumn<Expense>[] => [
         {
             name: 'Expense #',
@@ -124,25 +130,29 @@ export const getExpenseTableColumns = ({
                     >
                         <Eye className="w-4 h-4" />
                     </button>
-                    {row.status === 'PENDING_APPROVAL' && (
+                    {row.status === 'PENDING_APPROVAL' && (canApprove || canReject) && (
                         <>
-                            <button
-                                onClick={() => onApprove(row)}
-                                className="p-1.5 text-green-600 hover:text-green-800 hover:bg-green-50 dark:hover:bg-green-900/50 rounded-md transition-colors duration-200"
-                                title="Approve"
-                            >
-                                <Check className="w-4 h-4" />
-                            </button>
-                            <button
-                                onClick={() => onReject(row)}
-                                className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-md transition-colors duration-200"
-                                title="Reject"
-                            >
-                                <X className="w-4 h-4" />
-                            </button>
+                            {canApprove && (
+                                <button
+                                    onClick={() => onApprove(row)}
+                                    className="p-1.5 text-green-600 hover:text-green-800 hover:bg-green-50 dark:hover:bg-green-900/50 rounded-md transition-colors duration-200"
+                                    title="Approve"
+                                >
+                                    <Check className="w-4 h-4" />
+                                </button>
+                            )}
+                            {canReject && (
+                                <button
+                                    onClick={() => onReject(row)}
+                                    className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-md transition-colors duration-200"
+                                    title="Reject"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            )}
                         </>
                     )}
-                    {row.status === 'APPROVED' && (
+                    {row.status === 'APPROVED' && canVoid && (
                         <button
                             onClick={() => onVoid(row)}
                             className="p-1.5 text-gray-500 hover:text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors duration-200"
