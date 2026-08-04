@@ -169,49 +169,25 @@ const useNavGroups = (): UseNavGroupsReturn => {
             });
         }
 
-        if (hasAnyPermission(user, ['settings.loyalty.manage', 'customers.loyalty'])) {
-            mgmtItems.push({
-                id: 'loyalty-program',
-                label: 'Loyalty Program',
-                icon: ic(HeartHandshake),
-                route: ROUTES.LOYALTY_PROGRAM,
-                onClick: () => navigate(ROUTES.LOYALTY_PROGRAM),
-                showOnDesktop: true,
-                showOnMobile: true,
-            });
-        }
+        // if (hasAnyPermission(user, ['settings.loyalty.manage', 'customers.loyalty'])) {
+        //     mgmtItems.push({
+        //         id: 'loyalty-program',
+        //         label: 'Loyalty Program',
+        //         icon: ic(HeartHandshake),
+        //         route: ROUTES.LOYALTY_PROGRAM,
+        //         onClick: () => navigate(ROUTES.LOYALTY_PROGRAM),
+        //         showOnDesktop: true,
+        //         showOnMobile: true,
+        //     });
+        // }
 
         if (hasAnyPermission(user, ['users.view', 'users.create', 'users.edit', 'users.delete'])) {
             mgmtItems.push({
                 id: 'staff-management',
-                label: 'Staff Management',
+                label: 'Users',
                 icon: ic(HiOutlineUsers),
                 route: ROUTES.USERS,
                 onClick: () => navigate(ROUTES.USERS),
-                showOnDesktop: true,
-                showOnMobile: true,
-            });
-        }
-
-        if (hasPermission(user, 'branches.view')) {
-            mgmtItems.push({
-                id: 'branches',
-                label: 'Branches',
-                icon: ic(HiOutlineBuildingOffice2),
-                route: ROUTES.BRANCHES,
-                onClick: () => navigate(ROUTES.BRANCHES),
-                showOnDesktop: true,
-                showOnMobile: true,
-            });
-        }
-
-        if (hasPermission(user, 'terminals.view')) {
-            mgmtItems.push({
-                id: 'terminals',
-                label: 'Terminals',
-                icon: ic(HiOutlineComputerDesktop),
-                route: ROUTES.TERMINALS,
-                onClick: () => navigate(ROUTES.TERMINALS),
                 showOnDesktop: true,
                 showOnMobile: true,
             });
@@ -283,6 +259,24 @@ const useNavGroups = (): UseNavGroupsReturn => {
                         showOnDesktop: true,
                         showOnMobile: true,
                     },
+                    {
+                        id: 'branches',
+                        label: 'Branches',
+                        icon: ic(HiOutlineBuildingOffice2),
+                        route: ROUTES.BRANCHES,
+                        onClick: () => navigate(ROUTES.BRANCHES),
+                        showOnDesktop: true,
+                        showOnMobile: true,
+                    },
+                    {
+                        id: 'terminals',
+                        label: 'Terminals',
+                        icon: ic(HiOutlineComputerDesktop),
+                        route: ROUTES.TERMINALS,
+                        onClick: () => navigate(ROUTES.TERMINALS),
+                        showOnDesktop: true,
+                        showOnMobile: true,
+                    }
                 ],
                 order: 4,
             });

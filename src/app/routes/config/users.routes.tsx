@@ -10,8 +10,8 @@ const RolesAndPermissions = lazy(() => import('../../pages/role-permissions'))
 
 export const UserRoutes = (
     <>
-        <Route path={ROUTES.USERS} element={<Users />} />
-        <Route path={ROUTES.USER_FORM} element={<UserForm />} />
+        <Route path={ROUTES.USERS} element={<PermissionRoute permission="users.view"><Users /></PermissionRoute>} />
+        <Route path={ROUTES.USER_FORM} element={<PermissionRoute anyOf={['users.create', 'users.edit']}><UserForm /></PermissionRoute>} />
         <Route path={ROUTES.CUSTOMERS} element={<Customers />} />
         <Route path={ROUTES.ROLES_PERMISSIONS} element={<PermissionRoute permission="roles.view"><RolesAndPermissions /></PermissionRoute>} />
     </>

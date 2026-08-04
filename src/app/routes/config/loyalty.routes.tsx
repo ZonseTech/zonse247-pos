@@ -6,6 +6,6 @@ const LoyaltyProgram = lazy(() => import('../../pages/loyalty-program'))
 
 export const LoyaltyRoutes = (
     <>
-        <Route path={ROUTES.LOYALTY_PROGRAM} element={<LoyaltyProgram />} />
+        {/* <Route path={ROUTES.LOYALTY_PROGRAM} element={<LoyaltyProgram />} /> */}
     </>
 )
