@@ -9,8 +9,9 @@ import { MobileItemLookupModal, MobileCameraScannerModal } from '../../component
 import { FunctionComponent, useState, useEffect } from 'react';
 import { useInventory } from '../../hooks/useInventory';
 import { useFocusManager } from '../../hooks/useFocusManager';
-import { formatCurrency } from '../../utils';
+import { formatCurrency, hasAnyPermission, hasPermission } from '../../utils';
 import { useParkedSales } from '../../hooks/useParkedSales';
+import { useAuth } from '../../context/AuthProvider';
 import { HiSearch, HiPlusCircle, HiUserAdd } from 'react-icons/hi';
 import { BsUpcScan } from 'react-icons/bs';
 import InventoryStatsCard from '../../components/stats/InventoryStatsCard';
@@ -19,6 +20,7 @@ import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 
 const MobilePOS: FunctionComponent = () => {
+    const { user } = useAuth();
     const {
         cart,
         inventory,
@@ -38,6 +40,11 @@ const MobilePOS: FunctionComponent = () => {
     const [paymentMethodId, setPaymentMethodId] = useState<PaymentMethod>(CHECKOUT.CASH);
     const [editingItem, setEditingItem] = useState<CartItem | null>(null);
     const [isEditItemModalOpen, setIsEditItemModalOpen] = useState(false);
+
+    const canViewItems = hasAnyPermission(user, ['products.view', 'inventory.view']);
+    const canCreateSale = hasPermission(user, 'sales.create');
+    const canProcessPayment = hasPermission(user, 'payments.process');
+    const canViewParkedSales = hasAnyPermission(user, ['sales.hold', 'sales.view', 'sales.view.own']);
 
     useEffect(() => {
         fetchParkedSales();
@@ -115,7 +122,7 @@ const MobilePOS: FunctionComponent = () => {
                         />
                     }
                 >
-                    {!hasCartItems ? (
+                    {!hasCartItems && canViewItems ? (
                         <div className="flex gap-2 items-center">
                             <button
                                 onClick={() => setIsLookupModalOpen(true)}
@@ -141,22 +148,24 @@ const MobilePOS: FunctionComponent = () => {
                     {hasCartItems ? (
                         <MobileCartItemCard
                             onEditItem={handleEditItem}
-                            onAddNewItem={() => navigate(ROUTES.ITEMS)}
+                            onAddNewItem={canViewItems ? () => navigate(ROUTES.ITEMS) : undefined}
                             onScanBarcode={() => setIsCameraScannerOpen(true)}
                         />
                     ) : (
                         <div className="space-y-5 px-4 pt-2">
-                            <button
-                                onClick={() => navigate(ROUTES.ITEMS)}
-                                className="w-full flex flex-col items-center justify-center gap-2 py-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 active:bg-gray-100 dark:active:bg-gray-700 rounded-sm transition-colors"
-                            >
-                                <HiPlusCircle className="w-10 h-10 text-emerald-500" />
-                                <span className="text-lg font-semibold text-gray-700 dark:text-gray-300 ">New Sale</span>
-                            </button>
+                            {canCreateSale && canViewItems && (
+                                <button
+                                    onClick={() => navigate(ROUTES.ITEMS)}
+                                    className="w-full flex flex-col items-center justify-center gap-2 py-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 active:bg-gray-100 dark:active:bg-gray-700 rounded-sm transition-colors"
+                                >
+                                    <HiPlusCircle className="w-10 h-10 text-emerald-500" />
+                                    <span className="text-lg font-semibold text-gray-700 dark:text-gray-300 ">New Sale</span>
+                                </button>
+                            )}
 
                             <InventoryStatsCard />
 
-                            {parkedSales.length > 0 && (
+                            {canViewParkedSales && parkedSales.length > 0 && (
                                 <>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
@@ -209,7 +218,7 @@ const MobilePOS: FunctionComponent = () => {
                 inventory={inventory}
                 cart={cart}
                 onAddToCart={addToCart}
-                onOpenItemLookup={() => setIsLookupModalOpen(true)}
+                onOpenItemLookup={canViewItems ? () => setIsLookupModalOpen(true) : undefined}
             />
 
             <MobileItemLookupModal
@@ -249,7 +258,7 @@ const MobilePOS: FunctionComponent = () => {
                 item={editingItem}
             />
 
-            {hasCartItems && (
+            {hasCartItems && canProcessPayment && (
                 <div className="fixed bottom-[65px] left-0 right-0 p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 safe-area-bottom">
                     <button
                         onClick={() => setIsPaymentModalOpen(true)}
