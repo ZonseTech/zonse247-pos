@@ -9,10 +9,16 @@ import { useUsers } from '../../hooks/useUsers';
 import { UserMobileList } from './partials/UserMobileCard';
 import { ROUTES } from '../../utils/constants';
 import { Box, Flex, Heading, IconButton, Text } from '@radix-ui/themes';
+import { useAuth } from '../../context/AuthProvider';
+import { hasPermission } from '../../utils';
 
 const MobileUserManagement: FunctionComponent = () => {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
+    const { user } = useAuth();
+
+    const canCreateUser = hasPermission(user, 'users.create');
+    const canEditUser = hasPermission(user, 'users.edit');
 
     const {
         users,
@@ -36,12 +42,20 @@ const MobileUserManagement: FunctionComponent = () => {
     })();
 
     const handleAddUser = useCallback(() => {
+        if (!canCreateUser) {
+            return;
+        }
+
         navigate(ROUTES.USER_FORM);
-    }, [navigate]);
+    }, [navigate, canCreateUser]);
 
     const handleEdit = useCallback((user: User) => {
+        if (!canEditUser) {
+            return;
+        }
+
         navigate(ROUTES.USER_FORM, { state: { userId: user.userId } });
-    }, [navigate]);
+    }, [navigate, canEditUser]);
 
     return (
         <Flex direction="column" className="h-full overflow-hidden">
@@ -60,6 +74,7 @@ const MobileUserManagement: FunctionComponent = () => {
                         <UserMobileList
                             users={[]}
                             onEdit={handleEdit}
+                            canEdit={canEditUser}
                             isLoading={true}
                         />
                     ) : filteredUsers.length === 0 ? (
@@ -84,6 +99,7 @@ const MobileUserManagement: FunctionComponent = () => {
                             <UserMobileList
                                 users={filteredUsers}
                                 onEdit={handleEdit}
+                                canEdit={canEditUser}
                                 isLoading={false}
                             />
 
@@ -123,11 +139,13 @@ const MobileUserManagement: FunctionComponent = () => {
                 </Box>
             </Box>
 
-            <FloatingFilterButton
-                onClick={handleAddUser}
-                icon={<HiOutlinePlus className="w-6 h-6" />}
-                className="bottom-6"
-            />
+            {canCreateUser && (
+                <FloatingFilterButton
+                    onClick={handleAddUser}
+                    icon={<HiOutlinePlus className="w-6 h-6" />}
+                    className="bottom-6"
+                />
+            )}
         </Flex>
     );
 };
