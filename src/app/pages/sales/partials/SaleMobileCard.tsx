@@ -22,7 +22,7 @@ type SaleOrTransaction = (Sale | Transaction) & {
 interface SaleMobileCardProps {
     transaction: SaleOrTransaction;
     onViewDetails: (transaction: SaleOrTransaction) => void;
-    onInitiateReturn: (transaction: SaleOrTransaction) => void;
+    onInitiateReturn?: (transaction: SaleOrTransaction) => void;
 }
 
 /**
@@ -67,7 +67,7 @@ const SaleMobileCard: React.FC<SaleMobileCardProps> = ({
     const isVoided = transaction.status === 'VOIDED' || transaction.status === 'void' || !!(transaction as Sale).voidedAt;
     const isRefunded = transaction.status === 'refunded' || transaction.status === 'RETURNED';
     const hasRefundInProgress = (transaction as Transaction).refunds?.some(r => r.status === 'pending');
-    const showReturnButton = canReturn && !refundSummary.isFullyRefunded && !isRefunded && !isVoided && !hasRefundInProgress;
+    const showReturnButton = !!onInitiateReturn && canReturn && !refundSummary.isFullyRefunded && !isRefunded && !isVoided && !hasRefundInProgress;
 
     const total = getSaleTotal(transaction);
     const paid = getAmountPaid(transaction);
@@ -174,7 +174,7 @@ const SaleMobileCard: React.FC<SaleMobileCardProps> = ({
                     </button>
                     {showReturnButton && (
                         <button
-                            onClick={(e) => { e.stopPropagation(); setShowActions(false); onInitiateReturn(transaction); }}
+                            onClick={(e) => { e.stopPropagation(); setShowActions(false); onInitiateReturn?.(transaction); }}
                             className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-orange-600 dark:text-orange-400
                                      hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
                         >
@@ -191,7 +191,7 @@ const SaleMobileCard: React.FC<SaleMobileCardProps> = ({
 interface SaleMobileListProps {
     transactions: SaleOrTransaction[];
     onViewDetails: (transaction: SaleOrTransaction) => void;
-    onInitiateReturn: (transaction: SaleOrTransaction) => void;
+    onInitiateReturn?: (transaction: SaleOrTransaction) => void;
     isLoading?: boolean;
 }
 

@@ -18,7 +18,7 @@ interface SalesMobileViewProps {
     totalRows: number;
     perPage: number;
     onViewDetails: (sale: SaleOrTransaction) => void;
-    onInitiateReturn: (sale: SaleOrTransaction) => void;
+    onInitiateReturn?: (sale: SaleOrTransaction) => void;
     onPageChange: (page: number) => void;
     onClearFilters: () => void;
 }

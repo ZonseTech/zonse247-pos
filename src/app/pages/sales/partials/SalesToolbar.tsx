@@ -16,6 +16,7 @@ interface SalesToolbarProps {
     onExport: () => void;
     onClearFilters: () => void;
     onOpenFilters?: () => void;
+    canExport?: boolean;
 }
 
 const SalesToolbar: FC<SalesToolbarProps> = ({
@@ -29,6 +30,7 @@ const SalesToolbar: FC<SalesToolbarProps> = ({
     onExport,
     onClearFilters,
     onOpenFilters,
+    canExport = true,
 }) => {
     const isMobile = useIsMobile();
 
@@ -69,18 +71,20 @@ const SalesToolbar: FC<SalesToolbarProps> = ({
                     </button>
                 )}
 
-                <Tooltip content="Export">
-                    <button
-                        onClick={onExport}
-                        aria-label="Export sales data"
-                        className="flex items-center justify-center w-9 h-9 rounded-lg flex-shrink-0
+                {canExport && (
+                    <Tooltip content="Export">
+                        <button
+                            onClick={onExport}
+                            aria-label="Export sales data"
+                            className="flex items-center justify-center w-9 h-9 rounded-lg flex-shrink-0
                                  border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400
                                  hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600
                                  transition-colors touch-manipulation"
-                    >
-                        <Download className="w-4 h-4" />
-                    </button>
-                </Tooltip>
+                        >
+                            <Download className="w-4 h-4" />
+                        </button>
+                    </Tooltip>
+                )}
             </Flex>
         );
     }
@@ -111,12 +115,14 @@ const SalesToolbar: FC<SalesToolbarProps> = ({
                     align="right"
                 />
 
-                <Tooltip content="Export sales data">
-                    <Button variant="outline" color="gray" size="2" onClick={onExport} aria-label="Export sales data">
-                        <Download className="w-4 h-4" />
-                        Export
-                    </Button>
-                </Tooltip>
+                {canExport && (
+                    <Tooltip content="Export sales data">
+                        <Button variant="outline" color="gray" size="2" onClick={onExport} aria-label="Export sales data">
+                            <Download className="w-4 h-4" />
+                            Export
+                        </Button>
+                    </Tooltip>
+                )}
 
                 {hasActiveFilters && (
                     <Tooltip content="Clear all filters">

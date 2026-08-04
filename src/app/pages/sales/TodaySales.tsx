@@ -18,6 +18,7 @@ import { useReceiptActions } from '../../hooks/useReceiptActions';
 import { toast } from 'react-toastify';
 import { Flex, Box, Button } from '@radix-ui/themes';
 import dayjs from 'dayjs';
+import { hasAnyPermission, hasPermission } from '../../utils';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -26,6 +27,9 @@ const TodaySales: FunctionComponent = () => {
     const { user } = useAuth();
     const { settings } = useApp();
     const { currentBranch } = useBranch();
+    const canInitiateReturn = hasPermission(user, 'refunds.process');
+    const canExportReceipts = hasPermission(user, 'reports.export');
+    const canViewSales = hasAnyPermission(user, ['sales.view', 'sales.view.own']);
 
     const [sales, setSales] = useState<Sale[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -79,6 +83,10 @@ const TodaySales: FunctionComponent = () => {
     };
 
     const handleReturnSale = (sale: Sale) => {
+        if (!canInitiateReturn) {
+            return;
+        }
+
         setReturnModalSale(sale);
     };
 
@@ -139,16 +147,16 @@ const TodaySales: FunctionComponent = () => {
                             isExpanded={expandedSaleId === sale.id}
                             onToggle={() => handleToggleSale(sale.id)}
                             onView={() => handleViewSale(sale)}
-                            onReturn={() => handleReturnSale(sale)}
+                            onReturn={canInitiateReturn ? () => handleReturnSale(sale) : undefined}
                             onDelete={() => handleDeleteSale(sale)}
-                            onShare={() => handleShareSale(sale)}
+                            onShare={canExportReceipts ? () => handleShareSale(sale) : undefined}
                             onPrint={() => handlePrintSale(sale)}
-                            onDownload={() => handleDownloadSale(sale)}
+                            onDownload={canExportReceipts ? () => handleDownloadSale(sale) : undefined}
                             onCopyRef={() => handleCopyRef(sale)}
                             isPrinting={isPrinting}
                             isSharing={isSharing}
                             copiedSaleId={copiedSaleId}
-                            canReturn={returnsService.canReturn(sale as unknown as Transaction)}
+                            canReturn={canInitiateReturn && returnsService.canReturn(sale as unknown as Transaction)}
                             refundSummary={returnsService.getRefundSummary(sale as unknown as Transaction)}
                         />
                     ))}
@@ -175,15 +183,17 @@ const TodaySales: FunctionComponent = () => {
                 <div className="h-full overflow-y-auto pb-20 p-4">
                     {renderContent()}
 
-                    <Button
-                        variant="soft"
-                        size="3"
-                        className="!w-full"
-                        mt="2"
-                        onClick={() => navigate(ROUTES.SALES)}
-                    >
-                        GET OLD RECEIPTS
-                    </Button>
+                    {canViewSales && (
+                        <Button
+                            variant="soft"
+                            size="3"
+                            className="!w-full"
+                            mt="2"
+                            onClick={() => navigate(ROUTES.SALES)}
+                        >
+                            GET OLD RECEIPTS
+                        </Button>
+                    )}
                 </div>
             </Box>
 
@@ -194,7 +204,7 @@ const TodaySales: FunctionComponent = () => {
                 onSelect={handlePaymentMethodFilter}
             />
 
-            {returnModalSale && (
+            {canInitiateReturn && returnModalSale && (
                 <InitiateReturnModal
                     isOpen={!!returnModalSale}
                     onClose={() => setReturnModalSale(null)}

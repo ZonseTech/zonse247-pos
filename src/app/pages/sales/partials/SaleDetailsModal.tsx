@@ -26,6 +26,8 @@ interface Props {
 	sale: Sale | Transaction | null;
 	setIsOpenDetails: Dispatch<SetStateAction<boolean>>;
 	isMraEnabled?: boolean;
+	canInitiateReturn?: boolean;
+	canExportReceipt?: boolean;
 }
 
 const mraStatusConfig: Record<Exclude<MraSaleStatus, 'NOT_APPLICABLE'>, { icon: typeof Shield; color: string; label: string }> = {
@@ -56,6 +58,8 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 	isOpenDetails,
 	setIsOpenDetails,
 	isMraEnabled = false,
+	canInitiateReturn = true,
+	canExportReceipt = true,
 }) => {
 	const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
 	const printRef = useRef<HTMLDivElement>(null);
@@ -180,7 +184,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 				Sale Receipt
 			</span>
 			<div className="flex items-center gap-2">
-				{saleData.canReturn && !saleData.refundSummary.isFullyRefunded && (
+				{canInitiateReturn && saleData.canReturn && !saleData.refundSummary.isFullyRefunded && (
 					<Tooltip content="Initiate return">
 						<IconButton variant="ghost" size="1" color="cyan" onClick={handleInitiateReturn} aria-label="Initiate return">
 							<RotateCcw size={16} />
@@ -192,16 +196,20 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 						{isCopied ? <CheckCircle size={16} /> : <Copy size={16} />}
 					</IconButton>
 				</Tooltip>
-				<Tooltip content="Share receipt">
-					<IconButton variant="ghost" size="1" color="cyan" onClick={() => handleShare(sale as Sale)} disabled={isSharing} aria-label="Share receipt" className={isSharing ? 'animate-pulse' : ''}>
-						<Share2 size={16} />
-					</IconButton>
-				</Tooltip>
-				<Tooltip content="Download receipt">
-					<IconButton variant="ghost" size="1" color="cyan" onClick={() => handleDownload(sale as Sale)} aria-label="Download receipt">
-						<Download size={16} />
-					</IconButton>
-				</Tooltip>
+				{canExportReceipt && (
+					<>
+						<Tooltip content="Share receipt">
+							<IconButton variant="ghost" size="1" color="cyan" onClick={() => handleShare(sale as Sale)} disabled={isSharing} aria-label="Share receipt" className={isSharing ? 'animate-pulse' : ''}>
+								<Share2 size={16} />
+							</IconButton>
+						</Tooltip>
+						<Tooltip content="Download receipt">
+							<IconButton variant="ghost" size="1" color="cyan" onClick={() => handleDownload(sale as Sale)} aria-label="Download receipt">
+								<Download size={16} />
+							</IconButton>
+						</Tooltip>
+					</>
+				)}
 				<Tooltip content="Print receipt">
 					<IconButton variant="ghost" size="1" color="cyan" onClick={handlePrint} aria-label="Print receipt">
 						<Printer size={16} />
@@ -383,7 +391,7 @@ const TransactionDetailsModal: FunctionComponent<Props> = ({
 				</div>
 			</Modal>
 
-			{sale && (
+			{canInitiateReturn && sale && (
 				<InitiateReturnModal
 					isOpen={isReturnModalOpen}
 					onClose={() => setIsReturnModalOpen(false)}

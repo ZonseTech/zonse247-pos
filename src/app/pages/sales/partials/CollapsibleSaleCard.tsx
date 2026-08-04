@@ -246,7 +246,7 @@ const CollapsibleSaleCard: FunctionComponent<CollapsibleSaleCardProps> = ({
                                         e.stopPropagation();
                                         onShare?.(sale);
                                     }}
-                                    disabled={isSharing}
+                                    disabled={isSharing || !onShare}
                                     aria-label="Share receipt"
                                     className={isSharing ? 'animate-pulse' : ''}
                                 >
@@ -274,6 +274,7 @@ const CollapsibleSaleCard: FunctionComponent<CollapsibleSaleCardProps> = ({
                                         e.stopPropagation();
                                         onDownload?.(sale);
                                     }}
+                                    disabled={!onDownload}
                                     aria-label="Download receipt"
                                 >
                                     <Download className="w-4 h-4" />
@@ -294,7 +295,7 @@ const CollapsibleSaleCard: FunctionComponent<CollapsibleSaleCardProps> = ({
                                     <Eye className="w-3.5 h-3.5" />
                                     View
                                 </Button>
-                                {canReturnSale && !refundSummary?.isFullyRefunded && (
+                                {onReturn && canReturnSale && !refundSummary?.isFullyRefunded && (
                                     <Button
                                         variant="soft"
                                         color="orange"
