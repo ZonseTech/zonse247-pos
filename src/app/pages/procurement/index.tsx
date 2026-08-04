@@ -3,18 +3,20 @@ import { ROUTES } from '../../utils/constants';
 import AppLayout from '../../layouts/AppLayout';
 import { ComponentLoader } from '../../components';
 import { Outlet, useLocation, useNavigate } from 'react-router';
-import { Suspense, useCallback, type FunctionComponent } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, type FunctionComponent } from 'react';
 import { HubProvider } from '../../context/HubContext';
+import { useAuth } from '../../context/AuthProvider';
+import { hasAnyPermission, hasPermission } from '../../utils';
 
 const PROCUREMENT_TABS = [
-    { id: 'suppliers', label: 'Suppliers', path: ROUTES.PROCUREMENT_SUPPLIERS },
-    { id: 'requisitions', label: 'Requisitions', path: ROUTES.PROCUREMENT_REQUISITIONS },
-    { id: 'purchase-orders', label: 'Purchase Orders', path: ROUTES.PROCUREMENT_PURCHASE_ORDERS },
-    { id: 'goods-receipts', label: 'Goods Receipts', path: ROUTES.PROCUREMENT_GOODS_RECEIPTS },
-    { id: 'invoices', label: 'Invoices', path: ROUTES.PROCUREMENT_INVOICES },
-    { id: 'payments', label: 'Payments', path: ROUTES.PROCUREMENT_PAYMENTS },
-    { id: 'returns', label: 'Returns', path: ROUTES.PROCUREMENT_RETURNS },
-    { id: 'credit-notes', label: 'Credit Notes', path: ROUTES.PROCUREMENT_CREDIT_NOTES },
+    { id: 'suppliers', label: 'Suppliers', path: ROUTES.PROCUREMENT_SUPPLIERS, canAccess: (user: User | null) => hasPermission(user, 'suppliers.view') },
+    { id: 'requisitions', label: 'Requisitions', path: ROUTES.PROCUREMENT_REQUISITIONS, canAccess: (user: User | null) => hasPermission(user, 'suppliers.orders') },
+    { id: 'purchase-orders', label: 'Purchase Orders', path: ROUTES.PROCUREMENT_PURCHASE_ORDERS, canAccess: (user: User | null) => hasPermission(user, 'suppliers.orders') },
+    { id: 'goods-receipts', label: 'Goods Receipts', path: ROUTES.PROCUREMENT_GOODS_RECEIPTS, canAccess: (user: User | null) => hasAnyPermission(user, ['suppliers.orders', 'inventory.receive']) },
+    { id: 'invoices', label: 'Invoices', path: ROUTES.PROCUREMENT_INVOICES, canAccess: (user: User | null) => hasPermission(user, 'suppliers.orders') },
+    { id: 'payments', label: 'Payments', path: ROUTES.PROCUREMENT_PAYMENTS, canAccess: (user: User | null) => hasAnyPermission(user, ['payments.view', 'payments.process', 'suppliers.orders']) },
+    { id: 'returns', label: 'Returns', path: ROUTES.PROCUREMENT_RETURNS, canAccess: (user: User | null) => hasPermission(user, 'suppliers.orders') },
+    { id: 'credit-notes', label: 'Credit Notes', path: ROUTES.PROCUREMENT_CREDIT_NOTES, canAccess: (user: User | null) => hasPermission(user, 'suppliers.orders') },
 ] as const;
 
 const DEFAULT_TAB = 'suppliers';
@@ -23,10 +25,27 @@ type ProcurementTabId = (typeof PROCUREMENT_TABS)[number]['id'];
 const ProcurementPage: FunctionComponent = () => {
     const { pathname } = useLocation();
     const navigate = useNavigate();
+    const { user } = useAuth();
+
+    const visibleTabs = useMemo(
+        () => PROCUREMENT_TABS.filter((tab) => tab.canAccess(user)),
+        [user],
+    );
 
     const segment = pathname.split('/').pop() || DEFAULT_TAB;
     const activeTab: ProcurementTabId =
-        PROCUREMENT_TABS.find((t) => t.id === segment)?.id ?? DEFAULT_TAB;
+        (visibleTabs.find((t) => t.id === segment)?.id ?? visibleTabs[0]?.id ?? DEFAULT_TAB) as ProcurementTabId;
+
+    useEffect(() => {
+        if (visibleTabs.length === 0) {
+            return;
+        }
+
+        const isCurrentTabVisible = visibleTabs.some((tab) => tab.id === segment);
+        if (!isCurrentTabVisible) {
+            navigate(visibleTabs[0].path, { replace: true });
+        }
+    }, [segment, visibleTabs, navigate]);
 
     const handleTabChange = useCallback(
         (value: string) => {
@@ -40,7 +59,7 @@ const ProcurementPage: FunctionComponent = () => {
         <AppLayout>
             <Tabs.Root value={activeTab} onValueChange={handleTabChange}>
                 <Tabs.List className="-mx-4 md:-mx-6 px-4 md:px-6 flex overflow-x-auto border-b border-gray-200 dark:border-gray-700 gap-0 scrollbar-none mb-4">
-                    {PROCUREMENT_TABS.map((tab) => (
+                    {visibleTabs.map((tab) => (
                         <Tabs.Trigger
                             key={tab.id}
                             value={tab.id}
@@ -57,11 +76,19 @@ const ProcurementPage: FunctionComponent = () => {
                     ))}
                 </Tabs.List>
 
-                <Suspense fallback={<ComponentLoader loading={true} />}>
-                    <HubProvider value={true}>
-                        <Outlet />
-                    </HubProvider>
-                </Suspense>
+                {visibleTabs.length === 0 && (
+                    <div className="rounded-lg border border-dashed border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-6 text-sm text-gray-600 dark:text-gray-300">
+                        You do not currently have permission to view procurement tabs.
+                    </div>
+                )}
+
+                {visibleTabs.length > 0 && (
+                    <Suspense fallback={<ComponentLoader loading={true} />}>
+                        <HubProvider value={true}>
+                            <Outlet />
+                        </HubProvider>
+                    </Suspense>
+                )}
             </Tabs.Root>
         </AppLayout>
     );

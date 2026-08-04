@@ -23,6 +23,8 @@ interface ExpenseModalProps {
     onSuccess: (expense: Expense) => void;
     /** Expense being viewed/edited. Omit (or pass null) to record a new one. */
     expense?: Expense | null;
+    canCreateExpense?: boolean;
+    canEditPendingExpense?: boolean;
 }
 
 interface ExpenseFormValues {
@@ -62,12 +64,21 @@ const validationSchema = Yup.object().shape({
  * read-only details view once the expense leaves PENDING_APPROVAL — approved,
  * rejected, and voided expenses are final and can no longer be edited.
  */
-const ExpenseModal: FunctionComponent<ExpenseModalProps> = ({ isOpen, onClose, onSuccess, expense }) => {
+const ExpenseModal: FunctionComponent<ExpenseModalProps> = ({
+    isOpen,
+    onClose,
+    onSuccess,
+    expense,
+    canCreateExpense = true,
+    canEditPendingExpense = true,
+}) => {
     const { isOnline } = useConnectivity();
     const { paymentMethods } = usePaymentMethods();
 
     const isEditing = !!expense;
-    const isLocked = isEditing && expense.status !== 'PENDING_APPROVAL';
+    const isLockedByStatus = isEditing && expense.status !== 'PENDING_APPROVAL';
+    const isLockedByPermission = (!isEditing && !canCreateExpense) || (isEditing && expense.status === 'PENDING_APPROVAL' && !canEditPendingExpense);
+    const isLocked = isLockedByStatus || isLockedByPermission;
 
     const paymentMethodOptions = useMemo(
         () => paymentMethods.map((m) => ({ label: m.name, value: m.methodId })),
@@ -90,6 +101,11 @@ const ExpenseModal: FunctionComponent<ExpenseModalProps> = ({ isOpen, onClose, o
     const handleSubmit = async (values: ExpenseFormValues, { resetForm, setSubmitting }: FormikHelpers<ExpenseFormValues>) => {
         if (!isOnline) {
             Notify.failure('You need an internet connection to save expenses.');
+            return;
+        }
+
+        if (isLocked) {
+            Notify.failure('You do not have permission to modify this expense.');
             return;
         }
 
@@ -175,7 +191,9 @@ const ExpenseModal: FunctionComponent<ExpenseModalProps> = ({ isOpen, onClose, o
                         <div className="flex items-center gap-2 p-3 mb-4 rounded-lg bg-gray-50 dark:bg-gray-700/40 border border-gray-200 dark:border-gray-600">
                             <Lock className="w-4 h-4 text-gray-400 flex-shrink-0" />
                             <p className="text-sm text-gray-600 dark:text-gray-300">
-                                {expenseStatusConfig[expense.status].label} expenses are final and cannot be edited.
+                                {isLockedByStatus
+                                    ? `${expenseStatusConfig[expense.status].label} expenses are final and cannot be edited.`
+                                    : 'You do not have permission to modify this expense.'}
                             </p>
                         </div>
                     )}

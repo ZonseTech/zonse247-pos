@@ -10,7 +10,7 @@ import type { useFocusManager } from '../../../hooks/useFocusManager';
 import { CHECKOUT, type PaymentMethod } from '../partials/CheckoutModal';
 import { useAuth } from '../../../context/AuthProvider';
 import { useInventory } from '../../../hooks/useInventory';
-import { hasPermission } from '../../../utils';
+import { hasAnyPermission, hasPermission } from '../../../utils';
 
 interface ActionBarProps {
     layout: POSLayoutConfig;
@@ -53,6 +53,15 @@ const ActionBar: FunctionComponent<ActionBarProps> = ({
     const { user } = useAuth();
     const { saleDate, setSaleDate } = useInventory();
     const canBackdateSale = hasPermission(user, 'sales.edit');
+    const canVoidSale = hasPermission(user, 'sales.void');
+    const canParkSale = hasAnyPermission(user, ['sales.hold', 'sales.edit']);
+    const canViewParkedSales = hasAnyPermission(user, ['sales.hold', 'sales.view', 'sales.view.own']);
+    const canOpenDrawer = hasPermission(user, 'cash.drawer.open');
+    const canLookupItems = hasAnyPermission(user, ['products.view', 'inventory.view']);
+    const canReprint = hasAnyPermission(user, ['sales.view', 'sales.view.own']);
+    const canDiscount = hasPermission(user, 'discounts.apply');
+    const canSplitPayment = hasPermission(user, 'payments.split');
+    const canProcessPayments = hasPermission(user, 'payments.process');
 
     const showScannerInBar = !layout.showCatalog;
 
@@ -136,6 +145,15 @@ const ActionBar: FunctionComponent<ActionBarProps> = ({
                     compact={compact}
                     serviceMode={layout.showCatalog}
                     hasActiveOrder={hasActiveOrder}
+                    canVoidSale={canVoidSale}
+                    canParkSale={canParkSale}
+                    canViewParkedSales={canViewParkedSales}
+                    canOpenDrawer={canOpenDrawer}
+                    canLookupItems={canLookupItems}
+                    canReprint={canReprint}
+                    canDiscount={canDiscount}
+                    canSplitPayment={canSplitPayment}
+                    canProcessPayments={canProcessPayments}
                 />
             </Panel>
         </div>

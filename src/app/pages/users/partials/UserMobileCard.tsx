@@ -6,6 +6,7 @@ import usersService from '../../../services/users.service';
 interface UserMobileCardProps {
     user: User;
     onEdit: (user: User) => void;
+    canEdit?: boolean;
 }
 
 const getStatusBadgeColor = (status: UserStatus): 'green' | 'red' | 'yellow' | 'gray' => {
@@ -26,6 +27,7 @@ const getInitials = (name: string) => {
 const UserMobileCard: FC<UserMobileCardProps> = ({
     user,
     onEdit,
+    canEdit = true,
 }) => {
     const formatSalary = () => {
         if (!user.staffSalary) return null;
@@ -38,7 +40,8 @@ const UserMobileCard: FC<UserMobileCardProps> = ({
 
     return (
         <button
-            onClick={() => onEdit(user)}
+            onClick={() => canEdit && onEdit(user)}
+            disabled={!canEdit}
             className="w-full bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 text-left active:bg-gray-50 dark:active:bg-gray-700/50 transition-colors"
         >
             <Flex align="center" gap="3">
@@ -115,12 +118,14 @@ const UserMobileCard: FC<UserMobileCardProps> = ({
 interface UserMobileListProps {
     users: User[];
     onEdit: (user: User) => void;
+    canEdit?: boolean;
     isLoading?: boolean;
 }
 
 export const UserMobileList: FC<UserMobileListProps> = ({
     users,
     onEdit,
+    canEdit = true,
     isLoading = false,
 }) => {
     if (isLoading) {
@@ -147,6 +152,7 @@ export const UserMobileList: FC<UserMobileListProps> = ({
                     key={user.userId}
                     user={user}
                     onEdit={onEdit}
+                    canEdit={canEdit}
                 />
             ))}
         </Flex>

@@ -1,6 +1,7 @@
 import { lazy } from 'react'
 import { Navigate, Route } from 'react-router'
 import { ROUTES } from '../../utils/constants'
+import PermissionRoute from '../../navigation/PermissionRoute'
 
 const ProcurementPage = lazy(() => import('../../pages/procurement'))
 const Suppliers = lazy(() => import('../../pages/suppliers'))
@@ -15,13 +16,13 @@ const CreditNotes = lazy(() => import('../../pages/credit-notes'))
 export const ProcurementRoutes = (
     <Route path={ROUTES.PROCUREMENT} element={<ProcurementPage />}>
         <Route index element={<Navigate to="suppliers" replace />} />
-        <Route path="suppliers" element={<Suppliers />} />
-        <Route path="requisitions" element={<PurchaseRequisitions />} />
-        <Route path="purchase-orders" element={<PurchaseOrders />} />
-        <Route path="goods-receipts" element={<GoodsReceipts />} />
-        <Route path="invoices" element={<SupplierInvoices />} />
-        <Route path="payments" element={<SupplierPayments />} />
-        <Route path="returns" element={<SupplierReturns />} />
-        <Route path="credit-notes" element={<CreditNotes />} />
+        <Route path="suppliers" element={<PermissionRoute permission="suppliers.view"><Suppliers /></PermissionRoute>} />
+        <Route path="requisitions" element={<PermissionRoute permission="suppliers.orders"><PurchaseRequisitions /></PermissionRoute>} />
+        <Route path="purchase-orders" element={<PermissionRoute permission="suppliers.orders"><PurchaseOrders /></PermissionRoute>} />
+        <Route path="goods-receipts" element={<PermissionRoute anyOf={['suppliers.orders', 'inventory.receive']}><GoodsReceipts /></PermissionRoute>} />
+        <Route path="invoices" element={<PermissionRoute permission="suppliers.orders"><SupplierInvoices /></PermissionRoute>} />
+        <Route path="payments" element={<PermissionRoute anyOf={['payments.view', 'payments.process', 'suppliers.orders']}><SupplierPayments /></PermissionRoute>} />
+        <Route path="returns" element={<PermissionRoute permission="suppliers.orders"><SupplierReturns /></PermissionRoute>} />
+        <Route path="credit-notes" element={<PermissionRoute permission="suppliers.orders"><CreditNotes /></PermissionRoute>} />
     </Route>
 )

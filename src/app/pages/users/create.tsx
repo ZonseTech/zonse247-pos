@@ -16,7 +16,7 @@ const UserForm: FunctionComponent = () => {
             <AppLayout>
                 <Box className="max-w-6xl mx-auto" px={{ initial: "4", sm: "6", lg: "8" }} py="6">
                     <OfflinePlaceholder
-                        title="Staff Management Unavailable Offline"
+                        title="User Management Unavailable Offline"
                         description="Creating or editing staff members requires an internet connection to sync with the server. Please connect to the internet and try again."
                         variant="cloud"
                     />

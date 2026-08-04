@@ -12,10 +12,17 @@ import { useUsers } from '../../hooks/useUsers';
 import { getUserTableColumns } from './partials/UserTableColumns';
 import { ROUTES } from '../../utils/constants';
 import { Box, Button, Flex, Heading, Text } from '@radix-ui/themes';
+import { useAuth } from '../../context/AuthProvider';
+import { hasPermission } from '../../utils';
 
 const DesktopUserManagement: FunctionComponent = () => {
     const navigate = useNavigate();
     const { mode } = useContext(ZonseThemeContext);
+    const { user } = useAuth();
+
+    const canCreateUser = hasPermission(user, 'users.create');
+    const canEditUser = hasPermission(user, 'users.edit');
+    const canDeleteUser = hasPermission(user, 'users.delete');
 
     const {
         users,
@@ -30,14 +37,26 @@ const DesktopUserManagement: FunctionComponent = () => {
     } = useUsers();
 
     const handleAddUser = useCallback(() => {
+        if (!canCreateUser) {
+            return;
+        }
+
         navigate(ROUTES.USER_FORM);
-    }, [navigate]);
+    }, [navigate, canCreateUser]);
 
     const handleEdit = useCallback((user: User) => {
+        if (!canEditUser) {
+            return;
+        }
+
         navigate(ROUTES.USER_FORM, { state: { userId: user.userId } });
-    }, [navigate]);
+    }, [navigate, canEditUser]);
 
     const handleDelete = useCallback((userId: string) => {
+        if (!canDeleteUser) {
+            return;
+        }
+
         Confirm.show(
             'Delete User',
             'Are you sure you want to delete this user? This action cannot be undone.',
@@ -51,9 +70,13 @@ const DesktopUserManagement: FunctionComponent = () => {
                 okButtonBackground: '#ef4444',
             }
         );
-    }, [deleteUser]);
+    }, [deleteUser, canDeleteUser]);
 
     const handleResetPassword = useCallback((userId: string) => {
+        if (!canEditUser) {
+            return;
+        }
+
         Confirm.show(
             'Reset Password',
             'Enter new password for this user:',
@@ -68,9 +91,13 @@ const DesktopUserManagement: FunctionComponent = () => {
                 }
             }
         );
-    }, [resetPassword]);
+    }, [resetPassword, canEditUser]);
 
     const handleToggleStatus = useCallback((userId: string, newStatus: UserStatus) => {
+        if (!canEditUser) {
+            return;
+        }
+
         const action = newStatus === 'active' ? 'activate' : 'deactivate';
         Confirm.show(
             `${action.charAt(0).toUpperCase() + action.slice(1)} User`,
@@ -81,13 +108,17 @@ const DesktopUserManagement: FunctionComponent = () => {
                 updateUserStatus(userId, newStatus);
             }
         );
-    }, [updateUserStatus]);
+    }, [updateUserStatus, canEditUser]);
 
     const columns = getUserTableColumns({
         onEdit: handleEdit,
         onDelete: handleDelete,
         onResetPassword: handleResetPassword,
         onToggleStatus: handleToggleStatus,
+        canEditUser,
+        canDeleteUser,
+        canResetPassword: canEditUser,
+        canToggleStatus: canEditUser,
     });
 
     return (
@@ -97,7 +128,7 @@ const DesktopUserManagement: FunctionComponent = () => {
                     title='Staffs Management'
                     description='Manage user accounts, roles, and permissions'
                     icon={<HiOutlineUsers className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
-                    action={
+                    action={canCreateUser ? (
                         <Button
                             size="2"
                             variant="solid"
@@ -108,7 +139,7 @@ const DesktopUserManagement: FunctionComponent = () => {
                             <HiOutlinePlus className="w-4 h-4" />
                             Add Staff
                         </Button>
-                    }
+                    ) : undefined}
                 />
 
                 <Box className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">

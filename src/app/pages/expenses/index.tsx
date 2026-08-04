@@ -21,6 +21,8 @@ import ExpenseModal from './ExpenseModal';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { Confirm } from 'notiflix';
+import { useAuth } from '../../context/AuthProvider';
+import { hasPermission } from '../../utils';
 
 const ExpenseManagement: FunctionComponent = () => {
     const isMobile = useIsMobile();
@@ -28,6 +30,13 @@ const ExpenseManagement: FunctionComponent = () => {
     const { mode } = useContext(ZonseThemeContext);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [viewingExpense, setViewingExpense] = useState<Expense | null>(null);
+    const { user } = useAuth();
+
+    const canCreateExpense = hasPermission(user, 'expenses.create');
+    const canViewExpenses = hasPermission(user, 'expenses.view');
+    const canApproveExpenses = hasPermission(user, 'expenses.approve');
+    const canVoidExpenses = hasPermission(user, 'expenses.void');
+    const canManageExpenseCategories = hasPermission(user, 'expenses.manage_categories');
 
     const {
         expenses,
@@ -104,8 +113,12 @@ const ExpenseManagement: FunctionComponent = () => {
     ], [summary]);
 
     const handleAdd = useCallback(() => {
+        if (!canCreateExpense) {
+            return;
+        }
+
         setShowCreateModal(true);
-    }, []);
+    }, [canCreateExpense]);
 
     const handleCreateModalClose = useCallback(() => {
         setShowCreateModal(false);
@@ -118,8 +131,12 @@ const ExpenseManagement: FunctionComponent = () => {
     }, [loadExpenses, loadSummary]);
 
     const handleView = useCallback((expense: Expense) => {
+        if (!canViewExpenses) {
+            return;
+        }
+
         setViewingExpense(expense);
-    }, []);
+    }, [canViewExpenses]);
 
     const handleViewModalClose = useCallback(() => {
         setViewingExpense(null);
@@ -132,10 +149,18 @@ const ExpenseManagement: FunctionComponent = () => {
     }, [loadExpenses, loadSummary]);
 
     const handleManageCategories = useCallback(() => {
+        if (!canManageExpenseCategories) {
+            return;
+        }
+
         navigate(ROUTES.EXPENSE_CATEGORIES);
-    }, [navigate]);
+    }, [navigate, canManageExpenseCategories]);
 
     const handleApprove = useCallback((expense: Expense) => {
+        if (!canApproveExpenses) {
+            return;
+        }
+
         Confirm.show(
             'Approve Expense',
             `Approve ${expense.expenseNumber} for ${formatCurrency(expense.amount, true)}?`,
@@ -145,9 +170,13 @@ const ExpenseManagement: FunctionComponent = () => {
                 await approveExpense(expense.id);
             },
         );
-    }, [approveExpense]);
+    }, [approveExpense, canApproveExpenses]);
 
     const handleReject = useCallback((expense: Expense) => {
+        if (!canApproveExpenses) {
+            return;
+        }
+
         Confirm.show(
             'Reject Expense',
             `Are you sure you want to reject ${expense.expenseNumber}?`,
@@ -157,9 +186,13 @@ const ExpenseManagement: FunctionComponent = () => {
                 await rejectExpense(expense.id, 'Rejected from list');
             },
         );
-    }, [rejectExpense]);
+    }, [rejectExpense, canApproveExpenses]);
 
     const handleVoid = useCallback((expense: Expense) => {
+        if (!canVoidExpenses) {
+            return;
+        }
+
         Confirm.show(
             'Void Expense',
             `Are you sure you want to void ${expense.expenseNumber}? This cannot be undone.`,
@@ -169,7 +202,7 @@ const ExpenseManagement: FunctionComponent = () => {
                 await voidExpense(expense.id, 'Voided from list');
             },
         );
-    }, [voidExpense]);
+    }, [voidExpense, canVoidExpenses]);
 
     const handleClearFilters = useCallback(() => {
         clearSearch();
@@ -200,6 +233,9 @@ const ExpenseManagement: FunctionComponent = () => {
         onApprove: handleApprove,
         onReject: handleReject,
         onVoid: handleVoid,
+        canApprove: canApproveExpenses,
+        canReject: canApproveExpenses,
+        canVoid: canVoidExpenses,
     });
 
     return (
@@ -211,14 +247,18 @@ const ExpenseManagement: FunctionComponent = () => {
                     description="Record and approve business expenses"
                     action={
                         <Flex align="center" gap="2">
-                            <Button variant="outline" size="2" onClick={handleManageCategories}>
-                                <Settings2 className="w-4 h-4" />
-                                <span className="hidden md:inline">Categories</span>
-                            </Button>
-                            <Button size="2" onClick={handleAdd}>
-                                <Plus className="w-4 h-4" />
-                                <span className="hidden md:inline">Record Expense</span>
-                            </Button>
+                            {canManageExpenseCategories && (
+                                <Button variant="outline" size="2" onClick={handleManageCategories}>
+                                    <Settings2 className="w-4 h-4" />
+                                    <span className="hidden md:inline">Categories</span>
+                                </Button>
+                            )}
+                            {canCreateExpense && (
+                                <Button size="2" onClick={handleAdd}>
+                                    <Plus className="w-4 h-4" />
+                                    <span className="hidden md:inline">Record Expense</span>
+                                </Button>
+                            )}
                         </Flex>
                     }
                 />
@@ -330,6 +370,8 @@ const ExpenseManagement: FunctionComponent = () => {
                 isOpen={showCreateModal}
                 onClose={handleCreateModalClose}
                 onSuccess={handleCreateSuccess}
+                canCreateExpense={canCreateExpense}
+                canEditPendingExpense={canCreateExpense}
             />
 
             <ExpenseModal
@@ -337,6 +379,8 @@ const ExpenseManagement: FunctionComponent = () => {
                 onClose={handleViewModalClose}
                 onSuccess={handleViewModalSuccess}
                 expense={viewingExpense}
+                canCreateExpense={canCreateExpense}
+                canEditPendingExpense={canCreateExpense}
             />
         </AppLayout>
     );

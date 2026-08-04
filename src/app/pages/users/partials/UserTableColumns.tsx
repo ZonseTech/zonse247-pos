@@ -10,6 +10,10 @@ interface UserTableColumnsProps {
     onDelete: (userId: string) => void;
     onResetPassword: (userId: string) => void;
     onToggleStatus: (userId: string, status: UserStatus) => void;
+    canEditUser?: boolean;
+    canDeleteUser?: boolean;
+    canResetPassword?: boolean;
+    canToggleStatus?: boolean;
 }
 
 const getInitials = (name: string) => {
@@ -32,6 +36,10 @@ export const getUserTableColumns = ({
     onDelete,
     onResetPassword,
     onToggleStatus,
+    canEditUser = true,
+    canDeleteUser = true,
+    canResetPassword = true,
+    canToggleStatus = true,
 }: UserTableColumnsProps): TableColumn<User>[] => [
         {
             name: 'User',
@@ -115,6 +123,7 @@ export const getUserTableColumns = ({
                                 variant="ghost"
 
                                 onClick={() => onEdit(row)}
+                                disabled={!canEditUser}
                             >
                                 <Edit2 className="w-4 h-4" />
                             </IconButton>
@@ -125,6 +134,7 @@ export const getUserTableColumns = ({
                                 variant="ghost"
                                 color="yellow"
                                 onClick={() => onResetPassword(userId)}
+                                disabled={!canResetPassword}
                             >
                                 <Key className="w-4 h-4" />
                             </IconButton>
@@ -138,6 +148,7 @@ export const getUserTableColumns = ({
                                     userId,
                                     row.status === 'active' ? 'inactive' : 'active'
                                 )}
+                                disabled={!canToggleStatus}
                             >
                                 {row.status === 'active' ? <Lock className="w-4 h-4" /> : <LockOpen className="w-4 h-4" />}
                             </IconButton>
@@ -148,6 +159,7 @@ export const getUserTableColumns = ({
                                 variant="ghost"
                                 color="red"
                                 onClick={() => onDelete(userId)}
+                                disabled={!canDeleteUser}
                             >
                                 <Trash2 className="w-4 h-4" />
                             </IconButton>

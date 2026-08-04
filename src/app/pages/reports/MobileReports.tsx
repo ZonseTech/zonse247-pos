@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { HiShare } from 'react-icons/hi';
 import { ReceiptText, Download } from 'lucide-react';
 import dayjs from 'dayjs';
@@ -9,16 +9,36 @@ import { Capacitor } from '@capacitor/core';
 import MobileTabPageHeader from '../../components/page/MobileTabPageHeader';
 import LoadingState from '../../components/loader/LoadingState';
 import { useBranch } from '../../context/BranchContext';
+import { useAuth } from '../../context/AuthProvider';
 import { useReportsSummary } from '../../hooks/useReportsSummary';
 import ReportStatTile from './partials/ReportStatTile';
 import ReportDetailView from './partials/ReportDetailView';
 import { REPORT_VISUALS } from './partials/reportVisuals';
+import { hasAnyPermission, hasPermission } from '../../utils';
 
 const MobileReports: React.FC = () => {
     const [isSharing, setIsSharing] = useState(false);
     const reportContentRef = useRef<HTMLDivElement>(null);
     const detailContentRef = useRef<HTMLDivElement>(null);
     const { currentBranch } = useBranch();
+    const { user } = useAuth();
+    const canExportReports = hasPermission(user, 'reports.export');
+    const canViewSalesReports = hasAnyPermission(user, ['analytics.view', 'reports.sales.daily', 'reports.sales.detailed']);
+    const canViewDetailedSalesReports = hasAnyPermission(user, ['analytics.view', 'reports.sales.detailed']);
+    const canViewFinancialReports = hasAnyPermission(user, ['analytics.view', 'reports.financial']);
+    const canViewInventoryReports = hasAnyPermission(user, ['analytics.view', 'reports.inventory']);
+    const canViewAnyReports = canViewSalesReports || canViewDetailedSalesReports || canViewFinancialReports || canViewInventoryReports;
+
+    const enabledDetails = useMemo(() => ({
+        'total-sales': canViewSalesReports,
+        'net-profit': canViewFinancialReports,
+        'receipt-count': canViewSalesReports,
+        'payment-modes': canViewFinancialReports,
+        'top-stocks': canViewInventoryReports,
+        'top-category': canViewInventoryReports || canViewDetailedSalesReports,
+        'expenses': canViewFinancialReports,
+        'expenses-by-category': canViewFinancialReports,
+    }), [canViewSalesReports, canViewDetailedSalesReports, canViewFinancialReports, canViewInventoryReports]);
 
     const {
         startDate,
@@ -33,7 +53,40 @@ const MobileReports: React.FC = () => {
         detailLoading,
         detailErrors,
         retryDetail,
-    } = useReportsSummary();
+    } = useReportsSummary({
+        enableSummary: canViewAnyReports,
+        enablePreviousSummary: canViewAnyReports,
+        enabledDetails,
+    });
+
+    const canViewCard = useCallback((visualKey: string): boolean => {
+        if (visualKey === 'profit' || visualKey === 'expenses') {
+            return canViewFinancialReports;
+        }
+
+        if (visualKey === 'revenue' || visualKey === 'service-orders' || visualKey === 'average-sale' || visualKey === 'receipt-count') {
+            return canViewSalesReports;
+        }
+
+        if (visualKey === 'payment-modes') {
+            return canViewFinancialReports;
+        }
+
+        if (visualKey === 'top-stocks') {
+            return canViewInventoryReports;
+        }
+
+        if (visualKey === 'top-category') {
+            return canViewInventoryReports || canViewDetailedSalesReports;
+        }
+
+        return canViewAnyReports;
+    }, [canViewAnyReports, canViewDetailedSalesReports, canViewFinancialReports, canViewInventoryReports, canViewSalesReports]);
+
+    const visibleReportCards = useMemo(
+        () => reportCards.filter((card) => canViewCard(card.visualKey)),
+        [reportCards, canViewCard],
+    );
 
     const getFormattedDateRange = useCallback((): string => {
         if (!startDate) return '';
@@ -80,18 +133,18 @@ const MobileReports: React.FC = () => {
             `💳 Payment Methods: ${paymentModes?.value ?? ''}`;
     }, [activeReport, reportCards, currentBranch, getFormattedDateRange]);
 
-    const captureReportAsImage = async (elementRef: React.RefObject<HTMLDivElement>): Promise<Blob | null> => {
-        if (!elementRef.current) return null;
+    const captureReportAsImage = async (element: HTMLDivElement | null): Promise<Blob | null> => {
+        if (!element) return null;
 
         try {
             const html2canvas = (await import('html2canvas')).default;
-            const canvas = await html2canvas(elementRef.current, {
+            const canvas = await html2canvas(element, {
                 backgroundColor: '#ffffff',
                 scale: 2,
                 useCORS: true,
                 logging: false,
-                windowWidth: elementRef.current.scrollWidth,
-                windowHeight: elementRef.current.scrollHeight,
+                windowWidth: element.scrollWidth,
+                windowHeight: element.scrollHeight,
             });
 
             return new Promise((resolve) => {
@@ -113,7 +166,7 @@ const MobileReports: React.FC = () => {
 
         try {
             const elementRef = activeReport ? detailContentRef : reportContentRef;
-            const imageBlob = await captureReportAsImage(elementRef);
+            const imageBlob = await captureReportAsImage(elementRef.current);
             const reportTitle = activeReport ? getActiveReportTitle() : 'Sales Report Summary';
             const dateRange = getFormattedDateRange();
             const fileName = `report-${activeReport || 'summary'}-${dayjs().format('YYYYMMDD-HHmmss')}.png`;
@@ -187,7 +240,7 @@ const MobileReports: React.FC = () => {
 
         try {
             const elementRef = activeReport ? detailContentRef : reportContentRef;
-            const imageBlob = await captureReportAsImage(elementRef);
+            const imageBlob = await captureReportAsImage(elementRef.current);
             const fileName = `report-${activeReport || 'summary'}-${dayjs().format('YYYYMMDD-HHmmss')}.png`;
 
             if (imageBlob) {
@@ -246,7 +299,7 @@ const MobileReports: React.FC = () => {
         }
     }, [activeReport, hasNoData, generateReportText]);
 
-    const shareDownloadActions = (
+    const shareDownloadActions = canExportReports ? (
         <div className="flex items-center gap-1">
             <button
                 onClick={handleDownload}
@@ -263,7 +316,7 @@ const MobileReports: React.FC = () => {
                 <HiShare className={`w-5 h-5 ${isSharing ? 'text-sky-500 animate-pulse' : 'text-sky-600 dark:text-sky-300'}`} />
             </button>
         </div>
-    );
+    ) : null;
 
     if (activeReport) {
         return (
@@ -291,14 +344,18 @@ const MobileReports: React.FC = () => {
                 <MobileTabPageHeader
                     rightContent={
                         <div className="flex items-center gap-x-3">
-                            <Download
-                                className={`w-6 h-6 text-white cursor-pointer active:scale-95 transition-transform ${isSharing ? 'opacity-50' : ''}`}
-                                onClick={!isSharing ? handleDownload : undefined}
-                            />
-                            <HiShare
-                                className={`w-6 h-6 cursor-pointer active:scale-95 transition-transform ${isSharing ? 'text-sky-300 animate-pulse' : 'text-white'}`}
-                                onClick={!isSharing ? handleShare : undefined}
-                            />
+                            {canExportReports && (
+                                <>
+                                    <Download
+                                        className={`w-6 h-6 text-white cursor-pointer active:scale-95 transition-transform ${isSharing ? 'opacity-50' : ''}`}
+                                        onClick={!isSharing ? handleDownload : undefined}
+                                    />
+                                    <HiShare
+                                        className={`w-6 h-6 cursor-pointer active:scale-95 transition-transform ${isSharing ? 'text-sky-300 animate-pulse' : 'text-white'}`}
+                                        onClick={!isSharing ? handleShare : undefined}
+                                    />
+                                </>
+                            )}
                         </div>
                     }
                 />
@@ -309,6 +366,10 @@ const MobileReports: React.FC = () => {
                     {isSummaryLoading ? (
                         <div className="flex items-center justify-center py-12">
                             <LoadingState />
+                        </div>
+                    ) : !canViewAnyReports ? (
+                        <div className="rounded-lg border border-dashed border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-6 text-sm text-gray-600 dark:text-gray-300">
+                            You do not currently have permission to view report components.
                         </div>
                     ) : hasNoData ? (
                         <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -323,7 +384,7 @@ const MobileReports: React.FC = () => {
                             </p>
                         </div>
                     ) : (
-                        reportCards.map((card) => {
+                        visibleReportCards.map((card) => {
                             const visual = REPORT_VISUALS[card.visualKey];
                             return (
                                 <ReportStatTile
@@ -335,7 +396,7 @@ const MobileReports: React.FC = () => {
                                     accent={visual.accent}
                                     hasData={card.hasData}
                                     delta={card.delta}
-                                    onClick={card.id ? () => setActiveReport(card.id) : undefined}
+                                    onClick={card.id && enabledDetails[card.id] ? () => setActiveReport(card.id) : undefined}
                                 />
                             );
                         })

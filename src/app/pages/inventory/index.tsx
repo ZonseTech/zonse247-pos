@@ -29,13 +29,13 @@ const InventoryManagement: FunctionComponent = () => {
     const { user } = useAuth();
 
     const permissions = useMemo(() => ({
-        canCreate: hasPermission(user, 'products.create'),
-        canEdit: hasPermission(user, 'products.edit'),
-        canDelete: hasPermission(user, 'products.delete'),
+        canCreate: hasAnyPermission(user, ['products.create', 'inventory.receive']),
+        canEdit: hasAnyPermission(user, ['products.edit', 'inventory.adjust']),
+        canDelete: hasAnyPermission(user, ['products.delete', 'inventory.adjust']),
         canAdjustStock: hasPermission(user, 'inventory.adjust'),
         canViewStockMovements: hasPermission(user, 'inventory.view'),
-        canExport: hasPermission(user, 'products.export'),
-        canBulkActions: hasAnyPermission(user, ['products.edit', 'inventory.adjust']),
+        canExport: hasAnyPermission(user, ['products.export', 'reports.export', 'exports.data', 'exports.reports']),
+        canBulkActions: hasAnyPermission(user, ['products.edit', 'inventory.adjust', 'inventory.waste', 'inventory.transfer', 'inventory.count']),
     }), [user]);
 
     // Data & stats

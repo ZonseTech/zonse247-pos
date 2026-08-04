@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import dashboardService, {
     DashboardSummary,
@@ -36,16 +36,6 @@ const EMPTY_STATS: DashboardStats = {
 
 export type DashboardLoadingState = Record<keyof DashboardStats, boolean>;
 
-const LOADING_ALL: DashboardLoadingState = {
-    summary: true,
-    revenueTrend: true,
-    paymentMethods: true,
-    expensesByCategory: true,
-    topProducts: true,
-    recentSales: true,
-    lowStock: true,
-};
-
 export interface UseDashboardStatsReturn {
     stats: DashboardStats;
     /** Per-section loading flags, so a fast section can render before a slow one finishes */
@@ -56,6 +46,13 @@ export interface UseDashboardStatsReturn {
     refetch: () => Promise<void>;
 }
 
+export type DashboardSectionFlags = Partial<Record<keyof DashboardStats, boolean>>;
+
+interface UseDashboardStatsOptions {
+    branchId?: string;
+    enabledSections?: DashboardSectionFlags;
+}
+
 /**
  * Hook for fetching and managing dashboard statistics.
  * Each section is fetched independently and updates the moment it resolves,
@@ -64,9 +61,40 @@ export interface UseDashboardStatsReturn {
  * the whole dashboard, and stale responses (from a superseded refetch, or
  * after unmount) are dropped.
  */
-export const useDashboardStats = (query: { branchId?: string } = {}): UseDashboardStatsReturn => {
+const normalizeEnabledSections = (enabledSections?: DashboardSectionFlags): DashboardLoadingState => ({
+    summary: enabledSections?.summary ?? true,
+    revenueTrend: enabledSections?.revenueTrend ?? true,
+    paymentMethods: enabledSections?.paymentMethods ?? true,
+    expensesByCategory: enabledSections?.expensesByCategory ?? true,
+    topProducts: enabledSections?.topProducts ?? true,
+    recentSales: enabledSections?.recentSales ?? true,
+    lowStock: enabledSections?.lowStock ?? true,
+});
+
+const toLoadingState = (enabledSections: DashboardLoadingState): DashboardLoadingState => ({
+    ...enabledSections,
+});
+
+const isEnabled = (enabledSections: DashboardLoadingState, key: keyof DashboardStats): boolean => {
+    return enabledSections[key];
+};
+
+export const useDashboardStats = (options: UseDashboardStatsOptions = {}): UseDashboardStatsReturn => {
+    const branchId = options.branchId;
+    const enabledSections = useMemo(
+        () => normalizeEnabledSections(options.enabledSections),
+        [
+            options.enabledSections?.summary,
+            options.enabledSections?.revenueTrend,
+            options.enabledSections?.paymentMethods,
+            options.enabledSections?.expensesByCategory,
+            options.enabledSections?.topProducts,
+            options.enabledSections?.recentSales,
+            options.enabledSections?.lowStock,
+        ],
+    );
     const [stats, setStats] = useState<DashboardStats>(EMPTY_STATS);
-    const [loading, setLoading] = useState<DashboardLoadingState>(LOADING_ALL);
+    const [loading, setLoading] = useState<DashboardLoadingState>(() => toLoadingState(enabledSections));
     const [error, setError] = useState<string | null>(null);
     const isMountedRef = useRef(true);
     const requestIdRef = useRef(0);
@@ -82,11 +110,15 @@ export const useDashboardStats = (query: { branchId?: string } = {}): UseDashboa
         const requestId = ++requestIdRef.current;
         const isStale = () => !isMountedRef.current || requestIdRef.current !== requestId;
 
-        setLoading(LOADING_ALL);
+        setLoading(toLoadingState(enabledSections));
         setError(null);
         let toastShown = false;
 
         const load = <K extends keyof DashboardStats>(key: K, fetcher: () => Promise<DashboardStats[K]>): void => {
+            if (!isEnabled(enabledSections, key)) {
+                return;
+            }
+
             fetcher()
                 .then((value) => {
                     if (isStale()) return;
@@ -108,16 +140,16 @@ export const useDashboardStats = (query: { branchId?: string } = {}): UseDashboa
                 });
         };
 
-        load('summary', () => dashboardService.getSummary(query));
-        load('revenueTrend', () => dashboardService.getRevenueTrend(query).then((res) => res.data));
-        load('paymentMethods', () => dashboardService.getPaymentMethods(query).then((res) => res.data));
-        load('expensesByCategory', () => dashboardService.getExpensesByCategory(query).then((res) => res.data));
-        load('topProducts', () => dashboardService.getTopProducts(query).then((res) => res.data));
-        load('recentSales', () => dashboardService.getRecentSales(query).then((res) => res.data));
+        load('summary', () => dashboardService.getSummary({ branchId }));
+        load('revenueTrend', () => dashboardService.getRevenueTrend({ branchId }).then((res) => res.data));
+        load('paymentMethods', () => dashboardService.getPaymentMethods({ branchId }).then((res) => res.data));
+        load('expensesByCategory', () => dashboardService.getExpensesByCategory({ branchId }).then((res) => res.data));
+        load('topProducts', () => dashboardService.getTopProducts({ branchId }).then((res) => res.data));
+        load('recentSales', () => dashboardService.getRecentSales({ branchId }).then((res) => res.data));
         load('lowStock', () =>
-            dashboardService.getLowStock(query).then((res) => ({ items: res.data, totalCount: res.totalCount })),
+            dashboardService.getLowStock({ branchId }).then((res) => ({ items: res.data, totalCount: res.totalCount })),
         );
-    }, [query.branchId]);
+    }, [branchId, enabledSections]);
 
     useEffect(() => {
         fetchAll();

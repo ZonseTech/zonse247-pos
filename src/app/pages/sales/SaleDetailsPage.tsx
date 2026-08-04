@@ -30,6 +30,7 @@ import {
 } from './partials/receipt';
 import { Flex, IconButton, Tooltip } from '@radix-ui/themes';
 import { Printer, Copy, CheckCircle, RotateCcw, Download, Share2 } from 'lucide-react';
+import { hasPermission } from '../../utils';
 
 const SaleDetailsPage: FunctionComponent = () => {
     const { saleId } = useParams<{ saleId: string }>();
@@ -50,6 +51,8 @@ const SaleDetailsPage: FunctionComponent = () => {
         receiptRef,
         storeName: currentBranch?.branchName,
     });
+    const canInitiateReturn = hasPermission(user, 'refunds.process');
+    const canExportReceipt = hasPermission(user, 'reports.export');
 
     const fetchSaleDetails = useCallback(async () => {
         if (!saleId || !user?.tenantId || !user?.branchId) {
@@ -151,30 +154,34 @@ const SaleDetailsPage: FunctionComponent = () => {
                                     {copiedSaleId === sale.id ? <CheckCircle size={18} /> : <Copy size={18} />}
                                 </IconButton>
                             </Tooltip>
-                            <Tooltip content="Share receipt">
-                                <IconButton
-                                    variant="ghost"
-                                    size="2"
-                                    color="cyan"
-                                    onClick={() => handleShare(sale)}
-                                    disabled={isSharing}
-                                    aria-label="Share receipt"
-                                    className={isSharing ? 'animate-pulse' : ''}
-                                >
-                                    <Share2 size={18} />
-                                </IconButton>
-                            </Tooltip>
-                            <Tooltip content="Download receipt">
-                                <IconButton
-                                    variant="ghost"
-                                    size="2"
-                                    color="cyan"
-                                    onClick={() => handleDownload(sale)}
-                                    aria-label="Download receipt"
-                                >
-                                    <Download size={18} />
-                                </IconButton>
-                            </Tooltip>
+                            {canExportReceipt && (
+                                <>
+                                    <Tooltip content="Share receipt">
+                                        <IconButton
+                                            variant="ghost"
+                                            size="2"
+                                            color="cyan"
+                                            onClick={() => handleShare(sale)}
+                                            disabled={isSharing}
+                                            aria-label="Share receipt"
+                                            className={isSharing ? 'animate-pulse' : ''}
+                                        >
+                                            <Share2 size={18} />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Tooltip content="Download receipt">
+                                        <IconButton
+                                            variant="ghost"
+                                            size="2"
+                                            color="cyan"
+                                            onClick={() => handleDownload(sale)}
+                                            aria-label="Download receipt"
+                                        >
+                                            <Download size={18} />
+                                        </IconButton>
+                                    </Tooltip>
+                                </>
+                            )}
                             <Tooltip content="Print receipt">
                                 <IconButton
                                     variant="ghost"
@@ -188,7 +195,7 @@ const SaleDetailsPage: FunctionComponent = () => {
                                     <Printer size={18} />
                                 </IconButton>
                             </Tooltip>
-                            {saleData.canReturn && !saleData.refundSummary.isFullyRefunded && (
+                            {canInitiateReturn && saleData.canReturn && !saleData.refundSummary.isFullyRefunded && (
                                 <Tooltip content="Initiate return">
                                     <IconButton
                                         variant="ghost"
@@ -261,7 +268,7 @@ const SaleDetailsPage: FunctionComponent = () => {
                 </div>
             </div>
 
-            {sale && (
+            {canInitiateReturn && sale && (
                 <InitiateReturnModal
                     isOpen={isReturnModalOpen}
                     onClose={() => setIsReturnModalOpen(false)}

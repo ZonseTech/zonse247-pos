@@ -1,6 +1,7 @@
 import { lazy } from 'react'
 import { Navigate, Route } from 'react-router'
 import { ROUTES } from '../../utils/constants'
+import PermissionRoute from '../../navigation/PermissionRoute'
 
 const InventoryHubPage = lazy(() => import('../../pages/inventory-hub'))
 const Inventory = lazy(() => import('../../pages/inventory'))
@@ -16,24 +17,24 @@ const Categories = lazy(() => import('../../pages/categories'))
 
 export const InventoryRoutes = (
     <>
-        <Route path={ROUTES.INVENTORY_HUB} element={<InventoryHubPage />}>
+        <Route path={ROUTES.INVENTORY_HUB} element={<PermissionRoute permission="inventory.view"><InventoryHubPage /></PermissionRoute>}>
             <Route index element={<Navigate to="products" replace />} />
-            <Route path="products" element={<Inventory />} />
-            <Route path="categories" element={<Categories />} />
-            <Route path="stock-movements" element={<StockMovements />} />
-            <Route path="valuation" element={<InventoryValuation />} />
-            <Route path="cogs" element={<COGSProfitability />} />
-            <Route path="aging" element={<InventoryAging />} />
-            <Route path="charts" element={<InventoryCharts />} />
+            <Route path="products" element={<PermissionRoute permission="inventory.view"><Inventory /></PermissionRoute>} />
+            <Route path="categories" element={<PermissionRoute anyOf={['categories.view', 'inventory.view']}><Categories /></PermissionRoute>} />
+            <Route path="stock-movements" element={<PermissionRoute permission="inventory.view"><StockMovements /></PermissionRoute>} />
+            <Route path="valuation" element={<PermissionRoute permission="inventory.view"><InventoryValuation /></PermissionRoute>} />
+            <Route path="cogs" element={<PermissionRoute permission="inventory.view"><COGSProfitability /></PermissionRoute>} />
+            <Route path="aging" element={<PermissionRoute permission="inventory.view"><InventoryAging /></PermissionRoute>} />
+            <Route path="charts" element={<PermissionRoute permission="inventory.view"><InventoryCharts /></PermissionRoute>} />
         </Route>
-        <Route path={ROUTES.INVENTORY} element={<Inventory />} />
-        <Route path={ROUTES.INVENTORY_FORM} element={<InventoryForm />} />
-        <Route path={ROUTES.MOBILE_INVENTORY} element={<MobileInventory />} />
-        <Route path={ROUTES.STOCK_MOVEMENTS} element={<StockMovements />} />
-        <Route path={ROUTES.INVENTORY_VALUATION} element={<InventoryValuation />} />
-        <Route path={ROUTES.COGS_PROFITABILITY} element={<COGSProfitability />} />
-        <Route path={ROUTES.INVENTORY_AGING} element={<InventoryAging />} />
-        <Route path={ROUTES.CATEGORIES} element={<Categories />} />
+        <Route path={ROUTES.INVENTORY} element={<PermissionRoute permission="inventory.view"><Inventory /></PermissionRoute>} />
+        <Route path={ROUTES.INVENTORY_FORM} element={<PermissionRoute anyOf={['products.create', 'products.edit', 'inventory.receive', 'inventory.adjust']}><InventoryForm /></PermissionRoute>} />
+        <Route path={ROUTES.MOBILE_INVENTORY} element={<PermissionRoute permission="inventory.view"><MobileInventory /></PermissionRoute>} />
+        <Route path={ROUTES.STOCK_MOVEMENTS} element={<PermissionRoute permission="inventory.view"><StockMovements /></PermissionRoute>} />
+        <Route path={ROUTES.INVENTORY_VALUATION} element={<PermissionRoute permission="inventory.view"><InventoryValuation /></PermissionRoute>} />
+        <Route path={ROUTES.COGS_PROFITABILITY} element={<PermissionRoute permission="inventory.view"><COGSProfitability /></PermissionRoute>} />
+        <Route path={ROUTES.INVENTORY_AGING} element={<PermissionRoute permission="inventory.view"><InventoryAging /></PermissionRoute>} />
+        <Route path={ROUTES.CATEGORIES} element={<PermissionRoute anyOf={['categories.view', 'inventory.view']}><Categories /></PermissionRoute>} />
     </>
 )
 

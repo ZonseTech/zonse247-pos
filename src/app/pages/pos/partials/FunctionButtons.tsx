@@ -29,6 +29,15 @@ interface FunctionButtonsProps {
     compact?: boolean;
     serviceMode?: boolean;
     hasActiveOrder?: boolean;
+    canVoidSale?: boolean;
+    canParkSale?: boolean;
+    canViewParkedSales?: boolean;
+    canOpenDrawer?: boolean;
+    canLookupItems?: boolean;
+    canReprint?: boolean;
+    canDiscount?: boolean;
+    canSplitPayment?: boolean;
+    canProcessPayments?: boolean;
 }
 
 const colorClasses: Record<ButtonColorType, { base: string; hover: string; active: string }> = {
@@ -69,6 +78,15 @@ const FunctionButtons: FunctionComponent<FunctionButtonsProps> = ({
     compact = false,
     serviceMode = false,
     hasActiveOrder = false,
+    canVoidSale = true,
+    canParkSale = true,
+    canViewParkedSales = true,
+    canOpenDrawer = true,
+    canLookupItems = true,
+    canReprint = true,
+    canDiscount = true,
+    canSplitPayment = true,
+    canProcessPayments = true,
 }) => {
     const buttonConfigs: Array<FunctionButtonConfig> = [
         { label: 'VOID(F4)\nSALE', compactLabel: 'VOID\nF4', ebnLabel: 'VOID', colorType: 'red', action: 'void', shortcut: 'F4', priority: 'normal' },
@@ -144,11 +162,40 @@ const FunctionButtons: FunctionComponent<FunctionButtonsProps> = ({
         );
     };
 
+    const isActionAllowed = (action: string): boolean => {
+        switch (action) {
+            case 'void':
+                return canVoidSale;
+            case 'park':
+                return canParkSale;
+            case 'parked':
+                return canViewParkedSales;
+            case 'drawer':
+                return canOpenDrawer;
+            case 'lookup':
+                return canLookupItems;
+            case 'reprint':
+                return canReprint;
+            case 'discount':
+                return canDiscount;
+            case 'multiple-payment':
+                return canSplitPayment;
+            case 'bank-transfer':
+            case 'e-payment':
+            case 'pay-cash':
+                return canProcessPayments;
+            default:
+                return true;
+        }
+    };
+
+    const visibleButtons = buttonConfigs.filter(button => isActionAllowed(button.action));
+
     // EBN compact layout - 2 rows for better touch targets
     if (compact) {
         // Split into two rows: utility functions on top, payment functions on bottom
-        const topRow = buttonConfigs.slice(0, 7); // VOID, PARK, PARKED, DRAWER, LOOKUP, REPRINT, DISC
-        const bottomRow = buttonConfigs.slice(7);  // SPLIT, BANK, E-PAY, CASH
+        const topRow = visibleButtons.filter(button => ['void', 'park', 'parked', 'drawer', 'lookup', 'reprint', 'discount'].includes(button.action));
+        const bottomRow = visibleButtons.filter(button => ['multiple-payment', 'bank-transfer', 'e-payment', 'pay-cash'].includes(button.action));
 
         return (
             <div className="flex flex-col gap-0.5">
@@ -197,7 +244,7 @@ const FunctionButtons: FunctionComponent<FunctionButtonsProps> = ({
     // Standard desktop layout - single row
     return (
         <div className="flex space-x-0.5 lg:space-x-1">
-            {buttonConfigs.map((button, index) => (
+            {visibleButtons.map((button, index) => (
                 <button
                     key={index}
                     className={classNames(

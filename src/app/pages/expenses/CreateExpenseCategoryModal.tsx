@@ -17,6 +17,7 @@ type Props = {
     isOpen?: boolean;
     onClose?: () => void;
     onSuccess?: (category: ExpenseCategory) => void;
+    disabled?: boolean;
 }
 
 const CreateExpenseCategoryModal: FunctionComponent<PropsWithChildren<Props>> = ({
@@ -25,6 +26,7 @@ const CreateExpenseCategoryModal: FunctionComponent<PropsWithChildren<Props>> = 
     isOpen = false,
     onClose,
     onSuccess,
+    disabled = false,
 }) => {
     const [isOpenForm, setIsOpenForm] = useState(isOpen);
     const { isOnline } = useConnectivity();
@@ -46,6 +48,10 @@ const CreateExpenseCategoryModal: FunctionComponent<PropsWithChildren<Props>> = 
     });
 
     const handleOpenChange = (open: boolean) => {
+        if (disabled && open) {
+            return;
+        }
+
         setIsOpenForm(open);
         if (!open && onClose) {
             onClose();
@@ -72,6 +78,11 @@ const CreateExpenseCategoryModal: FunctionComponent<PropsWithChildren<Props>> = 
     const handleSubmit = async (values: Partial<CreateExpenseCategoryInput>, { resetForm, setSubmitting }: any) => {
         if (!isOnline) {
             Notify.failure('You need an internet connection to save expense categories.');
+            return;
+        }
+
+        if (disabled) {
+            Notify.failure('You do not have permission to manage expense categories.');
             return;
         }
 
@@ -117,7 +128,7 @@ const CreateExpenseCategoryModal: FunctionComponent<PropsWithChildren<Props>> = 
             icon={<Receipt className="w-4 h-4" />}
             trigger={
                 showAddButton ? (
-                    <Button type="button" variant="soft" size="2" onClick={() => setIsOpenForm(true)} title="New category">
+                    <Button type="button" variant="soft" size="2" onClick={() => setIsOpenForm(true)} title="New category" disabled={disabled}>
                         <Plus className="w-4 h-4" />
                         <span className="hidden sm:inline">New Category</span>
                     </Button>
@@ -148,6 +159,7 @@ const CreateExpenseCategoryModal: FunctionComponent<PropsWithChildren<Props>> = 
                                 type="text"
                                 required
                                 placeholder="e.g., Rent, Utilities, Transport"
+                                disabled={disabled}
                             />
 
                             <FormInput
@@ -155,6 +167,7 @@ const CreateExpenseCategoryModal: FunctionComponent<PropsWithChildren<Props>> = 
                                 name="sortOrder"
                                 type="number"
                                 placeholder="0"
+                                disabled={disabled}
                             />
 
                             <Flex asChild align="center" gap="2">
@@ -163,6 +176,7 @@ const CreateExpenseCategoryModal: FunctionComponent<PropsWithChildren<Props>> = 
                                         name="isActive"
                                         checked={values.isActive ?? true}
                                         onCheckedChange={(checked) => setFieldValue('isActive', !!checked)}
+                                        disabled={disabled}
                                     />
                                     <Text as="span" size="2" weight="medium">
                                         Active (available when recording expenses)
@@ -178,7 +192,7 @@ const CreateExpenseCategoryModal: FunctionComponent<PropsWithChildren<Props>> = 
                                         Cancel
                                     </Button>
                                 </Dialog.Close>
-                                <Button type="submit" variant="solid" loading={isSubmitting} style={{ flex: 2 }}>
+                                <Button type="submit" variant="solid" loading={isSubmitting} disabled={disabled || isSubmitting} style={{ flex: 2 }}>
                                     {isEditing ? 'Update Category' : 'Create Category'}
                                 </Button>
                             </Flex>

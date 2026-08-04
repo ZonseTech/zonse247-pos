@@ -25,10 +25,11 @@ type SaleOrTransaction = (Sale | Transaction) & {
 
 interface TransactionTableColumnsProps {
     onViewDetails: (transaction: Transaction) => void;
-    onInitiateReturn: (transaction: Transaction) => void;
+    onInitiateReturn?: (transaction: Transaction) => void;
     onViewItems: (transaction: Transaction) => void;
     compact?: boolean;
     isMraEnabled?: boolean;  // Show MRA status column when true
+    canInitiateReturn?: boolean;
 }
 
 // Helper to get sale identifier (supports both new and legacy format)
@@ -130,6 +131,7 @@ export const getSaleTableColumns = ({
     onViewItems,
     compact = false,
     isMraEnabled = false,
+    canInitiateReturn = true,
 }: TransactionTableColumnsProps): TableColumn<Transaction>[] => {
     // For compact mode (EBN) - optimized columns with better visibility
     if (compact) {
@@ -229,7 +231,7 @@ export const getSaleTableColumns = ({
                     const refundSummary = returnsService.getRefundSummary(row);
                     const isRefunded = row.status === 'refunded';
                     const hasRefundInProgress = row.refunds?.some(r => r.status === 'pending');
-                    const showReturnButton = canReturn && !refundSummary.isFullyRefunded && !isRefunded && !hasRefundInProgress;
+                    const showReturnButton = canInitiateReturn && !!onInitiateReturn && canReturn && !refundSummary.isFullyRefunded && !isRefunded && !hasRefundInProgress;
 
                     return (
                         <div className="flex gap-0.5">
@@ -249,7 +251,7 @@ export const getSaleTableColumns = ({
                             </button>
                             {showReturnButton && (
                                 <button
-                                    onClick={() => onInitiateReturn(row)}
+                                    onClick={() => onInitiateReturn?.(row)}
                                     className="p-1 text-orange-600 hover:text-orange-800 hover:bg-orange-50 dark:hover:bg-orange-900/50 rounded transition-colors duration-200"
                                     title="Initiate Return/Refund"
                                 >
@@ -375,7 +377,7 @@ export const getSaleTableColumns = ({
                 const isVoided = row.isVoided || row.status === 'VOIDED' || row.status === 'void';
                 const isRefunded = row.status === 'refunded' || row.status === 'RETURNED';
                 const hasRefundInProgress = (row as Transaction).refunds?.some(r => r.status === 'pending');
-                const showReturnButton = canReturn && !refundSummary.isFullyRefunded && !isRefunded && !isVoided && !hasRefundInProgress;
+                const showReturnButton = canInitiateReturn && !!onInitiateReturn && canReturn && !refundSummary.isFullyRefunded && !isRefunded && !isVoided && !hasRefundInProgress;
 
                 return (
                     <div className="flex gap-1">
@@ -395,7 +397,7 @@ export const getSaleTableColumns = ({
                         </button>
                         {showReturnButton && (
                             <button
-                                onClick={() => onInitiateReturn(row)}
+                                onClick={() => onInitiateReturn?.(row)}
                                 className="p-1.5 text-orange-600 hover:text-orange-800 hover:bg-orange-50 dark:hover:bg-orange-900/50 rounded-md transition-colors duration-200"
                                 title="Initiate Return/Refund"
                             >

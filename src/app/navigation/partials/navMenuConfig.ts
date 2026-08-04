@@ -66,16 +66,16 @@ export function buildNavMenuGroups(user: User | null, businessType?: BusinessTyp
         mgmtItems.push({ label: 'Expense Tracking', route: ROUTES.EXPENSES });
     }
 
-    if (hasAnyPermission(user, ['settings.loyalty.manage', 'customers.loyalty'])) {
-        mgmtItems.push({ label: 'Loyalty Program', route: ROUTES.LOYALTY_PROGRAM });
-    }
+    // if (hasAnyPermission(user, ['settings.loyalty.manage', 'customers.loyalty'])) {
+    //     mgmtItems.push({ label: 'Loyalty Program', route: ROUTES.LOYALTY_PROGRAM });
+    // }
 
     if (user) {
         mgmtItems.push({ label: 'My Profile', route: ROUTES.MY_PROFILE, accelerator: 'CommandOrControl+Shift+P' });
     }
 
     if (hasAnyPermission(user, ['users.view', 'users.create', 'users.edit', 'users.delete'])) {
-        mgmtItems.push({ label: 'Staff Management', route: ROUTES.USERS });
+        mgmtItems.push({ label: 'User Management', route: ROUTES.USERS });
     }
 
     if (hasPermission(user, 'branches.view')) {

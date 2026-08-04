@@ -9,42 +9,69 @@ export interface StatsRowProps {
     isSummaryLoading: boolean;
     lowStockCount: number;
     isLowStockLoading: boolean;
+    showSummary?: boolean;
+    showLowStock?: boolean;
 }
 
-const StatsRow: FunctionComponent<StatsRowProps> = ({ summary, isSummaryLoading, lowStockCount, isLowStockLoading }) => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
-        <StatTile
-            label="Today's Revenue"
-            value={formatCurrency(summary?.todaysRevenue ?? 0, true)}
-            delta={summary?.revenueDelta}
-            icon={<DollarSign className="w-5 h-5 text-sky-500" />}
-            accent="bg-sky-500"
-            isLoading={isSummaryLoading}
-        />
-        <StatTile
-            label="Today's Expenses"
-            value={formatCurrency(summary?.todaysExpenses ?? 0, true)}
-            delta={summary?.expensesDelta}
-            icon={<Receipt className="w-5 h-5 text-orange-500" />}
-            accent="bg-orange-500"
-            isLoading={isSummaryLoading}
-        />
-        <StatTile
-            label="Net Profit"
-            value={formatCurrency(summary?.todaysNetProfit ?? 0, true)}
-            delta={summary?.netProfitDelta}
-            icon={<TrendingUp className="w-5 h-5 text-emerald-500" />}
-            accent="bg-emerald-500"
-            isLoading={isSummaryLoading}
-        />
-        <StatTile
-            label="Low Stock Alerts"
-            value={`${lowStockCount} items`}
-            icon={<AlertTriangle className="w-5 h-5 text-amber-500" />}
-            accent="bg-amber-500"
-            isLoading={isLowStockLoading}
-        />
-    </div>
-);
+const StatsRow: FunctionComponent<StatsRowProps> = ({
+    summary,
+    isSummaryLoading,
+    lowStockCount,
+    isLowStockLoading,
+    showSummary = true,
+    showLowStock = true,
+}) => {
+    if (!showSummary && !showLowStock) {
+        return null;
+    }
+
+    const gridColumnsClass = showSummary && showLowStock
+        ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-4'
+        : showSummary
+            ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'
+            : 'grid-cols-1';
+
+    return (
+        <div className={`grid ${gridColumnsClass} gap-4 mb-4`}>
+            {showSummary && (
+                <>
+                    <StatTile
+                        label="Today's Revenue"
+                        value={formatCurrency(summary?.todaysRevenue ?? 0, true)}
+                        delta={summary?.revenueDelta}
+                        icon={<DollarSign className="w-5 h-5 text-sky-500" />}
+                        accent="bg-sky-500"
+                        isLoading={isSummaryLoading}
+                    />
+                    <StatTile
+                        label="Today's Expenses"
+                        value={formatCurrency(summary?.todaysExpenses ?? 0, true)}
+                        delta={summary?.expensesDelta}
+                        icon={<Receipt className="w-5 h-5 text-orange-500" />}
+                        accent="bg-orange-500"
+                        isLoading={isSummaryLoading}
+                    />
+                    <StatTile
+                        label="Net Profit"
+                        value={formatCurrency(summary?.todaysNetProfit ?? 0, true)}
+                        delta={summary?.netProfitDelta}
+                        icon={<TrendingUp className="w-5 h-5 text-emerald-500" />}
+                        accent="bg-emerald-500"
+                        isLoading={isSummaryLoading}
+                    />
+                </>
+            )}
+            {showLowStock && (
+                <StatTile
+                    label="Low Stock Alerts"
+                    value={`${lowStockCount} items`}
+                    icon={<AlertTriangle className="w-5 h-5 text-amber-500" />}
+                    accent="bg-amber-500"
+                    isLoading={isLowStockLoading}
+                />
+            )}
+        </div>
+    );
+};
 
 export default StatsRow;

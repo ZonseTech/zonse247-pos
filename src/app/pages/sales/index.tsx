@@ -24,6 +24,8 @@ import InitiateReturnModal from "../returns/partials/InitiateReturnModal";
 import { useNavigate } from "react-router";
 import { ROUTES } from "../../utils/constants";
 import { useIsMobile } from "../../hooks/useMediaQuery";
+import { useAuth } from "../../context/AuthProvider";
+import { hasAnyPermission, hasPermission } from "../../utils";
 
 type SaleOrTransaction = (Sale | Transaction) & {
     saleNumber?: string;
@@ -35,7 +37,13 @@ const SalesPage: FC = () => {
     const navigate = useNavigate();
     const isMobile = useIsMobile();
     const isInsideHub = useIsInsideHub();
+    const { user } = useAuth();
     const { isMraEnabled } = useMraCompliance();
+    const canCreateSale = hasPermission(user, 'sales.create');
+    const canInitiateReturn = hasPermission(user, 'refunds.process');
+    const canExportSales = hasAnyPermission(user, ['reports.export', 'reports.sales.daily', 'reports.sales.detailed']);
+    const canExportReceipt = hasPermission(user, 'reports.export');
+
     const [isOpenDetails, setIsOpenDetails] = useState(false);
     const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
     const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
@@ -92,9 +100,13 @@ const SalesPage: FC = () => {
     }, [isMobile, navigate]);
 
     const handleInitiateReturn = useCallback((sale: SaleOrTransaction) => {
+        if (!canInitiateReturn) {
+            return;
+        }
+
         setSaleForReturn(sale as Sale);
         setIsReturnModalOpen(true);
-    }, []);
+    }, [canInitiateReturn]);
 
     const handleViewItems = useCallback((sale: SaleOrTransaction) => {
         setSaleForItems(sale as Sale);
@@ -108,9 +120,10 @@ const SalesPage: FC = () => {
 
     const columns = getSaleTableColumns({
         onViewDetails: handleViewDetails,
-        onInitiateReturn: handleInitiateReturn,
+        onInitiateReturn: canInitiateReturn ? handleInitiateReturn : undefined,
         onViewItems: handleViewItems,
         isMraEnabled,
+        canInitiateReturn,
     });
 
     const hasActiveFilters = !!(searchTerm || startDate || selectedStatus !== 'all' || selectedPaymentMethod !== 'all');
@@ -167,10 +180,12 @@ const SalesPage: FC = () => {
                         description="Manage and view all sales transactions"
                         icon={<ReceiptEuro className="w-8 h-8 text-sky-500 dark:text-sky-400" />}
                         action={
-                            <Button size="2" onClick={() => navigate(ROUTES.POS)}>
-                                <Plus className="w-4 h-4" />
-                                New Sale
-                            </Button>
+                            canCreateSale ? (
+                                <Button size="2" onClick={() => navigate(ROUTES.POS)}>
+                                    <Plus className="w-4 h-4" />
+                                    New Sale
+                                </Button>
+                            ) : undefined
                         }
                     />
                 )
@@ -188,6 +203,7 @@ const SalesPage: FC = () => {
                     onDateChange={handleDateChange}
                     onExport={exportData}
                     onClearFilters={clearFilters}
+                    canExport={canExportSales}
                 />
 
                 {/* Mobile: active filter chips (inline, scrollable) */}
@@ -236,7 +252,7 @@ const SalesPage: FC = () => {
                         totalRows={totalRows}
                         perPage={perPage}
                         onViewDetails={handleViewDetails}
-                        onInitiateReturn={handleInitiateReturn}
+                        onInitiateReturn={canInitiateReturn ? handleInitiateReturn : undefined}
                         onPageChange={handlePageChange}
                         onClearFilters={clearFilters}
                     />
@@ -299,10 +315,12 @@ const SalesPage: FC = () => {
                     isOpenDetails={isOpenDetails}
                     setIsOpenDetails={setIsOpenDetails}
                     isMraEnabled={isMraEnabled}
+                    canInitiateReturn={canInitiateReturn}
+                    canExportReceipt={canExportReceipt}
                 />
             )}
 
-            {saleForReturn && (
+            {canInitiateReturn && saleForReturn && (
                 <InitiateReturnModal
                     isOpen={isReturnModalOpen}
                     onClose={handleReturnClose}

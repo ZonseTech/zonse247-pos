@@ -16,6 +16,8 @@ import {
     ArrowRightLeft,
 } from 'lucide-react';
 import { useStockMovements } from '../../hooks/useStockMovements';
+import { useAuth } from '../../context/AuthProvider';
+import { hasPermission } from '../../utils';
 import { StockMovementMobileList } from './partials/StockMovementMobileCard';
 import MobileFilters from './partials/MobileFilters';
 import StockAdjustmentModal from './partials/StockAdjustmentModal';
@@ -40,6 +42,12 @@ const MobileStockMovements: FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [pullDistance, setPullDistance] = useState(0);
     const [isPulling, setIsPulling] = useState(false);
+    const { user } = useAuth();
+
+    const canAdjust = hasPermission(user, 'inventory.adjust');
+    const canWaste = hasPermission(user, 'inventory.waste');
+    const canCount = hasPermission(user, 'inventory.count');
+    const canTransfer = hasPermission(user, 'inventory.transfer');
 
     const {
         movements,
@@ -290,41 +298,51 @@ const MobileStockMovements: FC = () => {
             {/* Action Buttons */}
             <div className="flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2">
                 <div className="flex gap-2 overflow-x-auto no-scrollbar">
-                    <button
-                        onClick={() => setActiveModal('adjust')}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 whitespace-nowrap active:scale-95 transition-all"
-                    >
-                        <SlidersHorizontal className="w-3.5 h-3.5" />
-                        Adjust
-                    </button>
-                    <button
-                        onClick={() => setActiveModal('damage')}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 whitespace-nowrap active:scale-95 transition-all"
-                    >
-                        <ShieldAlert className="w-3.5 h-3.5" />
-                        Damage
-                    </button>
-                    <button
-                        onClick={() => setActiveModal('expiry')}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 whitespace-nowrap active:scale-95 transition-all"
-                    >
-                        <Clock className="w-3.5 h-3.5" />
-                        Expiry
-                    </button>
-                    <button
-                        onClick={() => setActiveModal('count')}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 whitespace-nowrap active:scale-95 transition-all"
-                    >
-                        <ClipboardCheck className="w-3.5 h-3.5" />
-                        Stock Count
-                    </button>
-                    <button
-                        onClick={() => setActiveModal('transfer')}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 whitespace-nowrap active:scale-95 transition-all"
-                    >
-                        <ArrowRightLeft className="w-3.5 h-3.5" />
-                        Transfer
-                    </button>
+                    {canAdjust && (
+                        <button
+                            onClick={() => setActiveModal('adjust')}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 whitespace-nowrap active:scale-95 transition-all"
+                        >
+                            <SlidersHorizontal className="w-3.5 h-3.5" />
+                            Adjust
+                        </button>
+                    )}
+                    {canWaste && (
+                        <button
+                            onClick={() => setActiveModal('damage')}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 whitespace-nowrap active:scale-95 transition-all"
+                        >
+                            <ShieldAlert className="w-3.5 h-3.5" />
+                            Damage
+                        </button>
+                    )}
+                    {canWaste && (
+                        <button
+                            onClick={() => setActiveModal('expiry')}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 whitespace-nowrap active:scale-95 transition-all"
+                        >
+                            <Clock className="w-3.5 h-3.5" />
+                            Expiry
+                        </button>
+                    )}
+                    {canCount && (
+                        <button
+                            onClick={() => setActiveModal('count')}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 whitespace-nowrap active:scale-95 transition-all"
+                        >
+                            <ClipboardCheck className="w-3.5 h-3.5" />
+                            Stock Count
+                        </button>
+                    )}
+                    {canTransfer && (
+                        <button
+                            onClick={() => setActiveModal('transfer')}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 whitespace-nowrap active:scale-95 transition-all"
+                        >
+                            <ArrowRightLeft className="w-3.5 h-3.5" />
+                            Transfer
+                        </button>
+                    )}
                 </div>
             </div>
 
