@@ -14,6 +14,8 @@ import { useStockMovements } from '../../hooks/useStockMovements';
 import { getStockMovementTableColumns } from './partials/StockMovementTableColumns';
 import Filters from './partials/Filters';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import { useAuth } from '../../context/AuthProvider';
+import { hasPermission } from '../../utils';
 import MobileStockMovements from './MobileStockMovements';
 import StockAdjustmentModal from './partials/StockAdjustmentModal';
 import DamageStockModal from './partials/DamageStockModal';
@@ -29,6 +31,12 @@ const StockMovements: FunctionComponent = () => {
     const isMobile = useIsMobile();
     const productId = (location.state as any)?.productId;
     const [activeModal, setActiveModal] = useState<ModalType>(null);
+    const { user } = useAuth();
+
+    const canAdjust = hasPermission(user, 'inventory.adjust');
+    const canWaste = hasPermission(user, 'inventory.waste');
+    const canCount = hasPermission(user, 'inventory.count');
+    const canTransfer = hasPermission(user, 'inventory.transfer');
 
     if (isMobile) {
         return <MobileStockMovements />;
@@ -127,51 +135,61 @@ const StockMovements: FunctionComponent = () => {
                         onEndDateChange={setEndDate}
                     />
                     <Flex wrap="wrap" gap="2" flexShrink="0">
-                        <Button
-                            variant="outline"
-                            color="blue"
-                            size="1"
-                            onClick={() => setActiveModal('adjust')}
-                        >
-                            <SlidersHorizontal className="w-3.5 h-3.5" />
-                            Adjust
-                        </Button>
-                        <Button
-                            variant="outline"
-                            color="orange"
-                            size="1"
-                            onClick={() => setActiveModal('damage')}
-                        >
-                            <ShieldAlert className="w-3.5 h-3.5" />
-                            Damage
-                        </Button>
-                        <Button
-                            variant="outline"
-                            color="red"
-                            size="1"
-                            onClick={() => setActiveModal('expiry')}
-                        >
-                            <Clock className="w-3.5 h-3.5" />
-                            Expiry
-                        </Button>
-                        <Button
-                            variant="outline"
-                            color="green"
-                            size="1"
-                            onClick={() => setActiveModal('count')}
-                        >
-                            <ClipboardCheck className="w-3.5 h-3.5" />
-                            Count
-                        </Button>
-                        <Button
-                            variant="outline"
-                            color="blue"
-                            size="1"
-                            onClick={() => setActiveModal('transfer')}
-                        >
-                            <ArrowRightLeft className="w-3.5 h-3.5" />
-                            Transfer
-                        </Button>
+                        {canAdjust && (
+                            <Button
+                                variant="outline"
+                                color="blue"
+                                size="1"
+                                onClick={() => setActiveModal('adjust')}
+                            >
+                                <SlidersHorizontal className="w-3.5 h-3.5" />
+                                Adjust
+                            </Button>
+                        )}
+                        {canWaste && (
+                            <Button
+                                variant="outline"
+                                color="orange"
+                                size="1"
+                                onClick={() => setActiveModal('damage')}
+                            >
+                                <ShieldAlert className="w-3.5 h-3.5" />
+                                Damage
+                            </Button>
+                        )}
+                        {canWaste && (
+                            <Button
+                                variant="outline"
+                                color="red"
+                                size="1"
+                                onClick={() => setActiveModal('expiry')}
+                            >
+                                <Clock className="w-3.5 h-3.5" />
+                                Expiry
+                            </Button>
+                        )}
+                        {canCount && (
+                            <Button
+                                variant="outline"
+                                color="green"
+                                size="1"
+                                onClick={() => setActiveModal('count')}
+                            >
+                                <ClipboardCheck className="w-3.5 h-3.5" />
+                                Count
+                            </Button>
+                        )}
+                        {canTransfer && (
+                            <Button
+                                variant="outline"
+                                color="blue"
+                                size="1"
+                                onClick={() => setActiveModal('transfer')}
+                            >
+                                <ArrowRightLeft className="w-3.5 h-3.5" />
+                                Transfer
+                            </Button>
+                        )}
                     </Flex>
                 </Flex>
 
