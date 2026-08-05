@@ -116,26 +116,27 @@ const MobilePOS: FunctionComponent = () => {
         {
             target: '[data-pos-guide="mobile-header"]',
             content: 'Use the top bar to search items, scan barcodes, and pick a customer for the sale.',
-            placement: 'bottom',
+            placement: 'bottom' as const,
         },
         ...(hasCartItems ? [{
             target: '[data-pos-guide="mobile-cart"]',
             content: 'Review or edit the current cart before you charge the customer.',
-            placement: 'top',
+            placement: 'top' as const,
         }] : canCreateSale && canViewItems ? [{
             target: '[data-pos-guide="mobile-new-sale"]',
             content: 'Start a new sale from here when the cart is empty.',
-            placement: 'top',
+            placement: 'top' as const,
         }] : []),
+
         ...(canViewParkedSales && parkedSales.length > 0 ? [{
             target: '[data-pos-guide="mobile-parked-sales"]',
             content: 'Resume parked sales from this list when you need to continue later.',
-            placement: 'top',
+            placement: 'top' as const,
         }] : []),
         ...(hasCartItems && canProcessPayment ? [{
             target: '[data-pos-guide="mobile-charge"]',
             content: 'When you are ready, use this button to complete the payment.',
-            placement: 'top',
+            placement: 'top' as const,
         }] : []),
     ];
 
