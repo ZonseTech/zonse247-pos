@@ -23,7 +23,7 @@ const BalanceDueHeader: FunctionComponent<BalanceDueHeaderProps> = ({
         <div className={classNames(
             "flex-shrink-0",
             compact ? "mb-1" : isService ? "mb-1 lg:mb-2" : "mb-2 lg:mb-3"
-        )}>
+        )} data-pos-guide="balance-due">
             <div className="flex items-center justify-between">
                 <Panel size={layout.header.label}>
                     <h1 className={classNames(

@@ -70,7 +70,7 @@ const ActionBar: FunctionComponent<ActionBarProps> = ({
             "fixed bottom-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-30 transition-all duration-300",
             isSidebarVisible ? "left-0 md:left-64" : "left-0",
             compact ? "pb-2" : "pb-4"
-        )}>
+        )} data-pos-guide="actions">
             {showScannerInBar && (
                 <div className={classNames(
                     "flex gap-x-2 lg:gap-x-4",

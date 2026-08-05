@@ -335,6 +335,7 @@ const BarcodeScanner: FunctionComponent<BarcodeScannerProps> = ({
                     onBlur={handleInputBlur}
                     onClick={handleInputClick}
                     placeholder={compact ? "Scan barcode..." : "Scan or enter barcode..."}
+                    data-pos-guide="scanner"
                 />
             </div>
 

@@ -87,7 +87,7 @@ const ServiceCatalogPanel: FunctionComponent<ServiceCatalogPanelProps> = ({
     const isLoading = servicesLoading || (catalogMode === 'all' && inventoryLoading);
 
     return (
-        <Flex direction="column" height="100%" overflow="hidden">
+        <Flex direction="column" height="100%" overflow="hidden" data-pos-guide="service-catalog">
             {/* Search + Mode Switch */}
             <Box
                 flexShrink="0"

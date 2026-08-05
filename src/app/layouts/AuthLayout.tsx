@@ -124,7 +124,7 @@ const AuthLayout: FunctionComponent<PropsWithChildren<AuthLayoutProps>> = ({
             </motion.header>
 
             <motion.div
-                className={`flex flex-1 justify-center items-center px-6 ${showKeyboard ? 'pb-8 pt-8 overflow-auto' : 'py-16'}`}
+                className={`flex flex-1 justify-center items-center px-6 ${showKeyboard ? 'pb-8 pt-8 overflow-auto' : 'py-0'}`}
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
