@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { createContext, useContext, useState, useCallback, type ReactNode, type FC, type PropsWithChildren } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, useRef, useLayoutEffect, type ReactNode, type FC, type PropsWithChildren } from 'react';
 
 interface PageHeaderContextValue {
     containerRef: HTMLDivElement | null;
@@ -12,10 +12,16 @@ const PageHeaderContext = createContext<PageHeaderContextValue>({
 });
 
 export const PageHeaderProvider: FC<PropsWithChildren> = ({ children }) => {
-    const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null);
+    const [containerRef, setContainerRefState] = useState<HTMLDivElement | null>(null);
+
+    const setContainerRef = useCallback((node: HTMLDivElement | null) => {
+        setContainerRefState((prev) => (prev === node ? prev : node));
+    }, []);
+
+    const contextValue = useMemo(() => ({ containerRef, setContainerRef }), [containerRef, setContainerRef]);
 
     return (
-        <PageHeaderContext.Provider value={{ containerRef, setContainerRef }}>
+        <PageHeaderContext.Provider value={contextValue}>
             {children}
         </PageHeaderContext.Provider>
     );
@@ -23,13 +29,15 @@ export const PageHeaderProvider: FC<PropsWithChildren> = ({ children }) => {
 
 export const PageHeaderSlot: FC = () => {
     const { setContainerRef } = useContext(PageHeaderContext);
+    const slotRef = useRef<HTMLDivElement | null>(null);
 
-    const refCallback = useCallback(
-        (node: HTMLDivElement | null) => setContainerRef(node),
-        [setContainerRef],
-    );
+    useLayoutEffect(() => {
+        if (slotRef.current) {
+            setContainerRef(slotRef.current);
+        }
+    }, [setContainerRef]);
 
-    return <div ref={refCallback} />;
+    return <div ref={slotRef} />;
 };
 
 export const PageHeaderPortal: FC<PropsWithChildren> = ({ children }) => {
