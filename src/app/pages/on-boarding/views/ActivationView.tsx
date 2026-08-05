@@ -1,4 +1,5 @@
 import { FunctionComponent } from 'react';
+import { Box, Flex } from '@radix-ui/themes';
 import AuthLayout from '../../../layouts/AuthLayout';
 import ErrorAlert from '../partials/ErrorAlert';
 import TerminalActivationStep from '../steps/TerminalActivationStep';
@@ -10,11 +11,13 @@ const ActivationView: FunctionComponent<ActivationViewProps> = ({
     onSubmit,
 }) => {
     return (
-        <AuthLayout className="">
-            <div className="space-y-4">
-                {error && <ErrorAlert message={error} />}
-                <TerminalActivationStep onSubmit={onSubmit} loading={loading} />
-            </div>
+        <AuthLayout className="w-full max-w-xl">
+            <Box className="w-full">
+                <Flex direction="column" gap="4">
+                    {error && <ErrorAlert message={error} />}
+                    <TerminalActivationStep onSubmit={onSubmit} loading={loading} />
+                </Flex>
+            </Box>
         </AuthLayout>
     );
 };
