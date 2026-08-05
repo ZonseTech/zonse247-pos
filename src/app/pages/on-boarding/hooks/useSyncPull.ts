@@ -36,6 +36,7 @@ export function useSyncPull({
 }: UseSyncPullOptions): UseSyncPullReturn {
     const syncInProgressRef = useRef(false);
     const abortControllerRef = useRef<AbortController | null>(null);
+    const lastProgressUpdateRef = useRef(0);
 
     const [progress, setProgress] = useState<SyncPullProgress>({
         status: 'idle',
@@ -81,6 +82,15 @@ export function useSyncPull({
                 terminal.tenantId,
                 terminal.branchId,
                 (update) => {
+                    const now = Date.now();
+                    const shouldThrottle = now - lastProgressUpdateRef.current < 120;
+
+                    if (shouldThrottle && update.phase !== 'completed' && update.phase !== 'failed') {
+                        return;
+                    }
+
+                    lastProgressUpdateRef.current = now;
+
                     // Handle progress updates from the service
                     if (update.phase === 'counting') {
                         if (update.counts) {
