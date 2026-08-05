@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import NProgress from 'nprogress';
+import { toast } from 'react-toastify';
 import type {
 	AxiosInstance,
 	AxiosResponse,
@@ -293,13 +294,21 @@ httpInstance.interceptors.response.use(
 					handleAuthError();
 				}
 				break;
-			case 403:
-				if ((response?.data as any)?.subscriptionStatus) {
+			case 403: {
+				const subscriptionStatus = (response?.data as any)?.subscriptionStatus;
+				if (subscriptionStatus) {
+					const subscriptionMessage = (response?.data as any)?.message
+						|| `Your subscription is ${subscriptionStatus}. Please renew to continue using the service.`;
+					// Same toastId across repeat 403s (common right after login, when several
+					// requests fire in parallel) collapses them into a single visible toast
+					// instead of stacking duplicates.
+					toast.error(subscriptionMessage, { toastId: 'subscription-expired', autoClose: 8000 });
 					handleAuthError();
 				} else {
 					error.message = (response?.data as any)?.message || message || '';
 				}
 				break;
+			}
 			case 404:
 				error.message = (response?.data as any)?.message || message || '';
 				break;
