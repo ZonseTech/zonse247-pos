@@ -26,19 +26,30 @@ export default function RolesPage() {
 
   const loadData = async () => {
     setLoading(true);
-    try {
-      const [rolesData, permissionsData] = await Promise.all([
-        roleService.list(),
-        permissionService.list(),
-      ]);
-      setRoles(Array.isArray(rolesData.data) ? rolesData.data : []);
-      setPermissions(Array.isArray(permissionsData.data) ? permissionsData.data : []);
-    } catch (err) {
-      console.error(err);
-      Notify.failure('Failed to load roles and permissions');
-    } finally {
-      setLoading(false);
+    // Settled independently: a failure fetching permissions (e.g. this user's
+    // synced local role is missing the permission needed to view the
+    // permissions catalog) must not blank out roles that loaded fine, and
+    // vice versa.
+    const [rolesResult, permissionsResult] = await Promise.allSettled([
+      roleService.list(),
+      permissionService.list(),
+    ]);
+
+    if (rolesResult.status === 'fulfilled') {
+      setRoles(Array.isArray(rolesResult.value.data) ? rolesResult.value.data : []);
+    } else {
+      console.error(rolesResult.reason);
+      Notify.failure(getErrorMessage(rolesResult.reason, 'Failed to load roles'));
     }
+
+    if (permissionsResult.status === 'fulfilled') {
+      setPermissions(Array.isArray(permissionsResult.value.data) ? permissionsResult.value.data : []);
+    } else {
+      console.error(permissionsResult.reason);
+      Notify.failure(getErrorMessage(permissionsResult.reason, 'Failed to load permissions'));
+    }
+
+    setLoading(false);
   };
 
   const handleCreateRole = async (roleData) => {
