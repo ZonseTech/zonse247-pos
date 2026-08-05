@@ -854,10 +854,19 @@ export default {
     },
 
     /**
-     * Batch size for fetching and syncing data
-     * Sweet spot between too many requests (small) and memory issues (large)
+     * Batch size for fetching and syncing data.
+     * Smaller batches are more responsive for large onboarding syncs and avoid
+     * freezing the UI while the app processes a large payload.
      */
-    BATCH_SIZE: 500,
+    BATCH_SIZE: 50,
+
+    /**
+     * Yield back to the UI thread briefly between batches so large syncs do not
+     * block rendering and interaction.
+     */
+    async yieldToUi(delayMs: number = 25): Promise<void> {
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+    },
 
     /**
      * Sync a single table completely (all batches) with progress tracking
@@ -939,6 +948,9 @@ export default {
             if (syncResult.errors.length > 0) {
                 allErrors.push(...syncResult.errors);
             }
+
+            // Yield briefly so the UI remains responsive between batches.
+            await this.yieldToUi();
 
             // Update cursor for next batch
             cursor = fetchResponse.pagination.nextCursor || undefined;
