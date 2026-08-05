@@ -179,7 +179,7 @@ const SupplierManagement: FC = () => {
                         Add Supplier
                     </Button>
                 }
-                showBackButton
+                showBackButton={false}
             />
 
             <Box className="rounded-md shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">

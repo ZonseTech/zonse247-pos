@@ -39,7 +39,7 @@ const DesktopMyProfile: FunctionComponent = () => {
                 title="My Profile"
                 description="Manage your account settings"
                 icon={<User2Icon className="w-8 h-8 text-sky-500" />}
-                showBackButton
+                showBackButton={false}
             />
 
             <Flex gap="6" direction={{ initial: 'column', lg: 'row' }}>
