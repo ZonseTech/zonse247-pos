@@ -1,17 +1,19 @@
 import { FunctionComponent, useState } from 'react';
+import * as Progress from '@radix-ui/react-progress';
+import { Badge, Box, Button as RadixButton, Card, Flex, Heading, Separator, Text } from '@radix-ui/themes';
 import {
     XCircle,
     Loader2,
     AlertTriangle,
     Download,
     Database,
-    RefreshCw,
     Cloud,
     HardDrive,
     SkipForward,
     ChevronDown,
     ChevronUp,
-    Check
+    Check,
+    RefreshCw,
 } from 'lucide-react';
 import AuthLayout from '../../../layouts/AuthLayout';
 import type { SyncProgressViewProps } from '../types';
@@ -26,50 +28,38 @@ const getStatusDisplay = (status: SyncTableStatus) => {
             return {
                 icon: <Cloud className="w-4 h-4 animate-pulse" />,
                 text: 'Fetching...',
-                bgColor: 'bg-blue-100 dark:bg-blue-900/30',
                 textColor: 'text-blue-600 dark:text-blue-400',
-                borderColor: 'border-blue-200 dark:border-blue-800'
             };
         case 'saving':
             return {
                 icon: <HardDrive className="w-4 h-4 animate-pulse" />,
                 text: 'Saving...',
-                bgColor: 'bg-amber-100 dark:bg-amber-900/30',
                 textColor: 'text-amber-600 dark:text-amber-400',
-                borderColor: 'border-amber-200 dark:border-amber-800'
             };
         case 'completed':
             return {
                 icon: <Check className="w-4 h-4" />,
                 text: 'Completed',
-                bgColor: 'bg-green-100 dark:bg-green-900/30',
                 textColor: 'text-green-600 dark:text-green-400',
-                borderColor: 'border-green-200 dark:border-green-800'
             };
         case 'failed':
             return {
                 icon: <XCircle className="w-4 h-4" />,
                 text: 'Failed',
-                bgColor: 'bg-red-100 dark:bg-red-900/30',
                 textColor: 'text-red-600 dark:text-red-400',
-                borderColor: 'border-red-200 dark:border-red-800'
             };
         case 'skipped':
             return {
                 icon: <SkipForward className="w-4 h-4" />,
                 text: 'Skipped',
-                bgColor: 'bg-gray-100 dark:bg-gray-800/50',
-                textColor: 'text-gray-500 dark:text-gray-400',
-                borderColor: 'border-gray-200 dark:border-gray-700'
+                textColor: 'text-slate-500 dark:text-slate-400',
             };
         case 'pending':
         default:
             return {
-                icon: <div className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600" />,
+                icon: <div className="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600" />,
                 text: 'Pending',
-                bgColor: 'bg-gray-50 dark:bg-gray-800/50',
-                textColor: 'text-gray-500 dark:text-gray-400',
-                borderColor: 'border-gray-200 dark:border-gray-700'
+                textColor: 'text-slate-500 dark:text-slate-400',
             };
     }
 };
@@ -89,21 +79,21 @@ const TableProgressItem: FunctionComponent<{
                     : '';
 
     return (
-        <div className="flex items-center gap-2 py-1.5 px-2 rounded border border-gray-100 dark:border-gray-800">
+        <Flex align="center" gap="2" className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/40">
             <span className={display.textColor}>{display.icon}</span>
-            <span className="text-sm text-gray-900 dark:text-gray-100 flex-1 truncate">
+            <Text size="2" className="flex-1 truncate">
                 {table.label}
-            </span>
+            </Text>
             {table.error ? (
-                <span className="text-xs text-red-500 dark:text-red-400 truncate max-w-[120px]">
+                <Text size="1" color="red" className="truncate max-w-[120px]">
                     {table.error}
-                </span>
+                </Text>
             ) : progressText ? (
-                <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                <Text size="1" color="gray" className="whitespace-nowrap">
                     {progressText}
-                </span>
+                </Text>
             ) : null}
-        </div>
+        </Flex>
     );
 };
 
@@ -132,179 +122,148 @@ const SyncProgressView: FunctionComponent<SyncProgressViewProps> = ({
     const [showDetails, setShowDetails] = useState(false);
 
     return (
-        <AuthLayout className="">
-            <div className="space-y-6">
-                <div className="text-center">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 mb-4">
-                        {isInProgress ? (
-                            <Loader2 className="w-8 h-8 text-primary-600 dark:text-primary-400 animate-spin" />
-                        ) : isComplete ? (
-                            <Check className="w-8 h-8 text-green-600 dark:text-green-400" />
-                        ) : hasFailed ? (
-                            <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
-                        ) : (
-                            <Database className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+        <AuthLayout className="w-full max-w-2xl">
+            <Card size="2" className="border border-slate-200/80 bg-[color:var(--color-panel)] shadow-sm">
+                <Flex direction="column" gap="4">
+                    <Box className="text-center">
+                        <Flex align="center" justify="center" gap="2" mb="2">
+                            {isInProgress ? (
+                                <Loader2 className="w-6 h-6 text-[#102f4f] animate-spin" />
+                            ) : isComplete ? (
+                                <Check className="w-6 h-6 text-green-600" />
+                            ) : hasFailed ? (
+                                <AlertTriangle className="w-6 h-6 text-red-600" />
+                            ) : (
+                                <Database className="w-6 h-6 text-[#102f4f]" />
+                            )}
+                            <Heading as="h2" size="4">
+                                {isComplete ? 'Setup complete' : hasFailed ? 'Setup needs attention' : 'Setting up your terminal'}
+                            </Heading>
+                        </Flex>
+                        <Text size="2" color="gray" align="center">
+                            {isComplete
+                                ? 'All data has been synchronized successfully.'
+                                : hasFailed
+                                    ? 'Some data failed to sync. You can retry or continue.'
+                                    : 'Synchronizing data from the cloud to your device.'}
+                        </Text>
+                    </Box>
+
+                    <Box className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 dark:bg-slate-900/30">
+                        <Flex justify="between" gap="3" wrap="wrap">
+                            <Box>
+                                <Text size="1" color="gray">Terminal</Text>
+                                <Text size="2" weight="medium">
+                                    {terminal.terminalLabel}
+                                </Text>
+                            </Box>
+                            <Box>
+                                <Text size="1" color="gray">Branch</Text>
+                                <Text size="2" weight="medium">
+                                    {terminal.branch?.branchName || 'N/A'}
+                                </Text>
+                            </Box>
+                            <Box>
+                                <Text size="1" color="gray">Status</Text>
+                                <Badge color={hasFailed ? 'red' : isComplete ? 'green' : 'blue'}>
+                                    {isComplete ? 'Ready' : hasFailed ? 'Needs review' : 'Syncing'}
+                                </Badge>
+                            </Box>
+                        </Flex>
+                    </Box>
+
+                    <Box>
+                        <Flex justify="between" align="center" mb="2">
+                            <Text size="2" color="gray">
+                                {progress.status === 'counting' && (
+                                    <span className="flex items-center gap-1">
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        Counting records...
+                                    </span>
+                                )}
+                                {progress.status === 'fetching' && (
+                                    <span className="flex items-center gap-1">
+                                        <Download className="w-4 h-4" />
+                                        Fetching {progress.currentTable ? camelCaseToReadable(progress.currentTable) : 'data'}...
+                                    </span>
+                                )}
+                                {progress.status === 'saving' && (
+                                    <span className="flex items-center gap-1">
+                                        <Database className="w-4 h-4" />
+                                        Saving to local database...
+                                    </span>
+                                )}
+                                {progress.status === 'completed' && (
+                                    <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                                        <Check className="w-4 h-4" />
+                                        Sync completed
+                                    </span>
+                                )}
+                                {progress.status === 'idle' && 'Ready to sync'}
+                                {progress.status === 'failed' && (
+                                    <span className="flex items-center gap-1 text-red-600 dark:text-red-400">
+                                        <XCircle className="w-4 h-4" />
+                                        Sync failed
+                                    </span>
+                                )}
+                            </Text>
+                            <Text size="2" weight="medium">
+                                {progressPercentage}%
+                            </Text>
+                        </Flex>
+                        <Progress.Root value={progressPercentage} max={100} className="relative h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                            <Progress.Indicator
+                                className={`h-full rounded-full transition-all duration-500 ${hasFailed ? 'bg-red-500' : isComplete ? 'bg-green-500' : 'bg-[#102f4f]'}`}
+                                style={{ transform: `translateX(-${100 - progressPercentage}%)` }}
+                            />
+                        </Progress.Root>
+                        <Flex justify="between" mt="2">
+                            <Text size="1" color="gray">
+                                {progress.completedTables} of {progress.totalTables} tables
+                            </Text>
+                            <Text size="1" color="gray">
+                                {progress.savedRecords.toLocaleString()} of {progress.totalRecords.toLocaleString()} records ({recordsPercentage}%)
+                            </Text>
+                        </Flex>
+                    </Box>
+
+                    {(hasFailed || isComplete) && (
+                        <Flex gap="2" wrap="wrap">
+                            {hasFailed && (
+                                <RadixButton variant="soft" onClick={onRetry}>
+                                    <Flex align="center" gap="2">
+                                        <RefreshCw className="w-4 h-4" />
+                                        Retry sync
+                                    </Flex>
+                                </RadixButton>
+                            )}
+                            {isComplete && (
+                                <RadixButton color="green" onClick={onComplete}>
+                                    Continue to finish setup
+                                </RadixButton>
+                            )}
+                        </Flex>
+                    )}
+
+                    <Separator size="4" />
+
+                    <Box>
+                        <RadixButton variant="ghost" size="1" onClick={() => setShowDetails(!showDetails)} className="px-0">
+                            <Flex align="center" gap="2">
+                                {showDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                {showDetails ? 'Hide details' : 'Show details'}
+                            </Flex>
+                        </RadixButton>
+                        {showDetails && (
+                            <Flex direction="column" gap="2" className="mt-2 max-h-[300px] overflow-y-auto">
+                                {progress.tables.map((table) => (
+                                    <TableProgressItem key={table.table} table={table} />
+                                ))}
+                            </Flex>
                         )}
-                    </div>
-
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                        {isComplete
-                            ? 'Setup Complete!'
-                            : hasFailed
-                                ? 'Setup Failed'
-                                : 'Setting Up Your Terminal'}
-                    </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        {isComplete
-                            ? 'All data has been synchronized successfully'
-                            : hasFailed
-                                ? 'Some data failed to sync. You can retry or continue.'
-                                : 'Synchronizing data from cloud to your device'}
-                    </p>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <p className="text-gray-500 dark:text-gray-400">Terminal</p>
-                            <p className="font-medium text-gray-900 dark:text-gray-100">
-                                {terminal.terminalLabel}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-gray-500 dark:text-gray-400">Branch</p>
-                            <p className="font-medium text-gray-900 dark:text-gray-100">
-                                {terminal.branch?.branchName || 'N/A'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">
-                            {progress.status === 'counting' && (
-                                <span className="flex items-center gap-1">
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                    Counting records...
-                                </span>
-                            )}
-                            {progress.status === 'fetching' && (
-                                <span className="flex items-center gap-1">
-                                    <Download className="w-4 h-4" />
-                                    Fetching: {progress.currentTable ? camelCaseToReadable(progress.currentTable) : 'data'}...
-                                </span>
-                            )}
-                            {progress.status === 'saving' && (
-                                <span className="flex items-center gap-1">
-                                    <Database className="w-4 h-4" />
-                                    Saving to local database...
-                                </span>
-                            )}
-                            {progress.status === 'completed' && (
-                                <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                                    <Check className="w-4 h-4" />
-                                    Sync completed
-                                </span>
-                            )}
-                            {progress.status === 'idle' && 'Ready to sync'}
-                            {progress.status === 'failed' && (
-                                <span className="flex items-center gap-1 text-red-600 dark:text-red-400">
-                                    <XCircle className="w-4 h-4" />
-                                    Sync failed
-                                </span>
-                            )}
-                        </span>
-                        <span className="font-medium text-gray-900 dark:text-gray-100">
-                            {progressPercentage}%
-                        </span>
-                    </div>
-                    <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div
-                            className={`h-full rounded-full transition-all duration-500 ease-out ${hasFailed
-                                ? 'bg-red-500'
-                                : isComplete
-                                    ? 'bg-green-500'
-                                    : 'bg-primary-500'
-                                }`}
-                            style={{ width: `${progressPercentage}%` }}
-                        />
-                    </div>
-                    <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                        <span>{progress.completedTables} of {progress.totalTables} tables</span>
-                        <span>{progress.savedRecords.toLocaleString()} of {progress.totalRecords.toLocaleString()} records ({recordsPercentage}%)</span>
-                    </div>
-                </div>
-
-                <div>
-                    <button
-                        type="button"
-                        onClick={() => setShowDetails(!showDetails)}
-                        className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors mb-2"
-                    >
-                        {showDetails ? (
-                            <ChevronUp className="w-4 h-4" />
-                        ) : (
-                            <ChevronDown className="w-4 h-4" />
-                        )}
-                        {showDetails ? 'Hide details' : 'Show details'}
-                    </button>
-                    {showDetails && (
-                        <div className="space-y-1 max-h-[300px] overflow-y-auto">
-                            {progress.tables.map((table) => (
-                                <TableProgressItem key={table.table} table={table} />
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {progress.error && (
-                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                        <div className="flex items-start gap-3">
-                            <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-                            <div>
-                                <p className="text-sm font-medium text-red-800 dark:text-red-200">
-                                    Sync Error
-                                </p>
-                                <p className="text-sm text-red-600 dark:text-red-400 mt-1">
-                                    {progress.error}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                <div className="flex gap-3">
-                    {hasFailed && (
-                        <button
-                            onClick={onRetry}
-                            className="flex-1 py-3 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
-                        >
-                            <RefreshCw className="w-5 h-5" />
-                            Retry Sync
-                        </button>
-                    )}
-
-                    {(isComplete || hasFailed) && (
-                        <button
-                            onClick={onComplete}
-                            className={`flex-1 py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors ${isComplete
-                                ? 'bg-green-500 hover:bg-green-600 text-white'
-                                : 'bg-amber-500 hover:bg-amber-600 text-white'
-                                }`}
-                        >
-                            <Check className="w-5 h-5" />
-                            {isComplete ? 'Complete Setup' : 'Continue Anyway'}
-                        </button>
-                    )}
-                </div>
-
-                {progress.lastSyncTimestamp && (
-                    <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
-                        Last sync: {new Date(progress.lastSyncTimestamp).toLocaleString()}
-                    </p>
-                )}
-            </div>
+                    </Box>
+                </Flex>
+            </Card>
         </AuthLayout>
     );
 };
