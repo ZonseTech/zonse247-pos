@@ -30,7 +30,7 @@ const CartSection: FunctionComponent<CartSectionProps> = ({
     const { compact, showNumpad, showCatalog } = layout;
 
     return (
-        <div className="flex-1 min-h-0 overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-hidden" data-pos-guide="cart">
             <div className="h-full flex gap-x-2 lg:gap-x-4">
                 <Panel size={layout.main.cart} className="w-full h-full">
                     <div className={classNames(
@@ -59,19 +59,21 @@ const CartSection: FunctionComponent<CartSectionProps> = ({
                 </Panel>
 
                 {showNumpad ? (
-                    <Panel size={layout.main.numpad} className="flex flex-shrink-0">
-                        <InputKeyboard
-                            variant="numpad"
-                            onButtonClick={onNumpadClick}
-                            focusManager={focusManager}
-                            settings={{
-                                theme: keyboardSettings.theme,
-                                enableSound: keyboardSettings.enableSound,
-                                enableHaptic: keyboardSettings.enableHaptic,
-                            }}
-                            compact={compact}
-                        />
-                    </Panel>
+                    <div data-pos-guide="numpad" className="flex flex-shrink-0">
+                        <Panel size={layout.main.numpad} className="flex">
+                            <InputKeyboard
+                                variant="numpad"
+                                onButtonClick={onNumpadClick}
+                                focusManager={focusManager}
+                                settings={{
+                                    theme: keyboardSettings.theme,
+                                    enableSound: keyboardSettings.enableSound,
+                                    enableHaptic: keyboardSettings.enableHaptic,
+                                }}
+                                compact={compact}
+                            />
+                        </Panel>
+                    </div>
                 ) : null}
             </div>
         </div>
