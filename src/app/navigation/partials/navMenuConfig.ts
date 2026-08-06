@@ -31,6 +31,8 @@ export function buildNavMenuGroups(user: User | null, businessType?: BusinessTyp
 
     const opsItems: NavMenuGroup['items'] = [];
 
+    opsItems.push({ label: 'Dashboard', route: ROUTES.DASHBOARD });
+
     if (showRetail && hasAnyPermission(user, ['products.view', 'products.create', 'sales.create', 'refunds.process'])) {
         opsItems.push({ label: 'Point of Sale', route: ROUTES.POS, accelerator: 'CommandOrControl+P' });
     }
@@ -42,6 +44,10 @@ export function buildNavMenuGroups(user: User | null, businessType?: BusinessTyp
     if (hasAnyPermission(user, ['reports.sales.daily', 'reports.sales.detailed', 'payments.view'])) {
         opsItems.push({ label: 'Sales', route: ROUTES.SALES, accelerator: 'CommandOrControl+T' });
         opsItems.push({ label: 'Reports', route: ROUTES.REPORTS });
+    }
+
+    if (hasAnyPermission(user, ['refunds.view', 'refunds.process', 'refunds.approve'])) {
+        opsItems.push({ label: 'Returns', route: ROUTES.RETURNS });
     }
 
     if (opsItems.length > 0) {
