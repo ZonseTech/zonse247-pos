@@ -22,8 +22,8 @@ import {
     ShoppingCart as POIcon,
     FileBarChart2,
     Wrench,
-    HeartHandshake,
     Receipt,
+    RotateCcw,
 } from 'lucide-react';
 import { RiGroup3Line } from 'react-icons/ri';
 
@@ -101,6 +101,18 @@ const useNavGroups = (): UseNavGroupsReturn => {
                 icon: ic(FileBarChart2),
                 route: ROUTES.REPORTS,
                 onClick: () => navigate(ROUTES.REPORTS),
+                showOnDesktop: true,
+                showOnMobile: true,
+            });
+        }
+
+        if (hasAnyPermission(user, ['refunds.view', 'refunds.process', 'refunds.approve'])) {
+            opsItems.push({
+                id: 'returns',
+                label: 'Returns',
+                icon: ic(RotateCcw),
+                route: ROUTES.RETURNS,
+                onClick: () => navigate(ROUTES.RETURNS),
                 showOnDesktop: true,
                 showOnMobile: true,
             });
@@ -205,6 +217,30 @@ const useNavGroups = (): UseNavGroupsReturn => {
             });
         }
 
+        if (hasPermission(user, 'branches.view')) {
+            mgmtItems.push({
+                id: 'branches',
+                label: 'Branches',
+                icon: ic(HiOutlineBuildingOffice2),
+                route: ROUTES.BRANCHES,
+                onClick: () => navigate(ROUTES.BRANCHES),
+                showOnDesktop: true,
+                showOnMobile: true,
+            });
+        }
+
+        if (hasPermission(user, 'terminals.view')) {
+            mgmtItems.push({
+                id: 'terminals',
+                label: 'Terminals',
+                icon: ic(HiOutlineComputerDesktop),
+                route: ROUTES.TERMINALS,
+                onClick: () => navigate(ROUTES.TERMINALS),
+                showOnDesktop: true,
+                showOnMobile: true,
+            });
+        }
+
         if (mgmtItems.length > 0) {
             result.push({
                 key: 'management',
@@ -259,24 +295,6 @@ const useNavGroups = (): UseNavGroupsReturn => {
                         showOnDesktop: true,
                         showOnMobile: true,
                     },
-                    {
-                        id: 'branches',
-                        label: 'Branches',
-                        icon: ic(HiOutlineBuildingOffice2),
-                        route: ROUTES.BRANCHES,
-                        onClick: () => navigate(ROUTES.BRANCHES),
-                        showOnDesktop: true,
-                        showOnMobile: true,
-                    },
-                    {
-                        id: 'terminals',
-                        label: 'Terminals',
-                        icon: ic(HiOutlineComputerDesktop),
-                        route: ROUTES.TERMINALS,
-                        onClick: () => navigate(ROUTES.TERMINALS),
-                        showOnDesktop: true,
-                        showOnMobile: true,
-                    }
                 ],
                 order: 4,
             });
