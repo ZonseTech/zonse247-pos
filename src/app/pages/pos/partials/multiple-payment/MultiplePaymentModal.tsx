@@ -1,10 +1,11 @@
-import { FunctionComponent, useState, useEffect } from 'react';
+import { FunctionComponent, useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import { Notify } from 'notiflix';
 import { useInventory } from '../../../../hooks/useInventory';
 import { useAuth } from '../../../../context/AuthProvider';
 import { useApp } from '../../../../context/AppProvider';
+import { usePaymentMethods } from '../../../../hooks/usePaymentMethods';
 import { useIsEBN } from '../../../../hooks/useMediaQuery';
 import useBusinessFeatures from '../../../../hooks/useBusinessFeatures';
 import salesService from '../../../../services/sales.service';
@@ -15,6 +16,7 @@ import { DEFAULT_SEED_KEY } from '../../../../constants';
 import {
     MultiplePaymentModalProps,
     PaymentMethodType,
+    PAYMENT_METHODS,
     usePayments,
     getPaymentMethodLabel,
     generatePaymentId,
@@ -25,6 +27,18 @@ import {
     PaymentEntriesList,
 } from './index';
 import { DesktopProcessingView, TransactionSuccessModal, ProcessingStep } from '../desktop-checkout';
+
+// PAYMENT_METHODS values are payment-type identifiers, not real
+// payment_methods.method_id values (those are per-branch UUIDs minted by
+// provisionDefaultPaymentMethods). Map each to the default-provisioned
+// method name it represents, so the real methodId can be looked up before
+// submitting a sale.
+const PAYMENT_METHOD_NAME: Record<string, string> = {
+    [PAYMENT_METHODS.CASH]: 'Cash',
+    [PAYMENT_METHODS.POS]: 'POS',
+    [PAYMENT_METHODS.MOBILE_MONEY]: 'Mobile Money',
+    [PAYMENT_METHODS.BANK_TRANSFER]: 'Bank Transfer',
+};
 
 const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
     isOpen,
@@ -73,6 +87,21 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
         updatePayment,
         resetPayments,
     } = usePayments(total, isOpen);
+
+    const { paymentMethods } = usePaymentMethods();
+
+    /** Resolve a PAYMENT_METHODS value to this branch's actual payment_methods.method_id. */
+    const resolvePaymentMethodId = useCallback((paymentMethodType: string): string => {
+        const expectedName = PAYMENT_METHOD_NAME[paymentMethodType];
+        const match = expectedName ? paymentMethods.find((pm) => pm.name === expectedName) : undefined;
+
+        if (!match) {
+            console.warn(`No payment method named "${expectedName}" found for this branch; sending "${paymentMethodType}" as-is`);
+            return paymentMethodType;
+        }
+
+        return match.methodId;
+    }, [paymentMethods]);
 
     useEffect(() => {
         if (isOpen) {
@@ -141,7 +170,7 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
             const calculatedTaxAmount = (taxableAmount * tax) / 100;
 
             const paymentEntries: PaymentEntry[] = validPayments.map(p => ({
-                paymentMethodId: p.paymentMethodId,
+                paymentMethodId: resolvePaymentMethodId(p.paymentMethodId),
                 amount: parseFloat(p.amount),
                 reference: p.reference || undefined,
                 providerId: p.providerId || undefined,
@@ -229,8 +258,8 @@ const MultiplePaymentModal: FunctionComponent<MultiplePaymentModalProps> = ({
                         };
                     }),
 
-                    notes: paymentEntries.length > 1
-                        ? `Split payment: ${paymentEntries.map(p => `${getPaymentMethodLabel(p.paymentMethodId as PaymentMethodType)}: ${formatCurrency(p.amount)}`).join(', ')}`
+                    notes: validPayments.length > 1
+                        ? `Split payment: ${validPayments.map(p => `${getPaymentMethodLabel(p.paymentMethodId as PaymentMethodType)}: ${formatCurrency(parseFloat(p.amount))}`).join(', ')}`
                         : paymentEntries[0].reference ? `Ref: ${paymentEntries[0].reference}` : undefined,
                     saleDate: canBackdateSale && saleDate ? saleDate : undefined,
                 };

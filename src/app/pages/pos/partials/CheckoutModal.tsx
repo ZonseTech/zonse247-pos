@@ -12,6 +12,7 @@ import loyaltyService from '../../../services/loyalty.service';
 import { FunctionComponent, useState, useEffect, useCallback } from 'react';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useInventory } from '../../../hooks/useInventory';
+import { usePaymentMethods } from '../../../hooks/usePaymentMethods';
 import { useAuth } from '../../../context/AuthProvider';
 import { useApp } from '../../../context/AppProvider';
 import useBusinessFeatures from '../../../hooks/useBusinessFeatures';
@@ -28,9 +29,7 @@ interface CheckoutModalProps {
     onClose: () => void;
     focusManager: ReturnType<typeof useFocusManager>;
     paymentMethodId: typeof CHECKOUT[keyof typeof CHECKOUT];
-    /** When checking out a completed service order, link the sale to it */
     serviceOrderId?: string;
-    /** Called after a successful sale linked to a service order */
     onServiceOrderSaleComplete?: () => void;
 }
 
@@ -41,6 +40,12 @@ export const CHECKOUT = {
 } as const;
 
 export type PaymentMethod = typeof CHECKOUT[keyof typeof CHECKOUT];
+
+const CHECKOUT_METHOD_NAME: Record<string, string> = {
+    [CHECKOUT.CASH]: 'Cash',
+    [CHECKOUT.BANK_TRANSFER]: 'Bank Transfer',
+    [CHECKOUT.E_PAYMENT]: 'Mobile Money',
+};
 
 export type ActiveInputType = 'phoneNumber' | 'referenceNo' | 'account' | null;
 
@@ -87,6 +92,20 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
     const { user } = useAuth()
     const { settings, printerOptions } = useApp()
     const { showRetail } = useBusinessFeatures();
+    const { paymentMethods } = usePaymentMethods();
+
+    /** Resolve a CHECKOUT tab value to this branch's actual payment_methods.method_id. */
+    const resolvePaymentMethodId = useCallback((checkoutId: string): string => {
+        const expectedName = CHECKOUT_METHOD_NAME[checkoutId];
+        const match = expectedName ? paymentMethods.find((pm) => pm.name === expectedName) : undefined;
+
+        if (!match) {
+            console.warn(`No payment method named "${expectedName}" found for this branch; sending "${checkoutId}" as-is`);
+            return checkoutId;
+        }
+
+        return match.methodId;
+    }, [paymentMethods]);
     const isEBN = useIsEBN();
     const canBackdateSale = hasPermission(user, 'sales.edit');
 
@@ -200,13 +219,14 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
             const calculatedTaxAmount = (taxableAmount * tax) / 100;
 
             const refNumber = generateReferenceNumber()
+            const resolvedPaymentMethodId = resolvePaymentMethodId(values.paymentMethodId);
 
             // For non-retail business with service order, use service order payment endpoint directly
             // For retail, create a sale via /v1/sales endpoint
             if (!showRetail && serviceOrderId) {
                 // Non-retail: POST /v1/service-orders/{id}/payments
                 const serviceOrderResult = await serviceOrderService.recordPayment(serviceOrderId, [{
-                    paymentMethodId: values.paymentMethodId,
+                    paymentMethodId: resolvedPaymentMethodId,
                     amount: values.cashTendered ? parseFloat(values.cashTendered) : effectiveTotal,
                 }]);
 
@@ -247,9 +267,9 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                         : undefined,
                     serviceOrderId: serviceOrderId || undefined,
                     amountPaid: values.cashTendered ? parseFloat(values.cashTendered) : effectiveTotal,
-                    paymentMethodId: values.paymentMethodId,
+                    paymentMethodId: resolvedPaymentMethodId,
                     payments: [{
-                        paymentMethodId: values.paymentMethodId,
+                        paymentMethodId: resolvedPaymentMethodId,
                         amount: values.cashTendered ? parseFloat(values.cashTendered) : effectiveTotal,
                         providerId: values.paymentMethodId === CHECKOUT.CASH ? undefined : values.paymentServiceProviderId || undefined,
                         reference: values.transactionId || undefined,
@@ -317,7 +337,7 @@ const CheckoutModal: FunctionComponent<CheckoutModalProps> = ({
                 if (serviceOrderId) {
                     try {
                         await serviceOrderService.recordPayment(serviceOrderId, [{
-                            paymentMethodId: values.paymentMethodId,
+                            paymentMethodId: resolvedPaymentMethodId,
                             amount: values.cashTendered ? parseFloat(values.cashTendered) : total,
                         }]);
                     } catch {
