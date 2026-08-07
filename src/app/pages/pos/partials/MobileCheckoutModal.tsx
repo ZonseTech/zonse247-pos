@@ -1,9 +1,10 @@
 import { Report } from 'notiflix';
 import { parseApiError, formatFieldErrorsMessage } from '../../../utils/api-error-handler';
-import { FunctionComponent, useState, useEffect } from 'react';
+import { FunctionComponent, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useFocusManager } from '../../../hooks/useFocusManager';
 import { useInventory } from '../../../hooks/useInventory';
+import { usePaymentMethods } from '../../../hooks/usePaymentMethods';
 import { useAuth } from '../../../context/AuthProvider';
 import { useApp } from '../../../context/AppProvider';
 import useBusinessFeatures from '../../../hooks/useBusinessFeatures';
@@ -34,6 +35,12 @@ export const CHECKOUT = {
 } as const;
 
 export type PaymentMethod = typeof CHECKOUT[keyof typeof CHECKOUT];
+
+const CHECKOUT_METHOD_NAME: Record<string, string> = {
+    [CHECKOUT.CASH]: 'Cash',
+    [CHECKOUT.BANK_TRANSFER]: 'Bank Transfer',
+    [CHECKOUT.E_PAYMENT]: 'Mobile Money',
+};
 
 export type ActiveInputType = 'phoneNumber' | 'referenceNo' | 'account' | null;
 
@@ -74,6 +81,20 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
     const { settings } = useApp();
     const { showRetail } = useBusinessFeatures();
     const canBackdateSale = hasPermission(user, 'sales.edit');
+    const { paymentMethods } = usePaymentMethods();
+
+    /** Resolve a CHECKOUT tab value to this branch's actual payment_methods.method_id. */
+    const resolvePaymentMethodId = useCallback((checkoutId: string): string => {
+        const expectedName = CHECKOUT_METHOD_NAME[checkoutId];
+        const match = expectedName ? paymentMethods.find((pm) => pm.name === expectedName) : undefined;
+
+        if (!match) {
+            console.warn(`No payment method named "${expectedName}" found for this branch; sending "${checkoutId}" as-is`);
+            return checkoutId;
+        }
+
+        return match.methodId;
+    }, [paymentMethods]);
 
     // Use optimized fire-and-forget printing hook
     const { printReceipt } = usePrintReceipt();
@@ -159,13 +180,14 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
             const calculatedTaxAmount = (taxableAmount * tax) / 100;
 
             const refNumber = generateReferenceNumber();
+            const resolvedPaymentMethodId = resolvePaymentMethodId(values.paymentMethodId);
 
             // For non-retail business with service order, use service order payment endpoint directly
             // For retail, create a sale via /v1/sales endpoint
             if (!showRetail && serviceOrderId) {
                 // Non-retail: POST /v1/service-orders/{id}/payments
                 const serviceOrderResult = await serviceOrderService.recordPayment(serviceOrderId, [{
-                    paymentMethodId: values.paymentMethodId,
+                    paymentMethodId: resolvedPaymentMethodId,
                     amount: values.cashTendered ? parseFloat(values.cashTendered) : total,
                 }]);
 
@@ -216,9 +238,9 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
                         : undefined,
                     serviceOrderId: serviceOrderId || undefined,
                     amountPaid: values.cashTendered ? parseFloat(values.cashTendered) : total,
-                    paymentMethodId: values.paymentMethodId,
+                    paymentMethodId: resolvedPaymentMethodId,
                     payments: [{
-                        paymentMethodId: values.paymentMethodId,
+                        paymentMethodId: resolvedPaymentMethodId,
                         amount: values.cashTendered ? parseFloat(values.cashTendered) : total,
                         providerId: values.paymentMethodId === CHECKOUT.CASH ? undefined : values.paymentServiceProviderId || undefined,
                         reference: values.transactionId || undefined,
@@ -297,7 +319,7 @@ const MobileCheckoutModal: FunctionComponent<MobileCheckoutModalProps> = ({
                 if (serviceOrderId) {
                     try {
                         await serviceOrderService.recordPayment(serviceOrderId, [{
-                            paymentMethodId: values.paymentMethodId,
+                            paymentMethodId: resolvedPaymentMethodId,
                             amount: values.cashTendered ? parseFloat(values.cashTendered) : total,
                         }]);
                     } catch {
