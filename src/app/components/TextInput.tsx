@@ -31,8 +31,8 @@ const TextInput: FC<TextInputProps> = ({
                 {label} {required && <Text color="red">*</Text>}
             </Text>
             <TextField.Root
-                {...rest}
                 {...field}
+                {...rest}
                 value={displayValue}
                 id={name}
                 type={type}
