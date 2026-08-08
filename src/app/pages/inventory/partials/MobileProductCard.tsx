@@ -1,5 +1,5 @@
-import React, { useCallback, useRef, useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useCallback, useState } from 'react';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import {
     AlertTriangle,
     Package,
@@ -8,7 +8,6 @@ import {
     PackagePlus,
     History,
     MoreVertical,
-    ChevronRight,
     Tag,
 } from 'lucide-react';
 import { formatCurrency } from '../../../utils';
@@ -41,9 +40,6 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
     onTap,
 }) => {
     const [showActions, setShowActions] = useState(false);
-    const actionsRef = useRef<HTMLDivElement>(null);
-    const triggerRef = useRef<HTMLButtonElement>(null);
-    const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number } | null>(null);
 
     const variant = getDefaultVariant(item);
     const qty = item.totalAvailableQuantity ?? 0;
@@ -72,32 +68,10 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
         onTap?.(item);
     }, [showActions, onTap, item]);
 
-    const toggleActions = useCallback((e: React.MouseEvent) => {
-        e.stopPropagation();
-        setShowActions(prev => {
-            if (!prev && triggerRef.current) {
-                const rect = triggerRef.current.getBoundingClientRect();
-                setDropdownPos({ top: rect.bottom + 4, left: rect.right });
-            }
-            return !prev;
-        });
-    }, []);
-
-    // Close actions when clicking outside
-    React.useEffect(() => {
-        if (!showActions) return;
-        const handleClickOutside = (e: MouseEvent) => {
-            if (actionsRef.current && !actionsRef.current.contains(e.target as Node)) {
-                setShowActions(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [showActions]);
-
     return (
+        <DropdownMenu.Root open={showActions} onOpenChange={setShowActions}>
         <div
-            className={`relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 
+            className={`relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700
                        active:scale-[0.99] transition-transform touch-manipulation`}
             onClick={handleCardTap}
         >
@@ -130,15 +104,16 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
 
                             {/* Actions menu trigger */}
                             {hasAnyAction && (
-                                <button
-                                    ref={triggerRef}
-                                    onClick={toggleActions}
-                                    className="p-1.5 -mt-0.5 -mr-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300
+                                <DropdownMenu.Trigger asChild>
+                                    <button
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="p-1.5 -mt-0.5 -mr-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300
                                              hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                                    aria-label="Actions"
-                                >
-                                    <MoreVertical className="w-4.5 h-4.5" />
-                                </button>
+                                        aria-label="Actions"
+                                    >
+                                        <MoreVertical className="w-4.5 h-4.5" />
+                                    </button>
+                                </DropdownMenu.Trigger>
                             )}
                         </div>
 
@@ -188,61 +163,61 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
                 </div>
             </div>
 
-            {/* Quick actions dropdown — portaled to body to escape overflow clip */}
-            {showActions && dropdownPos && createPortal(
-                <div
-                    ref={actionsRef}
-                    className="fixed z-50 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700
+            {/* Quick actions dropdown */}
+            <DropdownMenu.Portal>
+                <DropdownMenu.Content
+                    align="end"
+                    sideOffset={4}
+                    className="z-50 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700
                              shadow-lg min-w-[160px] py-1 animate-in fade-in-0 zoom-in-95 duration-150"
-                    style={{ top: dropdownPos.top, left: dropdownPos.left, transform: 'translateX(-100%)' }}
                 >
                     {onAdjustQuantity && (
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setShowActions(false); onAdjustQuantity(item); }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300
-                                     hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                        <DropdownMenu.Item
+                            onSelect={() => onAdjustQuantity(item)}
+                            className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300
+                                     hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer outline-none"
                         >
                             <PackagePlus className="w-4 h-4 text-purple-500" />
                             Adjust Stock
-                        </button>
+                        </DropdownMenu.Item>
                     )}
                     {onViewStockMovements && (variantCount <= 1) && (
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setShowActions(false); onViewStockMovements(item); }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300
-                                     hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                        <DropdownMenu.Item
+                            onSelect={() => onViewStockMovements(item)}
+                            className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300
+                                     hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer outline-none"
                         >
                             <History className="w-4 h-4 text-sky-500" />
                             Stock History
-                        </button>
+                        </DropdownMenu.Item>
                     )}
                     {onEdit && (
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setShowActions(false); onEdit(item); }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300
-                                     hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                        <DropdownMenu.Item
+                            onSelect={() => onEdit(item)}
+                            className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300
+                                     hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer outline-none"
                         >
                             <Edit2 className="w-4 h-4 text-green-500" />
                             Edit Item
-                        </button>
+                        </DropdownMenu.Item>
                     )}
                     {onDelete && (
                         <>
-                            <div className="mx-3 my-0.5 h-px bg-gray-100 dark:bg-gray-700" />
-                            <button
-                                onClick={(e) => { e.stopPropagation(); setShowActions(false); onDelete(variant?.id?.toString() || item.id?.toString() || ''); }}
-                                className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-red-600 dark:text-red-400
-                                         hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                            <DropdownMenu.Separator className="mx-3 my-0.5 h-px bg-gray-100 dark:bg-gray-700" />
+                            <DropdownMenu.Item
+                                onSelect={() => onDelete(variant?.id?.toString() || item.id?.toString() || '')}
+                                className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-red-600 dark:text-red-400
+                                         hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer outline-none"
                             >
                                 <Trash2 className="w-4 h-4" />
                                 Delete Item
-                            </button>
+                            </DropdownMenu.Item>
                         </>
                     )}
-                </div>,
-                document.body
-            )}
+                </DropdownMenu.Content>
+            </DropdownMenu.Portal>
         </div>
+        </DropdownMenu.Root>
     );
 };
 
