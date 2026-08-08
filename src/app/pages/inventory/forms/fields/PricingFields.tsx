@@ -1,8 +1,7 @@
 import { useState, useEffect, FunctionComponent } from 'react';
 import { useFormikContext, getIn } from 'formik';
-import FormInput from '../../../../components/FormInput';
-import Input from '../../../../components/Input';
-import Label from '../../../../components/Label';
+import { TextField, Text } from '@radix-ui/themes';
+import { TextInput } from '../../../../components';
 
 interface PricingFieldsProps {
     fieldPrefix?: string;
@@ -99,15 +98,17 @@ const PricingFields: FunctionComponent<PricingFieldsProps> = ({
             <div className={`grid gap-3 ${showTrackProfit && trackingCost ? 'grid-cols-3' : showTrackProfit ? 'grid-cols-2' : 'grid-cols-1'}`}>
                 {isNewVariant ? (
                     <div className="space-y-1">
-                        <Label>Selling Price <span className="text-red-500">*</span></Label>
-                        <Input
+                        <Text as="label" size="2" weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                            Selling Price <Text color="red">*</Text>
+                        </Text>
+                        <TextField.Root
                             value={getNumberValue('sellingPrice')}
                             onChange={(e) => onChange?.('sellingPrice', e.target.value)}
                             type="number"
                             placeholder="0.00"
                             min={0}
                             step={0.01}
-                            valid={pricingError}
+                            color={pricingError === false ? 'red' : undefined}
                         />
                         {pricingError === false && (
                             <p className="text-sm text-red-500">Selling price cannot be 0</p>
@@ -115,14 +116,14 @@ const PricingFields: FunctionComponent<PricingFieldsProps> = ({
                     </div>
                 ) : (
                     <div className="space-y-1">
-                        <FormInput
+                        <TextInput
                             label="Selling Price"
                             name={sellingPriceName}
                             type="number"
                             required
                             placeholder="0.00"
-                            min="0"
-                            step="0.01"
+                            min={0}
+                            step={0.01}
                         />
                         {pricingError === false && (
                             <p className="text-sm text-red-500">Selling price cannot be 0</p>
@@ -146,8 +147,10 @@ const PricingFields: FunctionComponent<PricingFieldsProps> = ({
                         <>
                             {isNewVariant ? (
                                 <div className="space-y-1">
-                                    <Label>Cost Price</Label>
-                                    <Input
+                                    <Text as="label" size="2" weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                                        Cost Price
+                                    </Text>
+                                    <TextField.Root
                                         value={getNumberValue('costPrice')}
                                         onChange={(e) => onChange?.('costPrice', e.target.value)}
                                         type="number"
@@ -159,13 +162,13 @@ const PricingFields: FunctionComponent<PricingFieldsProps> = ({
                                     />
                                 </div>
                             ) : (
-                                <FormInput
+                                <TextInput
                                     label="Cost Price"
                                     name={costPriceName}
                                     type="number"
                                     placeholder="0.00"
-                                    min="0"
-                                    step="0.01"
+                                    min={0}
+                                    step={0.01}
                                     onBlur={handleCostPriceBlur}
                                 />
                             )}

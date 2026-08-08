@@ -1,7 +1,7 @@
 import { useState, useEffect, FC, useCallback, useMemo } from 'react';
-import { createPortal } from 'react-dom';
+import { Dialog, Flex, IconButton, Text, TextField } from '@radix-ui/themes';
 import { Package, Search, X, AlertTriangle, Check, ArrowRight, Layers } from 'lucide-react';
-import { Button, Input, Label } from '../../../components';
+import { Button } from '../../../components';
 import { useInventoryActions } from '../../../hooks/useInventoryActions';
 import { useInventoryManagement } from '../../../hooks/useInventoryManagement';
 
@@ -55,17 +55,6 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
             setStep(hasMultipleVariants ? 'select-variant' : 'search');
         }
     }, [item, variants, hasMultipleVariants]);
-
-    useEffect(() => {
-        if (!isOpen) return;
-        const handleEscape = (e: KeyboardEvent) => e.key === 'Escape' && resetAndClose();
-        document.addEventListener('keydown', handleEscape);
-        document.body.style.overflow = 'hidden';
-        return () => {
-            document.removeEventListener('keydown', handleEscape);
-            document.body.style.overflow = '';
-        };
-    }, [isOpen, onClose]);
 
     // Update variant name when selected variant changes
     useEffect(() => {
@@ -143,37 +132,31 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
         return product.variants?.find(v => v.isDefault) || product.variants?.[0];
     };
 
-    return createPortal(
-        <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-            onClick={(e) => e.target === e.currentTarget && resetAndClose()}
-        >
-            <div className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-xl shadow-2xl max-h-[90vh] flex flex-col">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center gap-3">
+    return (
+        <Dialog.Root open={isOpen} onOpenChange={(open) => !open && resetAndClose()}>
+            <Dialog.Content maxWidth="560px" className="!max-h-[90vh] !flex !flex-col">
+                <Flex justify="between" align="start">
+                    <Flex align="center" gap="3">
                         <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
                             <Layers className="w-5 h-5 text-sky-500 dark:text-sky-400" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                Convert to Variant
-                            </h2>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                            <Dialog.Title mb="0">Convert to Variant</Dialog.Title>
+                            <Dialog.Description size="1" color="gray">
                                 {step === 'select-variant'
                                     ? 'Select which variant to move'
                                     : 'Move this variant to another product'}
-                            </p>
+                            </Dialog.Description>
                         </div>
-                    </div>
-                    <button
-                        onClick={resetAndClose}
-                        className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
-                </div>
+                    </Flex>
+                    <Dialog.Close>
+                        <IconButton type="button" variant="ghost" color="gray" size="1" aria-label="Close">
+                            <X className="w-5 h-5" />
+                        </IconButton>
+                    </Dialog.Close>
+                </Flex>
 
-                <div className="p-4 space-y-4 overflow-y-auto flex-1">
+                <div className="pt-4 space-y-4 overflow-y-auto flex-1">
                     <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                         <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
                             <Package className="w-5 h-5 text-sky-500 dark:text-sky-400" />
@@ -197,7 +180,9 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
                     {step === 'select-variant' && hasMultipleVariants && (
                         <>
                             <div>
-                                <Label>Select Variant to Convert</Label>
+                                <Text as="label" size="2" weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                                    Select Variant to Convert
+                                </Text>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                     Choose which variant you want to move to another product.
                                 </p>
@@ -264,16 +249,20 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
                             )}
 
                             <div>
-                                <Label>Search Target Product</Label>
-                                <div className="relative mt-1.5">
-                                    <Input
-                                        type="text"
-                                        value={searchTerm}
-                                        onChange={(e) => handleSearchChange(e.target.value)}
-                                        placeholder="Search by name, barcode, or SKU..."
-                                        className="pl-10 w-full"
-                                    />
-                                </div>
+                                <Text as="label" size="2" weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                                    Search Target Product
+                                </Text>
+                                <TextField.Root
+                                    type="text"
+                                    value={searchTerm}
+                                    onChange={(e) => handleSearchChange(e.target.value)}
+                                    placeholder="Search by name, barcode, or SKU..."
+                                    className="mt-1.5 w-full"
+                                >
+                                    <TextField.Slot>
+                                        <Search className="w-4 h-4 text-gray-400" />
+                                    </TextField.Slot>
+                                </TextField.Root>
                             </div>
 
                             <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
@@ -351,8 +340,10 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
                             </div>
 
                             <div>
-                                <Label>Variant Name</Label>
-                                <Input
+                                <Text as="label" size="2" weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                                    Variant Name
+                                </Text>
+                                <TextField.Root
                                     type="text"
                                     value={variantName}
                                     onChange={(e) => {
@@ -363,7 +354,8 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
                                         }
                                     }}
                                     placeholder="e.g., Large, Red, 500ml..."
-                                    className={`mt-1.5 w-full ${errorField === 'variantName' ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+                                    color={errorField === 'variantName' ? 'red' : undefined}
+                                    className="mt-1.5 w-full"
                                 />
                                 {errorField === 'variantName' && errorMessage ? (
                                     <p className="text-xs text-red-500 dark:text-red-400 mt-1 flex items-center gap-1">
@@ -466,9 +458,8 @@ const ConvertToVariantModal: FC<ConvertToVariantModalProps> = ({ isOpen, onClose
                         </>
                     )}
                 </div>
-            </div>
-        </div>,
-        document.body
+            </Dialog.Content>
+        </Dialog.Root>
     );
 };
 

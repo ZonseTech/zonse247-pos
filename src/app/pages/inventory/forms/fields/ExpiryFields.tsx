@@ -1,9 +1,7 @@
 import { FunctionComponent } from 'react';
 import { Calendar } from 'lucide-react';
-import FormInput from '../../../../components/FormInput';
-import Input from '../../../../components/Input';
-import Label from '../../../../components/Label';
-import { CollapsibleSection } from '../../../../components';
+import { TextField, Text } from '@radix-ui/themes';
+import { CollapsibleSection, TextInput } from '../../../../components';
 import dayjs from 'dayjs';
 
 interface ExpiryFieldsProps {
@@ -35,16 +33,20 @@ const ExpiryFields: FunctionComponent<ExpiryFieldsProps> = ({
                 {isNewVariant ? (
                     <>
                         <div className="space-y-1">
-                            <Label>Expiry Date</Label>
-                            <Input
+                            <Text as="label" size="2" weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                                Expiry Date
+                            </Text>
+                            <TextField.Root
                                 value={getStringValue('expirationDate')}
                                 onChange={(e) => onStringChange('expirationDate', e.target.value)}
                                 type="date"
                             />
                         </div>
                         <div className="space-y-1">
-                            <Label>Expiry Date Alert</Label>
-                            <Input
+                            <Text as="label" size="2" weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                                Expiry Date Alert
+                            </Text>
+                            <TextField.Root
                                 value={getNumberValue('expiryDateAlert')}
                                 onChange={(e) => onNumberChange('expiryDateAlert', e.target.value)}
                                 type="number"
@@ -55,18 +57,18 @@ const ExpiryFields: FunctionComponent<ExpiryFieldsProps> = ({
                     </>
                 ) : (
                     <>
-                        <FormInput
+                        <TextInput
                             label="Expiry Date"
                             name={`${fieldPrefix}.expirationDate`}
                             type="date"
                             placeholder={dayjs().add(1, 'month').format('DD/MM/YYYY')}
                         />
-                        <FormInput
+                        <TextInput
                             label="Expiry Date Alert"
                             name={`${fieldPrefix}.expiryAlertDays`}
                             type="number"
                             placeholder="Before 5 Days"
-                            min="0"
+                            min={0}
                         />
                     </>
                 )}

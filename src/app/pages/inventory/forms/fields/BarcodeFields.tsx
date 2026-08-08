@@ -1,8 +1,7 @@
 import { FunctionComponent, useState, ChangeEvent } from 'react';
 import { BarcodeIcon } from 'lucide-react';
-import FormInput from '../../../../components/FormInput';
-import Input from '../../../../components/Input';
-import { Button, CollapsibleSection } from '../../../../components';
+import { TextField } from '@radix-ui/themes';
+import { Button, CollapsibleSection, TextInput } from '../../../../components';
 import CameraBarcodeScanner from '../../../../components/scanner/CameraBarcodeScanner';
 import { type ScannerResult } from '../../../../services/barcode-scanner.service';
 import { useScannerFeedback } from '../../../../hooks/useScannerSettings';
@@ -49,7 +48,7 @@ const BarcodeFields: FunctionComponent<BarcodeFieldsProps> = ({
                     <div className="flex-1">
                         {isNewVariant ? (
                             <div className="space-y-1">
-                                <Input
+                                <TextField.Root
                                     value={getValue('primaryBarcode')}
                                     onChange={(e) => {
                                         onChange('primaryBarcode', e.target.value);
@@ -60,7 +59,8 @@ const BarcodeFields: FunctionComponent<BarcodeFieldsProps> = ({
                                 />
                             </div>
                         ) : (
-                            <FormInput
+                            <TextInput
+                                label=""
                                 name={`${fieldPrefix}.primaryBarcode`}
                                 placeholder="Scan or enter"
                                 onChange={(e: ChangeEvent<HTMLInputElement>) => {

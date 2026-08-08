@@ -267,9 +267,9 @@ const InventoryManagement: FunctionComponent = () => {
     }, [loadInventory, fetchOverview, statsQuery]);
 
     return (
-        <AppLayout>
+        <>
             {isMobile ? (
-                <>
+                <AppLayout>
                     <MobilePageHeader
                         title="Inventory"
                         showLeftButton={true}
@@ -304,7 +304,7 @@ const InventoryManagement: FunctionComponent = () => {
                         selectedRowCount={selectedRows.length}
                         onBulkActions={permissions.canBulkActions ? modals.openBulkActions : undefined}
                     />
-                </>
+                </AppLayout>
             ) : (
                 <>
                     <PageHeader
@@ -391,7 +391,7 @@ const InventoryManagement: FunctionComponent = () => {
                     sku={modals.selectedItemForMovements.variants[0].sku!}
                 />
             )}
-        </AppLayout>
+        </>
     );
 };
 

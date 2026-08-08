@@ -109,14 +109,14 @@ const StockMovements: FunctionComponent = () => {
     const columns = getStockMovementTableColumns();
 
     return (
-        <AppLayout>
+        <>
             <PageHeader
                 icon={<Activity className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                 title="Stock Movements"
                 description={productId ? 'Product stock history' : 'All stock movements audit trail'}
             />
 
-            <Box className="rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <Box className="rounded-lg my-4 shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <Flex
                     direction={{ initial: 'column', sm: 'row' }}
                     align={{ initial: 'start', sm: 'center' }}
@@ -259,7 +259,7 @@ const StockMovements: FunctionComponent = () => {
                 branchId={branchId}
                 userId={userId}
             />
-        </AppLayout>
+        </>
     );
 };
 

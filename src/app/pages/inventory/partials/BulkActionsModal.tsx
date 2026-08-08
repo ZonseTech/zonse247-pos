@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useState } from 'react';
+import { Dialog, Select as RadixSelect, Flex, Grid, IconButton, Text, TextField } from '@radix-ui/themes';
 import { Package, FolderInput, Edit3, Minus, Plus, ClipboardCheck, ArrowLeft, X } from 'lucide-react';
 import { Notify } from 'notiflix';
-import { Button, Select, Label, Input } from '../../../components';
+import { Button } from '../../../components';
 import { useInventoryActions } from '../../../hooks/useInventoryActions';
 import { useIsEBN } from '../../../hooks/useMediaQuery';
 import stockMovementService from '../../../services/stock-movement.service';
@@ -81,22 +81,6 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
     const [bulkStatus, setBulkStatus] = useState('');
 
     const { moveToCategory, bulkUpdate, isLoading } = useInventoryActions();
-
-    useEffect(() => {
-        if (!isOpen) return;
-
-        const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
-        };
-
-        document.addEventListener('keydown', handleEscape);
-        document.body.style.overflow = 'hidden';
-
-        return () => {
-            document.removeEventListener('keydown', handleEscape);
-            document.body.style.overflow = '';
-        };
-    }, [isOpen, onClose]);
 
     const resetForm = () => {
         setActionType(null);
@@ -200,19 +184,19 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
                             Move {itemCount} {itemLabel} to a different category.
                         </p>
                         <div>
-                            <Label className={isEBN ? 'text-xs' : ''}>Select Category</Label>
-                            <Select
-                                value={selectedCategoryId}
-                                onChange={(e) => setSelectedCategoryId(e.target.value)}
-                                className={`mt-1.5 w-full ${isEBN ? 'text-xs' : ''}`}
-                            >
-                                <option value="">Select category...</option>
-                                {categories.map(cat => (
-                                    <option key={cat.categoryId} value={cat.categoryId?.toString()}>
-                                        {cat.name as string}
-                                    </option>
-                                ))}
-                            </Select>
+                            <Text as="label" size={isEBN ? '1' : '2'} weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                                Select Category
+                            </Text>
+                            <RadixSelect.Root value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
+                                <RadixSelect.Trigger variant="surface" placeholder="Select category..." className="mt-1.5 w-full" />
+                                <RadixSelect.Content position="popper">
+                                    {categories.map(cat => (
+                                        <RadixSelect.Item key={cat.categoryId} value={cat.categoryId?.toString() ?? ''}>
+                                            {cat.name as string}
+                                        </RadixSelect.Item>
+                                    ))}
+                                </RadixSelect.Content>
+                            </RadixSelect.Root>
                         </div>
                     </div>
                 );
@@ -224,19 +208,19 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
                             Update status for {itemCount} {itemLabel}.
                         </p>
                         <div>
-                            <Label className={isEBN ? 'text-xs' : ''}>Select Status</Label>
-                            <Select
-                                value={bulkStatus}
-                                onChange={(e) => setBulkStatus(e.target.value)}
-                                className={`mt-1.5 w-full ${isEBN ? 'text-xs' : ''}`}
-                            >
-                                <option value="">Select status...</option>
-                                {STATUS_OPTIONS.map(opt => (
-                                    <option key={opt.value} value={opt.value}>
-                                        {opt.label}
-                                    </option>
-                                ))}
-                            </Select>
+                            <Text as="label" size={isEBN ? '1' : '2'} weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                                Select Status
+                            </Text>
+                            <RadixSelect.Root value={bulkStatus} onValueChange={setBulkStatus}>
+                                <RadixSelect.Trigger variant="surface" placeholder="Select status..." className="mt-1.5 w-full" />
+                                <RadixSelect.Content position="popper">
+                                    {STATUS_OPTIONS.map(opt => (
+                                        <RadixSelect.Item key={opt.value} value={opt.value}>
+                                            {opt.label}
+                                        </RadixSelect.Item>
+                                    ))}
+                                </RadixSelect.Content>
+                            </RadixSelect.Root>
                         </div>
                     </div>
                 );
@@ -261,7 +245,7 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
                             </div>
                         )}
 
-                        <div className="grid grid-cols-3 gap-2">
+                        <Grid columns="3" gap="2">
                             {adjustmentButtons.map(({ type, icon: Icon, label, activeClass }) => (
                                 <button
                                     key={type}
@@ -280,32 +264,34 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
                                     {label}
                                 </button>
                             ))}
-                        </div>
+                        </Grid>
 
                         <div>
-                            <Label className={isEBN ? 'text-xs' : ''}>{adjustmentType === 'set' ? 'Actual Quantity on Hand' : 'Quantity'}</Label>
-                            <Input
+                            <Text as="label" size={isEBN ? '1' : '2'} weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                                {adjustmentType === 'set' ? 'Actual Quantity on Hand' : 'Quantity'}
+                            </Text>
+                            <TextField.Root
                                 type="number"
                                 min="0"
                                 value={adjustmentValue}
                                 onChange={(e) => setAdjustmentValue(e.target.value)}
                                 placeholder={adjustmentType === 'set' ? 'Enter counted quantity' : 'Enter quantity'}
-                                className={`mt-1.5 w-full ${isEBN ? 'text-xs' : ''}`}
+                                className="mt-1.5 w-full"
                             />
                         </div>
 
                         <div>
-                            <Label className={isEBN ? 'text-xs' : ''}>
-                                Reason {isReasonRequired ? <span className="text-red-500">*</span> : '(optional)'}
-                            </Label>
-                            <Input
+                            <Text as="label" size={isEBN ? '1' : '2'} weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                                Reason {isReasonRequired ? <Text color="red">*</Text> : '(optional)'}
+                            </Text>
+                            <TextField.Root
                                 type="text"
                                 value={adjustmentReason}
                                 onChange={(e) => setAdjustmentReason(e.target.value)}
                                 placeholder={adjustmentType === 'add' ? 'e.g., Found stock, received donation'
                                     : adjustmentType === 'subtract' ? 'e.g., Theft, breakage, expired'
                                         : 'e.g., Physical stock count'}
-                                className={`mt-1.5 w-full ${isEBN ? 'text-xs' : ''}`}
+                                className="mt-1.5 w-full"
                             />
                         </div>
                     </div>
@@ -313,7 +299,7 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
 
             default:
                 return (
-                    <div className="grid grid-cols-3 gap-2">
+                    <Grid columns="3" gap="2">
                         {ACTION_OPTIONS.map(({ type, icon: Icon, label, description, color, hoverBg, hoverBorder }) => (
                             <button
                                 key={type}
@@ -336,7 +322,7 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
                                 )}
                             </button>
                         ))}
-                    </div>
+                    </Grid>
                 );
         }
     };
@@ -368,31 +354,23 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
         );
     };
 
-    if (!isOpen) return null;
-
-    return createPortal(
-        <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-            onClick={(e) => e.target === e.currentTarget && handleClose()}
-        >
-            <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-xl shadow-2xl">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                    <h2 className={`font-semibold text-gray-900 dark:text-white ${isEBN ? 'text-base' : 'text-lg'}`}>
+    return (
+        <Dialog.Root open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+            <Dialog.Content maxWidth="440px">
+                <Flex justify="between" align="center" mb="4">
+                    <Dialog.Title mb="0" size={isEBN ? '3' : '4'}>
                         Bulk Actions ({itemCount} {itemLabel})
-                    </h2>
-                    <button
-                        onClick={handleClose}
-                        className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
-                </div>
+                    </Dialog.Title>
+                    <Dialog.Close>
+                        <IconButton type="button" variant="ghost" color="gray" size="1" aria-label="Close">
+                            <X className="w-5 h-5" />
+                        </IconButton>
+                    </Dialog.Close>
+                </Flex>
 
-                <div className={isEBN ? 'p-3' : 'p-4'}>
-                    {renderActionContent()}
-                </div>
+                {renderActionContent()}
 
-                <div className={`flex items-center justify-between border-t border-gray-200 dark:border-gray-700 ${isEBN ? 'px-3 py-2' : 'px-4 py-3'}`}>
+                <Flex justify="between" align="center" mt="4" pt="3" className="border-t border-gray-200 dark:border-gray-700">
                     <div className="flex-shrink-0">
                         {actionType && (
                             <Button
@@ -406,7 +384,7 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
                             </Button>
                         )}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <Flex align="center" gap="2">
                         <Button
                             theme="neutral"
                             layout="outline"
@@ -416,11 +394,10 @@ const BulkActionsModal: React.FC<BulkActionsModalProps> = ({
                             Cancel
                         </Button>
                         {getActionButton()}
-                    </div>
-                </div>
-            </div>
-        </div>,
-        document.body
+                    </Flex>
+                </Flex>
+            </Dialog.Content>
+        </Dialog.Root>
     );
 };
 

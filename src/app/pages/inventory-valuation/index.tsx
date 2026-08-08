@@ -122,14 +122,14 @@ const InventoryValuation: FunctionComponent = () => {
     }
 
     return (
-        <AppLayout>
+        <>
             <PageHeader
                 icon={<BarChart3 className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                 title="Inventory Valuation"
                 description="Stock valuation summary across costing methods"
             />
 
-            <Box className="rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <Box className="rounded-lg my-4 shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <SummaryCards
                     cards={summaryCards}
                     isLoading={isLoading}
@@ -242,7 +242,7 @@ const InventoryValuation: FunctionComponent = () => {
                 onClose={handleCloseBalance}
                 onSubmit={recordOpeningBalance}
             />
-        </AppLayout>
+        </>
     );
 };
 

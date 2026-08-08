@@ -1,15 +1,13 @@
 import { FunctionComponent, useState } from 'react';
 import { useFormikContext } from 'formik';
+import { Dialog, Flex, IconButton, TextField, Text } from '@radix-ui/themes';
 import {
     X,
     Trash2,
     History,
 } from 'lucide-react';
 import StockMovementModal from './StockMovementModal';
-import FormInput from '../../../components/FormInput';
-import { BottomSheet, Button, FormFieldCard, Modal } from '../../../components';
-import Input from '../../../components/Input';
-import Label from '../../../components/Label';
+import { Button, FormFieldCard, TextInput } from '../../../components';
 import PricingFields from '../forms/fields/PricingFields';
 import StockFields from '../forms/fields/StockFields';
 import BarcodeFields from '../forms/fields/BarcodeFields';
@@ -17,7 +15,6 @@ import ExpiryFields from '../forms/fields/ExpiryFields';
 import NotesFields from '../forms/fields/NotesFields';
 import SkuFields from '../forms/fields/SkuFields';
 import { InventoryFormValues, Variant } from '../types/variant.types';
-import { useIsMobile } from '../../../hooks/useMediaQuery';
 
 interface VariantModalProps {
     isOpen: boolean;
@@ -62,22 +59,22 @@ const VariantModal: FunctionComponent<VariantModalProps> = ({
         }
     };
 
-    const getStringValue = (field: keyof Variant): string => {
-        const value = variant?.[field];
+    const getStringValue = (field: string): string => {
+        const value = variant?.[field as keyof Variant];
         return typeof value === 'string' ? value : '';
     };
 
-    const getNumberValue = (field: keyof Variant): number | string => {
-        const value = variant?.[field];
+    const getNumberValue = (field: string): number | string => {
+        const value = variant?.[field as keyof Variant];
         if (value === undefined || value === null || value === 0) {
             return '';
         }
         return typeof value === 'number' ? value : '';
     };
 
-    const handleNumberChange = (field: keyof Variant, inputValue: string) => {
+    const handleNumberChange = (field: string, inputValue: string) => {
         const numValue = inputValue === '' ? 0 : Number(inputValue);
-        updateField(field, numValue);
+        updateField(field as keyof Variant, numValue);
     };
 
     const handleStringChange = (field: string, value: string) => {
@@ -108,22 +105,22 @@ const VariantModal: FunctionComponent<VariantModalProps> = ({
         }
     };
 
-    const isMobile = useIsMobile();
-
     const modalContent = (
         <>
             <FormFieldCard>
                 {isNewVariant ? (
                     <div className="space-y-1">
-                        <Label>Variant Name</Label>
-                        <Input
+                        <Text as="label" size="2" weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                            Variant Name
+                        </Text>
+                        <TextField.Root
                             value={getStringValue('variantName')}
                             onChange={(e) => updateField('variantName', e.target.value)}
                             placeholder="e.g., Red / Large"
                         />
                     </div>
                 ) : (
-                    <FormInput
+                    <TextInput
                         label="Variant Name"
                         name={`${fieldPrefix}.variantName`}
                         placeholder="e.g., Red / Large"
@@ -221,69 +218,27 @@ const VariantModal: FunctionComponent<VariantModalProps> = ({
         </div>
     );
 
-    const closeButton = (
-        <button
-            type="button"
-            onClick={onClose}
-            className="p-2 rounded-full text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-        >
-            <X className="w-5 h-5" />
-        </button>
-    );
-
-    if (isMobile) {
-        return (
-            <>
-                <BottomSheet
-                    isOpen={isOpen}
-                    onClose={onClose}
-                    leftContent={closeButton}
-                    rightContent={headerActions}
-                >
-                    {modalContent}
-                </BottomSheet>
-
-                {canViewStockMovements && variant?.id && (
-                    <StockMovementModal
-                        isOpen={isStockMovementOpen}
-                        onClose={() => setIsStockMovementOpen(false)}
-                        variantId={variant.id}
-                        variantName={variant.variantName || 'Default'}
-                        productName={values.name}
-                        sku={variant.sku}
-                    />
-                )}
-            </>
-        );
-    }
-
     return (
         <>
-            <Modal
-                isOpen={isOpen}
-                onClose={onClose}
-                title={isNewVariant ? 'Add New Variant' : `Edit: ${variant?.variantName || 'Variant'}`}
-                size="xl"
-                header={
-                    <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-                        <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+            <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+                <Dialog.Content maxWidth="720px" className="!max-h-[90vh] !overflow-y-auto">
+                    <Flex justify="between" align="center" mb="4" pb="4" className="border-b border-gray-200 dark:border-gray-700">
+                        <Dialog.Title mb="0" size="5">
                             {isNewVariant ? 'Add New Variant' : `Edit: ${variant?.variantName || 'Variant'}`}
-                        </h2>
-                        <div className="flex items-center gap-2">
+                        </Dialog.Title>
+                        <Flex align="center" gap="2">
                             {headerActions}
-                            <button
-                                onClick={onClose}
-                                className="p-2 -mr-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                                aria-label="Close modal"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
-                }
-            >
-                {modalContent}
-            </Modal>
+                            <Dialog.Close>
+                                <IconButton type="button" variant="ghost" color="gray" size="1" aria-label="Close modal">
+                                    <X className="w-5 h-5" />
+                                </IconButton>
+                            </Dialog.Close>
+                        </Flex>
+                    </Flex>
+
+                    {modalContent}
+                </Dialog.Content>
+            </Dialog.Root>
 
             {canViewStockMovements && variant?.id && (
                 <StockMovementModal

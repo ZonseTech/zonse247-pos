@@ -15,19 +15,6 @@ export const getCategoryColumns = (
             grow: 2,
             cell: (row: Category) => (
                 <Flex align="center" gap="3" py="3">
-                    <Flex
-                        align="center"
-                        justify="center"
-                        flexShrink="0"
-                        width="44px"
-                        height="44px"
-                        className="rounded-md"
-                        style={{ backgroundColor: row.color || '#3B82F6', color: '#fff' }}
-                    >
-                        <Text size="4" weight="bold">
-                            {row.name.charAt(0).toUpperCase()}
-                        </Text>
-                    </Flex>
                     <Box minWidth="0">
                         <Text as="p" size="2" weight="bold" truncate>
                             {row.name}

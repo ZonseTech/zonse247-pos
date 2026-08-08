@@ -1,6 +1,7 @@
 import React from 'react';
-import { X, Package, Plus, Minus, Pencil } from 'lucide-react';
-import { BottomSheet, Button } from '../../../components';
+import { Dialog, Flex, IconButton } from '@radix-ui/themes';
+import { X, Plus, Minus } from 'lucide-react';
+import { Button } from '../../../components';
 import { formatCurrency } from '../../../utils';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../../utils/constants';
@@ -51,29 +52,18 @@ const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
     };
 
     return (
-        <BottomSheet
-            isOpen={isOpen}
-            onClose={onClose}
-            title={product.name}
-            leftContent={
-                <Button
-                    type="button"
-                    onClick={handleEdit}
-                >
-                    Edit Item
-                </Button>
-            }
-            rightContent={
-                <Button
-                    type="button"
-                    onClick={onClose}
-                    theme='success'
-                >
-                    SELECT
-                </Button>
-            }
-        >
-            <div className="space-y-3 pb-8">
+        <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <Dialog.Content maxWidth="480px" className="!max-h-[85vh] !overflow-y-auto">
+                <Flex justify="between" align="center" mb="4">
+                    <Dialog.Title mb="0">{product.name}</Dialog.Title>
+                    <Dialog.Close>
+                        <IconButton type="button" variant="ghost" color="gray" size="1" aria-label="Close">
+                            <X className="w-5 h-5" />
+                        </IconButton>
+                    </Dialog.Close>
+                </Flex>
+
+                <div className="space-y-3">
                 {product.variants?.map((variant) => {
                     const cartQty = getVariantCartQuantity(variant.id);
                     const stockQty = variant.inventory?.availableQuantity ?? 0;
@@ -152,8 +142,18 @@ const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
                         </div>
                     );
                 })}
-            </div>
-        </BottomSheet>
+                </div>
+
+                <Flex justify="between" gap="3" mt="4" pt="3" className="border-t border-gray-200 dark:border-gray-700">
+                    <Button type="button" onClick={handleEdit}>
+                        Edit Item
+                    </Button>
+                    <Button type="button" onClick={onClose} theme='success'>
+                        SELECT
+                    </Button>
+                </Flex>
+            </Dialog.Content>
+        </Dialog.Root>
     );
 };
 

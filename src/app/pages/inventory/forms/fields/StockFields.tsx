@@ -1,8 +1,7 @@
 import { useState, useEffect, FunctionComponent } from 'react';
 import { useFormikContext, getIn } from 'formik';
-import FormInput from '../../../../components/FormInput';
-import Input from '../../../../components/Input';
-import Label from '../../../../components/Label';
+import { TextField, Text } from '@radix-ui/themes';
+import { TextInput } from '../../../../components';
 import { Info } from 'lucide-react';
 
 interface StockFieldsProps {
@@ -96,8 +95,10 @@ const StockFields: FunctionComponent<StockFieldsProps> = ({
             <div className="grid grid-cols-2 gap-3">
                 {isNewVariant ? (
                     <div className="space-y-1">
-                        <Label>{isEditing ? 'Opening Stock' : 'Stock Available'}</Label>
-                        <Input
+                        <Text as="label" size="2" weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                            {isEditing ? 'Opening Stock' : 'Stock Available'}
+                        </Text>
+                        <TextField.Root
                             value={getNumberValue('quantity')}
                             onChange={(e) => onChange?.('quantity', e.target.value)}
                             type="number"
@@ -107,12 +108,13 @@ const StockFields: FunctionComponent<StockFieldsProps> = ({
                     </div>
                 ) : isQuantityLocked ? (
                     <div className="space-y-1">
-                        <Label>Current Stock</Label>
-                        <Input
+                        <Text as="label" size="2" weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                            Current Stock
+                        </Text>
+                        <TextField.Root
                             value={getFieldValue('quantity') ?? 0}
                             type="number"
                             disabled
-                            className="bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-75"
                         />
                         <p className="flex items-start gap-1 text-xs text-amber-600 dark:text-amber-400 mt-1">
                             <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
@@ -120,12 +122,12 @@ const StockFields: FunctionComponent<StockFieldsProps> = ({
                         </p>
                     </div>
                 ) : (
-                    <FormInput
+                    <TextInput
                         label="Stock Available"
                         name={quantityName}
                         type="number"
                         placeholder="0"
-                        min="0"
+                        min={0}
                     />
                 )}
                 {showLowStockAlert && (
@@ -144,8 +146,10 @@ const StockFields: FunctionComponent<StockFieldsProps> = ({
                     ) : (
                         isNewVariant ? (
                             <div className="space-y-1">
-                                <Label>Low Stock Alert</Label>
-                                <Input
+                                <Text as="label" size="2" weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                                    Low Stock Alert
+                                </Text>
+                                <TextField.Root
                                     value={getNumberValue('minStock')}
                                     onChange={(e) => onChange?.('minStock', e.target.value)}
                                     type="number"
@@ -156,12 +160,12 @@ const StockFields: FunctionComponent<StockFieldsProps> = ({
                                 />
                             </div>
                         ) : (
-                            <FormInput
+                            <TextInput
                                 label="Low Stock Alert"
                                 name={minStockName}
                                 type="number"
                                 placeholder="Below 5"
-                                min="0"
+                                min={0}
                                 onBlur={handleMinStockBlur}
                             />
                         )
