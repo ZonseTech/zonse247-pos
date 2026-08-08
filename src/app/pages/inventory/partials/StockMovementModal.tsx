@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useEffect, useState } from 'react';
+import { Dialog, Select, IconButton } from '@radix-ui/themes';
 import {
     X,
     History,
@@ -9,11 +9,8 @@ import {
     Package,
     Calendar,
     Hash,
-    User,
-    FileText,
     ChevronLeft,
     ChevronRight,
-    ChevronDown,
     Filter,
     Download,
 } from 'lucide-react';
@@ -29,7 +26,7 @@ interface StockMovementModalProps {
     variantId: string;
     variantName: string;
     productName: string;
-    sku?: string;
+    sku?: string | null;
 }
 
 const typeColors: Record<StockMovementType, string> = {
@@ -84,20 +81,7 @@ const StockMovementModal: React.FC<StockMovementModalProps> = ({
     } = useStockMovements(undefined, variantId);
 
     const [showFilters, setShowFilters] = useState(false);
-    const [showTypeDropdown, setShowTypeDropdown] = useState(false);
-    const typeDropdownRef = useRef<HTMLDivElement>(null);
     const isMobile = useIsMobile();
-
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (typeDropdownRef.current && !typeDropdownRef.current.contains(event.target as Node)) {
-                setShowTypeDropdown(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
 
     useEffect(() => {
         if (isOpen && variantId) {
@@ -140,19 +124,14 @@ const StockMovementModal: React.FC<StockMovementModalProps> = ({
         URL.revokeObjectURL(url);
     };
 
-    return createPortal(
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                onClick={onClose}
-            />
-
-            {/* Modal */}
-            <div className={`relative w-full bg-white dark:bg-gray-900 shadow-2xl flex flex-col ${isMobile
-                ? 'h-full'
-                : 'max-w-5xl max-h-[90vh] rounded-xl mx-4'
-                }`}>
+    return (
+        <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <Dialog.Content
+                className={`!p-0 !flex !flex-col ${isMobile
+                    ? '!w-full !h-full !max-h-full !max-w-full !rounded-none !m-0'
+                    : '!max-w-5xl !max-h-[90vh] !rounded-xl'
+                    }`}
+            >
                 {/* Header */}
                 <div className={`flex items-center justify-between border-b border-gray-200 dark:border-gray-700 ${isMobile ? 'px-4 py-3' : 'px-6 py-4'
                     }`}>
@@ -161,21 +140,20 @@ const StockMovementModal: React.FC<StockMovementModalProps> = ({
                             <History className={`text-sky-600 dark:text-sky-400 ${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
                         </div>
                         <div className="min-w-0">
-                            <h2 className={`font-semibold text-gray-900 dark:text-white ${isMobile ? 'text-sm' : 'text-lg'}`}>
+                            <Dialog.Title mb="0" size={isMobile ? '2' : '4'}>
                                 {isMobile ? 'Stock Movements' : 'Stock Movement History'}
-                            </h2>
-                            <p className={`text-gray-500 dark:text-gray-400 truncate ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                            </Dialog.Title>
+                            <Dialog.Description size={isMobile ? '1' : '2'} color="gray" className="truncate">
                                 {productName} - <span className="font-medium">{variantName}</span>
                                 {sku && !isMobile && <span className="ml-2 font-mono text-xs">({sku})</span>}
-                            </p>
+                            </Dialog.Description>
                         </div>
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="shrink-0 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
+                    <Dialog.Close>
+                        <IconButton type="button" variant="ghost" color="gray" size="1" aria-label="Close" className="shrink-0">
+                            <X className="w-5 h-5" />
+                        </IconButton>
+                    </Dialog.Close>
                 </div>
 
                 {/* Summary Cards */}
@@ -245,53 +223,27 @@ const StockMovementModal: React.FC<StockMovementModalProps> = ({
                     <div className={`bg-gray-50 dark:bg-gray-800/30 border-b border-gray-200 dark:border-gray-700 ${isMobile ? 'px-3 py-3' : 'px-6 py-4'
                         }`}>
                         <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3 gap-4'}`}>
-                            <div className="relative" ref={typeDropdownRef}>
+                            <div>
                                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                                     Movement Type
                                 </label>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowTypeDropdown(!showTypeDropdown)}
-                                    className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent flex items-center justify-between"
+                                <Select.Root
+                                    value={movementTypeFilter || 'all'}
+                                    onValueChange={(value) => setMovementTypeFilter(value === 'all' ? '' : value as StockMovementType)}
                                 >
-                                    {movementTypeFilter ? (
-                                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${typeColors[movementTypeFilter]}`}>
-                                            {typeLabels[movementTypeFilter]}
-                                        </span>
-                                    ) : (
-                                        <span className="text-gray-500 dark:text-gray-400">All Types</span>
-                                    )}
-                                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showTypeDropdown ? 'rotate-180' : ''}`} />
-                                </button>
-                                {showTypeDropdown && (
-                                    <div className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setMovementTypeFilter('');
-                                                setShowTypeDropdown(false);
-                                            }}
-                                            className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${!movementTypeFilter ? 'bg-gray-50 dark:bg-gray-700/50' : ''}`}
-                                        >
-                                            <span className="text-gray-700 dark:text-gray-300">All Types</span>
-                                        </button>
+                                    <Select.Trigger variant="surface" placeholder="All Types" className="w-full" />
+                                    <Select.Content position="popper">
+                                        <Select.Item value="all">All Types</Select.Item>
+                                        <Select.Separator />
                                         {Object.entries(typeLabels).map(([value, label]) => (
-                                            <button
-                                                key={value}
-                                                type="button"
-                                                onClick={() => {
-                                                    setMovementTypeFilter(value as StockMovementType);
-                                                    setShowTypeDropdown(false);
-                                                }}
-                                                className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${movementTypeFilter === value ? 'bg-gray-50 dark:bg-gray-700/50' : ''}`}
-                                            >
+                                            <Select.Item key={value} value={value}>
                                                 <span className={`px-2 py-0.5 rounded text-xs font-medium ${typeColors[value as StockMovementType]}`}>
                                                     {label}
                                                 </span>
-                                            </button>
+                                            </Select.Item>
                                         ))}
-                                    </div>
-                                )}
+                                    </Select.Content>
+                                </Select.Root>
                             </div>
                             <div>
                                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
@@ -557,9 +509,8 @@ const StockMovementModal: React.FC<StockMovementModalProps> = ({
                         )}
                     </div>
                 )}
-            </div>
-        </div>,
-        document.body
+            </Dialog.Content>
+        </Dialog.Root>
     );
 };
 
