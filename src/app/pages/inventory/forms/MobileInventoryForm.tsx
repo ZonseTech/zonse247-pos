@@ -1,27 +1,21 @@
 import { Form, Formik, FormikHelpers } from 'formik';
-import FormInput from '../../../components/FormInput';
+import { Box, Flex, Separator, Text } from '@radix-ui/themes';
 import FormSelectBox from '../../../components/FormSelectBox';
 import { CategorySearch } from '../../categories/partials/CategorySearch';
 import { useState, FunctionComponent, useMemo } from 'react';
 import MobilePageHeader from '../../../components/page/MobilePageHeader';
-import {
-    X,
-    PlusIcon,
-} from 'lucide-react';
+import { X, History } from 'lucide-react';
 import * as Yup from 'yup';
-import { Button, FormFieldCard, PricingFields, ToggleButtonGroup, type ToggleOption } from '../../../components';
-import VariantModal from '../partials/VariantModal';
-import VariantCard from '../partials/VariantCard';
+import { Button, FormFieldCard, TextInput } from '../../../components';
+import PricingFields from './fields/PricingFields';
+import StockFields from './fields/StockFields';
+import BarcodeFields from './fields/BarcodeFields';
+import ExpiryFields from './fields/ExpiryFields';
+import NotesFields from './fields/NotesFields';
+import SkuFields from './fields/SkuFields';
 import StockMovementModal from '../partials/StockMovementModal';
-import { InventoryFormValues, createDefaultFormValues, createDefaultVariant, Variant } from '../types/variant.types';
+import { InventoryFormValues, Variant, createDefaultFormValues, createDefaultVariant } from '../types/variant.types';
 import MobilePlanSkeleton from '../../../components/loader/MobilePlanSkeleton';
-
-type FormMode = 'simple' | 'advance';
-
-const formModeOptions: ToggleOption<FormMode>[] = [
-    { value: 'simple', label: 'Simple' },
-    { value: 'advance', label: 'Advance' },
-];
 
 interface MobileInventoryFormProps {
     productId?: string;
@@ -41,13 +35,7 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
     unitOptions,
     onSubmit,
 }) => {
-    const [isVariantModalOpen, setIsVariantModalOpen] = useState(false);
-    const [editingVariantIndex, setEditingVariantIndex] = useState<number>(0);
-    const [isNewVariant, setIsNewVariant] = useState(false);
-    const [newVariantData, setNewVariantData] = useState(createDefaultVariant());
-    const [formMode, setFormMode] = useState<FormMode>(productId ? 'advance' : 'simple');
     const [isStockMovementOpen, setIsStockMovementOpen] = useState(false);
-    const [selectedVariantForMovements, setSelectedVariantForMovements] = useState<{ variant: Variant; productName: string } | null>(null);
 
     const initialFormValues: InventoryFormValues = useMemo(() => {
         if (item) {
@@ -118,175 +106,171 @@ const MobileInventoryForm: FunctionComponent<MobileInventoryFormProps> = ({
         variants: Yup.array().of(variantSchema).min(1, 'At least one variant is required'),
     });
 
-    const handleOpenVariantModal = (index: number) => {
-        setEditingVariantIndex(index);
-        setIsNewVariant(false);
-        setIsVariantModalOpen(true);
-    };
-
-    const handleOpenAddVariantModal = () => {
-        setNewVariantData(createDefaultVariant());
-        setIsNewVariant(true);
-        setIsVariantModalOpen(true);
-    };
-
-    const handleSaveNewVariant = (setFieldValue: (field: string, value: unknown) => void, variants: InventoryFormValues['variants']) => {
-        const newVariants = [...variants, newVariantData];
-        setFieldValue('variants', newVariants);
-        setEditingVariantIndex(newVariants.length - 1);
-    };
-
-    const handleDeleteVariant = (setFieldValue: (field: string, value: unknown) => void, variants: InventoryFormValues['variants'], index: number) => {
-        if (variants.length > 1) {
-            const newVariants = variants.filter((_, i) => i !== index);
-            setFieldValue('variants', newVariants);
-        }
-    };
+    const firstVariant = item?.variants?.[0];
 
     if (loading && !item && productId) {
         return <MobilePlanSkeleton />
     }
 
     return (
-        <div className="flex flex-col h-full bg-gray-100 dark:bg-gray-900">
+        <Flex direction="column" className="h-full overflow-hidden bg-gray-50 dark:bg-gray-900">
             <Formik
                 onSubmit={onSubmit}
                 enableReinitialize={true}
                 initialValues={initialFormValues}
                 validationSchema={validationSchema}
             >
-                {({ isSubmitting, values, setFieldValue, errors, touched, submitForm }) => (
-                    <>
-                        <div className="fixed top-0 left-0 right-0 z-30">
-                            <MobilePageHeader
-                                title={productId ? 'MANAGE ITEM' : 'ADD ITEM'}
-                                className="bg-white dark:bg-gray-800"
-                                leftIcon={<X className="w-5 h-5 text-sky-500 dark:text-sky-400" />}
-                                rightContent={
-                                    <Button
-                                        type="button"
-                                        onClick={submitForm}
-                                        disabled={isSubmitting || loading}
-                                        theme='success'
-                                        className='uppercase'
-                                    >
-                                        Submit
-                                    </Button>
-                                }
-                            />
-                        </div>
-                        <Form className="flex flex-col h-full">
-                            <div className="flex-1 overflow-y-auto pt-[60px] pb-24">
-                                <div className="px-4 py-4 space-y-4">
-                                    <FormFieldCard>
-                                        <FormInput
-                                            label="Item Name"
-                                            name="name"
-                                            placeholder="Enter item name"
-                                            required
+                {({ isSubmitting, values, setFieldValue, errors, touched, submitForm }) => {
+                    const getStringValue = (field: string): string => {
+                        const value = values.variants[0]?.[field as keyof Variant];
+                        return typeof value === 'string' ? value : '';
+                    };
+                    const getNumberValue = (field: string): number | string => {
+                        const value = values.variants[0]?.[field as keyof Variant];
+                        if (value === undefined || value === null || value === 0) {
+                            return '';
+                        }
+                        return typeof value === 'number' ? value : '';
+                    };
+                    const handleStringChange = (field: string, value: string) => {
+                        setFieldValue(`variants.0.${field}`, value);
+                    };
+                    const handleNumberChange = (field: string, value: string) => {
+                        const numValue = value === '' ? 0 : Number(value);
+                        setFieldValue(`variants.0.${field}`, numValue);
+                    };
+
+                    return (
+                        <>
+                            <Box className="fixed top-0 left-0 right-0 z-30">
+                                <MobilePageHeader
+                                    title={productId ? 'MANAGE ITEM' : 'ADD ITEM'}
+                                    className="bg-white dark:bg-gray-800"
+                                    leftIcon={<X className="w-5 h-5 text-sky-500 dark:text-sky-400" />}
+                                    rightContent={
+                                        <Button
+                                            type="button"
+                                            onClick={submitForm}
+                                            disabled={isSubmitting || loading}
+                                            theme='success'
                                             className='uppercase'
-                                        />
-                                    </FormFieldCard>
-
-                                    <FormFieldCard>
-                                        <CategorySearch
-                                            value={values.categoryId || ''}
-                                            onChange={(categoryId) => setFieldValue('categoryId', categoryId)}
-                                            error={errors.categoryId as string}
-                                            touched={touched.categoryId as boolean}
-                                        />
-                                    </FormFieldCard>
-
-                                    <FormFieldCard>
-                                        <FormSelectBox
-                                            label="Sell by Unit"
-                                            name="unit"
-                                            options={unitOptions}
-                                        />
-                                    </FormFieldCard>
-
-                                    {!productId && (
-                                        <ToggleButtonGroup<FormMode>
-                                            options={formModeOptions}
-                                            value={formMode}
-                                            onChange={(value) => setFormMode(value)}
-                                        />
-                                    )}
-
-                                    {formMode === 'simple' ? (
-                                        <FormFieldCard>
-                                            <PricingFields fieldPrefix="variants.0" showTrackProfit={false} />
-                                        </FormFieldCard>
-                                    ) : (
-                                        <>
-                                            <div className="space-y-2">
-                                                {values.variants.map((variant, index) => (
-                                                    <VariantCard
-                                                        key={variant.id || index}
-                                                        variant={variant}
-                                                        index={index}
-                                                        onClick={() => handleOpenVariantModal(index)}
-                                                        onViewHistory={productId && variant.id ? () => {
-                                                            setSelectedVariantForMovements({ variant, productName: values.name });
-                                                            setIsStockMovementOpen(true);
-                                                        } : undefined}
+                                        >
+                                            Submit
+                                        </Button>
+                                    }
+                                />
+                            </Box>
+                            <Form className="flex flex-col h-full">
+                                <Box className="flex-1 min-h-0 overflow-y-auto pt-[60px] pb-24">
+                                    <Box className="h-full" p="4">
+                                        <Flex direction="column" gap="4">
+                                            <FormFieldCard>
+                                                <Flex direction="column" gap="4">
+                                                    <TextInput
+                                                        label="Item Name"
+                                                        name="name"
+                                                        placeholder="Enter item name"
+                                                        required
+                                                        className='uppercase'
                                                     />
-                                                ))}
-                                            </div>
-                                            <div className='flex items-center justify-center'>
+
+                                                    <CategorySearch
+                                                        value={values.categoryId || ''}
+                                                        onChange={(categoryId) => setFieldValue('categoryId', categoryId)}
+                                                        error={errors.categoryId as string}
+                                                        touched={touched.categoryId as boolean}
+                                                    />
+
+                                                    <FormSelectBox
+                                                        label="Sell by Unit"
+                                                        name="unit"
+                                                        options={unitOptions}
+                                                    />
+                                                </Flex>
+                                            </FormFieldCard>
+
+                                            <Flex align="center" gap="2" py="1">
+                                                <Separator size="4" />
+                                                <Text size="1" weight="bold" className="uppercase tracking-wider whitespace-nowrap">
+                                                    Pricing &amp; Stock
+                                                </Text>
+                                                <Separator size="4" />
+                                            </Flex>
+
+                                            <FormFieldCard>
+                                                <PricingFields fieldPrefix="variants.0" showTrackProfit={false} />
+                                            </FormFieldCard>
+
+                                            <FormFieldCard>
+                                                <StockFields
+                                                    fieldPrefix="variants.0"
+                                                    isEditing={!!productId}
+                                                    trackInventory={Boolean(values.variants[0]?.trackInventory)}
+                                                    allowNegativeStock={Boolean(values.variants[0]?.allowNegativeStock)}
+                                                    onCheckboxChange={(field, value) => setFieldValue(`variants.0.${field}`, value)}
+                                                />
+                                            </FormFieldCard>
+
+                                            <BarcodeFields
+                                                fieldPrefix="variants.0"
+                                                getValue={getStringValue}
+                                                onChange={handleStringChange}
+                                                hasData={Boolean(getStringValue('primaryBarcode'))}
+                                            />
+
+                                            <ExpiryFields
+                                                fieldPrefix="variants.0"
+                                                getStringValue={getStringValue}
+                                                getNumberValue={getNumberValue}
+                                                onStringChange={handleStringChange}
+                                                onNumberChange={handleNumberChange}
+                                                hasData={Boolean(getStringValue('expirationDate') || getNumberValue('expiryDateAlert'))}
+                                            />
+
+                                            <NotesFields
+                                                fieldPrefix="variants.0"
+                                                getValue={getStringValue}
+                                                onChange={handleStringChange}
+                                                hasData={Boolean(getStringValue('description'))}
+                                            />
+
+                                            <SkuFields
+                                                fieldPrefix="variants.0"
+                                                getValue={getStringValue}
+                                                onChange={handleStringChange}
+                                                hasData={Boolean(getStringValue('sku'))}
+                                            />
+
+                                            {productId && firstVariant && (
                                                 <Button
                                                     type="button"
-                                                    onClick={handleOpenAddVariantModal}
-                                                    className='uppercase'
+                                                    onClick={() => setIsStockMovementOpen(true)}
+                                                    className="uppercase"
                                                 >
-                                                    <span>Add Variant</span>
-                                                    <PlusIcon className="w-5 h-5" />
+                                                    <History className="w-4 h-4 mr-2" />
+                                                    Stock Movement History
                                                 </Button>
-                                            </div>
-                                        </>
-                                    )}
+                                            )}
 
-                                    <VariantModal
-                                        isOpen={isVariantModalOpen}
-                                        onClose={() => {
-                                            setIsVariantModalOpen(false);
-                                            if (isNewVariant) {
-                                                setNewVariantData(createDefaultVariant());
-                                            }
-                                        }}
-                                        variantIndex={editingVariantIndex}
-                                        onSave={() => {
-                                            if (isNewVariant) {
-                                                handleSaveNewVariant(setFieldValue, values.variants);
-                                            }
-                                        }}
-                                        onDelete={() => handleDeleteVariant(setFieldValue, values.variants, editingVariantIndex)}
-                                        isNewVariant={isNewVariant}
-                                        isEditing={!!productId}
-                                        newVariantData={isNewVariant ? newVariantData : undefined}
-                                        onNewVariantChange={isNewVariant ? setNewVariantData : undefined}
-                                    />
-
-                                    {selectedVariantForMovements && (
-                                        <StockMovementModal
-                                            isOpen={isStockMovementOpen}
-                                            onClose={() => {
-                                                setIsStockMovementOpen(false);
-                                                setSelectedVariantForMovements(null);
-                                            }}
-                                            variantId={selectedVariantForMovements.variant.id}
-                                            variantName={selectedVariantForMovements.variant.variantName || 'Default'}
-                                            productName={selectedVariantForMovements.productName}
-                                            sku={selectedVariantForMovements.variant.sku}
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                        </Form>
-                    </>
-                )}
+                                            {productId && firstVariant && (
+                                                <StockMovementModal
+                                                    isOpen={isStockMovementOpen}
+                                                    onClose={() => setIsStockMovementOpen(false)}
+                                                    variantId={firstVariant.id}
+                                                    variantName={firstVariant.variantName}
+                                                    productName={item?.name || ''}
+                                                    sku={firstVariant.sku}
+                                                />
+                                            )}
+                                        </Flex>
+                                    </Box>
+                                </Box>
+                            </Form>
+                        </>
+                    );
+                }}
             </Formik>
-        </div>
+        </Flex>
     );
 };
 
