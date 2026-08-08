@@ -87,47 +87,16 @@ const CategoriesManager: FunctionComponent = () => {
 
     const columns = getCategoryColumns(handleEdit, handleDelete);
 
-    const summaryCards: CategorySummaryCard[] = useMemo(() => [
-        {
-            title: 'Total Categories',
-            value: totalRows,
-            displayValue: totalRows.toLocaleString(),
-            icon: 'total',
-            bgColor: 'bg-sky-50 dark:bg-sky-900/20',
-            iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
-            textColor: 'text-sky-500 dark:text-sky-400',
-        },
-        {
-            title: 'Active',
-            value: categories.filter(c => c.itemCount > 0).length,
-            displayValue: categories.filter(c => c.itemCount > 0).length.toLocaleString(),
-            icon: 'active',
-            bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
-            iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
-            textColor: 'text-emerald-500 dark:text-emerald-400',
-        },
-        {
-            title: 'Empty',
-            value: categories.filter(c => !c.itemCount || c.itemCount === 0).length,
-            displayValue: categories.filter(c => !c.itemCount || c.itemCount === 0).length.toLocaleString(),
-            icon: 'empty',
-            bgColor: 'bg-amber-50 dark:bg-amber-900/20',
-            iconBgColor: 'bg-amber-100 dark:bg-amber-900/40',
-            textColor: 'text-amber-500 dark:text-amber-400',
-        },
-    ], [totalRows, categories]);
-
-    const Wrapper = isInsideHub ? Fragment : AppLayout;
-
     return (
-        <Wrapper>
-            {/* Header */}
+        <>
             {isMobile ? (
                 !isInsideHub && (
-                    <MobilePageHeader
-                        title="Categories"
-                        showLeftButton={true}
-                    />
+                    <Fragment>
+                        <MobilePageHeader
+                            title="Categories"
+                            showLeftButton={true}
+                        />
+                    </Fragment>
                 )
             ) : (
                 <PageHeader
@@ -149,17 +118,17 @@ const CategoriesManager: FunctionComponent = () => {
                 />
             )}
 
-            <Box className="sm:rounded-lg shadow-sm border-y sm:border border-gray-200 dark:border-gray-700 sm:overflow-clip -mx-2 sm:mx-0">
-                {isMobile && (
-                    <Box px="3" pt="3" pb="1">
-                        <SearchBar
-                            value={searchTerm}
-                            onChange={setSearchTerm}
-                        />
-                    </Box>
-                )}
+            {isMobile && (
+                <Box px="3" pt="3" pb="1">
+                    <SearchBar
+                        value={searchTerm}
+                        onChange={setSearchTerm}
+                    />
+                </Box>
+            )}
 
-                {isMobile ? (
+            {isMobile ? (
+                <Box className="sm:rounded-lg shadow-sm border-y sm:border border-gray-200 dark:border-gray-700 sm:overflow-clip -mx-2 sm:mx-0">
                     <CategoriesMobileView
                         data={getPaginatedData()}
                         isLoading={isLoading}
@@ -173,49 +142,49 @@ const CategoriesManager: FunctionComponent = () => {
                         onClearFilters={handleClearFilters}
                         onAddCategory={handleAddCategory}
                     />
-                ) : (
-                    <Box className="overflow-hidden">
-                        <DataTable
-                            columns={columns}
-                            data={getPaginatedData()}
-                            theme={mode as string}
-                            progressPending={isLoading}
-                            progressComponent={<TableSkeleton rows={10} columns={4} />}
-                            highlightOnHover
-                            responsive
-                            pagination
-                            paginationServer
-                            paginationTotalRows={totalRows}
-                            onChangeRowsPerPage={(newPerPage, newPage) => {
-                                setPage(newPage);
-                                setPerPage(newPerPage);
-                            }}
-                            onChangePage={setPage}
-                            persistTableHead
-                            customStyles={getTableStyles(mode)}
-                            noDataComponent={
-                                <TableEmptyState
-                                    icon={<FolderOpen />}
-                                    title={searchTerm ? 'No categories found' : 'No categories yet'}
-                                    description={
-                                        searchTerm
-                                            ? 'Try adjusting your search terms or clear the filter'
-                                            : 'Get started by creating your first category to organize your products'
-                                    }
-                                    action={
-                                        !searchTerm ? (
-                                            <Button size="2" onClick={handleAddCategory}>
-                                                <Plus className="w-4 h-4" />
-                                                Create Category
-                                            </Button>
-                                        ) : undefined
-                                    }
-                                />
-                            }
-                        />
-                    </Box>
-                )}
-            </Box>
+                </Box>
+            ) : (
+                <Box className="rounded-md my-4 shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <DataTable
+                        columns={columns}
+                        data={getPaginatedData()}
+                        theme={mode as string}
+                        progressPending={isLoading}
+                        progressComponent={<TableSkeleton rows={10} columns={4} />}
+                        highlightOnHover
+                        responsive
+                        pagination
+                        paginationServer
+                        paginationTotalRows={totalRows}
+                        onChangeRowsPerPage={(newPerPage, newPage) => {
+                            setPage(newPage);
+                            setPerPage(newPerPage);
+                        }}
+                        onChangePage={setPage}
+                        persistTableHead
+                        customStyles={getTableStyles(mode)}
+                        noDataComponent={
+                            <TableEmptyState
+                                icon={<FolderOpen />}
+                                title={searchTerm ? 'No categories found' : 'No categories yet'}
+                                description={
+                                    searchTerm
+                                        ? 'Try adjusting your search terms or clear the filter'
+                                        : 'Get started by creating your first category to organize your products'
+                                }
+                                action={
+                                    !searchTerm ? (
+                                        <Button size="2" onClick={handleAddCategory}>
+                                            <Plus className="w-4 h-4" />
+                                            Create Category
+                                        </Button>
+                                    ) : undefined
+                                }
+                            />
+                        }
+                    />
+                </Box>
+            )}
 
             {/* Mobile: floating add button */}
             {isMobile && (
@@ -238,7 +207,7 @@ const CategoriesManager: FunctionComponent = () => {
                 showAddButton={true}
                 categoriesCount={categories.length}
             />
-        </Wrapper>
+        </>
     );
 };
 
