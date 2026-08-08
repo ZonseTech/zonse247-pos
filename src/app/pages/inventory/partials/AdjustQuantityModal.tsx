@@ -1,8 +1,8 @@
 import { useState, useEffect, FC, useMemo } from 'react';
-import { createPortal } from 'react-dom';
-import { Minus, Plus, ClipboardCheck, Package, X, ChevronDown, Check, ArrowRight } from 'lucide-react';
+import { Dialog, Select, Flex, Grid, Text, TextField, IconButton } from '@radix-ui/themes';
+import { Minus, Plus, ClipboardCheck, Package, X, ArrowRight } from 'lucide-react';
 import { Notify } from 'notiflix';
-import { Button, Input, Label } from '../../../components';
+import { Button } from '../../../components';
 import stockMovementService from '../../../services/stock-movement.service';
 import { getErrorMessage } from '../../../utils/api-error-handler';
 
@@ -24,7 +24,6 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
     const [adjustmentType, setAdjustmentType] = useState<'add' | 'subtract' | 'set'>('add');
     const [adjustmentValue, setAdjustmentValue] = useState('');
     const [adjustmentReason, setAdjustmentReason] = useState('');
-    const [isVariantDropdownOpen, setIsVariantDropdownOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const variants = useMemo(() => item?.variants || [], [item]);
@@ -44,23 +43,11 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
         }
     }, [item, variants]);
 
-    useEffect(() => {
-        if (!isOpen) return;
-        const handleEscape = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-        document.addEventListener('keydown', handleEscape);
-        document.body.style.overflow = 'hidden';
-        return () => {
-            document.removeEventListener('keydown', handleEscape);
-            document.body.style.overflow = '';
-        };
-    }, [isOpen, onClose]);
-
     const resetAndClose = () => {
         setAdjustmentType('add');
         setAdjustmentValue('');
         setAdjustmentReason('');
         setSelectedVariantId(null);
-        setIsVariantDropdownOpen(false);
         onClose();
     };
 
@@ -122,40 +109,26 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
     const isValid = !!adjustmentValue && !!selectedVariant && value >= 0
         && (!isReasonRequired || adjustmentReason.trim().length > 0);
 
-    const getVariantLabel = (variant: ProductVariant) => {
-        const parts = [variant.variantName];
-        if (variant.sku) parts.push(`SKU: ${variant.sku}`);
-        return parts.join(' • ');
-    };
-
-    return createPortal(
-        <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-            onClick={(e) => e.target === e.currentTarget && resetAndClose()}
-        >
-            <div className="bg-white dark:bg-gray-800 w-full max-w-sm rounded-xl shadow-2xl">
+    return (
+        <Dialog.Root open={isOpen} onOpenChange={(open) => !open && resetAndClose()}>
+            <Dialog.Content maxWidth="420px">
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                    <div>
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            Adjust Stock
-                        </h2>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                            Creates an audited stock movement record
-                        </p>
-                    </div>
-                    <button
-                        onClick={resetAndClose}
-                        className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
-                </div>
+                <Flex justify="between" align="start" mb="4">
+                    <Dialog.Title mb="0">Adjust Stock</Dialog.Title>
+                    <Dialog.Close>
+                        <IconButton type="button" variant="ghost" color="gray" size="1" aria-label="Close">
+                            <X className="w-5 h-5" />
+                        </IconButton>
+                    </Dialog.Close>
+                </Flex>
+                <Dialog.Description size="2" color="gray" mb="4">
+                    Creates an audited stock movement record
+                </Dialog.Description>
 
                 {/* Content */}
-                <div className="p-4 space-y-4">
+                <Flex direction="column" gap="4">
                     {/* Product Info */}
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <Flex align="center" gap="3" p="3" className="bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                         <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
                             <Package className="w-5 h-5 text-sky-500 dark:text-sky-400" />
                         </div>
@@ -167,77 +140,40 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
                                 </p>
                             )}
                         </div>
-                    </div>
+                    </Flex>
 
                     {/* Variant Selector (only if multiple variants) */}
                     {hasMultipleVariants && (
                         <div>
-                            <Label>Select Variant</Label>
-                            <div className="relative mt-1.5">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsVariantDropdownOpen(!isVariantDropdownOpen)}
-                                    className="w-full flex items-center justify-between gap-2 px-3 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-left hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
-                                >
-                                    <div className="flex-1 min-w-0">
-                                        {selectedVariant ? (
-                                            <>
-                                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                                                    {selectedVariant.variantName}
-                                                </p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                    Stock: {selectedVariant.inventory?.availableQuantity ?? 0}
-                                                    {selectedVariant.sku && ` • SKU: ${selectedVariant.sku}`}
-                                                </p>
-                                            </>
-                                        ) : (
-                                            <p className="text-sm text-gray-500">Select a variant...</p>
-                                        )}
-                                    </div>
-                                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isVariantDropdownOpen ? 'rotate-180' : ''}`} />
-                                </button>
-
-                                {isVariantDropdownOpen && (
-                                    <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                                        {variants.map((variant) => {
-                                            const isSelected = selectedVariantId === variant.id;
-                                            const qty = variant.inventory?.availableQuantity ?? 0;
-
-                                            return (
-                                                <button
-                                                    key={variant.id}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setSelectedVariantId(variant.id);
-                                                        setIsVariantDropdownOpen(false);
-                                                    }}
-                                                    className={`w-full flex items-center gap-2 px-3 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors ${isSelected ? 'bg-sky-50 dark:bg-sky-900/20' : ''
-                                                        }`}
-                                                >
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className={`text-sm font-medium truncate ${isSelected ? 'text-sky-600 dark:text-sky-400' : 'text-gray-900 dark:text-gray-100'
-                                                            }`}>
-                                                            {variant.variantName}
-                                                            {variant.isDefault && (
-                                                                <span className="ml-1.5 text-xs px-1.5 py-0.5 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded">
-                                                                    Default
-                                                                </span>
-                                                            )}
-                                                        </p>
-                                                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                            Stock: {qty}
-                                                            {variant.sku && ` • SKU: ${variant.sku}`}
-                                                        </p>
-                                                    </div>
-                                                    {isSelected && (
-                                                        <Check className="w-4 h-4 text-sky-500 flex-shrink-0" />
-                                                    )}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                            </div>
+                            <Text as="label" size="2" weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                                Select Variant
+                            </Text>
+                            <Select.Root
+                                value={selectedVariantId ?? undefined}
+                                onValueChange={(value) => setSelectedVariantId(value)}
+                            >
+                                <Select.Trigger variant="surface" placeholder="Select a variant..." className="w-full mt-1.5" />
+                                <Select.Content position="popper">
+                                    {variants.map((variant) => {
+                                        const qty = variant.inventory?.availableQuantity ?? 0;
+                                        return (
+                                            <Select.Item key={variant.id} value={variant.id}>
+                                                <Flex direction="column">
+                                                    <Text size="2">
+                                                        {variant.variantName}
+                                                        {variant.isDefault && (
+                                                            <Text size="1" color="gray"> (Default)</Text>
+                                                        )}
+                                                    </Text>
+                                                    <Text size="1" color="gray">
+                                                        Stock: {qty}{variant.sku && ` • SKU: ${variant.sku}`}
+                                                    </Text>
+                                                </Flex>
+                                            </Select.Item>
+                                        );
+                                    })}
+                                </Select.Content>
+                            </Select.Root>
 
                             {/* Show current quantity for selected variant */}
                             {selectedVariant && (
@@ -250,8 +186,10 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
 
                     {/* Adjustment Type */}
                     <div>
-                        <Label>Movement Type</Label>
-                        <div className="grid grid-cols-3 gap-2 mt-1.5">
+                        <Text as="label" size="2" weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                            Movement Type
+                        </Text>
+                        <Grid columns="3" gap="2" mt="1">
                             {ADJUSTMENT_TYPES.map(({ type, icon: Icon, label, hint, active }) => (
                                 <button
                                     key={type}
@@ -267,13 +205,15 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
                                     <span className="text-[9px] opacity-60 leading-tight text-center px-1">{hint}</span>
                                 </button>
                             ))}
-                        </div>
+                        </Grid>
                     </div>
 
                     {/* Quantity Input */}
                     <div>
-                        <Label>{adjustmentType === 'set' ? 'Actual Quantity on Hand' : 'Quantity'}</Label>
-                        <Input
+                        <Text as="label" size="2" weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                            {adjustmentType === 'set' ? 'Actual Quantity on Hand' : 'Quantity'}
+                        </Text>
+                        <TextField.Root
                             type="number"
                             min="0"
                             value={adjustmentValue}
@@ -285,10 +225,10 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
 
                     {/* Reason Input */}
                     <div>
-                        <Label>
-                            Reason {isReasonRequired ? <span className="text-red-500">*</span> : '(optional)'}
-                        </Label>
-                        <Input
+                        <Text as="label" size="2" weight="medium" mb="1" className="block text-gray-700 dark:text-gray-300">
+                            Reason {isReasonRequired ? <Text color="red">*</Text> : '(optional)'}
+                        </Text>
+                        <TextField.Root
                             type="text"
                             value={adjustmentReason}
                             onChange={(e) => setAdjustmentReason(e.target.value)}
@@ -332,10 +272,10 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
                             )}
                         </div>
                     )}
-                </div>
+                </Flex>
 
                 {/* Footer */}
-                <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+                <Flex justify="end" gap="2" mt="4">
                     <Button theme="neutral" layout="outline" onClick={resetAndClose}>
                         Cancel
                     </Button>
@@ -347,10 +287,9 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
                     >
                         {adjustmentType === 'set' ? 'Record Count' : 'Apply Adjustment'}
                     </Button>
-                </div>
-            </div>
-        </div>,
-        document.body
+                </Flex>
+            </Dialog.Content>
+        </Dialog.Root>
     );
 };
 
