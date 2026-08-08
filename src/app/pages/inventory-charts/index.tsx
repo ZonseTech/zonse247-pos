@@ -56,7 +56,7 @@ const InventoryCharts: FunctionComponent = () => {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 my-4">
             {!isMobile && (
                 <PageHeader
                     title="Inventory Charts"
@@ -76,7 +76,6 @@ const InventoryCharts: FunctionComponent = () => {
                 />
             )}
 
-            {/* Period COGS Chart */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div className="px-4 pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
@@ -145,7 +144,6 @@ const InventoryCharts: FunctionComponent = () => {
                 </div>
             </div>
 
-            {/* Aging Distribution Chart */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div className="px-4 pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
