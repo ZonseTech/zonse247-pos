@@ -242,7 +242,6 @@ export const getInventoryTableColumns = ({
             {
                 name: '',
                 cell: (row) => {
-                    // The delete/void endpoint operates on the variant, not the product
                     const deleteTargetId = getDefaultVariant(row)?.id?.toString() || row.id?.toString() || '';
                     return (
                         <div className="flex items-center space-x-0.5">
