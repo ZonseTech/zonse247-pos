@@ -42,14 +42,14 @@ const COGSProfitability: FunctionComponent = () => {
     }
 
     return (
-        <AppLayout>
+        <>
             <PageHeader
                 icon={<DollarSign className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                 title="COGS & Profitability"
                 description="Cost of Goods Sold analysis and gross profit by product"
             />
 
-            <Box className="rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <Box className="rounded-lg my-4 shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <Flex
                     direction={{ initial: 'column', sm: 'row' }}
                     align={{ initial: 'start', sm: 'center' }}
@@ -86,7 +86,7 @@ const COGSProfitability: FunctionComponent = () => {
                     onPerRowsChange={handlePerRowsChange}
                 />
             </Box>
-        </AppLayout>
+        </>
     );
 };
 
