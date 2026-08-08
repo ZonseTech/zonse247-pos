@@ -1,8 +1,7 @@
 import { FunctionComponent } from 'react';
 import { Tag } from 'lucide-react';
-import FormInput from '../../../../components/FormInput';
-import Input from '../../../../components/Input';
-import { CollapsibleSection } from '../../../../components';
+import { TextField } from '@radix-ui/themes';
+import { CollapsibleSection, TextInput } from '../../../../components';
 
 interface NotesFieldsProps {
     fieldPrefix: string;
@@ -28,14 +27,15 @@ const NotesFields: FunctionComponent<NotesFieldsProps> = ({
             <div className="space-y-4">
                 {isNewVariant ? (
                     <div className="space-y-1">
-                        <Input
+                        <TextField.Root
                             value={getValue('description')}
                             onChange={(e) => onChange('description', e.target.value)}
                             placeholder="Enter internal notes"
                         />
                     </div>
                 ) : (
-                    <FormInput
+                    <TextInput
+                        label=""
                         name={`${fieldPrefix}.description`}
                         placeholder="Enter internal notes"
                     />
