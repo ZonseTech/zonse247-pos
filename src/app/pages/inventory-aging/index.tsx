@@ -97,14 +97,14 @@ const InventoryAging: FunctionComponent = () => {
     ], [summary, valueAtRisk]);
 
     return (
-        <AppLayout>
+        <>
             <PageHeader
                 icon={<Clock className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                 title="Inventory Aging"
                 description="Slow-mover and dead stock analysis"
             />
 
-            <Box className="rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <Box className="rounded-lg my-4 shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <SummaryCards cards={summaryCards} isLoading={isLoading} skeletonCount={4} variant="embedded" />
 
                 <Flex
@@ -185,7 +185,7 @@ const InventoryAging: FunctionComponent = () => {
                     }
                 />
             </Box>
-        </AppLayout>
+        </>
     );
 };
 
