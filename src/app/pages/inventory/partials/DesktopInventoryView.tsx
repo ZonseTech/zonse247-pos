@@ -104,7 +104,7 @@ const DesktopInventoryView: FC<DesktopInventoryViewProps> = ({
     });
 
     return (
-        <Box className="rounded-md shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <Box className="rounded-md my-4 shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
             <InventoryToolbar
                 searchTerm={searchTerm}
                 onSearch={onSearch}
