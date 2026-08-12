@@ -1,16 +1,13 @@
 import { Confirm, Notify } from 'notiflix';
-import { Printer, Radar, ListTodo } from 'lucide-react';
-import { Box, Card, Flex, Text } from '@radix-ui/themes';
+import { Radar, ListTodo } from 'lucide-react';
+import { Box, Button, Card, Flex } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
 import { HiOutlinePrinter } from 'react-icons/hi2';
 import { SearchBar } from '../../components/SearchBar';
-import DataTable from 'react-data-table-component';
 import { usePrinters } from '../../hooks/usePrinters';
-import { FunctionComponent, useContext, useState } from 'react';
-import { getTableStyles } from '../../utils/table-styles';
+import { FunctionComponent, useState } from 'react';
 import PageHeader from '../../components/page/PageHeader';
-import { Button, ZonseThemeContext } from '../../components';
-import { getPrinterColumns } from './partials/PrinterTableColumns';
+import { PrinterTable } from './partials/PrinterTable';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
 import printerService from '../../services/printer.service';
@@ -20,7 +17,6 @@ import { getErrorMessage } from '../../utils/api-error-handler';
 
 const DesktopPrinterManagement: FunctionComponent = () => {
     const navigate = useNavigate();
-    const { mode } = useContext(ZonseThemeContext);
     const [isDiscovering, setIsDiscovering] = useState(false);
     const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
     const [discoveredPrinters, setDiscoveredPrinters] = useState<DiscoveredPrinter[]>([]);
@@ -32,9 +28,9 @@ const DesktopPrinterManagement: FunctionComponent = () => {
     const [printerToEdit, setPrinterToEdit] = useState<Printer | null>(null);
 
     const {
-        printers, isLoading, searchTerm, setSearchTerm, totalRows, perPage,
+        printers, isLoading, searchTerm, setSearchTerm, page, totalRows, perPage,
         handlePageChange, handlePerRowsChange,
-        deletePrinter, setDefault, activatePrinter, deactivatePrinter, testConnection, printTestPage,
+        deletePrinter, setDefault, testConnection, printTestPage,
         discoverPrinters, refreshPrinters,
     } = usePrinters();
 
@@ -116,23 +112,12 @@ const DesktopPrinterManagement: FunctionComponent = () => {
         );
     };
 
-    const handleToggleActive = (printerId: string, isActive: boolean) => {
-        const action = isActive ? 'Deactivate' : 'Activate';
-        const color = isActive ? '#ef4444' : '#22c55e';
-        Confirm.show(`${action} Printer`, `${action} this printer?`, `Yes, ${action}`, 'Cancel',
-            async () => { await (isActive ? deactivatePrinter : activatePrinter)(printerId); }, () => { },
-            { titleColor: color, okButtonBackground: color }
-        );
-    };
-
     const handlePrintTestPage = (printerId: string) => {
         Confirm.show('Print Test Page', 'Print a test page?', 'Yes', 'Cancel',
             async () => { await printTestPage(printerId); }, () => { },
             { titleColor: '#8b5cf6', okButtonBackground: '#8b5cf6' }
         );
     };
-
-    const columns = getPrinterColumns(handleEdit, handleDelete, handleSetDefault, handleToggleActive, testConnection, handlePrintTestPage);
 
     return (
         <AppLayout>
@@ -144,51 +129,41 @@ const DesktopPrinterManagement: FunctionComponent = () => {
                     action={
                         <Flex align="center" justify="between" gap="2">
                             <SearchBar value={searchTerm} onChange={setSearchTerm} />
-                            <Button onClick={() => navigate(ROUTES.PRINT_JOBS)} icon={ListTodo} layout="outline" theme='neutral'>
+                            <Button onClick={() => navigate(ROUTES.PRINT_JOBS)} variant="outline" color="gray" size="2">
+                                <ListTodo className="w-4 h-4" />
                                 <span className='hidden md:block'>Print Jobs</span>
                             </Button>
-                            <Button onClick={() => handleDiscoverPrinters()} icon={Radar} layout="primary" theme='primary' disabled={isDiscovering}>
+                            <Button onClick={() => handleDiscoverPrinters()} size="2" disabled={isDiscovering}>
+                                <Radar className="w-4 h-4" />
                                 <span className='hidden md:block'>{isDiscovering ? 'Discovering...' : 'Discover Printers'}</span>
                             </Button>
                         </Flex>
                     }
                 />
 
-                <Card size="2" className="overflow-hidden">
-                    <DataTable
-                        columns={columns}
-                        data={printers}
-                        theme={mode as string}
-                        progressPending={isLoading}
-                        highlightOnHover
-                        striped
-                        responsive
-                        pagination
-                        paginationServer
-                        paginationTotalRows={totalRows}
-                        paginationPerPage={perPage}
-                        paginationRowsPerPageOptions={[10, 15, 25, 50]}
-                        onChangeRowsPerPage={handlePerRowsChange}
-                        onChangePage={handlePageChange}
-                        customStyles={getTableStyles(mode)}
-                        noDataComponent={
-                            <Flex direction="column" align="center" py="9" className="dark:bg-gray-800">
-                                <Printer className="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4" />
-                                <Text size="2" color="gray" weight="medium">
-                                    {searchTerm ? 'No printers found.' : 'No printers.'}
-                                </Text>
-                            </Flex>
-                        }
-                    />
+                <PrinterTable
+                    printers={printers}
+                    isLoading={isLoading}
+                    searchTerm={searchTerm}
+                    page={page}
+                    perPage={perPage}
+                    totalRows={totalRows}
+                    onPageChange={handlePageChange}
+                    onPerPageChange={(newPerPage) => handlePerRowsChange(newPerPage, 1)}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onSetDefault={handleSetDefault}
+                    onTestConnection={testConnection}
+                    onPrintTestPage={handlePrintTestPage}
+                />
 
-                    <EditPrinterModal
-                        isOpen={showEditModal}
-                        printer={printerToEdit}
-                        onClose={handleCloseEditModal}
-                        onSave={handleSaveEditModal}
-                        onDelete={deletePrinter}
-                    />
-                </Card>
+                <EditPrinterModal
+                    isOpen={showEditModal}
+                    printer={printerToEdit}
+                    onClose={handleCloseEditModal}
+                    onSave={handleSaveEditModal}
+                    onDelete={deletePrinter}
+                />
             </Box>
 
             <DiscoveryModal
