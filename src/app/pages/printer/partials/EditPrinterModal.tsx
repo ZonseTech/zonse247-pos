@@ -2,8 +2,8 @@ import { FunctionComponent, useState, ReactNode } from 'react';
 import { Form, Formik } from 'formik';
 import { Notify, Confirm } from 'notiflix';
 import { Wifi, Usb, Bluetooth, Network, Star, Trash2, Power, TestTube, FileText, Printer } from 'lucide-react';
-import { Badge, Dialog, Flex, Heading, IconButton, ScrollArea, Separator, Text, Tooltip } from '@radix-ui/themes';
-import { Button, FormSearchableSelect, FormFieldCard, TabOptionGroup, FormSwitch } from '../../../components';
+import { Badge, Button, Dialog, Flex, Heading, IconButton, ScrollArea, Separator, Text, Tooltip } from '@radix-ui/themes';
+import { FormSearchableSelect, FormFieldCard, TabOptionGroup, FormSwitch } from '../../../components';
 import printerService from '../../../services/printer.service';
 import { getErrorMessage } from '../../../utils/api-error-handler';
 
@@ -61,13 +61,13 @@ const EditPrinterModal: FunctionComponent<EditPrinterModalProps> = ({
 
 	const getConnectionIcon = (type: PrinterConnectionType): ReactNode => {
 		const icons: Record<PrinterConnectionType, ReactNode> = {
-			'USB': <Usb className="w-5 h-5" />,
-			'NETWORK': <Network className="w-5 h-5" />,
-			'BLUETOOTH': <Bluetooth className="w-5 h-5" />,
-			'SERIAL': <Network className="w-5 h-5" />,
-			'WIFI': <Wifi className="w-5 h-5" />
+			'USB': <Usb className="w-6 h-6" />,
+			'NETWORK': <Network className="w-6 h-6" />,
+			'BLUETOOTH': <Bluetooth className="w-6 h-6" />,
+			'SERIAL': <Network className="w-6 h-6" />,
+			'WIFI': <Wifi className="w-6 h-6" />
 		};
-		return icons[type] || <Network className="w-5 h-5" />;
+		return icons[type] || <Network className="w-6 h-6" />;
 	};
 
 	const handleSubmit = async (values: any) => {
@@ -76,7 +76,6 @@ const EditPrinterModal: FunctionComponent<EditPrinterModalProps> = ({
 		setIsSaving(true);
 		try {
 			await printerService.update(printer.printerId, {
-				...printer,
 				isReceiptPrinter: values.printerContent === 'receipt',
 				isReportPrinter: values.printerContent === 'report',
 				isLabelPrinter: values.printerContent === 'label',
@@ -182,21 +181,21 @@ const EditPrinterModal: FunctionComponent<EditPrinterModalProps> = ({
 		paperWidth: printer.configuration?.paperWidth || 80,
 		printerContent: printer.isReceiptPrinter ? 'receipt' : printer.isReportPrinter ? 'report' : printer.isLabelPrinter ? 'label' : printer.isKitchenPrinter ? 'kitchen' : 'receipt',
 		printMode: printer.configuration?.printMode || 'normal',
-		autoPrintOnSale: printer.configuration?.autoPrintOnSale || false,
+		autoPrintOnSale: printer.configuration?.autoPrintOnSale ?? true,
 		lineSpacing: printer.configuration?.lineSpacing || 1.5,
 		fontSize: printer.configuration?.fontSize || 12,
 	};
 
 	return (
 		<Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
-			<Dialog.Content maxWidth="768px" className="!p-0 !rounded-2xl">
+			<Dialog.Content maxWidth="768px" className="!p-0 !rounded-3xl !shadow-2xl overflow-hidden">
 				{/* Header */}
-				<Flex direction="column" className="border-b border-gray-200 dark:border-gray-700" px="6" py="5">
+				<Flex direction="column" className="border-b border-gray-100 dark:border-gray-800 bg-gradient-to-br from-sky-50/60 via-white to-white dark:from-sky-950/10 dark:via-gray-900 dark:to-gray-900" px="6" py="5">
 					<Flex align="start" justify="between">
 						<Flex align="center" gap="3" className="flex-1 min-w-0">
 							<Flex
 								align="center" justify="center"
-								className={`p-2.5 rounded-xl ${printer.isActive ? 'bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400' : 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500'}`}
+								className={`w-14 h-14 rounded-2xl bg-gradient-to-br shadow-sm ${printer.isActive ? 'from-sky-100 to-sky-200 text-sky-600 dark:from-sky-900/50 dark:to-sky-800/20 dark:text-sky-400' : 'from-gray-100 to-gray-200 text-gray-400 dark:from-gray-800 dark:to-gray-700/60 dark:text-gray-500'}`}
 							>
 								{getConnectionIcon(printer.connectionType)}
 							</Flex>
@@ -222,38 +221,41 @@ const EditPrinterModal: FunctionComponent<EditPrinterModalProps> = ({
 					<Separator size="4" my="4" />
 
 					<Flex align="center" gap="2">
-						<Badge color={printer.isActive ? 'green' : 'gray'} variant="soft" size="1">
+						<Badge color={printer.isActive ? 'green' : 'gray'} variant="soft" size="2" radius="full">
 							{printer.isActive ? 'Active' : 'Inactive'}
 						</Badge>
 						<div className="flex-1" />
-						<Tooltip content={printer.isDefault ? 'Default printer' : 'Set as default'}>
-							<IconButton
-								variant="ghost"
-								color={printer.isDefault ? 'yellow' : 'gray'}
-								size="2"
-								onClick={handleSetDefault}
-								disabled={printer.isDefault}
-							>
-								<Star className={`w-5 h-5 ${printer.isDefault ? 'fill-current' : ''}`} />
-							</IconButton>
-						</Tooltip>
-						<Tooltip content={printer.isActive ? 'Disable printer' : 'Enable printer'}>
-							<IconButton variant="ghost" color={printer.isActive ? 'green' : 'gray'} size="2" onClick={handleToggleActive}>
-								<Power className="w-5 h-5" />
-							</IconButton>
-						</Tooltip>
-						<Tooltip content="Test connection">
-							<IconButton variant="ghost" color="blue" size="2" onClick={handleTestConnection} disabled={isTestingConnection}>
-								<TestTube className={`w-5 h-5 ${isTestingConnection ? 'animate-pulse' : ''}`} />
-							</IconButton>
-						</Tooltip>
-						{onDelete && (
-							<Tooltip content="Delete printer">
-								<IconButton variant="ghost" color="red" size="2" onClick={handleDelete}>
-									<Trash2 className="w-5 h-5" />
+						<Flex align="center" gap="1" className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-full p-1 shadow-sm ring-1 ring-gray-100 dark:ring-gray-700">
+							<Tooltip content={printer.isDefault ? 'Default printer' : 'Set as default'}>
+								<IconButton
+									variant="ghost"
+									color={printer.isDefault ? 'yellow' : 'gray'}
+									size="2"
+									radius="full"
+									onClick={handleSetDefault}
+									disabled={printer.isDefault}
+								>
+									<Star className={`w-4 h-4 ${printer.isDefault ? 'fill-current' : ''}`} />
 								</IconButton>
 							</Tooltip>
-						)}
+							<Tooltip content={printer.isActive ? 'Disable printer' : 'Enable printer'}>
+								<IconButton variant="ghost" color={printer.isActive ? 'green' : 'gray'} size="2" radius="full" onClick={handleToggleActive}>
+									<Power className="w-4 h-4" />
+								</IconButton>
+							</Tooltip>
+							<Tooltip content="Test connection">
+								<IconButton variant="ghost" color="blue" size="2" radius="full" onClick={handleTestConnection} disabled={isTestingConnection}>
+									<TestTube className={`w-4 h-4 ${isTestingConnection ? 'animate-pulse' : ''}`} />
+								</IconButton>
+							</Tooltip>
+							{onDelete && (
+								<Tooltip content="Delete printer">
+									<IconButton variant="ghost" color="red" size="2" radius="full" onClick={handleDelete}>
+										<Trash2 className="w-4 h-4" />
+									</IconButton>
+								</Tooltip>
+							)}
+						</Flex>
 					</Flex>
 				</Flex>
 
@@ -266,8 +268,8 @@ const EditPrinterModal: FunctionComponent<EditPrinterModalProps> = ({
 							enableReinitialize
 						>
 							{() => (
-								<Form id="printer-edit-form" className="space-y-6">
-									<FormFieldCard title="Paper Width">
+								<Form id="printer-edit-form" className="space-y-4">
+									<FormFieldCard title="Paper Width" className="!rounded-2xl !shadow-sm ring-1 ring-gray-100 dark:ring-gray-800 dark:!bg-gray-800/60">
 										<TabOptionGroup
 											name="paperWidth"
 											options={PAPER_WIDTH_OPTIONS}
@@ -276,7 +278,7 @@ const EditPrinterModal: FunctionComponent<EditPrinterModalProps> = ({
 										/>
 									</FormFieldCard>
 
-									<FormFieldCard title="Printer Content">
+									<FormFieldCard title="Printer Content" className="!rounded-2xl !shadow-sm ring-1 ring-gray-100 dark:ring-gray-800 dark:!bg-gray-800/60">
 										<TabOptionGroup
 											name="printerContent"
 											options={PRINTER_CONTENT_OPTIONS}
@@ -285,7 +287,7 @@ const EditPrinterModal: FunctionComponent<EditPrinterModalProps> = ({
 										/>
 									</FormFieldCard>
 
-									<FormFieldCard title="Print Mode">
+									<FormFieldCard title="Print Mode" className="!rounded-2xl !shadow-sm ring-1 ring-gray-100 dark:ring-gray-800 dark:!bg-gray-800/60">
 										<TabOptionGroup
 											name="printMode"
 											options={PRINT_MODE_OPTIONS}
@@ -294,7 +296,7 @@ const EditPrinterModal: FunctionComponent<EditPrinterModalProps> = ({
 										/>
 									</FormFieldCard>
 
-									<FormFieldCard title="Additional Options">
+									<FormFieldCard title="Additional Options" className="!rounded-2xl !shadow-sm ring-1 ring-gray-100 dark:ring-gray-800 dark:!bg-gray-800/60">
 										<div className="space-y-4">
 											<FormSwitch
 												name="autoPrintOnSale"
@@ -325,11 +327,13 @@ const EditPrinterModal: FunctionComponent<EditPrinterModalProps> = ({
 				</ScrollArea>
 
 				{/* Footer Actions */}
-				<Flex gap="3" px="6" py="4" className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+				<Flex gap="3" px="6" py="4" className="border-t border-gray-100 dark:border-gray-800 bg-gray-50/80 dark:bg-gray-900/60 backdrop-blur-md">
 					<Button
 						type="button"
-						theme="neutral"
-						layout="outline"
+						variant="outline"
+						color="gray"
+						size="3"
+						radius="large"
 						onClick={onClose}
 						className="flex-1"
 					>
@@ -337,19 +341,21 @@ const EditPrinterModal: FunctionComponent<EditPrinterModalProps> = ({
 					</Button>
 					<Button
 						type="button"
-						theme="primary"
-						layout="outline"
+						variant="outline"
+						size="3"
+						radius="large"
 						onClick={handlePrintTestPage}
 						className="flex-1"
 					>
-						<FileText className="w-4 h-4 mr-2" />
+						<FileText className="w-4 h-4" />
 						Test Print
 					</Button>
 					<Button
 						type="submit"
 						form="printer-edit-form"
-						theme="primary"
-						className="flex-1"
+						size="3"
+						radius="large"
+						className="flex-1 shadow-lg shadow-sky-500/20"
 						disabled={isSaving}
 					>
 						{isSaving ? 'Saving...' : 'Save Changes'}

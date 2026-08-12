@@ -1,10 +1,10 @@
 import { FunctionComponent, useState, ReactNode } from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { Badge, Flex, Heading, IconButton, ScrollArea, Separator, Text, Tooltip, Theme } from '@radix-ui/themes';
+import { Badge, Button, Flex, Heading, IconButton, ScrollArea, Separator, Text, Tooltip, Theme } from '@radix-ui/themes';
 import { Form, Formik } from 'formik';
 import { Notify, Confirm } from 'notiflix';
 import { Wifi, Usb, Bluetooth, Network, Star, Trash2, Power, TestTube, FileText, Printer } from 'lucide-react';
-import { Button, FormSearchableSelect, FormFieldCard, TabOptionGroup, FormSwitch } from '../../../components';
+import { FormSearchableSelect, FormFieldCard, TabOptionGroup, FormSwitch } from '../../../components';
 import printerService from '../../../services/printer.service';
 import MobilePageHeader from '../../../components/page/MobilePageHeader';
 import { getErrorMessage } from '../../../utils/api-error-handler';
@@ -78,7 +78,6 @@ const PrinterDetailModal: FunctionComponent<PrinterDetailModalProps> = ({
         setIsSaving(true);
         try {
             await printerService.update(printer.printerId, {
-                ...printer,
                 isReceiptPrinter: values.printerContent === 'receipt',
                 isReportPrinter: values.printerContent === 'report',
                 isLabelPrinter: values.printerContent === 'label',
@@ -184,7 +183,7 @@ const PrinterDetailModal: FunctionComponent<PrinterDetailModalProps> = ({
         paperWidth: printer.configuration?.paperWidth || 80,
         printerContent: printer.isReceiptPrinter ? 'receipt' : printer.isReportPrinter ? 'report' : printer.isLabelPrinter ? 'label' : printer.isKitchenPrinter ? 'kitchen' : 'receipt',
         printMode: printer.configuration?.printMode || 'normal',
-        autoPrintOnSale: printer.configuration?.autoPrintOnSale || false,
+        autoPrintOnSale: printer.configuration?.autoPrintOnSale ?? true,
         lineSpacing: printer.configuration?.lineSpacing || 1.5,
         fontSize: printer.configuration?.fontSize || 12,
     };
@@ -193,8 +192,8 @@ const PrinterDetailModal: FunctionComponent<PrinterDetailModalProps> = ({
         <DialogPrimitive.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogPrimitive.Portal>
                 <Theme appearance="inherit" accentColor="cyan">
-                    <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50" />
-                    <DialogPrimitive.Content className="fixed inset-0 z-50 bg-gray-50 dark:bg-gray-900 flex flex-col">
+                    <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-fade-in" />
+                    <DialogPrimitive.Content className="fixed inset-0 z-50 bg-gray-50 dark:bg-gray-900 flex flex-col animate-slide-up">
                         <MobilePageHeader
                             title="Printer Details"
                             onLeftPress={onClose}
@@ -211,7 +210,7 @@ const PrinterDetailModal: FunctionComponent<PrinterDetailModalProps> = ({
                         />
 
                         {/* Printer Info Header */}
-                        <Flex direction="column" gap="3" p="4" className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                        <Flex direction="column" gap="3" p="4" className="border-b border-gray-100 dark:border-gray-800 bg-gradient-to-br from-sky-50/60 via-white to-white dark:from-sky-950/10 dark:via-gray-900 dark:to-gray-900">
                             <Flex align="center" gap="3">
                                 <Flex direction="column" gap="1" className="flex-1 min-w-0">
                                     <Flex align="center" gap="2">
@@ -224,39 +223,40 @@ const PrinterDetailModal: FunctionComponent<PrinterDetailModalProps> = ({
                                         {printer.connectionType} • {printer.printerType}
                                     </Text>
                                 </Flex>
-                                <Badge color={printer.isActive ? 'green' : 'gray'} variant="soft" size="1">
+                                <Badge color={printer.isActive ? 'green' : 'gray'} variant="soft" size="2" radius="full">
                                     {printer.isActive ? 'Active' : 'Inactive'}
                                 </Badge>
                             </Flex>
 
                             <Separator size="4" />
 
-                            <Flex align="center" justify="end" gap="1">
+                            <Flex align="center" justify="end" gap="1" className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-full p-1 shadow-sm ring-1 ring-gray-100 dark:ring-gray-700 self-end">
                                 <Tooltip content={printer.isDefault ? 'Default printer' : 'Set as default'}>
                                     <IconButton
                                         variant="ghost"
                                         color={printer.isDefault ? 'yellow' : 'gray'}
                                         size="2"
+                                        radius="full"
                                         onClick={handleSetDefault}
                                         disabled={printer.isDefault}
                                     >
-                                        <Star className={`w-5 h-5 ${printer.isDefault ? 'fill-current' : ''}`} />
+                                        <Star className={`w-4 h-4 ${printer.isDefault ? 'fill-current' : ''}`} />
                                     </IconButton>
                                 </Tooltip>
                                 <Tooltip content={printer.isActive ? 'Disable printer' : 'Enable printer'}>
-                                    <IconButton variant="ghost" color={printer.isActive ? 'green' : 'gray'} size="2" onClick={handleToggleActive}>
-                                        <Power className="w-5 h-5" />
+                                    <IconButton variant="ghost" color={printer.isActive ? 'green' : 'gray'} size="2" radius="full" onClick={handleToggleActive}>
+                                        <Power className="w-4 h-4" />
                                     </IconButton>
                                 </Tooltip>
                                 <Tooltip content="Test connection">
-                                    <IconButton variant="ghost" color="blue" size="2" onClick={handleTestConnection} disabled={isTestingConnection}>
-                                        <TestTube className={`w-5 h-5 ${isTestingConnection ? 'animate-pulse' : ''}`} />
+                                    <IconButton variant="ghost" color="blue" size="2" radius="full" onClick={handleTestConnection} disabled={isTestingConnection}>
+                                        <TestTube className={`w-4 h-4 ${isTestingConnection ? 'animate-pulse' : ''}`} />
                                     </IconButton>
                                 </Tooltip>
                                 {onDelete && (
                                     <Tooltip content="Delete printer">
-                                        <IconButton variant="ghost" color="red" size="2" onClick={handleDelete}>
-                                            <Trash2 className="w-5 h-5" />
+                                        <IconButton variant="ghost" color="red" size="2" radius="full" onClick={handleDelete}>
+                                            <Trash2 className="w-4 h-4" />
                                         </IconButton>
                                     </Tooltip>
                                 )}
@@ -271,8 +271,8 @@ const PrinterDetailModal: FunctionComponent<PrinterDetailModalProps> = ({
                                 enableReinitialize
                             >
                                 {() => (
-                                    <Form id="printer-form" className="p-4 pb-6 space-y-6">
-                                        <FormFieldCard title="Paper Width">
+                                    <Form id="printer-form" className="p-4 pb-6 space-y-4">
+                                        <FormFieldCard title="Paper Width" className="!rounded-2xl !shadow-sm ring-1 ring-gray-100 dark:ring-gray-800 dark:!bg-gray-800/60">
                                             <TabOptionGroup
                                                 name="paperWidth"
                                                 options={PAPER_WIDTH_OPTIONS}
@@ -281,7 +281,7 @@ const PrinterDetailModal: FunctionComponent<PrinterDetailModalProps> = ({
                                             />
                                         </FormFieldCard>
 
-                                        <FormFieldCard title="Printer Content">
+                                        <FormFieldCard title="Printer Content" className="!rounded-2xl !shadow-sm ring-1 ring-gray-100 dark:ring-gray-800 dark:!bg-gray-800/60">
                                             <TabOptionGroup
                                                 name="printerContent"
                                                 options={PRINTER_CONTENT_OPTIONS}
@@ -290,7 +290,7 @@ const PrinterDetailModal: FunctionComponent<PrinterDetailModalProps> = ({
                                             />
                                         </FormFieldCard>
 
-                                        <FormFieldCard title="Print Mode">
+                                        <FormFieldCard title="Print Mode" className="!rounded-2xl !shadow-sm ring-1 ring-gray-100 dark:ring-gray-800 dark:!bg-gray-800/60">
                                             <TabOptionGroup
                                                 name="printMode"
                                                 options={PRINT_MODE_OPTIONS}
@@ -299,7 +299,7 @@ const PrinterDetailModal: FunctionComponent<PrinterDetailModalProps> = ({
                                             />
                                         </FormFieldCard>
 
-                                        <FormFieldCard title="Additional Options">
+                                        <FormFieldCard title="Additional Options" className="!rounded-2xl !shadow-sm ring-1 ring-gray-100 dark:ring-gray-800 dark:!bg-gray-800/60">
                                             <div className="space-y-4">
                                                 <FormSwitch
                                                     name="autoPrintOnSale"
@@ -329,11 +329,11 @@ const PrinterDetailModal: FunctionComponent<PrinterDetailModalProps> = ({
                         </ScrollArea>
 
                         {/* Footer Actions */}
-                        <Flex gap="3" p="4" className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 safe-area-bottom">
-                            <Button type="button" theme="success" className="flex-1" onClick={handlePrintTestPage}>
+                        <Flex gap="3" p="4" className="border-t border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md safe-area-bottom">
+                            <Button type="button" color="green" variant="outline" size="3" radius="large" className="flex-1" onClick={handlePrintTestPage}>
                                 TEST PRINT
                             </Button>
-                            <Button type="submit" form="printer-form" theme="success" className="flex-1" disabled={isSaving}>
+                            <Button type="submit" form="printer-form" color="green" size="3" radius="large" className="flex-1 shadow-lg shadow-green-500/20" disabled={isSaving}>
                                 {isSaving ? 'Saving...' : 'DONE'}
                             </Button>
                         </Flex>
