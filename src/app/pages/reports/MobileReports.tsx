@@ -8,6 +8,7 @@ import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
 import MobileTabPageHeader from '../../components/page/MobileTabPageHeader';
 import LoadingState from '../../components/loader/LoadingState';
+import { ReportBranchSelector } from '../../components/reports';
 import { useBranch } from '../../context/BranchContext';
 import { useAuth } from '../../context/AuthProvider';
 import { useReportsSummary } from '../../hooks/useReportsSummary';
@@ -20,7 +21,8 @@ const MobileReports: React.FC = () => {
     const [isSharing, setIsSharing] = useState(false);
     const reportContentRef = useRef<HTMLDivElement>(null);
     const detailContentRef = useRef<HTMLDivElement>(null);
-    const { currentBranch } = useBranch();
+    const { currentBranch, accessibleBranches } = useBranch();
+    const hasBranchSelector = accessibleBranches.length > 1;
     const { user } = useAuth();
     const canExportReports = hasPermission(user, 'reports.export');
     const canViewSalesReports = hasAnyPermission(user, ['analytics.view', 'reports.sales.daily', 'reports.sales.detailed']);
@@ -43,12 +45,14 @@ const MobileReports: React.FC = () => {
     const {
         startDate,
         endDate,
+        branchId,
         isSummaryLoading,
         activeReport,
         setActiveReport,
         reportCards,
         hasNoData,
         handleDateChange,
+        handleBranchChange,
         detailData,
         detailLoading,
         detailErrors,
@@ -358,10 +362,21 @@ const MobileReports: React.FC = () => {
                             )}
                         </div>
                     }
-                />
+                >
+                    {hasBranchSelector && (
+                        <div className="flex justify-end">
+                            <ReportBranchSelector
+                                value={branchId}
+                                onChange={handleBranchChange}
+                                theme="onColor"
+                                compact
+                            />
+                        </div>
+                    )}
+                </MobileTabPageHeader>
             </div>
 
-            <div className="flex-1 min-h-0 overflow-hidden pt-[52px]">
+            <div className={`flex-1 min-h-0 overflow-hidden ${hasBranchSelector ? 'pt-[108px]' : 'pt-[52px]'}`}>
                 <div ref={reportContentRef} className="h-full overflow-y-auto pb-20 space-y-3 px-4 pt-2">
                     {isSummaryLoading ? (
                         <div className="flex items-center justify-center py-12">
