@@ -5,7 +5,7 @@ import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import { useIsInsideHub } from '../../context/HubContext';
 import { useAuth } from '../../context/AuthProvider';
-import { MobileDateFilter } from '../../components/reports';
+import { MobileDateFilter, ReportBranchSelector } from '../../components/reports';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useReportsSummary } from '../../hooks/useReportsSummary';
 import type { ReportId } from '../../hooks/useReportsSummary';
@@ -53,9 +53,11 @@ const ReportsPage: FunctionComponent = () => {
     const {
         startDate,
         endDate,
+        branchId,
         isSummaryLoading,
         reportCards,
         handleDateChange,
+        handleBranchChange,
         detailData,
         detailLoading,
         detailErrors,
@@ -111,13 +113,20 @@ const ReportsPage: FunctionComponent = () => {
                         title="Reports"
                         description="View detailed reports and analytics for your business"
                     >
-                        <MobileDateFilter
-                            startDate={startDate}
-                            endDate={endDate}
-                            onChange={handleDateChange}
-                            align="right"
-                            compact
-                        />
+                        <div className="flex items-center gap-2">
+                            <ReportBranchSelector
+                                value={branchId}
+                                onChange={handleBranchChange}
+                                compact
+                            />
+                            <MobileDateFilter
+                                startDate={startDate}
+                                endDate={endDate}
+                                onChange={handleDateChange}
+                                align="right"
+                                compact
+                            />
+                        </div>
                     </PageHeader>
                 )}
 
