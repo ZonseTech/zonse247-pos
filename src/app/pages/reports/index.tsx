@@ -112,22 +112,23 @@ const ReportsPage: FunctionComponent = () => {
                         icon={<HiOutlineDocumentChartBar className="h-5 w-5" />}
                         title="Reports"
                         description="View detailed reports and analytics for your business"
-                    >
-                        <div className="flex items-center gap-2">
-                            <ReportBranchSelector
-                                value={branchId}
-                                onChange={handleBranchChange}
-                                compact
-                            />
-                            <MobileDateFilter
-                                startDate={startDate}
-                                endDate={endDate}
-                                onChange={handleDateChange}
-                                align="right"
-                                compact
-                            />
-                        </div>
-                    </PageHeader>
+                        action={
+                            <div className="flex items-center gap-2">
+                                <ReportBranchSelector
+                                    value={branchId}
+                                    onChange={handleBranchChange}
+                                    compact
+                                />
+                                <MobileDateFilter
+                                    startDate={startDate}
+                                    endDate={endDate}
+                                    onChange={handleDateChange}
+                                    align="right"
+                                    compact
+                                />
+                            </div>
+                        }
+                    />
                 )}
 
                 <div className="flex-1 overflow-y-auto space-y-4">
