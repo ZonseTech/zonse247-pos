@@ -51,7 +51,7 @@ export const usePrinters = (): UsePrintersReturn => {
                 search: searchTerm || undefined,
             });
             setPrinters(result.printers || []);
-            setTotalRows(result.pagination?.total || 0);
+            setTotalRows(result.pagination?.totalItems || 0);
         } catch (error: any) {
             console.error('Error loading printers:', error);
             Notify.failure(getErrorMessage(error, 'Failed to load printers'));
