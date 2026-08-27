@@ -127,7 +127,6 @@ const ReprintModal: FunctionComponent<ReprintModalProps> = ({
 
             await printerService.printReceipt({
                 saleId: selectedSale.id,
-                transactionId: selectedSale.saleNumber || selectedSale.id,
                 copies: copies,
                 includeHeader: true,
                 includeFooter: true,
