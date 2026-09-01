@@ -167,13 +167,13 @@ const BranchForm: FunctionComponent = () => {
             if (branch && branch.branchId) {
                 await branchService.update(branch.branchId, values as UpdateBranchRequest);
                 Report.success("Updated!", "Branch details updated successfully!", "Ok", () => {
-                    navigate(ROUTES.BRANCHES);
+                    navigate(ROUTES.ACCOUNT_INFO_BRANCHES);
                 });
             } else {
                 await branchService.store(values as CreateBranchRequest);
                 Report.success("Great!", "Branch created successfully!", "Ok", () => {
                     resetForm();
-                    navigate(ROUTES.BRANCHES);
+                    navigate(ROUTES.ACCOUNT_INFO_BRANCHES);
                 });
             }
         } catch (error: any) {
@@ -198,7 +198,7 @@ const BranchForm: FunctionComponent = () => {
                 try {
                     await branchService.delete(branch.branchId);
                     Notify.success('Branch deleted successfully');
-                    navigate(ROUTES.BRANCHES);
+                    navigate(ROUTES.ACCOUNT_INFO_BRANCHES);
                 } catch (error: any) {
                     const errorMessage = getErrorMessage(error, 'Failed to delete branch');
                     Notify.failure(errorMessage);
