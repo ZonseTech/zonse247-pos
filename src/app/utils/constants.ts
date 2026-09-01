@@ -11,6 +11,7 @@ export enum ROUTES {
 	SALES = '/sales',
 	SALE_DETAILS = '/sales/:saleId',
 	DAY_END_CLOSE_FORM = '/sales/day-end-close',
+	DAY_CLOSE_REPORT_DETAILS = '/sales/day-close-report/:date',
 	TODAY_SALES = '/today-sales',
 	RETURNS = '/returns',
 
