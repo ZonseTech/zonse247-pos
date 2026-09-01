@@ -1,7 +1,8 @@
-import { FC, useContext } from "react";
+import { FC, useContext, useMemo } from "react";
 import DataTable, { TableColumn, type Themes } from "react-data-table-component";
 import dayjs from "dayjs";
 import { Notify } from "notiflix";
+import { Box } from "@radix-ui/themes";
 import { CalendarX2 } from "lucide-react";
 import { HiOutlineClock, HiOutlineEye } from "react-icons/hi2";
 import { ZonseThemeContext } from "../../../components";
@@ -10,7 +11,10 @@ import { formatCurrency } from "../../../utils";
 import TableSkeleton from "../../../components/skeleton/TableSkeleton";
 import TableEmptyState from "../../../components/TableEmptyState";
 import { useDayCloseReport } from "../hooks/useDayCloseReport";
+import { useDayCloseReportSummary } from "../hooks/useDayCloseReportSummary";
 import type { DayCloseReportRow } from "../../../services/sales.service";
+import type { SaleSummaryCard } from "../../../hooks/useSaleSummary";
+import SaleSummaryCards from "./SaleSummaryCards";
 
 const columns: TableColumn<DayCloseReportRow>[] = [
     {
@@ -115,31 +119,86 @@ interface SalesDayCloseReportProps {
 const SalesDayCloseReport: FC<SalesDayCloseReportProps> = ({ startDate, endDate }) => {
     const { mode } = useContext(ZonseThemeContext);
     const { rows, isLoading } = useDayCloseReport({ startDate, endDate });
+    const { summary, isLoading: isLoadingSummary } = useDayCloseReportSummary({ startDate, endDate });
+
+    const summaryCards = useMemo((): SaleSummaryCard[] => [
+        {
+            title: "Total Revenue",
+            value: summary.revenue,
+            displayValue: formatCurrency(summary.revenue),
+            bgColor: "bg-green-50 dark:bg-green-900/20",
+            textColor: "text-green-700 dark:text-green-400",
+            iconBgColor: "bg-green-100 dark:bg-green-900/40",
+            isMonetary: true,
+        },
+        {
+            title: "Cost of Sales",
+            value: summary.costOfSales,
+            displayValue: formatCurrency(summary.costOfSales),
+            bgColor: "bg-orange-50 dark:bg-orange-900/20",
+            textColor: "text-orange-700 dark:text-orange-400",
+            iconBgColor: "bg-orange-100 dark:bg-orange-900/40",
+            isMonetary: true,
+        },
+        {
+            title: "Gross Profit",
+            value: summary.grossProfit,
+            displayValue: formatCurrency(summary.grossProfit),
+            bgColor: "bg-sky-50 dark:bg-sky-900/20",
+            textColor: "text-sky-700 dark:text-sky-400",
+            iconBgColor: "bg-sky-100 dark:bg-sky-900/40",
+            isMonetary: true,
+        },
+        {
+            title: "Expenses",
+            value: summary.expenses,
+            displayValue: formatCurrency(summary.expenses),
+            bgColor: "bg-red-50 dark:bg-red-900/20",
+            textColor: "text-red-700 dark:text-red-400",
+            iconBgColor: "bg-red-100 dark:bg-red-900/40",
+            isMonetary: true,
+        },
+        {
+            title: "Net Profit",
+            value: summary.netProfit,
+            displayValue: formatCurrency(summary.netProfit),
+            bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
+            textColor: "text-emerald-700 dark:text-emerald-400",
+            iconBgColor: "bg-emerald-100 dark:bg-emerald-900/40",
+            isMonetary: true,
+        },
+    ], [summary]);
 
     return (
-        <DataTable
-            columns={columns}
-            data={rows}
-            theme={mode as Themes}
-            customStyles={getTableStyles(mode)}
-            progressPending={isLoading}
-            progressComponent={
-                <TableSkeleton rows={5} columns={columns.length} showCheckbox={false} showActions />
-            }
-            highlightOnHover
-            striped
-            responsive
-            pagination
-            paginationPerPage={10}
-            paginationRowsPerPageOptions={[10, 15, 25, 50]}
-            noDataComponent={
-                <TableEmptyState
-                    icon={<CalendarX2 />}
-                    title="No day close data"
-                    description="No sales or expenses were recorded for the selected date range."
-                />
-            }
-        />
+        <>
+            <Box px={{ initial: "2", sm: "4" }}>
+                <SaleSummaryCards cards={summaryCards} isLoading={isLoadingSummary} />
+            </Box>
+
+            <DataTable
+                columns={columns}
+                data={rows}
+                theme={mode as Themes}
+                customStyles={getTableStyles(mode)}
+                progressPending={isLoading}
+                progressComponent={
+                    <TableSkeleton rows={5} columns={columns.length} showCheckbox={false} showActions />
+                }
+                highlightOnHover
+                striped
+                responsive
+                pagination
+                paginationPerPage={10}
+                paginationRowsPerPageOptions={[10, 15, 25, 50]}
+                noDataComponent={
+                    <TableEmptyState
+                        icon={<CalendarX2 />}
+                        title="No day close data"
+                        description="No sales or expenses were recorded for the selected date range."
+                    />
+                }
+            />
+        </>
     );
 };
 
