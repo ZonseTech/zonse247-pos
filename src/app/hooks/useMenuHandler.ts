@@ -10,15 +10,18 @@ export function useMenuHandler() {
     const { signout, user } = useAuth();
     const { currentBranch } = useBranch();
 
+    const hiddenNavItemIds = currentBranch?.branchPreferences?.navigation?.hiddenNavItemIds ?? [];
+
     useEffect(() => {
         if (!window.electronAPI?.menu) return;
 
         if (user) {
-            window.electronAPI.menu.rebuild(user, currentBranch?.businessType ?? null);
+            window.electronAPI.menu.rebuild(user, currentBranch?.businessType ?? null, hiddenNavItemIds);
         } else {
             window.electronAPI.menu.rebuild(null);
         }
-    }, [user, currentBranch?.businessType]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user, currentBranch?.businessType, JSON.stringify(hiddenNavItemIds)]);
 
     useEffect(() => {
         if (!window.electronAPI?.menu) return;
