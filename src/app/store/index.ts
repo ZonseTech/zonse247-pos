@@ -5,6 +5,7 @@ import inventoryReducer from './slices/inventorySlice'
 import customersReducer from './slices/customerSlice'
 import servicesReducer from './slices/serviceSlice'
 import staffReducer from './slices/staffSlice'
+import dayEndCloseReducer from './slices/dayEndCloseSlice'
 
 export const store = configureStore({
     reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
         services: servicesReducer,
         staff: staffReducer,
         ui: uiReducer,
+        dayEndClose: dayEndCloseReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
