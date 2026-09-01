@@ -2,6 +2,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 export interface DayEndCloseStockCountItem {
     id: string
+    variantId: string
+    productId: string
     name: string
     code: string
     unitPrice: number
@@ -14,10 +16,12 @@ export interface DayEndCloseStockCountItem {
 
 interface DayEndCloseState {
     items: DayEndCloseStockCountItem[]
+    tradingDate: string
 }
 
 const initialState: DayEndCloseState = {
     items: [],
+    tradingDate: new Date().toISOString().split('T')[0],
 }
 
 const dayEndCloseSlice = createSlice({
@@ -32,6 +36,8 @@ const dayEndCloseSlice = createSlice({
 
             state.items.push({
                 id,
+                variantId: id,
+                productId: item.productId?.toString() || id,
                 name: item.displayName || item.name || 'Unknown Item',
                 code: item.sku || item.barcode || item.primaryBarcode || '',
                 unitPrice: parseFloat(item.sellingPrice?.toString() || '0'),
@@ -67,6 +73,9 @@ const dayEndCloseSlice = createSlice({
         clearStockCount: (state) => {
             state.items = []
         },
+        setTradingDate: (state, action: PayloadAction<string>) => {
+            state.tradingDate = action.payload
+        },
     },
 })
 
@@ -76,5 +85,6 @@ export const {
     updatePhysicalCount,
     removeStockCountItem,
     clearStockCount,
+    setTradingDate,
 } = dayEndCloseSlice.actions
 export default dayEndCloseSlice.reducer
