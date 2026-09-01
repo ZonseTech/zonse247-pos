@@ -117,21 +117,39 @@ const SkeletonCard: React.FC<{ isEBN: boolean }> = ({ isEBN }) => (
     </div>
 );
 
+const EBN_COLS_CLASS: Record<number, string> = {
+    2: 'grid-cols-2',
+    3: 'grid-cols-3',
+    4: 'grid-cols-4',
+    5: 'grid-cols-5',
+    6: 'grid-cols-6',
+};
+
+const DESKTOP_COLS_CLASS: Record<number, string> = {
+    2: 'lg:grid-cols-2',
+    3: 'lg:grid-cols-3',
+    4: 'lg:grid-cols-4',
+    5: 'lg:grid-cols-5',
+    6: 'lg:grid-cols-6',
+};
+
 const SaleSummaryCards: React.FC<SaleSummaryCardsProps> = ({ cards, isLoading }) => {
     const isEBN = useIsEBN();
     const isMobile = useIsMobile();
 
+    const count = cards.length || 4;
+
     const gridClass = classNames(
         isEBN
-            ? 'grid grid-cols-4 gap-1.5 p-2'
-            : 'grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 py-3 sm:py-4',
+            ? classNames('grid gap-1.5 p-2', EBN_COLS_CLASS[count] || 'grid-cols-4')
+            : classNames('grid grid-cols-2 gap-2 sm:gap-4 py-3 sm:py-4', DESKTOP_COLS_CLASS[count] || 'lg:grid-cols-4'),
     );
 
     if (isLoading) {
         return (
             <>
                 <div className={gridClass}>
-                    {[1, 2, 3, 4].map((i) => (
+                    {Array.from({ length: count }, (_, i) => (
                         <SkeletonCard key={i} isEBN={isEBN} />
                     ))}
                 </div>
