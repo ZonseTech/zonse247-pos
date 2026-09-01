@@ -1,5 +1,10 @@
 type MraApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 type BranchStatus = 'active' | 'inactive' | 'suspended';
+interface BranchPreferences {
+    navigation?: {
+        hiddenNavItemIds: string[];
+    };
+}
 
 interface Branch {
     id: number;
@@ -30,6 +35,7 @@ interface Branch {
     isVirtualWarehouse: boolean;
     isActive: boolean;
     branchSubscriptionId?: string | null;
+    branchPreferences?: BranchPreferences | null;
     synced: number;
     mraApprovalStatus: MraApprovalStatus;
     mraApprovalDate?: string | null;
