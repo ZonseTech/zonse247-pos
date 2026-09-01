@@ -15,6 +15,14 @@ export interface DayCloseReportQuery {
 	endDate?: string;
 }
 
+export interface DayCloseReportSummary {
+	revenue: number;
+	costOfSales: number;
+	grossProfit: number;
+	expenses: number;
+	netProfit: number;
+}
+
 /**
  * Sales Service (migrated from transactions)
  * 
@@ -33,6 +41,7 @@ const endpoints = {
 	void: 'sales',
 	summary: 'sales/summaries',
 	dayCloseReport: 'sales/day-close-report',
+	dayCloseReportSummary: 'sales/day-close-report/summary',
 
 	// Legacy endpoint mappings (for backward compatibility)
 	all: 'sales',
@@ -140,6 +149,20 @@ const transactionService = {
 	async getDayCloseReport(query: DayCloseReportQuery = {}): Promise<DayCloseReportRow[]> {
 		return api
 			.get<ApiResponse<DayCloseReportRow[]>>(endpoints.dayCloseReport, query)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+
+	/**
+	 * Get the day close report totals (Total Revenue, Cost of Sales, Gross
+	 * Profit, Net Profit) across the requested date range
+	 * GET /sales/day-close-report/summary
+	 */
+	async getDayCloseReportSummary(query: DayCloseReportQuery = {}): Promise<DayCloseReportSummary> {
+		return api
+			.get<ApiResponse<DayCloseReportSummary>>(endpoints.dayCloseReportSummary, query)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
