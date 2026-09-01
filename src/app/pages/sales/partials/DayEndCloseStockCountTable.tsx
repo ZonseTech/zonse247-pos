@@ -1,15 +1,14 @@
-import { FC, useMemo, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { Table, TextField, Text, Flex, Button, IconButton, Tooltip } from "@radix-ui/themes";
-import { Search, Trash2, X, CalendarCheck2, Wallet } from "lucide-react";
-import { Confirm, Notify } from "notiflix";
-import dayjs from "dayjs";
+import { Search, Trash2, X, CalendarCheck2 } from "lucide-react";
+import { Confirm } from "notiflix";
 import { formatCurrency } from "../../../utils";
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
-import { updatePhysicalCount, removeStockCountItem, clearStockCount } from "../../../store/slices/dayEndCloseSlice";
+import { updatePhysicalCount, removeStockCountItem, clearStockCount, setTradingDate } from "../../../store/slices/dayEndCloseSlice";
 import { useAddStockCountItem } from "../hooks/useAddStockCountItem";
+import { useDayEndCloseTotals } from "../hooks/useDayEndCloseTotals";
 import ItemLookupModal from "../../pos/partials/ItemLookupModal";
 import DayEndCloseStatsCards from "./DayEndCloseStatsCards";
-import BalanceCashModal from "./BalanceCashModal";
 
 const CellSkeleton: FC<{ align?: "start" | "end" }> = ({ align = "end" }) => (
     <div
@@ -17,18 +16,39 @@ const CellSkeleton: FC<{ align?: "start" | "end" }> = ({ align = "end" }) => (
     />
 );
 
-const DayEndCloseStockCountTable: FC = () => {
+interface DayEndCloseStockCountTableProps {
+    onPostDayEndClose: () => void;
+}
+
+const DayEndCloseStockCountTable: FC<DayEndCloseStockCountTableProps> = ({ onPostDayEndClose }) => {
     const dispatch = useAppDispatch();
 
     const inventory = useAppSelector((state) => state.inventory.inventory);
     const items = useAppSelector((state) => state.dayEndClose.items);
+    const tradingDate = useAppSelector((state) => state.dayEndClose.tradingDate);
 
-    const [tradingDate, setTradingDate] = useState(dayjs().format("YYYY-MM-DD"));
     const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [isBalanceCashOpen, setIsBalanceCashOpen] = useState(false);
+    const [focusItemId, setFocusItemId] = useState<string | null>(null);
     const barcodeScannerInputRef = useRef<HTMLInputElement>(null);
+    const physicalCountRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
     const { addItem } = useAddStockCountItem(tradingDate);
+
+    const handleSelectItem = (item: InventoryItem) => {
+        const id = item.id?.toString() || item.productId.toString();
+        setFocusItemId(id);
+        addItem(item);
+    };
+
+    useEffect(() => {
+        if (!focusItemId) return;
+
+        const item = items.find((countItem) => countItem.id === focusItemId);
+        if (!item || item.isLoading) return;
+
+        physicalCountRefs.current[focusItemId]?.focus();
+        setFocusItemId(null);
+    }, [items, focusItemId]);
 
     const handleCountChange = (id: string, value: string) => {
         dispatch(updatePhysicalCount({ id, value }));
@@ -52,34 +72,8 @@ const DayEndCloseStockCountTable: FC = () => {
         );
     };
 
-    const handlePostDayEndClose = () => {
-        Notify.info("Day-end close posting isn't available yet — the backend for this is still being built.");
-    };
-
-    const hasCountedSales = items.some((item) => !item.isLoading && item.physicalCount !== "");
-
-    const totals = useMemo(() => {
-        return items.reduce(
-            (acc, item) => {
-                if (item.isLoading || item.physicalCount === "") return acc;
-
-                const physicalCount = parseFloat(item.physicalCount);
-                const quantitySold = item.bookBalance - physicalCount;
-                const salesValue = quantitySold * item.unitPrice;
-                const costOfSales = quantitySold * item.costPrice;
-
-                acc.quantitySold += quantitySold;
-                acc.salesValue += salesValue;
-                acc.costOfSales += costOfSales;
-                return acc;
-            },
-            { quantitySold: 0, salesValue: 0, costOfSales: 0 }
-        );
-    }, [items]);
-
-    const grossProfit = totals.salesValue - totals.costOfSales;
-    const operatingExpenses = 0;
-    const netProfit = grossProfit - operatingExpenses;
+    const totals = useDayEndCloseTotals();
+    const { hasCountedSales, grossProfit, operatingExpenses, netProfit } = totals;
 
     return (
         <Flex direction="column" gap="3">
@@ -104,7 +98,7 @@ const DayEndCloseStockCountTable: FC = () => {
                                 size="2"
                                 mt="1"
                                 value={tradingDate}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTradingDate(e.target.value)}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => dispatch(setTradingDate(e.target.value))}
                                 className="max-w-[180px]"
                             />
                         </div>
@@ -121,12 +115,7 @@ const DayEndCloseStockCountTable: FC = () => {
                     </Flex>
 
                     <Flex align="end" gap="3">
-                        <Button size="2" variant="soft" onClick={() => setIsBalanceCashOpen(true)} disabled={!hasCountedSales}>
-                            <Wallet className="w-4 h-4" />
-                            Balance Cash
-                        </Button>
-
-                        <Button size="2" onClick={handlePostDayEndClose} disabled={!hasCountedSales}>
+                        <Button size="2" onClick={onPostDayEndClose} disabled={!hasCountedSales}>
                             <CalendarCheck2 className="w-4 h-4" />
                             Post Day-end Close
                         </Button>
@@ -211,6 +200,7 @@ const DayEndCloseStockCountTable: FC = () => {
 
                                         <Table.Cell>
                                             <TextField.Root
+                                                ref={(el: HTMLInputElement | null) => { physicalCountRefs.current[item.id] = el; }}
                                                 type="number"
                                                 min={0}
                                                 step="any"
@@ -260,14 +250,8 @@ const DayEndCloseStockCountTable: FC = () => {
                 isOpen={isSearchOpen}
                 onClose={() => setIsSearchOpen(false)}
                 inventory={inventory}
-                onAddToCart={addItem}
+                onAddToCart={handleSelectItem}
                 barcodeScannerInputRef={barcodeScannerInputRef}
-            />
-
-            <BalanceCashModal
-                isOpen={isBalanceCashOpen}
-                onClose={() => setIsBalanceCashOpen(false)}
-                totalSalesValue={totals.salesValue}
             />
         </Flex>
     );
