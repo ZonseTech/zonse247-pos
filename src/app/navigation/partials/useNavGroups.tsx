@@ -11,9 +11,7 @@ import {
     HiOutlineViewGrid,
 } from 'react-icons/hi';
 import {
-    HiOutlineBuildingOffice2,
     HiOutlineBuildingStorefront,
-    HiOutlineComputerDesktop,
     HiOutlineWrenchScrewdriver,
     HiOutlineShieldCheck,
 } from 'react-icons/hi2';
@@ -29,6 +27,7 @@ import { RiGroup3Line } from 'react-icons/ri';
 
 import { ROUTES } from '../../utils/constants';
 import { useAuth } from '../../context/AuthProvider';
+import { useBranch } from '../../context/BranchContext';
 import { hasAnyPermission, hasPermission, isElectron } from '../../utils';
 import { useIsNativeMobile } from '../../hooks/useMediaQuery';
 import useBusinessFeatures from '../../hooks/useBusinessFeatures';
@@ -40,8 +39,14 @@ const ic = (Icon: any, cls = 'h-5 w-5') => <Icon className={cls} />;
 const useNavGroups = (): UseNavGroupsReturn => {
     const navigate = useNavigate();
     const { user, signout } = useAuth();
+    const { currentBranch } = useBranch();
     const isNativeMobile = useIsNativeMobile();
     const { showRetail, showServices } = useBusinessFeatures();
+
+    const hiddenNavItemIds = useMemo(
+        () => new Set(currentBranch?.branchPreferences?.navigation?.hiddenNavItemIds ?? []),
+        [currentBranch]
+    );
 
     const groups = useMemo<NavGroup[]>(() => {
         const result: NavGroup[] = [];
@@ -217,29 +222,15 @@ const useNavGroups = (): UseNavGroupsReturn => {
             });
         }
 
-        if (hasPermission(user, 'branches.view')) {
-            mgmtItems.push({
-                id: 'branches',
-                label: 'Branches',
-                icon: ic(HiOutlineBuildingOffice2),
-                route: ROUTES.BRANCHES,
-                onClick: () => navigate(ROUTES.BRANCHES),
-                showOnDesktop: true,
-                showOnMobile: true,
-            });
-        }
-
-        if (hasPermission(user, 'terminals.view')) {
-            mgmtItems.push({
-                id: 'terminals',
-                label: 'Terminals',
-                icon: ic(HiOutlineComputerDesktop),
-                route: ROUTES.TERMINALS,
-                onClick: () => navigate(ROUTES.TERMINALS),
-                showOnDesktop: true,
-                showOnMobile: true,
-            });
-        }
+        mgmtItems.push({
+            id: 'account-info',
+            label: 'Account Info',
+            icon: ic(HiOutlineBuildingStorefront),
+            route: ROUTES.ACCOUNT_INFO,
+            onClick: () => navigate(ROUTES.ACCOUNT_INFO_TENANT),
+            showOnDesktop: true,
+            showOnMobile: true,
+        });
 
         if (mgmtItems.length > 0) {
             result.push({
@@ -250,77 +241,54 @@ const useNavGroups = (): UseNavGroupsReturn => {
             });
         }
 
+        const systemItems: NavItemBase[] = [];
+
         if (hasAnyPermission(user, ['settings.branch.manage', 'settings.tax.manage', 'settings.payment.manage', 'settings.receipt.manage', 'settings.loyalty.manage'])) {
-            result.push({
-                key: 'settings',
-                label: 'Settings',
-                icon: ic(HiOutlineWrenchScrewdriver),
-                items: [
-                    {
-                        id: 'printers',
-                        label: 'Printers',
-                        icon: ic(HiOutlinePrinter),
-                        route: ROUTES.PRINTERS,
-                        onClick: () => navigate(ROUTES.PRINTERS),
-                        showOnDesktop: true,
-                        showOnMobile: true,
-                    },
-                    {
-                        id: 'settings-general',
-                        label: 'Settings',
-                        icon: ic(HiOutlineWrenchScrewdriver),
-                        route: ROUTES.SETTINGS_GENERAL,
-                        onClick: () => navigate(ROUTES.SETTINGS_GENERAL),
-                        shortcut: 'Ctrl+,',
-                        showOnDesktop: true,
-                        showOnMobile: true,
-                    },
-                ],
-                defaultCollapsed: false,
-                order: 3,
-            });
+            systemItems.push(
+                {
+                    id: 'printers',
+                    label: 'Printers',
+                    icon: ic(HiOutlinePrinter),
+                    route: ROUTES.PRINTERS,
+                    onClick: () => navigate(ROUTES.PRINTERS),
+                    showOnDesktop: true,
+                    showOnMobile: true,
+                },
+                {
+                    id: 'settings-general',
+                    label: 'Settings',
+                    icon: ic(HiOutlineWrenchScrewdriver),
+                    route: ROUTES.SETTINGS_GENERAL,
+                    onClick: () => navigate(ROUTES.SETTINGS_GENERAL),
+                    shortcut: 'Ctrl+,',
+                    showOnDesktop: true,
+                    showOnMobile: true,
+                },
+            );
         }
 
         if (hasPermission(user, 'system.admin')) {
-            result.push({
-                key: 'admin',
-                label: 'Administration',
-                items: [
-                    {
-                        id: 'tenants',
-                        label: 'Tenants',
-                        icon: ic(RiGroup3Line),
-                        route: ROUTES.TENANTS,
-                        onClick: () => navigate(ROUTES.TENANTS),
-                        showOnDesktop: true,
-                        showOnMobile: true,
-                    },
-                ],
-                order: 4,
+            systemItems.push({
+                id: 'tenants',
+                label: 'Tenants',
+                icon: ic(RiGroup3Line),
+                route: ROUTES.TENANTS,
+                onClick: () => navigate(ROUTES.TENANTS),
+                showOnDesktop: true,
+                showOnMobile: true,
             });
         }
 
-        const systemItems: NavItemBase[] = [
-            {
-                id: 'account-info',
-                label: 'Account Info',
-                icon: ic(HiOutlineBuildingStorefront),
-                route: ROUTES.ACCOUNT_INFO,
-                onClick: () => navigate(ROUTES.ACCOUNT_INFO_TENANT),
-                showOnDesktop: true,
-                showOnMobile: true,
-            },
-            {
-                id: 'my-profile',
-                label: 'My Profile',
-                icon: ic(HiOutlineUserCircle),
-                route: ROUTES.MY_PROFILE,
-                onClick: () => navigate(ROUTES.MY_PROFILE),
-                shortcut: 'Ctrl+Shift+P',
-                showOnDesktop: true,
-                showOnMobile: true,
-            },
-        ];
+        systemItems.push({
+            id: 'my-profile',
+            label: 'My Profile',
+            icon: ic(HiOutlineUserCircle),
+            route: ROUTES.MY_PROFILE,
+            onClick: () => navigate(ROUTES.MY_PROFILE),
+            shortcut: 'Ctrl+Shift+P',
+            showOnDesktop: true,
+            showOnMobile: true,
+        });
 
         if (isElectron()) {
             systemItems.push({
@@ -338,13 +306,25 @@ const useNavGroups = (): UseNavGroupsReturn => {
 
         result.push({
             key: 'system',
-            label: 'System',
+            label: 'Administration',
             items: systemItems,
             order: 5,
         });
 
-        return result.sort((a, b) => a.order - b.order);
-    }, [user, navigate, signout, isNativeMobile, showRetail, showServices]);
+        return result
+            .map((group) => ({
+                ...group,
+                items: group.items.filter((item) => !hiddenNavItemIds.has(item.id)),
+                subGroups: group.subGroups
+                    ?.map((sub) => ({
+                        ...sub,
+                        items: sub.items.filter((item) => !hiddenNavItemIds.has(item.id)),
+                    }))
+                    .filter((sub) => sub.items.length > 0),
+            }))
+            .filter((group) => group.items.length > 0 || (group.subGroups?.length ?? 0) > 0)
+            .sort((a, b) => a.order - b.order);
+    }, [user, navigate, signout, isNativeMobile, showRetail, showServices, hiddenNavItemIds]);
 
     const flatItems = useMemo<NavItemBase[]>(() => {
         const items: NavItemBase[] = [];
