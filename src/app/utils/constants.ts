@@ -10,6 +10,7 @@ export enum ROUTES {
 	MOBILE_REPORT = '/mobile-report',
 	SALES = '/sales',
 	SALE_DETAILS = '/sales/:saleId',
+	DAY_END_CLOSE_FORM = '/sales/day-end-close',
 	TODAY_SALES = '/today-sales',
 	RETURNS = '/returns',
 

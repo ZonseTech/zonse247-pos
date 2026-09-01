@@ -1,6 +1,6 @@
 import { FC, Fragment, useState, useCallback, useMemo } from "react";
-import { ReceiptEuro, Plus, SlidersHorizontal } from "lucide-react";
-import { Button, Box } from "@radix-ui/themes";
+import { ReceiptEuro, Plus, SlidersHorizontal, CalendarCheck2 } from "lucide-react";
+import { Button, Box, Flex } from "@radix-ui/themes";
 import AppLayout from "../../layouts/AppLayout";
 import PageHeader from "../../components/page/PageHeader";
 import MobilePageHeader from "../../components/page/MobilePageHeader";
@@ -10,16 +10,15 @@ import { useSaleSummary } from "../../hooks/useSaleSummary";
 import { usePaymentMethods } from "../../hooks/usePaymentMethods";
 import { getLeafPaymentMethods } from "../../utils/paymentMethod.helper";
 import { useMraCompliance } from "../../hooks/useMraCompliance";
+import { useSalesView } from "./hooks/useSalesView";
 import { getSaleTableColumns } from "./partials/SaleTableColumns";
 import SaleDetailsModal from "./partials/SaleDetailsModal";
 import SaleItemsModal from "./partials/SaleItemsModal";
-import SaleSummaryCards from "./partials/SaleSummaryCards";
-import SalesToolbar from "./partials/SalesToolbar";
-import SalesFilters from "./partials/SalesFilters";
 import SalesFilterSheet from "./partials/SalesFilterSheet";
-import ActiveFilterChips from "./partials/ActiveFilterChips";
-import SalesMobileView from "./partials/SalesMobileView";
-import SalesDesktopView from "./partials/SalesDesktopView";
+import SalesToolbar from "./partials/SalesToolbar";
+import SalesViewTabs from "./partials/SalesViewTabs";
+import SalesTransactionsView from "./partials/SalesTransactionsView";
+import SalesDayCloseReport from "./partials/SalesDayCloseReport";
 import InitiateReturnModal from "../returns/partials/InitiateReturnModal";
 import { useNavigate } from "react-router";
 import { ROUTES } from "../../utils/constants";
@@ -51,6 +50,7 @@ const SalesPage: FC = () => {
     const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
     const [isItemsModalOpen, setIsItemsModalOpen] = useState(false);
     const [saleForItems, setSaleForItems] = useState<Sale | null>(null);
+    const { view: salesView, isTransactionsView, handleViewChange: handleSalesViewChange } = useSalesView();
 
     const {
         page,
@@ -180,19 +180,30 @@ const SalesPage: FC = () => {
                         description="Manage and view all sales transactions"
                         icon={<ReceiptEuro className="w-8 h-8 text-sky-500 dark:text-sky-400" />}
                         action={
-                            canCreateSale ? (
-                                <Button size="2" onClick={() => navigate(ROUTES.POS)}>
-                                    <Plus className="w-4 h-4" />
-                                    New Sale
-                                </Button>
-                            ) : undefined
+                            <Flex align="center" gap="4">
+                                <SalesViewTabs value={salesView} onValueChange={handleSalesViewChange} />
+
+                                {canCreateSale && (
+                                    <Button size="2" variant="soft" onClick={() => navigate(ROUTES.DAY_END_CLOSE_FORM)}>
+                                        <CalendarCheck2 className="w-4 h-4" />
+                                        Add Day-end Close
+                                    </Button>
+                                )}
+
+                                {canCreateSale && (
+                                    <Button size="2" onClick={() => navigate(ROUTES.POS)}>
+                                        <Plus className="w-4 h-4" />
+                                        New Sale
+                                    </Button>
+                                )}
+                            </Flex>
                         }
                     />
                 )
             )}
 
             <Box className="sm:rounded-lg shadow-sm border-y sm:border border-gray-200 dark:border-gray-700 sm:overflow-clip -mx-2 sm:mx-0">
-                {/* Toolbar: search + filter button + export */}
+                {/* Shared toolbar: search + date filter + export + clear, common to both tabs */}
                 <SalesToolbar
                     searchTerm={searchTerm}
                     startDate={startDate}
@@ -206,47 +217,29 @@ const SalesPage: FC = () => {
                     canExport={canExportSales}
                 />
 
-                {/* Mobile: active filter chips (inline, scrollable) */}
-                {isMobile && hasActiveFilters && (
-                    <ActiveFilterChips
+                {isTransactionsView ? (
+                    <SalesTransactionsView
+                        isMobile={isMobile}
                         searchTerm={searchTerm}
                         startDate={startDate}
                         endDate={endDate}
-                        selectedStatus={selectedStatus}
-                        selectedPaymentMethod={selectedPaymentMethod}
-                        paymentMethods={paymentMethods}
-                        onClearSearch={handleClearSearch}
-                        onClearDate={handleClearDate}
-                        onClearStatus={handleClearStatus}
-                        onClearPaymentMethod={handleClearPaymentMethod}
-                        onClearAll={clearFilters}
-                    />
-                )}
-
-                {/* Desktop: inline filter rows (always visible) */}
-                {!isMobile && (
-                    <SalesFilters
+                        hasActiveFilters={hasActiveFilters}
+                        onClearFilters={clearFilters}
                         selectedStatus={selectedStatus}
                         selectedPaymentMethod={selectedPaymentMethod}
                         paymentMethods={paymentMethods}
                         isLoadingPaymentMethods={isLoadingPaymentMethods}
                         onStatusChange={handleStatusChange}
                         onPaymentMethodChange={handlePaymentMethodChange}
-                    />
-                )}
-
-                <Box px={{ initial: "2", sm: "4" }}>
-                    <SaleSummaryCards
-                        cards={getSummaryCards()}
-                        isLoading={isLoadingSummary}
-                    />
-                </Box>
-
-                {isMobile ? (
-                    <SalesMobileView
+                        onClearSearch={handleClearSearch}
+                        onClearDate={handleClearDate}
+                        onClearStatus={handleClearStatus}
+                        onClearPaymentMethod={handleClearPaymentMethod}
+                        summaryCards={getSummaryCards()}
+                        isLoadingSummary={isLoadingSummary}
+                        columns={columns}
                         data={getPaginatedData()}
                         isLoading={isLoading}
-                        hasActiveFilters={hasActiveFilters}
                         page={page}
                         totalPages={totalPages}
                         totalRows={totalRows}
@@ -254,20 +247,10 @@ const SalesPage: FC = () => {
                         onViewDetails={handleViewDetails}
                         onInitiateReturn={canInitiateReturn ? handleInitiateReturn : undefined}
                         onPageChange={handlePageChange}
-                        onClearFilters={clearFilters}
+                        onPerRowsChange={handlePerRowsChange}
                     />
                 ) : (
-                    <SalesDesktopView
-                        columns={columns}
-                        data={getPaginatedData()}
-                        isLoading={isLoading}
-                        hasActiveFilters={hasActiveFilters}
-                        perPage={perPage}
-                        totalRows={totalRows}
-                        onPageChange={handlePageChange}
-                        onPerRowsChange={handlePerRowsChange}
-                        onClearFilters={clearFilters}
-                    />
+                    <SalesDayCloseReport startDate={startDate} endDate={endDate} />
                 )}
             </Box>
 
