@@ -22,7 +22,6 @@ export enum ROUTES {
 	INVENTORY_HUB = '/inventory-hub',
 	INVENTORY_FORM = '/inventory-hub/form',
 	MOBILE_INVENTORY = '/mobile-inventory',
-	TERMINALS = '/terminals',
 	TERMINAL_FORM = '/terminals/form',
 	PRINTERS = '/printers',
 	PRINTER_FORM = '/printers/form',
@@ -76,7 +75,6 @@ export enum ROUTES {
 	TENANT_DETAILS = '/tenants/details',
 	TENANT_FORM = '/tenants/form',
 
-	BRANCHES = '/branches',
 	BRANCH_FORM = '/branches/form',
 
 	ACCOUNT_INFO = '/account-info',
@@ -91,6 +89,7 @@ export enum ROUTES {
 	SETTINGS_SALES = '/settings/sales',
 	SETTINGS_RECEIPT = '/settings/receipt',
 	SETTINGS_SECURITY = '/settings/security',
+	SETTINGS_NAVIGATION = '/settings/navigation',
 	LANDING_PAGE = '/landing-page',
 	GET_STARTED = '/sign-in',
 
