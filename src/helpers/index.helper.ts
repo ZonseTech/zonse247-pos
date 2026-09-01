@@ -39,7 +39,7 @@ declare global {
                 } | null>;
             };
             menu: {
-                rebuild: (user: User | null, businessType?: BusinessType | null) => void;
+                rebuild: (user: User | null, businessType?: BusinessType | null, hiddenNavItemIds?: string[]) => void;
                 onLogout: (callback: () => void) => () => void;
                 onCheckUpdates: (callback: () => void) => () => void;
                 onNavigate: (callback: (route: string) => void) => () => void;

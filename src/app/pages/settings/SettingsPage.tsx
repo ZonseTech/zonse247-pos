@@ -1,4 +1,5 @@
 import { Outlet, useLocation } from 'react-router';
+import { useCallback, useRef } from 'react';
 import { Form, Formik } from 'formik';
 import { settingsValidationSchema } from '../../schemas/settings.schema';
 import SettingsActions from './components/SettingsActions';
@@ -19,6 +20,7 @@ const SETTINGS_ROUTES: Record<string, string> = {
     sales: ROUTES.SETTINGS_SALES,
     receipt: ROUTES.SETTINGS_RECEIPT,
     security: ROUTES.SETTINGS_SECURITY,
+    navigation: ROUTES.SETTINGS_NAVIGATION,
 };
 
 const SettingsPage = () => {
@@ -37,7 +39,16 @@ const SettingsPage = () => {
         (tab) => SETTINGS_ROUTES[tab.id] === location.pathname
     ) || SETTINGS_TABS[0];
 
+    const tabSubmitRef = useRef<(() => Promise<void>) | null>(null);
+    const registerTabSubmit = useCallback((fn: (() => Promise<void>) | null) => {
+        tabSubmitRef.current = fn;
+    }, []);
+
     const handleSubmit = async (values: any) => {
+        if (tabSubmitRef.current) {
+            await tabSubmitRef.current();
+            return;
+        }
         const sanitized = sanitizeSettings(values);
         await onSubmit(sanitized);
     };
@@ -86,7 +97,7 @@ const SettingsPage = () => {
                         <div className={`${isMobile ? 'max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pt-16' : ''}`}>
                             {isMobile ? (
                                 <Form>
-                                    <Outlet />
+                                    <Outlet context={{ registerTabSubmit }} />
                                 </Form>
                             ) : (
                                 <div className="flex gap-8">
@@ -108,7 +119,7 @@ const SettingsPage = () => {
                                             </div>
                                         </div>
                                         <Form>
-                                            <Outlet />
+                                            <Outlet context={{ registerTabSubmit }} />
                                             <SettingsActions
                                                 isSubmitting={isSubmitting}
                                                 onReset={() => setShowResetConfirm(true)}

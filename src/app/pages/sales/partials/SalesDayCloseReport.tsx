@@ -1,22 +1,22 @@
 import { FC, useContext, useMemo } from "react";
 import DataTable, { TableColumn, type Themes } from "react-data-table-component";
 import dayjs from "dayjs";
-import { Notify } from "notiflix";
+import { useNavigate } from "react-router";
 import { Box } from "@radix-ui/themes";
 import { CalendarX2 } from "lucide-react";
 import { HiOutlineClock, HiOutlineEye } from "react-icons/hi2";
 import { ZonseThemeContext } from "../../../components";
+import { ROUTES } from "../../../utils/constants";
 import { getTableStyles } from "../../../utils/table-styles";
 import { formatCurrency } from "../../../utils";
 import TableSkeleton from "../../../components/skeleton/TableSkeleton";
 import TableEmptyState from "../../../components/TableEmptyState";
 import { useDayCloseReport } from "../hooks/useDayCloseReport";
-import { useDayCloseReportSummary } from "../hooks/useDayCloseReportSummary";
 import type { DayCloseReportRow } from "../../../services/sales.service";
 import type { SaleSummaryCard } from "../../../hooks/useSaleSummary";
 import SaleSummaryCards from "./SaleSummaryCards";
 
-const columns: TableColumn<DayCloseReportRow>[] = [
+const getColumns = (onViewDetails: (date: string) => void): TableColumn<DayCloseReportRow>[] => [
     {
         name: "Date",
         selector: (row) => row.date,
@@ -100,7 +100,7 @@ const columns: TableColumn<DayCloseReportRow>[] = [
         width: "80px",
         cell: (row) => (
             <button
-                onClick={() => Notify.info(`Day close details for ${dayjs(row.date).format("DD-MM-YYYY")} coming soon`)}
+                onClick={() => onViewDetails(row.date)}
                 className="p-1.5 text-sky-500 hover:text-sky-800 hover:bg-sky-50 dark:hover:bg-sky-900/50 rounded-md transition-colors duration-200"
                 title="View Details"
             >
@@ -117,9 +117,15 @@ interface SalesDayCloseReportProps {
 }
 
 const SalesDayCloseReport: FC<SalesDayCloseReportProps> = ({ startDate, endDate }) => {
+    const navigate = useNavigate();
     const { mode } = useContext(ZonseThemeContext);
-    const { rows, isLoading } = useDayCloseReport({ startDate, endDate });
-    const { summary, isLoading: isLoadingSummary } = useDayCloseReportSummary({ startDate, endDate });
+    const { rows, summary, isLoading } = useDayCloseReport({ startDate, endDate });
+
+    const handleViewDetails = (date: string) => {
+        navigate(ROUTES.DAY_CLOSE_REPORT_DETAILS.replace(':date', date));
+    };
+
+    const columns = getColumns(handleViewDetails);
 
     const summaryCards = useMemo((): SaleSummaryCard[] => [
         {
@@ -172,7 +178,7 @@ const SalesDayCloseReport: FC<SalesDayCloseReportProps> = ({ startDate, endDate 
     return (
         <>
             <Box px={{ initial: "2", sm: "4" }}>
-                <SaleSummaryCards cards={summaryCards} isLoading={isLoadingSummary} />
+                <SaleSummaryCards cards={summaryCards} isLoading={isLoading} />
             </Box>
 
             <DataTable

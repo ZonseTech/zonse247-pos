@@ -2,12 +2,15 @@ import { FunctionComponent } from 'react';
 import { NavLink } from 'react-router-dom';
 import { SETTINGS_TABS, SettingsTab } from '../constants/config';
 import { ROUTES } from '../../../utils/constants';
+import { useAuth } from '../../../context/AuthProvider';
+import { hasPermission } from '../../../utils';
 
 const SETTINGS_ROUTES: Record<string, string> = {
     general: ROUTES.SETTINGS_GENERAL,
     sales: ROUTES.SETTINGS_SALES,
     receipt: ROUTES.SETTINGS_RECEIPT,
     security: ROUTES.SETTINGS_SECURITY,
+    navigation: ROUTES.SETTINGS_NAVIGATION,
 };
 
 interface SidebarItemProps {
@@ -16,6 +19,16 @@ interface SidebarItemProps {
 
 const SidebarItem: FunctionComponent<SidebarItemProps> = ({ tab }) => {
     const Icon = tab.icon;
+    const { user } = useAuth();
+
+    const canManageNavigation = hasPermission(
+        user,
+        'settings.navigation.manage'
+    );
+
+    if (tab.id === 'navigation' && !canManageNavigation) {
+        return null;
+    }
 
     return (
         <NavLink

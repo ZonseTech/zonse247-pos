@@ -94,13 +94,13 @@ const TerminalForm: FunctionComponent = () => {
             if (terminal && terminal.terminalId) {
                 await terminalService.update(terminal.terminalId, values as UpdateTerminalRequest);
                 Report.success("Updated!", "Terminal details updated successfully!", "Ok", () => {
-                    navigate(ROUTES.TERMINALS);
+                    navigate(ROUTES.ACCOUNT_INFO_TERMINALS);
                 });
             } else {
                 await terminalService.store(values as CreateTerminalRequest);
                 Report.success("Great!", "Terminal created successfully!", "Ok", () => {
                     resetForm();
-                    navigate(ROUTES.TERMINALS);
+                    navigate(ROUTES.ACCOUNT_INFO_TERMINALS);
                 });
             }
         } catch (error: any) {
@@ -125,7 +125,7 @@ const TerminalForm: FunctionComponent = () => {
                 try {
                     await terminalService.delete(terminal.terminalId);
                     Notify.success('Terminal deleted successfully');
-                    navigate(ROUTES.TERMINALS);
+                    navigate(ROUTES.ACCOUNT_INFO_TERMINALS);
                 } catch (error: any) {
                     const errorMessage = getErrorMessage(error, 'Failed to delete terminal');
                     Notify.failure(errorMessage);

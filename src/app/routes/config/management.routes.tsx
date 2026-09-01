@@ -3,9 +3,7 @@ import { Route } from 'react-router'
 import { ROUTES } from '../../utils/constants'
 import PermissionRoute from '../../navigation/PermissionRoute'
 
-const BranchManagement = lazy(() => import('../../pages/branch'))
 const BranchForm = lazy(() => import('../../pages/branch/create'))
-const TerminalManagement = lazy(() => import('../../pages/terminal'))
 const TerminalForm = lazy(() => import('../../pages/terminal/create'))
 const TenantsManagement = lazy(() => import('../../pages/tenants'))
 const TenantForm = lazy(() => import('../../pages/tenants/create'))
@@ -15,14 +13,12 @@ const PrintJobsManagement = lazy(() => import('../../pages/printer/jobs'))
 
 export const BranchRoutes = (
     <>
-        <Route path={ROUTES.BRANCHES} element={<PermissionRoute permission="branches.view"><BranchManagement /></PermissionRoute>} />
         <Route path={ROUTES.BRANCH_FORM} element={<PermissionRoute permission="branches.view"><BranchForm /></PermissionRoute>} />
     </>
 )
 
 export const TerminalRoutes = (
     <>
-        <Route path={ROUTES.TERMINALS} element={<PermissionRoute permission="terminals.view"><TerminalManagement /></PermissionRoute>} />
         <Route path={ROUTES.TERMINAL_FORM} element={<PermissionRoute permission="terminals.view"><TerminalForm /></PermissionRoute>} />
     </>
 )

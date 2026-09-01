@@ -8,9 +8,10 @@ import {
     HiOutlineCheck,
     HiOutlineShieldCheck,
     HiOutlineDocumentText,
+    HiOutlineBars3,
 } from 'react-icons/hi2';
 
-export type SettingsTabId = 'general' | 'sales' | 'receipt' | 'security';
+export type SettingsTabId = 'general' | 'sales' | 'receipt' | 'security' | 'navigation';
 
 export interface SettingsTab {
     id: SettingsTabId;
@@ -43,6 +44,12 @@ export const SETTINGS_TABS: SettingsTab[] = [
         label: 'Security',
         icon: HiOutlineShieldCheck,
         description: 'Access control, sync, and backup',
+    },
+    {
+        id: 'navigation',
+        label: 'Navigation',
+        icon: HiOutlineBars3,
+        description: 'Menu structure and navigation preferences',
     },
 ];
 

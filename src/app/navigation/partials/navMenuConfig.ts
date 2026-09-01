@@ -16,6 +16,7 @@ const FEATURE_MAP: Record<string, { showRetail: boolean; showServices: boolean }
 export interface NavMenuGroup {
     label: string;
     items: Array<{
+        id?: string;
         label: string;
         route?: string;
         action?: string;
@@ -24,52 +25,58 @@ export interface NavMenuGroup {
     }>;
 }
 
-export function buildNavMenuGroups(user: User | null, businessType?: BusinessType | null): NavMenuGroup[] {
+export function buildNavMenuGroups(
+    user: User | null,
+    businessType?: BusinessType | null,
+    hiddenNavItemIds: string[] = [],
+): NavMenuGroup[] {
     const groups: NavMenuGroup[] = [];
     const bt = businessType ?? 'PRODUCT_BASED';
     const { showRetail, showServices } = FEATURE_MAP[bt] ?? FEATURE_MAP.PRODUCT_BASED;
+    const hiddenIds = new Set(hiddenNavItemIds);
 
     const opsItems: NavMenuGroup['items'] = [];
 
-    opsItems.push({ label: 'Dashboard', route: ROUTES.DASHBOARD });
+    opsItems.push({ id: 'dashboard', label: 'Dashboard', route: ROUTES.DASHBOARD });
 
     if (showRetail && hasAnyPermission(user, ['products.view', 'products.create', 'sales.create', 'refunds.process'])) {
-        opsItems.push({ label: 'Point of Sale', route: ROUTES.POS, accelerator: 'CommandOrControl+P' });
+        opsItems.push({ id: 'pos', label: 'Point of Sale', route: ROUTES.POS, accelerator: 'CommandOrControl+P' });
     }
 
     if (hasAnyPermission(user, ['customers.view', 'customers.create', 'customers.edit'])) {
-        opsItems.push({ label: 'Customers', route: ROUTES.CUSTOMERS });
+        opsItems.push({ id: 'customers', label: 'Customers', route: ROUTES.CUSTOMERS });
     }
 
     if (hasAnyPermission(user, ['reports.sales.daily', 'reports.sales.detailed', 'payments.view'])) {
-        opsItems.push({ label: 'Sales', route: ROUTES.SALES, accelerator: 'CommandOrControl+T' });
-        opsItems.push({ label: 'Reports', route: ROUTES.REPORTS });
+        opsItems.push({ id: 'sales', label: 'Sales', route: ROUTES.SALES, accelerator: 'CommandOrControl+T' });
+        opsItems.push({ id: 'reports', label: 'Reports', route: ROUTES.REPORTS });
     }
 
     if (hasAnyPermission(user, ['refunds.view', 'refunds.process', 'refunds.approve'])) {
-        opsItems.push({ label: 'Returns', route: ROUTES.RETURNS });
+        opsItems.push({ id: 'returns', label: 'Returns', route: ROUTES.RETURNS });
     }
 
-    if (opsItems.length > 0) {
-        groups.push({ label: 'Operations', items: opsItems });
+    const filteredOpsItems = opsItems.filter((item) => !item.id || !hiddenIds.has(item.id));
+    if (filteredOpsItems.length > 0) {
+        groups.push({ label: 'Operations', items: filteredOpsItems });
     }
 
     const mgmtItems: NavMenuGroup['items'] = [];
 
     if (showRetail && hasAnyPermission(user, ['products.view', 'inventory.view'])) {
-        mgmtItems.push({ label: 'Inventory', route: ROUTES.INVENTORY_HUB });
+        mgmtItems.push({ id: 'inventory', label: 'Inventory', route: ROUTES.INVENTORY_HUB });
     }
 
     if (hasAnyPermission(user, ['suppliers.view', 'suppliers.create', 'suppliers.edit', 'inventory.receive'])) {
-        mgmtItems.push({ label: 'Procurement', route: ROUTES.PROCUREMENT_SUPPLIERS });
+        mgmtItems.push({ id: 'procurement', label: 'Procurement', route: ROUTES.PROCUREMENT_SUPPLIERS });
     }
 
     if (showServices) {
-        mgmtItems.push({ label: 'Services', route: ROUTES.SERVICES });
+        mgmtItems.push({ id: 'services', label: 'Services', route: ROUTES.SERVICES });
     }
 
     if (hasAnyPermission(user, ['expenses.view', 'expenses.create'])) {
-        mgmtItems.push({ label: 'Expense Tracking', route: ROUTES.EXPENSES });
+        mgmtItems.push({ id: 'expenses', label: 'Expense Tracking', route: ROUTES.EXPENSES });
     }
 
     // if (hasAnyPermission(user, ['settings.loyalty.manage', 'customers.loyalty'])) {
@@ -81,43 +88,35 @@ export function buildNavMenuGroups(user: User | null, businessType?: BusinessTyp
     }
 
     if (hasAnyPermission(user, ['users.view', 'users.create', 'users.edit', 'users.delete'])) {
-        mgmtItems.push({ label: 'User Management', route: ROUTES.USERS });
+        mgmtItems.push({ id: 'staff-management', label: 'User Management', route: ROUTES.USERS });
     }
 
-    if (hasPermission(user, 'branches.view')) {
-        mgmtItems.push({ label: 'Branches', route: ROUTES.BRANCHES });
-    }
-
-    if (hasPermission(user, 'terminals.view')) {
-        mgmtItems.push({ label: 'Terminals', route: ROUTES.TERMINALS });
-    }
+    mgmtItems.push({ label: 'Account Info', route: ROUTES.ACCOUNT_INFO_TENANT });
 
     if (hasPermission(user, 'roles.view')) {
-        mgmtItems.push({ label: 'Roles & Permissions', route: ROUTES.ROLES_PERMISSIONS });
+        mgmtItems.push({ id: 'roles-permissions', label: 'Roles & Permissions', route: ROUTES.ROLES_PERMISSIONS });
     }
 
-    if (mgmtItems.length > 0) {
-        groups.push({ label: 'Management', items: mgmtItems });
+    const filteredMgmtItems = mgmtItems.filter((item) => !item.id || !hiddenIds.has(item.id));
+    if (filteredMgmtItems.length > 0) {
+        groups.push({ label: 'Management', items: filteredMgmtItems });
     }
+
+    const adminItems: NavMenuGroup['items'] = [];
 
     if (hasAnyPermission(user, ['settings.branch.manage', 'settings.tax.manage', 'settings.payment.manage', 'settings.receipt.manage', 'settings.loyalty.manage'])) {
-        groups.push({
-            label: 'Settings',
-            items: [
-                { label: 'General Settings', route: ROUTES.SETTINGS_GENERAL, accelerator: 'CommandOrControl+,' },
-                { label: 'Printers', route: ROUTES.PRINTERS },
-                { label: 'Account Info', route: ROUTES.ACCOUNT_INFO_TENANT },
-            ],
-        });
+        adminItems.push(
+            { label: 'General Settings', route: ROUTES.SETTINGS_GENERAL, accelerator: 'CommandOrControl+,' },
+            ...(hiddenIds.has('printers') ? [] : [{ id: 'printers', label: 'Printers', route: ROUTES.PRINTERS }]),
+        );
     }
 
-    if (hasPermission(user, 'system.admin')) {
-        groups.push({
-            label: 'Admin',
-            items: [
-                { label: 'Tenants', route: ROUTES.TENANTS },
-            ],
-        });
+    if (hasPermission(user, 'system.admin') && !hiddenIds.has('tenants')) {
+        adminItems.push({ id: 'tenants', label: 'Tenants', route: ROUTES.TENANTS });
+    }
+
+    if (adminItems.length > 0) {
+        groups.push({ label: 'Administration', items: adminItems });
     }
 
     return groups;

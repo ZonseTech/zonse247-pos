@@ -9,6 +9,7 @@ const endpoints: Record<string, string> = {
     update: 'branches',
     show: 'branches',
     delete: 'branches',
+    preferences: 'branches',
 };
 
 const branchService = {
@@ -59,6 +60,16 @@ const branchService = {
             return decodeObjectStrings<Branch>(response.data.data!, BRANCH_DECODE_FIELDS);
         } catch (err) {
             console.error('Error updating branch:', err);
+            throw err;
+        }
+    },
+
+    async updatePreferences(id: string, data: Partial<BranchPreferences>): Promise<Branch> {
+        try {
+            const response = await api.patch<ApiResponse<Branch>>(`${endpoints.preferences}/${id}/preferences`, data as any);
+            return decodeObjectStrings<Branch>(response.data.data!, BRANCH_DECODE_FIELDS);
+        } catch (err) {
+            console.error('Error updating branch preferences:', err);
             throw err;
         }
     },

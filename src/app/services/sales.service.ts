@@ -23,6 +23,56 @@ export interface DayCloseReportSummary {
 	netProfit: number;
 }
 
+export interface DayCloseReportSaleEntry {
+	id: string;
+	saleNumber: string;
+	saleDate: string;
+	status: string;
+	itemCount: number;
+	totalAmount: number;
+	discountAmount: number;
+}
+
+export interface DayCloseReportExpenseEntry {
+	id: string;
+	expenseNumber: string;
+	categoryName: string;
+	amount: number;
+	expenseDate: string;
+	status: string;
+}
+
+export interface DayCloseReportPaymentMethodEntry {
+	methodId: string;
+	methodName: string;
+	amount: number;
+}
+
+export interface DayCloseReportItemEntry {
+	variantId: string;
+	name: string;
+	code: string;
+	unitPrice: number;
+	openingBalance: number;
+	goodsReceived: number;
+	bookBalance: number;
+	physicalCount: number;
+	quantitySold: number;
+	salesValue: number;
+}
+
+export interface DayCloseReportDetails extends DayCloseReportRow {
+	sales: DayCloseReportSaleEntry[];
+	items: DayCloseReportItemEntry[];
+	expenseRecords: DayCloseReportExpenseEntry[];
+	paymentMethods: DayCloseReportPaymentMethodEntry[];
+}
+
+export interface BatchVoidResult {
+	voidedCount: number;
+	sales: { id: string; saleNumber: string }[];
+}
+
 /**
  * Sales Service (migrated from transactions)
  * 
@@ -42,6 +92,8 @@ const endpoints = {
 	summary: 'sales/summaries',
 	dayCloseReport: 'sales/day-close-report',
 	dayCloseReportSummary: 'sales/day-close-report/summary',
+	dayCloseReportDetails: (date: string) => `sales/day-close-report/${date}`,
+	voidBatch: 'sales/void-batch',
 
 	// Legacy endpoint mappings (for backward compatibility)
 	all: 'sales',
@@ -163,6 +215,37 @@ const transactionService = {
 	async getDayCloseReportSummary(query: DayCloseReportQuery = {}): Promise<DayCloseReportSummary> {
 		return api
 			.get<ApiResponse<DayCloseReportSummary>>(endpoints.dayCloseReportSummary, query)
+			.then((res) => res.data.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+
+	/**
+	 * Get the full day close details for a single date: the day's totals
+	 * plus every sale and expense that made up those totals
+	 * GET /sales/day-close-report/:date
+	 */
+	async getDayCloseReportDetails(date: string): Promise<DayCloseReportDetails> {
+		return api
+			.get<ApiResponse<DayCloseReportDetails>>(endpoints.dayCloseReportDetails(date))
+			.then((res) => res.data.data)
+			.catch((err) => {
+				throw err;
+			});
+	},
+
+	/**
+	 * Void every sale posted through the Day-end Close form for a given date
+	 * POST /sales/day-close-report/:date/void
+	 */
+	/**
+	 * Void a batch of sales by id
+	 * POST /sales/void-batch
+	 */
+	async voidSalesByIds(saleIds: string[], voidReason: string): Promise<BatchVoidResult> {
+		return api
+			.post<ApiResponse<BatchVoidResult>>(endpoints.voidBatch, { saleIds, voidReason } as any)
 			.then((res) => res.data.data)
 			.catch((err) => {
 				throw err;
