@@ -72,6 +72,9 @@ interface UseReportsSummaryOptions {
     enabledDetails?: ReportDetailFlags;
 }
 
+/** Sentinel sent to the API meaning "aggregate across every branch I can access", not a real branch id */
+export const ALL_BRANCHES_VALUE = 'all';
+
 const DEFAULT_SUMMARY: ReportSummary = {
     totalSales: 0,
     expenses: 0,
@@ -119,11 +122,16 @@ const toDetailLoadingState = (enabledDetails: DetailLoadingState): DetailLoading
     ...enabledDetails,
 });
 
-const buildQuery = (start: Date | null, end: Date | null): { startDate?: string; endDate?: string } => {
-    if (!start) return {};
+const buildQuery = (
+    start: Date | null,
+    end: Date | null,
+    branchId: string,
+): { startDate?: string; endDate?: string; branchId: string } => {
+    if (!start) return { branchId };
     return {
         startDate: dayjs(start).format('YYYY-MM-DD'),
         endDate: end ? dayjs(end).format('YYYY-MM-DD') : dayjs(start).format('YYYY-MM-DD'),
+        branchId,
     };
 };
 
@@ -168,6 +176,7 @@ export const useReportsSummary = (options: UseReportsSummaryOptions = {}) => {
 
     const [startDate, setStartDate] = useState<Date | null>(new Date());
     const [endDate, setEndDate] = useState<Date | null>(new Date());
+    const [branchId, setBranchId] = useState<string>(ALL_BRANCHES_VALUE);
     const [summary, setSummary] = useState<ReportSummary | null>(null);
     const [previousSummary, setPreviousSummary] = useState<ReportSummary | null>(null);
     const [isSummaryLoading, setIsSummaryLoading] = useState(false);
@@ -187,13 +196,13 @@ export const useReportsSummary = (options: UseReportsSummaryOptions = {}) => {
         };
     }, []);
 
-    const fetchAll = useCallback((start: Date | null, end: Date | null) => {
+    const fetchAll = useCallback((start: Date | null, end: Date | null, branch: string) => {
         const requestId = ++requestIdRef.current;
         const isStale = () => !isMountedRef.current || requestIdRef.current !== requestId;
 
-        const query = buildQuery(start, end);
+        const query = buildQuery(start, end, branch);
         const prevRange = getPreviousPeriod(start, end);
-        const prevQuery = buildQuery(prevRange.start, prevRange.end);
+        const prevQuery = buildQuery(prevRange.start, prevRange.end, branch);
 
         setIsSummaryLoading(enableSummary);
         setDetailLoading(toDetailLoadingState(enabledDetails));
@@ -282,15 +291,20 @@ export const useReportsSummary = (options: UseReportsSummaryOptions = {}) => {
     }, [enableSummary, enablePreviousSummary, enabledDetails]);
 
     useEffect(() => {
-        fetchAll(startDate, endDate);
+        fetchAll(startDate, endDate, branchId);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleDateChange = useCallback((start: Date | null, end: Date | null) => {
         setStartDate(start);
         setEndDate(end);
-        fetchAll(start, end);
-    }, [fetchAll]);
+        fetchAll(start, end, branchId);
+    }, [fetchAll, branchId]);
+
+    const handleBranchChange = useCallback((newBranchId: string) => {
+        setBranchId(newBranchId);
+        fetchAll(startDate, endDate, newBranchId);
+    }, [fetchAll, startDate, endDate]);
 
     /** Refetches a single detail report against the current date range — used by each panel's inline retry. */
     const retryDetail = useCallback((reportId: NonNullable<ReportId>) => {
@@ -300,7 +314,7 @@ export const useReportsSummary = (options: UseReportsSummaryOptions = {}) => {
 
         const capturedRequestId = requestIdRef.current;
         const isStale = () => !isMountedRef.current || requestIdRef.current !== capturedRequestId;
-        const query = buildQuery(startDate, endDate);
+        const query = buildQuery(startDate, endDate, branchId);
 
         const fetcherByKey: { [K in NonNullable<ReportId>]: () => Promise<ReportDetailRawData[K]> } = {
             'total-sales': () => reportsService.getTotalSales(query),
@@ -331,7 +345,7 @@ export const useReportsSummary = (options: UseReportsSummaryOptions = {}) => {
                 if (isStale()) return;
                 setDetailLoading((prev) => ({ ...prev, [reportId]: false }));
             });
-    }, [startDate, endDate, enabledDetails]);
+    }, [startDate, endDate, branchId, enabledDetails]);
 
     const reportCards: ReportStatConfig[] = useMemo(() => {
         const so = summary?.serviceOrders;
@@ -542,6 +556,7 @@ export const useReportsSummary = (options: UseReportsSummaryOptions = {}) => {
     return {
         startDate,
         endDate,
+        branchId,
         summary,
         isSummaryLoading,
         activeReport,
@@ -549,6 +564,7 @@ export const useReportsSummary = (options: UseReportsSummaryOptions = {}) => {
         reportCards,
         hasNoData,
         handleDateChange,
+        handleBranchChange,
         detailData,
         detailLoading,
         detailErrors,
