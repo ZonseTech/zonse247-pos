@@ -1,5 +1,5 @@
 import React from 'react';
-import { DollarSign, TrendingUp, RotateCcw, Receipt, LucideIcon } from 'lucide-react';
+import { DollarSign, TrendingUp, RotateCcw, Receipt, Package, Banknote, ShoppingCart, Wallet, LucideIcon } from 'lucide-react';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import * as Popover from '@radix-ui/react-popover';
 import * as Avatar from '@radix-ui/react-avatar';
@@ -19,6 +19,12 @@ const iconMap: Record<string, LucideIcon> = {
     'Total Returns': RotateCcw,
     'Net Sales': DollarSign,
     'Total Transactions': Receipt,
+    'Units Sold': Package,
+    'Total Revenue': Banknote,
+    'Cost of Sales': ShoppingCart,
+    'Gross Profit': TrendingUp,
+    'Expenses': Receipt,
+    'Net Profit': Wallet,
 };
 
 const getIcon = (title: string): LucideIcon => {
