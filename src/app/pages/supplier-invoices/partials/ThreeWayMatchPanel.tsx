@@ -1,5 +1,5 @@
 import { FunctionComponent } from 'react';
-import { Badge, Flex, Text, Box } from '@radix-ui/themes';
+import { Badge, Flex, Text, Box, Table } from '@radix-ui/themes';
 import { Scale } from 'lucide-react';
 import { getVariantDisplayName } from './helpers';
 
@@ -20,38 +20,36 @@ const ThreeWayMatchPanel: FunctionComponent<ThreeWayMatchPanelProps> = ({ matchD
                 </Text>
             </Flex>
 
-            <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                    <thead>
-                        <tr className="border-b border-gray-200 dark:border-gray-600">
-                            <th className="text-left py-2 pr-4 font-medium text-gray-600 dark:text-gray-400">Item</th>
-                            <th className="text-right py-2 px-3 font-medium text-gray-600 dark:text-gray-400">Ordered</th>
-                            <th className="text-right py-2 px-3 font-medium text-gray-600 dark:text-gray-400">Received</th>
-                            <th className="text-right py-2 px-3 font-medium text-gray-600 dark:text-gray-400">Invoiced</th>
-                            <th className="text-center py-2 pl-3 font-medium text-gray-600 dark:text-gray-400">Match</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {matchData.map((m, idx) => {
-                            const invItem = invoice?.items.find(i => i.variantId === m.variantId);
-                            const displayName = getVariantDisplayName(invItem?.variant) || m.variantId.slice(0, 8);
-                            return (
-                                <tr key={idx} className="border-b border-gray-100 dark:border-gray-700 last:border-b-0">
-                                    <td className="py-2 pr-4"><Text size="2">{displayName}</Text></td>
-                                    <td className="py-2 px-3 text-right"><Text size="2" color="gray">{m.orderedQuantity}</Text></td>
-                                    <td className="py-2 px-3 text-right"><Text size="2" color="gray">{m.receivedQuantity}</Text></td>
-                                    <td className="py-2 px-3 text-right"><Text size="2" color="gray">{m.invoicedQuantity}</Text></td>
-                                    <td className="py-2 pl-3 text-center">
-                                        <Badge variant="soft" color={m.match ? 'green' : 'red'} size="1" radius="full">
-                                            {m.match ? 'Match' : 'Mismatch'}
-                                        </Badge>
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-            </div>
+            <Table.Root variant="ghost" layout="auto">
+                <Table.Header>
+                    <Table.Row>
+                        <Table.ColumnHeaderCell>Item</Table.ColumnHeaderCell>
+                        <Table.ColumnHeaderCell justify="end">Ordered</Table.ColumnHeaderCell>
+                        <Table.ColumnHeaderCell justify="end">Received</Table.ColumnHeaderCell>
+                        <Table.ColumnHeaderCell justify="end">Invoiced</Table.ColumnHeaderCell>
+                        <Table.ColumnHeaderCell justify="center">Match</Table.ColumnHeaderCell>
+                    </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                    {matchData.map((m, idx) => {
+                        const invItem = invoice?.items.find(i => i.variantId === m.variantId);
+                        const displayName = getVariantDisplayName(invItem?.variant) || m.variantId.slice(0, 8);
+                        return (
+                            <Table.Row key={idx} align="center">
+                                <Table.RowHeaderCell><Text size="2">{displayName}</Text></Table.RowHeaderCell>
+                                <Table.Cell justify="end"><Text size="2" color="gray">{m.orderedQuantity}</Text></Table.Cell>
+                                <Table.Cell justify="end"><Text size="2" color="gray">{m.receivedQuantity}</Text></Table.Cell>
+                                <Table.Cell justify="end"><Text size="2" color="gray">{m.invoicedQuantity}</Text></Table.Cell>
+                                <Table.Cell justify="center">
+                                    <Badge variant="soft" color={m.match ? 'green' : 'red'} size="1" radius="full">
+                                        {m.match ? 'Match' : 'Mismatch'}
+                                    </Badge>
+                                </Table.Cell>
+                            </Table.Row>
+                        );
+                    })}
+                </Table.Body>
+            </Table.Root>
 
             {matchData.some(m => !m.match) && (
                 <Box mt="3" p="3" className="bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-200 dark:border-red-800">
