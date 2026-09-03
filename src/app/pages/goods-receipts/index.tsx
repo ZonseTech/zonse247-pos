@@ -1,18 +1,34 @@
-import { FunctionComponent, useCallback, useContext, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router';
-import { Package, Settings2, Clock, CheckCircle2, FileCheck, Plus, FilterX } from 'lucide-react';
+import {
+    FunctionComponent,
+    useCallback,
+    useContext,
+    useState,
+    useMemo,
+} from 'react';
+import {
+    Package,
+    Clock,
+    CheckCircle2,
+    FileCheck,
+    Plus,
+    FilterX,
+} from 'lucide-react';
 import DataTable, { type Themes } from 'react-data-table-component';
 import { Box, Flex, Text, Select, Button, IconButton } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import MobilePagination from '../../components/MobilePagination';
 import { getTableStyles } from '../../utils/table-styles';
-import { ZonseThemeContext, ComponentLoader, SummaryCards } from '../../components';
-import type { SummaryCardItem } from '../../components';
+import {
+    ZonseThemeContext,
+    ComponentLoader,
+    ProcurementSummaryCards,
+} from '../../components';
+import type { ProcurementSummaryCard } from '../../components';
 import { useGoodsReceipts } from '../../hooks/useGoodsReceipts';
 import { getGoodsReceiptTableColumns } from './partials/GoodsReceiptTableColumns';
 import { GoodsReceiptMobileList } from './partials/GoodsReceiptMobileCard';
-import { ROUTES } from '../../utils/constants';
+import GoodsReceiptFormModal from './partials/GoodsReceiptFormModal';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { Confirm } from 'notiflix';
 
@@ -26,11 +42,11 @@ const STATUS_OPTIONS: { value: string; label: string }[] = [
 
 const GoodsReceiptManagement: FunctionComponent = () => {
     const isMobile = useIsMobile();
-    const navigate = useNavigate();
     const { mode } = useContext(ZonseThemeContext);
 
-    const [selectedRows, setSelectedRows] = useState<GoodsReceiptWithItems[]>([]);
-    const [toggleCleared, setToggleCleared] = useState(false);
+    const [formState, setFormState] = useState<{
+        goodsReceiptId?: string;
+    } | null>(null);
 
     const {
         goodsReceipts,
@@ -42,6 +58,7 @@ const GoodsReceiptManagement: FunctionComponent = () => {
         totalRows,
         statusFilter,
         setStatusFilter,
+        loadGoodsReceipts,
         verifyGoodsReceipt,
         postGoodsReceipt,
         cancelGoodsReceipt,
@@ -49,16 +66,22 @@ const GoodsReceiptManagement: FunctionComponent = () => {
 
     const hasActiveFilters = useMemo(() => !!statusFilter, [statusFilter]);
 
-    const summaryCards: SummaryCardItem[] = useMemo(() => {
-        const draftCount = goodsReceipts.filter(g => g.status === 'DRAFT').length;
-        const verifiedCount = goodsReceipts.filter(g => g.status === 'VERIFIED').length;
-        const postedCount = goodsReceipts.filter(g => g.status === 'POSTED').length;
+    const summaryCards: ProcurementSummaryCard[] = useMemo(() => {
+        const draftCount = goodsReceipts.filter(
+            (g) => g.status === 'DRAFT',
+        ).length;
+        const verifiedCount = goodsReceipts.filter(
+            (g) => g.status === 'VERIFIED',
+        ).length;
+        const postedCount = goodsReceipts.filter(
+            (g) => g.status === 'POSTED',
+        ).length;
 
         return [
             {
                 title: 'Total Receipts',
                 value: totalRows,
-                icon: <Package className="w-5 h-5" />,
+                icon: Package,
                 bgColor: 'bg-teal-50 dark:bg-teal-900/20',
                 iconBgColor: 'bg-teal-100 dark:bg-teal-900/40',
                 textColor: 'text-teal-500 dark:text-teal-400',
@@ -66,7 +89,7 @@ const GoodsReceiptManagement: FunctionComponent = () => {
             {
                 title: 'Draft',
                 value: draftCount,
-                icon: <Clock className="w-5 h-5" />,
+                icon: Clock,
                 bgColor: 'bg-amber-50 dark:bg-amber-900/20',
                 iconBgColor: 'bg-amber-100 dark:bg-amber-900/40',
                 textColor: 'text-amber-500 dark:text-amber-400',
@@ -74,7 +97,7 @@ const GoodsReceiptManagement: FunctionComponent = () => {
             {
                 title: 'Verified',
                 value: verifiedCount,
-                icon: <CheckCircle2 className="w-5 h-5" />,
+                icon: CheckCircle2,
                 bgColor: 'bg-blue-50 dark:bg-blue-900/20',
                 iconBgColor: 'bg-blue-100 dark:bg-blue-900/40',
                 textColor: 'text-blue-500 dark:text-blue-400',
@@ -82,7 +105,7 @@ const GoodsReceiptManagement: FunctionComponent = () => {
             {
                 title: 'Posted',
                 value: postedCount,
-                icon: <FileCheck className="w-5 h-5" />,
+                icon: FileCheck,
                 bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
                 iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/40',
                 textColor: 'text-emerald-500 dark:text-emerald-400',
@@ -90,64 +113,70 @@ const GoodsReceiptManagement: FunctionComponent = () => {
         ];
     }, [goodsReceipts, totalRows]);
 
-    const handleAddGRN = useCallback(() => {
-        navigate(ROUTES.GOODS_RECEIPT_FORM);
-    }, [navigate]);
+    const handleAddGRN = useCallback(() => setFormState({}), []);
 
     const handleView = useCallback((grn: GoodsReceiptWithItems) => {
-        navigate(ROUTES.GOODS_RECEIPT_FORM, { state: { goodsReceiptId: grn.id } });
-    }, [navigate]);
+        setFormState({ goodsReceiptId: grn.id });
+    }, []);
 
-    const handleVerify = useCallback((grn: GoodsReceiptWithItems) => {
-        Confirm.show(
-            'Verify Goods Receipt',
-            `Verify ${grn.receiptNumber}? This confirms the received quantities are correct.`,
-            'Yes, Verify',
-            'Cancel',
-            async () => {
-                await verifyGoodsReceipt(grn.id);
-            },
-        );
-    }, [verifyGoodsReceipt]);
+    const handleVerify = useCallback(
+        (grn: GoodsReceiptWithItems) => {
+            Confirm.show(
+                'Verify Goods Receipt',
+                `Verify ${grn.receiptNumber}? This confirms the received quantities are correct.`,
+                'Yes, Verify',
+                'Cancel',
+                async () => {
+                    await verifyGoodsReceipt(grn.id);
+                },
+            );
+        },
+        [verifyGoodsReceipt],
+    );
 
-    const handlePost = useCallback((grn: GoodsReceiptWithItems) => {
-        Confirm.show(
-            'Post Goods Receipt',
-            `Post ${grn.receiptNumber}? This will update inventory stock levels. This action cannot be undone.`,
-            'Yes, Post',
-            'Cancel',
-            async () => {
-                await postGoodsReceipt(grn.id);
-            },
-        );
-    }, [postGoodsReceipt]);
+    const handlePost = useCallback(
+        (grn: GoodsReceiptWithItems) => {
+            Confirm.show(
+                'Post Goods Receipt',
+                `Post ${grn.receiptNumber}? This will update inventory stock levels. This action cannot be undone.`,
+                'Yes, Post',
+                'Cancel',
+                async () => {
+                    await postGoodsReceipt(grn.id);
+                },
+            );
+        },
+        [postGoodsReceipt],
+    );
 
-    const handleCancel = useCallback((grn: GoodsReceiptWithItems) => {
-        Confirm.show(
-            'Cancel Goods Receipt',
-            `Are you sure you want to cancel ${grn.receiptNumber}?`,
-            'Yes, Cancel',
-            'No',
-            async () => {
-                await cancelGoodsReceipt(grn.id);
-            },
-        );
-    }, [cancelGoodsReceipt]);
+    const handleCancel = useCallback(
+        (grn: GoodsReceiptWithItems) => {
+            Confirm.show(
+                'Cancel Goods Receipt',
+                `Are you sure you want to cancel ${grn.receiptNumber}?`,
+                'Yes, Cancel',
+                'No',
+                async () => {
+                    await cancelGoodsReceipt(grn.id);
+                },
+            );
+        },
+        [cancelGoodsReceipt],
+    );
 
     const handleClearFilters = useCallback(() => {
         setStatusFilter('');
     }, [setStatusFilter]);
 
-    const handleRowSelected = useCallback((state: { selectedRows: GoodsReceiptWithItems[] }) => {
-        setSelectedRows(state.selectedRows);
-    }, []);
-
     const handlePageChange = useCallback((p: number) => setPage(p), [setPage]);
 
-    const handlePerRowsChange = useCallback((newPerPage: number, p: number) => {
-        setPerPage(newPerPage);
-        setPage(p);
-    }, [setPerPage, setPage]);
+    const handlePerRowsChange = useCallback(
+        (newPerPage: number, p: number) => {
+            setPerPage(newPerPage);
+            setPage(p);
+        },
+        [setPerPage, setPage],
+    );
 
     const columns = getGoodsReceiptTableColumns({
         onView: handleView,
@@ -160,14 +189,26 @@ const GoodsReceiptManagement: FunctionComponent = () => {
         <AppLayout>
             <Box className="max-w-full">
                 <PageHeader
-                    icon={<Package className="w-7 h-7 sm:w-8 sm:h-8 text-teal-500 dark:text-teal-400" />}
+                    icon={
+                        <Package className="w-7 h-7 sm:w-8 sm:h-8 text-teal-500 dark:text-teal-400" />
+                    }
                     title="Goods Receipts"
                     description="Record and verify received goods against purchase orders"
                     action={
-                        <Flex direction={{ initial: 'column', sm: 'row' }} gap={{ initial: '2', sm: '3' }} align="center">
+                        <Flex
+                            direction={{ initial: 'column', sm: 'row' }}
+                            gap={{ initial: '2', sm: '3' }}
+                            align="center"
+                        >
                             <Select.Root
                                 value={statusFilter || 'all'}
-                                onValueChange={(val) => setStatusFilter(val === 'all' ? '' : val as GRNStatusType)}
+                                onValueChange={(val) =>
+                                    setStatusFilter(
+                                        val === 'all'
+                                            ? ''
+                                            : (val as GRNStatusType),
+                                    )
+                                }
                             >
                                 <Select.Trigger
                                     variant="surface"
@@ -176,21 +217,15 @@ const GoodsReceiptManagement: FunctionComponent = () => {
                                 />
                                 <Select.Content position="popper">
                                     {STATUS_OPTIONS.map((opt) => (
-                                        <Select.Item key={opt.value} value={opt.value}>
+                                        <Select.Item
+                                            key={opt.value}
+                                            value={opt.value}
+                                        >
                                             {opt.label}
                                         </Select.Item>
                                     ))}
                                 </Select.Content>
                             </Select.Root>
-
-                            {selectedRows.length > 0 && !isMobile && (
-                                <Flex align="center" gap="2" px="4" py="2" className="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-md">
-                                    <Settings2 className="w-4 h-4 text-teal-500 dark:text-teal-400" />
-                                    <Text size="2" weight="medium" className="text-teal-900 dark:text-teal-100">
-                                        {selectedRows.length} selected
-                                    </Text>
-                                </Flex>
-                            )}
 
                             {hasActiveFilters && (
                                 <Button
@@ -214,12 +249,11 @@ const GoodsReceiptManagement: FunctionComponent = () => {
                                     <Plus className="w-4 h-4" />
                                 </IconButton>
                             ) : (
-                                <Button
-                                    size="2"
-                                    onClick={handleAddGRN}
-                                >
+                                <Button size="2" onClick={handleAddGRN}>
                                     <Plus className="w-4 h-4" />
-                                    <span className="hidden md:inline">New GRN</span>
+                                    <span className="hidden md:inline">
+                                        New GRN
+                                    </span>
                                 </Button>
                             )}
                         </Flex>
@@ -227,12 +261,12 @@ const GoodsReceiptManagement: FunctionComponent = () => {
                 />
 
                 <Box className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <SummaryCards
-                        cards={summaryCards}
-                        isLoading={isLoading}
-                        variant="embedded"
-                        gridClassName="grid-cols-2 md:grid-cols-4"
-                    />
+                    <Box px="4">
+                        <ProcurementSummaryCards
+                            cards={summaryCards}
+                            isLoading={isLoading}
+                        />
+                    </Box>
 
                     {isMobile ? (
                         <Box className="overflow-hidden">
@@ -246,14 +280,38 @@ const GoodsReceiptManagement: FunctionComponent = () => {
                                     isLoading={true}
                                 />
                             ) : goodsReceipts.length === 0 ? (
-                                <Flex direction="column" align="center" justify="center" py="9" px="4">
-                                    <Flex align="center" justify="center" className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
+                                <Flex
+                                    direction="column"
+                                    align="center"
+                                    justify="center"
+                                    py="9"
+                                    px="4"
+                                >
+                                    <Flex
+                                        align="center"
+                                        justify="center"
+                                        className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mb-4"
+                                    >
                                         <Package className="w-8 h-8 text-gray-400" />
                                     </Flex>
-                                    <Text as="p" size="4" weight="medium" align="center" className="text-gray-900 dark:text-white mb-2">
-                                        {hasActiveFilters ? 'No matching goods receipts' : 'No goods receipts yet'}
+                                    <Text
+                                        as="p"
+                                        size="4"
+                                        weight="medium"
+                                        align="center"
+                                        className="text-gray-900 dark:text-white mb-2"
+                                    >
+                                        {hasActiveFilters
+                                            ? 'No matching goods receipts'
+                                            : 'No goods receipts yet'}
                                     </Text>
-                                    <Text as="p" size="2" color="gray" align="center" className="max-w-sm">
+                                    <Text
+                                        as="p"
+                                        size="2"
+                                        color="gray"
+                                        align="center"
+                                        className="max-w-sm"
+                                    >
                                         {hasActiveFilters
                                             ? 'Try adjusting your filters.'
                                             : 'Create a GRN from an existing purchase order.'}
@@ -280,7 +338,12 @@ const GoodsReceiptManagement: FunctionComponent = () => {
                                         onCancel={handleCancel}
                                         isLoading={false}
                                     />
-                                    <MobilePagination page={page} totalRows={totalRows} perPage={perPage} onPageChange={setPage} />
+                                    <MobilePagination
+                                        page={page}
+                                        totalRows={totalRows}
+                                        perPage={perPage}
+                                        onPageChange={setPage}
+                                    />
                                 </>
                             )}
                         </Box>
@@ -291,32 +354,55 @@ const GoodsReceiptManagement: FunctionComponent = () => {
                                 data={goodsReceipts}
                                 theme={mode as Themes}
                                 progressPending={isLoading}
-                                progressComponent={<ComponentLoader loading={isLoading} />}
+                                progressComponent={
+                                    <ComponentLoader loading={isLoading} />
+                                }
                                 pagination
                                 paginationServer
                                 paginationTotalRows={totalRows}
                                 paginationPerPage={perPage}
-                                paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
+                                paginationRowsPerPageOptions={[
+                                    10, 15, 25, 50, 100,
+                                ]}
                                 onChangeRowsPerPage={handlePerRowsChange}
                                 onChangePage={handlePageChange}
                                 customStyles={getTableStyles(mode)}
                                 highlightOnHover
                                 striped
                                 responsive
-                                selectableRows
-                                selectableRowsHighlight
-                                onSelectedRowsChange={handleRowSelected}
-                                clearSelectedRows={toggleCleared}
                                 persistTableHead
                                 noDataComponent={
-                                    <Flex direction="column" align="center" justify="center" py="9" className="dark:bg-gray-800 flex-1">
-                                        <Flex align="center" justify="center" className="h-16 w-16 rounded-full bg-gray-100 dark:bg-gray-700">
+                                    <Flex
+                                        direction="column"
+                                        align="center"
+                                        justify="center"
+                                        py="9"
+                                        className="dark:bg-gray-800 flex-1"
+                                    >
+                                        <Flex
+                                            align="center"
+                                            justify="center"
+                                            className="h-16 w-16 rounded-full bg-gray-100 dark:bg-gray-700"
+                                        >
                                             <Package className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                                         </Flex>
-                                        <Text as="p" size="4" weight="bold" className="mt-4 text-gray-900 dark:text-gray-100">
-                                            {hasActiveFilters ? 'No matching goods receipts' : 'No goods receipts yet'}
+                                        <Text
+                                            as="p"
+                                            size="4"
+                                            weight="bold"
+                                            className="mt-4 text-gray-900 dark:text-gray-100"
+                                        >
+                                            {hasActiveFilters
+                                                ? 'No matching goods receipts'
+                                                : 'No goods receipts yet'}
                                         </Text>
-                                        <Text as="p" size="2" color="gray" align="center" className="mt-2 max-w-sm">
+                                        <Text
+                                            as="p"
+                                            size="2"
+                                            color="gray"
+                                            align="center"
+                                            className="mt-2 max-w-sm"
+                                        >
                                             {hasActiveFilters
                                                 ? 'Try adjusting your filters.'
                                                 : 'Create a GRN from an existing purchase order.'}
@@ -328,6 +414,14 @@ const GoodsReceiptManagement: FunctionComponent = () => {
                     )}
                 </Box>
             </Box>
+
+            {formState && (
+                <GoodsReceiptFormModal
+                    goodsReceiptId={formState.goodsReceiptId}
+                    onClose={() => setFormState(null)}
+                    onSaved={loadGoodsReceipts}
+                />
+            )}
         </AppLayout>
     );
 };
