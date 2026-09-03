@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import { Eye, CheckCircle, FileCheck, Ban, Package, ChevronRight } from 'lucide-react';
+import { Badge } from '@radix-ui/themes';
 import { grnStatusConfig } from './GoodsReceiptTableColumns';
 
 const formatCurrency = (value: number) =>
@@ -41,9 +42,9 @@ const GoodsReceiptMobileCard: FC<CardProps> = ({ grn, onView, onVerify, onPost, 
                         )}
                     </div>
                 </div>
-                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusCfg.bg} ${statusCfg.text} flex-shrink-0`}>
+                <Badge variant="soft" color={statusCfg.color} radius="full" className="flex-shrink-0">
                     {statusCfg.label}
-                </span>
+                </Badge>
             </div>
 
             {/* Details */}
