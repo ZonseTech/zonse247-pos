@@ -1,27 +1,35 @@
-import { FunctionComponent, useCallback, useContext, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router';
-import { Receipt, Settings2 } from 'lucide-react';
+import {
+    FunctionComponent,
+    useCallback,
+    useContext,
+    useState,
+    useMemo,
+} from 'react';
+import { Receipt } from 'lucide-react';
 import DataTable, { type Themes } from 'react-data-table-component';
 import AppLayout from '../../layouts/AppLayout';
 import PageHeader from '../../components/page/PageHeader';
 import MobilePagination from '../../components/MobilePagination';
 import { HiOutlineFilter } from 'react-icons/hi';
 import { getTableStyles } from '../../utils/table-styles';
-import { Button, ZonseThemeContext, Select, ComponentLoader } from '../../components';
+import {
+    Button,
+    ZonseThemeContext,
+    Select,
+    ComponentLoader,
+} from '../../components';
 import { useCreditNotes } from '../../hooks/useCreditNotes';
 import { getCreditNoteTableColumns } from './partials/CreditNoteTableColumns';
 import { CreditNoteMobileList } from './partials/CreditNoteMobileCard';
 import CreditNoteSummaryCards from './partials/CreditNoteSummaryCards';
-import { ROUTES } from '../../utils/constants';
+import SupplierReturnFormModal from '../supplier-returns/partials/SupplierReturnFormModal';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 
 const CreditNoteManagement: FunctionComponent = () => {
     const isMobile = useIsMobile();
-    const navigate = useNavigate();
     const { mode } = useContext(ZonseThemeContext);
 
-    const [selectedRows, setSelectedRows] = useState<SupplierCreditNote[]>([]);
-    const [toggleCleared, setToggleCleared] = useState(false);
+    const [viewingReturnId, setViewingReturnId] = useState<string | null>(null);
 
     const {
         creditNotes,
@@ -33,6 +41,7 @@ const CreditNoteManagement: FunctionComponent = () => {
         totalRows,
         statusFilter,
         setStatusFilter,
+        loadCreditNotes,
     } = useCreditNotes();
 
     const hasActiveFilters = useMemo(() => !!statusFilter, [statusFilter]);
@@ -40,26 +49,24 @@ const CreditNoteManagement: FunctionComponent = () => {
     // ── Handlers ────────────────────────────────────────────────────────────
 
     const handleView = useCallback((cn: SupplierCreditNote) => {
-        // Navigate to the parent return's detail page
         if (cn.supplierReturnId) {
-            navigate(ROUTES.SUPPLIER_RETURN_FORM, { state: { returnId: cn.supplierReturnId } });
+            setViewingReturnId(cn.supplierReturnId);
         }
-    }, [navigate]);
+    }, []);
 
     const handleClearFilters = useCallback(() => {
         setStatusFilter('');
     }, [setStatusFilter]);
 
-    const handleRowSelected = useCallback((state: { selectedRows: SupplierCreditNote[] }) => {
-        setSelectedRows(state.selectedRows);
-    }, []);
-
     const handlePageChange = useCallback((p: number) => setPage(p), [setPage]);
 
-    const handlePerRowsChange = useCallback((newPerPage: number, p: number) => {
-        setPerPage(newPerPage);
-        setPage(p);
-    }, [setPerPage, setPage]);
+    const handlePerRowsChange = useCallback(
+        (newPerPage: number, p: number) => {
+            setPerPage(newPerPage);
+            setPage(p);
+        },
+        [setPerPage, setPage],
+    );
 
     const columns = getCreditNoteTableColumns({ onView: handleView });
 
@@ -67,30 +74,49 @@ const CreditNoteManagement: FunctionComponent = () => {
         <AppLayout>
             <div className="max-w-full">
                 <PageHeader
-                    icon={<Receipt className="w-7 h-7 sm:w-8 sm:h-8 text-teal-500 dark:text-teal-400" />}
+                    icon={
+                        <Receipt className="w-7 h-7 sm:w-8 sm:h-8 text-teal-500 dark:text-teal-400" />
+                    }
                     title="Credit Notes"
                     description="Track credit notes from supplier returns"
                     action={
                         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                             <Select
                                 value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value as CreditNoteStatusType | '')}
+                                onChange={(e) =>
+                                    setStatusFilter(
+                                        e.target.value as
+                                            | CreditNoteStatusType
+                                            | '',
+                                    )
+                                }
                                 className="h-10 px-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500 dark:focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-400 transition-colors w-full sm:w-48"
                             >
-                                <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">All Status</option>
-                                <option value="PENDING" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">Pending</option>
-                                <option value="APPLIED" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">Applied</option>
-                                <option value="CANCELLED" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">Cancelled</option>
+                                <option
+                                    value=""
+                                    className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                >
+                                    All Status
+                                </option>
+                                <option
+                                    value="PENDING"
+                                    className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                >
+                                    Pending
+                                </option>
+                                <option
+                                    value="APPLIED"
+                                    className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                >
+                                    Applied
+                                </option>
+                                <option
+                                    value="CANCELLED"
+                                    className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                >
+                                    Cancelled
+                                </option>
                             </Select>
-
-                            {selectedRows.length > 0 && !isMobile && (
-                                <div className="flex items-center gap-2 px-4 py-2 bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-md">
-                                    <Settings2 className="w-4 h-4 text-teal-500 dark:text-teal-400" />
-                                    <span className="text-sm font-medium text-teal-900 dark:text-teal-100">
-                                        {selectedRows.length} selected
-                                    </span>
-                                </div>
-                            )}
 
                             {hasActiveFilters && (
                                 <button
@@ -107,7 +133,12 @@ const CreditNoteManagement: FunctionComponent = () => {
 
                 {/* Main content */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <CreditNoteSummaryCards creditNotes={creditNotes} isLoading={isLoading} />
+                    <div className="px-4">
+                        <CreditNoteSummaryCards
+                            creditNotes={creditNotes}
+                            isLoading={isLoading}
+                        />
+                    </div>
 
                     {isMobile ? (
                         <div className="overflow-hidden">
@@ -123,7 +154,9 @@ const CreditNoteManagement: FunctionComponent = () => {
                                         <Receipt className="w-8 h-8 text-gray-400" />
                                     </div>
                                     <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2 text-center">
-                                        {hasActiveFilters ? 'No matching credit notes' : 'No credit notes yet'}
+                                        {hasActiveFilters
+                                            ? 'No matching credit notes'
+                                            : 'No credit notes yet'}
                                     </h3>
                                     <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm text-sm">
                                         {hasActiveFilters
@@ -146,7 +179,12 @@ const CreditNoteManagement: FunctionComponent = () => {
                                         onView={handleView}
                                         isLoading={false}
                                     />
-                                    <MobilePagination page={page} totalRows={totalRows} perPage={perPage} onPageChange={setPage} />
+                                    <MobilePagination
+                                        page={page}
+                                        totalRows={totalRows}
+                                        perPage={perPage}
+                                        onPageChange={setPage}
+                                    />
                                 </>
                             )}
                         </div>
@@ -157,22 +195,22 @@ const CreditNoteManagement: FunctionComponent = () => {
                                 data={creditNotes}
                                 theme={mode as Themes}
                                 progressPending={isLoading}
-                                progressComponent={<ComponentLoader loading={isLoading} />}
+                                progressComponent={
+                                    <ComponentLoader loading={isLoading} />
+                                }
                                 pagination
                                 paginationServer
                                 paginationTotalRows={totalRows}
                                 paginationPerPage={perPage}
-                                paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
+                                paginationRowsPerPageOptions={[
+                                    10, 15, 25, 50, 100,
+                                ]}
                                 onChangeRowsPerPage={handlePerRowsChange}
                                 onChangePage={handlePageChange}
                                 customStyles={getTableStyles(mode)}
                                 highlightOnHover
                                 striped
                                 responsive
-                                selectableRows
-                                selectableRowsHighlight
-                                onSelectedRowsChange={handleRowSelected}
-                                clearSelectedRows={toggleCleared}
                                 persistTableHead
                                 noDataComponent={
                                     <div className="flex flex-col items-center justify-center py-12 dark:bg-gray-800 flex-1">
@@ -180,7 +218,9 @@ const CreditNoteManagement: FunctionComponent = () => {
                                             <Receipt className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                                         </div>
                                         <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                            {hasActiveFilters ? 'No matching credit notes' : 'No credit notes yet'}
+                                            {hasActiveFilters
+                                                ? 'No matching credit notes'
+                                                : 'No credit notes yet'}
                                         </h3>
                                         <p className="mt-2 max-w-sm text-center text-sm text-gray-600 dark:text-gray-400">
                                             {hasActiveFilters
@@ -194,6 +234,14 @@ const CreditNoteManagement: FunctionComponent = () => {
                     )}
                 </div>
             </div>
+
+            {viewingReturnId && (
+                <SupplierReturnFormModal
+                    returnId={viewingReturnId}
+                    onClose={() => setViewingReturnId(null)}
+                    onSaved={loadCreditNotes}
+                />
+            )}
         </AppLayout>
     );
 };
