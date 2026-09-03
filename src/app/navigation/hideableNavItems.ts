@@ -16,8 +16,6 @@ export const HIDEABLE_NAV_ITEMS: HideableNavItem[] = [
     { id: 'expenses', label: 'Expenses' },
     { id: 'staff-management', label: 'Users' },
     { id: 'roles-permissions', label: 'Roles & Permissions' },
-    { id: 'branches', label: 'Branches' },
-    { id: 'terminals', label: 'Terminals' },
     { id: 'printers', label: 'Printers' },
     { id: 'tenants', label: 'Tenants' },
 ];
