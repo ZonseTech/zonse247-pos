@@ -1,5 +1,4 @@
 import { FunctionComponent, useCallback, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router';
 import { ShoppingCart, Plus, SlidersHorizontal, Users, ClipboardList, PackageCheck, FileText, Wallet, RotateCcw, CreditCard } from 'lucide-react';
 import { Box, Button } from '@radix-ui/themes';
 import { Confirm } from 'notiflix';
@@ -18,13 +17,17 @@ import PurchaseOrderFilterSheet from './partials/PurchaseOrderFilterSheet';
 import PurchaseOrderDesktopView from './partials/PurchaseOrderDesktopView';
 import PurchaseOrderMobileView from './partials/PurchaseOrderMobileView';
 import ReceiveModal from './partials/ReceiveModal';
+import CreatePurchaseOrderModal from './partials/CreatePurchaseOrderModal';
+import ViewPurchaseOrderModal from './partials/ViewPurchaseOrderModal';
 import { ROUTES } from '../../utils/constants';
+import type { POFormValues } from './partials/types';
 
 const PurchaseOrderManagement: FunctionComponent = () => {
     const isMobile = useIsMobile();
-    const navigate = useNavigate();
 
     const [receivingPO, setReceivingPO] = useState<PurchaseOrder | null>(null);
+    const [viewingPO, setViewingPO] = useState<PurchaseOrder | null>(null);
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
@@ -38,6 +41,7 @@ const PurchaseOrderManagement: FunctionComponent = () => {
         totalRows,
         statusFilter,
         setStatusFilter,
+        createPurchaseOrder,
         sendPurchaseOrder,
         receivePurchaseOrder,
         cancelPurchaseOrder,
@@ -68,7 +72,22 @@ const PurchaseOrderManagement: FunctionComponent = () => {
         );
     }, [purchaseOrders, searchTerm]);
 
-    const handleAddPO = useCallback(() => navigate(ROUTES.PURCHASE_ORDER_FORM), [navigate]);
+    const handleAddPO = useCallback(() => setIsCreateOpen(true), []);
+
+    const handleCreateSubmit = useCallback(async (values: POFormValues) => {
+        await createPurchaseOrder({
+            supplierId: values.supplierId,
+            createdBy: '',
+            expectedDeliveryDate: values.expectedDeliveryDate || undefined,
+            notes: values.notes || undefined,
+            items: values.items.map((item) => ({
+                variantId: item.variantId,
+                orderedQuantity: Number(item.orderedQuantity),
+                unitPrice: Number(item.unitPrice),
+                notes: item.notes || undefined,
+            })),
+        });
+    }, [createPurchaseOrder]);
 
     const handleSend = useCallback(async (po: PurchaseOrder) => {
         Confirm.show('Send Purchase Order', `Send ${po.poNumber} to ${po.supplier?.name || 'supplier'}?`, 'Yes, Send', 'Cancel', async () => {
@@ -84,9 +103,7 @@ const PurchaseOrderManagement: FunctionComponent = () => {
         });
     }, [cancelPurchaseOrder]);
 
-    const handleView = useCallback((po: PurchaseOrder) => {
-        navigate(ROUTES.PURCHASE_ORDER_FORM, { state: { purchaseOrderId: po.id } });
-    }, [navigate]);
+    const handleView = useCallback((po: PurchaseOrder) => setViewingPO(po), []);
 
     const handleStatusChange = useCallback((status: PurchaseOrderStatus | 'all') => {
         setStatusFilter(status === 'all' ? '' : status);
@@ -239,6 +256,20 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                     purchaseOrder={receivingPO}
                     onClose={() => setReceivingPO(null)}
                     onReceive={receivePurchaseOrder}
+                />
+            )}
+
+            {isCreateOpen && (
+                <CreatePurchaseOrderModal
+                    onClose={() => setIsCreateOpen(false)}
+                    onSubmit={handleCreateSubmit}
+                />
+            )}
+
+            {viewingPO && (
+                <ViewPurchaseOrderModal
+                    purchaseOrder={viewingPO}
+                    onClose={() => setViewingPO(null)}
                 />
             )}
         </AppLayout>
