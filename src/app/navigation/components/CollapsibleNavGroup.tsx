@@ -55,6 +55,7 @@ const NavItemButton: FunctionComponent<NavItemButtonProps> = ({
     const button = (
         <button
             onClick={() => onItemClick(item)}
+            data-nav-active={isActive || undefined}
             className={classNames(
                 'flex items-center rounded-lg text-left transition-all duration-200 active:scale-[0.98] w-full group gap-2.5 px-2.5 py-1.5',
                 isActive
