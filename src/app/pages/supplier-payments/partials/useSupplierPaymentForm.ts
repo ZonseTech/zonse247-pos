@@ -1,24 +1,23 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router';
 import { Notify, Report, Confirm } from 'notiflix';
 import { useSupplierPayments } from '../../../hooks/useSupplierPayments';
 import { usePaymentMethods } from '../../../hooks/usePaymentMethods';
 import { supplierInvoiceService } from '../../../services';
-import { ROUTES } from '../../../utils/constants';
 import { getErrorMessage } from '../../../utils/api-error-handler';
 import type { PaymentFormValues, AllocationRow, FormMode } from './types';
 import { formatCurrency } from './helpers';
 
-export const useSupplierPaymentForm = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
+interface UseSupplierPaymentFormParams {
+    paymentId?: string;
+    preSupplierId?: string;
+    preInvoiceId?: string;
+    onSaved: () => void;
+}
+
+export const useSupplierPaymentForm = ({ paymentId, preSupplierId, preInvoiceId, onSaved }: UseSupplierPaymentFormParams) => {
     const { createPayment, voidPayment, getPayment } = useSupplierPayments();
     const { paymentMethods, isLoading: loadingMethods } = usePaymentMethods();
 
-    // ── Routing state ─────────────────────────────────────────────────────
-    const paymentId = (location.state as any)?.paymentId as string | undefined;
-    const preInvoiceId = (location.state as any)?.invoiceId as string | undefined;
-    const preSupplierId = (location.state as any)?.supplierId as string | undefined;
     const formMode: FormMode = paymentId ? 'view' : 'create';
 
     // ── Local state ───────────────────────────────────────────────────────
@@ -202,25 +201,17 @@ export const useSupplierPaymentForm = () => {
                 };
 
                 await createPayment(payload);
-
-                Confirm.show(
-                    'Payment Recorded',
-                    'Supplier payment was recorded successfully. What would you like to do?',
-                    'Record Another',
-                    'Go to Payments',
-                    () => {
-                        resetForm();
-                        setOutstandingInvoices([]);
-                    },
-                    () => navigate(ROUTES.PROCUREMENT_PAYMENTS),
-                );
+                Notify.success('Supplier payment recorded successfully');
+                resetForm();
+                setOutstandingInvoices([]);
+                onSaved();
             } catch (error: any) {
                 Report.failure('Error', getErrorMessage(error, 'Failed to record payment'), 'Okay');
             } finally {
                 setLoading(false);
             }
         },
-        [formMode, createPayment, navigate],
+        [formMode, createPayment, onSaved],
     );
 
     // ── Void payment (view mode) ──────────────────────────────────────────
