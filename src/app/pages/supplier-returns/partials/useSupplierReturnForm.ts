@@ -1,17 +1,19 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router';
 import { Notify, Report, Confirm } from 'notiflix';
 import { useSupplierReturns } from '../../../hooks/useSupplierReturns';
 import { usePurchaseOrders } from '../../../hooks/usePurchaseOrders';
 import { useGoodsReceipts } from '../../../hooks/useGoodsReceipts';
-import { ROUTES } from '../../../utils/constants';
 import { getErrorMessage } from '../../../utils/api-error-handler';
 import type { ReturnFormValues, ReturnFormItem, FormMode } from './types';
 import { EMPTY_ITEM } from './types';
 
-export const useSupplierReturnForm = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
+interface UseSupplierReturnFormParams {
+    returnId?: string;
+    onSaved: () => void;
+    onDeleted: () => void;
+}
+
+export const useSupplierReturnForm = ({ returnId, onSaved, onDeleted }: UseSupplierReturnFormParams) => {
     const {
         createReturn, approveReturn, shipReturn, completeReturn,
         cancelReturn, deleteReturn, getReturn,
@@ -19,8 +21,6 @@ export const useSupplierReturnForm = () => {
     const { purchaseOrders } = usePurchaseOrders();
     const { goodsReceipts } = useGoodsReceipts();
 
-    // ── Routing state ─────────────────────────────────────────────────────
-    const returnId = (location.state as any)?.returnId as string | undefined;
     const formMode: FormMode = returnId ? 'view' : 'create';
 
     // ── Local state ───────────────────────────────────────────────────────
@@ -194,22 +194,16 @@ export const useSupplierReturnForm = () => {
                 };
 
                 await createReturn(payload);
-
-                Confirm.show(
-                    'Return Created',
-                    'Supplier return created as draft. What would you like to do?',
-                    'Add Another',
-                    'Go to Returns',
-                    () => resetForm(),
-                    () => navigate(ROUTES.PROCUREMENT_RETURNS),
-                );
+                Notify.success('Supplier return created as draft');
+                resetForm();
+                onSaved();
             } catch (error: any) {
                 Report.failure('Error', getErrorMessage(error, 'Failed to create return'), 'Okay');
             } finally {
                 setLoading(false);
             }
         },
-        [formMode, createReturn, navigate],
+        [formMode, createReturn, onSaved],
     );
 
     // ── View-mode actions ─────────────────────────────────────────────────
@@ -261,9 +255,9 @@ export const useSupplierReturnForm = () => {
         Confirm.show(
             'Delete Return', `Permanently delete draft return ${returnData.returnNumber}?`,
             'Yes, Delete', 'Cancel',
-            async () => { await deleteReturn(returnData.id); navigate(ROUTES.PROCUREMENT_RETURNS); },
+            async () => { await deleteReturn(returnData.id); onDeleted(); },
         );
-    }, [returnData, deleteReturn, navigate]);
+    }, [returnData, deleteReturn, onDeleted]);
 
     return {
         formMode,
