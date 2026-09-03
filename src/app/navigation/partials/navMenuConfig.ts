@@ -115,7 +115,7 @@ export function buildNavMenuGroups(
         );
     }
 
-    if (hasPermission(user, 'system.admin') && !hiddenIds.has('tenants')) {
+    if (hasPermission(user, 'tenants.view') && !hiddenIds.has('tenants')) {
         adminItems.push({ id: 'tenants', label: 'Tenants', route: ROUTES.TENANTS });
     }
 
