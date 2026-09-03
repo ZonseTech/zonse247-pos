@@ -1,5 +1,6 @@
 import type { FunctionComponent } from 'react';
 import { Eye } from 'lucide-react';
+import { Badge } from '@radix-ui/themes';
 import { creditNoteStatusConfig } from './CreditNoteTableColumns';
 
 const formatCurrency = (value: number) =>
@@ -21,9 +22,9 @@ const CreditNoteMobileCard: FunctionComponent<CreditNoteMobileCardProps> = ({ cr
                         <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
                             {creditNote.creditNoteNumber}
                         </span>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text}`}>
+                        <Badge variant="soft" color={cfg.color} size="1" radius="full">
                             {cfg.label}
-                        </span>
+                        </Badge>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
                         {creditNote.supplier?.name || '—'}

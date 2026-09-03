@@ -1,10 +1,9 @@
 import { FunctionComponent } from 'react';
-import { FieldArray, useFormikContext } from 'formik';
+import { FieldArray, useFormikContext, useField } from 'formik';
 import { Plus, Trash2, Package } from 'lucide-react';
-import { Flex, Text } from '@radix-ui/themes';
-import { Button } from '../../../components';
-import FormInput from '../../../components/FormInput';
+import { Box, Button, Flex, IconButton, Table, Text, TextField, Tooltip } from '@radix-ui/themes';
 import ProductSearchSelect from '../../../components/ProductSearchSelect';
+import { TableEmptyState } from '../../../components';
 import { formatCurrency, calculateSubtotal } from './helpers';
 import { EMPTY_ITEM, type InvoiceFormValues } from './types';
 import InvoiceTotals from './InvoiceTotals';
@@ -13,93 +12,107 @@ interface InvoiceItemsFormProps {
     variantLabels: Record<string, string>;
 }
 
+const CellNumberInput: FunctionComponent<{ name: string; step?: string }> = ({ name, step }) => {
+    const [field, meta] = useField({ name, type: 'number' });
+    const hasError = meta.touched && !!meta.error;
+    const displayValue = field.value === 0 || field.value === '0' ? '' : field.value ?? '';
+
+    return (
+        <Box>
+            <TextField.Root
+                {...field}
+                value={displayValue}
+                type="number"
+                min={step ? 0 : 1}
+                step={step}
+                color={hasError ? 'red' : undefined}
+                size="2"
+            />
+            {hasError && <Text as="p" size="1" color="red" mt="1">{meta.error}</Text>}
+        </Box>
+    );
+};
+
 const InvoiceItemsForm: FunctionComponent<InvoiceItemsFormProps> = ({ variantLabels }) => {
     const { values } = useFormikContext<InvoiceFormValues>();
 
     return (
         <FieldArray name="items">
             {({ push, remove }) => (
-                <div className="space-y-4">
-                    <Button
-                        type="button"
-                        onClick={() => push({ ...EMPTY_ITEM })}
-                        theme="primary"
-                        layout="outline"
-                    >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Item
-                    </Button>
+                <Flex direction="column" gap="4">
+                    <Box>
+                        <Button type="button" variant="outline" onClick={() => push({ ...EMPTY_ITEM })}>
+                            <Plus className="w-4 h-4" />
+                            Add Item
+                        </Button>
+                    </Box>
 
                     {values.items.length === 0 ? (
-                        <Flex direction="column" align="center" justify="center" py="8">
-                            <Package className="w-12 h-12 mb-2 opacity-50 text-gray-400" />
-                            <Text size="2" color="gray">No items added yet</Text>
-                            <Text size="1" color="gray" mt="1">
-                                Link a PO above to auto-populate items, or add manually.
-                            </Text>
-                        </Flex>
+                        <TableEmptyState
+                            icon={<Package />}
+                            title="No items added yet"
+                            description="Link a PO above to auto-populate items, or add manually."
+                        />
                     ) : (
-                        <div className="space-y-3">
-                            {values.items.map((item, index) => (
-                                <div
-                                    key={index}
-                                    className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600"
-                                >
-                                    <Flex justify="between" align="center" mb="3">
-                                        <Text size="2" weight="medium" color="gray">
-                                            Item #{index + 1}
-                                        </Text>
-                                        {values.items.length > 1 && (
-                                            <button
-                                                type="button"
-                                                onClick={() => remove(index)}
-                                                className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                                                title="Remove item"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        )}
-                                    </Flex>
-                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                                        <div className="md:col-span-2">
-                                            <ProductSearchSelect
-                                                name={`items.${index}.variantId`}
-                                                label="Product Variant"
-                                                required
-                                                initialOption={
-                                                    item.variantId && variantLabels[item.variantId]
-                                                        ? { label: variantLabels[item.variantId], value: item.variantId }
-                                                        : null
-                                                }
-                                            />
-                                        </div>
-                                        <FormInput
-                                            label="Quantity"
-                                            name={`items.${index}.quantity`}
-                                            type="number"
-                                            min="1"
-                                            required
-                                        />
-                                        <FormInput
-                                            label="Unit Price (MWK)"
-                                            name={`items.${index}.unitPrice`}
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            required
-                                        />
-                                    </div>
-                                    <Flex justify="end" mt="2">
-                                        <Text size="2" color="gray">
-                                            Subtotal:{' '}
-                                            <Text as="span" weight="medium">
-                                                {formatCurrency((item.quantity || 0) * (item.unitPrice || 0))}
-                                            </Text>
-                                        </Text>
-                                    </Flex>
-                                </div>
-                            ))}
-                        </div>
+                        <Table.Root variant="surface" layout="auto">
+                            <Table.Header>
+                                <Table.Row>
+                                    <Table.ColumnHeaderCell>Item</Table.ColumnHeaderCell>
+                                    <Table.ColumnHeaderCell width="110px">Quantity</Table.ColumnHeaderCell>
+                                    <Table.ColumnHeaderCell width="140px">Unit Price</Table.ColumnHeaderCell>
+                                    <Table.ColumnHeaderCell width="140px" justify="end">Subtotal</Table.ColumnHeaderCell>
+                                    <Table.ColumnHeaderCell width="60px" justify="end">Action</Table.ColumnHeaderCell>
+                                </Table.Row>
+                            </Table.Header>
+                            <Table.Body>
+                                {values.items.map((item, index) => {
+                                    const canRemove = values.items.length > 1;
+                                    return (
+                                        <Table.Row key={index} align="center">
+                                            <Table.RowHeaderCell>
+                                                <Box minWidth="220px">
+                                                    <ProductSearchSelect
+                                                        name={`items.${index}.variantId`}
+                                                        label=""
+                                                        required
+                                                        initialOption={
+                                                            item.variantId && variantLabels[item.variantId]
+                                                                ? { label: variantLabels[item.variantId], value: item.variantId }
+                                                                : null
+                                                        }
+                                                    />
+                                                </Box>
+                                            </Table.RowHeaderCell>
+                                            <Table.Cell>
+                                                <CellNumberInput name={`items.${index}.quantity`} />
+                                            </Table.Cell>
+                                            <Table.Cell>
+                                                <CellNumberInput name={`items.${index}.unitPrice`} step="0.01" />
+                                            </Table.Cell>
+                                            <Table.Cell justify="end">
+                                                <Text size="2" weight="medium">
+                                                    {formatCurrency((item.quantity || 0) * (item.unitPrice || 0))}
+                                                </Text>
+                                            </Table.Cell>
+                                            <Table.Cell justify="end">
+                                                <Tooltip content={canRemove ? 'Remove item' : 'Cannot remove'}>
+                                                    <IconButton
+                                                        type="button"
+                                                        variant="ghost"
+                                                        color="red"
+                                                        size="1"
+                                                        disabled={!canRemove}
+                                                        onClick={() => remove(index)}
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Table.Cell>
+                                        </Table.Row>
+                                    );
+                                })}
+                            </Table.Body>
+                        </Table.Root>
                     )}
 
                     {values.items.length > 0 && (
@@ -110,7 +123,7 @@ const InvoiceItemsForm: FunctionComponent<InvoiceItemsFormProps> = ({ variantLab
                             total={calculateSubtotal(values.items) + Number(values.taxAmount || 0) - Number(values.discountAmount || 0)}
                         />
                     )}
-                </div>
+                </Flex>
             )}
         </FieldArray>
     );

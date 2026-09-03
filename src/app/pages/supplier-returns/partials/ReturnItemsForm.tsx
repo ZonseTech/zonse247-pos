@@ -1,14 +1,34 @@
 import { FunctionComponent } from 'react';
-import { useFormikContext, FieldArray } from 'formik';
-import { Box, Flex, Text, Button as RadixButton, IconButton } from '@radix-ui/themes';
+import { useFormikContext, FieldArray, useField } from 'formik';
+import { Box, Flex, Text, Button as RadixButton, IconButton, Table, TextField, Tooltip } from '@radix-ui/themes';
 import { Plus, Trash2 } from 'lucide-react';
 import { FormFieldCard } from '../../../components';
-import FormInput from '../../../components/FormInput';
 import FormSearchableSelect from '../../../components/FormSearchableSelect';
 import ProductSearchSelect from '../../../components/ProductSearchSelect';
 import type { ReturnFormValues } from './types';
 import { RETURN_REASONS, EMPTY_ITEM } from './types';
 import { formatCurrency, calculateTotal } from './helpers';
+
+const CellNumberInput: FunctionComponent<{ name: string; step?: string }> = ({ name, step }) => {
+    const [field, meta] = useField({ name, type: 'number' });
+    const hasError = meta.touched && !!meta.error;
+    const displayValue = field.value === 0 || field.value === '0' ? '' : field.value ?? '';
+
+    return (
+        <Box>
+            <TextField.Root
+                {...field}
+                value={displayValue}
+                type="number"
+                min={0}
+                step={step}
+                color={hasError ? 'red' : undefined}
+                size="2"
+            />
+            {hasError && <Text as="p" size="1" color="red" mt="1">{meta.error}</Text>}
+        </Box>
+    );
+};
 
 const ReturnItemsForm: FunctionComponent = () => {
     const { values } = useFormikContext<ReturnFormValues>();
@@ -19,67 +39,69 @@ const ReturnItemsForm: FunctionComponent = () => {
                 <FieldArray name="items">
                     {({ push, remove }) => (
                         <Flex direction="column" gap="4">
-                            {values.items.map((item, index) => (
-                                <Box
-                                    key={`${index}-${item.variantId}`}
-                                    className="grid grid-cols-1 sm:grid-cols-12 gap-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30"
-                                    p="4"
-                                >
-                                    <Box className="sm:col-span-4">
-                                        <ProductSearchSelect
-                                            name={`items.${index}.variantId`}
-                                            label="Product Variant"
-                                            required
-                                            initialOption={
-                                                item.variantId && item.displayName
-                                                    ? { label: item.displayName, value: item.variantId }
-                                                    : null
-                                            }
-                                        />
-                                    </Box>
-                                    <Box className="sm:col-span-2">
-                                        <FormInput
-                                            label="Return Qty"
-                                            name={`items.${index}.returnQuantity`}
-                                            type="number"
-                                            placeholder="1"
-                                            required
-                                        />
-                                    </Box>
-                                    <Box className="sm:col-span-2">
-                                        <FormInput
-                                            label="Unit Cost"
-                                            name={`items.${index}.unitCost`}
-                                            type="number"
-                                            placeholder="0.00"
-                                            required
-                                        />
-                                    </Box>
-                                    <Box className="sm:col-span-3">
-                                        <FormSearchableSelect
-                                            label="Reason"
-                                            name={`items.${index}.reason`}
-                                            options={RETURN_REASONS}
-                                            placeholder="Reason..."
-                                            isClearable
-                                        />
-                                    </Box>
-                                    <Flex className="sm:col-span-1" align="end" justify="center" pb="1">
-                                        {values.items.length > 1 && (
-                                            <IconButton
-                                                type="button"
-                                                variant="ghost"
-                                                color="red"
-                                                size="2"
-                                                onClick={() => remove(index)}
-                                                aria-label="Remove item"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </IconButton>
-                                        )}
-                                    </Flex>
-                                </Box>
-                            ))}
+                            <Table.Root variant="surface" layout="auto">
+                                <Table.Header>
+                                    <Table.Row>
+                                        <Table.ColumnHeaderCell>Product</Table.ColumnHeaderCell>
+                                        <Table.ColumnHeaderCell width="110px">Return Qty</Table.ColumnHeaderCell>
+                                        <Table.ColumnHeaderCell width="130px">Unit Cost</Table.ColumnHeaderCell>
+                                        <Table.ColumnHeaderCell width="160px">Reason</Table.ColumnHeaderCell>
+                                        <Table.ColumnHeaderCell width="60px" justify="end">Action</Table.ColumnHeaderCell>
+                                    </Table.Row>
+                                </Table.Header>
+                                <Table.Body>
+                                    {values.items.map((item, index) => {
+                                        const canRemove = values.items.length > 1;
+                                        return (
+                                            <Table.Row key={`${index}-${item.variantId}`} align="center">
+                                                <Table.RowHeaderCell>
+                                                    <Box minWidth="220px">
+                                                        <ProductSearchSelect
+                                                            name={`items.${index}.variantId`}
+                                                            label=""
+                                                            required
+                                                            initialOption={
+                                                                item.variantId && item.displayName
+                                                                    ? { label: item.displayName, value: item.variantId }
+                                                                    : null
+                                                            }
+                                                        />
+                                                    </Box>
+                                                </Table.RowHeaderCell>
+                                                <Table.Cell>
+                                                    <CellNumberInput name={`items.${index}.returnQuantity`} />
+                                                </Table.Cell>
+                                                <Table.Cell>
+                                                    <CellNumberInput name={`items.${index}.unitCost`} step="0.01" />
+                                                </Table.Cell>
+                                                <Table.Cell>
+                                                    <FormSearchableSelect
+                                                        label=""
+                                                        name={`items.${index}.reason`}
+                                                        options={RETURN_REASONS}
+                                                        placeholder="Reason..."
+                                                        isClearable
+                                                    />
+                                                </Table.Cell>
+                                                <Table.Cell justify="end">
+                                                    <Tooltip content={canRemove ? 'Remove item' : 'Cannot remove'}>
+                                                        <IconButton
+                                                            type="button"
+                                                            variant="ghost"
+                                                            color="red"
+                                                            size="1"
+                                                            disabled={!canRemove}
+                                                            onClick={() => remove(index)}
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Table.Cell>
+                                            </Table.Row>
+                                        );
+                                    })}
+                                </Table.Body>
+                            </Table.Root>
 
                             <RadixButton
                                 type="button"
@@ -96,7 +118,6 @@ const ReturnItemsForm: FunctionComponent = () => {
                     )}
                 </FieldArray>
 
-                {/* Total */}
                 <Flex align="center" justify="between" mt="4" pt="4" className="border-t border-gray-200 dark:border-gray-700">
                     <Text size="2" color="gray">
                         {values.items.length} item(s)

@@ -13,6 +13,7 @@ import {
     Pencil,
     Trash2,
     ArrowRightLeft,
+    CreditCard,
 } from 'lucide-react';
 import { Card, CardBody, Badge } from '../../../components';
 import { useBranch } from '../../../context/BranchContext';
@@ -21,9 +22,11 @@ import { ROUTES } from '../../../utils/constants';
 import { isElectron } from '../../../utils';
 import { useBranchPermissions } from '../../../hooks/useBranchPermissions';
 import { getErrorMessage } from '../../../utils/api-error-handler';
+import { getSubscriptionUrgency, type SubscriptionUrgency } from '../../../utils/subscription';
 
 interface BranchesTabProps {
     branches: Branch[];
+    subscriptions: BranchSubscription[];
     loading: boolean;
     onRefresh: () => void;
 }
@@ -34,6 +37,13 @@ const STATUS_BADGE: Record<string, BadgeType> = {
     active: 'success',
     inactive: 'neutral',
     suspended: 'danger',
+};
+
+const URGENCY_BADGE: Record<SubscriptionUrgency, BadgeType> = {
+    ok: 'success',
+    warning: 'warning',
+    critical: 'danger',
+    expired: 'danger',
 };
 
 const getMraStatusIcon = (status: MraApprovalStatus | undefined) => {
@@ -84,7 +94,11 @@ const ActionButton: FunctionComponent<{
     </button>
 );
 
-const BranchCard: FunctionComponent<{ branch: Branch; onRefresh: () => void }> = ({ branch, onRefresh }) => {
+const BranchCard: FunctionComponent<{
+    branch: Branch;
+    subscription?: BranchSubscription;
+    onRefresh: () => void;
+}> = ({ branch, subscription, onRefresh }) => {
     const navigate = useNavigate();
     const permissions = useBranchPermissions();
     const { currentBranch, switchBranch, hasAccessToBranch } = useBranch();
@@ -92,6 +106,8 @@ const BranchCard: FunctionComponent<{ branch: Branch; onRefresh: () => void }> =
     const statusBadge = STATUS_BADGE[branch.status] ?? 'neutral';
     const isCurrent = branch.branchId === currentBranch?.branchId;
     const canSwitch = !isElectron() && !isCurrent && branch.status === 'active' && hasAccessToBranch(branch.branchId);
+    const { urgency, label: expiryLabel } = getSubscriptionUrgency(subscription);
+    const planName = subscription?.subscriptionPlan?.name || subscription?.planName;
 
     const handleEdit = () => {
         navigate(ROUTES.BRANCH_FORM, { state: { branchId: branch.branchId } });
@@ -189,6 +205,18 @@ const BranchCard: FunctionComponent<{ branch: Branch; onRefresh: () => void }> =
                     </div>
                 </div>
 
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/50">
+                    <div className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 min-w-0">
+                        <CreditCard className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="truncate">{planName || 'No subscription'}</span>
+                    </div>
+                    {urgency && (
+                        <Badge type={URGENCY_BADGE[urgency]} className="flex-shrink-0">
+                            {expiryLabel}
+                        </Badge>
+                    )}
+                </div>
+
                 <div className="flex items-center justify-end gap-1 mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/50">
                     {canSwitch && (
                         <ActionButton icon={ArrowRightLeft} label="Switch to this branch" onClick={handleSwitch} />
@@ -205,7 +233,7 @@ const BranchCard: FunctionComponent<{ branch: Branch; onRefresh: () => void }> =
     );
 };
 
-const AccountBranchesTab: FunctionComponent<BranchesTabProps> = memo(({ branches, loading, onRefresh }) => {
+const AccountBranchesTab: FunctionComponent<BranchesTabProps> = memo(({ branches, subscriptions, loading, onRefresh }) => {
     if (loading) {
         return (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -228,7 +256,17 @@ const AccountBranchesTab: FunctionComponent<BranchesTabProps> = memo(({ branches
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {branches.map((branch) => (
-                <BranchCard key={branch.branchId} branch={branch} onRefresh={onRefresh} />
+                <BranchCard
+                    key={branch.branchId}
+                    branch={branch}
+                    subscription={subscriptions.find(
+                        (sub) =>
+                            sub.branchId === branch.branchId ||
+                            sub.branch?.branchId === branch.branchId ||
+                            sub.branchSubscriptionId === branch.branchSubscriptionId,
+                    )}
+                    onRefresh={onRefresh}
+                />
             ))}
         </div>
     );

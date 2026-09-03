@@ -16,6 +16,7 @@ import SupplierBalanceWidget from './partials/SupplierBalanceWidget';
 import SupplierProductsTab from './partials/SupplierProductsTab';
 import SupplierPurchaseOrdersTab from './partials/SupplierPurchaseOrdersTab';
 import ReceiveModal from '../purchase-orders/partials/ReceiveModal';
+import ViewPurchaseOrderModal from '../purchase-orders/partials/ViewPurchaseOrderModal';
 
 const statusColorMap: Record<SupplierStatus, 'green' | 'gray' | 'red'> = {
     ACTIVE: 'green',
@@ -61,6 +62,7 @@ const SupplierDetail: FC = () => {
     const ordersMatchSupplier = !!supplierId && supplierFilter === supplierId;
 
     const [receivingPO, setReceivingPO] = useState<PurchaseOrder | null>(null);
+    const [viewingPO, setViewingPO] = useState<PurchaseOrder | null>(null);
 
     useEffect(() => {
         if (!supplierId) return;
@@ -120,9 +122,7 @@ const SupplierDetail: FC = () => {
         }, undefined, { okButtonBackground: '#ef4444', titleColor: '#ef4444' });
     }, [cancelPurchaseOrder]);
 
-    const handleViewOrder = useCallback((po: PurchaseOrder) => {
-        navigate(ROUTES.PURCHASE_ORDER_FORM, { state: { purchaseOrderId: po.id } });
-    }, [navigate]);
+    const handleViewOrder = useCallback((po: PurchaseOrder) => setViewingPO(po), []);
 
     if (isLoading) {
         return (
@@ -248,6 +248,13 @@ const SupplierDetail: FC = () => {
                     purchaseOrder={receivingPO}
                     onClose={() => setReceivingPO(null)}
                     onReceive={receivePurchaseOrder}
+                />
+            )}
+
+            {viewingPO && (
+                <ViewPurchaseOrderModal
+                    purchaseOrder={viewingPO}
+                    onClose={() => setViewingPO(null)}
                 />
             )}
         </AppLayout>

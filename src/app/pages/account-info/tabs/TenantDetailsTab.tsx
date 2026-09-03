@@ -9,7 +9,6 @@ import {
     Shield,
     ShieldCheck,
     ShieldAlert,
-    CreditCard,
     User,
     Hash,
     BadgeCheck,
@@ -32,13 +31,6 @@ const STATUS_BADGE: Record<string, BadgeType> = {
     pending: 'warning',
     suspended: 'danger',
     cancelled: 'neutral',
-};
-
-const SUBSCRIPTION_BADGE: Record<string, BadgeType> = {
-    ACTIVE: 'success',
-    TRIAL: 'primary',
-    SUSPENDED: 'warning',
-    CANCELLED: 'danger',
 };
 
 const getInitials = (name?: string | null): string => {
@@ -143,26 +135,11 @@ const TenantDetailsTab: FunctionComponent<TenantDetailsTabProps> = memo(({ tenan
         );
     }
 
-    const subscriptionStatusKey = String(tenant.subscriptionStatus || '').toUpperCase();
     const statusBadge = STATUS_BADGE[tenant.status] ?? 'neutral';
-    const subscriptionBadge = SUBSCRIPTION_BADGE[subscriptionStatusKey] ?? 'neutral';
-
-    const trialDaysLeft = subscriptionStatusKey === 'TRIAL' && tenant.trialEndsAt
-        ? Math.max(0, dayjs(tenant.trialEndsAt).diff(dayjs(), 'day'))
-        : null;
 
     const mraConfigured = tenant.isMraEnabled && tenant.mraApiConfigured;
 
     const statCards: SummaryCardItem[] = [
-        {
-            title: 'Subscription',
-            value: tenant.subscriptionPlan || (subscriptionStatusKey.charAt(0) + subscriptionStatusKey.slice(1).toLowerCase()),
-            subtitle: trialDaysLeft !== null ? `${trialDaysLeft} day${trialDaysLeft === 1 ? '' : 's'} left` : undefined,
-            icon: <CreditCard className="w-5 h-5" />,
-            bgColor: 'bg-sky-50 dark:bg-sky-900/20',
-            iconBgColor: 'bg-sky-100 dark:bg-sky-900/40',
-            textColor: 'text-sky-500 dark:text-sky-400',
-        },
         {
             title: 'MRA Compliance',
             value: !tenant.isMraEnabled ? 'Not Enabled' : mraConfigured ? 'Configured' : 'Setup Pending',
@@ -207,9 +184,6 @@ const TenantDetailsTab: FunctionComponent<TenantDetailsTabProps> = memo(({ tenan
                             <Badge type={statusBadge} className="!bg-white/15 !text-white">
                                 {tenant.status?.charAt(0).toUpperCase() + tenant.status?.slice(1)}
                             </Badge>
-                            <Badge type={subscriptionBadge} className="!bg-white/15 !text-white">
-                                {subscriptionStatusKey.charAt(0) + subscriptionStatusKey.slice(1).toLowerCase()}
-                            </Badge>
                         </div>
                         {tenant.tradingName && (
                             <p className="text-sm text-sky-100 mb-1">
@@ -225,7 +199,7 @@ const TenantDetailsTab: FunctionComponent<TenantDetailsTabProps> = memo(({ tenan
             </div>
 
             {/* Key stats */}
-            <SummaryCards cards={statCards} gridClassName="grid-cols-2 lg:grid-cols-4" />
+            <SummaryCards cards={statCards} gridClassName="grid-cols-1 sm:grid-cols-3" />
 
             {/* Details */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

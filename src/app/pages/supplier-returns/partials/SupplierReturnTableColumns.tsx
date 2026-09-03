@@ -1,6 +1,6 @@
 import { TableColumn } from 'react-data-table-component';
 import { Eye, CheckCircle, Truck, PackageCheck, Ban, Trash2 } from 'lucide-react';
-import { Badge, Box, Flex, IconButton, Text, Tooltip } from '@radix-ui/themes';
+import { Badge, Box, Button, Flex, IconButton, Text, Tooltip } from '@radix-ui/themes';
 
 interface ReturnColumnOptions {
     onView: (r: SupplierReturnWithItems) => void;
@@ -133,45 +133,24 @@ export const getSupplierReturnTableColumns = ({
                     </Tooltip>
 
                     {row.status === 'DRAFT' && (
-                        <Tooltip content="Approve">
-                            <IconButton
-                                variant="ghost"
-                                color="blue"
-                                size="1"
-                                onClick={() => onApprove(row)}
-                                aria-label="Approve return"
-                            >
-                                <CheckCircle className="w-4 h-4" />
-                            </IconButton>
-                        </Tooltip>
+                        <Button size="1" variant="soft" color="blue" onClick={() => onApprove(row)}>
+                            <CheckCircle className="w-3.5 h-3.5" />
+                            Approve
+                        </Button>
                     )}
 
                     {row.status === 'APPROVED' && (
-                        <Tooltip content="Ship">
-                            <IconButton
-                                variant="ghost"
-                                color="purple"
-                                size="1"
-                                onClick={() => onShip(row)}
-                                aria-label="Ship return"
-                            >
-                                <Truck className="w-4 h-4" />
-                            </IconButton>
-                        </Tooltip>
+                        <Button size="1" variant="soft" color="purple" onClick={() => onShip(row)}>
+                            <Truck className="w-3.5 h-3.5" />
+                            Ship
+                        </Button>
                     )}
 
                     {row.status === 'SHIPPED' && (
-                        <Tooltip content="Complete">
-                            <IconButton
-                                variant="ghost"
-                                color="green"
-                                size="1"
-                                onClick={() => onComplete(row)}
-                                aria-label="Complete return"
-                            >
-                                <PackageCheck className="w-4 h-4" />
-                            </IconButton>
-                        </Tooltip>
+                        <Button size="1" variant="soft" color="green" onClick={() => onComplete(row)}>
+                            <PackageCheck className="w-3.5 h-3.5" />
+                            Complete
+                        </Button>
                     )}
 
                     {['DRAFT', 'APPROVED'].includes(row.status) && (
@@ -203,7 +182,7 @@ export const getSupplierReturnTableColumns = ({
                     )}
                 </Flex>
             ),
-            minWidth: '180px',
+            minWidth: '260px',
             right: true,
         },
     ];

@@ -51,9 +51,9 @@ const QUICK_ACTIONS: QuickActionConfig[] = [
 const ACTION_ROUTES: Record<QuickActionType, string> = {
     'new-product': ROUTES.INVENTORY_FORM,
     'new-customer': ROUTES.CUSTOMERS, // customer uses in-page modal
-    'new-supplier': ROUTES.SUPPLIER_FORM,
-    'new-purchase-order': ROUTES.PURCHASE_ORDER_FORM,
-    'new-requisition': ROUTES.PURCHASE_REQUISITION_FORM,
+    'new-supplier': ROUTES.SUPPLIERS, // list page — opens the create modal itself
+    'new-purchase-order': ROUTES.PURCHASE_ORDERS, // list page — opens the create modal itself
+    'new-requisition': ROUTES.PURCHASE_REQUISITIONS, // list page — opens the create modal itself
     'new-user': ROUTES.USER_FORM,
     'new-expense': ROUTES.EXPENSES, // expense uses in-page modal
 };

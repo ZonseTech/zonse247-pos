@@ -1,25 +1,11 @@
 import { TableColumn } from 'react-data-table-component';
 import { Eye } from 'lucide-react';
+import { Badge, IconButton, Tooltip } from '@radix-ui/themes';
 
-export const creditNoteStatusConfig: Record<CreditNoteStatusType, { label: string; bg: string; text: string; color: string }> = {
-    PENDING: {
-        label: 'Pending',
-        bg: 'bg-amber-100 dark:bg-amber-900/30',
-        text: 'text-amber-700 dark:text-amber-300',
-        color: 'amber',
-    },
-    APPLIED: {
-        label: 'Applied',
-        bg: 'bg-emerald-100 dark:bg-emerald-900/30',
-        text: 'text-emerald-700 dark:text-emerald-300',
-        color: 'green',
-    },
-    CANCELLED: {
-        label: 'Cancelled',
-        bg: 'bg-red-100 dark:bg-red-900/30',
-        text: 'text-red-700 dark:text-red-300',
-        color: 'red',
-    },
+export const creditNoteStatusConfig: Record<CreditNoteStatusType, { label: string; color: 'amber' | 'green' | 'red' }> = {
+    PENDING: { label: 'Pending', color: 'amber' },
+    APPLIED: { label: 'Applied', color: 'green' },
+    CANCELLED: { label: 'Cancelled', color: 'red' },
 };
 
 const formatCurrency = (value: number) =>
@@ -70,9 +56,9 @@ export const getCreditNoteTableColumns = ({
             cell: (row) => {
                 const cfg = creditNoteStatusConfig[row.status];
                 return (
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text}`}>
+                    <Badge variant="soft" color={cfg.color} radius="full">
                         {cfg.label}
-                    </span>
+                    </Badge>
                 );
             },
             minWidth: '120px',
@@ -124,15 +110,11 @@ export const getCreditNoteTableColumns = ({
         {
             name: 'Actions',
             cell: (row) => (
-                <div className="flex items-center gap-1">
-                    <button
-                        onClick={() => onView(row)}
-                        className="p-1.5 text-gray-500 hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
-                        title="View Return"
-                    >
+                <Tooltip content="View return">
+                    <IconButton variant="ghost" size="1" onClick={() => onView(row)}>
                         <Eye className="w-4 h-4" />
-                    </button>
-                </div>
+                    </IconButton>
+                </Tooltip>
             ),
             minWidth: '80px',
             right: true,

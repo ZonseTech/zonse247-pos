@@ -1,19 +1,19 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router';
 import { Notify, Report, Confirm } from 'notiflix';
 import type { FormikHelpers } from 'formik';
 import { useSupplierInvoices } from '../../../hooks/useSupplierInvoices';
 import { usePurchaseOrders } from '../../../hooks/usePurchaseOrders';
 import { supplierReturnService } from '../../../services';
 import { getErrorMessage } from '../../../utils/api-error-handler';
-import { ROUTES } from '../../../utils/constants';
 import { formatCurrency } from './helpers';
 import { DEFAULT_VALUES, type FormMode, type InvoiceFormItem, type InvoiceFormValues } from './types';
 
-export const useSupplierInvoiceForm = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
+interface UseSupplierInvoiceFormParams {
+    invoiceId?: string;
+    onSaved: () => void;
+}
 
+export const useSupplierInvoiceForm = ({ invoiceId, onSaved }: UseSupplierInvoiceFormParams) => {
     const {
         createInvoice,
         getInvoice,
@@ -29,8 +29,6 @@ export const useSupplierInvoiceForm = () => {
         setPerPage,
     } = usePurchaseOrders();
 
-    // ── Routing state ─────────────────────────────────────────────────────
-    const invoiceId = (location.state as any)?.invoiceId;
     const formMode: FormMode = invoiceId ? 'view' : 'create';
 
     // ── Local state ───────────────────────────────────────────────────────
@@ -193,21 +191,15 @@ export const useSupplierInvoiceForm = () => {
             };
 
             await createInvoice(payload);
-
-            Confirm.show(
-                'Invoice Created',
-                'Supplier invoice created successfully. What would you like to do?',
-                'Add Another',
-                'Go to Invoices',
-                () => resetForm(),
-                () => navigate(ROUTES.SUPPLIER_INVOICES),
-            );
+            Notify.success('Supplier invoice created successfully');
+            resetForm();
+            onSaved();
         } catch (error: any) {
             Report.failure('Error', getErrorMessage(error, 'Failed to create invoice'), 'Okay');
         } finally {
             setLoading(false);
         }
-    }, [formMode, createInvoice, navigate]);
+    }, [formMode, createInvoice, onSaved]);
 
     // ── View-mode actions ─────────────────────────────────────────────────
     const refreshInvoice = useCallback(async () => {

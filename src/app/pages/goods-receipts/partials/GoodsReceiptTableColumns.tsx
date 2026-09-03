@@ -1,5 +1,6 @@
 import { TableColumn } from 'react-data-table-component';
 import { Eye, CheckCircle, FileCheck, Ban } from 'lucide-react';
+import { Badge, Button, IconButton, Tooltip, Flex } from '@radix-ui/themes';
 
 interface GRNColumnOptions {
     onView: (grn: GoodsReceiptWithItems) => void;
@@ -8,27 +9,11 @@ interface GRNColumnOptions {
     onCancel: (grn: GoodsReceiptWithItems) => void;
 }
 
-export const grnStatusConfig: Record<GRNStatusType, { label: string; bg: string; text: string }> = {
-    DRAFT: {
-        label: 'Draft',
-        bg: 'bg-gray-100 dark:bg-gray-700',
-        text: 'text-gray-600 dark:text-gray-300',
-    },
-    VERIFIED: {
-        label: 'Verified',
-        bg: 'bg-blue-100 dark:bg-blue-900/30',
-        text: 'text-blue-700 dark:text-blue-300',
-    },
-    POSTED: {
-        label: 'Posted',
-        bg: 'bg-emerald-100 dark:bg-emerald-900/30',
-        text: 'text-emerald-700 dark:text-emerald-300',
-    },
-    CANCELLED: {
-        label: 'Cancelled',
-        bg: 'bg-red-100 dark:bg-red-900/30',
-        text: 'text-red-700 dark:text-red-300',
-    },
+export const grnStatusConfig: Record<GRNStatusType, { label: string; color: 'gray' | 'blue' | 'green' | 'red' }> = {
+    DRAFT: { label: 'Draft', color: 'gray' },
+    VERIFIED: { label: 'Verified', color: 'blue' },
+    POSTED: { label: 'Posted', color: 'green' },
+    CANCELLED: { label: 'Cancelled', color: 'red' },
 };
 
 const formatCurrency = (value: number) =>
@@ -78,9 +63,9 @@ export const getGoodsReceiptTableColumns = ({
             cell: (row) => {
                 const cfg = grnStatusConfig[row.status];
                 return (
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text}`}>
+                    <Badge variant="soft" color={cfg.color} radius="full">
                         {cfg.label}
-                    </span>
+                    </Badge>
                 );
             },
             minWidth: '120px',
@@ -136,47 +121,37 @@ export const getGoodsReceiptTableColumns = ({
         {
             name: 'Actions',
             cell: (row) => (
-                <div className="flex items-center gap-1">
-                    <button
-                        onClick={() => onView(row)}
-                        className="p-1.5 text-gray-500 hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
-                        title="View"
-                    >
-                        <Eye className="w-4 h-4" />
-                    </button>
+                <Flex align="center" gap="2">
+                    <Tooltip content="View details">
+                        <IconButton variant="ghost" size="1" onClick={() => onView(row)}>
+                            <Eye className="w-4 h-4" />
+                        </IconButton>
+                    </Tooltip>
 
                     {row.status === 'DRAFT' && (
-                        <button
-                            onClick={() => onVerify(row)}
-                            className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                            title="Verify"
-                        >
-                            <CheckCircle className="w-4 h-4" />
-                        </button>
+                        <Button size="1" variant="soft" color="blue" onClick={() => onVerify(row)}>
+                            <CheckCircle className="w-3.5 h-3.5" />
+                            Verify
+                        </Button>
                     )}
 
                     {row.status === 'VERIFIED' && (
-                        <button
-                            onClick={() => onPost(row)}
-                            className="p-1.5 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
-                            title="Post (Stock Update)"
-                        >
-                            <FileCheck className="w-4 h-4" />
-                        </button>
+                        <Button size="1" variant="soft" color="green" onClick={() => onPost(row)}>
+                            <FileCheck className="w-3.5 h-3.5" />
+                            Post
+                        </Button>
                     )}
 
                     {['DRAFT', 'VERIFIED'].includes(row.status) && (
-                        <button
-                            onClick={() => onCancel(row)}
-                            className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                            title="Cancel"
-                        >
-                            <Ban className="w-4 h-4" />
-                        </button>
+                        <Tooltip content="Cancel receipt">
+                            <IconButton variant="ghost" color="red" size="1" onClick={() => onCancel(row)}>
+                                <Ban className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
                     )}
-                </div>
+                </Flex>
             ),
-            minWidth: '150px',
+            minWidth: '220px',
             right: true,
         },
     ];

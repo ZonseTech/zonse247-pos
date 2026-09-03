@@ -40,7 +40,12 @@ const PurchaseOrderDesktopView: FC<PurchaseOrderDesktopViewProps> = ({
             customStyles={getTableStyles(mode)}
             progressPending={isLoading}
             progressComponent={
-                <TableSkeleton rows={perPage} columns={7} showCheckbox showActions />
+                <TableSkeleton
+                    rows={perPage}
+                    columns={7}
+                    showCheckbox={false}
+                    showActions
+                />
             }
             highlightOnHover
             striped
@@ -52,13 +57,15 @@ const PurchaseOrderDesktopView: FC<PurchaseOrderDesktopViewProps> = ({
             paginationRowsPerPageOptions={[10, 15, 25, 50, 100]}
             onChangeRowsPerPage={onPerRowsChange}
             onChangePage={onPageChange}
-            selectableRows
-            selectableRowsHighlight
             persistTableHead
             noDataComponent={
                 <TableEmptyState
                     icon={<ShoppingCart />}
-                    title={hasActiveFilters ? 'No matching purchase orders' : 'No purchase orders yet'}
+                    title={
+                        hasActiveFilters
+                            ? 'No matching purchase orders'
+                            : 'No purchase orders yet'
+                    }
                     description={
                         hasActiveFilters
                             ? 'Try adjusting your search or filters to find purchase orders.'
@@ -66,7 +73,12 @@ const PurchaseOrderDesktopView: FC<PurchaseOrderDesktopViewProps> = ({
                     }
                     action={
                         hasActiveFilters ? (
-                            <Button variant="soft" color="sky" size="2" onClick={onClearFilters}>
+                            <Button
+                                variant="soft"
+                                color="sky"
+                                size="2"
+                                onClick={onClearFilters}
+                            >
                                 Clear all filters
                             </Button>
                         ) : undefined

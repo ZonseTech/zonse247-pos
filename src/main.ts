@@ -119,7 +119,7 @@ app.whenReady().then(async () => {
 				console.log('✓ Sync Job started (user logged in)');
 			}
 
-			printAgent.start().then(() => {
+			printAgent!.start().then(() => {
 				console.log('✓ Print Agent auto-started (zonse247-pos-api)');
 			}).catch((error) => {
 				console.warn('⚠ Print Agent auto-start error:', error);

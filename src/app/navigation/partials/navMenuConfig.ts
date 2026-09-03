@@ -37,7 +37,9 @@ export function buildNavMenuGroups(
 
     const opsItems: NavMenuGroup['items'] = [];
 
-    opsItems.push({ id: 'dashboard', label: 'Dashboard', route: ROUTES.DASHBOARD });
+    if (user) {
+        opsItems.push({ id: 'dashboard', label: 'Dashboard', route: ROUTES.DASHBOARD });
+    }
 
     if (showRetail && hasAnyPermission(user, ['products.view', 'products.create', 'sales.create', 'refunds.process'])) {
         opsItems.push({ id: 'pos', label: 'Point of Sale', route: ROUTES.POS, accelerator: 'CommandOrControl+P' });
@@ -91,7 +93,9 @@ export function buildNavMenuGroups(
         mgmtItems.push({ id: 'staff-management', label: 'User Management', route: ROUTES.USERS });
     }
 
-    mgmtItems.push({ label: 'Account Info', route: ROUTES.ACCOUNT_INFO_TENANT });
+    if (user) {
+        mgmtItems.push({ label: 'Account Info', route: ROUTES.ACCOUNT_INFO_TENANT });
+    }
 
     if (hasPermission(user, 'roles.view')) {
         mgmtItems.push({ id: 'roles-permissions', label: 'Roles & Permissions', route: ROUTES.ROLES_PERMISSIONS });
@@ -111,7 +115,7 @@ export function buildNavMenuGroups(
         );
     }
 
-    if (hasPermission(user, 'system.admin') && !hiddenIds.has('tenants')) {
+    if (hasPermission(user, 'tenants.view') && !hiddenIds.has('tenants')) {
         adminItems.push({ id: 'tenants', label: 'Tenants', route: ROUTES.TENANTS });
     }
 

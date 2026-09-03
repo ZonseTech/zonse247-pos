@@ -258,7 +258,7 @@ const useNavGroups = (): UseNavGroupsReturn => {
                     id: 'settings-general',
                     label: 'Settings',
                     icon: ic(HiOutlineWrenchScrewdriver),
-                    route: ROUTES.SETTINGS_GENERAL,
+                    route: ROUTES.SETTINGS,
                     onClick: () => navigate(ROUTES.SETTINGS_GENERAL),
                     shortcut: 'Ctrl+,',
                     showOnDesktop: true,
@@ -267,7 +267,7 @@ const useNavGroups = (): UseNavGroupsReturn => {
             );
         }
 
-        if (hasPermission(user, 'system.admin')) {
+        if (hasPermission(user, 'tenants.view')) {
             systemItems.push({
                 id: 'tenants',
                 label: 'Tenants',
