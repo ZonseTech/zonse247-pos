@@ -1,6 +1,6 @@
 import { TableColumn } from 'react-data-table-component';
-import { Eye, CheckCircle, XCircle, Send, Package } from 'lucide-react';
-import { Badge, Flex, IconButton, Text, Tooltip } from '@radix-ui/themes';
+import { Eye, XCircle, Send, CheckCircle2, Package } from 'lucide-react';
+import { Badge, Button, Flex, IconButton, Text, Tooltip } from '@radix-ui/themes';
 import dayjs from 'dayjs';
 
 interface PurchaseOrderTableActionsProps {
@@ -129,56 +129,43 @@ export const getPurchaseOrderTableColumns = ({
         },
         {
             name: 'Actions',
-            cell: (row) => (
-                <Flex align="center" gap="2">
-                    <Tooltip content="View details">
-                        <IconButton
-                            variant="ghost"
+            cell: (row) => {
+                const canSend = row.status === 'DRAFT' || row.status === 'PENDING';
+                const canReceive = row.status === 'SENT' || row.status === 'SHIPPED' || row.status === 'PARTIALLY_RECEIVED';
+                const canCancel = row.status === 'DRAFT' || row.status === 'PENDING' || row.status === 'SENT';
 
-                            size="1"
-                            onClick={() => onView(row)}
-                        >
-                            <Eye className="w-4 h-4" />
-                        </IconButton>
-                    </Tooltip>
-                    {(row.status === 'DRAFT' || row.status === 'PENDING') && (
-                        <Tooltip content="Send to supplier">
-                            <IconButton
-                                variant="ghost"
-                                color="indigo"
-                                size="1"
-                                onClick={() => onSend(row)}
-                            >
-                                <Send className="w-4 h-4" />
+                return (
+                    <Flex align="center" gap="2">
+                        <Tooltip content="View details">
+                            <IconButton variant="ghost" size="1" onClick={() => onView(row)}>
+                                <Eye className="w-4 h-4" />
                             </IconButton>
                         </Tooltip>
-                    )}
-                    {(row.status === 'SENT' || row.status === 'SHIPPED' || row.status === 'PARTIALLY_RECEIVED') && (
-                        <Tooltip content="Quick receive">
-                            <IconButton
-                                variant="ghost"
-                                color="green"
-                                size="1"
-                                onClick={() => onReceive(row)}
-                            >
-                                <CheckCircle className="w-4 h-4" />
-                            </IconButton>
-                        </Tooltip>
-                    )}
-                    {(row.status === 'DRAFT' || row.status === 'PENDING' || row.status === 'SENT') && (
-                        <Tooltip content="Cancel order">
-                            <IconButton
-                                variant="ghost"
-                                color="red"
-                                size="1"
-                                onClick={() => onCancel(row)}
-                            >
-                                <XCircle className="w-4 h-4" />
-                            </IconButton>
-                        </Tooltip>
-                    )}
-                </Flex>
-            ),
+
+                        {canSend && (
+                            <Button size="1" variant="soft" color="indigo" onClick={() => onSend(row)}>
+                                <Send className="w-3.5 h-3.5" />
+                                Send to Supplier
+                            </Button>
+                        )}
+                        {canReceive && (
+                            <Button size="1" variant="soft" color="green" onClick={() => onReceive(row)}>
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                Receive Goods
+                            </Button>
+                        )}
+
+                        {canCancel && (
+                            <Tooltip content="Cancel order">
+                                <IconButton variant="ghost" color="red" size="1" onClick={() => onCancel(row)}>
+                                    <XCircle className="w-4 h-4" />
+                                </IconButton>
+                            </Tooltip>
+                        )}
+                    </Flex>
+                );
+            },
             right: true,
+            minWidth: '260px',
         },
     ];
