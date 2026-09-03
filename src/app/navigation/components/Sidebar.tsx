@@ -1,4 +1,5 @@
-import type { FunctionComponent } from 'react';
+import { useEffect, useRef, type FunctionComponent } from 'react';
+import { useLocation } from 'react-router-dom';
 import BranchSwitcher from '../../components/BranchSwitcher';
 import logo from '../../assets/images/logo.png';
 import CollapsibleNavGroup from './CollapsibleNavGroup';
@@ -15,12 +16,23 @@ const Sidebar: FunctionComponent<SidebarProps> = ({
     navGroups,
     onNavItemClick,
 }) => {
+    const { pathname } = useLocation();
+    const viewportRef = useRef<HTMLDivElement>(null);
+
     const handleNavItemClick = (item: NavItemBase) => {
         if (item.onClick) {
             item.onClick();
         }
         onNavItemClick?.(item);
     };
+
+    useEffect(() => {
+        const frame = requestAnimationFrame(() => {
+            const activeEl = viewportRef.current?.querySelector('[data-nav-active="true"]');
+            activeEl?.scrollIntoView({ block: 'nearest' });
+        });
+        return () => cancelAnimationFrame(frame);
+    }, [pathname, navGroups]);
 
     return (
         <aside className="h-full flex flex-col safe-area-top w-full bg-gradient-to-b from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-900/95 border-r border-gray-200/60 dark:border-gray-800/60">
@@ -52,7 +64,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({
 
             {/* Navigation Items — Radix ScrollArea */}
             <ScrollArea.Root className="flex-1 overflow-hidden">
-                <ScrollArea.Viewport className="h-full w-full py-2">
+                <ScrollArea.Viewport ref={viewportRef} className="h-full w-full py-2">
                     <div className="flex flex-col gap-4 px-3">
                         {navGroups?.map((group) => (
                             <CollapsibleNavGroup
