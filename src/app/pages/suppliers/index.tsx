@@ -1,4 +1,4 @@
-import { FC, useCallback, useContext, useMemo } from 'react';
+import { FC, useCallback, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Confirm, Notify } from 'notiflix';
 import { Truck, Plus, X } from 'lucide-react';
@@ -17,6 +17,7 @@ import { getSupplierTableColumns } from './partials/SupplierTableColumns';
 import { SupplierMobileList } from './partials/SupplierMobileCard';
 import { SupplierStatusFilter } from './partials/SupplierStatusFilter';
 import SupplierSummaryCards, { type SupplierSummaryCard } from './partials/SupplierSummaryCards';
+import SupplierFormModal from './partials/SupplierFormModal';
 import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 
@@ -24,6 +25,8 @@ const SupplierManagement: FC = () => {
     const isMobile = useIsMobile();
     const navigate = useNavigate();
     const { mode } = useContext(ZonseThemeContext);
+
+    const [formSupplierId, setFormSupplierId] = useState<string | 'new' | null>(null);
 
     const {
         suppliers,
@@ -43,6 +46,7 @@ const SupplierManagement: FC = () => {
         setPerPage,
         totalRows,
         deleteSupplier,
+        loadSuppliers,
     } = useSuppliers();
 
     const totalPages = Math.ceil(totalRows / perPage);
@@ -94,17 +98,13 @@ const SupplierManagement: FC = () => {
         ];
     }, [suppliers, totalRows]);
 
-    const handleAddSupplier = useCallback(() => {
-        navigate(ROUTES.SUPPLIER_FORM);
-    }, [navigate]);
+    const handleAddSupplier = useCallback(() => setFormSupplierId('new'), []);
 
     const handleView = useCallback((supplierId: string) => {
         navigate(ROUTES.SUPPLIER_DETAILS.replace(':supplierId', supplierId));
     }, [navigate]);
 
-    const handleEdit = useCallback((supplierId: string) => {
-        navigate(ROUTES.SUPPLIER_FORM, { state: { supplierId } });
-    }, [navigate]);
+    const handleEdit = useCallback((supplierId: string) => setFormSupplierId(supplierId), []);
 
     const handleDelete = useCallback((supplierId: string) => {
         Confirm.show(
@@ -339,6 +339,14 @@ const SupplierManagement: FC = () => {
                     />
                 )}
             </Box>
+
+            {formSupplierId && (
+                <SupplierFormModal
+                    supplierId={formSupplierId === 'new' ? undefined : formSupplierId}
+                    onClose={() => setFormSupplierId(null)}
+                    onSaved={loadSuppliers}
+                />
+            )}
         </AppLayout>
     );
 };
