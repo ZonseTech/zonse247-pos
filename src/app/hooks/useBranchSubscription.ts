@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
-import dayjs from 'dayjs';
 import { useBranch } from '../context/BranchContext';
 import subscriptionService from '../services/subscriptions.service';
+import { getSubscriptionUrgency, type SubscriptionUrgency } from '../utils/subscription';
 
-export type SubscriptionUrgency = 'ok' | 'warning' | 'critical' | 'expired';
-
-const URGENCY_THRESHOLD_DAYS = { critical: 3, warning: 7 };
+export type { SubscriptionUrgency };
 
 interface UseBranchSubscriptionResult {
     subscription: BranchSubscription | null;
@@ -50,24 +48,7 @@ export function useBranchSubscription(): UseBranchSubscriptionResult {
         };
     }, [currentBranch?.branchSubscriptionId]);
 
-    if (!subscription || !subscription.endsAt) {
-        return { subscription, isLoading, daysLeft: null, urgency: null, label: null };
-    }
-
-    const daysLeft = Math.ceil(dayjs(subscription.endsAt).diff(dayjs(), 'hour') / 24);
-    const isExpired = subscription.status === 'expired' || daysLeft < 0;
-
-    const urgency: SubscriptionUrgency = isExpired
-        ? 'expired'
-        : daysLeft <= URGENCY_THRESHOLD_DAYS.critical
-            ? 'critical'
-            : daysLeft <= URGENCY_THRESHOLD_DAYS.warning
-                ? 'warning'
-                : 'ok';
-
-    const label = isExpired
-        ? 'Subscription expired'
-        : `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`;
+    const { daysLeft, urgency, label } = getSubscriptionUrgency(subscription);
 
     return { subscription, isLoading, daysLeft, urgency, label };
 }
