@@ -25,9 +25,9 @@ export const TerminalRoutes = (
 
 export const TenantRoutes = (
     <>
-        <Route path={ROUTES.TENANTS} element={<PermissionRoute permission="system.admin"><TenantsManagement /></PermissionRoute>} />
-        <Route path={ROUTES.TENANT_DETAILS} element={<PermissionRoute permission="system.admin"><TenantDetails /></PermissionRoute>} />
-        <Route path={ROUTES.TENANT_FORM} element={<PermissionRoute permission="system.admin"><TenantForm /></PermissionRoute>} />
+        <Route path={ROUTES.TENANTS} element={<PermissionRoute permission="tenants.view"><TenantsManagement /></PermissionRoute>} />
+        <Route path={ROUTES.TENANT_DETAILS} element={<PermissionRoute permission="tenants.view"><TenantDetails /></PermissionRoute>} />
+        <Route path={ROUTES.TENANT_FORM} element={<PermissionRoute permission="tenants.view"><TenantForm /></PermissionRoute>} />
     </>
 )
 
