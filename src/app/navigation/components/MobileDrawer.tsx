@@ -178,11 +178,6 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
         setIsBranchModalOpen(true);
     };
 
-    const handleCreateBranch = () => {
-        onClose();
-        navigate(ROUTES.BRANCH_FORM);
-    };
-
     return (
         <>
             <div
@@ -280,29 +275,19 @@ const MobileDrawer: FunctionComponent<MobileDrawerProps> = ({
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                        <div className="flex gap-2">
-                            {!isDesktopApp && (
-                                <Button
-                                    theme="primary"
-                                    layout="primary"
-                                    onClick={handleSwitchBranch}
-                                    disabled={accessibleBranches.length <= 1}
-                                    block
-                                >
-                                    SWITCH BRANCH
-                                </Button>
-                            )}
+                    {!isDesktopApp && (
+                        <div className="bg-white dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                             <Button
-                                theme="success"
+                                theme="primary"
                                 layout="primary"
-                                onClick={handleCreateBranch}
+                                onClick={handleSwitchBranch}
+                                disabled={accessibleBranches.length <= 1}
                                 block
                             >
-                                CREATE BRANCH
+                                SWITCH BRANCH
                             </Button>
                         </div>
-                    </div>
+                    )}
 
                     <div className="flex-1 overflow-y-auto py-3 px-2 bg-white dark:bg-gray-800">
                         <div className="flex flex-col gap-4">

@@ -31,7 +31,6 @@ export const getSupplierPaymentTableColumns = ({
                     {row.paymentNumber}
                 </Text>
             ),
-            minWidth: '170px',
             grow: 1,
         },
         {
@@ -43,7 +42,6 @@ export const getSupplierPaymentTableColumns = ({
                     {row.supplier?.name || '—'}
                 </Text>
             ),
-            minWidth: '160px',
             grow: 2,
         },
         {
@@ -58,7 +56,6 @@ export const getSupplierPaymentTableColumns = ({
                     </Badge>
                 );
             },
-            minWidth: '120px',
         },
         {
             name: 'Amount',
@@ -69,7 +66,6 @@ export const getSupplierPaymentTableColumns = ({
                     {formatCurrency(row.amount)}
                 </Text>
             ),
-            minWidth: '140px',
             grow: 1,
             right: true,
         },
@@ -81,7 +77,6 @@ export const getSupplierPaymentTableColumns = ({
                     {row.paymentMethod || '—'}
                 </Text>
             ),
-            minWidth: '120px',
             grow: 1,
         },
         {
@@ -92,7 +87,6 @@ export const getSupplierPaymentTableColumns = ({
                     {row.allocations?.length || 0}
                 </Text>
             ),
-            minWidth: '80px',
         },
         {
             name: 'Date',
@@ -109,7 +103,6 @@ export const getSupplierPaymentTableColumns = ({
                         : '—'}
                 </Text>
             ),
-            minWidth: '130px',
             grow: 1,
         },
         {
@@ -142,7 +135,6 @@ export const getSupplierPaymentTableColumns = ({
                     )}
                 </Flex>
             ),
-            minWidth: '100px',
             right: true,
         },
     ];

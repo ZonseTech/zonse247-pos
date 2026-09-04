@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Filter, X, ChevronDown, ChevronUp } from 'lucide-react';
-import { Button, Select, DateRangeFilter } from '../../../components';
+import React from 'react';
+import { Filter, X } from 'lucide-react';
+import { Button, Select } from '../../../components';
+import MobileDateFilter from '../../../components/reports/MobileDateFilter';
 
 interface MobileFilterDrawerProps {
     isOpen: boolean;
@@ -10,7 +11,7 @@ interface MobileFilterDrawerProps {
     startDate: string;
     endDate: string;
     onFilterByCategory: (categoryId: string) => void;
-    onDateChange: (dates: [Date | null, Date | null]) => void;
+    onDateChange: (start: Date | null, end: Date | null) => void;
     onClearFilters: () => void;
     hasActiveFilters: boolean;
 }
@@ -27,8 +28,6 @@ const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
     onClearFilters,
     hasActiveFilters,
 }) => {
-    const [showDateFilter, setShowDateFilter] = useState(false);
-
     if (!isOpen) return null;
 
     return (
@@ -94,26 +93,15 @@ const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
 
                     {/* Date Range Filter */}
                     <div>
-                        <button
-                            onClick={() => setShowDateFilter(!showDateFilter)}
-                            className="flex items-center justify-between w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                        >
-                            <span>Date Range</span>
-                            {showDateFilter ? (
-                                <ChevronUp className="w-4 h-4" />
-                            ) : (
-                                <ChevronDown className="w-4 h-4" />
-                            )}
-                        </button>
-                        {showDateFilter && (
-                            <div className="mt-2">
-                                <DateRangeFilter
-                                    startDate={startDate ? new Date(startDate) : null}
-                                    endDate={endDate ? new Date(endDate) : null}
-                                    onChange={onDateChange}
-                                />
-                            </div>
-                        )}
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Date Range
+                        </label>
+                        <MobileDateFilter
+                            startDate={startDate ? new Date(startDate) : null}
+                            endDate={endDate ? new Date(endDate) : null}
+                            onChange={onDateChange}
+                            compact
+                        />
                     </div>
                 </div>
 

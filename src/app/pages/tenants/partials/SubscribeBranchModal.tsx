@@ -1,6 +1,8 @@
 import { Notify } from 'notiflix';
-import { CreditCard, CheckCircle } from 'lucide-react';
-import { Modal, Button, Select } from '../../../components';
+import * as Dialog from '@radix-ui/react-dialog';
+import { CreditCard, CheckCircle2 } from 'lucide-react';
+import { Box, Button, Checkbox, Flex, Select, Skeleton, Text } from '@radix-ui/themes';
+import FormModal from '../../../components/FormModal';
 import branchService from '../../../services/branch.service';
 import { FunctionComponent, useState, useEffect } from 'react';
 import subscriptionPlanService from '../../../services/subscription-plan.service';
@@ -52,6 +54,14 @@ const SubscribeBranchModal: FunctionComponent<SubscribeBranchModalProps> = ({
         }
     };
 
+    const handleClose = () => {
+        setSelectedBranchId('');
+        setSelectedPlanId('');
+        setSubscriptionMonths(1);
+        setAutoRenew(true);
+        onClose();
+    };
+
     const handleSubmit = async () => {
         if (!selectedBranchId) {
             Notify.warning('Please select a branch');
@@ -82,153 +92,145 @@ const SubscribeBranchModal: FunctionComponent<SubscribeBranchModalProps> = ({
         }
     };
 
-    const handleClose = () => {
-        setSelectedBranchId('');
-        setSelectedPlanId('');
-        setSubscriptionMonths(1);
-        setAutoRenew(true);
-        onClose();
-    };
+    if (!isOpen) return null;
 
     const selectedPlan = plans.find(p => p.planId === selectedPlanId || p.subscriptionPlanId === selectedPlanId);
     const totalPrice = selectedPlan ? selectedPlan.monthlyPrice * subscriptionMonths : 0;
 
     return (
-        <Modal
-            isOpen={isOpen}
-            onClose={handleClose}
+        <FormModal
+            open
+            onOpenChange={(open) => { if (!open) handleClose(); }}
             title="Subscribe Branch"
             size="lg"
+            footer={
+                <Flex justify="end" gap="3" width="100%">
+                    <Dialog.Close asChild>
+                        <Button type="button" variant="soft" color="gray">Cancel</Button>
+                    </Dialog.Close>
+                    <Button
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={submitting || !selectedBranchId || !selectedPlanId}
+                        loading={submitting}
+                    >
+                        <CreditCard className="w-4 h-4" />
+                        Subscribe
+                    </Button>
+                </Flex>
+            }
         >
-            <div className="space-y-5">
+            <Flex direction="column" gap="5">
                 {loading ? (
-                    <div className="space-y-4">
-                        <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                        <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                        <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                    </div>
+                    <Flex direction="column" gap="4">
+                        <Skeleton>
+                            <Box height="40px" />
+                        </Skeleton>
+                        <Skeleton>
+                            <Box height="40px" />
+                        </Skeleton>
+                        <Skeleton>
+                            <Box height="40px" />
+                        </Skeleton>
+                    </Flex>
                 ) : (
                     <>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Select Branch <span className="text-red-500">*</span>
-                            </label>
-                            <Select
-                                value={selectedBranchId}
-                                onChange={(e) => setSelectedBranchId(e.target.value)}
+                        <Box>
+                            <Text as="label" size="2" weight="medium" mb="2" className="block text-gray-700 dark:text-gray-300">
+                                Select Branch <Text color="red">*</Text>
+                            </Text>
+                            <Select.Root
+                                value={selectedBranchId || undefined}
+                                onValueChange={setSelectedBranchId}
                             >
-                                <option value="">Select a branch...</option>
-                                {branches.map((branch) => (
-                                    <option key={branch.branchId} value={branch.branchId}>
-                                        {branch.branchName} ({branch.branchCode})
-                                    </option>
-                                ))}
-                            </Select>
-                        </div>
+                                <Select.Trigger placeholder="Select a branch..." className="w-full" />
+                                <Select.Content position="popper">
+                                    {branches.map((branch) => (
+                                        <Select.Item key={branch.branchId} value={branch.branchId}>
+                                            {branch.branchName} ({branch.branchCode})
+                                        </Select.Item>
+                                    ))}
+                                </Select.Content>
+                            </Select.Root>
+                        </Box>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Subscription Plan <span className="text-red-500">*</span>
-                            </label>
-                            <div className="grid grid-cols-1 gap-3 max-h-48 overflow-y-auto">
-                                {plans.map((plan) => (
-                                    <button
-                                        key={plan.planId || plan.subscriptionPlanId}
-                                        type="button"
-                                        onClick={() => setSelectedPlanId(plan.planId || plan.subscriptionPlanId || '')}
-                                        className={`relative p-4 border rounded-lg text-left transition-all ${(selectedPlanId === plan.planId || selectedPlanId === plan.subscriptionPlanId)
-                                            ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/20 ring-2 ring-sky-500'
-                                            : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                                            }`}
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <div className="font-medium text-gray-900 dark:text-white">
-                                                    {plan.displayName || plan.name}
-                                                </div>
-                                                <div className="text-sm text-gray-500 dark:text-gray-400">
-                                                    {plan.description}
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                                                    ${plan.monthlyPrice}
-                                                </div>
-                                                <div className="text-xs text-gray-500">per month</div>
-                                            </div>
-                                        </div>
-                                        {(selectedPlanId === plan.planId || selectedPlanId === plan.subscriptionPlanId) && (
-                                            <CheckCircle className="absolute top-3 right-3 w-5 h-5 text-sky-500" />
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+                        <Box>
+                            <Text as="label" size="2" weight="medium" mb="2" className="block text-gray-700 dark:text-gray-300">
+                                Subscription Plan <Text color="red">*</Text>
+                            </Text>
+                            <Flex direction="column" gap="3" className="max-h-48 overflow-y-auto">
+                                {plans.map((plan) => {
+                                    const planId = plan.planId || plan.subscriptionPlanId || '';
+                                    const isSelected = selectedPlanId === plan.planId || selectedPlanId === plan.subscriptionPlanId;
+                                    return (
+                                        <button
+                                            key={planId}
+                                            type="button"
+                                            onClick={() => setSelectedPlanId(planId)}
+                                            className={`relative p-4 border rounded-lg text-left transition-all ${isSelected
+                                                ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/20 ring-2 ring-sky-500'
+                                                : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                                                }`}
+                                        >
+                                            <Flex justify="between" align="center">
+                                                <Box>
+                                                    <Text as="p" weight="medium">{plan.displayName || plan.name}</Text>
+                                                    <Text as="p" size="2" color="gray">{plan.description}</Text>
+                                                </Box>
+                                                <Box className="text-right">
+                                                    <Text as="p" size="4" weight="bold">${plan.monthlyPrice}</Text>
+                                                    <Text as="p" size="1" color="gray">per month</Text>
+                                                </Box>
+                                            </Flex>
+                                            {isSelected && (
+                                                <CheckCircle2 className="absolute top-3 right-3 w-5 h-5 text-sky-500" />
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </Flex>
+                        </Box>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <Box>
+                            <Text as="label" size="2" weight="medium" mb="2" className="block text-gray-700 dark:text-gray-300">
                                 Duration (months)
-                            </label>
-                            <Select
-                                value={subscriptionMonths}
-                                onChange={(e) => setSubscriptionMonths(Number(e.target.value))}
+                            </Text>
+                            <Select.Root
+                                value={String(subscriptionMonths)}
+                                onValueChange={(val) => setSubscriptionMonths(Number(val))}
                             >
-                                <option value={1}>1 month</option>
-                                <option value={3}>3 months</option>
-                                <option value={6}>6 months</option>
-                                <option value={12}>12 months (1 year)</option>
-                            </Select>
-                        </div>
+                                <Select.Trigger className="w-full" />
+                                <Select.Content position="popper">
+                                    <Select.Item value="1">1 month</Select.Item>
+                                    <Select.Item value="3">3 months</Select.Item>
+                                    <Select.Item value="6">6 months</Select.Item>
+                                    <Select.Item value="12">12 months (1 year)</Select.Item>
+                                </Select.Content>
+                            </Select.Root>
+                        </Box>
 
-                        <div>
-                            <label className="flex items-center gap-3 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={autoRenew}
-                                    onChange={(e) => setAutoRenew(e.target.checked)}
-                                    className="w-4 h-4 text-sky-500 border-gray-300 rounded focus:ring-sky-500"
-                                />
-                                <span className="text-sm text-gray-700 dark:text-gray-300">
-                                    Auto-renew subscription
-                                </span>
-                            </label>
-                        </div>
+                        <Text as="label" size="2">
+                            <Flex align="center" gap="2">
+                                <Checkbox checked={autoRenew} onCheckedChange={(checked) => setAutoRenew(checked === true)} />
+                                Auto-renew subscription
+                            </Flex>
+                        </Text>
 
                         {selectedPlan && (
-                            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                                <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">Summary</div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-700 dark:text-gray-300">
+                            <Box className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                <Text as="p" size="2" color="gray" mb="2">Summary</Text>
+                                <Flex justify="between" align="center">
+                                    <Text size="2">
                                         {selectedPlan.displayName || selectedPlan.name} × {subscriptionMonths} month(s)
-                                    </span>
-                                    <span className="text-xl font-bold text-gray-900 dark:text-white">
-                                        ${totalPrice.toFixed(2)}
-                                    </span>
-                                </div>
-                            </div>
+                                    </Text>
+                                    <Text size="5" weight="bold">${totalPrice.toFixed(2)}</Text>
+                                </Flex>
+                            </Box>
                         )}
                     </>
                 )}
-            </div>
-
-            <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <Button
-                    layout="outline"
-                    onClick={handleClose}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    theme="primary"
-                    onClick={handleSubmit}
-                    disabled={submitting || !selectedBranchId || !selectedPlanId}
-                    loading={submitting}
-                >
-                    <CreditCard className="w-4 h-4 mr-2" />
-                    Subscribe
-                </Button>
-            </div>
-        </Modal>
+            </Flex>
+        </FormModal>
     );
 };
 

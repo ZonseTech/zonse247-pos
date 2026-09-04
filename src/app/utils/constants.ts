@@ -50,6 +50,7 @@ export enum ROUTES {
 	EXPENSE_CATEGORIES = '/expenses/categories',
 
 	PROCUREMENT_SUPPLIERS = '/procurement/suppliers',
+	PROCUREMENT_SUPPLIER_DETAILS = '/procurement/suppliers/:supplierId',
 	PROCUREMENT_REQUISITIONS = '/procurement/requisitions',
 	PROCUREMENT_PURCHASE_ORDERS = '/procurement/purchase-orders',
 	PROCUREMENT_GOODS_RECEIPTS = '/procurement/goods-receipts',

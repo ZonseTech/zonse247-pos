@@ -186,6 +186,8 @@ interface PurchaseOrderListQuery {
     status?: PurchaseOrderStatus;
     supplierId?: string;
     requisitionId?: string;
+    dateFrom?: string;
+    dateTo?: string;
     page?: number;
     limit?: number;
 }

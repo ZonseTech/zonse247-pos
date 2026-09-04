@@ -98,7 +98,7 @@ export default function CountryPicker({
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.1 }}
-                            className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-80 rounded-md text-base ring-1 ring-black dark:ring-gray-600 ring-opacity-5 dark:ring-opacity-50 focus:outline-none sm:text-sm"
+                            className="absolute z-10 bottom-full mb-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-80 rounded-md text-base ring-1 ring-black dark:ring-gray-600 ring-opacity-5 dark:ring-opacity-50 focus:outline-none sm:text-sm"
                             tabIndex={-1}
                             role="listbox"
                             aria-labelledby="listbox-label"

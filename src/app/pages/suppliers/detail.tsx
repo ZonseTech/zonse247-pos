@@ -1,10 +1,11 @@
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, Fragment, useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Confirm, Notify } from 'notiflix';
 import { Truck, Package, ShoppingCart, Mail, Phone, MapPin, CreditCard, User } from 'lucide-react';
 import { Box, Flex, Grid, Text, Badge } from '@radix-ui/themes';
 import * as Tabs from '@radix-ui/react-tabs';
 import AppLayout from '../../layouts/AppLayout';
+import { useIsInsideHub } from '../../context/HubContext';
 import PageHeader from '../../components/page/PageHeader';
 import { FormFieldCard, ComponentLoader } from '../../components';
 import { useSuppliers } from '../../hooks/useSuppliers';
@@ -35,6 +36,8 @@ const SupplierDetail: FC = () => {
     const { supplierId } = useParams<{ supplierId: string }>();
     const navigate = useNavigate();
     const { getById } = useSuppliers();
+    const isInsideHub = useIsInsideHub();
+    const Wrapper = isInsideHub ? Fragment : AppLayout;
 
     const [supplier, setSupplier] = useState<Supplier | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -126,24 +129,24 @@ const SupplierDetail: FC = () => {
 
     if (isLoading) {
         return (
-            <AppLayout>
+            <Wrapper>
                 <ComponentLoader loading />
-            </AppLayout>
+            </Wrapper>
         );
     }
 
     if (!supplier) {
         return (
-            <AppLayout>
+            <Wrapper>
                 <Flex direction="column" align="center" justify="center">
                     <Text color="gray">Supplier not found.</Text>
                 </Flex>
-            </AppLayout>
+            </Wrapper>
         );
     }
 
     return (
-        <AppLayout>
+        <Wrapper>
             <PageHeader
                 title={supplier.name}
                 description={supplier.code ? `Supplier · ${supplier.code}` : 'Supplier details'}
@@ -257,7 +260,7 @@ const SupplierDetail: FC = () => {
                     onClose={() => setViewingPO(null)}
                 />
             )}
-        </AppLayout>
+        </Wrapper>
     );
 };
 

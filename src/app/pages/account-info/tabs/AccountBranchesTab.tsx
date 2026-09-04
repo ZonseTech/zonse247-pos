@@ -1,4 +1,4 @@
-import { FunctionComponent, memo } from 'react';
+import { FunctionComponent, memo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Confirm, Notify } from 'notiflix';
 import {
@@ -11,11 +11,13 @@ import {
     AlertCircle,
     Coins,
     Pencil,
+    Plus,
     Trash2,
     ArrowRightLeft,
     CreditCard,
 } from 'lucide-react';
 import { Card, CardBody, Badge } from '../../../components';
+import { useAuth } from '../../../context/AuthProvider';
 import { useBranch } from '../../../context/BranchContext';
 import branchService from '../../../services/branch.service';
 import { ROUTES } from '../../../utils/constants';
@@ -23,6 +25,7 @@ import { isElectron } from '../../../utils';
 import { useBranchPermissions } from '../../../hooks/useBranchPermissions';
 import { getErrorMessage } from '../../../utils/api-error-handler';
 import { getSubscriptionUrgency, type SubscriptionUrgency } from '../../../utils/subscription';
+import BranchFormModal from '../../branch/partials/BranchFormModal';
 
 interface BranchesTabProps {
     branches: Branch[];
@@ -57,6 +60,19 @@ const getMraStatusIcon = (status: MraApprovalStatus | undefined) => {
             return <AlertCircle className="w-3.5 h-3.5 text-amber-500" />;
     }
 };
+
+const AddBranchCard: FunctionComponent<{ onClick: () => void }> = ({ onClick }) => (
+    <button
+        type="button"
+        onClick={onClick}
+        className="flex flex-col items-center justify-center gap-2 min-h-[180px] w-full rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-sky-400 dark:hover:border-sky-500 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-50/50 dark:hover:bg-sky-900/10 transition-colors"
+    >
+        <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+            <Plus className="w-5 h-5" />
+        </div>
+        <span className="text-sm font-semibold">New Branch</span>
+    </button>
+);
 
 const BranchCardSkeleton: FunctionComponent = () => (
     <div className="animate-pulse rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-3">
@@ -234,6 +250,10 @@ const BranchCard: FunctionComponent<{
 };
 
 const AccountBranchesTab: FunctionComponent<BranchesTabProps> = memo(({ branches, subscriptions, loading, onRefresh }) => {
+    const { user } = useAuth();
+    const permissions = useBranchPermissions();
+    const [showAddModal, setShowAddModal] = useState(false);
+
     if (loading) {
         return (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -246,29 +266,57 @@ const AccountBranchesTab: FunctionComponent<BranchesTabProps> = memo(({ branches
 
     if (branches.length === 0) {
         return (
-            <div className="text-center py-12">
-                <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500 dark:text-gray-400">No branches found</p>
-            </div>
+            <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {permissions.canCreateBranch && (
+                        <AddBranchCard onClick={() => setShowAddModal(true)} />
+                    )}
+                </div>
+                {!permissions.canCreateBranch && (
+                    <div className="text-center py-12">
+                        <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-500 dark:text-gray-400">No branches found</p>
+                    </div>
+                )}
+                {showAddModal && user?.tenantId && (
+                    <BranchFormModal
+                        tenantId={user.tenantId}
+                        onClose={() => setShowAddModal(false)}
+                        onSaved={onRefresh}
+                    />
+                )}
+            </>
         );
     }
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {branches.map((branch) => (
-                <BranchCard
-                    key={branch.branchId}
-                    branch={branch}
-                    subscription={subscriptions.find(
-                        (sub) =>
-                            sub.branchId === branch.branchId ||
-                            sub.branch?.branchId === branch.branchId ||
-                            sub.branchSubscriptionId === branch.branchSubscriptionId,
-                    )}
-                    onRefresh={onRefresh}
+        <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {permissions.canCreateBranch && (
+                    <AddBranchCard onClick={() => setShowAddModal(true)} />
+                )}
+                {branches.map((branch) => (
+                    <BranchCard
+                        key={branch.branchId}
+                        branch={branch}
+                        subscription={subscriptions.find(
+                            (sub) =>
+                                sub.branchId === branch.branchId ||
+                                sub.branch?.branchId === branch.branchId ||
+                                sub.branchSubscriptionId === branch.branchSubscriptionId,
+                        )}
+                        onRefresh={onRefresh}
+                    />
+                ))}
+            </div>
+            {showAddModal && user?.tenantId && (
+                <BranchFormModal
+                    tenantId={user.tenantId}
+                    onClose={() => setShowAddModal(false)}
+                    onSaved={onRefresh}
                 />
-            ))}
-        </div>
+            )}
+        </>
     );
 });
 

@@ -442,7 +442,7 @@ const GoodsReceiptFormModal: FunctionComponent<GoodsReceiptFormModalProps> = ({
                     if (!open) onClose();
                 }}
                 title={title}
-                size="xl"
+                size="full"
             >
                 <Flex align="center" justify="center" className="h-64">
                     <Text color="gray">Loading goods receipt...</Text>
@@ -465,7 +465,7 @@ const GoodsReceiptFormModal: FunctionComponent<GoodsReceiptFormModalProps> = ({
                         if (!open) onClose();
                     }}
                     title={title}
-                    size="xl"
+                    size="full"
                     footer={
                         <Flex justify="end" gap="3" width="100%">
                             <Dialog.Close asChild>

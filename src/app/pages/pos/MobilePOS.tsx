@@ -18,8 +18,6 @@ import InventoryStatsCard from '../../components/stats/InventoryStatsCard';
 import { HiArrowRight } from 'react-icons/hi2';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
-import POSGuide from './partials/POSGuide';
-import type { Step } from 'react-joyride';
 
 const MobilePOS: FunctionComponent = () => {
     const { user } = useAuth();
@@ -112,47 +110,12 @@ const MobilePOS: FunctionComponent = () => {
 
     const hasCartItems = cart.length > 0;
 
-    const posGuideSteps: Step[] = [
-        {
-            target: '[data-pos-guide="mobile-header"]',
-            content: 'Use the top bar to search items, scan barcodes, and pick a customer for the sale.',
-            placement: 'bottom' as const,
-        },
-        ...(hasCartItems ? [{
-            target: '[data-pos-guide="mobile-cart"]',
-            content: 'Review or edit the current cart before you charge the customer.',
-            placement: 'top' as const,
-        }] : canCreateSale && canViewItems ? [{
-            target: '[data-pos-guide="mobile-new-sale"]',
-            content: 'Start a new sale from here when the cart is empty.',
-            placement: 'top' as const,
-        }] : []),
-
-        ...(canViewParkedSales && parkedSales.length > 0 ? [{
-            target: '[data-pos-guide="mobile-parked-sales"]',
-            content: 'Resume parked sales from this list when you need to continue later.',
-            placement: 'top' as const,
-        }] : []),
-        ...(hasCartItems && canProcessPayment ? [{
-            target: '[data-pos-guide="mobile-charge"]',
-            content: 'When you are ready, use this button to complete the payment.',
-            placement: 'top' as const,
-        }] : []),
-    ];
-
     return (
         <div className="flex flex-col h-full overflow-hidden">
             <div className="fixed top-0 left-0 right-0 z-50" data-pos-guide="mobile-header">
                 <MobileTabPageHeader
                     rightContent={
                         <div className="flex items-center gap-2">
-                            <POSGuide
-                                steps={posGuideSteps}
-                                storageKey="pos-guide-seen-mobile"
-                                placement="inline"
-                                buttonClassName="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
-                                buttonLabel="Guide"
-                            />
                             <CustomerSelector
                                 trigger={
                                     <HiUserAdd className="w-6 h-6 text-white active:scale-95 transition-transform" />

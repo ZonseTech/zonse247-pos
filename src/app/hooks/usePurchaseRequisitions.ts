@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Notify } from 'notiflix';
 import { getErrorMessage } from '../utils/api-error-handler';
 import { purchaseRequisitionService } from '../services';
@@ -10,15 +10,27 @@ export const usePurchaseRequisitions = () => {
     const [perPage, setPerPage] = useState(10);
     const [totalRows, setTotalRows] = useState(0);
     const [statusFilter, setStatusFilter] = useState<RequisitionStatusType | ''>('');
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [dateFrom, setDateFrom] = useState<string>('');
+    const [dateTo, setDateTo] = useState<string>('');
+
+    // Guards against out-of-order responses overwriting newer results (see usePurchaseOrders).
+    const requestIdRef = useRef(0);
 
     const loadRequisitions = useCallback(async () => {
+        const requestId = ++requestIdRef.current;
         setIsLoading(true);
         try {
             const result = await purchaseRequisitionService.listRequisitions({
                 page,
                 limit: perPage,
                 status: statusFilter || undefined,
+                search: searchTerm || undefined,
+                dateFrom: dateFrom || undefined,
+                dateTo: dateTo || undefined,
             });
+
+            if (requestId !== requestIdRef.current) return;
 
             if (!result) {
                 setRequisitions([]);
@@ -29,14 +41,15 @@ export const usePurchaseRequisitions = () => {
             setRequisitions(result.requisitions || []);
             setTotalRows(result.pagination?.totalItems || 0);
         } catch (error: any) {
+            if (requestId !== requestIdRef.current) return;
             Notify.failure(getErrorMessage(error, 'Failed to load requisitions'));
             console.error('Load requisitions error:', error);
             setRequisitions([]);
             setTotalRows(0);
         } finally {
-            setIsLoading(false);
+            if (requestId === requestIdRef.current) setIsLoading(false);
         }
-    }, [page, perPage, statusFilter]);
+    }, [page, perPage, statusFilter, searchTerm, dateFrom, dateTo]);
 
     useEffect(() => {
         loadRequisitions();
@@ -140,6 +153,12 @@ export const usePurchaseRequisitions = () => {
         totalRows,
         statusFilter,
         setStatusFilter,
+        searchTerm,
+        setSearchTerm,
+        dateFrom,
+        setDateFrom,
+        dateTo,
+        setDateTo,
         loadRequisitions,
         createRequisition,
         updateRequisition,

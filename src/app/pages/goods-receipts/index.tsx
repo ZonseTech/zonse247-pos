@@ -12,13 +12,25 @@ import {
     FileCheck,
     Plus,
     FilterX,
+    Users,
+    ClipboardList,
+    ShoppingCart,
+    PackageCheck,
+    FileText,
+    Wallet,
+    RotateCcw,
+    CreditCard,
 } from 'lucide-react';
 import DataTable, { type Themes } from 'react-data-table-component';
+import dayjs from 'dayjs';
 import { Box, Flex, Text, Select, Button, IconButton } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
+import FloatingHubNavButton, { type HubNavLink } from '../../components/buttons/FloatingHubNavButton';
 import PageHeader from '../../components/page/PageHeader';
 import MobilePagination from '../../components/MobilePagination';
 import { getTableStyles } from '../../utils/table-styles';
+import { SearchBar } from '../../components/SearchBar';
+import MobileDateFilter from '../../components/reports/MobileDateFilter';
 import {
     ZonseThemeContext,
     ComponentLoader,
@@ -29,6 +41,7 @@ import { useGoodsReceipts } from '../../hooks/useGoodsReceipts';
 import { getGoodsReceiptTableColumns } from './partials/GoodsReceiptTableColumns';
 import { GoodsReceiptMobileList } from './partials/GoodsReceiptMobileCard';
 import GoodsReceiptFormModal from './partials/GoodsReceiptFormModal';
+import { ROUTES } from '../../utils/constants';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { Confirm } from 'notiflix';
 
@@ -58,13 +71,33 @@ const GoodsReceiptManagement: FunctionComponent = () => {
         totalRows,
         statusFilter,
         setStatusFilter,
+        searchTerm,
+        setSearchTerm,
+        dateFrom,
+        setDateFrom,
+        dateTo,
+        setDateTo,
         loadGoodsReceipts,
         verifyGoodsReceipt,
         postGoodsReceipt,
         cancelGoodsReceipt,
     } = useGoodsReceipts();
 
-    const hasActiveFilters = useMemo(() => !!statusFilter, [statusFilter]);
+    const hubLinks: HubNavLink[] = useMemo(() => [
+        { id: 'suppliers', label: 'Suppliers', path: ROUTES.SUPPLIERS, icon: <Users className="w-4 h-4" /> },
+        { id: 'requisitions', label: 'Requisitions', path: ROUTES.PURCHASE_REQUISITIONS, icon: <ClipboardList className="w-4 h-4" /> },
+        { id: 'purchase-orders', label: 'Purchase Orders', path: ROUTES.PURCHASE_ORDERS, icon: <ShoppingCart className="w-4 h-4" /> },
+        { id: 'goods-receipts', label: 'Goods Receipts', path: ROUTES.GOODS_RECEIPTS, icon: <PackageCheck className="w-4 h-4" /> },
+        { id: 'invoices', label: 'Invoices', path: ROUTES.SUPPLIER_INVOICES, icon: <FileText className="w-4 h-4" /> },
+        { id: 'payments', label: 'Payments', path: ROUTES.SUPPLIER_PAYMENTS, icon: <Wallet className="w-4 h-4" /> },
+        { id: 'returns', label: 'Returns', path: ROUTES.SUPPLIER_RETURNS, icon: <RotateCcw className="w-4 h-4" /> },
+        { id: 'credit-notes', label: 'Credit Notes', path: ROUTES.CREDIT_NOTES, icon: <CreditCard className="w-4 h-4" /> },
+    ], []);
+
+    const hasActiveFilters = useMemo(
+        () => !!statusFilter || !!searchTerm || !!dateFrom || !!dateTo,
+        [statusFilter, searchTerm, dateFrom, dateTo]
+    );
 
     const summaryCards: ProcurementSummaryCard[] = useMemo(() => {
         const draftCount = goodsReceipts.filter(
@@ -164,9 +197,19 @@ const GoodsReceiptManagement: FunctionComponent = () => {
         [cancelGoodsReceipt],
     );
 
+    const handleDateChange = useCallback((start: Date | null, end: Date | null) => {
+        setDateFrom(start ? dayjs(start).format('YYYY-MM-DD') : '');
+        setDateTo(end ? dayjs(end).format('YYYY-MM-DD') : '');
+        setPage(1);
+    }, [setDateFrom, setDateTo, setPage]);
+
     const handleClearFilters = useCallback(() => {
         setStatusFilter('');
-    }, [setStatusFilter]);
+        setSearchTerm('');
+        setDateFrom('');
+        setDateTo('');
+        setPage(1);
+    }, [setStatusFilter, setSearchTerm, setDateFrom, setDateTo, setPage]);
 
     const handlePageChange = useCallback((p: number) => setPage(p), [setPage]);
 
@@ -185,8 +228,8 @@ const GoodsReceiptManagement: FunctionComponent = () => {
         onCancel: handleCancel,
     });
 
-    return (
-        <AppLayout>
+    const content = (
+        <>
             <Box className="max-w-full">
                 <PageHeader
                     icon={
@@ -202,13 +245,14 @@ const GoodsReceiptManagement: FunctionComponent = () => {
                         >
                             <Select.Root
                                 value={statusFilter || 'all'}
-                                onValueChange={(val) =>
+                                onValueChange={(val) => {
                                     setStatusFilter(
                                         val === 'all'
                                             ? ''
                                             : (val as GRNStatusType),
-                                    )
-                                }
+                                    );
+                                    setPage(1);
+                                }}
                             >
                                 <Select.Trigger
                                     variant="surface"
@@ -259,6 +303,31 @@ const GoodsReceiptManagement: FunctionComponent = () => {
                         </Flex>
                     }
                 />
+
+                <Flex
+                    align="center"
+                    gap="3"
+                    px="4"
+                    py="3"
+                    className="bg-white dark:bg-gray-800/50 border-x border-t border-gray-200 dark:border-gray-700 rounded-t-lg"
+                >
+                    <SearchBar
+                        placeholder="Search receipt#, PO#, supplier..."
+                        value={searchTerm}
+                        onChange={setSearchTerm}
+                        debounce={400}
+                        className="flex-1 max-w-xs"
+                    />
+
+                    <Box className="ml-auto">
+                        <MobileDateFilter
+                            startDate={dateFrom ? new Date(dateFrom) : null}
+                            endDate={dateTo ? new Date(dateTo) : null}
+                            onChange={handleDateChange}
+                            align="right"
+                        />
+                    </Box>
+                </Flex>
 
                 <Box className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                     <Box px="4">
@@ -415,6 +484,8 @@ const GoodsReceiptManagement: FunctionComponent = () => {
                 </Box>
             </Box>
 
+            {isMobile && <FloatingHubNavButton links={hubLinks} />}
+
             {formState && (
                 <GoodsReceiptFormModal
                     goodsReceiptId={formState.goodsReceiptId}
@@ -422,8 +493,10 @@ const GoodsReceiptManagement: FunctionComponent = () => {
                     onSaved={loadGoodsReceipts}
                 />
             )}
-        </AppLayout>
+        </>
     );
+
+    return isMobile ? <AppLayout>{content}</AppLayout> : content;
 };
 
 export default GoodsReceiptManagement;

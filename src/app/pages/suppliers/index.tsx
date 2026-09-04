@@ -1,10 +1,23 @@
 import { FC, useCallback, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Confirm, Notify } from 'notiflix';
-import { Truck, Plus, X } from 'lucide-react';
+import {
+    Truck,
+    Plus,
+    X,
+    Users,
+    ClipboardList,
+    ShoppingCart,
+    PackageCheck,
+    FileText,
+    Wallet,
+    RotateCcw,
+    CreditCard,
+} from 'lucide-react';
 import DataTable, { type Themes } from 'react-data-table-component';
 import { Button, Box, Flex, Tooltip } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
+import FloatingHubNavButton, { type HubNavLink } from '../../components/buttons/FloatingHubNavButton';
 import PageHeader from '../../components/page/PageHeader';
 import TableSkeleton from '../../components/skeleton/TableSkeleton';
 import TableEmptyState from '../../components/TableEmptyState';
@@ -50,6 +63,17 @@ const SupplierManagement: FC = () => {
     } = useSuppliers();
 
     const totalPages = Math.ceil(totalRows / perPage);
+
+    const hubLinks: HubNavLink[] = useMemo(() => [
+        { id: 'suppliers', label: 'Suppliers', path: ROUTES.SUPPLIERS, icon: <Users className="w-4 h-4" /> },
+        { id: 'requisitions', label: 'Requisitions', path: ROUTES.PURCHASE_REQUISITIONS, icon: <ClipboardList className="w-4 h-4" /> },
+        { id: 'purchase-orders', label: 'Purchase Orders', path: ROUTES.PURCHASE_ORDERS, icon: <ShoppingCart className="w-4 h-4" /> },
+        { id: 'goods-receipts', label: 'Goods Receipts', path: ROUTES.GOODS_RECEIPTS, icon: <PackageCheck className="w-4 h-4" /> },
+        { id: 'invoices', label: 'Invoices', path: ROUTES.SUPPLIER_INVOICES, icon: <FileText className="w-4 h-4" /> },
+        { id: 'payments', label: 'Payments', path: ROUTES.SUPPLIER_PAYMENTS, icon: <Wallet className="w-4 h-4" /> },
+        { id: 'returns', label: 'Returns', path: ROUTES.SUPPLIER_RETURNS, icon: <RotateCcw className="w-4 h-4" /> },
+        { id: 'credit-notes', label: 'Credit Notes', path: ROUTES.CREDIT_NOTES, icon: <CreditCard className="w-4 h-4" /> },
+    ], []);
 
     const hasActiveFilters = useMemo(
         () => !!searchTerm || !!statusFilter || !!startDate || !!endDate,
@@ -101,7 +125,7 @@ const SupplierManagement: FC = () => {
     const handleAddSupplier = useCallback(() => setFormSupplierId('new'), []);
 
     const handleView = useCallback((supplierId: string) => {
-        navigate(ROUTES.SUPPLIER_DETAILS.replace(':supplierId', supplierId));
+        navigate(ROUTES.PROCUREMENT_SUPPLIER_DETAILS.replace(':supplierId', supplierId));
     }, [navigate]);
 
     const handleEdit = useCallback((supplierId: string) => setFormSupplierId(supplierId), []);
@@ -167,8 +191,8 @@ const SupplierManagement: FC = () => {
         onDelete: handleDelete,
     });
 
-    return (
-        <AppLayout>
+    const content = (
+        <>
             <PageHeader
                 title="Suppliers"
                 description="Manage your suppliers for purchase orders"
@@ -182,7 +206,7 @@ const SupplierManagement: FC = () => {
                 showBackButton={false}
             />
 
-            <Box className="rounded-md shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <Box className="rounded-md my-4 shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <Flex
                     align="center"
                     justify="between"
@@ -340,6 +364,8 @@ const SupplierManagement: FC = () => {
                 )}
             </Box>
 
+            {isMobile && <FloatingHubNavButton links={hubLinks} />}
+
             {formSupplierId && (
                 <SupplierFormModal
                     supplierId={formSupplierId === 'new' ? undefined : formSupplierId}
@@ -347,8 +373,10 @@ const SupplierManagement: FC = () => {
                     onSaved={loadSuppliers}
                 />
             )}
-        </AppLayout>
+        </>
     );
+
+    return isMobile ? <AppLayout>{content}</AppLayout> : content;
 };
 
 export default SupplierManagement;

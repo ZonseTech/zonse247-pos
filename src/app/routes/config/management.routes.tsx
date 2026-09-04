@@ -6,7 +6,6 @@ import PermissionRoute from '../../navigation/PermissionRoute'
 const BranchForm = lazy(() => import('../../pages/branch/create'))
 const TerminalForm = lazy(() => import('../../pages/terminal/create'))
 const TenantsManagement = lazy(() => import('../../pages/tenants'))
-const TenantForm = lazy(() => import('../../pages/tenants/create'))
 const TenantDetails = lazy(() => import('../../pages/tenants/details'))
 const PrinterManagement = lazy(() => import('../../pages/printer'))
 const PrintJobsManagement = lazy(() => import('../../pages/printer/jobs'))
@@ -27,7 +26,6 @@ export const TenantRoutes = (
     <>
         <Route path={ROUTES.TENANTS} element={<PermissionRoute permission="tenants.view"><TenantsManagement /></PermissionRoute>} />
         <Route path={ROUTES.TENANT_DETAILS} element={<PermissionRoute permission="tenants.view"><TenantDetails /></PermissionRoute>} />
-        <Route path={ROUTES.TENANT_FORM} element={<PermissionRoute permission="tenants.view"><TenantForm /></PermissionRoute>} />
     </>
 )
 

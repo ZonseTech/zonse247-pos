@@ -1,9 +1,15 @@
-import { Fragment } from 'react';
 import { TableColumn } from 'react-data-table-component';
-import { Building2, Globe, Mail, Phone, Edit2, Trash2, Eye } from 'lucide-react';
-import { getStatusColor } from '../../../utils/tenant-status';
+import { Mail, Phone, Globe, Edit2, Trash2, Eye, Ban, CheckCircle2 } from 'lucide-react';
+import { Badge, Flex, IconButton, Text, Tooltip } from '@radix-ui/themes';
 import { DEFAULT_SEED_KEY } from '../../../constants';
 import { HiOutlineMenuAlt4 } from 'react-icons/hi';
+
+const statusColorMap: Record<string, 'green' | 'amber' | 'red' | 'gray'> = {
+    active: 'green',
+    pending: 'amber',
+    suspended: 'red',
+    cancelled: 'gray',
+};
 
 interface TenantActionsProps {
     tenant: Tenant;
@@ -19,55 +25,43 @@ export const TenantActions: React.FC<TenantActionsProps> = ({
     onEdit,
     onStatusToggle,
     onDelete
-}) => (
-    <div className="flex items-center space-x-2">
-        <button
-            onClick={() => onView(tenant.tenantId)}
-            className="p-1 rounded transition-colors text-gray-500 hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20"
-            title="View tenant details"
-        >
-            <Eye className="w-4 h-4" />
-        </button>
+}) => {
+    const isSystemTenant = tenant.tenantId === DEFAULT_SEED_KEY;
 
-        <button
-            onClick={() => onEdit(tenant.tenantId)}
-            disabled={tenant.tenantId === DEFAULT_SEED_KEY}
-            className={`p-1 rounded transition-colors ${tenant.tenantId === DEFAULT_SEED_KEY
-                ? 'text-gray-500'
-                : 'text-sky-500 hover:text-sky-800'
-                }`}
-            title="Edit tenant"
-        >
-            <Edit2 className="w-4 h-4" />
-        </button>
+    return (
+        <Flex align="center" gap="2">
+            <Tooltip content="View tenant details">
+                <IconButton variant="ghost" size="1" onClick={() => onView(tenant.tenantId)}>
+                    <Eye className="w-4 h-4" />
+                </IconButton>
+            </Tooltip>
 
-        <button
-            onClick={() => onStatusToggle(tenant.tenantId, tenant.status)}
-            disabled={tenant.tenantId === DEFAULT_SEED_KEY}
-            className={`text-xs px-2 py-1 rounded transition-colors ${tenant.tenantId === DEFAULT_SEED_KEY
-                ? 'text-gray-500 bg-gray-100'
-                : tenant.status === 'active'
-                    ? 'text-red-500 hover:text-red-800 bg-red-50 hover:bg-red-100'
-                    : 'text-green-500 hover:text-green-800 bg-green-50 hover:bg-green-100'
-                }`}
-            title={tenant.status === 'active' ? 'Suspend tenant' : 'Activate tenant'}
-        >
-            {tenant.status === 'active' ? 'Suspend' : 'Activate'}
-        </button>
+            <Tooltip content="Edit tenant">
+                <IconButton variant="ghost" size="1" disabled={isSystemTenant} onClick={() => onEdit(tenant.tenantId)}>
+                    <Edit2 className="w-4 h-4" />
+                </IconButton>
+            </Tooltip>
 
-        <button
-            onClick={() => onDelete(tenant.tenantId, tenant.businessName)}
-            disabled={tenant.tenantId === DEFAULT_SEED_KEY}
-            className={`p-1 rounded transition-colors ${tenant.tenantId === DEFAULT_SEED_KEY
-                ? 'text-gray-500'
-                : 'text-red-500 hover:text-red-800'
-                }`}
-            title="Delete tenant"
-        >
-            <Trash2 className="w-4 h-4" />
-        </button>
-    </div>
-);
+            <Tooltip content={tenant.status === 'active' ? 'Suspend tenant' : 'Activate tenant'}>
+                <IconButton
+                    variant="ghost"
+                    color={tenant.status === 'active' ? 'red' : 'green'}
+                    size="1"
+                    disabled={isSystemTenant}
+                    onClick={() => onStatusToggle(tenant.tenantId, tenant.status)}
+                >
+                    {tenant.status === 'active' ? <Ban className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
+                </IconButton>
+            </Tooltip>
+
+            <Tooltip content="Delete tenant">
+                <IconButton variant="ghost" color="red" size="1" disabled={isSystemTenant} onClick={() => onDelete(tenant.tenantId, tenant.businessName)}>
+                    <Trash2 className="w-4 h-4" />
+                </IconButton>
+            </Tooltip>
+        </Flex>
+    );
+};
 
 export const getTenantColumns = (
     onView: (id: string) => void,
@@ -76,75 +70,58 @@ export const getTenantColumns = (
     onDelete: (id: string, name: string) => void
 ): TableColumn<Tenant>[] => [
         {
-            name: "Tenant",
+            name: "Business Name",
+            grow: 2,
             cell: (row) => (
-                <Fragment>
-                    <div className="flex items-center">
-                        <div className="w-10 h-10 bg-sky-100 rounded-full flex items-center justify-center">
-                            <Building2 className="w-5 h-5 text-sky-500" />
-                        </div>
-                        <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                                {row?.businessName}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                                ID: {row?.tin ?? row?.tenantCode}
-                            </div>
-                        </div>
-                    </div>
-                </Fragment>
+                <Flex direction="column" gap="1">
+                    <Text as="p" size="2" weight="medium">{row?.businessName}</Text>
+                    <Text as="p" size="1" color="gray">ID: {row?.tin ?? row?.tenantCode}</Text>
+                </Flex>
             ),
         },
         {
-            name: 'Owner & Contact',
+            name: 'Tenant',
+            grow: 2,
             cell: (row) => (
-                <Fragment>
-                    <div>
-                        <div className="text-sm font-medium text-gray-900 flex items-center">
-                            {row?.ownerName}
-                        </div>
-                        <div className="text-sm text-gray-500 flex items-center mt-1">
-                            <Mail className="w-3 h-3 mr-1" />
-                            {row?.email}
-                        </div>
-                        <div className="text-sm text-gray-500 flex items-center">
-                            <Phone className="w-3 h-3 mr-1" />
-                            {row?.phoneNumber}
-                        </div>
-                    </div>
-                </Fragment>
+                <Flex direction="column" gap="1">
+                    <Text size="2" weight="medium">{row?.ownerName}</Text>
+                    <Flex align="center" gap="1">
+                        <Mail className="w-3 h-3 text-gray-500" />
+                        <Text size="1" color="gray">{row?.email}</Text>
+                    </Flex>
+                    <Flex align="center" gap="1">
+                        <Phone className="w-3 h-3 text-gray-500" />
+                        <Text size="1" color="gray">{row?.phoneNumber}</Text>
+                    </Flex>
+                </Flex>
             )
         },
         {
             name: 'Location',
             cell: (row) => (
-                <Fragment>
-                    <div>
-                        {row?.country && (
-                            <div className="text-sm text-gray-900 flex items-center">
-                                <Globe className="w-3 h-3 mr-1" />
-                                {row?.country}
-                            </div>
-                        )}
-                        <div className="text-sm text-gray-500">
-                            {row?.address}
-                        </div>
-                    </div>
-                </Fragment>
+                <Flex direction="column" gap="1">
+                    {row?.country && (
+                        <Flex align="center" gap="1">
+                            <Globe className="w-3 h-3 text-gray-500" />
+                            <Text size="2">{row.country}</Text>
+                        </Flex>
+                    )}
+                    <Text size="1" color="gray">{row?.address}</Text>
+                </Flex>
             )
         },
         {
             name: 'Status',
+            width: '110px',
             cell: (row) => (
-                <Fragment>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(row?.status)}`}>
-                        {row?.status?.charAt(0)?.toUpperCase() + row?.status?.slice(1)}
-                    </span>
-                </Fragment>
+                <Badge variant="soft" color={statusColorMap[row?.status] || 'gray'} radius="full">
+                    {row?.status?.charAt(0)?.toUpperCase() + row?.status?.slice(1)}
+                </Badge>
             )
         },
         {
             name: <HiOutlineMenuAlt4 className='w-5 h-5 text-gray-500' />,
+            width: '170px',
             cell: (row) => (
                 <TenantActions
                     tenant={row}

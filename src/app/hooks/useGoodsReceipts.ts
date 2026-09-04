@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Notify } from 'notiflix';
 import { goodsReceiptService } from '../services';
 import { getErrorMessage } from '../utils/api-error-handler';
@@ -11,8 +11,15 @@ export const useGoodsReceipts = () => {
     const [totalRows, setTotalRows] = useState(0);
     const [statusFilter, setStatusFilter] = useState<GRNStatusType | ''>('');
     const [poFilter, setPoFilter] = useState<string>('');
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [dateFrom, setDateFrom] = useState<string>('');
+    const [dateTo, setDateTo] = useState<string>('');
+
+    // Guards against out-of-order responses overwriting newer results (see usePurchaseOrders).
+    const requestIdRef = useRef(0);
 
     const loadGoodsReceipts = useCallback(async () => {
+        const requestId = ++requestIdRef.current;
         setIsLoading(true);
         try {
             const result = await goodsReceiptService.listGoodsReceipts({
@@ -20,7 +27,12 @@ export const useGoodsReceipts = () => {
                 limit: perPage,
                 status: statusFilter || undefined,
                 purchaseOrderId: poFilter || undefined,
+                search: searchTerm || undefined,
+                dateFrom: dateFrom || undefined,
+                dateTo: dateTo || undefined,
             });
+
+            if (requestId !== requestIdRef.current) return;
 
             if (!result) {
                 setGoodsReceipts([]);
@@ -34,14 +46,15 @@ export const useGoodsReceipts = () => {
             setGoodsReceipts(receipts);
             setTotalRows(pagination.totalItems || 0);
         } catch (error: any) {
+            if (requestId !== requestIdRef.current) return;
             Notify.failure(getErrorMessage(error, 'Failed to load goods receipts'));
             console.error('Load goods receipts error:', error);
             setGoodsReceipts([]);
             setTotalRows(0);
         } finally {
-            setIsLoading(false);
+            if (requestId === requestIdRef.current) setIsLoading(false);
         }
-    }, [page, perPage, statusFilter, poFilter]);
+    }, [page, perPage, statusFilter, poFilter, searchTerm, dateFrom, dateTo]);
 
     useEffect(() => {
         loadGoodsReceipts();
@@ -141,6 +154,12 @@ export const useGoodsReceipts = () => {
         setStatusFilter,
         poFilter,
         setPoFilter,
+        searchTerm,
+        setSearchTerm,
+        dateFrom,
+        setDateFrom,
+        dateTo,
+        setDateTo,
         loadGoodsReceipts,
         createGoodsReceipt,
         updateGoodsReceipt,

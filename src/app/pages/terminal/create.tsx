@@ -1,11 +1,11 @@
 import { Form, Formik } from 'formik';
 import { Notify, Report } from 'notiflix';
-import { Button, FormFieldCard, OfflinePlaceholder } from '../../components';
-import FormInput from '../../components/FormInput';
+import { Button } from '@radix-ui/themes';
+import { OfflinePlaceholder } from '../../components';
+import TextInput from '../../components/TextInput';
 import FormWrapper from '../../components/FormWrapper';
-import TenantSearch from '../branch/partials/TenantSearch';
 import BranchSearch from './partials/BranchSearch';
-import { Fragment, useState, useEffect, useMemo } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import type { ChangeEvent, FunctionComponent } from 'react';
 import terminalService from '../../services/terminal.service';
 import AppLayout from '../../layouts/AppLayout';
@@ -13,11 +13,9 @@ import PageHeader from '../../components/page/PageHeader';
 import MobilePageHeader from '../../components/page/MobilePageHeader';
 import { useNavigate, useLocation } from 'react-router';
 import { ROUTES } from '../../utils/constants';
-import { useAuth } from '../../context/AuthProvider';
 import { useIsMobile } from '../../hooks/useMediaQuery';
-import { hasPermission } from '../../utils';
 import MobilePlanSkeleton from '../../components/loader/MobilePlanSkeleton';
-import * as Yup from 'yup';
+import { terminalValidationSchema } from '../../schemas/terminal.schema';
 import { capitalizeEachWord } from '../../utils';
 import { useConnectivity } from '../../hooks/useConnectivity';
 import { getErrorMessage } from '../../utils/api-error-handler';
@@ -27,82 +25,37 @@ const TerminalForm: FunctionComponent = () => {
     const location = useLocation();
     const isMobile = useIsMobile();
     const { isOnline } = useConnectivity();
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [terminal, setTerminal] = useState<Terminal | null>(null);
 
-    const { terminalId, tenantId: stateTenantId } = location.state || {};
-    const { user: authUser } = useAuth();
-
-    const effectiveTenantId = stateTenantId || authUser?.tenantId || '';
-
-    const canSelectTenant = useMemo(() => {
-        return hasPermission(authUser, 'system.admin');
-    }, [authUser]);
+    const { terminalId } = location.state || {};
 
     useEffect(() => {
         const fetchTerminal = async () => {
-            if (terminalId) {
-                setLoading(true);
-                try {
-                    const terminalData = await terminalService.show(terminalId);
-                    setTerminal(terminalData);
-                } catch (error: any) {
-                    console.error('Error fetching terminal:', error);
-                    const errorMessage = getErrorMessage(error, 'Failed to load terminal details');
-                    Notify.failure(errorMessage);
-                } finally {
-                    setLoading(false);
-                }
+            if (!terminalId) return;
+            setLoading(true);
+            try {
+                const terminalData = await terminalService.show(terminalId);
+                setTerminal(terminalData);
+            } catch (error: any) {
+                console.error('Error fetching terminal:', error);
+                const errorMessage = getErrorMessage(error, 'Failed to load terminal details');
+                Notify.failure(errorMessage);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchTerminal();
     }, [terminalId]);
 
-    const defaultTerminalValues: Partial<Terminal> = {
-        terminalId: '',
-        tenantId: effectiveTenantId,
-        branchId: stateTenantId ? '' : (authUser?.branchId || ''),
-        terminalCode: '',
-        terminalLabel: '',
-        terminalPosition: 1,
-        deviceId: '',
-        isPrimary: false,
-        isBlocked: false,
-        activationStatus: 'PENDING'
-    };
-
-    const initialTerminalValues = terminal ? { ...terminal } : defaultTerminalValues;
-
-    const terminalValidationSchema = Yup.object().shape({
-        terminalLabel: Yup.string()
-            .required('Terminal label is required')
-            .min(3, 'Label must be at least 3 characters')
-            .max(100, 'Label is too long'),
-        tenantId: Yup.string().required('Tenant is required'),
-        branchId: Yup.string().required('Branch is required'),
-        terminalPosition: Yup.number()
-            .min(1, 'Position must be at least 1')
-            .max(99, 'Position cannot exceed 99'),
-        deviceId: Yup.string().max(255, 'Device ID is too long'),
-        isPrimary: Yup.boolean(),
-        isBlocked: Yup.boolean()
-    });
-
-    const handleSubmit = async (values: Partial<Terminal>, { resetForm }: any) => {
+    const handleSubmit = async (values: Partial<Terminal>) => {
+        if (!terminal) return;
         try {
-            if (terminal && terminal.terminalId) {
-                await terminalService.update(terminal.terminalId, values as UpdateTerminalRequest);
-                Report.success("Updated!", "Terminal details updated successfully!", "Ok", () => {
-                    navigate(ROUTES.ACCOUNT_INFO_TERMINALS);
-                });
-            } else {
-                await terminalService.store(values as CreateTerminalRequest);
-                Report.success("Great!", "Terminal created successfully!", "Ok", () => {
-                    resetForm();
-                    navigate(ROUTES.ACCOUNT_INFO_TERMINALS);
-                });
-            }
+            await terminalService.update(terminal.terminalId, values as UpdateTerminalRequest);
+            Report.success("Updated!", "Terminal details updated successfully!", "Ok", () => {
+                navigate(ROUTES.ACCOUNT_INFO_TERMINALS);
+            });
         } catch (error: any) {
             const errorMessage = getErrorMessage(error, 'An error occurred while saving the terminal');
             Notify.failure(errorMessage);
@@ -134,7 +87,7 @@ const TerminalForm: FunctionComponent = () => {
         );
     };
 
-    if (loading) return <MobilePlanSkeleton />;
+    if (loading || !terminal) return <MobilePlanSkeleton />;
 
     if (!isOnline) {
         return (
@@ -142,7 +95,7 @@ const TerminalForm: FunctionComponent = () => {
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <OfflinePlaceholder
                         title="Terminal Management Unavailable Offline"
-                        description="Creating or editing terminals requires an internet connection to sync with the server. Please connect to the internet and try again."
+                        description="Editing terminals requires an internet connection to sync with the server. Please connect to the internet and try again."
                         variant="cloud"
                     />
                 </div>
@@ -156,30 +109,26 @@ const TerminalForm: FunctionComponent = () => {
                 <Formik
                     onSubmit={handleSubmit}
                     enableReinitialize={true}
-                    initialValues={initialTerminalValues}
+                    initialValues={terminal}
                     validationSchema={terminalValidationSchema}
                 >
                     {({ isSubmitting, values, setFieldValue, errors, touched }) => (
                         <Form className="flex flex-col h-full">
                             {isMobile ? (
                                 <MobilePageHeader
-                                    title={terminal ? 'EDIT TERMINAL' : 'NEW TERMINAL'}
+                                    title="EDIT TERMINAL"
                                     className="bg-white dark:bg-gray-800"
                                     rightContent={
-                                        <Button
-                                            type="submit"
-                                            loading={isSubmitting}
-                                            theme='success'
-                                        >
-                                            {terminal ? 'UPDATE' : 'SAVE'}
+                                        <Button type="submit" loading={isSubmitting} size="2">
+                                            UPDATE
                                         </Button>
                                     }
                                 />
                             ) : (
                                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 w-full">
                                     <PageHeader
-                                        title={terminal ? 'EDIT TERMINAL' : 'NEW TERMINAL'}
-                                        description='Required fields are marked with an asterisk (*)'
+                                        title="EDIT TERMINAL"
+                                        description="Required fields are marked with an asterisk (*)"
                                     />
                                 </div>
                             )}
@@ -187,100 +136,63 @@ const TerminalForm: FunctionComponent = () => {
                             <div className="flex-1 overflow-y-auto max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                                 <FormWrapper>
                                     <div className="py-4 space-y-4">
-                                        {canSelectTenant && stateTenantId && (
-                                            <FormFieldCard title="Tenant & Branch">
-                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                                    <TenantSearch
-                                                        value={values.tenantId}
-                                                        onChange={(tenantId) => {
-                                                            setFieldValue('tenantId', tenantId);
-                                                            setFieldValue('branchId', '');
-                                                        }}
-                                                        error={errors.tenantId}
-                                                        touched={touched.tenantId}
-                                                        disabled
-                                                    />
+                                        <BranchSearch
+                                            value={values.branchId}
+                                            onChange={(branchId) => setFieldValue('branchId', branchId)}
+                                            tenantId={values.tenantId}
+                                            error={errors.branchId as string}
+                                            touched={touched.branchId as boolean}
+                                        />
 
-                                                    <BranchSearch
-                                                        value={values.branchId}
-                                                        onChange={(branchId) => setFieldValue('branchId', branchId)}
-                                                        tenantId={values.tenantId}
-                                                        error={errors.branchId}
-                                                        touched={touched.branchId}
-                                                    />
-                                                </div>
-                                            </FormFieldCard>
-                                        )}
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                            <TextInput
+                                                name="terminalLabel"
+                                                label="Terminal Label"
+                                                required
+                                                placeholder="Enter terminal label"
+                                                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                                    handleLabelChange(e.target.value, setFieldValue);
+                                                }}
+                                            />
 
-                                        {!stateTenantId && (
-                                            <FormFieldCard title="Branch">
-                                                <BranchSearch
-                                                    value={values.branchId}
-                                                    onChange={(branchId) => setFieldValue('branchId', branchId)}
-                                                    tenantId={values.tenantId}
-                                                    error={errors.branchId}
-                                                    touched={touched.branchId}
-                                                />
-                                            </FormFieldCard>
-                                        )}
-
-                                        <FormFieldCard title="Terminal Information">
-                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                                <FormInput
-                                                    type="text"
-                                                    name="terminalLabel"
-                                                    label="Terminal Label"
-                                                    required
-                                                    placeholder="Enter terminal label"
-                                                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                                                        handleLabelChange(e.target.value, setFieldValue);
-                                                    }}
-                                                />
-
-                                                <FormInput
-                                                    type="number"
-                                                    name="terminalPosition"
-                                                    label="Terminal Position"
-                                                    placeholder="1"
-                                                    min="1"
-                                                    max="99"
-                                                />
-                                            </div>
-                                        </FormFieldCard>
+                                            <TextInput
+                                                type="number"
+                                                name="terminalPosition"
+                                                label="Terminal Position"
+                                                placeholder="1"
+                                                min="1"
+                                                max="99"
+                                            />
+                                        </div>
                                     </div>
 
-                                    {terminal && (
-                                        <div className="pb-4 lg:hidden">
-                                            <Button
-                                                type="button"
-                                                theme="danger"
-                                                className="w-full"
-                                                onClick={handleDelete}
-                                            >
-                                                Delete Terminal
-                                            </Button>
-                                        </div>
-                                    )}
+                                    <div className="pb-4 lg:hidden">
+                                        <Button
+                                            type="button"
+                                            color="red"
+                                            variant="soft"
+                                            className="w-full"
+                                            onClick={handleDelete}
+                                        >
+                                            Delete Terminal
+                                        </Button>
+                                    </div>
 
                                     <div className="hidden lg:flex pt-4 border-t border-gray-200 dark:border-gray-700 items-center justify-between">
-                                        {terminal ? (
-                                            <Button
-                                                type="button"
-                                                theme="danger"
-                                                onClick={handleDelete}
-                                            >
-                                                Delete Terminal
-                                            </Button>
-                                        ) : (
-                                            <div></div>
-                                        )}
+                                        <Button
+                                            type="button"
+                                            color="red"
+                                            variant="soft"
+                                            onClick={handleDelete}
+                                        >
+                                            Delete Terminal
+                                        </Button>
                                         <Button
                                             type="submit"
                                             loading={isSubmitting}
                                             className="px-8"
-                                            theme='success'
                                         >
-                                            {terminal ? 'Update Terminal' : 'Create Terminal'}
+                                            Update Terminal
                                         </Button>
                                     </div>
                                 </FormWrapper>

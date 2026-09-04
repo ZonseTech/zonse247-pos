@@ -61,8 +61,8 @@ const TenantSearch: FunctionComponent<TenantSearchProps> = ({
 
         setLoading(true);
         try {
-            const results = await tenantsService.search(term);
-            setTenants(results);
+            const results = await tenantsService.list({ search: term });
+            setTenants(results.tenants);
         } catch (error: any) {
             console.error('Error searching tenants:', error);
             Notify.failure('Failed to search tenants');

@@ -1,12 +1,16 @@
 import { FC, useMemo } from 'react';
 import { X } from 'lucide-react';
+import dayjs from 'dayjs';
 import { poStatusLabels } from './PurchaseOrderFilterSheet';
 
 interface PurchaseOrderActiveFilterChipsProps {
     searchTerm: string;
     statusFilter: string;
+    dateFrom?: string;
+    dateTo?: string;
     onClearSearch: () => void;
     onClearStatus: () => void;
+    onClearDate?: () => void;
     onClearAll: () => void;
 }
 
@@ -19,8 +23,11 @@ interface FilterChip {
 const PurchaseOrderActiveFilterChips: FC<PurchaseOrderActiveFilterChipsProps> = ({
     searchTerm,
     statusFilter,
+    dateFrom,
+    dateTo,
     onClearSearch,
     onClearStatus,
+    onClearDate,
     onClearAll,
 }) => {
     const chips = useMemo<FilterChip[]>(() => {
@@ -42,8 +49,18 @@ const PurchaseOrderActiveFilterChips: FC<PurchaseOrderActiveFilterChipsProps> = 
             });
         }
 
+        if ((dateFrom || dateTo) && onClearDate) {
+            const from = dateFrom ? dayjs(dateFrom).format('DD/MM') : '';
+            const to = dateTo ? dayjs(dateTo).format('DD/MM') : '';
+            result.push({
+                key: 'date',
+                label: from && to ? `${from} - ${to}` : from || to,
+                onRemove: onClearDate,
+            });
+        }
+
         return result;
-    }, [searchTerm, statusFilter, onClearSearch, onClearStatus]);
+    }, [searchTerm, statusFilter, dateFrom, dateTo, onClearSearch, onClearStatus, onClearDate]);
 
     if (chips.length === 0) return null;
 

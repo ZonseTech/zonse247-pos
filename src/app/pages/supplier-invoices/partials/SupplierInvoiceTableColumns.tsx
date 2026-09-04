@@ -67,7 +67,6 @@ export const getSupplierInvoiceTableColumns = ({
                     {row.invoiceNumber}
                 </span>
             ),
-            minWidth: '150px',
             grow: 1,
         },
         {
@@ -86,7 +85,6 @@ export const getSupplierInvoiceTableColumns = ({
                     )}
                 </div>
             ),
-            minWidth: '160px',
             grow: 2,
         },
         {
@@ -101,7 +99,6 @@ export const getSupplierInvoiceTableColumns = ({
                     </span>
                 );
             },
-            minWidth: '130px',
         },
         {
             name: 'Total',
@@ -112,7 +109,6 @@ export const getSupplierInvoiceTableColumns = ({
                     {formatCurrency(row.totalAmount)}
                 </span>
             ),
-            minWidth: '130px',
             grow: 1,
             right: true,
         },
@@ -144,7 +140,6 @@ export const getSupplierInvoiceTableColumns = ({
                     </div>
                 );
             },
-            minWidth: '130px',
             grow: 1,
             right: true,
         },
@@ -166,7 +161,6 @@ export const getSupplierInvoiceTableColumns = ({
                     </span>
                 );
             },
-            minWidth: '130px',
             grow: 1,
         },
         {
@@ -220,7 +214,6 @@ export const getSupplierInvoiceTableColumns = ({
                     )}
                 </div>
             ),
-            minWidth: '150px',
             right: true,
         },
     ];

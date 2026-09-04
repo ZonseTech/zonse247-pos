@@ -15,7 +15,7 @@ import {
     Download,
 } from 'lucide-react';
 import dayjs from 'dayjs';
-import DatePicker from 'react-datepicker';
+import MobileDateFilter from '../../../components/reports/MobileDateFilter';
 import { useStockMovements } from '../../../hooks/useStockMovements';
 import { formatCurrency } from '../../../utils';
 import { useIsMobile } from '../../../hooks/useMediaQuery';
@@ -222,7 +222,7 @@ const StockMovementModal: React.FC<StockMovementModalProps> = ({
                 {showFilters && (
                     <div className={`bg-gray-50 dark:bg-gray-800/30 border-b border-gray-200 dark:border-gray-700 ${isMobile ? 'px-3 py-3' : 'px-6 py-4'
                         }`}>
-                        <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3 gap-4'}`}>
+                        <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 gap-4'}`}>
                             <div>
                                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                                     Movement Type
@@ -247,33 +247,16 @@ const StockMovementModal: React.FC<StockMovementModalProps> = ({
                             </div>
                             <div>
                                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                                    From Date
+                                    Date Range
                                 </label>
-                                <DatePicker
-                                    selected={startDate ? new Date(startDate) : null}
-                                    onChange={((date: Date | null) => setStartDate(date ? dayjs(date).format('YYYY-MM-DD') : '')) as any}
-                                    dateFormat="yyyy-MM-dd"
-                                    placeholderText="Select start date"
-                                    isClearable
-                                    withPortal={isMobile}
-                                    className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-                                    portalId="datepicker-portal"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                                    To Date
-                                </label>
-                                <DatePicker
-                                    selected={endDate ? new Date(endDate) : null}
-                                    onChange={((date: Date | null) => setEndDate(date ? dayjs(date).format('YYYY-MM-DD') : '')) as any}
-                                    dateFormat="yyyy-MM-dd"
-                                    placeholderText="Select end date"
-                                    isClearable
-                                    minDate={startDate ? new Date(startDate) : undefined}
-                                    withPortal={isMobile}
-                                    className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-                                    portalId="datepicker-portal"
+                                <MobileDateFilter
+                                    startDate={startDate ? new Date(startDate) : null}
+                                    endDate={endDate ? new Date(endDate) : null}
+                                    onChange={(start, end) => {
+                                        setStartDate(start ? dayjs(start).format('YYYY-MM-DD') : '');
+                                        setEndDate(end ? dayjs(end).format('YYYY-MM-DD') : '');
+                                    }}
+                                    compact
                                 />
                             </div>
                         </div>

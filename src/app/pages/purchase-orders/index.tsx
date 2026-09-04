@@ -1,7 +1,8 @@
 import { FunctionComponent, useCallback, useState, useMemo } from 'react';
-import { ShoppingCart, Plus, SlidersHorizontal, Users, ClipboardList, PackageCheck, FileText, Wallet, RotateCcw, CreditCard } from 'lucide-react';
-import { Box, Button } from '@radix-ui/themes';
+import { ShoppingCart, Plus, SlidersHorizontal, FilterX, Users, ClipboardList, PackageCheck, FileText, Wallet, RotateCcw, CreditCard } from 'lucide-react';
+import { Box, Button, Flex } from '@radix-ui/themes';
 import { Confirm } from 'notiflix';
+import dayjs from 'dayjs';
 import AppLayout from '../../layouts/AppLayout';
 import FloatingHubNavButton, { type HubNavLink } from '../../components/buttons/FloatingHubNavButton';
 import PageHeader from '../../components/page/PageHeader';
@@ -41,6 +42,10 @@ const PurchaseOrderManagement: FunctionComponent = () => {
         totalRows,
         statusFilter,
         setStatusFilter,
+        dateFrom,
+        setDateFrom,
+        dateTo,
+        setDateTo,
         createPurchaseOrder,
         sendPurchaseOrder,
         receivePurchaseOrder,
@@ -60,8 +65,14 @@ const PurchaseOrderManagement: FunctionComponent = () => {
         { id: 'credit-notes', label: 'Credit Notes', path: ROUTES.CREDIT_NOTES, icon: <CreditCard className="w-4 h-4" /> },
     ], []);
 
-    const hasActiveFilters = useMemo(() => !!statusFilter || !!searchTerm, [statusFilter, searchTerm]);
-    const activeFilterCount = useMemo(() => (statusFilter ? 1 : 0) + (searchTerm ? 1 : 0), [statusFilter, searchTerm]);
+    const hasActiveFilters = useMemo(
+        () => !!statusFilter || !!searchTerm || !!dateFrom || !!dateTo,
+        [statusFilter, searchTerm, dateFrom, dateTo]
+    );
+    const activeFilterCount = useMemo(
+        () => (statusFilter ? 1 : 0) + (searchTerm ? 1 : 0) + (dateFrom || dateTo ? 1 : 0),
+        [statusFilter, searchTerm, dateFrom, dateTo]
+    );
 
     const filteredPurchaseOrders = useMemo(() => {
         if (!searchTerm.trim()) return purchaseOrders;
@@ -110,9 +121,22 @@ const PurchaseOrderManagement: FunctionComponent = () => {
         setPage(1);
     }, [setStatusFilter, setPage]);
 
-    const handleClearFilters = useCallback(() => { setStatusFilter(''); setSearchTerm(''); setPage(1); }, [setStatusFilter, setPage]);
+    const handleDateChange = useCallback((start: Date | null, end: Date | null) => {
+        setDateFrom(start ? dayjs(start).format('YYYY-MM-DD') : '');
+        setDateTo(end ? dayjs(end).format('YYYY-MM-DD') : '');
+        setPage(1);
+    }, [setDateFrom, setDateTo, setPage]);
+
+    const handleClearFilters = useCallback(() => {
+        setStatusFilter('');
+        setSearchTerm('');
+        setDateFrom('');
+        setDateTo('');
+        setPage(1);
+    }, [setStatusFilter, setDateFrom, setDateTo, setPage]);
     const handleClearSearch = useCallback(() => setSearchTerm(''), []);
     const handleClearStatus = useCallback(() => setStatusFilter(''), [setStatusFilter]);
+    const handleClearDate = useCallback(() => { setDateFrom(''); setDateTo(''); }, [setDateFrom, setDateTo]);
     const handlePageChange = useCallback((p: number) => setPage(p), [setPage]);
     const handlePerRowsChange = useCallback((newPerPage: number, p: number) => { setPerPage(newPerPage); setPage(p); }, [setPerPage, setPage]);
 
@@ -123,8 +147,8 @@ const PurchaseOrderManagement: FunctionComponent = () => {
         onView: handleView,
     });
 
-    return (
-        <AppLayout>
+    const content = (
+        <>
             {isMobile ? (
                 <MobilePageHeader
                     title="Purchase Orders"
@@ -153,6 +177,9 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                 <PurchaseOrderToolbar
                     searchTerm={searchTerm}
                     onSearch={setSearchTerm}
+                    dateFrom={dateFrom}
+                    dateTo={dateTo}
+                    onDateChange={handleDateChange}
                     hasActiveFilters={hasActiveFilters}
                     activeFilterCount={activeFilterCount}
                     onOpenFilters={() => setIsFilterSheetOpen(true)}
@@ -163,14 +190,19 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                     <PurchaseOrderActiveFilterChips
                         searchTerm={searchTerm}
                         statusFilter={statusFilter}
+                        dateFrom={dateFrom}
+                        dateTo={dateTo}
                         onClearSearch={handleClearSearch}
                         onClearStatus={handleClearStatus}
+                        onClearDate={handleClearDate}
                         onClearAll={handleClearFilters}
                     />
                 )}
 
                 {!isMobile && (
-                    <div
+                    <Flex
+                        align="center"
+                        gap="3"
                         className="border-b border-gray-200 dark:border-gray-700 px-3 sm:px-4 py-2 sm:py-3"
                         role="group"
                         aria-label="Purchase order filters"
@@ -179,7 +211,19 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                             selectedStatus={(statusFilter || 'all') as PurchaseOrderStatus | 'all'}
                             onChange={handleStatusChange}
                         />
-                    </div>
+
+                        {hasActiveFilters && (
+                            <Button
+                                variant="outline"
+                                color="red"
+                                size="2"
+                                onClick={handleClearFilters}
+                            >
+                                <FilterX className="w-4 h-4" />
+                                Clear
+                            </Button>
+                        )}
+                    </Flex>
                 )}
 
                 <Box px={{ initial: '2', sm: '4' }}>
@@ -227,8 +271,11 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                     onClose={() => setIsFilterSheetOpen(false)}
                     statusFilter={statusFilter}
                     onStatusChange={(val) => setStatusFilter(val as PurchaseOrderStatus)}
-                    hasActiveFilters={!!statusFilter}
-                    onClearFilters={handleClearStatus}
+                    dateFrom={dateFrom}
+                    dateTo={dateTo}
+                    onDateChange={handleDateChange}
+                    hasActiveFilters={!!statusFilter || !!dateFrom || !!dateTo}
+                    onClearFilters={() => { handleClearStatus(); handleClearDate(); }}
                 />
             )}
 
@@ -272,8 +319,10 @@ const PurchaseOrderManagement: FunctionComponent = () => {
                     onClose={() => setViewingPO(null)}
                 />
             )}
-        </AppLayout>
+        </>
     );
+
+    return isMobile ? <AppLayout>{content}</AppLayout> : content;
 };
 
 export default PurchaseOrderManagement;
