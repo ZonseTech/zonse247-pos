@@ -5,13 +5,16 @@ import { X } from 'lucide-react';
 import { Box, Flex, Text, ScrollArea, Theme } from '@radix-ui/themes';
 import classNames from 'classnames';
 
-export type FormModalSize = 'sm' | 'md' | 'lg' | 'xl';
+export type FormModalSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | 'full';
 
 const SIZE_CLASSES: Record<FormModalSize, string> = {
     sm: 'sm:max-w-sm',
     md: 'sm:max-w-md',
     lg: 'sm:max-w-lg',
     xl: 'sm:max-w-2xl',
+    '2xl': 'sm:max-w-4xl',
+    '3xl': 'sm:max-w-6xl',
+    full: 'sm:max-w-[96vw]',
 };
 
 interface FormModalProps {
