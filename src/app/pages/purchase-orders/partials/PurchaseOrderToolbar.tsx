@@ -1,11 +1,15 @@
 import { FC } from 'react';
 import { SlidersHorizontal, Download } from 'lucide-react';
-import { Flex, Tooltip } from '@radix-ui/themes';
+import { Box, Flex, Tooltip } from '@radix-ui/themes';
 import { SearchBar } from '../../../components/SearchBar';
+import MobileDateFilter from '../../../components/reports/MobileDateFilter';
 
 interface PurchaseOrderToolbarProps {
     searchTerm: string;
     onSearch: (value: string) => void;
+    dateFrom?: string;
+    dateTo?: string;
+    onDateChange?: (start: Date | null, end: Date | null) => void;
     onExport?: () => void;
     hasActiveFilters: boolean;
     activeFilterCount: number;
@@ -16,6 +20,9 @@ interface PurchaseOrderToolbarProps {
 const PurchaseOrderToolbar: FC<PurchaseOrderToolbarProps> = ({
     searchTerm,
     onSearch,
+    dateFrom,
+    dateTo,
+    onDateChange,
     onExport,
     hasActiveFilters,
     activeFilterCount,
@@ -66,6 +73,17 @@ const PurchaseOrderToolbar: FC<PurchaseOrderToolbarProps> = ({
                 debounce={400}
                 className="flex-1 max-w-xs"
             />
+
+            {onDateChange && (
+                <Box className="ml-auto">
+                    <MobileDateFilter
+                        startDate={dateFrom ? new Date(dateFrom) : null}
+                        endDate={dateTo ? new Date(dateTo) : null}
+                        onChange={onDateChange}
+                        align="right"
+                    />
+                </Box>
+            )}
         </Flex>
     );
 };
