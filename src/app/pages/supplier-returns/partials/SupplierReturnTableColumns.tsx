@@ -39,7 +39,6 @@ export const getSupplierReturnTableColumns = ({
                     {row.returnNumber}
                 </Text>
             ),
-            minWidth: '160px',
             grow: 1,
         },
         {
@@ -58,7 +57,6 @@ export const getSupplierReturnTableColumns = ({
                     )}
                 </Box>
             ),
-            minWidth: '160px',
             grow: 2,
         },
         {
@@ -73,7 +71,6 @@ export const getSupplierReturnTableColumns = ({
                     </Badge>
                 );
             },
-            minWidth: '120px',
         },
         {
             name: 'Items',
@@ -83,7 +80,6 @@ export const getSupplierReturnTableColumns = ({
                     {row.items?.length || 0}
                 </Text>
             ),
-            minWidth: '80px',
         },
         {
             name: 'Total',
@@ -94,7 +90,6 @@ export const getSupplierReturnTableColumns = ({
                     {formatCurrency(row.totalAmount)}
                 </Text>
             ),
-            minWidth: '140px',
             grow: 1,
             right: true,
         },
@@ -113,7 +108,6 @@ export const getSupplierReturnTableColumns = ({
                         : '—'}
                 </Text>
             ),
-            minWidth: '130px',
             grow: 1,
         },
         {
@@ -182,7 +176,6 @@ export const getSupplierReturnTableColumns = ({
                     )}
                 </Flex>
             ),
-            minWidth: '260px',
             right: true,
         },
     ];
