@@ -1,11 +1,13 @@
-import { FunctionComponent, memo, useMemo } from 'react';
+import { FunctionComponent, memo, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Confirm, Notify } from 'notiflix';
-import { Monitor, Wifi, WifiOff, CheckCircle, Clock, XCircle, Shield, Ban, Building2, Pencil, Trash2 } from 'lucide-react';
+import { Monitor, Wifi, WifiOff, CheckCircle, Clock, XCircle, Shield, Ban, Building2, Pencil, Plus, Trash2 } from 'lucide-react';
 import { Card, CardBody, Badge } from '../../../components';
+import { useAuth } from '../../../context/AuthProvider';
 import terminalService from '../../../services/terminal.service';
 import { ROUTES } from '../../../utils/constants';
 import { getErrorMessage } from '../../../utils/api-error-handler';
+import TerminalFormModal from '../../terminal/partials/TerminalFormModal';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -48,6 +50,19 @@ const isRecentlyActive = (lastSeen: string | Date | null | undefined): boolean =
     const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
     return new Date(lastSeen).getTime() > fiveMinutesAgo;
 };
+
+const AddTerminalCard: FunctionComponent<{ onClick: () => void }> = ({ onClick }) => (
+    <button
+        type="button"
+        onClick={onClick}
+        className="flex items-center justify-center gap-2 w-full py-4 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-sky-400 dark:hover:border-sky-500 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-50/50 dark:hover:bg-sky-900/10 transition-colors"
+    >
+        <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+            <Plus className="w-4 h-4" />
+        </div>
+        <span className="text-sm font-semibold">New Terminal</span>
+    </button>
+);
 
 const TerminalCardSkeleton: FunctionComponent = () => (
     <div className="animate-pulse rounded-lg border border-gray-200 dark:border-gray-700 p-3 space-y-2">
@@ -162,6 +177,9 @@ const TerminalCard: FunctionComponent<{ terminal: Terminal; onRefresh: () => voi
 };
 
 const AccountTerminalsTab: FunctionComponent<TerminalsTabProps> = memo(({ terminals, branches, loading, onRefresh }) => {
+    const { user } = useAuth();
+    const [showAddModal, setShowAddModal] = useState(false);
+
     const branchNameById = useMemo(() => {
         const map = new Map<string, string>();
         branches.forEach((b) => map.set(b.branchId, b.branchName));
@@ -193,15 +211,26 @@ const AccountTerminalsTab: FunctionComponent<TerminalsTabProps> = memo(({ termin
 
     if (terminals.length === 0) {
         return (
-            <div className="text-center py-12">
-                <Monitor className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500 dark:text-gray-400">No terminals found</p>
-            </div>
+            <>
+                <AddTerminalCard onClick={() => setShowAddModal(true)} />
+                <div className="text-center py-12">
+                    <Monitor className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500 dark:text-gray-400">No terminals found</p>
+                </div>
+                {showAddModal && user?.tenantId && (
+                    <TerminalFormModal
+                        tenantId={user.tenantId}
+                        onClose={() => setShowAddModal(false)}
+                        onSaved={onRefresh}
+                    />
+                )}
+            </>
         );
     }
 
     return (
         <div className="space-y-4">
+            <AddTerminalCard onClick={() => setShowAddModal(true)} />
             {groups.map((group) => (
                 <Card key={group.branchId}>
                     <CardBody>
@@ -220,6 +249,13 @@ const AccountTerminalsTab: FunctionComponent<TerminalsTabProps> = memo(({ termin
                     </CardBody>
                 </Card>
             ))}
+            {showAddModal && user?.tenantId && (
+                <TerminalFormModal
+                    tenantId={user.tenantId}
+                    onClose={() => setShowAddModal(false)}
+                    onSaved={onRefresh}
+                />
+            )}
         </div>
     );
 });
