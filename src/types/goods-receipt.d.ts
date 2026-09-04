@@ -145,6 +145,9 @@ interface PostGoodsReceiptInput {
 interface GoodsReceiptListQuery {
     status?: GRNStatusType;
     purchaseOrderId?: string;
+    search?: string;
+    dateFrom?: string;
+    dateTo?: string;
     page?: number;
     limit?: number;
 }
