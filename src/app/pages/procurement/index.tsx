@@ -32,7 +32,10 @@ const ProcurementPage: FunctionComponent = () => {
         [user],
     );
 
-    const segment = pathname.split('/').pop() || DEFAULT_TAB;
+    // Segment right after "/procurement/" — not the last path segment, so a
+    // sub-route like "/procurement/suppliers/:supplierId" still resolves to
+    // the "suppliers" tab instead of matching nothing and bouncing back to it.
+    const segment = pathname.split('/')[2] || DEFAULT_TAB;
     const activeTab: ProcurementTabId =
         (visibleTabs.find((t) => t.id === segment)?.id ?? visibleTabs[0]?.id ?? DEFAULT_TAB) as ProcurementTabId;
 
@@ -57,14 +60,14 @@ const ProcurementPage: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <Tabs.Root value={activeTab} onValueChange={handleTabChange}>
-                <Tabs.List className="-mx-4 md:-mx-6 px-4 md:px-6 flex overflow-x-auto border-b border-gray-200 dark:border-gray-700 gap-0 scrollbar-none mb-4">
+            <Tabs.Root className='px-0 mx-0' value={activeTab} onValueChange={handleTabChange}>
+                <Tabs.List className="-mx-4 md:-mx-6 px-4 md:px-6 flex overflow-x-auto border-b border-gray-200 dark:border-gray-700 gap-0 scrollbar-none">
                     {visibleTabs.map((tab) => (
                         <Tabs.Trigger
                             key={tab.id}
                             value={tab.id}
                             className={
-                                'flex-shrink-0 px-4 py-2.5 text-sm font-medium transition-colors duration-200 border-b-2 outline-none cursor-pointer whitespace-nowrap ' +
+                                'flex-shrink-0 px-4 pb-2.5 text-sm font-medium transition-colors duration-200 border-b-2 outline-none cursor-pointer whitespace-nowrap ' +
                                 'text-gray-500 dark:text-gray-400 border-transparent ' +
                                 'hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 ' +
                                 'data-[state=active]:text-sky-500 dark:data-[state=active]:text-sky-400 ' +
