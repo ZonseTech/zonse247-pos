@@ -1,6 +1,7 @@
 import { FunctionComponent, useEffect } from "react"
 import { useAppDispatch } from "../hooks/redux"
 import { useAuth } from "../context/AuthProvider"
+import { useBranch } from "../context/BranchContext"
 import { clearInventory, fetchCategories, fetchInventory } from "../store/slices/inventorySlice"
 import { clearCustomers, fetchCustomers } from "../store/slices/customerSlice"
 import { clearUserData, setLoading, setTill, setUser } from "../store/slices/uiSlice"
@@ -13,6 +14,7 @@ import { useUserSyncCheck } from "../hooks/useUserSyncCheck"
 export const DataManager: FunctionComponent = () => {
     const dispatch = useAppDispatch()
     const { isAuthenticated, user: authUser } = useAuth()
+    const { currentBranch } = useBranch()
     const { showRetail, showServices } = useBusinessFeatures()
 
     useUserSyncCheck()
@@ -30,6 +32,7 @@ export const DataManager: FunctionComponent = () => {
 
         const initializeData = async () => {
             dispatch(setLoading(true))
+            dispatch(clearCart())
             try {
                 const fetches: Promise<any>[] = [
                     dispatch(fetchCategories()),
@@ -57,7 +60,7 @@ export const DataManager: FunctionComponent = () => {
         }
 
         initializeData()
-    }, [isAuthenticated, dispatch, showRetail, showServices])
+    }, [isAuthenticated, dispatch, showRetail, showServices, currentBranch?.branchId])
 
     return null
 }
