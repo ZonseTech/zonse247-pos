@@ -1,9 +1,10 @@
 import { ZonseThemeContext } from '../../../../components';
 import { getTableStyles } from '../../../../utils/table-styles';
 import DataTable, { TableColumn } from 'react-data-table-component';
-import { Fragment, FunctionComponent, memo, useContext } from 'react';
+import { FunctionComponent, memo, useContext } from 'react';
 import TableSkeleton from '../../../../components/skeleton/TableSkeleton';
 import { User, Mail, Phone, Shield, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Badge, Box, Flex, Text } from '@radix-ui/themes';
 
 interface UsersTabProps {
     users: User[];
@@ -12,17 +13,10 @@ interface UsersTabProps {
     onRefresh?: () => void;
 }
 
-const getUserStatusColor = (status: UserStatus | undefined): string => {
-    switch (status) {
-        case 'active':
-            return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-        case 'inactive':
-            return 'bg-gray-100 text-gray-800 dark:bg-gray-700/50 dark:text-gray-400';
-        case 'suspended':
-            return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-        default:
-            return 'bg-gray-100 text-gray-800 dark:bg-gray-700/50 dark:text-gray-400';
-    }
+const userStatusColorMap: Record<string, 'green' | 'gray' | 'red'> = {
+    active: 'green',
+    inactive: 'gray',
+    suspended: 'red',
 };
 
 const getStatusIcon = (status: UserStatus | undefined) => {
@@ -51,19 +45,15 @@ const getUserColumns = (): TableColumn<User>[] => [
     {
         name: 'User',
         cell: (row) => (
-            <div className="flex items-center py-2">
-                <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+            <Flex align="center" gap="3" py="2">
+                <Flex align="center" justify="center" className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-full flex-shrink-0">
                     <User className="w-5 h-5 text-purple-500" />
-                </div>
-                <div className="ml-3 min-w-0">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {row.fullname}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                        @{row.username}
-                    </div>
-                </div>
-            </div>
+                </Flex>
+                <Box>
+                    <Text as="p" size="2" weight="medium" className="truncate">{row.fullname}</Text>
+                    <Text as="p" size="1" color="gray">@{row.username}</Text>
+                </Box>
+            </Flex>
         ),
         minWidth: '200px',
         sortable: true,
@@ -72,60 +62,56 @@ const getUserColumns = (): TableColumn<User>[] => [
     {
         name: 'Contact',
         cell: (row) => (
-            <div className="py-2">
+            <Box py="2">
                 {row.email && (
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-1">
-                        <Mail className="w-3 h-3 mr-1.5 flex-shrink-0" />
-                        <span className="truncate">{row.email}</span>
-                    </div>
+                    <Flex align="center" gap="1" mb="1">
+                        <Mail className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                        <Text size="2" color="gray" className="truncate">{row.email}</Text>
+                    </Flex>
                 )}
                 {row.phone && (
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                        <Phone className="w-3 h-3 mr-1.5 flex-shrink-0" />
-                        <span>{row.phone}</span>
-                    </div>
+                    <Flex align="center" gap="1">
+                        <Phone className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                        <Text size="2" color="gray">{row.phone}</Text>
+                    </Flex>
                 )}
-            </div>
+            </Box>
         ),
         minWidth: '180px',
     },
     {
         name: 'Role',
         cell: (row) => (
-            <div className="flex items-center gap-1.5">
+            <Flex align="center" gap="1">
                 <Shield className="w-4 h-4 text-sky-500" />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {row.roleName || 'No role assigned'}
-                </span>
-            </div>
+                <Text size="2">{row.roleName || 'No role assigned'}</Text>
+            </Flex>
         ),
         minWidth: '150px',
     },
     {
         name: 'Branch',
         cell: (row) => (
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-                {row.branch?.branchName || '-'}
-            </div>
+            <Text size="2" color="gray">{row.branch?.branchName || '-'}</Text>
         ),
         minWidth: '120px',
     },
     {
         name: 'Last Login',
         cell: (row) => (
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-                {formatDate(row.lastLogin)}
-            </div>
+            <Text size="1" color="gray">{formatDate(row.lastLogin)}</Text>
         ),
         minWidth: '140px',
     },
     {
         name: 'Status',
         cell: (row) => (
-            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${getUserStatusColor(row.status)}`}>
-                {getStatusIcon(row.status)}
-                {row.status?.charAt(0).toUpperCase() + row.status?.slice(1)}
-            </span>
+            <Badge variant="soft" radius="full" color={userStatusColorMap[row.status || ''] || 'gray'}>
+                <Flex align="center" gap="1">
+                    {getStatusIcon(row.status)}
+                    {row.status?.charAt(0).toUpperCase() + row.status?.slice(1)}
+                </Flex>
+            </Badge>
         ),
         width: '110px',
         center: true,
@@ -140,23 +126,21 @@ const UsersTab: FunctionComponent<UsersTabProps> = memo(({ users, loading, tenan
     }
 
     return (
-        <Fragment>
-            <DataTable
-                columns={getUserColumns()}
-                data={users}
-                theme={mode as string}
-                highlightOnHover
-                striped
-                responsive
-                noDataComponent={
-                    <div className="text-center py-12">
-                        <User className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-500 dark:text-gray-400">No users found for this tenant</p>
-                    </div>
-                }
-                customStyles={getTableStyles(mode)}
-            />
-        </Fragment>
+        <DataTable
+            columns={getUserColumns()}
+            data={users}
+            theme={mode as string}
+            highlightOnHover
+            striped
+            responsive
+            noDataComponent={
+                <Flex direction="column" align="center" py="8">
+                    <User className="w-12 h-12 text-gray-400 mb-4" />
+                    <Text color="gray">No users found for this tenant</Text>
+                </Flex>
+            }
+            customStyles={getTableStyles(mode)}
+        />
     );
 });
 
