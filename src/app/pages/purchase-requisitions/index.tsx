@@ -5,7 +5,6 @@ import {
     useState,
     useMemo,
 } from 'react';
-import { useNavigate } from 'react-router';
 import {
     ClipboardList,
     Plus,
@@ -13,13 +12,24 @@ import {
     Clock,
     CheckCircle,
     XCircle,
+    Users,
+    ShoppingCart,
+    PackageCheck,
+    FileText,
+    Wallet,
+    RotateCcw,
+    CreditCard,
 } from 'lucide-react';
 import DataTable, { type Themes } from 'react-data-table-component';
 import { Box, Flex, Text, Select, Button, IconButton } from '@radix-ui/themes';
+import dayjs from 'dayjs';
 import AppLayout from '../../layouts/AppLayout';
+import FloatingHubNavButton, { type HubNavLink } from '../../components/buttons/FloatingHubNavButton';
 import PageHeader from '../../components/page/PageHeader';
 import MobilePagination from '../../components/MobilePagination';
 import { getTableStyles } from '../../utils/table-styles';
+import { SearchBar } from '../../components/SearchBar';
+import MobileDateFilter from '../../components/reports/MobileDateFilter';
 import {
     ZonseThemeContext,
     ComponentLoader,
@@ -34,6 +44,7 @@ import { useIsMobile } from '../../hooks/useMediaQuery';
 import ApproveModal from './partials/ApproveModal';
 import RejectModal from './partials/RejectModal';
 import RequisitionFormModal from './partials/RequisitionFormModal';
+import CreatePOFromRequisitionModal from '../purchase-orders/partials/CreatePOFromRequisitionModal';
 import { Confirm } from 'notiflix';
 
 const STATUS_OPTIONS: { value: string; label: string }[] = [
@@ -47,7 +58,6 @@ const STATUS_OPTIONS: { value: string; label: string }[] = [
 
 const PurchaseRequisitionManagement: FunctionComponent = () => {
     const isMobile = useIsMobile();
-    const navigate = useNavigate();
     const { mode } = useContext(ZonseThemeContext);
 
     const [approvingReq, setApprovingReq] =
@@ -58,6 +68,7 @@ const PurchaseRequisitionManagement: FunctionComponent = () => {
         requisitionId?: string;
         editMode?: boolean;
     } | null>(null);
+    const [creatingPOFromReqId, setCreatingPOFromReqId] = useState<string | null>(null);
 
     const {
         requisitions,
@@ -69,15 +80,32 @@ const PurchaseRequisitionManagement: FunctionComponent = () => {
         totalRows,
         statusFilter,
         setStatusFilter,
+        searchTerm,
+        setSearchTerm,
+        dateFrom,
+        setDateFrom,
+        dateTo,
+        setDateTo,
         loadRequisitions,
         approveRequisition,
         rejectRequisition,
         cancelRequisition,
     } = usePurchaseRequisitions();
 
+    const hubLinks: HubNavLink[] = useMemo(() => [
+        { id: 'suppliers', label: 'Suppliers', path: ROUTES.SUPPLIERS, icon: <Users className="w-4 h-4" /> },
+        { id: 'requisitions', label: 'Requisitions', path: ROUTES.PURCHASE_REQUISITIONS, icon: <ClipboardList className="w-4 h-4" /> },
+        { id: 'purchase-orders', label: 'Purchase Orders', path: ROUTES.PURCHASE_ORDERS, icon: <ShoppingCart className="w-4 h-4" /> },
+        { id: 'goods-receipts', label: 'Goods Receipts', path: ROUTES.GOODS_RECEIPTS, icon: <PackageCheck className="w-4 h-4" /> },
+        { id: 'invoices', label: 'Invoices', path: ROUTES.SUPPLIER_INVOICES, icon: <FileText className="w-4 h-4" /> },
+        { id: 'payments', label: 'Payments', path: ROUTES.SUPPLIER_PAYMENTS, icon: <Wallet className="w-4 h-4" /> },
+        { id: 'returns', label: 'Returns', path: ROUTES.SUPPLIER_RETURNS, icon: <RotateCcw className="w-4 h-4" /> },
+        { id: 'credit-notes', label: 'Credit Notes', path: ROUTES.CREDIT_NOTES, icon: <CreditCard className="w-4 h-4" /> },
+    ], []);
+
     const hasActiveFilters = useMemo(() => {
-        return !!statusFilter;
-    }, [statusFilter]);
+        return !!statusFilter || !!searchTerm || !!dateFrom || !!dateTo;
+    }, [statusFilter, searchTerm, dateFrom, dateTo]);
 
     const summaryCards: ProcurementSummaryCard[] = useMemo(() => {
         const pendingCount = requisitions.filter(
@@ -166,18 +194,23 @@ const PurchaseRequisitionManagement: FunctionComponent = () => {
         setFormState({ requisitionId: req.id });
     }, []);
 
-    const handleCreatePO = useCallback(
-        (req: PurchaseRequisitionWithItems) => {
-            navigate(ROUTES.PURCHASE_ORDER_FORM, {
-                state: { requisitionId: req.id },
-            });
-        },
-        [navigate],
-    );
+    const handleCreatePO = useCallback((req: PurchaseRequisitionWithItems) => {
+        setCreatingPOFromReqId(req.id);
+    }, []);
+
+    const handleDateChange = useCallback((start: Date | null, end: Date | null) => {
+        setDateFrom(start ? dayjs(start).format('YYYY-MM-DD') : '');
+        setDateTo(end ? dayjs(end).format('YYYY-MM-DD') : '');
+        setPage(1);
+    }, [setDateFrom, setDateTo, setPage]);
 
     const handleClearFilters = useCallback(() => {
         setStatusFilter('');
-    }, [setStatusFilter]);
+        setSearchTerm('');
+        setDateFrom('');
+        setDateTo('');
+        setPage(1);
+    }, [setStatusFilter, setSearchTerm, setDateFrom, setDateTo, setPage]);
 
     const handlePageChange = useCallback(
         (page: number) => {
@@ -202,8 +235,8 @@ const PurchaseRequisitionManagement: FunctionComponent = () => {
         onCreatePO: handleCreatePO,
     });
 
-    return (
-        <AppLayout>
+    const content = (
+        <>
             <Box className="max-w-full">
                 <PageHeader
                     icon={
@@ -219,13 +252,14 @@ const PurchaseRequisitionManagement: FunctionComponent = () => {
                         >
                             <Select.Root
                                 value={statusFilter || 'all'}
-                                onValueChange={(val) =>
+                                onValueChange={(val) => {
                                     setStatusFilter(
                                         val === 'all'
                                             ? ''
                                             : (val as RequisitionStatusType),
-                                    )
-                                }
+                                    );
+                                    setPage(1);
+                                }}
                             >
                                 <Select.Trigger
                                     variant="surface"
@@ -277,6 +311,31 @@ const PurchaseRequisitionManagement: FunctionComponent = () => {
                         </Flex>
                     }
                 />
+
+                <Flex
+                    align="center"
+                    gap="3"
+                    px="4"
+                    py="3"
+                    className="bg-white dark:bg-gray-800/50 border-x border-t border-gray-200 dark:border-gray-700 rounded-t-lg"
+                >
+                    <SearchBar
+                        placeholder="Search requisition#, requested by..."
+                        value={searchTerm}
+                        onChange={setSearchTerm}
+                        debounce={400}
+                        className="flex-1 max-w-xs"
+                    />
+
+                    <Box className="ml-auto">
+                        <MobileDateFilter
+                            startDate={dateFrom ? new Date(dateFrom) : null}
+                            endDate={dateTo ? new Date(dateTo) : null}
+                            onChange={handleDateChange}
+                            align="right"
+                        />
+                    </Box>
+                </Flex>
 
                 <Box className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                     <Box px="4">
@@ -435,6 +494,8 @@ const PurchaseRequisitionManagement: FunctionComponent = () => {
                 </Box>
             </Box>
 
+            {isMobile && <FloatingHubNavButton links={hubLinks} />}
+
             {approvingReq && (
                 <ApproveModal
                     requisition={approvingReq}
@@ -459,8 +520,18 @@ const PurchaseRequisitionManagement: FunctionComponent = () => {
                     onSaved={loadRequisitions}
                 />
             )}
-        </AppLayout>
+
+            {creatingPOFromReqId && (
+                <CreatePOFromRequisitionModal
+                    requisitionId={creatingPOFromReqId}
+                    onClose={() => setCreatingPOFromReqId(null)}
+                    onSaved={loadRequisitions}
+                />
+            )}
+        </>
     );
+
+    return isMobile ? <AppLayout>{content}</AppLayout> : content;
 };
 
 export default PurchaseRequisitionManagement;
