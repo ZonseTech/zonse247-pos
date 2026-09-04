@@ -16,8 +16,6 @@ import { usePOSLayout, type POSLayoutConfig } from './hooks/usePOSLayout';
 import { useServiceOrderManager } from './hooks/useServiceOrderManager';
 import classNames from 'classnames';
 import { useInventory } from '../../hooks/useInventory';
-import POSGuide from './partials/POSGuide';
-import type { Step } from 'react-joyride';
 
 interface DesktopPOSProps {
     layoutOverrides?: Partial<POSLayoutConfig>;
@@ -75,47 +73,8 @@ const DesktopPOS: FunctionComponent<DesktopPOSProps> = ({ layoutOverrides }) => 
         serviceOrders.clearActiveOrder();
     }, [handleVoidSale, serviceOrders.clearActiveOrder]);
 
-    const posGuideSteps: Step[] = [
-        {
-            target: '[data-pos-guide="balance-due"]',
-            content: 'Start here to see the live total, subtotal, and any discounts on the current sale.',
-            placement: 'bottom' as const,
-        },
-        {
-            target: '[data-pos-guide="cart"]',
-            content: 'This is the cart. Review items here before taking payment or parking the sale.',
-            placement: 'top' as const,
-        },
-        ...(layout.showNumpad ? [{
-            target: '[data-pos-guide="numpad"]',
-            content: 'Use the numpad to enter quantities or custom values without leaving POS.',
-            placement: 'left' as const,
-        }] : []),
-        ...(layout.showCatalog ? [{
-            target: '[data-pos-guide="service-catalog"]',
-            content: 'Search services or products here, then tap an item to add it to the cart.',
-            placement: 'left' as const,
-        }] : [{
-            target: '[data-pos-guide="scanner"]',
-            content: 'Scan or enter product codes here to add items quickly.',
-            placement: 'top' as const,
-        }]),
-        {
-            target: '[data-pos-guide="actions"]',
-            content: 'The action bar handles park sale, lookup, drawer, discounts, reprints, and payment actions.',
-            placement: 'top' as const,
-        },
-    ];
-
     return (
         <div className="absolute inset-0 flex flex-col overflow-hidden">
-            <POSGuide
-                steps={posGuideSteps}
-                storageKey="pos-guide-seen-desktop"
-                placement="floating"
-                buttonLabel="POS Guide"
-            />
-
             {isServiceLayout ? (
                 /* ── Service / Non-Retail Layout ── */
                 <div className="flex-1 min-h-0 flex gap-x-2 lg:gap-x-4">
