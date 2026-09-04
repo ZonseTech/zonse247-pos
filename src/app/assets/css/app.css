@@ -276,3 +276,17 @@ body.scanner-active .scanner-container {
 .react-datepicker-popper {
     z-index: 9999 !important;
 }
+
+/*
+ * Radix Dialog sets `document.body.style.pointerEvents = 'none'` while open (and only
+ * re-enables it for elements inside its own layer). Notiflix's Report/Confirm/Notify/Loading
+ * popups are appended directly to <body>, outside that layer, so without this override they
+ * render on top but are completely unclickable whenever a Radix modal is open behind them.
+ */
+#NotiflixConfirmWrap,
+#NotiflixReportWrap,
+#NotiflixNotifyWrap,
+#NotiflixLoadingWrap,
+#NotiflixBlockWrap {
+    pointer-events: auto !important;
+}
