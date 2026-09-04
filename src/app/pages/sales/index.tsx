@@ -24,6 +24,7 @@ import { useNavigate } from "react-router";
 import { ROUTES } from "../../utils/constants";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { useAuth } from "../../context/AuthProvider";
+import { useBranch } from "../../context/BranchContext";
 import { hasAnyPermission, hasPermission } from "../../utils";
 
 type SaleOrTransaction = (Sale | Transaction) & {
@@ -37,8 +38,10 @@ const SalesPage: FC = () => {
     const isMobile = useIsMobile();
     const isInsideHub = useIsInsideHub();
     const { user } = useAuth();
+    const { currentBranch } = useBranch();
     const { isMraEnabled } = useMraCompliance();
     const canCreateSale = hasPermission(user, 'sales.create');
+    const isPosEnabled = !currentBranch?.branchPreferences?.navigation?.hiddenNavItemIds?.includes('pos');
     const canInitiateReturn = hasPermission(user, 'refunds.process');
     const canExportSales = hasAnyPermission(user, ['reports.export', 'reports.sales.daily', 'reports.sales.detailed']);
     const canExportReceipt = hasPermission(user, 'reports.export');
@@ -187,13 +190,6 @@ const SalesPage: FC = () => {
                                     <Button size="2" variant="soft" onClick={() => navigate(ROUTES.DAY_END_CLOSE_FORM)}>
                                         <CalendarCheck2 className="w-4 h-4" />
                                         Add Day-end Close
-                                    </Button>
-                                )}
-
-                                {canCreateSale && (
-                                    <Button size="2" onClick={() => navigate(ROUTES.POS)}>
-                                        <Plus className="w-4 h-4" />
-                                        New Sale
                                     </Button>
                                 )}
                             </Flex>
