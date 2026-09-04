@@ -33,11 +33,11 @@ const StaffOptionsFields: FunctionComponent<StaffOptionsFieldsProps> = ({
                 <Flex asChild justify="between" align="center" gap="3">
                     <label className="cursor-pointer">
                         <Text size="2" weight="medium">
-                            Track staff's attendance and salary
+                            Allow staff to use the app via roles below?
                         </Text>
                         <Switch
-                            checked={trackAttendance}
-                            onCheckedChange={handleTrackAttendanceChange}
+                            checked={allowAppAccess}
+                            onCheckedChange={handleAllowAppAccessChange}
 
                             size="2"
                         />
@@ -46,11 +46,11 @@ const StaffOptionsFields: FunctionComponent<StaffOptionsFieldsProps> = ({
                 <Flex asChild justify="between" align="center" gap="3">
                     <label className="cursor-pointer">
                         <Text size="2" weight="medium">
-                            Allow staff to use the app via roles below?
+                            Track staff's attendance and salary
                         </Text>
                         <Switch
-                            checked={allowAppAccess}
-                            onCheckedChange={handleAllowAppAccessChange}
+                            checked={trackAttendance}
+                            onCheckedChange={handleTrackAttendanceChange}
 
                             size="2"
                         />
