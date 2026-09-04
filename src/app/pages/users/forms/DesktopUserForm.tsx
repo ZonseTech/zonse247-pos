@@ -2,13 +2,13 @@ import { Form, Formik } from 'formik';
 import type { FunctionComponent } from 'react';
 import AppLayout from '../../../layouts/AppLayout';
 import PageHeader from '../../../components/page/PageHeader';
-import { ROUTES } from '../../../utils/constants';
 import { UserCog, User, Clock, Shield, Briefcase, Building2 } from 'lucide-react';
 import { Box, Flex, Grid, Text } from '@radix-ui/themes';
 import FormInput from '../../../components/FormInput';
-import BranchSearch from '../../terminal/partials/BranchSearch';
 import TenantSearch from '../../branch/partials/TenantSearch';
 import { RoleSearch } from '../partials/RoleSearch';
+import AccessibleBranchesField from '../partials/AccessibleBranchesField';
+import BranchSelectField from '../../../components/BranchSelectField';
 import SectionCard from '../../../components/card/SectionCard';
 import FormSkeleton from '../../../components/skeleton/FormSkeleton';
 import {
@@ -22,13 +22,13 @@ import { useStaffForm } from '../../../hooks/useStaffForm';
 
 const DesktopUserForm: FunctionComponent = () => {
     const {
-        navigate,
         loading,
         user,
         userId,
         initialValues,
         validationSchema,
         handleSubmit,
+        handleBack,
         isEditMode,
         hasPrefilledTenant,
     } = useStaffForm();
@@ -48,7 +48,7 @@ const DesktopUserForm: FunctionComponent = () => {
                 description='Manage staff information, attendance and app access'
                 icon={<UserCog className="w-7 h-7 sm:w-8 sm:h-8 text-sky-500 dark:text-sky-400" />}
                 showBackButton
-                onBack={() => navigate(ROUTES.USERS)}
+                onBack={handleBack}
             />
 
             <Formik
@@ -144,30 +144,36 @@ const DesktopUserForm: FunctionComponent = () => {
                                             icon={Shield}
                                             iconColor="bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400"
                                         >
-                                            <Grid columns={{ initial: "1", sm: "2" }} gap="4">
-                                                <Box>
-                                                    <BranchSearch
-                                                        value={values.branchId}
-                                                        onChange={(value) => setFieldValue('branchId', value)}
+                                            <Flex direction="column" gap="4">
+                                                <Grid columns={{ initial: "1", sm: "2" }} gap="4">
+                                                    <BranchSelectField
+                                                        name="branchId"
                                                         tenantId={values.tenantId}
-                                                        error={errors.branchId as string}
-                                                        touched={touched.branchId as boolean}
                                                     />
-                                                </Box>
-                                                <Box>
-                                                    <Text as="label" size="2" weight="medium" mb="1" className="block">
-                                                        Role <Text color="red" asChild><span>*</span></Text>
-                                                    </Text>
-                                                    <RoleSearch
-                                                        selectedRoleId={values.roleId}
-                                                        onRoleSelect={(role) => setFieldValue('roleId', role?.roleId || '')}
-                                                        tenantId={values.tenantId}
-                                                        disabled={!values.tenantId}
-                                                        error={errors.roleId as string}
-                                                        touched={touched.roleId as boolean}
-                                                    />
-                                                </Box>
-                                            </Grid>
+                                                    <Box>
+                                                        <Text as="label" size="2" weight="medium" mb="1" className="block">
+                                                            Role <Text color="red" asChild><span>*</span></Text>
+                                                        </Text>
+                                                        <RoleSearch
+                                                            selectedRoleId={values.roleId}
+                                                            onRoleSelect={(role) => setFieldValue('roleId', role?.roleId || '')}
+                                                            tenantId={values.tenantId}
+                                                            disabled={!values.tenantId}
+                                                            error={errors.roleId as string}
+                                                            touched={touched.roleId as boolean}
+                                                        />
+                                                    </Box>
+                                                </Grid>
+
+                                                <AccessibleBranchesField
+                                                    tenantId={values.tenantId}
+                                                    primaryBranchId={values.branchId}
+                                                    value={values.accessibleBranches}
+                                                    allBranches={values.allBranchesAccess}
+                                                    onChange={(branchIds) => setFieldValue('accessibleBranches', branchIds)}
+                                                    onAllBranchesChange={(checked) => setFieldValue('allBranchesAccess', checked)}
+                                                />
+                                            </Flex>
                                         </SectionCard>
                                     )}
                                 </Flex>
@@ -181,15 +187,6 @@ const DesktopUserForm: FunctionComponent = () => {
                                 >
                                     <Flex direction="column" gap="1">
                                         <ToggleOption
-                                            checked={values.trackAttendance}
-                                            onChange={(checked) => {
-                                                if (!checked && !values.allowAppAccess) return;
-                                                setFieldValue('trackAttendance', checked);
-                                            }}
-                                            title="Track Attendance"
-                                            description="Monitor staff attendance and salary"
-                                        />
-                                        <ToggleOption
                                             checked={values.allowAppAccess}
                                             onChange={(checked) => {
                                                 if (!checked && !values.trackAttendance) {
@@ -199,6 +196,15 @@ const DesktopUserForm: FunctionComponent = () => {
                                             }}
                                             title="Allow App Access"
                                             description="Staff can login and use the app"
+                                        />
+                                        <ToggleOption
+                                            checked={values.trackAttendance}
+                                            onChange={(checked) => {
+                                                if (!checked && !values.allowAppAccess) return;
+                                                setFieldValue('trackAttendance', checked);
+                                            }}
+                                            title="Track Attendance"
+                                            description="Monitor staff attendance and salary"
                                         />
                                     </Flex>
                                 </SectionCard>
