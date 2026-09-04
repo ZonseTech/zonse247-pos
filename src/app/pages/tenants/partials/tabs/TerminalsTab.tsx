@@ -1,9 +1,10 @@
 import { ZonseThemeContext } from '../../../../components';
 import { getTableStyles } from '../../../../utils/table-styles';
 import DataTable, { TableColumn } from 'react-data-table-component';
-import { Fragment, FunctionComponent, memo, useContext, useState } from 'react';
+import { FunctionComponent, memo, useContext, useMemo, useState } from 'react';
 import TableSkeleton from '../../../../components/skeleton/TableSkeleton';
-import { Monitor, Wifi, WifiOff, CheckCircle, Clock, XCircle, Shield, Ban, RefreshCw, Copy, Check, KeyRound } from 'lucide-react';
+import { Building2, Monitor, Wifi, WifiOff, CheckCircle, Clock, XCircle, Shield, Ban, RefreshCw, Copy, Check, KeyRound } from 'lucide-react';
+import { Badge, Box, Flex, IconButton, Text, Tooltip } from '@radix-ui/themes';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -14,26 +15,18 @@ import { getErrorMessage } from '../../../../utils/api-error-handler';
 
 interface TerminalsTabProps {
     terminals: Terminal[];
+    branches: Branch[];
     loading: boolean;
     tenantId?: string;
     onRefresh?: () => void;
 }
 
-const getActivationStatusColor = (status: TerminalActivationStatus | undefined): string => {
-    switch (status) {
-        case 'ACTIVATED':
-            return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-        case 'PENDING':
-            return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-        case 'DEACTIVATED':
-            return 'bg-gray-100 text-gray-800 dark:bg-gray-700/50 dark:text-gray-400';
-        case 'SUSPENDED':
-            return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400';
-        case 'BLOCKED':
-            return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-        default:
-            return 'bg-gray-100 text-gray-800 dark:bg-gray-700/50 dark:text-gray-400';
-    }
+const activationStatusColorMap: Record<string, 'green' | 'amber' | 'gray' | 'orange' | 'red'> = {
+    ACTIVATED: 'green',
+    PENDING: 'amber',
+    DEACTIVATED: 'gray',
+    SUSPENDED: 'orange',
+    BLOCKED: 'red',
 };
 
 const getActivationStatusIcon = (status: TerminalActivationStatus | undefined) => {
@@ -51,20 +44,17 @@ const getActivationStatusIcon = (status: TerminalActivationStatus | undefined) =
     }
 };
 
-const getMraStatusBadge = (status: TerminalMraStatus | undefined) => {
-    const colors: Record<string, string> = {
-        APPLIED: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-        APPROVED: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-        REJECTED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-    };
-
-    return (
-        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors[status || ''] || 'bg-gray-100 text-gray-600 dark:bg-gray-700/50 dark:text-gray-400'}`}>
-            {status?.toLowerCase() || 'n/a'}
-        </span>
-    );
+const mraStatusColorMap: Record<string, 'blue' | 'green' | 'red'> = {
+    APPLIED: 'blue',
+    APPROVED: 'green',
+    REJECTED: 'red',
 };
 
+const getMraStatusBadge = (status: TerminalMraStatus | undefined) => (
+    <Badge variant="soft" color={mraStatusColorMap[status || ''] || 'gray'}>
+        {status?.toLowerCase() || 'n/a'}
+    </Badge>
+);
 
 const isRecentlyActive = (lastSeen: string | Date | null | undefined): boolean => {
     if (!lastSeen) return false;
@@ -76,7 +66,7 @@ const ActivationCodeCell: FunctionComponent<{ code: string | null | undefined }>
     const [copied, setCopied] = useState(false);
 
     if (!code) {
-        return <span className="text-xs text-gray-400 dark:text-gray-500">—</span>;
+        return <Text size="1" color="gray">—</Text>;
     }
 
     const handleCopy = async () => {
@@ -91,68 +81,84 @@ const ActivationCodeCell: FunctionComponent<{ code: string | null | undefined }>
     };
 
     return (
-        <div className="flex items-center gap-2">
-            <code className="px-2 py-1 text-xs font-mono bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded border border-amber-200 dark:border-amber-700 truncate max-w-[120px]" title={code}>
-                {code}
-            </code>
-            <button
-                onClick={handleCopy}
-                className={`p-1.5 rounded-lg transition-all ${copied
-                    ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600'
-                    }`}
-                title={copied ? 'Copied!' : 'Copy code'}
-            >
-                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-            </button>
-        </div>
+        <Flex align="center" gap="2">
+            <Box asChild>
+                <code
+                    title={code}
+                    className="px-2 py-1 text-xs font-mono bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded border border-amber-200 dark:border-amber-700 truncate max-w-[120px]"
+                >
+                    {code}
+                </code>
+            </Box>
+            <Tooltip content={copied ? 'Copied!' : 'Copy code'}>
+                <IconButton
+                    type="button"
+                    variant="ghost"
+                    color={copied ? 'green' : 'gray'}
+                    size="1"
+                    onClick={handleCopy}
+                >
+                    {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                </IconButton>
+            </Tooltip>
+        </Flex>
     );
 };
 
 const getTerminalColumns = (
+    branchNameById: Map<string, string>,
     onRegenerateCode?: (terminal: Terminal) => void,
     actionLoading?: string | null
 ): TableColumn<Terminal>[] => [
         {
             name: 'Terminal',
             cell: (row) => (
-                <div className="flex items-center py-2">
-                    <div className="ml-3 min-w-0">
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                {row.terminalLabel}
-                            </span>
-                            {row.isPrimary && (
-                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                                    Primary
-                                </span>
-                            )}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                            Code: {row.terminalCode}
-                        </div>
-                    </div>
-                </div>
+                <Box py="2">
+                    <Flex align="center" gap="2">
+                        <Text size="2" weight="medium" className="truncate">{row.terminalLabel}</Text>
+                        {row.isPrimary && (
+                            <Badge variant="soft" color="amber">Primary</Badge>
+                        )}
+                    </Flex>
+                    <Text as="p" size="1" color="gray">Code: {row.terminalCode}</Text>
+                </Box>
             ),
             sortable: true,
             sortField: 'terminalLabel',
         },
         {
+            name: 'Branch',
+            cell: (row) => (
+                <Flex align="center" gap="2">
+                    <Flex
+                        align="center"
+                        justify="center"
+                        className="w-6 h-6 rounded-md bg-sky-100 dark:bg-sky-900/30 flex-shrink-0"
+                    >
+                        <Building2 className="w-3.5 h-3.5 text-sky-500" />
+                    </Flex>
+                    <Text size="2" className="truncate">
+                        {branchNameById.get(row.branchId) || 'Unassigned'}
+                    </Text>
+                </Flex>
+            ),
+            sortable: true,
+            sortFunction: (a, b) => (branchNameById.get(a.branchId) || '').localeCompare(branchNameById.get(b.branchId) || ''),
+        },
+        {
             name: 'Device Info',
             cell: (row) => (
-                <div className="py-2">
-                    <div className="text-sm text-gray-700 dark:text-gray-300">
-                        {row.osName || 'Unknown OS'}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                <Box py="2">
+                    <Text as="p" size="2">{row.osName || 'Unknown OS'}</Text>
+                    <Text as="p" size="1" color="gray">
                         {row.osVersion ? `v${row.osVersion}` : ''}
                         {row.deviceId && (
-                            <span className="truncate block" title={row.deviceId}>
+                            <Text as="span" className="truncate block" title={row.deviceId}>
                                 Device: {row.deviceId}
-                            </span>
+                            </Text>
                         )}
-                    </div>
-                </div>
+                    </Text>
+                </Box>
             ),
         },
         {
@@ -166,23 +172,21 @@ const getTerminalColumns = (
                 const lastSeen = row.lastSeenAt || row.lastActivity;
                 const active = isRecentlyActive(lastSeen);
                 return (
-                    <div className="flex flex-col">
-                        <div className="flex items-center gap-1.5">
+                    <Flex direction="column">
+                        <Flex align="center" gap="1">
                             {active ? (
                                 <Wifi className="w-4 h-4 text-green-500" />
                             ) : (
                                 <WifiOff className="w-4 h-4 text-gray-400" />
                             )}
-                            <span className={`text-xs ${active ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                            <Text size="1" color={active ? 'green' : 'gray'}>
                                 {active ? 'Online' : 'Offline'}
-                            </span>
-                        </div>
+                            </Text>
+                        </Flex>
                         {lastSeen && (
-                            <span className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
-                                {dayjs(lastSeen).fromNow()}
-                            </span>
+                            <Text size="1" color="gray" mt="1">{dayjs(lastSeen).fromNow()}</Text>
                         )}
-                    </div>
+                    </Flex>
                 );
             },
             minWidth: '100px',
@@ -190,10 +194,12 @@ const getTerminalColumns = (
         {
             name: 'Status',
             cell: (row) => (
-                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${getActivationStatusColor(row.activationStatus)}`}>
-                    {getActivationStatusIcon(row.activationStatus)}
-                    {row.activationStatus?.charAt(0) + row.activationStatus?.slice(1).toLowerCase()}
-                </span>
+                <Badge variant="soft" radius="full" color={activationStatusColorMap[row.activationStatus || ''] || 'gray'}>
+                    <Flex align="center" gap="1">
+                        {getActivationStatusIcon(row.activationStatus)}
+                        {row.activationStatus?.charAt(0) + row.activationStatus?.slice(1).toLowerCase()}
+                    </Flex>
+                </Badge>
             ),
             width: '120px',
         },
@@ -206,30 +212,40 @@ const getTerminalColumns = (
         {
             name: 'Actions',
             cell: (row) => (
-                <div className="flex items-center gap-1">
+                <Flex align="center" gap="1">
                     {row.activationStatus !== 'ACTIVATED' && onRegenerateCode && (
-                        <button
-                            onClick={() => onRegenerateCode(row)}
-                            disabled={actionLoading === row.terminalId}
-                            className="p-1.5 text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors disabled:opacity-50"
-                            title="Regenerate activation code"
-                        >
-                            {actionLoading === row.terminalId ? (
-                                <RefreshCw className="w-4 h-4 animate-spin" />
-                            ) : (
-                                <KeyRound className="w-4 h-4" />
-                            )}
-                        </button>
+                        <Tooltip content="Regenerate activation code">
+                            <IconButton
+                                type="button"
+                                variant="ghost"
+                                color="sky"
+                                size="1"
+                                disabled={actionLoading === row.terminalId}
+                                onClick={() => onRegenerateCode(row)}
+                            >
+                                {actionLoading === row.terminalId ? (
+                                    <RefreshCw className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <KeyRound className="w-4 h-4" />
+                                )}
+                            </IconButton>
+                        </Tooltip>
                     )}
-                </div>
+                </Flex>
             ),
             right: true,
         },
     ];
 
-const TerminalsTab: FunctionComponent<TerminalsTabProps> = memo(({ terminals, loading, tenantId, onRefresh }) => {
+const TerminalsTab: FunctionComponent<TerminalsTabProps> = memo(({ terminals, branches, loading, tenantId, onRefresh }) => {
     const { mode } = useContext(ZonseThemeContext);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+    const branchNameById = useMemo(() => {
+        const map = new Map<string, string>();
+        branches.forEach((b) => map.set(b.branchId, b.branchName));
+        return map;
+    }, [branches]);
 
     const handleRegenerateCode = async (terminal: Terminal) => {
         Confirm.show(
@@ -266,23 +282,21 @@ const TerminalsTab: FunctionComponent<TerminalsTabProps> = memo(({ terminals, lo
     }
 
     return (
-        <Fragment>
-            <DataTable
-                columns={getTerminalColumns(handleRegenerateCode, actionLoading)}
-                data={terminals}
-                theme={mode as string}
-                highlightOnHover
-                striped
-                responsive
-                noDataComponent={
-                    <div className="text-center py-12">
-                        <Monitor className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-500 dark:text-gray-400">No terminals found for this tenant</p>
-                    </div>
-                }
-                customStyles={getTableStyles(mode)}
-            />
-        </Fragment>
+        <DataTable
+            columns={getTerminalColumns(branchNameById, handleRegenerateCode, actionLoading)}
+            data={terminals}
+            theme={mode as string}
+            highlightOnHover
+            striped
+            responsive
+            noDataComponent={
+                <Flex direction="column" align="center" py="8">
+                    <Monitor className="w-12 h-12 text-gray-400 mb-4" />
+                    <Text color="gray">No terminals found for this tenant</Text>
+                </Flex>
+            }
+            customStyles={getTableStyles(mode)}
+        />
     );
 });
 
