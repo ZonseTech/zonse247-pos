@@ -34,7 +34,6 @@ export const getGoodsReceiptTableColumns = ({
                     {row.receiptNumber}
                 </span>
             ),
-            minWidth: '160px',
             grow: 1,
         },
         {
@@ -53,7 +52,6 @@ export const getGoodsReceiptTableColumns = ({
                     )}
                 </div>
             ),
-            minWidth: '160px',
             grow: 2,
         },
         {
@@ -69,6 +67,7 @@ export const getGoodsReceiptTableColumns = ({
                 );
             },
             minWidth: '120px',
+            grow: 0,
         },
         {
             name: 'Items',
@@ -78,7 +77,7 @@ export const getGoodsReceiptTableColumns = ({
                     {row.items?.length || 0}
                 </span>
             ),
-            minWidth: '80px',
+            grow: 0,
         },
         {
             name: 'Total Cost',
@@ -96,7 +95,6 @@ export const getGoodsReceiptTableColumns = ({
                     </span>
                 );
             },
-            minWidth: '140px',
             grow: 1,
             right: true,
         },
@@ -115,7 +113,6 @@ export const getGoodsReceiptTableColumns = ({
                         : '—'}
                 </span>
             ),
-            minWidth: '130px',
             grow: 1,
         },
         {
@@ -151,7 +148,7 @@ export const getGoodsReceiptTableColumns = ({
                     )}
                 </Flex>
             ),
-            minWidth: '220px',
+            grow: 0,
             right: true,
         },
     ];
