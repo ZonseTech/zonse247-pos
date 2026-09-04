@@ -13,14 +13,26 @@ const endpoints: Record<string, string> = {
     updateTenant: 'tenants/update-tenant',
 };
 
+interface TenantListResult {
+    tenants: Tenant[];
+    pagination: {
+        currentPage: number;
+        totalPages: number;
+        totalItems: number;
+        itemsPerPage: number;
+    };
+}
+
 const tenantsService = {
     endpoints,
-    async list(query: TenantQueryParams = {}): Promise<Array<Tenant>> {
+    async list(query: TenantQueryParams = {}): Promise<TenantListResult> {
         try {
-            const response = await api.get<ApiResponse<{ tenants?: Array<Tenant> }>>(endpoints.all, query);
+            const response = await api.get<ApiResponse<{ tenants: Array<Tenant>; pagination: TenantListResult['pagination'] }>>(endpoints.all, query);
             const data = response.data.data;
-            const tenants = Array.isArray(data) ? data : (data?.tenants || []);
-            return decodeArrayStrings(tenants, TENANT_DECODE_FIELDS);
+            return {
+                tenants: decodeArrayStrings(data?.tenants || [], TENANT_DECODE_FIELDS),
+                pagination: data?.pagination || { currentPage: 1, totalPages: 1, totalItems: 0, itemsPerPage: query.limit || 50 },
+            };
         } catch (err) {
             console.error('Error fetching tenants:', err);
             throw err;
@@ -66,12 +78,6 @@ const tenantsService = {
         }
     },
 
-    async search(searchTerm: string, filters: Omit<TenantQueryParams, 'search'> = {}): Promise<Tenant[]> {
-        return this.list({
-            ...filters,
-            search: searchTerm
-        });
-    },
 };
 
 
