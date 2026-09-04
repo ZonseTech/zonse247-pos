@@ -1,17 +1,21 @@
 import { Confirm } from 'notiflix';
-import { Building2, Eye } from 'lucide-react';
+import { Building2, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../utils/constants';
-import { HiOutlinePlus, HiOutlineBuildingOffice2 } from 'react-icons/hi2';
+import { HiOutlineBuildingOffice2 } from 'react-icons/hi2';
+import { Box, Button, Flex, Select, Text } from '@radix-ui/themes';
 import AppLayout from '../../layouts/AppLayout';
-import { SearchBar } from './partials/SearchBar';
+import { SearchBar } from '../../components/SearchBar';
 import DataTable from 'react-data-table-component';
 import { useTenants } from '../../hooks/useTenants';
-import { FunctionComponent, useContext } from 'react';
+import { FunctionComponent, useContext, useState } from 'react';
 import { getTableStyles } from '../../utils/table-styles';
 import PageHeader from '../../components/page/PageHeader';
-import { Button, ZonseThemeContext } from '../../components';
+import TableSkeleton from '../../components/skeleton/TableSkeleton';
+import { ZonseThemeContext } from '../../components';
 import { getTenantColumns } from './partials/TenantTableColumns';
+import TenantFormModal from './partials/TenantFormModal';
+import { statuses as STATUS_OPTIONS } from '../../utils/tenant-status';
 
 const TenantsManagement: FunctionComponent = () => {
     const navigate = useNavigate();
@@ -21,16 +25,22 @@ const TenantsManagement: FunctionComponent = () => {
         searchTerm,
         setSearchTerm,
         totalRows,
+        perPage,
         setPage,
         setPerPage,
-        getPaginatedData,
+        statusFilter,
+        setStatusFilter,
+        tenants,
         deleteTenant,
-        updateTenantStatus
+        updateTenantStatus,
+        loadTenants
     } = useTenants();
+
+    const [formTenantId, setFormTenantId] = useState<string | 'new' | null>(null);
 
     const handleView = (tenantId: string) => navigate(ROUTES.TENANT_DETAILS, { state: { tenantId } });
 
-    const handleEdit = (tenantId: string) => navigate(ROUTES.TENANT_FORM, { state: { tenantId } });
+    const handleEdit = (tenantId: string) => setFormTenantId(tenantId);
 
     const handleDelete = (tenantId: string, name: string) => {
         Confirm.show(
@@ -77,39 +87,41 @@ const TenantsManagement: FunctionComponent = () => {
 
     return (
         <AppLayout>
-            <div className="max-w-full">
+            <Box className="max-w-full">
                 <PageHeader
                     title='Tenants'
                     description='Manage tenants accounts and subscriptions'
                     icon={<HiOutlineBuildingOffice2 className="w-8 h-8 text-sky-500 dark:text-sky-400" />}
                     action={
-                        <div className="flex items-center space-x-4">
-                            <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                        <Flex align="center" gap="3" wrap="wrap">
+                            <SearchBar value={searchTerm} onChange={setSearchTerm} placeholder="Search tenant..." />
 
-                            <div className="flex items-center space-x-3">
-                                <Button
-                                    onClick={() => navigate(ROUTES.TENANT_DETAILS)}
-                                    layout='outline'
-                                >
-                                    <Eye className="w-4 h-4 mr-2" />
-                                    {'View All'}
-                                </Button>
-                                <Button
-                                    onClick={() => navigate(ROUTES.TENANT_FORM)}
-                                    theme='primary'
-                                >
-                                    <HiOutlinePlus className="w-4 h-4 mr-2" />
-                                    {'Add Tenant'}
-                                </Button>
-                            </div>
-                        </div>
+                            <Select.Root
+                                value={statusFilter || 'all'}
+                                onValueChange={(val) => setStatusFilter(val === 'all' ? '' : val as TenantStatus)}
+                            >
+                                <Select.Trigger placeholder="All Status" className="w-40" />
+                                <Select.Content position="popper">
+                                    <Select.Item value="all">All Status</Select.Item>
+                                    {STATUS_OPTIONS.map((opt) => (
+                                        <Select.Item key={opt.value} value={opt.value}>{opt.label}</Select.Item>
+                                    ))}
+                                </Select.Content>
+                            </Select.Root>
+
+                            <Button onClick={() => setFormTenantId('new')}>
+                                <Plus className="w-4 h-4" />
+                                Add Tenant
+                            </Button>
+                        </Flex>
                     }
                 />
                 <DataTable
                     columns={columns}
-                    data={getPaginatedData()}
+                    data={tenants}
                     theme={mode as string}
                     progressPending={isLoading}
+                    progressComponent={<TableSkeleton rows={perPage} columns={5} showCheckbox={false} showActions />}
                     highlightOnHover
                     striped
                     responsive
@@ -123,15 +135,23 @@ const TenantsManagement: FunctionComponent = () => {
                     onChangePage={setPage}
                     customStyles={getTableStyles(mode)}
                     noDataComponent={
-                        <div className="text-center py-8">
-                            <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                            <p className="text-gray-500">
+                        <Flex direction="column" align="center" py="8">
+                            <Building2 className="w-12 h-12 text-gray-400 mb-4" />
+                            <Text color="gray">
                                 {searchTerm ? 'No tenant(s) found matching your search.' : 'No tenants found.'}
-                            </p>
-                        </div>
+                            </Text>
+                        </Flex>
                     }
                 />
-            </div>
+            </Box>
+
+            {formTenantId && (
+                <TenantFormModal
+                    tenantId={formTenantId === 'new' ? undefined : formTenantId}
+                    onClose={() => setFormTenantId(null)}
+                    onSaved={loadTenants}
+                />
+            )}
         </AppLayout>
     );
 };
