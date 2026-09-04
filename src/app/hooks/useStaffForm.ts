@@ -16,6 +16,8 @@ export interface StaffFormValues {
     tenantId: string;
     branchId: string;
     roleId: string;
+    accessibleBranches: string[];
+    allBranchesAccess: boolean;
     trackAttendance: boolean;
     allowAppAccess: boolean;
     calculateAs: string;
@@ -35,6 +37,7 @@ export interface UseStaffFormReturn {
     initialValues: StaffFormValues;
     validationSchema: typeof createStaffValidationSchema | typeof updateStaffValidationSchema;
     handleSubmit: (values: StaffFormValues, helpers: FormikHelpers<StaffFormValues>) => Promise<void>;
+    handleBack: () => void;
     isEditMode: boolean;
     canSelectTenant: boolean;
     hasPrefilledTenant: boolean;
@@ -54,6 +57,14 @@ export const useStaffForm = (): UseStaffFormReturn => {
     const canSelectTenant = useMemo(() => {
         return hasPermission(authUser, 'system.admin');
     }, [authUser]);
+
+    // When this form was opened from a specific tenant's context (e.g. "Add User" on the
+    // Tenant Details screen), Back/Save should return there instead of the global Users list.
+    const backTarget = stateTenantId
+        ? { pathname: ROUTES.TENANT_DETAILS, state: { tenantId: stateTenantId } }
+        : { pathname: ROUTES.USERS };
+
+    const handleBack = () => navigate(backTarget.pathname, { state: backTarget.state });
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -82,7 +93,9 @@ export const useStaffForm = (): UseStaffFormReturn => {
         tenantId: effectiveTenantId,
         branchId: stateTenantId ? '' : (authUser?.branchId || ''),
         roleId: '',
-        trackAttendance: true,
+        accessibleBranches: [],
+        allBranchesAccess: false,
+        trackAttendance: false,
         allowAppAccess: true,
         calculateAs: 'monthly',
         staffSalary: '',
@@ -99,6 +112,8 @@ export const useStaffForm = (): UseStaffFormReturn => {
         tenantId: user.tenantId || '',
         branchId: user.branchId || '',
         roleId: user.roleId || '',
+        accessibleBranches: (user.accessibleBranches || []).filter((id) => id !== '*' && id !== user.branchId),
+        allBranchesAccess: !!user.accessibleBranches?.includes('*'),
         trackAttendance: user.trackAttendance !== undefined ? user.trackAttendance : true,
         allowAppAccess: user.allowAppAccess || Boolean(user.roleId),
         calculateAs: user.calculateAs || 'monthly',
@@ -132,6 +147,7 @@ export const useStaffForm = (): UseStaffFormReturn => {
                 ...(values.allowAppAccess && {
                     branchId: values.branchId,
                     roleId: values.roleId,
+                    accessibleBranches: values.allBranchesAccess ? ['*'] : values.accessibleBranches,
                 }),
             };
 
@@ -150,12 +166,12 @@ export const useStaffForm = (): UseStaffFormReturn => {
                         `Staff account created successfully!\n\n<b>Generated Password:</b>\n<code style="background:#f3f4f6;padding:8px 12px;border-radius:6px;display:block;margin-top:8px;font-size:16px;letter-spacing:1px;">${generatedPassword}</code>\n\n<small style="color:#6b7280;">Please share this password with the staff member. They can change it after logging in.</small>`,
                         'Got it',
                         () => {
-                            navigate(ROUTES.USERS);
+                            handleBack();
                         }
                     );
                 } else {
                     Report.success('Success', 'Staff created successfully', 'Okay', () => {
-                        navigate(ROUTES.USERS);
+                        handleBack();
                     });
                 }
             }
@@ -203,6 +219,7 @@ export const useStaffForm = (): UseStaffFormReturn => {
         initialValues,
         validationSchema,
         handleSubmit,
+        handleBack,
         isEditMode: !!userId,
         canSelectTenant,
         hasPrefilledTenant: !!stateTenantId,
