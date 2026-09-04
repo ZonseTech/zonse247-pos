@@ -26,13 +26,30 @@ const Sidebar: FunctionComponent<SidebarProps> = ({
         onNavItemClick?.(item);
     };
 
+    const scrollActiveIntoView = () => {
+        const activeEl = viewportRef.current?.querySelector('[data-nav-active="true"]');
+        activeEl?.scrollIntoView({ block: 'nearest' });
+    };
+
     useEffect(() => {
-        const frame = requestAnimationFrame(() => {
-            const activeEl = viewportRef.current?.querySelector('[data-nav-active="true"]');
-            activeEl?.scrollIntoView({ block: 'nearest' });
-        });
+        const frame = requestAnimationFrame(scrollActiveIntoView);
         return () => cancelAnimationFrame(frame);
     }, [pathname, navGroups]);
+
+    // The header above this viewport (branch switcher + subscription line) grows once
+    // branch/subscription data finishes loading, shrinking this viewport's available height
+    // after the effect above already ran — which can leave the active item scrolled out of
+    // view, hidden below the footer. Re-run the scroll adjustment whenever that happens.
+    useEffect(() => {
+        const viewport = viewportRef.current;
+        if (!viewport) return;
+
+        const observer = new ResizeObserver(() => {
+            requestAnimationFrame(scrollActiveIntoView);
+        });
+        observer.observe(viewport);
+        return () => observer.disconnect();
+    }, []);
 
     return (
         <aside className="h-full flex flex-col safe-area-top w-full bg-gradient-to-b from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-900/95 border-r border-gray-200/60 dark:border-gray-800/60">
