@@ -3,6 +3,7 @@ import {
     ShoppingCart, FileText, Clock, Send, Truck, CheckCircle, PackageCheck, XCircle, X,
 } from 'lucide-react';
 import BottomSheet from '../../../components/BottomSheet';
+import MobileDateFilter from '../../../components/reports/MobileDateFilter';
 
 const statusOptions: Array<{
     value: string;
@@ -30,6 +31,9 @@ interface PurchaseOrderFilterSheetProps {
     onClose: () => void;
     statusFilter: string;
     onStatusChange: (status: string) => void;
+    dateFrom?: string;
+    dateTo?: string;
+    onDateChange?: (start: Date | null, end: Date | null) => void;
     hasActiveFilters: boolean;
     onClearFilters: () => void;
 }
@@ -39,6 +43,9 @@ const PurchaseOrderFilterSheet: FC<PurchaseOrderFilterSheetProps> = ({
     onClose,
     statusFilter,
     onStatusChange,
+    dateFrom,
+    dateTo,
+    onDateChange,
     hasActiveFilters,
     onClearFilters,
 }) => {
@@ -104,6 +111,20 @@ const PurchaseOrderFilterSheet: FC<PurchaseOrderFilterSheetProps> = ({
                         })}
                     </div>
                 </section>
+
+                {onDateChange && (
+                    <section>
+                        <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                            Order Date
+                        </h4>
+                        <MobileDateFilter
+                            startDate={dateFrom ? new Date(dateFrom) : null}
+                            endDate={dateTo ? new Date(dateTo) : null}
+                            onChange={onDateChange}
+                            compact
+                        />
+                    </section>
+                )}
 
                 <button
                     onClick={onClose}
