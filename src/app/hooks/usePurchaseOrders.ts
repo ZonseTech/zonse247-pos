@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Notify } from 'notiflix';
 import { purchaseOrderService } from '../services';
 import { getErrorMessage } from '../utils/api-error-handler';
@@ -11,8 +11,16 @@ export const usePurchaseOrders = () => {
     const [totalRows, setTotalRows] = useState(0);
     const [statusFilter, setStatusFilter] = useState<PurchaseOrderStatus | ''>('');
     const [supplierFilter, setSupplierFilter] = useState<string>('');
+    const [dateFrom, setDateFrom] = useState<string>('');
+    const [dateTo, setDateTo] = useState<string>('');
+
+    // Guards against out-of-order responses: e.g. an unfiltered fetch kicked off on mount
+    // resolving *after* a subsequent filtered fetch (once a supplierId is set), which would
+    // otherwise silently overwrite the correct results with another supplier's orders.
+    const requestIdRef = useRef(0);
 
     const loadPurchaseOrders = useCallback(async () => {
+        const requestId = ++requestIdRef.current;
         setIsLoading(true);
         try {
             const result = await purchaseOrderService.listPurchaseOrders({
@@ -20,7 +28,11 @@ export const usePurchaseOrders = () => {
                 limit: perPage,
                 status: statusFilter || undefined,
                 supplierId: supplierFilter || undefined,
+                dateFrom: dateFrom || undefined,
+                dateTo: dateTo || undefined,
             });
+
+            if (requestId !== requestIdRef.current) return;
 
             if (!result) {
                 setPurchaseOrders([]);
@@ -45,14 +57,15 @@ export const usePurchaseOrders = () => {
             setPurchaseOrders(normalizedOrders);
             setTotalRows(pagination.totalItems || 0);
         } catch (error: any) {
+            if (requestId !== requestIdRef.current) return;
             Notify.failure(getErrorMessage(error, 'Failed to load purchase orders'));
             console.error('Load purchase orders error:', error);
             setPurchaseOrders([]);
             setTotalRows(0);
         } finally {
-            setIsLoading(false);
+            if (requestId === requestIdRef.current) setIsLoading(false);
         }
-    }, [page, perPage, statusFilter, supplierFilter]);
+    }, [page, perPage, statusFilter, supplierFilter, dateFrom, dateTo]);
 
     useEffect(() => {
         loadPurchaseOrders();
@@ -176,6 +189,10 @@ export const usePurchaseOrders = () => {
         setStatusFilter,
         supplierFilter,
         setSupplierFilter,
+        dateFrom,
+        setDateFrom,
+        dateTo,
+        setDateTo,
         loadPurchaseOrders,
         createPurchaseOrder,
         createFromRequisition,
