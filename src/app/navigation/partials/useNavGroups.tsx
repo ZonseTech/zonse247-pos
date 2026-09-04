@@ -153,7 +153,9 @@ const useNavGroups = (): UseNavGroupsReturn => {
                 id: 'procurement',
                 label: 'Procurement',
                 icon: ic(POIcon),
-                route: isNativeMobile ? ROUTES.SUPPLIERS : ROUTES.PROCUREMENT_SUPPLIERS,
+                // Match any /procurement/* sub-page (suppliers, purchase orders, GRNs, etc.),
+                // not just the suppliers landing page this item navigates to on click.
+                route: isNativeMobile ? ROUTES.SUPPLIERS : ROUTES.PROCUREMENT,
                 onClick: isNativeMobile
                     ? () => navigate(ROUTES.SUPPLIERS)
                     : () => navigate(ROUTES.PROCUREMENT_SUPPLIERS),
