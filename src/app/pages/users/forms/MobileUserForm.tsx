@@ -10,17 +10,19 @@ import {
     SalaryAttendanceFields,
     BranchRoleFields,
 } from './fields';
+import FormFieldCard from '../../../components/card/FormFieldCard';
+import AccessibleBranchesField from '../partials/AccessibleBranchesField';
 import { useStaffForm } from '../../../hooks/useStaffForm';
 
 const MobileUserForm: FunctionComponent = () => {
     const {
-        navigate,
         loading,
         user,
         userId,
         initialValues,
         validationSchema,
         handleSubmit,
+        handleBack,
         isEditMode,
         hasPrefilledTenant,
     } = useStaffForm();
@@ -62,7 +64,7 @@ const MobileUserForm: FunctionComponent = () => {
                     <Form className="flex flex-col h-full">
                         <Box className="fixed top-0 left-0 right-0 z-50">
                             <MobilePageHeader
-                                onLeftPress={() => navigate(-1)}
+                                onLeftPress={handleBack}
                                 title={<Text weight="bold" className="text-white">{isEditMode ? 'EDIT USER' : 'ADD USER'}</Text>}
                                 rightContent={
                                     <Button
@@ -145,6 +147,17 @@ const MobileUserForm: FunctionComponent = () => {
                                                     setFieldValue('roleId', '');
                                                 }}
                                             />
+
+                                            <FormFieldCard>
+                                                <AccessibleBranchesField
+                                                    tenantId={values.tenantId}
+                                                    primaryBranchId={values.branchId}
+                                                    value={values.accessibleBranches}
+                                                    allBranches={values.allBranchesAccess}
+                                                    onChange={(branchIds) => setFieldValue('accessibleBranches', branchIds)}
+                                                    onAllBranchesChange={(checked) => setFieldValue('allBranchesAccess', checked)}
+                                                />
+                                            </FormFieldCard>
                                         </>
                                     )}
                                 </Flex>
