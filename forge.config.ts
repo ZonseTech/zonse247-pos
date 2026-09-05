@@ -6,11 +6,8 @@ import { MakerRpm } from '@electron-forge/maker-rpm';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
-import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import type { ForgeConfig } from '@electron-forge/shared-types';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
-
-const version = process.env.npm_package_version;
 
 const nativeModules = [
 	'better-sqlite3',
@@ -105,13 +102,6 @@ const config: ForgeConfig = {
 				license: 'MIT',
 				homepage: 'https://www.zonse247.com',
 			},
-		}),
-		new MakerSquirrel({
-			name: 'zonse247_pos',
-			exe: 'zonse247_pos.exe',
-			setupExe: `Zonse247_POS_Setup_v${version}.exe`,
-			setupIcon: path.join(__dirname, 'build', 'icon.ico'),
-			noMsi: true,
 		}),
 		new MakerZIP({}, ['darwin', 'linux']),
 	],
