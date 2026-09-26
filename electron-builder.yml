@@ -1,0 +1,21 @@
+appId: com.zonse247.pos
+productName: Zonse247 POS
+copyright: Copyright (c) Zonse247 Devs
+
+directories:
+  output: dist-installer
+
+win:
+  target: nsis
+  artifactName: "Zonse247_POS_Setup_${version}.${ext}"
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
+
+publish:
+  provider: generic
+  url: https://pos.zonse247.com/updates/
+  channel: latest
