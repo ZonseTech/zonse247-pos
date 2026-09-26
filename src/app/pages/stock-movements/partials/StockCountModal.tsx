@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, ClipboardCheck, CheckCircle2, AlertTriangle, TrendingUp, TrendingDown, Equal, RotateCcw } from 'lucide-react';
 import { Button, Input, Label } from '../../../components';
 import ProductVariantPicker, { type SelectedVariant } from './ProductVariantPicker';
+import { buildStockCountNote } from '../../../utils/stock-movement.helper';
 
 interface StockCountModalProps {
     isOpen: boolean;
@@ -69,7 +70,7 @@ const StockCountModal: FC<StockCountModalProps> = ({
             const result = await onSubmit({
                 inventoryId: selected.inventoryId,
                 actualQuantity: parseInt(actualCount),
-                notes: notes.trim() || undefined,
+                notes: buildStockCountNote(parseInt(actualCount), notes),
             });
             setCountResult(result);
         } catch {
