@@ -72,7 +72,7 @@ const CreatePurchaseOrderModal: FunctionComponent<CreatePurchaseOrderModalProps>
                         <POItemsForm
                             items={values.items}
                             formMode="create-manual"
-                            approvedQtyMap={emptyMap}
+                            outstandingQtyMap={emptyMap}
                             requisitionOptionMap={emptyMap}
                         />
 
