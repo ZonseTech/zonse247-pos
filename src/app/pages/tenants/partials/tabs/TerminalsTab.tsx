@@ -3,7 +3,7 @@ import { getTableStyles } from '../../../../utils/table-styles';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { FunctionComponent, memo, useContext, useMemo, useState } from 'react';
 import TableSkeleton from '../../../../components/skeleton/TableSkeleton';
-import { Building2, Monitor, Wifi, WifiOff, CheckCircle, Clock, XCircle, Shield, Ban, RefreshCw, Copy, Check, KeyRound } from 'lucide-react';
+import { Building2, Monitor, Wifi, WifiOff, CheckCircle, Clock, XCircle, Shield, Ban, RefreshCw, Copy, Check, KeyRound, QrCode } from 'lucide-react';
 import { Badge, Box, Flex, IconButton, Text, Tooltip } from '@radix-ui/themes';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -12,6 +12,7 @@ dayjs.extend(relativeTime);
 import { Notify, Confirm } from 'notiflix';
 import terminalService from '../../../../services/terminal.service';
 import { getErrorMessage } from '../../../../utils/api-error-handler';
+import TerminalActivationQrModal from '../TerminalActivationQrModal';
 
 interface TerminalsTabProps {
     terminals: Terminal[];
@@ -108,7 +109,8 @@ const ActivationCodeCell: FunctionComponent<{ code: string | null | undefined }>
 const getTerminalColumns = (
     branchNameById: Map<string, string>,
     onRegenerateCode?: (terminal: Terminal) => void,
-    actionLoading?: string | null
+    actionLoading?: string | null,
+    onShowQrCode?: (terminal: Terminal) => void
 ): TableColumn<Terminal>[] => [
         {
             name: 'Terminal',
@@ -213,6 +215,20 @@ const getTerminalColumns = (
             name: 'Actions',
             cell: (row) => (
                 <Flex align="center" gap="1">
+                    {row.activationStatus !== 'ACTIVATED' && row.activationCode && onShowQrCode && (
+                        <Tooltip content="Show activation QR code">
+                            <IconButton
+                                type="button"
+                                variant="ghost"
+                                color="sky"
+                                size="1"
+                                aria-label={`Show activation QR code for ${row.terminalLabel}`}
+                                onClick={() => onShowQrCode(row)}
+                            >
+                                <QrCode className="w-4 h-4" />
+                            </IconButton>
+                        </Tooltip>
+                    )}
                     {row.activationStatus !== 'ACTIVATED' && onRegenerateCode && (
                         <Tooltip content="Regenerate activation code">
                             <IconButton
@@ -240,6 +256,7 @@ const getTerminalColumns = (
 const TerminalsTab: FunctionComponent<TerminalsTabProps> = memo(({ terminals, branches, loading, tenantId, onRefresh }) => {
     const { mode } = useContext(ZonseThemeContext);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+    const [qrTerminal, setQrTerminal] = useState<Terminal | null>(null);
 
     const branchNameById = useMemo(() => {
         const map = new Map<string, string>();
@@ -258,6 +275,7 @@ const TerminalsTab: FunctionComponent<TerminalsTabProps> = memo(({ terminals, br
                     setActionLoading(terminal.terminalId);
                     const result = await terminalService.regenerateActivationCode(terminal.terminalId);
                     Notify.success(`Activation code regenerated: ${result.activationCode}`);
+                    setQrTerminal({ ...terminal, activationCode: result.activationCode, activationStatus: 'PENDING' });
                     onRefresh?.();
                 } catch (error: any) {
                     console.error('Error regenerating activation code:', error);
@@ -282,21 +300,29 @@ const TerminalsTab: FunctionComponent<TerminalsTabProps> = memo(({ terminals, br
     }
 
     return (
-        <DataTable
-            columns={getTerminalColumns(branchNameById, handleRegenerateCode, actionLoading)}
-            data={terminals}
-            theme={mode as string}
-            highlightOnHover
-            striped
-            responsive
-            noDataComponent={
-                <Flex direction="column" align="center" py="8">
-                    <Monitor className="w-12 h-12 text-gray-400 mb-4" />
-                    <Text color="gray">No terminals found for this tenant</Text>
-                </Flex>
-            }
-            customStyles={getTableStyles(mode)}
-        />
+        <>
+            <DataTable
+                columns={getTerminalColumns(branchNameById, handleRegenerateCode, actionLoading, setQrTerminal)}
+                data={terminals}
+                theme={mode as string}
+                highlightOnHover
+                striped
+                responsive
+                noDataComponent={
+                    <Flex direction="column" align="center" py="8">
+                        <Monitor className="w-12 h-12 text-gray-400 mb-4" />
+                        <Text color="gray">No terminals found for this tenant</Text>
+                    </Flex>
+                }
+                customStyles={getTableStyles(mode)}
+            />
+
+            <TerminalActivationQrModal
+                terminal={qrTerminal}
+                branchName={qrTerminal ? branchNameById.get(qrTerminal.branchId) : undefined}
+                onClose={() => setQrTerminal(null)}
+            />
+        </>
     );
 });
 
