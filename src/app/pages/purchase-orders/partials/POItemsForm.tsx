@@ -10,7 +10,8 @@ import type { POFormItem, FormMode } from './types';
 interface POItemsFormProps {
     items: POFormItem[];
     formMode: FormMode;
-    approvedQtyMap: Map<string, number>;
+    /** Per variant, the approved quantity still to be ordered when creating from a requisition. */
+    outstandingQtyMap: Map<string, number>;
     requisitionOptionMap: Map<string, { label: string; value: string }>;
 }
 
@@ -55,7 +56,7 @@ const CellNumberInput: FunctionComponent<CellNumberInputProps> = ({ name, min, m
 const POItemsForm: FunctionComponent<POItemsFormProps> = ({
     items,
     formMode,
-    approvedQtyMap,
+    outstandingQtyMap,
     requisitionOptionMap,
 }) => (
     <FieldArray name="items">
@@ -93,7 +94,7 @@ const POItemsForm: FunctionComponent<POItemsFormProps> = ({
 
                         <Table.Body>
                             {items.map((item, index) => {
-                                const approvedQty = approvedQtyMap.get(item.variantId);
+                                const outstandingQty = outstandingQtyMap.get(item.variantId);
                                 const canRemove = formMode === 'create-manual' && items.length > 1;
 
                                 return (
@@ -113,12 +114,12 @@ const POItemsForm: FunctionComponent<POItemsFormProps> = ({
                                             <CellNumberInput
                                                 name={`items.${index}.orderedQuantity`}
                                                 min={1}
-                                                max={formMode === 'create-from-requisition' ? approvedQty : undefined}
+                                                max={formMode === 'create-from-requisition' ? outstandingQty : undefined}
                                                 disabled={formMode === 'create-from-requisition'}
                                             />
-                                            {formMode === 'create-from-requisition' && approvedQty !== undefined && (
+                                            {formMode === 'create-from-requisition' && outstandingQty !== undefined && (
                                                 <Text as="p" size="1" color="iris" mt="1">
-                                                    Approved: {approvedQty}
+                                                    Outstanding: {outstandingQty}
                                                 </Text>
                                             )}
                                         </Table.Cell>
