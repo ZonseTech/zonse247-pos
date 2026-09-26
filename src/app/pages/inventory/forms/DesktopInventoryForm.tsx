@@ -4,8 +4,8 @@ import FormSelectBox from '../../../components/FormSelectBox';
 import SectionCard from '../../../components/card/SectionCard';
 import { FormActions } from '../../../components/form';
 import { CategorySearch } from '../../categories/partials/CategorySearch';
-import ItemNameField from '../partials/ItemNameField';
-import { useState, FunctionComponent, useMemo, type ReactNode } from 'react';
+import ItemNameField, { ITEM_NAME_TAKEN_MESSAGE } from '../partials/ItemNameField';
+import { useState, useRef, FunctionComponent, useMemo, type ReactNode } from 'react';
 import PageHeader from '../../../components/page/PageHeader';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../../utils/constants';
@@ -49,6 +49,8 @@ const DesktopInventoryForm: FunctionComponent<DesktopInventoryFormProps> = ({
 }) => {
     const navigate = useNavigate();
     const [isStockMovementOpen, setIsStockMovementOpen] = useState(false);
+    // Latest server availability result, read synchronously by the Yup schema
+    const isNameTakenRef = useRef(false);
 
     const initialFormValues: InventoryFormValues = useMemo(() => {
         if (item) {
@@ -113,7 +115,8 @@ const DesktopInventoryForm: FunctionComponent<DesktopInventoryFormProps> = ({
         name: Yup.string()
             .required('Item name is required')
             .min(2, 'Name must be at least 2 characters')
-            .max(200, 'Name is too long'),
+            .max(200, 'Name is too long')
+            .test('name-available', ITEM_NAME_TAKEN_MESSAGE, () => !isNameTakenRef.current),
         categoryId: Yup.string().required('Category is required'),
         unit: Yup.string(),
         variants: Yup.array().of(variantSchema).min(1, 'At least one variant is required'),
@@ -183,6 +186,7 @@ const DesktopInventoryForm: FunctionComponent<DesktopInventoryFormProps> = ({
                                                         required
                                                         className='uppercase'
                                                         excludeProductId={productId}
+                                                        onTakenChange={(taken) => { isNameTakenRef.current = taken; }}
                                                     />
                                                 </Box>
 
