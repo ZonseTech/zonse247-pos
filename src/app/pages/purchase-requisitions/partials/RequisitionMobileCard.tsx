@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { Eye, CheckCircle, XCircle, Ban, Package, Calendar, ShoppingCart } from 'lucide-react';
 import { Box, Flex, Text, Badge, IconButton, Skeleton } from '@radix-ui/themes';
 import dayjs from 'dayjs';
+import { canCreatePOFromRequisition } from '../../../utils/purchase-requisition.helper';
 
 interface RequisitionMobileCardProps {
     requisition: PurchaseRequisitionWithItems;
@@ -132,7 +133,7 @@ const RequisitionMobileCard: FC<RequisitionMobileCardProps> = ({
                         </IconButton>
                     </>
                 )}
-                {(requisition.status === 'APPROVED' || requisition.status === 'PARTIALLY_APPROVED') && onCreatePO && (
+                {canCreatePOFromRequisition(requisition) && onCreatePO && (
                     <IconButton variant="ghost" color="iris" size="1" onClick={() => onCreatePO(requisition)} aria-label="Create PO">
                         <ShoppingCart className="w-4 h-4" />
                     </IconButton>

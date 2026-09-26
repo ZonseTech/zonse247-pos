@@ -28,7 +28,7 @@ const PurchaseOrderForm: FunctionComponent = () => {
         requisition,
         receivingPO,
         setReceivingPO,
-        approvedQtyMap,
+        outstandingQtyMap,
         requisitionOptionMap,
         initialValues,
         supplierInitialOption,
@@ -168,7 +168,7 @@ const PurchaseOrderForm: FunctionComponent = () => {
                                     <POItemsForm
                                         items={values.items}
                                         formMode={formMode}
-                                        approvedQtyMap={approvedQtyMap}
+                                        outstandingQtyMap={outstandingQtyMap}
                                         requisitionOptionMap={requisitionOptionMap}
                                     />
                                 )}

@@ -50,6 +50,8 @@ interface PurchaseRequisitionItem {
     terminalId?: string | null;
     requestedQuantity: number;
     approvedQuantity?: number | null;
+    /** Ordered across active purchase orders raised from this requisition (absent on older API builds). */
+    orderedQuantity?: number;
     notes?: string | null;
     version: number;
     deletedAt?: Date | string | null;

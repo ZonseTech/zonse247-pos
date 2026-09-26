@@ -15,6 +15,7 @@ import validationSchema from '../../../schemas/purchase-order.schema';
 import { usePurchaseRequisitions } from '../../../hooks/usePurchaseRequisitions';
 import { usePurchaseOrders } from '../../../hooks/usePurchaseOrders';
 import { getErrorMessage } from '../../../utils/api-error-handler';
+import { canCreatePOFromRequisition, getOutstandingQuantity } from '../../../utils/purchase-requisition.helper';
 import type { POFormValues } from './types';
 
 interface CreatePOFromRequisitionModalProps {
@@ -41,14 +42,9 @@ const CreatePOFromRequisitionModal: FunctionComponent<CreatePOFromRequisitionMod
             .finally(() => setLoading(false));
     }, [requisitionId]);
 
-    const approvedQtyMap = useMemo(() => {
+    const outstandingQtyMap = useMemo(() => {
         if (!requisition) return new Map<string, number>();
-        return new Map(
-            requisition.items.map((item) => [
-                item.variantId,
-                item.approvedQuantity ?? item.requestedQuantity,
-            ])
-        );
+        return new Map(requisition.items.map((item) => [item.variantId, getOutstandingQuantity(item)]));
     }, [requisition]);
 
     const requisitionOptionMap = useMemo(() => {
@@ -78,12 +74,14 @@ const CreatePOFromRequisitionModal: FunctionComponent<CreatePOFromRequisitionMod
             notes: requisition.notes
                 ? `From Requisition ${requisition.requisitionNumber}: ${requisition.notes}`
                 : `From Requisition ${requisition.requisitionNumber}`,
-            items: requisition.items.map((item) => ({
-                variantId: item.variantId,
-                orderedQuantity: item.approvedQuantity ?? item.requestedQuantity,
-                unitPrice: 0,
-                notes: item.notes || '',
-            })),
+            items: requisition.items
+                .filter((item) => getOutstandingQuantity(item) > 0)
+                .map((item) => ({
+                    variantId: item.variantId,
+                    orderedQuantity: getOutstandingQuantity(item),
+                    unitPrice: 0,
+                    notes: item.notes || '',
+                })),
         };
     }, [requisition]);
 
@@ -130,6 +128,22 @@ const CreatePOFromRequisitionModal: FunctionComponent<CreatePOFromRequisitionMod
         );
     }
 
+    if (!canCreatePOFromRequisition(requisition)) {
+        return (
+            <FormModal
+                open
+                onOpenChange={(open) => { if (!open) onClose(); }}
+                title={title}
+                icon={<ClipboardList className="w-5 h-5" />}
+                size="xl"
+            >
+                <Flex align="center" justify="center" className="h-64">
+                    <Text color="gray">Every approved item on this requisition has already been ordered.</Text>
+                </Flex>
+            </FormModal>
+        );
+    }
+
     return (
         <Formik
             initialValues={initialValues}
@@ -147,7 +161,7 @@ const CreatePOFromRequisitionModal: FunctionComponent<CreatePOFromRequisitionMod
                     open
                     onOpenChange={(open) => { if (!open) onClose(); }}
                     title={title}
-                    description="Items are pre-filled with approved quantities. Select a supplier and set unit prices."
+                    description="Items are pre-filled with the approved quantities not yet ordered. Select a supplier and set unit prices."
                     icon={<ClipboardList className="w-5 h-5" />}
                     size="xl"
                     footer={
@@ -176,7 +190,7 @@ const CreatePOFromRequisitionModal: FunctionComponent<CreatePOFromRequisitionMod
                             <POItemsForm
                                 items={values.items}
                                 formMode="create-from-requisition"
-                                approvedQtyMap={approvedQtyMap}
+                                outstandingQtyMap={outstandingQtyMap}
                                 requisitionOptionMap={requisitionOptionMap}
                             />
 
