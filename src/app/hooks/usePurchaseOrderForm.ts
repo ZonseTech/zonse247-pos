@@ -9,6 +9,7 @@ import { formatSupplierLabel } from '../components/SupplierSearchSelect';
 import { ROUTES } from '../utils/constants';
 import { getErrorMessage } from '../utils/api-error-handler';
 import type { POFormItem, POFormValues, FormMode } from '../pages/purchase-orders/partials/types';
+import { getOutstandingQuantity } from '../utils/purchase-requisition.helper';
 
 const emptyItem: POFormItem = { variantId: '', orderedQuantity: 1, unitPrice: 0, notes: '' };
 
@@ -77,14 +78,9 @@ export const usePurchaseOrderForm = () => {
     }, [isFromRequisition, requisitionIdFromState]);
 
     // ── Derived data ──────────────────────────────────────────────────────
-    const approvedQtyMap = useMemo(() => {
+    const outstandingQtyMap = useMemo(() => {
         if (!requisition) return new Map<string, number>();
-        return new Map(
-            requisition.items.map(item => [
-                item.variantId,
-                item.approvedQuantity ?? item.requestedQuantity,
-            ])
-        );
+        return new Map(requisition.items.map(item => [item.variantId, getOutstandingQuantity(item)]));
     }, [requisition]);
 
     const requisitionOptionMap = useMemo(() => {
@@ -131,12 +127,14 @@ export const usePurchaseOrderForm = () => {
                 notes: requisition.notes
                     ? `From Requisition ${requisition.requisitionNumber}: ${requisition.notes}`
                     : `From Requisition ${requisition.requisitionNumber}`,
-                items: requisition.items.map(item => ({
-                    variantId: item.variantId,
-                    orderedQuantity: item.approvedQuantity ?? item.requestedQuantity,
-                    unitPrice: 0,
-                    notes: item.notes || '',
-                })),
+                items: requisition.items
+                    .filter(item => getOutstandingQuantity(item) > 0)
+                    .map(item => ({
+                        variantId: item.variantId,
+                        orderedQuantity: getOutstandingQuantity(item),
+                        unitPrice: 0,
+                        notes: item.notes || '',
+                    })),
             };
         }
 
@@ -248,7 +246,7 @@ export const usePurchaseOrderForm = () => {
         requisition,
         receivingPO,
         setReceivingPO,
-        approvedQtyMap,
+        outstandingQtyMap,
         requisitionOptionMap,
         initialValues,
         supplierInitialOption,
