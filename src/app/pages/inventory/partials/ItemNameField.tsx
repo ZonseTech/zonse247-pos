@@ -1,5 +1,5 @@
 import { FC, useEffect, useRef, useState } from 'react';
-import { useField } from 'formik';
+import { useField, useFormikContext } from 'formik';
 import { Box, Text, TextField } from '@radix-ui/themes';
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { productService } from '../../../services';
@@ -11,7 +11,11 @@ interface ItemNameFieldProps {
     required?: boolean;
     className?: string;
     excludeProductId?: string;
+    /** Called with true while the current name belongs to another product */
+    onTakenChange?: (taken: boolean) => void;
 }
+
+export const ITEM_NAME_TAKEN_MESSAGE = 'This item name is already in use';
 
 type Availability = 'idle' | 'checking' | 'available' | 'taken';
 
@@ -22,8 +26,10 @@ const ItemNameField: FC<ItemNameFieldProps> = ({
     required = false,
     className,
     excludeProductId,
+    onTakenChange,
 }) => {
     const [field, meta] = useField({ name });
+    const { validateField } = useFormikContext();
     const hasError = meta.touched && !!meta.error;
 
     const [availability, setAvailability] = useState<Availability>('idle');
@@ -42,13 +48,9 @@ const ItemNameField: FC<ItemNameFieldProps> = ({
 
         const timer = setTimeout(async () => {
             try {
-                const result = await productService.listProducts({ search: value, limit: 5 });
+                const available = await productService.checkNameAvailability(value, excludeProductId);
                 if (requestId !== requestIdRef.current) return;
-
-                const taken = (result.products || []).some(
-                    (p) => p.name?.trim().toLowerCase() === value.toLowerCase() && p.id !== excludeProductId
-                );
-                setAvailability(taken ? 'taken' : 'available');
+                setAvailability(available ? 'available' : 'taken');
             } catch {
                 if (requestId === requestIdRef.current) setAvailability('idle');
             }
@@ -57,10 +59,17 @@ const ItemNameField: FC<ItemNameFieldProps> = ({
         return () => clearTimeout(timer);
     }, [field.value, excludeProductId]);
 
+    // Let the form's schema block submission while the name is taken
+    useEffect(() => {
+        onTakenChange?.(availability === 'taken');
+        validateField(name);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [availability]);
+
     const statusMessage = hasError
         ? meta.error
         : availability === 'taken'
-            ? 'This item name is already in use'
+            ? ITEM_NAME_TAKEN_MESSAGE
             : availability === 'available'
                 ? 'Name is available'
                 : null;
