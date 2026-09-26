@@ -2,6 +2,7 @@ import { TableColumn } from 'react-data-table-component';
 import { Eye, CheckCircle, XCircle, Ban, Package, ShoppingCart } from 'lucide-react';
 import { Flex, Text, Badge, IconButton, Tooltip, Progress } from '@radix-ui/themes';
 import dayjs from 'dayjs';
+import { canCreatePOFromRequisition } from '../../../utils/purchase-requisition.helper';
 
 interface RequisitionTableActionsProps {
     onApprove: (req: PurchaseRequisitionWithItems) => void;
@@ -169,7 +170,7 @@ export const getRequisitionTableColumns = ({
                             </Tooltip>
                         </>
                     )}
-                    {(row.status === 'APPROVED' || row.status === 'PARTIALLY_APPROVED') && onCreatePO && (
+                    {canCreatePOFromRequisition(row) && onCreatePO && (
                         <Tooltip content="Create Purchase Order">
                             <IconButton
                                 variant="ghost"
