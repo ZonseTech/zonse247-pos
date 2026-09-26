@@ -76,13 +76,10 @@ const StockTransferModal: FC<StockTransferModalProps> = ({
         setIsSubmitting(true);
         try {
             await onSubmit({
-                tenantId,
-                fromBranchId: branchId,
-                toBranchId,
-                productId: selected.id,
+                sourceInventoryId: selected.inventoryId,
+                destinationBranchId: toBranchId,
                 quantity: qty,
                 notes: notes.trim() || undefined,
-                performedBy: userId,
             });
             handleClose();
         } catch {
