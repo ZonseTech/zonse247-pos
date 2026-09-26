@@ -26,6 +26,8 @@ import ExpiryStockModal from './partials/ExpiryStockModal';
 import StockCountModal from './partials/StockCountModal';
 import StockTransferModal from './partials/StockTransferModal';
 import classNames from 'classnames';
+import CorrectMovementModal from './partials/CorrectMovementModal';
+import { getMovementDisplayType, isCorrectionMovement } from '../../utils/stock-movement.helper';
 
 type ModalType = 'adjust' | 'damage' | 'expiry' | 'count' | 'transfer' | null;
 
@@ -48,6 +50,8 @@ const MobileStockMovements: FC = () => {
     const canWaste = hasPermission(user, 'inventory.waste');
     const canCount = hasPermission(user, 'inventory.count');
     const canTransfer = hasPermission(user, 'inventory.transfer');
+    const canCorrect = hasPermission(user, 'inventory.adjust');
+    const [correctingMovement, setCorrectingMovement] = useState<StockMovement | null>(null);
 
     const {
         movements,
@@ -68,6 +72,7 @@ const MobileStockMovements: FC = () => {
         transferStock,
         performStockCount,
         recordExpiry,
+        correctMovement,
         tenantId,
         branchId,
         userId,
@@ -411,6 +416,8 @@ const MobileStockMovements: FC = () => {
                             isLoading={isLoading}
                             onLoadMore={handleLoadMore}
                             hasMore={hasMore && !searchTerm}
+                            onCorrect={canCorrect ? setCorrectingMovement : undefined}
+                            correctedIds={new Set(filteredMovements.filter(isCorrectionMovement).map((m) => m.referenceId).filter((id): id is string => !!id))}
                         />
 
                         {/* Bottom Pagination Info */}
@@ -446,6 +453,12 @@ const MobileStockMovements: FC = () => {
                 isOpen={activeModal === 'count'}
                 onClose={() => setActiveModal(null)}
                 onSubmit={performStockCount}
+            />
+            <CorrectMovementModal
+                movement={correctingMovement}
+                label={correctingMovement ? getMovementDisplayType(correctingMovement).replace(/_/g, ' ') : ''}
+                onClose={() => setCorrectingMovement(null)}
+                onSubmit={correctMovement}
             />
             <StockTransferModal
                 isOpen={activeModal === 'transfer'}

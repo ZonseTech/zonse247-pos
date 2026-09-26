@@ -2,8 +2,9 @@ import { TableColumn } from 'react-data-table-component';
 import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
 import { Flex, Text, Badge } from '@radix-ui/themes';
 import dayjs from 'dayjs';
+import { getMovementDisplayType, isCorrectableMovement } from '../../../utils/stock-movement.helper';
 
-const typeColorMap: Record<string, 'green' | 'red' | 'sky' | 'yellow' | 'purple' | 'pink' | 'orange' | 'gray' | 'indigo' | 'teal'> = {
+const typeColorMap: Record<string, 'green' | 'red' | 'sky' | 'yellow' | 'purple' | 'pink' | 'orange' | 'gray' | 'indigo' | 'teal' | 'cyan' | 'violet'> = {
     PURCHASE_RECEIPT: 'green',
     SALE: 'red',
     RETURN: 'sky',
@@ -14,9 +15,17 @@ const typeColorMap: Record<string, 'green' | 'red' | 'sky' | 'yellow' | 'purple'
     EXPIRY: 'gray',
     OPENING_BALANCE: 'indigo',
     RETURN_TO_SUPPLIER: 'teal',
+    STOCK_COUNT: 'cyan',
+    CORRECTION: 'violet',
 };
 
-export const getStockMovementTableColumns = (): TableColumn<StockMovement>[] => [
+interface StockMovementTableOptions {
+    // Shown as a "Correct" action on correctable movements when provided
+    onCorrect?: (movement: StockMovement) => void;
+    correctedIds?: Set<string>;
+}
+
+export const getStockMovementTableColumns = (options: StockMovementTableOptions = {}): TableColumn<StockMovement>[] => [
     {
         name: 'Date',
         selector: (row) => String(row.movementDate),
@@ -33,10 +42,10 @@ export const getStockMovementTableColumns = (): TableColumn<StockMovement>[] => 
         cell: (row) => (
             <Badge
                 variant="soft"
-                color={typeColorMap[row.movementType] || 'gray'}
+                color={typeColorMap[getMovementDisplayType(row)] || 'gray'}
                 size="1"
             >
-                {row.movementType.replace('_', ' ')}
+                {getMovementDisplayType(row).replace(/_/g, ' ')}
             </Badge>
         ),
         sortable: true,
@@ -120,4 +129,24 @@ export const getStockMovementTableColumns = (): TableColumn<StockMovement>[] => 
         ),
         grow: 1,
     },
+    ...(options.onCorrect
+        ? [
+            {
+                name: '',
+                width: '110px',
+                cell: (row: StockMovement) =>
+                    options.correctedIds?.has(row.id) ? (
+                        <Text size="1" color="gray">Corrected</Text>
+                    ) : isCorrectableMovement(row) ? (
+                        <button
+                            type="button"
+                            onClick={() => options.onCorrect?.(row)}
+                            className="text-xs font-medium text-violet-600 hover:text-violet-800 dark:text-violet-400 dark:hover:text-violet-300"
+                        >
+                            Correct
+                        </button>
+                    ) : null,
+            } as TableColumn<StockMovement>,
+        ]
+        : []),
 ];

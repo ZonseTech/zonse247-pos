@@ -238,6 +238,18 @@ export const useStockMovements = (productId?: string, variantId?: string) => {
         }
     }, [loadMovements]);
 
+    const correctMovement = useCallback(async (originalMovementId: string, reason: string) => {
+        try {
+            const result = await stockMovementService.correctMovement({ originalMovementId, reason });
+            Notify.success('Movement corrected');
+            loadMovements();
+            return result;
+        } catch (error: any) {
+            Notify.failure(getErrorMessage(error, 'Failed to correct movement'));
+            throw error;
+        }
+    }, [loadMovements]);
+
     return {
         movements,
         isLoading,
@@ -259,6 +271,7 @@ export const useStockMovements = (productId?: string, variantId?: string) => {
         performStockTake,
         performStockCount,
         recordExpiry,
+        correctMovement,
         tenantId,
         branchId,
         userId,

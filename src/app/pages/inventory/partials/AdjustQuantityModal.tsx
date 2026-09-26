@@ -5,6 +5,7 @@ import { Notify } from 'notiflix';
 import { Button } from '../../../components';
 import stockMovementService from '../../../services/stock-movement.service';
 import { getErrorMessage } from '../../../utils/api-error-handler';
+import { buildStockCountNote, buildStockRemovalNote } from '../../../utils/stock-movement.helper';
 
 interface AdjustQuantityModalProps {
     isOpen: boolean;
@@ -72,7 +73,7 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
                 await stockMovementService.performStockCount({
                     inventoryId: invId,
                     actualQuantity: value,
-                    notes: adjustmentReason || undefined,
+                    notes: buildStockCountNote(value, adjustmentReason),
                 });
             } else {
                 // Use stock-adjustment endpoint — quantity sign determines direction
@@ -80,7 +81,9 @@ const AdjustQuantityModal: FC<AdjustQuantityModalProps> = ({ isOpen, onClose, it
                 await stockMovementService.adjustStock({
                     inventoryId: invId,
                     quantity: signedQty,
-                    notes: adjustmentReason || 'Manual adjustment from inventory page',
+                    notes: adjustmentType === 'subtract'
+                        ? buildStockRemovalNote(adjustmentReason)
+                        : adjustmentReason || 'Manual adjustment from inventory page',
                 });
             }
             const actionText = adjustmentType === 'add' ? 'added' : adjustmentType === 'subtract' ? 'subtracted' : 'set';

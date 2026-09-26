@@ -19,6 +19,7 @@ import MobileDateFilter from '../../../components/reports/MobileDateFilter';
 import { useStockMovements } from '../../../hooks/useStockMovements';
 import { formatCurrency } from '../../../utils';
 import { useIsMobile } from '../../../hooks/useMediaQuery';
+import { getMovementDisplayType, type StockMovementDisplayType } from '../../../utils/stock-movement.helper';
 
 interface StockMovementModalProps {
     isOpen: boolean;
@@ -29,7 +30,7 @@ interface StockMovementModalProps {
     sku?: string | null;
 }
 
-const typeColors: Record<StockMovementType, string> = {
+const typeColors: Record<StockMovementDisplayType, string> = {
     PURCHASE_RECEIPT: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
     SALE: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
     RETURN: 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400',
@@ -40,9 +41,11 @@ const typeColors: Record<StockMovementType, string> = {
     EXPIRY: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
     OPENING_BALANCE: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400',
     RETURN_TO_SUPPLIER: 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400',
+    STOCK_COUNT: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400',
+    CORRECTION: 'bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-400',
 };
 
-const typeLabels: Record<StockMovementType, string> = {
+const typeLabels: Record<StockMovementDisplayType, string> = {
     PURCHASE_RECEIPT: 'Purchase Receipt',
     SALE: 'Sale',
     RETURN: 'Return',
@@ -53,6 +56,8 @@ const typeLabels: Record<StockMovementType, string> = {
     EXPIRY: 'Expiry',
     OPENING_BALANCE: 'Opening Balance',
     RETURN_TO_SUPPLIER: 'Return to Supplier',
+    STOCK_COUNT: 'Stock Count',
+    CORRECTION: 'Correction',
 };
 
 const StockMovementModal: React.FC<StockMovementModalProps> = ({
@@ -295,8 +300,8 @@ const StockMovementModal: React.FC<StockMovementModalProps> = ({
                                     >
                                         {/* Row 1: Type badge and Change */}
                                         <div className="flex items-center justify-between mb-2">
-                                            <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${typeColors[movement.movementType]}`}>
-                                                {typeLabels[movement.movementType]}
+                                            <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${typeColors[getMovementDisplayType(movement)]}`}>
+                                                {typeLabels[getMovementDisplayType(movement)]}
                                             </span>
                                             <div className={`flex items-center gap-1 font-bold ${colorClass}`}>
                                                 <Icon className="w-4 h-4" />
@@ -400,8 +405,8 @@ const StockMovementModal: React.FC<StockMovementModalProps> = ({
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${typeColors[movement.movementType]}`}>
-                                                    {typeLabels[movement.movementType]}
+                                                <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${typeColors[getMovementDisplayType(movement)]}`}>
+                                                    {typeLabels[getMovementDisplayType(movement)]}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-3 text-center">

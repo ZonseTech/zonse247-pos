@@ -15,12 +15,16 @@ import {
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import classNames from 'classnames';
+import { getMovementDisplayType, isCorrectableMovement } from '../../../utils/stock-movement.helper';
 
 dayjs.extend(relativeTime);
 
 interface StockMovementMobileCardProps {
     movement: StockMovement;
     index?: number;
+    // Shown as a "Correct" action on correctable movements when provided
+    onCorrect?: (movement: StockMovement) => void;
+    isCorrected?: boolean;
 }
 
 const typeConfig: Record<string, {
@@ -89,9 +93,21 @@ const typeConfig: Record<string, {
         borderColor: 'border-teal-200 dark:border-teal-800',
         label: 'Supplier Return'
     },
+    STOCK_COUNT: {
+        color: 'text-cyan-600 dark:text-cyan-400',
+        bgColor: 'bg-cyan-50 dark:bg-cyan-900/20',
+        borderColor: 'border-cyan-200 dark:border-cyan-800',
+        label: 'Stock Count'
+    },
+    CORRECTION: {
+        color: 'text-violet-600 dark:text-violet-400',
+        bgColor: 'bg-violet-50 dark:bg-violet-900/20',
+        borderColor: 'border-violet-200 dark:border-violet-800',
+        label: 'Correction'
+    },
 };
 
-const StockMovementMobileCard: FC<StockMovementMobileCardProps> = ({ movement, index = 0 }) => {
+const StockMovementMobileCard: FC<StockMovementMobileCardProps> = ({ movement, index = 0, onCorrect, isCorrected = false }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
 
@@ -99,7 +115,7 @@ const StockMovementMobileCard: FC<StockMovementMobileCardProps> = ({ movement, i
     const isDecrease = movement.direction === 'OUT';
     const Icon = isIncrease ? TrendingUp : isDecrease ? TrendingDown : RefreshCw;
 
-    const config = typeConfig[movement.movementType] || typeConfig.ADJUSTMENT;
+    const config = typeConfig[getMovementDisplayType(movement)] || typeConfig.ADJUSTMENT;
 
     const quantityColorClass = isIncrease
         ? 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30'
@@ -243,6 +259,21 @@ const StockMovementMobileCard: FC<StockMovementMobileCardProps> = ({ movement, i
                                 </p>
                             </div>
                         )}
+
+                        {isCorrected ? (
+                            <p className="text-xs italic text-gray-500 dark:text-gray-400">Corrected</p>
+                        ) : onCorrect && isCorrectableMovement(movement) ? (
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onCorrect(movement);
+                                }}
+                                className="text-sm font-medium text-violet-600 dark:text-violet-400"
+                            >
+                                Correct this movement
+                            </button>
+                        ) : null}
                     </div>
                 )}
             </div>
@@ -285,6 +316,8 @@ interface StockMovementMobileListProps {
     isLoading?: boolean;
     onLoadMore?: () => void;
     hasMore?: boolean;
+    onCorrect?: (movement: StockMovement) => void;
+    correctedIds?: Set<string>;
 }
 
 export const StockMovementMobileList: FC<StockMovementMobileListProps> = ({
@@ -292,6 +325,8 @@ export const StockMovementMobileList: FC<StockMovementMobileListProps> = ({
     isLoading = false,
     onLoadMore,
     hasMore = false,
+    onCorrect,
+    correctedIds,
 }) => {
     const observerRef = useRef<HTMLDivElement>(null);
 
@@ -339,6 +374,8 @@ export const StockMovementMobileList: FC<StockMovementMobileListProps> = ({
                     key={movement.id}
                     movement={movement}
                     index={index}
+                    onCorrect={onCorrect}
+                    isCorrected={correctedIds?.has(movement.id)}
                 />
             ))}
 
