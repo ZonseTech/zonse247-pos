@@ -20,6 +20,7 @@ const endpoints = {
     delete: 'products',
     get: 'products',
     list: 'products',
+    nameAvailable: 'products/name-available',
 
     // Search
     search: 'products/search',
@@ -135,6 +136,18 @@ const productService = {
             .catch((err) => {
                 throw err;
             });
+    },
+
+    /**
+     * GET /products/name-available - Exact, branch-scoped name check (deleted products don't count)
+     */
+    async checkNameAvailability(name: string, excludeProductId?: string): Promise<boolean> {
+        const params: Record<string, string> = { name };
+        if (excludeProductId) params.excludeProductId = excludeProductId;
+
+        return api
+            .get<ApiResponse<{ available: boolean }>>(endpoints.nameAvailable, params)
+            .then((res) => res.data.data.available);
     },
 
     /**
