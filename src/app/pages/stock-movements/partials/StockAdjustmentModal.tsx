@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Plus, Minus, Hash, ArrowRight } from 'lucide-react';
 import { Button, Input, Label } from '../../../components';
 import ProductVariantPicker, { type SelectedVariant } from './ProductVariantPicker';
+import { buildStockRemovalNote } from '../../../utils/stock-movement.helper';
 
 interface StockAdjustmentModalProps {
     isOpen: boolean;
@@ -69,7 +70,9 @@ const StockAdjustmentModal: FC<StockAdjustmentModalProps> = ({
             await onSubmit({
                 inventoryId: selected.inventoryId,
                 quantity: signedQty,
-                notes: [reason.trim(), notes.trim()].filter(Boolean).join(' — ') || undefined,
+                notes: signedQty < 0
+                    ? buildStockRemovalNote([reason.trim(), notes.trim()].filter(Boolean).join(' — '))
+                    : [reason.trim(), notes.trim()].filter(Boolean).join(' — ') || undefined,
             });
             handleClose();
         } catch {
