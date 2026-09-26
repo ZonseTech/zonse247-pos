@@ -264,13 +264,12 @@ interface DamageStockPayload {
  * The hook should map these fields to the API contract before sending.
  */
 interface TransferStockPayload {
-    tenantId: string;
-    fromBranchId: string;
-    toBranchId: string;
-    productId: string;
+    sourceInventoryId: string;
+    destinationBranchId: string;
+    // The API resolves (or creates) the matching inventory at the destination branch when omitted
+    destinationInventoryId?: string;
     quantity: number;
     notes?: string;
-    performedBy: string;
 }
 
 // ─── Query & Response ──────────────────────────────────────────────────────
