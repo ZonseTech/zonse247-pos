@@ -41,7 +41,6 @@ declare global {
             menu: {
                 rebuild: (user: User | null, businessType?: BusinessType | null, hiddenNavItemIds?: string[]) => void;
                 onLogout: (callback: () => void) => () => void;
-                onCheckUpdates: (callback: () => void) => () => void;
                 onNavigate: (callback: (route: string) => void) => () => void;
                 onOpenModal: (callback: (modalName: string) => void) => () => void;
                 onRestoreDatabase: (callback: (filePath: string) => void) => () => void;

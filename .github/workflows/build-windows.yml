@@ -92,22 +92,16 @@ jobs:
           "@ | Out-File -FilePath .env -Encoding utf8
 
       - name: Build Windows Installer
-        run: npm run make -- --platform win32 --arch x64
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run release:win -- --publish never
 
-      - name: Upload Windows Installer
+      - name: Upload update files
         uses: actions/upload-artifact@v4
         with:
           name: windows-installer
-          path: out/make/squirrel.windows/x64/*.exe
-          retention-days: 30
-
-      - name: Upload Windows RELEASES file
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-releases
-          path: out/make/squirrel.windows/x64/RELEASES
+          path: |
+            dist-installer/*.exe
+            dist-installer/*.exe.blockmap
+            dist-installer/latest.yml
           retention-days: 30
 
   # Optional: Create a release when a tag is pushed
@@ -126,7 +120,10 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ./artifacts/*.exe
+          files: |
+            ./artifacts/*.exe
+            ./artifacts/*.exe.blockmap
+            ./artifacts/latest.yml
           draft: true
           generate_release_notes: true
         env:

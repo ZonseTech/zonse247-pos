@@ -47,11 +47,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
         onRestoreDatabase: (filePath: string) =>
             ipcRenderer.invoke('menu:restore-database', filePath)
         ,
-        onCheckUpdates: (callback: () => void) => {
-            const listener = () => callback();
-            ipcRenderer.on('menu:check-updates', listener);
-            return () => ipcRenderer.removeListener('menu:check-updates', listener);
-        },
     },
 
     onOnboardingStatus: (callback: (status: any) => void) => {

@@ -5,6 +5,7 @@ import {
 	MenuItemConstructorOptions,
 	shell,
 } from 'electron';
+import { checkForUpdates } from './updater';
 import { ROUTES } from '../app/utils/constants';
 import { hasAnyPermission } from '../app/utils';
 import { buildNavMenuGroups, navGroupsToElectronMenu } from '../app/navigation/partials/navMenuConfig';
@@ -178,7 +179,7 @@ export default class MenuBuilder {
 				},
 				{
 					label: 'Check for Updates...',
-					click: () => this.performAction('menu:check-updates'),
+					click: () => checkForUpdates(true),
 				},
 				{ type: 'separator' },
 				{

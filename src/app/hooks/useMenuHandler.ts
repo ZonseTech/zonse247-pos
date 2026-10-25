@@ -41,15 +41,10 @@ export function useMenuHandler() {
             signout(() => navigate(ROUTES.LOGIN, { replace: true }));
         });
 
-        const cleanupUpdates = window.electronAPI.menu.onCheckUpdates(async () => {
-            console.log('Menu check for updates triggered');
-        });
-
         return () => {
             cleanupNavigate();
             cleanupModal();
             cleanupLogout();
-            cleanupUpdates();
         };
     }, [navigate, signout, location.pathname]);
 }
