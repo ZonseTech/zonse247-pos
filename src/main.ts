@@ -1,10 +1,10 @@
 import path from 'node:path';
 import MenuBuilder from './partials/menu';
 import { setupIPC } from './ipc/setup.ipc';
-import { autoUpdater } from 'electron-updater';
+import { initUpdater } from './partials/updater';
 import { setupMenuIPC } from './ipc/menu.ipc';
 import { isElectron } from './helpers/index.helper';
-import { app, BrowserWindow, screen, shell, dialog } from 'electron';
+import { app, BrowserWindow, screen, shell } from 'electron';
 import Zonse247PosApi, {
 	SecureSettingsService,
 	PrintAgentService,
@@ -18,9 +18,6 @@ import sessionService from './services/session.service';
 
 let syncJob: SyncJobService | null = null;
 let printAgent: PrintAgentService | null = null;
-
-autoUpdater.autoDownload = true;
-autoUpdater.autoInstallOnAppQuit = true;
 
 const createWindow = async (skipOnboarding: boolean = false) => {
 	const primaryDisplay = screen.getPrimaryDisplay();
@@ -139,31 +136,7 @@ app.whenReady().then(async () => {
 
 	await createWindow(!hasSetup);
 
-	if (app.isPackaged) {
-		autoUpdater.checkForUpdates().catch(() => {});
-	}
-});
-
-autoUpdater.on('update-downloaded', (info) => {
-	dialog
-		.showMessageBox({
-			type: 'info',
-			title: 'Update Ready',
-			message: `Zonse247 POS ${info.version} has been downloaded.`,
-			detail: 'Restart now to install it, or it will install automatically the next time the app closes.',
-			buttons: ['Restart Now', 'Later'],
-			defaultId: 0,
-			cancelId: 1,
-		})
-		.then(({ response }) => {
-			if (response === 0) {
-				autoUpdater.quitAndInstall();
-			}
-		});
-});
-
-autoUpdater.on('error', (error) => {
-	dialog.showErrorBox('Update Error', error.message);
+	initUpdater();
 });
 
 app.on('window-all-closed', () => {
