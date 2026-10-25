@@ -1,5 +1,4 @@
 import MenuBuilder from '../partials/menu';
-import { version } from '../../package.json';
 import { ipcMain, BrowserWindow, dialog } from 'electron';
 
 export function setupMenuIPC() {
@@ -39,9 +38,5 @@ export function setupMenuIPC() {
         } catch (error) {
             console.error('Menu logout error:', error);
         }
-    });
-
-    ipcMain.handle('menu:check-updates', async () => {
-        return { updateAvailable: false, version };
     });
 }
