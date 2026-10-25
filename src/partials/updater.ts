@@ -3,6 +3,7 @@ import path from 'node:path';
 import { app, dialog } from 'electron';
 import { autoUpdater, UpdateInfo } from 'electron-updater';
 
+const UPDATE_FEED_URL = 'https://pos.zonse247.com/updates/';
 const CHECK_INTERVAL_MS = 4 * 60 * 60 * 1000;
 const MAX_LOG_BYTES = 1024 * 1024;
 
@@ -53,6 +54,7 @@ export function initUpdater(): void {
 		error: (message?: unknown) => writeLog('error', message),
 		debug: (message: string) => writeLog('debug', message),
 	};
+	autoUpdater.setFeedURL({ provider: 'generic', url: UPDATE_FEED_URL, channel: 'latest' });
 	autoUpdater.autoDownload = true;
 	autoUpdater.autoInstallOnAppQuit = true;
 
