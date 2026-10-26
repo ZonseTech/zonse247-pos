@@ -6,6 +6,7 @@ import { autoUpdater, UpdateInfo } from 'electron-updater';
 const UPDATE_FEED_URL = 'https://pos.zonse247.com/updates/';
 const CHECK_INTERVAL_MS = 4 * 60 * 60 * 1000;
 const MAX_LOG_BYTES = 1024 * 1024;
+const BUILD_LABEL = `${__BUILD_COMMIT__}, built ${__BUILD_TIME__}`;
 
 function writeLog(level: string, message: unknown): void {
 	const line = `[${new Date().toISOString()}] [${level}] ${String(message)}\n`;
@@ -48,6 +49,8 @@ export function initUpdater(): void {
 	if (initialized || !app.isPackaged) return;
 	initialized = true;
 
+	writeLog('info', `Zonse247 POS ${app.getVersion()} (${BUILD_LABEL}) checking ${UPDATE_FEED_URL}`);
+
 	autoUpdater.logger = {
 		info: (message?: unknown) => writeLog('info', message),
 		warn: (message?: unknown) => writeLog('warn', message),
@@ -77,6 +80,7 @@ export function initUpdater(): void {
 				type: 'info',
 				title: 'No Updates Available',
 				message: `You are using the latest version: ${app.getVersion()}`,
+				detail: `Build ${BUILD_LABEL}`,
 				buttons: ['OK'],
 			});
 		}
