@@ -1,5 +1,6 @@
 appId: com.zonse247.pos
 productName: Zonse247 POS
+executableName: zonse247_pos
 copyright: Copyright (c) Zonse247 Devs
 
 directories:
