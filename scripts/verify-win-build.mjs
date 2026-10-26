@@ -28,7 +28,7 @@ if (fs.existsSync(asarPath)) {
 	const asarPkg = JSON.parse(asar.extractFile(asarPath, 'package.json').toString());
 	check('app.asar version', asarPkg.version === version, asarPkg.version);
 
-	const mainJs = asar.extractFile(asarPath, '.vite/build/main.js').toString();
+	const mainJs = asar.extractFile(asarPath, path.join('.vite', 'build', 'main.js')).toString();
 	const stamp = mainJs.match(/([0-9a-f]{7,40}(?:-dirty)?|unknown)\W{0,6}, built/)?.[1] ?? 'not found';
 	check('app.asar built from this commit', stamp === expectedCommit, stamp);
 	check('Update feed is ' + feedUrl, mainJs.includes(feedUrl));
