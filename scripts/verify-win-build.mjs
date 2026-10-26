@@ -14,7 +14,8 @@ const exeName = 'zonse247_pos.exe';
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 const version = pkg.version;
 const sha = execSync('git rev-parse --short HEAD', { cwd: root }).toString().trim();
-const dirty = execSync('git status --porcelain --untracked-files=no', { cwd: root }).toString().trim() !== '';
+const changedFiles = execSync('git status --porcelain --untracked-files=no', { cwd: root }).toString().trim();
+const dirty = changedFiles !== '';
 const expectedCommit = dirty ? `${sha}-dirty` : sha;
 
 const results = [];
@@ -68,6 +69,7 @@ for (const { label, ok, info } of results) {
 
 if (dirty) {
 	console.log('\n  WARN  Working tree has uncommitted changes; this build is stamped -dirty');
+	console.log(changedFiles.split('\n').map((line) => `        ${line}`).join('\n'));
 }
 
 const failed = results.filter((r) => !r.ok).length;
