@@ -45,7 +45,7 @@ jobs:
         run: npm cache clean --force
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Rebuild native modules for Electron
         run: npx @electron/rebuild
