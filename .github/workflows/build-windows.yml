@@ -172,6 +172,8 @@ jobs:
               CURRENT="$(sed -n 's/^version: //p' "$DIR/latest.yml")"
               if [ "$CURRENT" = "$VERSION" ]; then
                 if cmp -s latest.yml "$DIR/latest.yml"; then
+                  ln -sfn "$EXE" "$DIR/Zonse247_POS_Setup.exe.next"
+                  mv -Tf "$DIR/Zonse247_POS_Setup.exe.next" "$DIR/Zonse247_POS_Setup.exe"
                   echo "✅ $VERSION is already live"
                   rm -rf "$IN"
                   exit 0
@@ -186,6 +188,8 @@ jobs:
             mv -f "$EXE" "$EXE.blockmap" "$DIR/"
             mv -f latest.yml "$DIR/latest.yml.next"
             mv -Tf "$DIR/latest.yml.next" "$DIR/latest.yml"
+            ln -sfn "$EXE" "$DIR/Zonse247_POS_Setup.exe.next"
+            mv -Tf "$DIR/Zonse247_POS_Setup.exe.next" "$DIR/Zonse247_POS_Setup.exe"
             rm -rf "$IN"
 
             ls -1t "$DIR"/Zonse247_POS_Setup_*.exe | tail -n +4 | while read -r old; do
@@ -194,6 +198,7 @@ jobs:
 
             LIVE="$(curl -fsS https://pos.zonse247.com/updates/latest.yml | sed -n 's/^version: //p')"
             [ "$LIVE" = "$VERSION" ] || { echo "❌ Public latest.yml shows $LIVE"; exit 1; }
+            curl -fsSI https://pos.zonse247.com/updates/Zonse247_POS_Setup.exe > /dev/null || { echo "❌ Stable download link is not reachable"; exit 1; }
             echo "✅ Tills will update to $VERSION"
 
   release:
