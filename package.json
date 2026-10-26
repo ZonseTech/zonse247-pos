@@ -2,7 +2,7 @@
   "name": "zonse247_pos",
   "private": true,
   "productName": "zonse247_pos",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "zonse247 POS by Zonse247 Devs",
   "main": ".vite/build/main.js",
   "keywords": [
