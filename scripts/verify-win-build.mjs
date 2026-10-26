@@ -25,6 +25,11 @@ const asarPath = path.join(packagedDir, 'resources', 'app.asar');
 check('Packaged exe is ' + exeName, fs.existsSync(path.join(packagedDir, exeName)));
 check('app.asar exists', fs.existsSync(asarPath));
 
+const appUpdatePath = path.join(packagedDir, 'resources', 'app-update.yml');
+const appUpdate = fs.existsSync(appUpdatePath) ? fs.readFileSync(appUpdatePath, 'utf8') : '';
+check('app-update.yml points at ' + feedUrl, appUpdate.includes(`url: ${feedUrl}`));
+check('app-update.yml has updaterCacheDirName', /^updaterCacheDirName: \S+/m.test(appUpdate));
+
 if (fs.existsSync(asarPath)) {
 	const asarPkg = JSON.parse(asar.extractFile(asarPath, 'package.json').toString());
 	check('app.asar version', asarPkg.version === version, asarPkg.version);
