@@ -2,7 +2,7 @@
   "name": "zonse247_pos",
   "private": true,
   "productName": "zonse247_pos",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "zonse247 POS by Zonse247 Devs",
   "main": ".vite/build/main.js",
   "keywords": [
@@ -33,7 +33,8 @@
     "make:win": "electron-forge make --platform win32 --arch x64",
     "make:linux": "electron-forge make --platform linux --arch x64",
     "make:mac": "electron-forge make --platform darwin --arch x64",
-    "release:win": "electron-forge package --platform win32 --arch x64 && electron-builder --prepackaged \"out/Zonse247 POS-win32-x64\" --win nsis",
+    "release:win": "node scripts/release-win.mjs",
+    "verify:win": "node scripts/verify-win-build.mjs",
     "postinstall": "electron-rebuild --force --only @serialport/bindings-cpp,better-sqlite3,usb"
   },
   "dependencies": {

@@ -1,7 +1,26 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { app, dialog } from 'electron';
 import { autoUpdater, UpdateInfo } from 'electron-updater';
 
+const UPDATE_FEED_URL = 'https://pos.zonse247.com/updates/';
 const CHECK_INTERVAL_MS = 4 * 60 * 60 * 1000;
+const MAX_LOG_BYTES = 1024 * 1024;
+const BUILD_LABEL = `${__BUILD_COMMIT__}, built ${__BUILD_TIME__}`;
+
+function writeLog(level: string, message: unknown): void {
+	const line = `[${new Date().toISOString()}] [${level}] ${String(message)}\n`;
+	console.log(line.trimEnd());
+	try {
+		const logPath = path.join(app.getPath('userData'), 'updater.log');
+		if (fs.existsSync(logPath) && fs.statSync(logPath).size > MAX_LOG_BYTES) {
+			fs.renameSync(logPath, `${logPath}.old`);
+		}
+		fs.appendFileSync(logPath, line);
+	} catch {
+		return;
+	}
+}
 
 let initialized = false;
 let checking = false;
@@ -30,6 +49,15 @@ export function initUpdater(): void {
 	if (initialized || !app.isPackaged) return;
 	initialized = true;
 
+	writeLog('info', `Zonse247 POS ${app.getVersion()} (${BUILD_LABEL}) checking ${UPDATE_FEED_URL}`);
+
+	autoUpdater.logger = {
+		info: (message?: unknown) => writeLog('info', message),
+		warn: (message?: unknown) => writeLog('warn', message),
+		error: (message?: unknown) => writeLog('error', message),
+		debug: (message: string) => writeLog('debug', message),
+	};
+	autoUpdater.setFeedURL({ provider: 'generic', url: UPDATE_FEED_URL, channel: 'latest' });
 	autoUpdater.autoDownload = true;
 	autoUpdater.autoInstallOnAppQuit = true;
 
@@ -52,6 +80,7 @@ export function initUpdater(): void {
 				type: 'info',
 				title: 'No Updates Available',
 				message: `You are using the latest version: ${app.getVersion()}`,
+				detail: `Build ${BUILD_LABEL}`,
 				buttons: ['OK'],
 			});
 		}
@@ -67,12 +96,15 @@ export function initUpdater(): void {
 	});
 
 	autoUpdater.on('error', (error: Error) => {
-		console.error('Auto-update error:', error);
+		writeLog('error', error.stack ?? error.message);
 		if (manualCheck) {
-			dialog.showErrorBox(
-				'Update Check Failed',
-				'Could not check for updates. Please make sure you are connected to the internet and try again.'
-			);
+			dialog.showMessageBox({
+				type: 'error',
+				title: 'Update Check Failed',
+				message: 'Could not check for updates. Please make sure you are connected to the internet and try again.',
+				detail: error.message,
+				buttons: ['OK'],
+			});
 		}
 		manualCheck = false;
 	});
