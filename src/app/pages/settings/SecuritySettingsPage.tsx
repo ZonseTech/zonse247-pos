@@ -1,6 +1,7 @@
 import { FunctionComponent } from 'react';
 import FormInput from '../../components/FormInput';
 import { FormSwitch, FormFieldCard } from '../../components';
+import CloudBackupCard from './components/CloudBackupCard';
 
 const SecuritySettingsPage: FunctionComponent = () => {
     return (
@@ -39,6 +40,8 @@ const SecuritySettingsPage: FunctionComponent = () => {
                         required
                     />
                 </FormFieldCard>
+
+                <CloudBackupCard />
             </div>
         </div>
     );
