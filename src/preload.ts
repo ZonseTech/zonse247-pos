@@ -26,6 +26,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
         getStatus: () => ipcRenderer.invoke('db:status'),
     },
 
+    backup: {
+        uploadToCloud: () => ipcRenderer.invoke('backup:upload-to-cloud'),
+        getLatest: () => ipcRenderer.invoke('backup:get-latest'),
+        onProgress: (callback: (progress: { phase: string; percent: number }) => void) => {
+            const listener = (_event: any, progress: { phase: string; percent: number }) => callback(progress);
+            ipcRenderer.on('backup:progress', listener);
+            return () => ipcRenderer.removeListener('backup:progress', listener);
+        },
+    },
+
     menu: {
         rebuild: (user: User, businessType?: BusinessType | null, hiddenNavItemIds?: string[]) =>
             ipcRenderer.invoke('menu:rebuild', user, businessType, hiddenNavItemIds),
