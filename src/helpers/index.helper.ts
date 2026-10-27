@@ -38,6 +38,11 @@ declare global {
                     backupsPath: string;
                 } | null>;
             };
+            backup: {
+                uploadToCloud: () => Promise<ApiResponse<CloudBackupInfo>>;
+                getLatest: () => Promise<ApiResponse<CloudBackupInfo | null>>;
+                onProgress: (callback: (progress: CloudBackupProgress) => void) => () => void;
+            };
             menu: {
                 rebuild: (user: User | null, businessType?: BusinessType | null, hiddenNavItemIds?: string[]) => void;
                 onLogout: (callback: () => void) => () => void;
