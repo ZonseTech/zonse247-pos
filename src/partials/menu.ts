@@ -4,8 +4,10 @@ import {
 	BrowserWindow,
 	MenuItemConstructorOptions,
 	shell,
+	dialog,
 } from 'electron';
 import { checkForUpdates } from './updater';
+import cloudBackupService from '../services/cloud-backup.service';
 import { ROUTES } from '../app/utils/constants';
 import { hasAnyPermission } from '../app/utils';
 import { buildNavMenuGroups, navGroupsToElectronMenu } from '../app/navigation/partials/navMenuConfig';
@@ -66,6 +68,52 @@ export default class MenuBuilder {
 		this.mainWindow.webContents.send(action);
 	}
 
+	private async runCloudBackup(): Promise<void> {
+		if (cloudBackupService.isRunning) {
+			await dialog.showMessageBox(this.mainWindow, {
+				type: 'info',
+				title: 'Backup in progress',
+				message: 'A backup is already being sent. Please wait for it to finish.',
+			});
+			return;
+		}
+
+		const { response } = await dialog.showMessageBox(this.mainWindow, {
+			type: 'question',
+			buttons: ['Back up now', 'Cancel'],
+			defaultId: 0,
+			cancelId: 1,
+			title: 'Back up to server',
+			message: "Send a copy of this terminal's data to the Zonse247 server?",
+			detail: 'You can keep using the POS while the backup runs. Keep the internet connected until it finishes.',
+		});
+		if (response !== 0) return;
+
+		try {
+			const result = await cloudBackupService.upload(({ percent }) => {
+				if (!this.mainWindow.isDestroyed()) {
+					this.mainWindow.setProgressBar(Math.max(0.01, percent / 100));
+				}
+			});
+			await dialog.showMessageBox(this.mainWindow, {
+				type: 'info',
+				title: 'Backup complete',
+				message: 'The backup was sent to the server successfully.',
+				detail: `Size: ${(result.size / (1024 * 1024)).toFixed(2)} MB\nTime: ${new Date(result.createdAt).toLocaleString()}`,
+			});
+		} catch (error: any) {
+			await dialog.showMessageBox(this.mainWindow, {
+				type: 'error',
+				title: 'Backup failed',
+				message: error?.message || 'Backup failed. Please try again.',
+			});
+		} finally {
+			if (!this.mainWindow.isDestroyed()) {
+				this.mainWindow.setProgressBar(-1);
+			}
+		}
+	}
+
 	buildDefaultTemplate(): Array<MenuItemConstructorOptions> {
 		const template: Array<MenuItemConstructorOptions> = [];
 
@@ -85,6 +133,11 @@ export default class MenuBuilder {
 				label: 'Logout',
 				accelerator: 'CommandOrControl+Shift+L',
 				click: () => this.performAction('auth:logout'),
+			});
+			fileSubmenu.push({ type: 'separator' });
+			fileSubmenu.push({
+				label: 'Back up to server',
+				click: () => this.runCloudBackup(),
 			});
 			fileSubmenu.push({ type: 'separator' });
 		}
