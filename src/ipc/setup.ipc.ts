@@ -1,6 +1,7 @@
 import { ipcMain } from "electron";
 import { DatabaseInitializer, SecureSettingsService } from "zonse247-pos-api";
 import sessionService from "../services/session.service";
+import cloudBackupService from "../services/cloud-backup.service";
 
 export function setupIPC() {
 
@@ -135,6 +136,28 @@ export function setupIPC() {
             return DatabaseInitializer.getStatus();
         } catch (error) {
             return null;
+        }
+    });
+
+    ipcMain.handle('backup:upload-to-cloud', async (event) => {
+        try {
+            const data = await cloudBackupService.upload((progress) => {
+                if (!event.sender.isDestroyed()) {
+                    event.sender.send('backup:progress', progress);
+                }
+            });
+            return { success: true, data };
+        } catch (error: any) {
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('backup:get-latest', async () => {
+        try {
+            const data = await cloudBackupService.getLatest();
+            return { success: true, data };
+        } catch (error: any) {
+            return { success: false, error: error.message };
         }
     });
 }
