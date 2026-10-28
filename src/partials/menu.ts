@@ -83,8 +83,8 @@ export default class MenuBuilder {
 			buttons: ['Back up now', 'Cancel'],
 			defaultId: 0,
 			cancelId: 1,
-			title: 'Back up to server',
-			message: "Send a copy of this terminal's data to the Zonse247 server?",
+			title: 'Back up to central server',
+			message: "Send a backup of this terminal's data to the central server?",
 			detail: 'You can keep using the POS while the backup runs. Keep the internet connected until it finishes.',
 		});
 		if (response !== 0) return;
@@ -98,7 +98,7 @@ export default class MenuBuilder {
 			await dialog.showMessageBox(this.mainWindow, {
 				type: 'info',
 				title: 'Backup complete',
-				message: 'The backup was sent to the server successfully.',
+				message: 'The backup was sent to the central server successfully.',
 				detail: `Size: ${(result.size / (1024 * 1024)).toFixed(2)} MB\nTime: ${new Date(result.createdAt).toLocaleString()}`,
 			});
 		} catch (error: any) {
@@ -136,7 +136,7 @@ export default class MenuBuilder {
 			});
 			fileSubmenu.push({ type: 'separator' });
 			fileSubmenu.push({
-				label: 'Back up to server',
+				label: 'Back up to central server',
 				click: () => this.runCloudBackup(),
 			});
 			fileSubmenu.push({ type: 'separator' });
