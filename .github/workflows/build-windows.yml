@@ -58,10 +58,13 @@ jobs:
           AUTO_SYNC_ENABLED=false
 
           # client config
+          VITE_APP_ENV=production
           VITE_API_URL=http://127.0.0.1:3000/v1
+          VITE_LIVE_API_URL=https://api.zonse247.com/v1
           VITE_APP_TITLE=Zonse247 POS
           VITE_DEBUG_MODE=false
           VITE_APP_CLIENT_TYPE=desktop
+          VITE_MRA_ENVIRONMENT=PRODUCTION
 
           # API Configuration
           API_VERSION=v1

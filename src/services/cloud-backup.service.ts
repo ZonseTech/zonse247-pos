@@ -63,13 +63,13 @@ class CloudBackupService {
     private toFriendlyError(error: unknown): Error {
         if (error instanceof AxiosError) {
             if (!error.response) {
-                return new Error('Could not reach the server. Check the internet connection and try again.');
+                return new Error('Could not reach the central server. Check the internet connection and try again.');
             }
             if (error.response.status === 401) {
                 return new Error('Your session has expired. Please log in again and retry.');
             }
             const message = (error.response.data as { message?: string } | undefined)?.message;
-            return new Error(message || `Server responded with ${error.response.status}`);
+            return new Error(message || `Central server responded with ${error.response.status}`);
         }
         return error instanceof Error ? error : new Error('Backup failed');
     }
@@ -147,7 +147,7 @@ class CloudBackupService {
             });
             const { uploadId, chunkSize } = created.data.data as { uploadId: string; chunkSize: number };
             if (chunkSize !== chunkSizeHint) {
-                throw new Error('Server backup chunk size changed. Please update the app.');
+                throw new Error('The central server backup settings changed. Please update the app.');
             }
 
             const totalChunks = Math.ceil(totalSize / chunkSize);
