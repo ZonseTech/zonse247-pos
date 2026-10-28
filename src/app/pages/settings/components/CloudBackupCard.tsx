@@ -9,7 +9,7 @@ import { isElectron } from '../../../../helpers/index.helper';
 const PHASE_LABELS: Record<CloudBackupPhase, string> = {
     preparing: 'Preparing data',
     compressing: 'Compressing',
-    uploading: 'Uploading to server',
+    uploading: 'Uploading to central server',
     finalizing: 'Finishing up',
 };
 
@@ -42,7 +42,7 @@ const CloudBackupCard: React.FC = () => {
             const result = await window.electronAPI.backup.uploadToCloud();
             if (result.success && result.data) {
                 setLatest(result.data);
-                toast.success('Backup sent to the server successfully.');
+                toast.success('Backup sent to the central server successfully.');
             } else {
                 toast.error(result.error || 'Backup failed. Please try again.');
             }
@@ -58,16 +58,16 @@ const CloudBackupCard: React.FC = () => {
         <FormFieldCard>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Back up to server</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Back up to central server</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Sends a copy of this terminal's data to Zonse247 servers. You can keep selling while it runs.
+                        Sends a backup of this terminal's data to the central server. You can keep selling while it runs.
                     </p>
                     <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
                         {isLoadingLatest
                             ? 'Checking last backup...'
                             : latest
                                 ? `Last backup: ${dayjs(latest.createdAt).format('DD MMM YYYY, HH:mm')} (${formatFileSize(latest.size)})`
-                                : 'No backup on the server yet.'}
+                                : 'No backup on the central server yet.'}
                     </p>
                 </div>
                 <Button
