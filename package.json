@@ -44,7 +44,7 @@
     "@capacitor/core": "7.3.0",
     "@capacitor/filesystem": "^7.1.8",
     "@capacitor/haptics": "7.0.1",
-    "@capacitor/ios": "7.3.0",
+    "@capacitor/ios": "7.6.9",
     "@capacitor/keyboard": "7.0.1",
     "@capacitor/share": "^7.0.4",
     "@capacitor/status-bar": "7.0.1",
